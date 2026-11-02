@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "000-selftest-crash",
+  "spec": "000",
+  "description": "셀프테스트: 플레이어 강제 크래시 → 그 조합만 실패, 나머지 조합은 정상 (AC-13)",
+  "selfTest": true,
+  "scene": "FarmSampleCards",
+  "fixture": { "save": null, "seed": 20261102 },
+  "profiles": "smoke",
+  "steps": [
+    { "type": "goto", "screen": "home" },
+    { "type": "inject", "what": "crash" }
+  ]
+}

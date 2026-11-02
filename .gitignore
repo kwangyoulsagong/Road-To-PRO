@@ -39,3 +39,9 @@ crashlytics-build.properties
 Thumbs.db
 .claude/.cache/
 .claude/settings.local.json
+
+# 디바이스팜 (specs/000): 실행 원본·잠금 파일, 셀프테스트 임시 폴더
+/.farm/
+/Assets/FarmSelfTest_Tmp/
+/Assets/FarmSelfTest_Tmp.meta
+__pycache__/

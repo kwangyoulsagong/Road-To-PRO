@@ -51,10 +51,13 @@ Assets/_Project/
   Data/          SQLite 세이브, JSON 로스터·모드
   Presentation/  하이라이트 3D 재생, 카메라, 컷신, 사운드
   UI/            UI Toolkit
-  Tests/         EditMode, 헤드리스 대량 시뮬
+  Verification/  디바이스팜 드라이버 (E2E 단계 실행·캡처·성능 측정, specs/000)
+  Tests/         EditMode, Performance, 헤드리스 대량 시뮬
 Art/Blender/scripts/   bpy 생성 스크립트
 Data/scenarios/        시나리오 정의 (YAML/JSON)
 Data/schedules/        실제 시즌 일정
+Data/e2e/              디바이스팜 프로필·E2E 시나리오·기준 이미지(LFS)·성능 기준
+Tools/devicefarm/      디바이스팜 오케스트레이터 (Python)
 docs/                  기획 아티팩트 HTML
 specs/NNN-<slug>/      SDD 스펙·플랜·태스크 (Markdown, _templates/ 참고)
 .claude/               하네스: rules/, hooks/, skills/, agents/, scripts/, settings.json
@@ -63,7 +66,7 @@ specs/NNN-<slug>/      SDD 스펙·플랜·태스크 (Markdown, _templates/ 참�
 ## 하네스 (`.claude/`)
 - **rules/**: 상세 규칙. 00 작업흐름·git, 01 법·라이선스, 05 SDD는 항상, 나머지는 경로별(C#, 코어 결정론, 프레젠테이션·UI, 데이터, 아트, 테스트, 문서).
 - **hooks/**: Unity 생성물·`.meta`·csproj 편집 차단 / main 커밋·푸시, 강제 푸시, `reset --hard` 차단 / 코어 모듈의 Unity 참조·비결정 API 검사 / 새 바이너리 에셋 시 `LICENSES.csv` 상기.
-- **skills/**: `/spec` `/plan` `/tasks` `/implement` `/verify` (SDD 5단계), `/unity-test`, `/blender-gen`, `/new-scenario`.
+- **skills/**: `/spec` `/plan` `/tasks` `/implement` `/verify` (SDD 5단계), `/pipeline`(승인된 태스크 끝까지 연속), `/unity-test`, `/blender-gen`, `/new-scenario`.
 - **scripts/**: `unity-test.sh`(배치 테스트), `blender-gen.sh`, `spec-lint.py`(스펙 형식·태그·실명 검사). 훅 회귀 테스트: `bash .claude/hooks/tests/run.sh`.
 - **완료 = 증거**: 로직 테스트 리포트 스크린샷 + 디바이스팜(기기 프로필 매트릭스) E2E 스크린샷·기준 이미지 비교 + 프로필별 성능 측정. `specs/000-verification-harness` 참고. 리포트는 아티팩트로 발행.
 - **agents/**: `determinism-reviewer`(코어 결정론 리뷰), `spec-checker`(기획서·스펙 대조).
