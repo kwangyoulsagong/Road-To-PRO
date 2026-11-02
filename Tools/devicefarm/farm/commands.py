@@ -135,7 +135,8 @@ def cmd_matrix(tier, args, argv):
                 ac_ev.setdefault(ac, []).append({"label": f"{sc.id} ({tier}) {r['verdict']}", "ok": r["verdict"] != "fail"})
         ev = {"title": f"{info['id']} 디바이스팜 증거 ({tier})", "spec": info, "meta": meta, "scenarios": runs,
               "acEvidence": ac_ev}
-        path = report.write(ev, evidence_dir(info["id"] if info["dir"] else None, run_dir))
+        # 스펙 증거 폴더에는 --spec으로 돌렸을 때만 쓴다 (--scenario 단독 실행이 완료 증거를 덮어쓰지 않게)
+        path = report.write(ev, evidence_dir(args.spec, run_dir))
         with open(LATEST, "w", encoding="utf-8") as f:
             json.dump({"runDir": run_dir, "runs": runs}, f, ensure_ascii=False, default=str)
     verdict = report.verdict_of(ev)

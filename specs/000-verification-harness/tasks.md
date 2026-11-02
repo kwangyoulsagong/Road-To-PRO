@@ -53,7 +53,7 @@
 - [x] T36 셀프테스트 — 파일: `farm/selftest.py`(logic-fail·compile-error·stability·diff·black·determinism·logs·crash·all), `tests/test_selftest.py::test_tmp_cleanup_on_failure`, `Tests/EditMode/Verification/SelfTestFixtures.cs`(`[Explicit]` 실패 1·통과 2) — 검증: `farm.py self-test all` 각 항목이 기대대로 실패/통과 — 결과: `farm/selftest.py`, `test_selftest.py` 2개. `self-test all` 18건 전부 통과 (222s), 케이스 `clip`·`perf` 추가
 
 ## F. 마무리
-- [ ] T37 기준 이미지 승인 — 파일: `Data/e2e/baselines/000-sample-cards/**`(LFS) — 검증: **사용자 승인 후** `approve-baseline`, 재실행 통과 (AC-08) — **대기: 사용자 승인 필요** (셀프테스트의 AC-08은 임시 기준으로 검증됨. 저장소 기준 6장은 승인 후 채택)
+- [x] T37 기준 이미지 승인 — 파일: `Data/e2e/baselines/000-sample-cards/**`(LFS) — 검증: **사용자 승인 후** `approve-baseline`, 재실행 통과 (AC-08) — 결과: 2026-11-02 사용자 승인. smoke → 기준 후보 6장 → `approve-baseline` 채택 → 재실행 판정 pass. **변경**: `smoke --scenario`가 스펙 증거를 덮어써서, 증거 폴더 기록은 `--spec` 지정 시로 한정
 - [x] T38 verify 스킬 갱신 — 파일: `.claude/skills/verify/SKILL.md` — 검증: 스킬 절차가 `farm.py` 명령·`artifact-url.txt` 재발행과 일치 — 결과: `farm.py` 명령·`artifact-url.txt` 재발행 절차로 갱신. 같이 추가: `/pipeline` 스킬(사용자 요청)
 - [x] T39 수용 기준 전체 통과 — Python 테스트 실패 0, `/unity-test` EditMode 실패 0, 콘솔 에러·경고 0, smoke ≤ 5분(AC-15) — 결과: Python 101개·EditMode 22개(+Explicit 3 제외) 실패 0, 플레이어 로그 경고 0, `_Project` 컴파일 경고 0, smoke 25s ≤ 300s, 훅 테스트 52/52
 - [ ] T40 `/verify 000` — `farm.py self-test all`로 AC-01~16 증거 `evidence/report.html` 생성, 아티팩트 발행·링크 기록, spec.md `완료`
