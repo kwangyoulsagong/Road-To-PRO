@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "definitions": [
+    {"id": "ball.mass", "default": 0.43, "min": 0.3, "max": 0.6, "unit": "kg", "tag": "[V]", "source": "docs/index.html 리서치 01 A-1"},
+    {"id": "ball.radius", "default": 0.109, "min": 0.08, "max": 0.13, "unit": "m", "tag": "[V]", "source": "리서치 01 A-1"},
+    {"id": "ball.airDensity", "default": 1.2, "min": 0.8, "max": 1.4, "unit": "kg/m3", "tag": "[V]", "source": "리서치 01 A-1"},
+    {"id": "ball.gravity", "default": 9.81, "min": 9.7, "max": 9.9, "unit": "m/s2", "tag": "[V]", "source": "리서치 01 A-1"},
+
+    {"id": "ball.defaultType", "default": 1, "min": 0, "max": 1, "unit": "enum", "tag": "[설계값]", "source": "0=Panel32, 1=Modern. 임시 기본 현대 공 (2026-11-02 사용자 결정, 017에서 확정)"},
+
+    {"id": "ball.drag.panel32.cdLow", "default": 0.47, "min": 0, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-2"},
+    {"id": "ball.drag.panel32.cdHigh", "default": 0.20, "min": 0, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-2"},
+    {"id": "ball.drag.panel32.vCrit", "default": 11, "min": 5, "max": 30, "unit": "m/s", "tag": "[D]", "source": "리서치 01 A-2"},
+    {"id": "ball.drag.panel32.w", "default": 1.5, "min": 0.1, "max": 5, "unit": "m/s", "tag": "[D]", "source": "리서치 01 A-2"},
+    {"id": "ball.drag.modern.cdLow", "default": 0.45, "min": 0, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-8 BallPhysicsParams"},
+    {"id": "ball.drag.modern.cdHigh", "default": 0.15, "min": 0, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-2"},
+    {"id": "ball.drag.modern.vCrit", "default": 16, "min": 15, "max": 18, "unit": "m/s", "tag": "[D]", "source": "리서치 01 A-2·A-8"},
+    {"id": "ball.drag.modern.w", "default": 1.5, "min": 0.1, "max": 5, "unit": "m/s", "tag": "[D]", "source": "리서치 01 A-2"},
+
+    {"id": "ball.magnus.clMax", "default": 0.35, "min": 0, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-3"},
+    {"id": "ball.magnus.spScale", "default": 0.15, "min": 0.01, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-3"},
+    {"id": "ball.magnus.minSpeed", "default": 8, "min": 0, "max": 20, "unit": "m/s", "tag": "[D]", "source": "리서치 01 A-3 (역마그누스 구간 회피)"},
+    {"id": "ball.magnus.fadeWidth", "default": 2, "min": 0, "max": 5, "unit": "m/s", "tag": "[제안]", "source": "specs/004 plan (2026-11-02 승인)"},
+
+    {"id": "ball.spin.decay", "default": 0.07, "min": 0.05, "max": 0.1, "unit": "1/s", "tag": "[D]", "source": "리서치 01 A-4"},
+
+    {"id": "ball.bounce.e.dry", "default": 0.62, "min": 0, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-5"},
+    {"id": "ball.bounce.e.wet", "default": 0.74, "min": 0, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-5"},
+    {"id": "ball.bounce.e.artificial", "default": 0.65, "min": 0, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-5"},
+    {"id": "ball.bounce.mu", "default": 0.5, "min": 0, "max": 1.5, "unit": "", "tag": "[U]", "source": "리서치 01 A-5 (실측 없음, 0.4~0.6)"},
+    {"id": "ball.bounce.gripKeep", "default": 0.6, "min": 0, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-5 v_t' = 0.6·v_t + 0.4·rω"},
+    {"id": "ball.bounce.gripSpin", "default": 0.4, "min": 0, "max": 1, "unit": "", "tag": "[D]", "source": "리서치 01 A-5"},
+    {"id": "ball.bounce.toRollVz", "default": 0.5, "min": 0.05, "max": 3, "unit": "m/s", "tag": "[D]", "source": "리서치 01 A-5, 아키텍처 5"},
+
+    {"id": "ball.roll.a", "default": 0.40, "min": 0, "max": 5, "unit": "m/s2", "tag": "[D]", "source": "리서치 01 A-6"},
+    {"id": "ball.roll.b", "default": 0.10, "min": 0, "max": 2, "unit": "1/s", "tag": "[D]", "source": "리서치 01 A-6"},
+    {"id": "ball.roll.toRestSpeed", "default": 0.05, "min": 0.001, "max": 1, "unit": "m/s", "tag": "[D]", "source": "리서치 01 A-8"},
+    {"id": "ball.roll.wetShortA", "default": 0.8, "min": 0.1, "max": 5, "unit": "x", "tag": "[D]", "source": "리서치 01 A-6 젖은 짧은 잔디 a×0.8"},
+    {"id": "ball.roll.floodedA", "default": 2.5, "min": 0.1, "max": 5, "unit": "x", "tag": "[D]", "source": "리서치 01 A-6 침수 a×2.5"},
+    {"id": "ball.roll.floodedB", "default": 2, "min": 0.1, "max": 5, "unit": "x", "tag": "[D]", "source": "리서치 01 A-6 침수 b×2"},
+    {"id": "ball.roll.longGrassA", "default": 1.3, "min": 0.1, "max": 5, "unit": "x", "tag": "[D]", "source": "리서치 01 A-6 긴 잔디 a×1.3"},
+
+    {"id": "ball.limit.speed", "default": 40, "min": 10, "max": 60, "unit": "m/s", "tag": "[설계값]", "source": "specs/004 경계 상황"},
+    {"id": "ball.limit.spin", "default": 180, "min": 10, "max": 300, "unit": "rad/s", "tag": "[V]", "source": "리서치 01 A-4 런처 최대"},
+
+    {"id": "ball.goal.postRadius", "default": 0.06, "min": 0.01, "max": 0.1, "unit": "m", "tag": "[설계값]", "source": "specs/004 FR-40 (2026-11-02 승인)"},
+    {"id": "ball.goal.postRestitution", "default": 0.6, "min": 0, "max": 1, "unit": "", "tag": "[설계값]", "source": "specs/004 FR-40 (2026-11-02 승인)"},
+    {"id": "ball.net.depth", "default": 2.0, "min": 0.5, "max": 4, "unit": "m", "tag": "[제안]", "source": "specs/004 plan FR-42 (2026-11-02 승인)"},
+    {"id": "ball.net.damping", "default": 0.85, "min": 0, "max": 1, "unit": "x/substep", "tag": "[제안]", "source": "specs/004 plan FR-42 (2026-11-02 승인)"}
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "spec": "004",
+  "profile": "mac-m1-1600p",
+  "note": "specs/004-ball-physics/spec.md 성능 예산 표의 기계용 사본. EditMode(Mono) 측정 기준. 가중 평균 가중치는 plan [제안] 승인(2026-11-02).",
+  "tests": [
+    "RoadToPro.Tests.EditMode.MatchEngine",
+    "RoadToPro.Tests.Performance.MatchEngine"
+  ],
+  "budgets": [
+    {"ac": "AC-14", "label": "서브스텝 가중 평균", "test": "BallPerfTests.Substep_WeightedAvg_ns", "group": "ns_per_op", "stat": "median", "max": 100, "unit": "ns"},
+    {"ac": "AC-14", "label": "서브스텝 Air 최악", "test": "BallPerfTests.Substep_Air_ns", "group": "ns_per_op", "stat": "median", "max": 300, "unit": "ns"},
+    {"ac": "AC-14", "label": "궤적 예측 10 s / 0.04 s", "test": "BallPerfTests.Predict10s_us", "group": "us_per_op", "stat": "median", "max": 250, "unit": "µs"},
+    {"ac": "AC-14", "label": "땅볼 역산 1회", "test": "BallPerfTests.GroundInverse_us", "group": "us_per_op", "stat": "median", "max": 30, "unit": "µs"},
+    {"ac": "AC-14", "label": "서브스텝·예측·역산 GC 할당 (진단 끔 포함)", "test": "BallPerfTests.ZeroAlloc_StepPredictInverse", "group": "gc_alloc_count", "stat": "max", "max": 0, "unit": "회"}
+  ]
+}
