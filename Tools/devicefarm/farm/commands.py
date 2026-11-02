@@ -37,6 +37,21 @@ def spec_info(spec):
     return {"id": spec, "name": title, "acs": acs, "dir": d}
 
 
+def deferred_acs(cfg, info):
+    """Data/perf/<spec>.json의 "deferred": {"AC-15": "사유"} (specs/004 T19a).
+    스펙에 없는 AC id나 빈 사유는 설정 오류로 거부한다 (오타로 실패를 숨기지 않게)."""
+    d = (cfg or {}).get("deferred") or {}
+    if not isinstance(d, dict):
+        raise RunnerError("deferred는 {\"AC-NN\": \"사유\"} 객체여야 한다")
+    ids = {a["id"] for a in info.get("acs", [])}
+    for ac, reason in d.items():
+        if ac not in ids:
+            raise RunnerError(f"deferred의 {ac}가 스펙 AC 목록에 없다")
+        if not isinstance(reason, str) or not reason.strip():
+            raise RunnerError(f"deferred {ac}의 사유가 비어 있다")
+    return dict(d)
+
+
 def evidence_dir(spec, run_dir):
     info = spec_info(spec) if spec else None
     if info and info["dir"]:
@@ -101,6 +116,8 @@ def cmd_logic(args, argv):
     with preflight.RunLock():
         run_dir = new_run_dir("logic")
         cfg = perf.load_spec_config(args.spec) if args.spec else None
+        # 보류 AC 설정은 Unity를 띄우기 전에 검사한다 (설정 오류 = 실행기 오류, 종료 3)
+        deferred = deferred_acs(cfg, spec_info(args.spec)) if args.spec else {}
         test_filter = args.filter or perf.test_filter(cfg)
         perf_json = os.path.join(run_dir, "PerformanceTestResults.json") if cfg else None
         log("[farm] 로직 테스트 (EditMode) 실행 중…" + (f" 필터 {test_filter}" if test_filter else ""))
@@ -131,7 +148,7 @@ def cmd_logic(args, argv):
                 json.dump({"spec": args.spec, "profile": profile, "metrics": judgement["metrics"]}, f, ensure_ascii=False, indent=2)
         meta["profiles"] = [judgement["host"]] if judgement else []
         ev = {"title": f"{info['id']} 로직 증거", "spec": info, "meta": meta, "logic": lg, "scenarios": [],
-              "editmodePerf": judgement, "requireAllAcs": bool(cfg),
+              "editmodePerf": judgement, "requireAllAcs": bool(cfg), "deferred": deferred,
               "acEvidence": ac_evidence(info, lg, res, judgement)}
         path = report.write(ev, ev_dir)
     log(f"[farm] 합계 {res.total} 통과 {res.passed} 실패 {res.failed} 컴파일 에러 {len(res.compile_errors)}")
@@ -145,10 +162,16 @@ def cmd_logic(args, argv):
         raise VerificationFailed("로직 테스트 실패")
     if judgement and not judgement["ok"]:
         raise VerificationFailed("성능 예산·회귀 실패")
-    if report.verdict_of(ev) == "fail":
+    verdict = report.verdict_of(ev)
+    if verdict == "fail":
         missing = [k for k, v in ev["acEvidence"].items() if not all(i["ok"] for i in v)]
-        missing += [a["id"] for a in info["acs"] if a["id"] not in ev["acEvidence"]] if ev.get("requireAllAcs") else []
+        if ev.get("requireAllAcs"):
+            missing += [a["id"] for a in info["acs"] if a["id"] not in ev["acEvidence"] and a["id"] not in deferred]
         raise VerificationFailed(f"증거가 없거나 실패한 AC: {', '.join(missing)}")
+    if verdict == "deferred":
+        for ac in report.pending_deferred(ev):
+            log(f"[farm] 보류 {ac}: {deferred[ac]}")
+        log("[farm] 판정: 보류 — 나머지 AC는 모두 통과. 보류가 풀리기 전에는 완료 판정 불가")
 
 
 # ---- matrix ----
