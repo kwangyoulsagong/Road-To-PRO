@@ -234,6 +234,28 @@ def _perf(scs):
     )
 
 
+def _editmode_perf(ev):
+    j = ev.get("editmodePerf")
+    if not j:
+        return ""
+    verdict = _ok_tag(j["ok"]) if j["judged"] else '<span class="tag skip">기록만</span>'
+    reg = {r["metric"]: r for r in j.get("regression", [])}
+    rows = []
+    for b in j["budget"]:
+        r = reg.get(b["metric"])
+        change = f'{r["changePct"]:+.1f}%' if r and r.get("changePct") is not None else ("—" if not r else "∞")
+        ok = b["ok"] and (r is None or r["ok"])
+        rows.append(f'<tr><td>{e(b.get("ac") or "")}</td><td>{e(b["label"])}</td><td>{_ok_tag(ok)}</td>'
+                    f'<td>{_fmt(b["value"])} {e(b.get("unit", ""))}</td><td>≤ {e(b["budget"])} {e(b.get("unit", ""))}</td>'
+                    f'<td>{e(change)}</td></tr>')
+    return (f'<div class="card"><h2>EditMode 성능 {verdict}</h2>'
+            f'<p class="meta"><span>기기 <b>{e(j.get("host", ""))}</b></span><span>기준 프로필 <b>{e(j.get("profile", ""))}</b></span>'
+            f'<span>전원 <b>{e(j.get("power", ""))}</b></span></p>'
+            + (f'<p class="muted">{e(j["note"])}</p>' if j.get("note") else "")
+            + '<div class="scroll"><table><tr><th>AC</th><th>항목</th><th>판정</th><th>측정</th><th>예산</th><th>기준 대비</th></tr>'
+            + "".join(rows) + "</table></div></div>")
+
+
 def _determinism(scs):
     rows = []
     for sc in scs:
@@ -312,7 +334,8 @@ def verdict_of(ev):
     sc_v = [s["verdict"] for s in ev.get("scenarios", [])]
     if ev.get("verdictOverride"):
         return ev["verdictOverride"]
-    if "fail" in sc_v or not ac_ok or (ev.get("logic") and not ev["logic"]["ok"]):
+    em = ev.get("editmodePerf")
+    if "fail" in sc_v or not ac_ok or (ev.get("logic") and not ev["logic"]["ok"]) or (em and not em["ok"]):
         return "fail"
     if "candidate" in sc_v:
         return "candidate"
@@ -335,6 +358,7 @@ def write(ev, out_dir, max_bytes=MAX_BYTES):
             _header(ev, verdict, level),
             _ac_table(ev),
             _logic(ev, assets),
+            _editmode_perf(ev),
             "".join(_grid(sc, assets, i) for i, sc in enumerate(ev.get("scenarios", []))),
             _perf(ev.get("scenarios", [])),
             _determinism(ev.get("scenarios", [])),

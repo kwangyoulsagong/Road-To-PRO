@@ -1,0 +1,8 @@
+{"Results": [
+  {"Name": "RoadToPro.Tests.Performance.Core.CorePerfTests.Rng_Uniform_ns", "SampleGroups": [
+    {"Name": "ns_per_op", "Unit": 0, "Median": 4.0, "Min": 3.9, "Max": 4.4, "Average": 4.1, "Samples": [4.0, 3.9, 4.4]}]},
+  {"Name": "RoadToPro.Tests.Performance.Core.CorePerfTests.Hash_30kEvents_ms", "SampleGroups": [
+    {"Name": "Time", "Unit": 2, "Median": 3.5, "Min": 3.4, "Max": 3.7, "Average": 3.5, "Samples": [3.5, 3.4, 3.7]}]},
+  {"Name": "RoadToPro.Tests.Performance.Core.CorePerfTests.ZeroAlloc_MathRngClockLog", "SampleGroups": [
+    {"Name": "gc_alloc_count", "Unit": 8, "Median": 0, "Min": 0, "Max": 0, "Average": 0, "Samples": [0, 0]}]}
+]}

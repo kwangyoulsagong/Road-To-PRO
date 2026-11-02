@@ -1,6 +1,6 @@
 # 001 — 코어 기반: asmdef · 수학 · 시드 RNG · 시뮬 시계 · 해시
 
-상태: 초안
+상태: 승인됨
 브랜치: feat/001-core-foundation
 기획 출처: docs/index.html § 아키텍처 1·2(레이어, asmdef 의존성), § 아키텍처 3(결정 10Hz · 물리 100Hz), § 기획서 5.1(시뮬 코어 분리), research[1] 01 A-8(적분·결정론·dt 0.01 s), research[3] 03 A1(정규화 피치 좌표, 105×68 m), research[7] 07 §2.3(10초 간격 체크포인트) / `.claude/rules/10-csharp.md`, `.claude/rules/20-match-engine.md`
 
@@ -33,8 +33,8 @@
 ## 요구사항
 
 ### 모듈 구성
-- FR-01: 모듈은 Core, MatchEngine, Career, WorldGen, Data, Presentation, UI, Tests(EditMode)로 나눈다. 참조 방향은 `.claude/rules/10-csharp.md`를 따른다 (확정 (2026-11-02 사용자 결정): Data는 도메인 전부를 참조하고, 도메인 모듈은 Data를 모른다. 저장·로딩은 인터페이스로 주입): MatchEngine→Core, Career→Core·MatchEngine, WorldGen→Core, Data→Core·MatchEngine·Career·WorldGen, Presentation→MatchEngine·Career, UI→Career·Data, Tests→MatchEngine·Career. 역방향 참조는 컴파일이 실패해야 한다.
-- FR-02: Core와 MatchEngine은 Unity 엔진 어셈블리를 참조하지 않는다 (아키텍처 § 2 "noEngineReferences"). Career·WorldGen도 같게 한다 `[제안]` (`.claude/rules/10-csharp.md`).
+- FR-01: 모듈은 Core, MatchEngine, Career, WorldGen, Data, Presentation, UI, Tests(EditMode)로 나눈다. 참조 방향은 `.claude/rules/10-csharp.md`를 따른다 (확정 (2026-11-02 사용자 결정): Data는 도메인 전부를 참조하고, 도메인 모듈은 Data를 모른다. 저장·로딩은 인터페이스로 주입): MatchEngine→Core, Career→Core·MatchEngine, WorldGen→Core·Career, Data→Core·MatchEngine·Career·WorldGen, Presentation·UI·Verification→위 전부, Tests→전부. 역방향 참조는 컴파일이 실패해야 한다.
+- FR-02: Core와 MatchEngine은 Unity 엔진 어셈블리를 참조하지 않는다 (아키텍처 § 2 "noEngineReferences"). Career·WorldGen도 같게 한다 (확정 2026-11-02 사용자 결정, `.claude/rules/10-csharp.md`).
 - FR-03: Core·MatchEngine은 Unity 없이 일반 .NET 테스트 러너에서도 돌 수 있는 코드만 포함한다 (CI 헤드리스 대량 시뮬, 아키텍처 § 2 하단).
 - FR-04: 모듈 참조 그래프를 검사하는 자동 테스트가 있다. 금지 참조·금지 API(엔진 수학, 시스템 시계, 비시드 난수, 스레드 풀)가 코어 모듈에 들어오면 실패한다 (하네스 훅과 별개로 테스트로도 보장).
 
@@ -48,7 +48,7 @@
 
 ### 피치 좌표계
 - FR-20: 정규화 좌표 x∈[0,1](자기 골라인 → 상대 골라인), y∈[0,1](폭), 높이 z(미터)를 기본 좌표로 쓴다 (research[3] 03 A1). 미터 변환은 105×68 m 기준.
-- FR-21: 팀 관점 변환(홈/원정, 전후반 진영 교체)은 한 함수로만 한다. 같은 지점을 두 팀 관점으로 바꿨다가 되돌리면 원래 값과 같아야 한다.
+- FR-21: 팀 관점 변환(홈/원정, 전후반 진영 교체)은 한 함수로만 한다. 같은 지점을 두 팀 관점으로 바꿨다가 되돌리면 원래 값과 같아야 한다 (float 반올림 1 ulp 이내, AC-05).
 - FR-22: 피치 크기는 경기 설정 값으로 받을 수 있게 한다 (기본 105×68). 정규화↔미터 변환은 그 값을 따른다.
 
 ### 시드 RNG
@@ -106,20 +106,24 @@
 ## 성능 예산
 | 항목 | 예산 | 측정 방법 | 기준 기기 프로필 |
 |---|---|---|---|
-| RNG 균등 실수 1회 | ≤ 5 ns `[제안]` | Performance 테스트 (1억 회 평균) | mac-m1-1600p |
-| RNG 정규 1회 | ≤ 20 ns `[제안]` | Performance 테스트 | mac-m1-1600p |
-| 벡터 연산·swept 판정 1회 | ≤ 10 ns `[제안]` | Performance 테스트 | mac-m1-1600p |
+| RNG 균등 실수 1회 | ≤ 8 ns | Performance 테스트 (1억 회 평균, EditMode) | mac-m1-1600p |
+| RNG 정규 1회 | ≤ 80 ns | Performance 테스트 (EditMode) | mac-m1-1600p |
+| 벡터 연산 1회 (정규화) | ≤ 50 ns | Performance 테스트 (EditMode) | mac-m1-1600p |
+| swept 판정 1회 | ≤ 100 ns | Performance 테스트 (EditMode) | mac-m1-1600p |
 | 90분 경기 분량 이벤트 로그 해시 (약 3만 이벤트 `[제안]`) | ≤ 10 ms | Performance 테스트 | mac-m1-1600p |
 | 비활성 로그 호출 할당 | 0 B | Performance 테스트 (GC 측정) | — |
 | 수학·RNG·시계 호출 할당 | 0 B | Performance 테스트 | — |
 | 튜닝 레지스트리 로드 (1,000개 항목) | ≤ 20 ms `[제안]` | Performance 테스트 | mac-m1-1600p |
+
+> 측정 환경 (2026-11-02 사용자 승인): 예산은 **에디터 EditMode(Mono JIT)** 측정 기준이다. 처음 `[제안]`(균등 5 ns·정규 20 ns·벡터/swept 10 ns)은 릴리스 플레이어 수준이라 Mono에서 구조적으로 3~7배 느렸다(실측 5.5·60·34·70 ns). 실측 대비 약 40% 여유로 다시 정하고, 실제 방어선은 기준 측정 대비 +10% 회귀 검사다. 플레이어(IL2CPP) 기준 예산은 006·017에서 경기 단위로 따로 잰다.
+
 
 ## 수용 기준
 - AC-01 [로직]: Core에서 Presentation을, MatchEngine에서 Career를 참조하도록 바꾸면 컴파일이 실패한다. 참조 그래프 검사 테스트가 아키텍처 § 2 방향과 다른 참조를 찾으면 실패한다.
 - AC-02 [로직]: Core·MatchEngine 어셈블리의 참조 목록에 Unity 엔진 어셈블리가 없다 (테스트가 어셈블리 메타데이터를 검사).
 - AC-03 [로직]: 0 벡터 정규화 결과가 0 벡터이고 NaN이 아니다. 각도 정규화가 −π를 π로 바꾼다. 179°와 −179°의 최단 보간 중간값이 180°(또는 −180°)다.
 - AC-04 [로직]: swept 판정: 반지름 0.5 m 원 중심을 지나는 0.3 m 선분은 정확한 첫 접촉 t를 돌려주고, 원에서 0.6 m 떨어져 지나는 선분은 "접촉 없음", 시작점이 원 안이면 t=0.
-- AC-05 [로직]: 정규화 좌표 (0.5, 0.5)는 미터 (52.5, 34)다. 홈 관점 좌표를 원정 관점으로 바꿨다 되돌리면 원래 값과 비트 단위로 같다.
+- AC-05 [로직]: 정규화 좌표 (0.5, 0.5)는 미터 (52.5, 34)다. 홈 관점 좌표를 원정 관점으로 바꿨다 되돌리면 원래 값과의 차이가 축마다 1.2e−7(1.0의 float 1 ulp) 이하이고, 같은 입력의 변환 결과는 항상 비트 단위로 같다 (2026-11-02 사용자 승인: [0,1] float의 1−x 반전은 비트 왕복이 불가능).
 - AC-06 [결정론]: 같은 시드로 만든 두 RNG의 출력 100만 개가 모두 같다.
 - AC-07 [결정론]: 스트림 A에서 추가로 1,000번 뽑아도 스트림 B의 다음 1,000개 출력은 바뀌지 않는다.
 - AC-08 [결정론]: RNG 상태를 저장하고 복원하면, 복원 후 1만 개 출력이 저장하지 않고 계속 뽑은 1만 개와 같다.
@@ -145,6 +149,6 @@
 - [미정] 크로스플랫폼 결정론(고정소수점 여부) — CLAUDE.md 결정 대기. 결정 전까지 FR-11 래퍼로 교체 지점만 확보한다.
 - 확정 (2026-11-02): asmdef 접두사는 `RoadToPro.*` (`.claude/rules/10-csharp.md`, CLAUDE.md). 아키텍처 § 2 그림의 `ProPath.*`는 기획서 쪽을 고친다.
 - 확정 (2026-11-02 사용자 결정): 의존 방향은 `Data → Core·MatchEngine·Career·WorldGen`. 도메인은 Data를 참조하지 않는다 (FR-01).
-- [미정] Career·WorldGen의 Unity 비참조 여부 (아키텍처는 Core·MatchEngine만 명시).
+- 확정 (2026-11-02 사용자 결정): Career·WorldGen도 Unity 엔진 비참조 (FR-02).
 - 확정 (2026-11-02 사용자 결정): 결정 10Hz · 물리 서브스텝 100Hz · 리플레이 기록 30Hz(화면 보간, 006 FR-50). research 07의 "50Hz 물리 보간"은 쓰지 않는다.
-- [제안] 2월 29일생 나이 규칙(3월 1일), 최장 경기 150분, 성능 예산 수치.
+- 승인 (2026-11-02): 2월 29일생 나이 규칙(3월 1일), 최장 경기 150분. 성능 예산은 EditMode 실측 기준으로 재설정(성능 예산 표 아래 주석).

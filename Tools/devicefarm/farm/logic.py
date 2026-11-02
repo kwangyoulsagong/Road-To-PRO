@@ -74,6 +74,7 @@ def parse_results(xml_path):
                 "duration": float(tc.get("duration", 0) or 0),
                 "message": (tc.findtext("failure/message") or tc.findtext("reason/message") or "").strip(),
                 "stack": (tc.findtext("failure/stack-trace") or "").strip(),
+                "categories": [pr.get("value") for pr in tc.findall("properties/property") if pr.get("name") == "Category"],
             }
         )
     return LogicResult(
@@ -174,14 +175,18 @@ def render_html(r, meta, title="로직 테스트 리포트"):
     return page(title, "".join(parts))
 
 
-def run(test_filter="", category="", platform="EditMode"):
-    """unity-test.sh로 배치 실행 → (LogicResult, 로그 텍스트). 실행기 오류는 RunnerError."""
+def run(test_filter="", category="", platform="EditMode", perf_results=None):
+    """unity-test.sh로 배치 실행 → (LogicResult, 로그 텍스트). 실행기 오류는 RunnerError.
+    perf_results: Performance Testing 결과 JSON 경로 (Unity -perfTestResults)."""
     out_dir = os.path.join(paths.FARM_DIR, "unity-test")
     xml = os.path.join(out_dir, f"results-{platform}.xml")
     log = os.path.join(out_dir, f"log-{platform}.txt")
     args = ["bash", paths.UNITY_TEST_SH, platform, test_filter, category]
     try:
-        proc = subprocess.run(args, cwd=paths.REPO, capture_output=True, text=True, timeout=1800)
+        env = dict(os.environ)
+        if perf_results:
+            env["UNITY_PERF_RESULTS"] = perf_results
+        proc = subprocess.run(args, cwd=paths.REPO, capture_output=True, text=True, timeout=1800, env=env)
     except subprocess.TimeoutExpired as err:
         raise RunnerError("Unity 테스트 실행이 30분 안에 끝나지 않았다") from err
     if proc.returncode == 3:
