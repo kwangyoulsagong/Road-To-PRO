@@ -1,1 +1,15 @@
-{}
+{
+  "editmode/001/mac-m1-1600p": {
+    "commit": "1295546f0a7b9d9000d81f4b7cc8c69d4cf77faa",
+    "measuredAt": "2026-11-02T15:26:05",
+    "metrics": {
+      "CorePerfTests.Hash_30kEvents_ms/Time/median": 3.5451,
+      "CorePerfTests.Rng_Normal_ns/ns_per_op/median": 59.70872,
+      "CorePerfTests.Rng_Uniform_ns/ns_per_op/median": 5.574289,
+      "CorePerfTests.Swept_ns/ns_per_op/median": 70.10081,
+      "CorePerfTests.Tuning_Load1000_ms/Time/median": 7.231150000000001,
+      "CorePerfTests.Vec_Normalize_ns/ns_per_op/median": 34.27948,
+      "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max": 0.0
+    }
+  }
+}
