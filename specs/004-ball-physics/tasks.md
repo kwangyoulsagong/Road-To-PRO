@@ -1,6 +1,6 @@
 # 004 — 공 물리 · 공 상태 머신 · 태스크
 
-상태: 승인됨
+상태: 구현 완료 · AC-15 보류
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현 태스크보다 먼저 둔다(가능하면). C# 테스트는 `/unity-test` (`.claude/scripts/unity-test.sh EditMode <필터>`). 코어(MatchEngine) 변경 블록 끝에서 `determinism-reviewer` 리뷰. Unity 배치 1회가 길어서 테스트 선작성 태스크는 같은 블록의 구현과 한 번에 돌려 "구현 전 실패"를 확인한다.
@@ -34,4 +34,4 @@
 ## F. 성능 · 마무리
 - [x] T17 성능 테스트 — 파일: `Tests/Performance/MatchEngine/BallPerfTests.cs`, `Data/perf/004-ball-physics.json` (스펙 성능 예산 표 사본 + 테스트 네임스페이스 `RoadToPro.Tests.EditMode.MatchEngine`, `RoadToPro.Tests.Performance.MatchEngine`) — 검증: 서브스텝 상태별·가중 평균(플랜 가중치), 예측 10 s, 땅볼 역산, 할당 0(진단 끔 포함) 예산 안 (AC-14·16) — 결과: 가중 평균 ≈95 ns(예산 100), Air ≈226 ns(300), 예측 10 s ≈218 µs(예산 20→250 µs로 스펙 수정, 사용자 승인), 땅볼 역산 ≈0.05 µs(30), 할당 0. 최적화: 적분 스칼라화, 경계·골대·골망 빠른 배제, 수치 검사 빠른 경로, 꺾인 경로는 골라인 근처에서만
 - [x] T18 수용 기준 전체 테스트 통과 — EditMode 전체(`/unity-test`) 실패 0, 콘솔 에러·경고 0, 컴파일 경고 신규 0 — 결과: EditMode 238개 중 통과 235·실패 0·건너뜀 3(000 셀프테스트 전용). 컴파일 경고 신규 0(CS0162 1건 수정). 콘솔 에러는 001 `UnityLoggerTests`의 기대 로그뿐
-- [ ] T19 `/verify 004` — `farm.py logic --spec 004` 리포트(로직·결정론·성능), 첫 성능 기준은 사용자 승인 후 `approve-perf`, 리포트 아티팩트 발행. AC-15는 040 이후라 리포트 판정은 AC-15 누락으로 fail이 정상 — 나머지 AC 15개 전부 통과 확인. spec 상태는 "구현 완료 · AC-15 보류", README 표 갱신
+- [x] T19 `/verify 004` — `farm.py logic --spec 004` 리포트(로직·결정론·성능), 첫 성능 기준은 사용자 승인 후 `approve-perf`, 리포트 아티팩트 발행. AC-15는 040 이후라 리포트 판정은 AC-15 누락으로 fail이 정상 — 나머지 AC 15개 전부 통과 확인. spec 상태는 "구현 완료 · AC-15 보류", README 표 갱신 — 결과: 깨끗한 작업 트리(AC 전원)에서 `farm logic --spec 004` — AC 15개 증거 통과(로직 12·결정론 2·성능 1), AC-15만 증거 없음(보류, 판정 fail은 예상대로). EditMode 87개 통과, 성능 5항목 예산 안·회귀 0. 성능 기준 `editmode/004/mac-m1-1600p` 채택(사용자 승인). 리포트 https://claude.ai/artifact/LYhkBdF9eutsHMFJvCv2ys
