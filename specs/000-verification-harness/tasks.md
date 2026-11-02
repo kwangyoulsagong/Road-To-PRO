@@ -1,6 +1,6 @@
 # 000 — 검증 하네스 · 디바이스팜 · 태스크
 
-상태: 승인됨
+상태: 완료
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현 태스크보다 먼저 둔다(가능하면). Python 테스트는 `python3 -m unittest discover Tools/devicefarm/tests`.
@@ -56,4 +56,4 @@
 - [x] T37 기준 이미지 승인 — 파일: `Data/e2e/baselines/000-sample-cards/**`(LFS) — 검증: **사용자 승인 후** `approve-baseline`, 재실행 통과 (AC-08) — 결과: 2026-11-02 사용자 승인. smoke → 기준 후보 6장 → `approve-baseline` 채택 → 재실행 판정 pass. **변경**: `smoke --scenario`가 스펙 증거를 덮어써서, 증거 폴더 기록은 `--spec` 지정 시로 한정
 - [x] T38 verify 스킬 갱신 — 파일: `.claude/skills/verify/SKILL.md` — 검증: 스킬 절차가 `farm.py` 명령·`artifact-url.txt` 재발행과 일치 — 결과: `farm.py` 명령·`artifact-url.txt` 재발행 절차로 갱신. 같이 추가: `/pipeline` 스킬(사용자 요청)
 - [x] T39 수용 기준 전체 통과 — Python 테스트 실패 0, `/unity-test` EditMode 실패 0, 콘솔 에러·경고 0, smoke ≤ 5분(AC-15) — 결과: Python 101개·EditMode 22개(+Explicit 3 제외) 실패 0, 플레이어 로그 경고 0, `_Project` 컴파일 경고 0, smoke 25s ≤ 300s, 훅 테스트 52/52
-- [ ] T40 `/verify 000` — `farm.py self-test all`로 AC-01~16 증거 `evidence/report.html` 생성, 아티팩트 발행·링크 기록, spec.md `완료`
+- [x] T40 `/verify 000` — `farm.py self-test all`로 AC-01~16 증거 `evidence/report.html` 생성, 아티팩트 발행·링크 기록, spec.md `완료` — 결과: 커밋 9306cbe(작업 트리 깨끗)에서 `self-test all` 19건 통과·AC-01~16 증거 연결, 판정 pass. 리포트 https://claude.ai/artifact/8QDktqWYZ4B5bqnCDLL9e5
