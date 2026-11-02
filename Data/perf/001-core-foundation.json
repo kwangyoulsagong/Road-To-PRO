@@ -1,0 +1,20 @@
+{
+  "spec": "001",
+  "profile": "mac-m1-1600p",
+  "note": "specs/001-core-foundation/spec.md 성능 예산 표의 기계용 사본. EditMode(Mono) 측정 기준 (2026-11-02 사용자 승인).",
+  "tests": [
+    "RoadToPro.Tests.EditMode.Core",
+    "RoadToPro.Tests.EditMode.Architecture",
+    "RoadToPro.Tests.EditMode.Presentation",
+    "RoadToPro.Tests.Performance.Core"
+  ],
+  "budgets": [
+    {"ac": "AC-18", "label": "RNG 균등 실수 1회", "test": "CorePerfTests.Rng_Uniform_ns", "group": "ns_per_op", "stat": "median", "max": 8, "unit": "ns"},
+    {"ac": "AC-18", "label": "RNG 정규 1회", "test": "CorePerfTests.Rng_Normal_ns", "group": "ns_per_op", "stat": "median", "max": 80, "unit": "ns"},
+    {"ac": "AC-18", "label": "벡터 정규화 1회", "test": "CorePerfTests.Vec_Normalize_ns", "group": "ns_per_op", "stat": "median", "max": 50, "unit": "ns"},
+    {"ac": "AC-18", "label": "swept 판정 1회", "test": "CorePerfTests.Swept_ns", "group": "ns_per_op", "stat": "median", "max": 100, "unit": "ns"},
+    {"ac": "AC-18", "label": "이벤트 3만 개 해시", "test": "CorePerfTests.Hash_30kEvents_ms", "group": "Time", "stat": "median", "max": 10, "unit": "ms"},
+    {"ac": "AC-18", "label": "튜닝 1,000개 로드", "test": "CorePerfTests.Tuning_Load1000_ms", "group": "Time", "stat": "median", "max": 20, "unit": "ms"},
+    {"ac": "AC-18", "label": "수학·RNG·시계·해시·비활성 로그 GC 할당", "test": "CorePerfTests.ZeroAlloc_MathRngClockLog", "group": "gc_alloc_count", "stat": "max", "max": 0, "unit": "회"}
+  ]
+}

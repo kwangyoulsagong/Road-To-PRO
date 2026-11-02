@@ -188,3 +188,91 @@ def read_perf_testing(path):
             }
         rows.append({"name": name, "fullName": full, "groups": groups})
     return rows
+
+
+# ---- EditMode 성능 테스트 (specs/001 T26) ----
+# Unity Performance Testing 결과(PerformanceTestResults.json)를 스펙별 예산 파일 Data/perf/<NNN>-*.json과 비교한다.
+# 형식: {"spec", "profile", "tests": [네임스페이스…], "budgets": [{ac, label, test, group, stat, max, unit}]}
+
+PERF_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), "Data", "perf")
+
+
+def load_spec_config(spec, perf_dir=None):
+    d = perf_dir or PERF_DIR
+    if not spec or not os.path.isdir(d):
+        return None
+    for name in sorted(os.listdir(d)):
+        if name.endswith(".json") and (name == f"{spec}.json" or name.startswith(f"{spec}-")):
+            with open(os.path.join(d, name), encoding="utf-8") as f:
+                return json.load(f)
+    return None
+
+
+def test_filter(cfg):
+    return ";".join(cfg.get("tests", [])) if cfg else ""
+
+
+def host_profile():
+    """이 기기가 어떤 기준 프로필인지. Apple Silicon Mac = mac-m1-1600p."""
+    import platform
+    if platform.system() == "Darwin" and platform.machine() == "arm64":
+        return "mac-m1-1600p"
+    return f"{platform.system().lower()}-{platform.machine().lower()}"
+
+
+def editmode_metrics(rows, cfg):
+    """예산 항목 키('test/group/stat') → 측정값. 측정이 없으면 None."""
+    by = {r["name"]: r["groups"] for r in rows}
+    out = {}
+    for b in cfg.get("budgets", []):
+        g = (by.get(b["test"]) or {}).get(b["group"])
+        out[_bkey(b)] = g.get(b["stat"]) if g else None
+    return out
+
+
+def _bkey(b):
+    return f'{b["test"]}/{b["group"]}/{b["stat"]}'
+
+
+def judge_editmode(rows, cfg, base, is_reference, power):
+    """예산·회귀 판정. 기준 기기 + 전원 연결일 때만 통과/실패 (FR-44), 나머지는 기록만."""
+    metrics = editmode_metrics(rows, cfg)
+    budget_rows, reg_rows = [], []
+    for b in cfg.get("budgets", []):
+        v = metrics[_bkey(b)]
+        budget_rows.append({"ac": b.get("ac"), "label": b["label"], "metric": _bkey(b), "value": v,
+                            "budget": b["max"], "unit": b.get("unit", ""), "ok": v is not None and v <= b["max"]})
+        prev = (base or {}).get(_bkey(b))
+        if v is None or prev is None:
+            continue
+        if prev == 0:
+            change = 0.0 if v == 0 else math.inf
+        else:
+            change = (v - prev) / prev
+        reg_rows.append({"ac": b.get("ac"), "label": b["label"], "metric": _bkey(b), "value": v, "previous": prev,
+                         "changePct": round(change * 100, 4) if math.isfinite(change) else None,
+                         "ok": change < REGRESSION_LIMIT - 1e-9})
+    judged = bool(is_reference) and power == "ac"
+    note = ""
+    if not is_reference:
+        note = f"기준 기기({cfg.get('profile')}) 아님 — 기록만"
+    elif power != "ac":
+        note = f"전원 상태 {power} — 판정 제외"
+    ok = True
+    if judged:
+        ok = all(r["ok"] for r in budget_rows) and all(r["ok"] for r in reg_rows)
+    return {"judged": judged, "ok": ok, "note": note, "profile": cfg.get("profile"), "metrics": metrics,
+            "budget": budget_rows, "regression": reg_rows}
+
+
+def write_editmode_perf(out_dir, rows, judgement):
+    os.makedirs(out_dir, exist_ok=True)
+    p = os.path.join(out_dir, "perf.json")
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump({"results": rows, "judgement": judgement}, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    return p
+
+
+def editmode_baseline_key(spec, profile):
+    return f"editmode/{spec}/{profile}"

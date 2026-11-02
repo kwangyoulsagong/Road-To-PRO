@@ -65,23 +65,90 @@ def logic_section(test_filter="", category="!Slow", out_dir=None, name="logic"):
     return d, res
 
 
+def ac_evidence(info, logic_dict, res, perf_judgement):
+    """스펙 AC ↔ EditMode 증거 (specs/001 T26).
+    로직: EditMode 전체 통과. 결정론: `Determinism` 카테고리 테스트가 1개 이상 있고 전부 통과.
+    성능: EditMode 성능 예산 판정 (해당 AC 항목만)."""
+    det = [c for c in (res.cases if res else []) if "Determinism" in c.get("categories", [])]
+    det_ok = bool(det) and all(c["result"] == "Passed" for c in det)
+    det_label = f"결정론 테스트 {sum(c['result'] == 'Passed' for c in det)}/{len(det)} 통과" if det else "결정론 테스트 없음"
+    out = {}
+    for a in info["acs"]:
+        if a["kind"] == "로직":
+            out[a["id"]] = [{"label": "EditMode 테스트", "ok": bool(logic_dict.get("ok"))}]
+        elif a["kind"] == "결정론":
+            out[a["id"]] = [{"label": det_label, "ok": det_ok}]
+        elif a["kind"] == "성능" and perf_judgement is not None:
+            rows = [r for r in perf_judgement["budget"] + perf_judgement["regression"] if r.get("ac") in (None, a["id"])]
+            if not rows:
+                continue
+            bad = [r for r in rows if not r["ok"]]
+            if not perf_judgement["judged"]:
+                label, ok = f"EditMode 성능 {len(rows)}항목 — {perf_judgement['note']}", False
+            else:
+                label = f"EditMode 성능 {len(rows) - len(bad)}/{len(rows)} 통과 ({perf_judgement['profile']})"
+                ok = not bad
+            out[a["id"]] = [{"label": label, "ok": ok}]
+    return out
+
+
+LATEST_LOGIC = os.path.join(paths.FARM_DIR, "latest-logic.json")
+
+
 def cmd_logic(args, argv):
     preflight.run_all(need_chrome=True)
     t0 = time.time()
     with preflight.RunLock():
         run_dir = new_run_dir("logic")
-        log("[farm] 로직 테스트 (EditMode) 실행 중…")
-        lg, res = logic_section(args.filter or "", args.category, run_dir)
+        cfg = perf.load_spec_config(args.spec) if args.spec else None
+        test_filter = args.filter or perf.test_filter(cfg)
+        perf_json = os.path.join(run_dir, "PerformanceTestResults.json") if cfg else None
+        log("[farm] 로직 테스트 (EditMode) 실행 중…" + (f" 필터 {test_filter}" if test_filter else ""))
         meta = logic.metadata()
+        res, _ = logic.run(test_filter, args.category, perf_results=perf_json)
+        out_dir = run_dir
+        html_path = os.path.join(out_dir, "logic.html")
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(logic.render_html(res, meta))
+        lg = res.to_dict()
+        lg["png"] = chrome.screenshot(html_path, os.path.join(out_dir, "logic.png"))
+        lg["html"] = html_path
         meta.update(durationSec=time.time() - t0, command=command_line(argv), profiles=[])
         info = spec_info(args.spec)
+        judgement = None
+        ev_dir = evidence_dir(args.spec, run_dir)
+        if cfg:
+            rows = perf.read_perf_testing(perf_json) if os.path.exists(perf_json) else []
+            profile = perf.host_profile()
+            from .evaluate import pmset_text
+            power = perf.power_state(None, pmset_text())
+            base = perf.load_baseline(paths.PERF_BASELINES_JSON, perf.editmode_baseline_key(args.spec, profile))
+            judgement = perf.judge_editmode(rows, cfg, base, profile == cfg.get("profile"), power)
+            judgement["host"] = profile
+            judgement["power"] = power
+            perf.write_editmode_perf(ev_dir, rows, judgement)
+            with open(LATEST_LOGIC, "w", encoding="utf-8") as f:
+                json.dump({"spec": args.spec, "profile": profile, "metrics": judgement["metrics"]}, f, ensure_ascii=False, indent=2)
+        meta["profiles"] = [judgement["host"]] if judgement else []
         ev = {"title": f"{info['id']} 로직 증거", "spec": info, "meta": meta, "logic": lg, "scenarios": [],
-              "acEvidence": {a["id"]: [{"label": "EditMode 테스트", "ok": lg["ok"]}] for a in info["acs"] if a["kind"] == "로직"}}
-        path = report.write(ev, evidence_dir(args.spec, run_dir))
+              "editmodePerf": judgement, "requireAllAcs": bool(cfg),
+              "acEvidence": ac_evidence(info, lg, res, judgement)}
+        path = report.write(ev, ev_dir)
     log(f"[farm] 합계 {res.total} 통과 {res.passed} 실패 {res.failed} 컴파일 에러 {len(res.compile_errors)}")
+    if judgement:
+        bad = [r for r in judgement["budget"] + judgement["regression"] if not r["ok"]]
+        log(f"[farm] 성능 {'판정' if judgement['judged'] else '기록만'}: 초과·회귀 {len(bad)}건 {judgement['note']}")
+        for r in bad:
+            log(f"[farm]   ✗ {r['label']}: {r['value']} (예산 {r.get('budget', '—')}, 변화 {r.get('changePct', '—')}%)")
     log(f"[farm] 리포트: {path}")
     if not res.ok:
         raise VerificationFailed("로직 테스트 실패")
+    if judgement and not judgement["ok"]:
+        raise VerificationFailed("성능 예산·회귀 실패")
+    if report.verdict_of(ev) == "fail":
+        missing = [k for k, v in ev["acEvidence"].items() if not all(i["ok"] for i in v)]
+        missing += [a["id"] for a in info["acs"] if a["id"] not in ev["acEvidence"]] if ev.get("requireAllAcs") else []
+        raise VerificationFailed(f"증거가 없거나 실패한 AC: {', '.join(missing)}")
 
 
 # ---- matrix ----
@@ -166,15 +233,24 @@ def cmd_approve_baseline(args, argv):
 
 
 def cmd_approve_perf(args, argv):
-    data = _latest()
     commit = logic.metadata()["commit"]
+    now = _dt.datetime.now().isoformat(timespec="seconds")
+    if args.spec and os.path.exists(LATEST_LOGIC):
+        # EditMode 성능 (farm logic --spec) 기준 채택 (specs/001 T26)
+        with open(LATEST_LOGIC, encoding="utf-8") as f:
+            lt = json.load(f)
+        if lt.get("spec") == args.spec:
+            key = perf.editmode_baseline_key(args.spec, lt["profile"])
+            perf.store_baseline(paths.PERF_BASELINES_JSON, key, lt["metrics"], commit, now)
+            log(f"[farm] 성능 기준 갱신: {key} ({len(lt['metrics'])}항목)")
+            return
+    data = _latest()
     n = 0
     for r in data["runs"]:
         for combo in r["combos"]:
             for row in combo["perf"]:
                 if row.get("metrics"):
-                    perf.store_baseline(paths.PERF_BASELINES_JSON, row["key"], row["metrics"], commit,
-                                        _dt.datetime.now().isoformat(timespec="seconds"))
+                    perf.store_baseline(paths.PERF_BASELINES_JSON, row["key"], row["metrics"], commit, now)
                     n += 1
     log(f"[farm] 성능 기준 {n}개 갱신")
 

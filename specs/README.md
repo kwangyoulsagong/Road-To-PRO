@@ -21,7 +21,7 @@ SDD 규칙: `.claude/rules/05-sdd.md`. 템플릿: `_templates/`. 완료 판정�
 |---|---|---|---|---|
 | 000 | [검증 하네스 · 디바이스팜](000-verification-harness/spec.md) | 기반 | — | 완료 |
 | **경기 코어** | | | | |
-| 001 | [코어 기반: asmdef · 수학 · 시드 RNG · 시뮬 시계 · 해시](001-core-foundation/spec.md) | M0 | 000 | 초안 |
+| 001 | [코어 기반: asmdef · 수학 · 시드 RNG · 시뮬 시계 · 해시](001-core-foundation/spec.md) | M0 | 000 | 완료 |
 | 002 | [선수 도메인 모델: 능력치 · 포지션 · 성격 · 숨김값](002-player-domain/spec.md) | M0 | 001 | 초안 |
 | 003 | [역할 · 플레이 성향 · 버릇](003-roles-tendencies-habits/spec.md) | M0 | 002 | 초안 |
 | 004 | [공 물리 · 공 상태 머신](004-ball-physics/spec.md) | M0 | 001 | 초안 |

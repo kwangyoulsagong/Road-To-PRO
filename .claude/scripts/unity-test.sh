@@ -24,6 +24,8 @@ fi
 args=(-batchmode -nographics -projectPath "$ROOT" -runTests -testPlatform "$PLATFORM" -testResults "$RESULTS" -logFile "$LOG")
 [ -n "$FILTER" ] && args+=(-testFilter "$FILTER")
 [ -n "$CATEGORY" ] && args+=(-testCategory "$CATEGORY")
+# 성능 테스트 결과 JSON 경로 (farm logic이 지정, specs/001 T26)
+[ -n "${UNITY_PERF_RESULTS:-}" ] && args+=(-perfTestResults "$UNITY_PERF_RESULTS")
 
 "$UNITY" "${args[@]}"
 code=$?

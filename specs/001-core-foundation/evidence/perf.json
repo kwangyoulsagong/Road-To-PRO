@@ -1,0 +1,249 @@
+{
+  "results": [
+    {
+      "name": "CorePerfTests.Hash_30kEvents_ms",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Hash_30kEvents_ms",
+      "groups": {
+        "Time": {
+          "median": 3.500349999999999,
+          "min": 3.362099999999999,
+          "max": 3.555399999999999,
+          "avg": 3.48987,
+          "unit": "ms",
+          "samples": 10
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.Rng_Normal_ns",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Rng_Normal_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 59.82802,
+          "min": 59.03934,
+          "max": 62.56854000000001,
+          "avg": 60.279627142857144,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.Rng_Uniform_ns",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Rng_Uniform_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 5.664816000000001,
+          "min": 5.573952,
+          "max": 6.239456,
+          "avg": 5.842627571428571,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.Swept_ns",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Swept_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 74.62207000000001,
+          "min": 70.89125,
+          "max": 90.93661000000002,
+          "avg": 76.27810571428572,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.Tuning_Load1000_ms",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Tuning_Load1000_ms",
+      "groups": {
+        "Time": {
+          "median": 5.96759999999972,
+          "min": 5.623300000000199,
+          "max": 8.121000000000095,
+          "avg": 6.033296666666774,
+          "unit": "ms",
+          "samples": 30
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.Vec_Normalize_ns",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Vec_Normalize_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 34.79738000000001,
+          "min": 34.221790000000006,
+          "max": 36.27689000000001,
+          "avg": 34.919882857142866,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.ZeroAlloc_MathRngClockLog",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.ZeroAlloc_MathRngClockLog",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 5
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "CorePerfTests.Rng_Uniform_ns/ns_per_op/median": 5.664816000000001,
+      "CorePerfTests.Rng_Normal_ns/ns_per_op/median": 59.82802,
+      "CorePerfTests.Vec_Normalize_ns/ns_per_op/median": 34.79738000000001,
+      "CorePerfTests.Swept_ns/ns_per_op/median": 74.62207000000001,
+      "CorePerfTests.Hash_30kEvents_ms/Time/median": 3.500349999999999,
+      "CorePerfTests.Tuning_Load1000_ms/Time/median": 5.96759999999972,
+      "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-18",
+        "label": "RNG 균등 실수 1회",
+        "metric": "CorePerfTests.Rng_Uniform_ns/ns_per_op/median",
+        "value": 5.664816000000001,
+        "budget": 8,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "RNG 정규 1회",
+        "metric": "CorePerfTests.Rng_Normal_ns/ns_per_op/median",
+        "value": 59.82802,
+        "budget": 80,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "벡터 정규화 1회",
+        "metric": "CorePerfTests.Vec_Normalize_ns/ns_per_op/median",
+        "value": 34.79738000000001,
+        "budget": 50,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "swept 판정 1회",
+        "metric": "CorePerfTests.Swept_ns/ns_per_op/median",
+        "value": 74.62207000000001,
+        "budget": 100,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "이벤트 3만 개 해시",
+        "metric": "CorePerfTests.Hash_30kEvents_ms/Time/median",
+        "value": 3.500349999999999,
+        "budget": 10,
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "튜닝 1,000개 로드",
+        "metric": "CorePerfTests.Tuning_Load1000_ms/Time/median",
+        "value": 5.96759999999972,
+        "budget": 20,
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "수학·RNG·시계·해시·비활성 로그 GC 할당",
+        "metric": "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [
+      {
+        "ac": "AC-18",
+        "label": "RNG 균등 실수 1회",
+        "metric": "CorePerfTests.Rng_Uniform_ns/ns_per_op/median",
+        "value": 5.664816000000001,
+        "previous": 5.629087000000001,
+        "changePct": 0.6347,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "RNG 정규 1회",
+        "metric": "CorePerfTests.Rng_Normal_ns/ns_per_op/median",
+        "value": 59.82802,
+        "previous": 62.06907,
+        "changePct": -3.6106,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "벡터 정규화 1회",
+        "metric": "CorePerfTests.Vec_Normalize_ns/ns_per_op/median",
+        "value": 34.79738000000001,
+        "previous": 34.64651,
+        "changePct": 0.4355,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "swept 판정 1회",
+        "metric": "CorePerfTests.Swept_ns/ns_per_op/median",
+        "value": 74.62207000000001,
+        "previous": 72.88949,
+        "changePct": 2.377,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "이벤트 3만 개 해시",
+        "metric": "CorePerfTests.Hash_30kEvents_ms/Time/median",
+        "value": 3.500349999999999,
+        "previous": 3.645100000000003,
+        "changePct": -3.9711,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "튜닝 1,000개 로드",
+        "metric": "CorePerfTests.Tuning_Load1000_ms/Time/median",
+        "value": 5.96759999999972,
+        "previous": 6.604450000000497,
+        "changePct": -9.6427,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "수학·RNG·시계·해시·비활성 로그 GC 할당",
+        "metric": "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max",
+        "value": 0.0,
+        "previous": 0.0,
+        "changePct": 0.0,
+        "ok": true
+      }
+    ],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}

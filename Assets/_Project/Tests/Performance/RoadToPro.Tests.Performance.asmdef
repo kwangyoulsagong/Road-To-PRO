@@ -4,6 +4,13 @@
   "references": [
     "RoadToPro.Verification",
     "Unity.PerformanceTesting",
+    "RoadToPro.Core",
+    "RoadToPro.MatchEngine",
+    "RoadToPro.Career",
+    "RoadToPro.WorldGen",
+    "RoadToPro.Data",
+    "RoadToPro.Presentation",
+    "RoadToPro.UI",
     "UnityEngine.TestRunner",
     "UnityEditor.TestRunner"
   ],

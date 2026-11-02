@@ -1,0 +1,395 @@
+{
+  "title": "001 로직 증거",
+  "spec": {
+    "id": "001",
+    "name": "001 — 코어 기반: asmdef · 수학 · 시드 RNG · 시뮬 시계 · 해시",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "Core에서 Presentation을, MatchEngine에서 Career를 참조하도록 바꾸면 컴파일이 실패한다. 참조 그래프 검사 테스트가 아키텍처 § 2 방향과 다른 참조를 찾으면 실패한다."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "Core·MatchEngine 어셈블리의 참조 목록에 Unity 엔진 어셈블리가 없다 (테스트가 어셈블리 메타데이터를 검사)."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "0 벡터 정규화 결과가 0 벡터이고 NaN이 아니다. 각도 정규화가 −π를 π로 바꾼다. 179°와 −179°의 최단 보간 중간값이 180°(또는 −180°)다."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "swept 판정: 반지름 0.5 m 원 중심을 지나는 0.3 m 선분은 정확한 첫 접촉 t를 돌려주고, 원에서 0.6 m 떨어져 지나는 선분은 \"접촉 없음\", 시작점이 원 안이면 t=0."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "정규화 좌표 (0.5, 0.5)는 미터 (52.5, 34)다. 홈 관점 좌표를 원정 관점으로 바꿨다 되돌리면 원래 값과의 차이가 축마다 1.2e−7(1.0의 float 1 ulp) 이하이고, 같은 입력의 변환 결과는 항상 비트 단위로 같다 (2026-11-02 사용자 승인: [0,1] float의 1−x 반전은 비트 왕복이 불가능)."
+      },
+      {
+        "id": "AC-06",
+        "kind": "결정론",
+        "text": "같은 시드로 만든 두 RNG의 출력 100만 개가 모두 같다."
+      },
+      {
+        "id": "AC-07",
+        "kind": "결정론",
+        "text": "스트림 A에서 추가로 1,000번 뽑아도 스트림 B의 다음 1,000개 출력은 바뀌지 않는다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "결정론",
+        "text": "RNG 상태를 저장하고 복원하면, 복원 후 1만 개 출력이 저장하지 않고 계속 뽑은 1만 개와 같다."
+      },
+      {
+        "id": "AC-09",
+        "kind": "로직",
+        "text": "균등 정수 [1,6] 600만 회의 카이제곱 검정이 유의수준 0.001에서 통과한다. 정규분포 100만 개의 평균·표준편차가 ±0.005 안에 든다. softmax(τ=0.01)는 최댓값 후보를 99% 이상 고른다."
+      },
+      {
+        "id": "AC-10",
+        "kind": "로직",
+        "text": "모든 가중치 0, 음수 가중치, a>b 범위 요청은 명확한 오류로 실패한다."
+      },
+      {
+        "id": "AC-11",
+        "kind": "로직",
+        "text": "틱 27,000은 `45:00`, 전반 추가시간 2분 30초 지점은 `45+2`(초 포함 표기 `45+2:30`), 후반 시작 틱은 `45:00`으로 표기된다. 경기 시각 → 틱 → 경기 시각 변환이 모든 틱에서 일치한다 (전 범위 검사)."
+      },
+      {
+        "id": "AC-12",
+        "kind": "로직",
+        "text": "90,000 틱(150분)과 그 10배까지 카운터 오버플로 없이 표기·변환이 맞다."
+      },
+      {
+        "id": "AC-13",
+        "kind": "로직",
+        "text": "2028-02-29 + 1년 = 2029-03-01 규칙(또는 승인된 규칙), 2000-02-29생의 2001-02-28 나이 0, 2001-03-01 나이 1. 12/31 + 1일 = 다음 해 1/1."
+      },
+      {
+        "id": "AC-14",
+        "kind": "결정론",
+        "text": "같은 이벤트 로그의 해시가 다른 프로세스 실행 두 번에서 같다. 이벤트 하나의 실수 필드가 1 ulp 바뀌면 해시가 다르다. +0과 −0 처리 규칙이 문서대로 동작한다."
+      },
+      {
+        "id": "AC-15",
+        "kind": "결정론",
+        "text": "두 체크포인트 목록에서 7번째부터 다를 때, 처음 갈라진 체크포인트로 7번째(경기 시각 60~70초 구간)를 돌려준다."
+      },
+      {
+        "id": "AC-16",
+        "kind": "로직",
+        "text": "범위를 벗어난 튜닝 값, 중복 id, 알 수 없는 id가 있는 파일은 로드에 실패하고 메시지에 id가 나온다. 정상 파일은 묶음 해시를 돌려주고, 값 하나를 바꾸면 해시가 바뀐다."
+      },
+      {
+        "id": "AC-17",
+        "kind": "로직",
+        "text": "같은 원소를 다른 삽입 순서로 넣은 해시 기반 컬렉션 두 개를 공용 정렬 순회 규칙으로 처리한 결과 해시가 같다."
+      },
+      {
+        "id": "AC-18",
+        "kind": "성능",
+        "text": "성능 예산 표의 항목이 mac-m1-1600p에서 모두 예산 안이고, 수학·RNG·시계·비활성 로그 호출 할당이 0 B다."
+      },
+      {
+        "id": "AC-19",
+        "kind": "로직",
+        "text": "디버그 빌드에서 NaN을 만드는 연산(0/0 정규화 경로 외)이 어서션으로 실패하고, 릴리스 설정에서는 안전값 + 경고 로그 1건으로 처리된다."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/001-core-foundation"
+  },
+  "meta": {
+    "commit": "69aaeba9e5c348ed8dcf29fac8607384365203a0",
+    "branch": "feat/001-core-foundation",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-02 15:33:32 +0900",
+    "durationSec": 58.658568143844604,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 001",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 126,
+    "passed": 126,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 33.3647721,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-153332-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-153332-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "CorePerfTests.Rng_Uniform_ns/ns_per_op/median": 5.664816000000001,
+      "CorePerfTests.Rng_Normal_ns/ns_per_op/median": 59.82802,
+      "CorePerfTests.Vec_Normalize_ns/ns_per_op/median": 34.79738000000001,
+      "CorePerfTests.Swept_ns/ns_per_op/median": 74.62207000000001,
+      "CorePerfTests.Hash_30kEvents_ms/Time/median": 3.500349999999999,
+      "CorePerfTests.Tuning_Load1000_ms/Time/median": 5.96759999999972,
+      "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-18",
+        "label": "RNG 균등 실수 1회",
+        "metric": "CorePerfTests.Rng_Uniform_ns/ns_per_op/median",
+        "value": 5.664816000000001,
+        "budget": 8,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "RNG 정규 1회",
+        "metric": "CorePerfTests.Rng_Normal_ns/ns_per_op/median",
+        "value": 59.82802,
+        "budget": 80,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "벡터 정규화 1회",
+        "metric": "CorePerfTests.Vec_Normalize_ns/ns_per_op/median",
+        "value": 34.79738000000001,
+        "budget": 50,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "swept 판정 1회",
+        "metric": "CorePerfTests.Swept_ns/ns_per_op/median",
+        "value": 74.62207000000001,
+        "budget": 100,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "이벤트 3만 개 해시",
+        "metric": "CorePerfTests.Hash_30kEvents_ms/Time/median",
+        "value": 3.500349999999999,
+        "budget": 10,
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "튜닝 1,000개 로드",
+        "metric": "CorePerfTests.Tuning_Load1000_ms/Time/median",
+        "value": 5.96759999999972,
+        "budget": 20,
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "수학·RNG·시계·해시·비활성 로그 GC 할당",
+        "metric": "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [
+      {
+        "ac": "AC-18",
+        "label": "RNG 균등 실수 1회",
+        "metric": "CorePerfTests.Rng_Uniform_ns/ns_per_op/median",
+        "value": 5.664816000000001,
+        "previous": 5.629087000000001,
+        "changePct": 0.6347,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "RNG 정규 1회",
+        "metric": "CorePerfTests.Rng_Normal_ns/ns_per_op/median",
+        "value": 59.82802,
+        "previous": 62.06907,
+        "changePct": -3.6106,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "벡터 정규화 1회",
+        "metric": "CorePerfTests.Vec_Normalize_ns/ns_per_op/median",
+        "value": 34.79738000000001,
+        "previous": 34.64651,
+        "changePct": 0.4355,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "swept 판정 1회",
+        "metric": "CorePerfTests.Swept_ns/ns_per_op/median",
+        "value": 74.62207000000001,
+        "previous": 72.88949,
+        "changePct": 2.377,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "이벤트 3만 개 해시",
+        "metric": "CorePerfTests.Hash_30kEvents_ms/Time/median",
+        "value": 3.500349999999999,
+        "previous": 3.645100000000003,
+        "changePct": -3.9711,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "튜닝 1,000개 로드",
+        "metric": "CorePerfTests.Tuning_Load1000_ms/Time/median",
+        "value": 5.96759999999972,
+        "previous": 6.604450000000497,
+        "changePct": -9.6427,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "수학·RNG·시계·해시·비활성 로그 GC 할당",
+        "metric": "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max",
+        "value": 0.0,
+        "previous": 0.0,
+        "changePct": 0.0,
+        "ok": true
+      }
+    ],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "requireAllAcs": true,
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "결정론 테스트 11/11 통과",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "결정론 테스트 11/11 통과",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "결정론 테스트 11/11 통과",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-11": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-12": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-13": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-14": [
+      {
+        "label": "결정론 테스트 11/11 통과",
+        "ok": true
+      }
+    ],
+    "AC-15": [
+      {
+        "label": "결정론 테스트 11/11 통과",
+        "ok": true
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-17": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-18": [
+      {
+        "label": "EditMode 성능 14/14 통과 (mac-m1-1600p)",
+        "ok": true
+      }
+    ],
+    "AC-19": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "pass"
+}

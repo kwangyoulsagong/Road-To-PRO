@@ -1,0 +1,19 @@
+{
+  "name": "RoadToPro.Data",
+  "rootNamespace": "RoadToPro.Data",
+  "references": [
+    "RoadToPro.Core",
+    "RoadToPro.MatchEngine",
+    "RoadToPro.Career",
+    "RoadToPro.WorldGen"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
