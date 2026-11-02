@@ -172,6 +172,7 @@ def cmd_logic(args, argv):
         for ac in report.pending_deferred(ev):
             log(f"[farm] 보류 {ac}: {deferred[ac]}")
         log("[farm] 판정: 보류 — 나머지 AC는 모두 통과. 보류가 풀리기 전에는 완료 판정 불가")
+        return "deferred"
 
 
 # ---- matrix ----

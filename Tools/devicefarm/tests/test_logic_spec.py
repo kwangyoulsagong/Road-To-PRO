@@ -196,6 +196,17 @@ class DeferredAcTests(unittest.TestCase):
         with self.assertRaises(RunnerError):
             commands.deferred_acs({"deferred": ["AC-15"]}, self.INFO2)
 
+    def test_cli_prints_deferred_not_pass(self):
+        import contextlib
+        import io
+        from farm import cli
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = cli.main(["logic", "--spec", "004"], handlers={"logic": lambda a: "deferred"})
+        self.assertEqual(code, 0)
+        self.assertIn("보류", out.getvalue())
+        self.assertNotIn("[farm] 통과", out.getvalue())
+
     def test_real_004_config_valid(self):
         cfg = perf.load_spec_config("004")
         if cfg is None:

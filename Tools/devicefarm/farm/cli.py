@@ -43,7 +43,7 @@ def _default_handlers():
     }
 
 
-# 명령 이름 → 처리 함수(args) -> None. 실패는 예외로 알린다. None이면 실제 처리 함수를 쓴다.
+# 명령 이름 → 처리 함수(args) -> None 또는 "deferred"(보류 AC 남음). 실패는 예외로 알린다. None이면 실제 처리 함수를 쓴다.
 HANDLERS = None
 
 
@@ -99,12 +99,13 @@ def main(argv=None, handlers=None):
     try:
         if handler is None:
             raise RunnerError(f"'{args.command}' 명령은 아직 구현되지 않았다")
-        handler(args)
+        result = handler(args)
     except RunnerError as e:
         print(f"[farm] 실행기 오류: {e}", file=sys.stderr)
         return EXIT_RUNNER_ERROR
     except VerificationFailed as e:
         print(f"[farm] 검증 실패: {e}", file=sys.stderr)
         return EXIT_VERIFY_FAILED
-    print("[farm] 통과")
+    # 보류 AC가 남은 검증은 실행은 성공(종료 0)이지만 통과가 아니다 (specs/004 T19a)
+    print("[farm] 보류 — 나머지는 통과, 완료 판정 아님" if result == "deferred" else "[farm] 통과")
     return EXIT_OK
