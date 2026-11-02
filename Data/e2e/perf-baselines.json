@@ -1,14 +1,14 @@
 {
   "editmode/001/mac-m1-1600p": {
-    "commit": "1295546f0a7b9d9000d81f4b7cc8c69d4cf77faa",
-    "measuredAt": "2026-11-02T15:26:05",
+    "commit": "e1df4fb3df6d3a82e4476e1c53d793a41ccf4f5e",
+    "measuredAt": "2026-11-02T15:33:31",
     "metrics": {
-      "CorePerfTests.Hash_30kEvents_ms/Time/median": 3.5451,
-      "CorePerfTests.Rng_Normal_ns/ns_per_op/median": 59.70872,
-      "CorePerfTests.Rng_Uniform_ns/ns_per_op/median": 5.574289,
-      "CorePerfTests.Swept_ns/ns_per_op/median": 70.10081,
-      "CorePerfTests.Tuning_Load1000_ms/Time/median": 7.231150000000001,
-      "CorePerfTests.Vec_Normalize_ns/ns_per_op/median": 34.27948,
+      "CorePerfTests.Hash_30kEvents_ms/Time/median": 3.645100000000003,
+      "CorePerfTests.Rng_Normal_ns/ns_per_op/median": 62.06907,
+      "CorePerfTests.Rng_Uniform_ns/ns_per_op/median": 5.629087000000001,
+      "CorePerfTests.Swept_ns/ns_per_op/median": 72.88949,
+      "CorePerfTests.Tuning_Load1000_ms/Time/median": 6.604450000000497,
+      "CorePerfTests.Vec_Normalize_ns/ns_per_op/median": 34.64651,
       "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max": 0.0
     }
   }

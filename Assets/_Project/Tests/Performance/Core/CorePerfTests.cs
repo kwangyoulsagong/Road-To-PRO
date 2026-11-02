@@ -156,8 +156,15 @@ namespace RoadToPro.Tests.Performance.Core
                     var b = TuningLoader.ParseBundle(reg, v);
                     if (b.Registry.Count != 1000) Assert.Fail("count");
                 })
-                .WarmupCount(2)
-                .MeasurementCount(10)
+                // 할당이 많은 측정이라 GC 시점에 따라 흔들린다 → 측정마다 GC를 먼저 비우고 표본을 늘린다 (T24a)
+                .SetUp(() =>
+                {
+                    GC.Collect();
+                    GC.WaitForPendingFinalizers();
+                    GC.Collect();
+                })
+                .WarmupCount(5)
+                .MeasurementCount(30)
                 .Run();
         }
 

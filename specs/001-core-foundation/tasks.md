@@ -48,4 +48,5 @@
 ## H. 마무리
 - [x] T26a farm logic 종료 코드를 리포트 판정과 맞춤 — 파일: `farm/commands.py`, `tests/test_logic_spec.py` — 검증: `test_unjudged_perf_makes_spec_verdict_fail` — 결과: 추가 태스크(사유: 배터리 전원이라 성능 판정이 빠져 리포트는 fail인데 CLI가 "통과"를 출력). 이제 AC 증거 누락·실패 시 종료 코드 1, Python 112개 통과
 - [x] T27 수용 기준 전체 테스트 통과 — EditMode 전체(`/unity-test`) 실패 0, 콘솔 에러·경고 0, 컴파일 경고 신규 0 — 결과: EditMode 151개 중 통과 148·실패 0·건너뜀 3(000 셀프테스트 전용 픽스처), `warning CS`·`error CS` 0. 콘솔 경고·에러는 `UnityLoggerTests`의 `LogAssert.Expect` 대상뿐
+- [x] T24a 튜닝 로드 성능 측정 안정화 — 파일: `Tests/Performance/Core/CorePerfTests.cs` — 검증: `farm logic --spec 001` 3회 연속 회귀 0건 — 결과: 추가 태스크(사유: 기준 채택 직후 재측정에서 튜닝 로드가 7.4~9.5 ms로 흔들려 +31% 회귀 오탐). 측정마다 GC를 비우고 워밍업 5·표본 30으로 늘림(5.8~6.7 ms). 측정 방식이 바뀌어 기준을 다시 채택
 - [ ] T28 `/verify 001` — `farm.py logic --spec 001` 리포트(로직·결정론·성능), 첫 성능 기준은 사용자 승인 후 `approve-perf`, 리포트 아티팩트 발행, spec·tasks·README 상태 `완료`
