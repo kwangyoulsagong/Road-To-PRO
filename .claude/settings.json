@@ -23,29 +23,27 @@
       "Bash(jq:*)",
       "Bash(/Applications/Blender.app/Contents/MacOS/Blender --background:*)",
       "Bash(/Applications/Unity/Hub/Editor/6000.3.27f2/Unity.app/Contents/MacOS/Unity -batchmode:*)",
-      "Bash(.claude/scripts/*)"
+      "Bash(.claude/scripts/unity-test.sh:*)",
+      "Bash(.claude/scripts/blender-gen.sh:*)",
+      "Bash(python3 -I .claude/scripts/spec-lint.py:*)",
+      "Bash(bash .claude/hooks/tests/run.sh)"
     ],
     "deny": [
-      "Edit(/Library/**)",
-      "Edit(/Temp/**)",
-      "Edit(/Logs/**)",
-      "Edit(/UserSettings/**)",
-      "Write(/Library/**)",
-      "Write(/Temp/**)",
-      "Write(/Logs/**)",
-      "Write(/UserSettings/**)",
-      "Bash(git push --force:*)",
-      "Bash(git push -f:*)",
-      "Bash(git reset --hard:*)",
-      "Bash(git clean -fd:*)",
-      "Bash(git lfs prune:*)"
+      "Edit(./Library/**)",
+      "Edit(./Temp/**)",
+      "Edit(./Logs/**)",
+      "Edit(./UserSettings/**)",
+      "Write(./Library/**)",
+      "Write(./Temp/**)",
+      "Write(./Logs/**)",
+      "Write(./UserSettings/**)"
     ],
     "ask": [
       "Bash(git push:*)",
       "Bash(git commit:*)",
       "Bash(gh pr create:*)",
-      "Edit(/ProjectSettings/**)",
-      "Edit(/Packages/manifest.json)"
+      "Edit(./ProjectSettings/**)",
+      "Edit(./Packages/manifest.json)"
     ]
   },
   "hooks": {
