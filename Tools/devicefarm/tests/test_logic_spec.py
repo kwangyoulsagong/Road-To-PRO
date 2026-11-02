@@ -136,5 +136,83 @@ class CmdLogicVerdictTests(unittest.TestCase):
         self.assertEqual(report.verdict_of(ev), "fail")
 
 
+class DeferredAcTests(unittest.TestCase):
+    """보류 AC (specs/004 T19a): 증거가 없어도 실패로 세지 않지만 통과도 아니다."""
+
+    INFO2 = {"id": "004", "name": "x", "acs": [
+        {"id": "AC-01", "kind": "로직", "text": "x"},
+        {"id": "AC-15", "kind": "E2E", "text": "x"},
+    ]}
+
+    def ev(self, links, deferred, require=True):
+        return {"title": "t", "spec": self.INFO2, "logic": {"ok": True}, "scenarios": [], "requireAllAcs": require,
+                "acEvidence": links, "deferred": deferred,
+                "meta": {"commit": "abc", "branch": "b", "time": "t", "unity": "u", "profiles": []}}
+
+    OK = {"AC-01": [{"label": "EditMode 테스트", "ok": True}]}
+    BAD = {"AC-01": [{"label": "EditMode 테스트", "ok": False}]}
+
+    def test_only_deferred_missing_is_deferred_not_pass(self):
+        from farm import report
+        ev = self.ev(self.OK, {"AC-15": "040 디버그 뷰 필요"})
+        self.assertEqual(report.verdict_of(ev), "deferred")
+        self.assertEqual(report.pending_deferred(ev), ["AC-15"])
+
+    def test_without_deferred_missing_is_fail(self):
+        from farm import report
+        self.assertEqual(report.verdict_of(self.ev(self.OK, {})), "fail")
+
+    def test_other_failure_still_fails(self):
+        from farm import report
+        self.assertEqual(report.verdict_of(self.ev(self.BAD, {"AC-15": "사유"})), "fail")
+
+    def test_deferred_with_evidence_judged_normally(self):
+        from farm import report
+        ok = dict(self.OK, **{"AC-15": [{"label": "e2e", "ok": True}]})
+        bad = dict(self.OK, **{"AC-15": [{"label": "e2e", "ok": False}]})
+        self.assertEqual(report.verdict_of(self.ev(ok, {"AC-15": "사유"})), "pass")
+        self.assertEqual(report.verdict_of(self.ev(bad, {"AC-15": "사유"})), "fail")
+
+    def test_report_shows_deferred_label_and_reason(self):
+        from farm import report
+        with tempfile.TemporaryDirectory() as d:
+            path = report.write(self.ev(self.OK, {"AC-15": "040 디버그 뷰 필요"}), d)
+            html = open(path, encoding="utf-8").read()
+            self.assertIn("보류 1건", html)
+            self.assertIn("verdict deferred", html)
+            self.assertIn("040 디버그 뷰 필요", html)
+            self.assertNotIn("증거 없음", html)
+            run = json.load(open(os.path.join(d, "run.json"), encoding="utf-8"))
+            self.assertEqual(run["verdict"], "deferred")
+
+    def test_config_validation(self):
+        from farm.errors import RunnerError
+        self.assertEqual(commands.deferred_acs({"deferred": {"AC-15": "사유"}}, self.INFO2), {"AC-15": "사유"})
+        self.assertEqual(commands.deferred_acs(None, self.INFO2), {})
+        with self.assertRaises(RunnerError):
+            commands.deferred_acs({"deferred": {"AC-99": "사유"}}, self.INFO2)
+        with self.assertRaises(RunnerError):
+            commands.deferred_acs({"deferred": {"AC-15": " "}}, self.INFO2)
+        with self.assertRaises(RunnerError):
+            commands.deferred_acs({"deferred": ["AC-15"]}, self.INFO2)
+
+    def test_cli_prints_deferred_not_pass(self):
+        import contextlib
+        import io
+        from farm import cli
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = cli.main(["logic", "--spec", "004"], handlers={"logic": lambda a: "deferred"})
+        self.assertEqual(code, 0)
+        self.assertIn("보류", out.getvalue())
+        self.assertNotIn("[farm] 통과", out.getvalue())
+
+    def test_real_004_config_valid(self):
+        cfg = perf.load_spec_config("004")
+        if cfg is None:
+            self.skipTest("Data/perf/004 설정 없음")
+        self.assertEqual(set(commands.deferred_acs(cfg, commands.spec_info("004"))), {"AC-15"})
+
+
 if __name__ == "__main__":
     unittest.main()

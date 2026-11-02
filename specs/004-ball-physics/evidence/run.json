@@ -1,0 +1,321 @@
+{
+  "title": "004 로직 증거",
+  "spec": {
+    "id": "004",
+    "name": "004 — 공 물리 · 공 상태 머신",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "구름 모델(드래그 포함)에서 초속 3.2 / 5 / 8 / 10 / 12 / 15 / 20 m/s의 정지거리가 리서치 01 A-6 표(7.2 / 13.2 / 22.6 / 28.5 / 34.5 / 44.4 / 60.3 m)와 각각 ±3% 이내, 정지시간(5.2~11.0 s)이 ±5% 이내다."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "초속 3.2 m/s 구름 거리가 UEFA/FIFA 기준 범위(5~10.6 m) 안이다 (A-6)."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "스핀 0 비행: 18 m/s·15° → 사거리 14.8 m·체공 0.92 s, 25 m/s·30° → 39.8 m·2.32 s, 30 m/s·30° → 51.6 m·2.70 s (A-7)와 사거리 ±3%, 체공 ±3% 이내."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "Cd를 0으로 두면 진공 사거리(16.5 / 55.2 / 79.5 m)와 ±1% 이내 (적분기 검증)."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "감아차기 18.5 m/s·64 rad/s(Sp ≈ 0.38) 횡방향 킥이 20 m 비행 동안 휘는 방향이 스핀 축과 오른손 법칙으로 일치하고, 횡이동이 0보다 크다. 36 m/s·63 rad/s·약 27 m 비행은 횡이동이 2~6 m 범위다. (2026-11-02 수정: A-3 공식으로는 약 5.3 m. 베컴 사례 3 m는 참고값이며, 휘는 정도는 017에서 튜닝)"
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "속도 8 m/s 미만 공은 마그누스 가속이 0이다."
+      },
+      {
+        "id": "AC-07",
+        "kind": "로직",
+        "text": "2 m 높이 낙하 공의 첫 반발 높이가 건조 표면 e 0.62 기준 √ 관계(≈0.77 m ± 5%)를 따르고, 젖은 표면이 건조보다 높게 튄다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "로직",
+        "text": "바운스를 반복하는 공은 유한 횟수(≤ 20회) 안에 Rolling으로 전이하고, 이후 Rest로 끝난다. 상태 전이 순서가 아키텍처 5의 그래프 밖으로 나가지 않는다 (허용되지 않은 전이 0건)."
+      },
+      {
+        "id": "AC-09",
+        "kind": "로직",
+        "text": "궤적 예측기가 예측한 위치와 실제 적분 결과가 10 s 동안 모든 샘플에서 완전히 같다 (오차 0)."
+      },
+      {
+        "id": "AC-10",
+        "kind": "로직",
+        "text": "땅볼 역산으로 구한 초속으로 실제 굴렸을 때 목표 거리 5~45 m 전 범위에서 정지 지점 오차 ≤ 0.2 m. 도달 불가 거리는 \"도달 불가\"를 반환한다."
+      },
+      {
+        "id": "AC-11",
+        "kind": "로직",
+        "text": "크로스바 하단을 맞고 아래로 튄 공이 골라인 위/안쪽에 떨어지는 경우 경계 통과 신호가 \"공 전체가 넘은 순간\"에만 나온다 (선에 걸친 상태에서는 신호 없음)."
+      },
+      {
+        "id": "AC-12",
+        "kind": "로직",
+        "text": "경계 · 예외 상황 목록의 입력(속도 0, 극단 속도, 지면 아래 위치, 포스트+크로스바 동시 접촉, 잘못된 표면 파라미터) 각각에서 NaN 0건, 예외 0건, 규칙대로 처리된다."
+      },
+      {
+        "id": "AC-13",
+        "kind": "결정론",
+        "text": "무작위로 만든(고정 시드) 초기 조건 10,000개를 2회 시뮬레이션해 최종 상태 해시가 전부 같다."
+      },
+      {
+        "id": "AC-14",
+        "kind": "성능",
+        "text": "성능 예산 표의 항목이 기준 프로필에서 예산 안이고, 할당 0 B다."
+      },
+      {
+        "id": "AC-15",
+        "kind": "E2E",
+        "text": "디버그 궤적 뷰(040의 2D 뷰 또는 검증 전용 화면)에서 고정 킥 5종(땅볼 15 m, 땅볼 30 m, 크로스 lofted, 감아차기, 포스트 맞는 슛)의 궤적 캡처가 기준 이미지와 일치한다. 프로필: smoke. 디버그 뷰가 아직 없으면 이 AC는 040 완료 후 검증한다."
+      },
+      {
+        "id": "AC-16",
+        "kind": "결정론",
+        "text": "FR-43 진단 출력을 켠 실행과 끈 실행(같은 시드)의 이벤트 로그 해시와 체크포인트 해시가 모두 같다. 끈 실행에서 진단용 할당은 0 B다."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/004-ball-physics"
+  },
+  "meta": {
+    "commit": "7a65ffbd6361c804ba10c56fe912dc77dc0399f2",
+    "branch": "feat/004-ball-physics",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-02 16:52:46 +0900",
+    "durationSec": 56.06735181808472,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 004",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 87,
+    "passed": 87,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 33.9366552,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-165246-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-165246-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median": 93.15578,
+      "BallPerfTests.Substep_Air_ns/ns_per_op/median": 216.39026,
+      "BallPerfTests.Predict10s_us/us_per_op/median": 209.78545000000005,
+      "BallPerfTests.GroundInverse_us/us_per_op/median": 0.058940000000000006,
+      "BallPerfTests.ZeroAlloc_StepPredictInverse/gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-14",
+        "label": "서브스텝 가중 평균",
+        "metric": "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median",
+        "value": 93.15578,
+        "budget": 100,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "서브스텝 Air 최악",
+        "metric": "BallPerfTests.Substep_Air_ns/ns_per_op/median",
+        "value": 216.39026,
+        "budget": 300,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "궤적 예측 10 s / 0.04 s",
+        "metric": "BallPerfTests.Predict10s_us/us_per_op/median",
+        "value": 209.78545000000005,
+        "budget": 250,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "땅볼 역산 1회",
+        "metric": "BallPerfTests.GroundInverse_us/us_per_op/median",
+        "value": 0.058940000000000006,
+        "budget": 30,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "서브스텝·예측·역산 GC 할당 (진단 끔 포함)",
+        "metric": "BallPerfTests.ZeroAlloc_StepPredictInverse/gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [
+      {
+        "ac": "AC-14",
+        "label": "서브스텝 가중 평균",
+        "metric": "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median",
+        "value": 93.15578,
+        "previous": 95.56067,
+        "changePct": -2.5166,
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "서브스텝 Air 최악",
+        "metric": "BallPerfTests.Substep_Air_ns/ns_per_op/median",
+        "value": 216.39026,
+        "previous": 226.29068,
+        "changePct": -4.3751,
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "궤적 예측 10 s / 0.04 s",
+        "metric": "BallPerfTests.Predict10s_us/us_per_op/median",
+        "value": 209.78545000000005,
+        "previous": 206.21855000000005,
+        "changePct": 1.7297,
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "땅볼 역산 1회",
+        "metric": "BallPerfTests.GroundInverse_us/us_per_op/median",
+        "value": 0.058940000000000006,
+        "previous": 0.0547,
+        "changePct": 7.7514,
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "서브스텝·예측·역산 GC 할당 (진단 끔 포함)",
+        "metric": "BallPerfTests.ZeroAlloc_StepPredictInverse/gc_alloc_count/max",
+        "value": 0.0,
+        "previous": 0.0,
+        "changePct": 0.0,
+        "ok": true
+      }
+    ],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "requireAllAcs": true,
+  "deferred": {
+    "AC-15": "E2E 궤적 캡처는 040 디버그 뷰(2D 탑뷰)가 필요하다 — 040 완료 후 검증 (2026-11-02 사용자 결정)"
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-11": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-12": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-13": [
+      {
+        "label": "결정론 테스트 2/2 통과",
+        "ok": true
+      }
+    ],
+    "AC-14": [
+      {
+        "label": "EditMode 성능 10/10 통과 (mac-m1-1600p)",
+        "ok": true
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "결정론 테스트 2/2 통과",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "deferred"
+}

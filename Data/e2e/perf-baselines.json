@@ -11,5 +11,16 @@
       "CorePerfTests.Vec_Normalize_ns/ns_per_op/median": 34.64651,
       "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max": 0.0
     }
+  },
+  "editmode/004/mac-m1-1600p": {
+    "commit": "e85a2c0b745fb608c3a77e73fdefd5516b66d842",
+    "measuredAt": "2026-11-02T16:20:27",
+    "metrics": {
+      "BallPerfTests.GroundInverse_us/us_per_op/median": 0.0547,
+      "BallPerfTests.Predict10s_us/us_per_op/median": 206.21855000000005,
+      "BallPerfTests.Substep_Air_ns/ns_per_op/median": 226.29068,
+      "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median": 95.56067,
+      "BallPerfTests.ZeroAlloc_StepPredictInverse/gc_alloc_count/max": 0.0
+    }
   }
 }

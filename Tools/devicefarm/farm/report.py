@@ -20,6 +20,7 @@ STATUS_LABEL = {
     "fail": ("fail", "실패"),
     "candidate": ("cand", "기준 후보"),
     "skip": ("skip", "건너뜀"),
+    "deferred": ("warn", "보류"),
 }
 
 EXTRA_CSS = """
@@ -35,6 +36,7 @@ details summary{cursor:pointer;list-style:none}details summary::-webkit-details-
 .trio figure{margin:0}.trio img{width:220px;border:0;border-radius:6px}
 .trio figcaption{font-size:12px;color:var(--muted)}
 .summary-row{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+.verdict.deferred{background:var(--warn);color:#000}
 """
 
 LAYOUT_PROBE = """<script>
@@ -89,8 +91,7 @@ def _header(ev, verdict, level):
     m = ev["meta"]
     parts = [
         f'<h1>{e(ev["title"])}</h1><div class="card"><div class="summary-row">'
-        f'<span class="verdict {"pass" if verdict == "pass" else "fail"}">'
-        f'{"통과" if verdict == "pass" else ("기준 후보 대기" if verdict == "candidate" else "실패")}</span>'
+        f'<span class="verdict {_verdict_class(verdict)}">{e(_verdict_label(ev, verdict))}</span>'
         f'<span class="muted">스펙 {e(ev["spec"]["id"])} · {e(ev["spec"].get("name", ""))}</span></div>'
         f'<p class="meta"><span>커밋 <b>{e(m.get("commit", "")[:10])}</b></span>'
         f'<span>브랜치 <b>{e(m.get("branch"))}</b></span>'
@@ -106,19 +107,45 @@ def _header(ev, verdict, level):
     return "".join(parts)
 
 
+def _verdict_class(verdict):
+    return {"pass": "pass", "deferred": "deferred"}.get(verdict, "fail")
+
+
+def _verdict_label(ev, verdict):
+    if verdict == "pass":
+        return "통과"
+    if verdict == "candidate":
+        return "기준 후보 대기"
+    if verdict == "deferred":
+        return f"보류 {len(pending_deferred(ev))}건 · 완료 아님"
+    return "실패"
+
+
+def pending_deferred(ev):
+    """보류로 지정됐고 아직 증거가 없는 AC id 목록 (specs/004 T19a). 증거가 생기면 보류가 아니라 일반 판정."""
+    deferred = ev.get("deferred") or {}
+    links = ev.get("acEvidence", {})
+    return [a["id"] for a in ev["spec"].get("acs", []) if a["id"] in deferred and not links.get(a["id"])]
+
+
 def _ac_table(ev):
     rows = []
     links = ev.get("acEvidence", {})
+    deferred = ev.get("deferred") or {}
     for ac in ev["spec"].get("acs", []):
         items = links.get(ac["id"], [])
         if items:
             ok = all(i["ok"] for i in items)
+            verdict_html = _ok_tag(ok)
             ev_html = "<br>".join(f'{_ok_tag(i["ok"])} {e(i["label"])}' for i in items)
+        elif ac["id"] in deferred:
+            verdict_html = '<span class="tag warn">보류</span>'
+            ev_html = f'<span class="tag warn">보류</span> {e(deferred[ac["id"]])}'
         else:
-            ok = False
+            verdict_html = _ok_tag(False)
             ev_html = '<span class="tag fail">증거 없음</span>'
         rows.append(
-            f'<tr><td><b>{e(ac["id"])}</b></td><td>{e(ac["kind"])}</td><td>{_ok_tag(ok)}</td>'
+            f'<tr><td><b>{e(ac["id"])}</b></td><td>{e(ac["kind"])}</td><td>{verdict_html}</td>'
             f'<td>{ev_html}</td><td class="muted wrap">{e(ac["text"])}</td></tr>'
         )
     return (
@@ -327,8 +354,10 @@ def verdict_of(ev):
     acs = ev["spec"].get("acs", [])
     links = ev.get("acEvidence", {})
     # 완료 판정(셀프테스트·/verify)일 때만 모든 AC에 증거가 있어야 한다. 일반 smoke/full은 연결된 AC만 본다.
+    pending = set(pending_deferred(ev))
     if ev.get("requireAllAcs"):
-        ac_ok = all(links.get(a["id"]) and all(i["ok"] for i in links[a["id"]]) for a in acs) if acs else True
+        # 보류 AC(증거 없음)는 실패로 세지 않지만 통과도 아니다 → 아래에서 'deferred'
+        ac_ok = all(links.get(a["id"]) and all(i["ok"] for i in links[a["id"]]) for a in acs if a["id"] not in pending) if acs else True
     else:
         ac_ok = all(i["ok"] for items in links.values() for i in items)
     sc_v = [s["verdict"] for s in ev.get("scenarios", [])]
@@ -339,6 +368,8 @@ def verdict_of(ev):
         return "fail"
     if "candidate" in sc_v:
         return "candidate"
+    if pending and ev.get("requireAllAcs"):
+        return "deferred"
     return "pass"
 
 
