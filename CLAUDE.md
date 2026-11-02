@@ -8,7 +8,7 @@
 
 ## 작업 규칙 (사용자 선호)
 - 대화와 문서는 **한국어**.
-- **사용자가 요청하기 전에는 코드를 작성하지 않는다.** 지금은 기획 단계다.
+- **SDD(스펙 주도 개발)**: 스펙 → 플랜 → 태스크 → 구현. 각 단계는 사용자 승인 후 다음으로. 코드는 승인된 `specs/NNN-*/tasks.md`의 태스크로만 쓴다. (`.claude/rules/05-sdd.md`)
 - 문서는 Markdown 파일보다 **아티팩트(HTML 페이지)**로 만든다. 레포에는 `docs/*.html`로 저장한다.
 - 커밋·푸시는 요청받을 때만. `main`에 직접 커밋하지 않고 브랜치를 만든다.
 - 상용 게임(Football Manager, EA FC 등)을 디컴파일·리버스 엔지니어링하지 않는다. 공개 연구·오픈소스만 참고한다.
@@ -29,9 +29,17 @@
 | 이벤트 | 스토리렛 방식, 12개 카테고리 300개 이상 |
 | 일정 | 첫 시즌은 **실제 시즌 일정**, 2시즌부터 자동 생성 |
 | 3D 아트 | 경기장·소품은 Blender Python(bpy) 스크립트로 생성 → glb/fbx. 모션은 Mixamo. 텍스처는 CC0(Poly Haven, ambientCG, Kenney). 출처는 `Art/LICENSES.csv`에 기록 |
+| 실명 데이터 | **A안** (2026-11-02): 클럽·경기장은 변형 이름, 선수·감독은 가상, 실명 로스터는 커뮤니티가 에디터·가져오기로. "살짝 바꾼" 선수 이름 금지 |
+| 우선순위 | **3D 먼저** (2026-11-02): ① 3D 선수 움직임 ② 매치 엔진 ③ 시나리오 생산 파이프라인(계속). 단계 P1~P6은 `specs/README.md` |
+| 시뮬 주기 | 결정 10Hz · 물리 100Hz · 리플레이 기록 30Hz(화면 보간). 슬로모 0.5x만 |
+| 능력치 | 내부 0~100, 표시 1~20 |
+| 시나리오 | 기본 패턴 268개(카탈로그) 기준. 대량 시뮬 평균 득점 2.5~3.0 |
+| 저장 | 경기 전·후만. 경기 중 종료 시 경기 시작 직전으로 복구 |
+| 선수 폴리곤 | LOD0 6~10k / LOD1 2~3k tris |
+| 연령 하한 | 연애·유흥·도박 이벤트 18세, 선수 최소 15세 |
 
 ## 결정 대기
-- **실명 데이터**: 선수·감독 이름을 "살짝 바꿔 알아보게" 하는 방식은 퍼블리시티권 위험이 크다. 선택지 A(권장: 클럽·경기장은 변형 이름, 선수·감독은 가상, 실명 로스터는 에디터·가져오기로 커뮤니티에 맡김) / B / C(FIFPRO 라이선스). `docs/index.html`의 00 문서 참고.
+- `specs/README.md` "스펙 간 결정 필요" 표의 남은 항목과 각 스펙의 `[제안]` 수치.
 
 ## 레포 구조
 ```
@@ -48,7 +56,18 @@ Art/Blender/scripts/   bpy 생성 스크립트
 Data/scenarios/        시나리오 정의 (YAML/JSON)
 Data/schedules/        실제 시즌 일정
 docs/                  기획 아티팩트 HTML
+specs/NNN-<slug>/      SDD 스펙·플랜·태스크 (Markdown, _templates/ 참고)
+.claude/               하네스: rules/, hooks/, skills/, agents/, scripts/, settings.json
 ```
+
+## 하네스 (`.claude/`)
+- **rules/**: 상세 규칙. 00 작업흐름·git, 01 법·라이선스, 05 SDD는 항상, 나머지는 경로별(C#, 코어 결정론, 프레젠테이션·UI, 데이터, 아트, 테스트, 문서).
+- **hooks/**: Unity 생성물·`.meta`·csproj 편집 차단 / main 커밋·푸시, 강제 푸시, `reset --hard` 차단 / 코어 모듈의 Unity 참조·비결정 API 검사 / 새 바이너리 에셋 시 `LICENSES.csv` 상기.
+- **skills/**: `/spec` `/plan` `/tasks` `/implement` `/verify` (SDD 5단계), `/unity-test`, `/blender-gen`, `/new-scenario`.
+- **scripts/**: `unity-test.sh`(배치 테스트), `blender-gen.sh`, `spec-lint.py`(스펙 형식·태그·실명 검사). 훅 회귀 테스트: `bash .claude/hooks/tests/run.sh`.
+- **완료 = 증거**: 로직 테스트 리포트 스크린샷 + 디바이스팜(기기 프로필 매트릭스) E2E 스크린샷·기준 이미지 비교 + 프로필별 성능 측정. `specs/000-verification-harness` 참고. 리포트는 아티팩트로 발행.
+- **agents/**: `determinism-reviewer`(코어 결정론 리뷰), `spec-checker`(기획서·스펙 대조).
+- 개인 설정은 `.claude/settings.local.json` (gitignore).
 
 ## 환경
 - macOS (Apple Silicon). Unity Hub + Unity 6000.3.27f2 (Windows Build Support Mono 포함).

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout -b:*)",
+      "Bash(git switch -c:*)",
+      "Bash(git add:*)",
+      "Bash(git lfs ls-files:*)",
+      "Bash(git lfs status:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(jq:*)",
+      "Bash(/Applications/Blender.app/Contents/MacOS/Blender --background:*)",
+      "Bash(/Applications/Unity/Hub/Editor/6000.3.27f2/Unity.app/Contents/MacOS/Unity -batchmode:*)",
+      "Bash(.claude/scripts/unity-test.sh:*)",
+      "Bash(.claude/scripts/blender-gen.sh:*)",
+      "Bash(python3 -I .claude/scripts/spec-lint.py:*)",
+      "Bash(bash .claude/hooks/tests/run.sh)"
+    ],
+    "deny": [
+      "Edit(./Library/**)",
+      "Edit(./Temp/**)",
+      "Edit(./Logs/**)",
+      "Edit(./UserSettings/**)",
+      "Write(./Library/**)",
+      "Write(./Temp/**)",
+      "Write(./Logs/**)",
+      "Write(./UserSettings/**)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(gh pr create:*)",
+      "Edit(./ProjectSettings/**)",
+      "Edit(./Packages/manifest.json)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-paths.sh" }]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-git.sh" }]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-pure-core.sh" }]
+      },
+      {
+        "matcher": "Write|Bash",
+        "hooks": [{ "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-art-license.sh" }]
+      }
+    ]
+  }
+}

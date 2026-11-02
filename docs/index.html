@@ -133,14 +133,14 @@ html{scroll-behavior:smooth}
     <div class="dc"><b>해설 없음</b><span>관중·휘슬·킥·그물 등 현장 사운드만</span></div>
     <div class="dc"><b>FM급 그래픽</b><span>저사양(내장 GPU)에서도 60fps. 배터리 절약 모드 별도</span></div>
     <div class="dc"><b>3D 아트: Blender → Unity</b><span>경기장·소품은 bpy 스크립트로 생성, 모션은 Mixamo</span></div>
-    <div class="dc"><b>시나리오 기반 엔진</b><span>기본 패턴 200개 × 변주 조합 → 약 4만 개 자동 생성. 라인은 형태 레이어가 유지. ML 없음</span></div>
+    <div class="dc"><b>시나리오 기반 엔진</b><span>기본 패턴 268개 × 변주 조합 → 약 4만 개 자동 생성. 라인은 형태 레이어가 유지. ML 없음</span></div>
     <div class="dc"><b>역할 · 성향 · 버릇</b><span>메짤라·트레콸르티스타 등 27개 역할 + 드리블 중독·크로스 머신 같은 버릇</span></div>
     <div class="dc"><b>라이프 시스템</b><span>쇼핑·집·차, 연애·결혼·가족, 유흥·사교. 모두 경기력과 평판에 연결</span></div>
     <div class="dc"><b>질병 · 이벤트 300+</b><span>감기→부상 연결, 드물게 질병 은퇴. 12개 카테고리 이벤트</span></div>
     <div class="dc"><b>일정: 첫 시즌은 실제</b><span>실제 시즌 일정으로 시작, 2시즌부터 자동 생성</span></div>
     <div class="dc"><b>UI: 깔끔한 앱 스타일</b><span>흰 카드, 큰 숫자, 블루 포인트 하나, 바텀시트 선택지</span></div>
     <div class="dc"><b>텍스처: CC0 소스</b><span>Poly Haven, ambientCG 등. 출처는 LICENSES.csv에 기록</span></div>
-    <div class="dc pending"><b>결정 필요: 실명 데이터</b><span>선수·감독 이름과 로스터 연동 방식. 00 문서 참고</span></div>
+    <div class="dc pending"><b>확정: 실명 데이터 A안</b><span>클럽·경기장은 변형 이름, 선수·감독은 가상, 실명 로스터는 커뮤니티 에디터·가져오기</span></div>
   </div>
 </header>
 
@@ -197,14 +197,14 @@ flowchart TB
   <div class="md"><h2>2. 어셈블리(asmdef) 의존성</h2></div>
   <div class="fig"><pre class="mermaid">
 flowchart LR
-  Core[ProPath.Core<br/>도메인 모델]
-  Match[ProPath.MatchEngine<br/>noEngineReferences]
-  Career[ProPath.Career]
-  World[ProPath.WorldGen]
-  Data[ProPath.Data<br/>SQLite · JSON]
-  Pres[ProPath.Presentation<br/>Unity]
-  UI[ProPath.UI<br/>Unity]
-  Tests[ProPath.Tests<br/>EditMode · 헤드리스]
+  Core[RoadToPro.Core<br/>도메인 모델]
+  Match[RoadToPro.MatchEngine<br/>noEngineReferences]
+  Career[RoadToPro.Career]
+  World[RoadToPro.WorldGen]
+  Data[RoadToPro.Data<br/>SQLite · JSON]
+  Pres[RoadToPro.Presentation<br/>Unity]
+  UI[RoadToPro.UI<br/>Unity]
+  Tests[RoadToPro.Tests<br/>EditMode · 헤드리스]
   Match --> Core
   Career --> Core
   Career --> Match
