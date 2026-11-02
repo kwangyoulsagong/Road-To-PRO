@@ -1,0 +1,2477 @@
+{
+  "title": "000 검증 하네스 · 디바이스팜 증거",
+  "spec": {
+    "id": "000",
+    "name": "000 — 검증 하네스 · 디바이스팜",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "일부러 실패하는 테스트 1개와 통과 테스트 2개를 돌리면, 리포트 스크린샷 맨 위에 실패 1건이 메시지와 함께 보이고 판정은 실패다."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "컴파일 에러가 있는 상태로 실행하면 판정은 실패이고 리포트에 `error CS` 줄이 보인다."
+      },
+      {
+        "id": "AC-03",
+        "kind": "E2E",
+        "text": "샘플 화면(카드 3장 + 버튼 1개) 시나리오를 smoke 3 프로필로 돌리면 프로필별 캡처 3장이 나오고, 각 캡처의 해상도가 프로필 해상도와 같다."
+      },
+      {
+        "id": "AC-04",
+        "kind": "E2E",
+        "text": "같은 커밋에서 같은 시나리오를 2회 돌리면 모든 캡처의 차이가 0이다."
+      },
+      {
+        "id": "AC-05",
+        "kind": "E2E",
+        "text": "샘플 화면의 버튼 색을 바꾸면 해당 단계가 전 프로필에서 차이 실패로 표시되고 차이 이미지에 버튼 영역이 강조된다."
+      },
+      {
+        "id": "AC-06",
+        "kind": "E2E",
+        "text": "en 언어에서 일부러 넘치게 만든 라벨은 `잘림 없음` 단언으로 실패한다."
+      },
+      {
+        "id": "AC-07",
+        "kind": "E2E",
+        "text": "렌더가 검은 화면이면 기준 이미지가 없어도 실패한다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "E2E",
+        "text": "기준 이미지가 없는 단계는 \"기준 후보\"로 표시되고, 승인 명령 후 재실행하면 통과로 바뀐다."
+      },
+      {
+        "id": "AC-09",
+        "kind": "성능",
+        "text": "성능 구간에서 프로필별 p95 프레임 시간·GC·드로우콜·삼각형·메모리가 기록되고, 예산을 넘긴 값은 실패로 표시된다."
+      },
+      {
+        "id": "AC-10",
+        "kind": "성능",
+        "text": "이전 측정보다 일부러 15% 느리게 만든 구간은 회귀 실패, 5% 느린 구간은 통과로 표시된다."
+      },
+      {
+        "id": "AC-11",
+        "kind": "결정론",
+        "text": "같은 시드로 2회 실행한 샘플 시뮬의 해시가 같고, RNG 호출 하나를 일부러 추가하면 갈라진 첫 체크포인트가 보고된다."
+      },
+      {
+        "id": "AC-12",
+        "kind": "로직",
+        "text": "플레이어 실행 중 경고 로그 1개가 나오면 판정은 실패이고 리포트 로그 요약에 그 줄이 보인다. 무시 목록에 사유와 함께 넣으면 통과하고 리포트에 무시 항목으로 보인다."
+      },
+      {
+        "id": "AC-13",
+        "kind": "E2E",
+        "text": "한 프로필에서 플레이어가 크래시해도 나머지 프로필 결과는 정상으로 나오고, 크래시 프로필은 실패로 표시된다."
+      },
+      {
+        "id": "AC-14",
+        "kind": "E2E",
+        "text": "`report.html`이 400px 폭에서 가로 스크롤 없이 읽히고(격자·표·코드 블록 제외), 아티팩트로 발행되어 링크가 출력된다. 리포트 상단에 커밋 해시·브랜치·실행 시각이 보인다."
+      },
+      {
+        "id": "AC-15",
+        "kind": "성능",
+        "text": "smoke 매트릭스(3 프로필, 샘플 시나리오)가 빌드 캐시가 있을 때 5분 안에 끝난다."
+      },
+      {
+        "id": "AC-16",
+        "kind": "E2E",
+        "text": "프로필 해상도를 바꿔도 결정론 체크포인트 해시가 같다."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/000-verification-harness"
+  },
+  "meta": {
+    "commit": "9550d3c670839fdc86f3e89a2dec9501be5f2580",
+    "branch": "feat/000-verification-harness",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-02 14:19:07 +0900",
+    "durationSec": 221.6651668548584,
+    "command": "python3 Tools/devicefarm/farm.py self-test all",
+    "profiles": [
+      "compact-1366-light-ko",
+      "low-igpu-1080p-light-ko",
+      "mac-m1-1600p-light-ko"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 25,
+    "passed": 22,
+    "failed": 0,
+    "skipped": 3,
+    "duration": 4.2127035,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/logic.html"
+  },
+  "scenarios": [
+    {
+      "scenario": "000-sample-cards",
+      "description": "샘플 화면(카드 3장 + 버튼) — 캡처·비교·레이아웃 단언·성능 구간·결정론 체크포인트 (AC-03~09·16)",
+      "combos": [
+        {
+          "key": "low-igpu-1080p-light-ko",
+          "profile": "low-igpu-1080p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 7.5,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/low-igpu-1080p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/low-igpu-1080p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/000-sample-cards.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/low-igpu-1080p-light-ko",
+            "-farmSeed",
+            "20261102",
+            "-farmProfile",
+            "low-igpu-1080p",
+            "-farmWidth",
+            "1920",
+            "-farmHeight",
+            "1080",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.67",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 0.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "assertVisible",
+              "name": null,
+              "status": "passed",
+              "ms": 15.8,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "assertNoOverlap",
+              "name": null,
+              "status": "passed",
+              "ms": 17.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 4,
+              "type": "assertNoClip",
+              "name": null,
+              "status": "passed",
+              "ms": 17.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "checkpoint",
+              "name": "start",
+              "status": "passed",
+              "ms": 15.1,
+              "message": "",
+              "timedOut": false,
+              "checkpoints": 10
+            },
+            {
+              "index": 6,
+              "type": "capture",
+              "name": "home",
+              "status": "passed",
+              "ms": 87.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/home.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 7,
+              "type": "tap",
+              "name": null,
+              "status": "passed",
+              "ms": 28.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 8,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 16.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 9,
+              "type": "capture",
+              "name": "confirmed",
+              "status": "passed",
+              "ms": 85.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/confirmed.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 10,
+              "type": "perfBegin",
+              "name": "idle",
+              "status": "passed",
+              "ms": 14.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "perfEnd",
+              "name": "idle",
+              "status": "passed",
+              "ms": 2516.4,
+              "message": "",
+              "timedOut": false,
+              "frames": 150
+            }
+          ],
+          "captures": [
+            {
+              "step": "home",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/low-igpu-1080p-light-ko/captures/home.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/home/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "000-sample-cards",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "confirmed",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/low-igpu-1080p-light-ko/captures/confirmed.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/confirmed/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "000-sample-cards",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [
+            {
+              "section": "idle",
+              "key": "000-sample-cards/idle/low-igpu-1080p",
+              "metrics": {
+                "frames": 120,
+                "frameMs": {
+                  "avg": 16.668968352799613,
+                  "p50": 16.666794195771217,
+                  "p95": 16.67787693440914,
+                  "p99": 16.731617972254753,
+                  "max": 16.762791201472282
+                },
+                "mainThreadMs": {
+                  "avg": 16.659238925000004,
+                  "p50": 16.657292,
+                  "p95": 16.692959,
+                  "p99": 16.755209,
+                  "max": 16.866625
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 764.7333333333333,
+                  "max": 9733
+                },
+                "gcAllocTotalBytes": 91768,
+                "drawCalls": {
+                  "avg": 4.0,
+                  "max": 8
+                },
+                "triangles": {
+                  "avg": 259.0,
+                  "max": 518
+                },
+                "textureMemoryBytes": 43031807,
+                "totalMemoryBytes": 254707929
+              },
+              "power": "ac",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [],
+              "regression": []
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [
+            {
+              "name": "start/t100",
+              "tick": 100,
+              "hash": "49f665630b39d9ae"
+            },
+            {
+              "name": "start/t200",
+              "tick": 200,
+              "hash": "565d89feac0ef811"
+            },
+            {
+              "name": "start/t300",
+              "tick": 300,
+              "hash": "24d6653d9841a046"
+            },
+            {
+              "name": "start/t400",
+              "tick": 400,
+              "hash": "9f2d290219b3c8bb"
+            },
+            {
+              "name": "start/t500",
+              "tick": 500,
+              "hash": "25549b69303e1684"
+            },
+            {
+              "name": "start/t600",
+              "tick": 600,
+              "hash": "50bf58505e58f8da"
+            },
+            {
+              "name": "start/t700",
+              "tick": 700,
+              "hash": "940a4ff385d90339"
+            },
+            {
+              "name": "start/t800",
+              "tick": 800,
+              "hash": "9251dd20bacaa97e"
+            },
+            {
+              "name": "start/t900",
+              "tick": 900,
+              "hash": "c17ea7408cefc912"
+            },
+            {
+              "name": "start/t1000",
+              "tick": 1000,
+              "hash": "5730de61deb3eccc"
+            }
+          ],
+          "verdict": "pass"
+        },
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 7.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/000-sample-cards.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261102",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 0.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "assertVisible",
+              "name": null,
+              "status": "passed",
+              "ms": 15.8,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "assertNoOverlap",
+              "name": null,
+              "status": "passed",
+              "ms": 17.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 4,
+              "type": "assertNoClip",
+              "name": null,
+              "status": "passed",
+              "ms": 17.8,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "checkpoint",
+              "name": "start",
+              "status": "passed",
+              "ms": 14.8,
+              "message": "",
+              "timedOut": false,
+              "checkpoints": 10
+            },
+            {
+              "index": 6,
+              "type": "capture",
+              "name": "home",
+              "status": "passed",
+              "ms": 174.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/home.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 7,
+              "type": "tap",
+              "name": null,
+              "status": "passed",
+              "ms": 24.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 8,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 17.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 9,
+              "type": "capture",
+              "name": "confirmed",
+              "status": "passed",
+              "ms": 152.9,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/confirmed.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 10,
+              "type": "perfBegin",
+              "name": "idle",
+              "status": "passed",
+              "ms": 13.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "perfEnd",
+              "name": "idle",
+              "status": "passed",
+              "ms": 2517,
+              "message": "",
+              "timedOut": false,
+              "frames": 150
+            }
+          ],
+          "captures": [
+            {
+              "step": "home",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/mac-m1-1600p-light-ko/captures/home.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/home/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "000-sample-cards",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "confirmed",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/mac-m1-1600p-light-ko/captures/confirmed.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/confirmed/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "000-sample-cards",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [
+            {
+              "section": "idle",
+              "key": "000-sample-cards/idle/mac-m1-1600p",
+              "metrics": {
+                "frames": 120,
+                "frameMs": {
+                  "avg": 16.669274711360533,
+                  "p50": 16.666915267705917,
+                  "p95": 16.681086272001266,
+                  "p99": 16.713080927729607,
+                  "max": 16.780328005552292
+                },
+                "mainThreadMs": {
+                  "avg": 16.660851025000003,
+                  "p50": 16.659208,
+                  "p95": 16.678959,
+                  "p99": 16.712041,
+                  "max": 16.769916
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 764.1333333333333,
+                  "max": 13919
+                },
+                "gcAllocTotalBytes": 91696,
+                "drawCalls": {
+                  "avg": 4.0,
+                  "max": 8
+                },
+                "triangles": {
+                  "avg": 259.0,
+                  "max": 518
+                },
+                "textureMemoryBytes": 77674663,
+                "totalMemoryBytes": 305508777
+              },
+              "power": "ac",
+              "judged": true,
+              "ok": true,
+              "note": "",
+              "budget": [],
+              "regression": []
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [
+            {
+              "name": "start/t100",
+              "tick": 100,
+              "hash": "49f665630b39d9ae"
+            },
+            {
+              "name": "start/t200",
+              "tick": 200,
+              "hash": "565d89feac0ef811"
+            },
+            {
+              "name": "start/t300",
+              "tick": 300,
+              "hash": "24d6653d9841a046"
+            },
+            {
+              "name": "start/t400",
+              "tick": 400,
+              "hash": "9f2d290219b3c8bb"
+            },
+            {
+              "name": "start/t500",
+              "tick": 500,
+              "hash": "25549b69303e1684"
+            },
+            {
+              "name": "start/t600",
+              "tick": 600,
+              "hash": "50bf58505e58f8da"
+            },
+            {
+              "name": "start/t700",
+              "tick": 700,
+              "hash": "940a4ff385d90339"
+            },
+            {
+              "name": "start/t800",
+              "tick": 800,
+              "hash": "9251dd20bacaa97e"
+            },
+            {
+              "name": "start/t900",
+              "tick": 900,
+              "hash": "c17ea7408cefc912"
+            },
+            {
+              "name": "start/t1000",
+              "tick": 1000,
+              "hash": "5730de61deb3eccc"
+            }
+          ],
+          "verdict": "pass"
+        },
+        {
+          "key": "compact-1366-light-ko",
+          "profile": "compact-1366",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 6.9,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/compact-1366-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/compact-1366-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/000-sample-cards.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/compact-1366-light-ko",
+            "-farmSeed",
+            "20261102",
+            "-farmProfile",
+            "compact-1366",
+            "-farmWidth",
+            "1366",
+            "-farmHeight",
+            "768",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 0.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "assertVisible",
+              "name": null,
+              "status": "passed",
+              "ms": 15.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "assertNoOverlap",
+              "name": null,
+              "status": "passed",
+              "ms": 17.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 4,
+              "type": "assertNoClip",
+              "name": null,
+              "status": "passed",
+              "ms": 17.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "checkpoint",
+              "name": "start",
+              "status": "passed",
+              "ms": 15.2,
+              "message": "",
+              "timedOut": false,
+              "checkpoints": 10
+            },
+            {
+              "index": 6,
+              "type": "capture",
+              "name": "home",
+              "status": "passed",
+              "ms": 53.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/home.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 7,
+              "type": "tap",
+              "name": null,
+              "status": "passed",
+              "ms": 29.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 8,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 16.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 9,
+              "type": "capture",
+              "name": "confirmed",
+              "status": "passed",
+              "ms": 53.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/confirmed.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 10,
+              "type": "perfBegin",
+              "name": "idle",
+              "status": "passed",
+              "ms": 13.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "perfEnd",
+              "name": "idle",
+              "status": "passed",
+              "ms": 2543.2,
+              "message": "",
+              "timedOut": false,
+              "frames": 150
+            }
+          ],
+          "captures": [
+            {
+              "step": "home",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/compact-1366-light-ko/captures/home.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/home/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "000-sample-cards",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "confirmed",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/2회차(임시 기준 승인 후)/compact-1366-light-ko/captures/confirmed.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/confirmed/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "000-sample-cards",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [
+            {
+              "section": "idle",
+              "key": "000-sample-cards/idle/compact-1366",
+              "metrics": {
+                "frames": 120,
+                "frameMs": {
+                  "avg": 16.8804881007721,
+                  "p50": 16.66921004652977,
+                  "p95": 17.578918486833572,
+                  "p99": 18.616000190377235,
+                  "max": 20.14187164604664
+                },
+                "mainThreadMs": {
+                  "avg": 16.85805145833333,
+                  "p50": 16.674125,
+                  "p95": 17.582208,
+                  "p99": 18.488334,
+                  "max": 20.083167
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 764.1333333333333,
+                  "max": 9697
+                },
+                "gcAllocTotalBytes": 91696,
+                "drawCalls": {
+                  "avg": 4.0,
+                  "max": 8
+                },
+                "triangles": {
+                  "avg": 259.0,
+                  "max": 518
+                },
+                "textureMemoryBytes": 25877159,
+                "totalMemoryBytes": 229365733
+              },
+              "power": "ac",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [],
+              "regression": []
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [
+            {
+              "name": "start/t100",
+              "tick": 100,
+              "hash": "49f665630b39d9ae"
+            },
+            {
+              "name": "start/t200",
+              "tick": 200,
+              "hash": "565d89feac0ef811"
+            },
+            {
+              "name": "start/t300",
+              "tick": 300,
+              "hash": "24d6653d9841a046"
+            },
+            {
+              "name": "start/t400",
+              "tick": 400,
+              "hash": "9f2d290219b3c8bb"
+            },
+            {
+              "name": "start/t500",
+              "tick": 500,
+              "hash": "25549b69303e1684"
+            },
+            {
+              "name": "start/t600",
+              "tick": 600,
+              "hash": "50bf58505e58f8da"
+            },
+            {
+              "name": "start/t700",
+              "tick": 700,
+              "hash": "940a4ff385d90339"
+            },
+            {
+              "name": "start/t800",
+              "tick": 800,
+              "hash": "9251dd20bacaa97e"
+            },
+            {
+              "name": "start/t900",
+              "tick": 900,
+              "hash": "c17ea7408cefc912"
+            },
+            {
+              "name": "start/t1000",
+              "tick": 1000,
+              "hash": "5730de61deb3eccc"
+            }
+          ],
+          "verdict": "pass"
+        }
+      ],
+      "determinism": {
+        "ok": true,
+        "reference": "compact-1366-light-ko",
+        "mismatches": {},
+        "reason": ""
+      },
+      "verdict": "pass",
+      "title": "000-sample-cards · 2회차(임시 기준 승인 후)"
+    },
+    {
+      "scenario": "000-sample-cards",
+      "description": "샘플 화면(카드 3장 + 버튼) — 캡처·비교·레이아웃 단언·성능 구간·결정론 체크포인트 (AC-03~09·16)",
+      "combos": [
+        {
+          "key": "low-igpu-1080p-light-ko",
+          "profile": "low-igpu-1080p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 6.9,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/low-igpu-1080p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/low-igpu-1080p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/000-sample-cards.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/low-igpu-1080p-light-ko",
+            "-farmSeed",
+            "20261102",
+            "-farmProfile",
+            "low-igpu-1080p",
+            "-farmWidth",
+            "1920",
+            "-farmHeight",
+            "1080",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.67",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko",
+            "-farmSampleButtonColor",
+            "#ff5000"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 0.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "assertVisible",
+              "name": null,
+              "status": "passed",
+              "ms": 15.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "assertNoOverlap",
+              "name": null,
+              "status": "passed",
+              "ms": 17.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 4,
+              "type": "assertNoClip",
+              "name": null,
+              "status": "passed",
+              "ms": 17.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "checkpoint",
+              "name": "start",
+              "status": "passed",
+              "ms": 15.2,
+              "message": "",
+              "timedOut": false,
+              "checkpoints": 10
+            },
+            {
+              "index": 6,
+              "type": "capture",
+              "name": "home",
+              "status": "passed",
+              "ms": 88.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/home.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 7,
+              "type": "tap",
+              "name": null,
+              "status": "passed",
+              "ms": 27.8,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 8,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 16.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 9,
+              "type": "capture",
+              "name": "confirmed",
+              "status": "passed",
+              "ms": 85.5,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/confirmed.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 10,
+              "type": "perfBegin",
+              "name": "idle",
+              "status": "passed",
+              "ms": 14.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "perfEnd",
+              "name": "idle",
+              "status": "passed",
+              "ms": 2516.6,
+              "message": "",
+              "timedOut": false,
+              "frames": 150
+            }
+          ],
+          "captures": [
+            {
+              "step": "home",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/low-igpu-1080p-light-ko/captures/home.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/home/low-igpu-1080p-light-ko.png",
+              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/low-igpu-1080p-light-ko/diff/home.png",
+              "scenario": "000-sample-cards",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "fail",
+              "reason": "바뀐 픽셀 0.4913% > 허용 0.1000%",
+              "diffPixels": 10188,
+              "diffRatio": 0.004913194444444445,
+              "bbox": [
+                24,
+                229,
+                200,
+                52
+              ]
+            },
+            {
+              "step": "confirmed",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/low-igpu-1080p-light-ko/captures/confirmed.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/confirmed/low-igpu-1080p-light-ko.png",
+              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/low-igpu-1080p-light-ko/diff/confirmed.png",
+              "scenario": "000-sample-cards",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "fail",
+              "reason": "바뀐 픽셀 0.4913% > 허용 0.1000%",
+              "diffPixels": 10188,
+              "diffRatio": 0.004913194444444445,
+              "bbox": [
+                24,
+                229,
+                200,
+                52
+              ]
+            }
+          ],
+          "failCaptures": [],
+          "perf": [
+            {
+              "section": "idle",
+              "key": "000-sample-cards/idle/low-igpu-1080p",
+              "metrics": {
+                "frames": 120,
+                "frameMs": {
+                  "avg": 16.670538236697514,
+                  "p50": 16.666794195771217,
+                  "p95": 16.6693814098835,
+                  "p99": 16.77916757762432,
+                  "max": 16.998667269945145
+                },
+                "mainThreadMs": {
+                  "avg": 16.66224203333333,
+                  "p50": 16.659208,
+                  "p95": 16.6755,
+                  "p99": 16.769834,
+                  "max": 16.991292
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 794.9833333333333,
+                  "max": 9589
+                },
+                "gcAllocTotalBytes": 95398,
+                "drawCalls": {
+                  "avg": 4.0,
+                  "max": 8
+                },
+                "triangles": {
+                  "avg": 259.0,
+                  "max": 518
+                },
+                "textureMemoryBytes": 43031807,
+                "totalMemoryBytes": 254687225
+              },
+              "power": "ac",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [],
+              "regression": []
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [
+            {
+              "name": "start/t100",
+              "tick": 100,
+              "hash": "49f665630b39d9ae"
+            },
+            {
+              "name": "start/t200",
+              "tick": 200,
+              "hash": "565d89feac0ef811"
+            },
+            {
+              "name": "start/t300",
+              "tick": 300,
+              "hash": "24d6653d9841a046"
+            },
+            {
+              "name": "start/t400",
+              "tick": 400,
+              "hash": "9f2d290219b3c8bb"
+            },
+            {
+              "name": "start/t500",
+              "tick": 500,
+              "hash": "25549b69303e1684"
+            },
+            {
+              "name": "start/t600",
+              "tick": 600,
+              "hash": "50bf58505e58f8da"
+            },
+            {
+              "name": "start/t700",
+              "tick": 700,
+              "hash": "940a4ff385d90339"
+            },
+            {
+              "name": "start/t800",
+              "tick": 800,
+              "hash": "9251dd20bacaa97e"
+            },
+            {
+              "name": "start/t900",
+              "tick": 900,
+              "hash": "c17ea7408cefc912"
+            },
+            {
+              "name": "start/t1000",
+              "tick": 1000,
+              "hash": "5730de61deb3eccc"
+            }
+          ],
+          "verdict": "fail"
+        },
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 7.8,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/000-sample-cards.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261102",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko",
+            "-farmSampleButtonColor",
+            "#ff5000"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 0.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "assertVisible",
+              "name": null,
+              "status": "passed",
+              "ms": 15.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "assertNoOverlap",
+              "name": null,
+              "status": "passed",
+              "ms": 17.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 4,
+              "type": "assertNoClip",
+              "name": null,
+              "status": "passed",
+              "ms": 18,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "checkpoint",
+              "name": "start",
+              "status": "passed",
+              "ms": 14.6,
+              "message": "",
+              "timedOut": false,
+              "checkpoints": 10
+            },
+            {
+              "index": 6,
+              "type": "capture",
+              "name": "home",
+              "status": "passed",
+              "ms": 174.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/home.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 7,
+              "type": "tap",
+              "name": null,
+              "status": "passed",
+              "ms": 24.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 8,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 17.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 9,
+              "type": "capture",
+              "name": "confirmed",
+              "status": "passed",
+              "ms": 148.8,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/confirmed.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 10,
+              "type": "perfBegin",
+              "name": "idle",
+              "status": "passed",
+              "ms": 18.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "perfEnd",
+              "name": "idle",
+              "status": "passed",
+              "ms": 2577.4,
+              "message": "",
+              "timedOut": false,
+              "frames": 150
+            }
+          ],
+          "captures": [
+            {
+              "step": "home",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/mac-m1-1600p-light-ko/captures/home.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/home/mac-m1-1600p-light-ko.png",
+              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/mac-m1-1600p-light-ko/diff/home.png",
+              "scenario": "000-sample-cards",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "fail",
+              "reason": "바뀐 픽셀 0.9886% > 허용 0.1000%",
+              "diffPixels": 40495,
+              "diffRatio": 0.009886474609375,
+              "bbox": [
+                48,
+                456,
+                400,
+                104
+              ]
+            },
+            {
+              "step": "confirmed",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/mac-m1-1600p-light-ko/captures/confirmed.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/confirmed/mac-m1-1600p-light-ko.png",
+              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/mac-m1-1600p-light-ko/diff/confirmed.png",
+              "scenario": "000-sample-cards",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "fail",
+              "reason": "바뀐 픽셀 0.9886% > 허용 0.1000%",
+              "diffPixels": 40495,
+              "diffRatio": 0.009886474609375,
+              "bbox": [
+                48,
+                456,
+                400,
+                104
+              ]
+            }
+          ],
+          "failCaptures": [],
+          "perf": [
+            {
+              "section": "idle",
+              "key": "000-sample-cards/idle/mac-m1-1600p",
+              "metrics": {
+                "frames": 120,
+                "frameMs": {
+                  "avg": 17.10661278727154,
+                  "p50": 16.763463616371155,
+                  "p95": 18.42149905860424,
+                  "p99": 21.262578666210175,
+                  "max": 22.146081551909447
+                },
+                "mainThreadMs": {
+                  "avg": 17.08832563333334,
+                  "p50": 16.77625,
+                  "p95": 18.714917,
+                  "p99": 20.908625,
+                  "max": 22.079667
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 761.7333333333333,
+                  "max": 9553
+                },
+                "gcAllocTotalBytes": 91408,
+                "drawCalls": {
+                  "avg": 4.0,
+                  "max": 8
+                },
+                "triangles": {
+                  "avg": 259.0,
+                  "max": 518
+                },
+                "textureMemoryBytes": 77674663,
+                "totalMemoryBytes": 321895082
+              },
+              "power": "ac",
+              "judged": true,
+              "ok": true,
+              "note": "",
+              "budget": [],
+              "regression": []
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [
+            {
+              "name": "start/t100",
+              "tick": 100,
+              "hash": "49f665630b39d9ae"
+            },
+            {
+              "name": "start/t200",
+              "tick": 200,
+              "hash": "565d89feac0ef811"
+            },
+            {
+              "name": "start/t300",
+              "tick": 300,
+              "hash": "24d6653d9841a046"
+            },
+            {
+              "name": "start/t400",
+              "tick": 400,
+              "hash": "9f2d290219b3c8bb"
+            },
+            {
+              "name": "start/t500",
+              "tick": 500,
+              "hash": "25549b69303e1684"
+            },
+            {
+              "name": "start/t600",
+              "tick": 600,
+              "hash": "50bf58505e58f8da"
+            },
+            {
+              "name": "start/t700",
+              "tick": 700,
+              "hash": "940a4ff385d90339"
+            },
+            {
+              "name": "start/t800",
+              "tick": 800,
+              "hash": "9251dd20bacaa97e"
+            },
+            {
+              "name": "start/t900",
+              "tick": 900,
+              "hash": "c17ea7408cefc912"
+            },
+            {
+              "name": "start/t1000",
+              "tick": 1000,
+              "hash": "5730de61deb3eccc"
+            }
+          ],
+          "verdict": "fail"
+        },
+        {
+          "key": "compact-1366-light-ko",
+          "profile": "compact-1366",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 7.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/compact-1366-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/compact-1366-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/000-sample-cards.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/compact-1366-light-ko",
+            "-farmSeed",
+            "20261102",
+            "-farmProfile",
+            "compact-1366",
+            "-farmWidth",
+            "1366",
+            "-farmHeight",
+            "768",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko",
+            "-farmSampleButtonColor",
+            "#ff5000"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 0.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "assertVisible",
+              "name": null,
+              "status": "passed",
+              "ms": 15.8,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "assertNoOverlap",
+              "name": null,
+              "status": "passed",
+              "ms": 17.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 4,
+              "type": "assertNoClip",
+              "name": null,
+              "status": "passed",
+              "ms": 17.4,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "checkpoint",
+              "name": "start",
+              "status": "passed",
+              "ms": 15,
+              "message": "",
+              "timedOut": false,
+              "checkpoints": 10
+            },
+            {
+              "index": 6,
+              "type": "capture",
+              "name": "home",
+              "status": "passed",
+              "ms": 55.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/home.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 7,
+              "type": "tap",
+              "name": null,
+              "status": "passed",
+              "ms": 27.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 8,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 16.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 9,
+              "type": "capture",
+              "name": "confirmed",
+              "status": "passed",
+              "ms": 55.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/confirmed.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "ui"
+              }
+            },
+            {
+              "index": 10,
+              "type": "perfBegin",
+              "name": "idle",
+              "status": "passed",
+              "ms": 11.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "perfEnd",
+              "name": "idle",
+              "status": "passed",
+              "ms": 2699.4,
+              "message": "",
+              "timedOut": false,
+              "frames": 150
+            }
+          ],
+          "captures": [
+            {
+              "step": "home",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/compact-1366-light-ko/captures/home.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/home/compact-1366-light-ko.png",
+              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/compact-1366-light-ko/diff/home.png",
+              "scenario": "000-sample-cards",
+              "combo": "compact-1366-light-ko",
+              "status": "fail",
+              "reason": "바뀐 픽셀 0.9711% > 허용 0.1000%",
+              "diffPixels": 10188,
+              "diffRatio": 0.009711292093704246,
+              "bbox": [
+                24,
+                229,
+                200,
+                52
+              ]
+            },
+            {
+              "step": "confirmed",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/compact-1366-light-ko/captures/confirmed.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/baselines/000-sample-cards/confirmed/compact-1366-light-ko.png",
+              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/compact-1366-light-ko/diff/confirmed.png",
+              "scenario": "000-sample-cards",
+              "combo": "compact-1366-light-ko",
+              "status": "fail",
+              "reason": "바뀐 픽셀 0.9711% > 허용 0.1000%",
+              "diffPixels": 10188,
+              "diffRatio": 0.009711292093704246,
+              "bbox": [
+                24,
+                229,
+                200,
+                52
+              ]
+            }
+          ],
+          "failCaptures": [],
+          "perf": [
+            {
+              "section": "idle",
+              "key": "000-sample-cards/idle/compact-1366",
+              "metrics": {
+                "frames": 120,
+                "frameMs": {
+                  "avg": 18.174732926612098,
+                  "p50": 17.053499817848206,
+                  "p95": 18.00604537129402,
+                  "p99": 22.237833589315414,
+                  "max": 133.41453671455383
+                },
+                "mainThreadMs": {
+                  "avg": 18.15444824166667,
+                  "p50": 17.045958,
+                  "p95": 18.123333,
+                  "p99": 22.2435,
+                  "max": 133.212417
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 1104.2666666666667,
+                  "max": 38724
+                },
+                "gcAllocTotalBytes": 132512,
+                "drawCalls": {
+                  "avg": 4.0,
+                  "max": 8
+                },
+                "triangles": {
+                  "avg": 259.0,
+                  "max": 518
+                },
+                "textureMemoryBytes": 25877159,
+                "totalMemoryBytes": 229329137
+              },
+              "power": "ac",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [],
+              "regression": []
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [
+            {
+              "name": "start/t100",
+              "tick": 100,
+              "hash": "49f665630b39d9ae"
+            },
+            {
+              "name": "start/t200",
+              "tick": 200,
+              "hash": "565d89feac0ef811"
+            },
+            {
+              "name": "start/t300",
+              "tick": 300,
+              "hash": "24d6653d9841a046"
+            },
+            {
+              "name": "start/t400",
+              "tick": 400,
+              "hash": "9f2d290219b3c8bb"
+            },
+            {
+              "name": "start/t500",
+              "tick": 500,
+              "hash": "25549b69303e1684"
+            },
+            {
+              "name": "start/t600",
+              "tick": 600,
+              "hash": "50bf58505e58f8da"
+            },
+            {
+              "name": "start/t700",
+              "tick": 700,
+              "hash": "940a4ff385d90339"
+            },
+            {
+              "name": "start/t800",
+              "tick": 800,
+              "hash": "9251dd20bacaa97e"
+            },
+            {
+              "name": "start/t900",
+              "tick": 900,
+              "hash": "c17ea7408cefc912"
+            },
+            {
+              "name": "start/t1000",
+              "tick": 1000,
+              "hash": "5730de61deb3eccc"
+            }
+          ],
+          "verdict": "fail"
+        }
+      ],
+      "determinism": {
+        "ok": true,
+        "reference": "compact-1366-light-ko",
+        "mismatches": {},
+        "reason": ""
+      },
+      "verdict": "fail",
+      "title": "000-sample-cards · 버튼 색 변경",
+      "expectedFail": true
+    },
+    {
+      "scenario": "000-selftest-logs",
+      "description": "셀프테스트: 경고 로그 1개 주입 → 로그 판정 실패, 무시 목록에 사유와 넣으면 통과 (AC-12)",
+      "combos": [
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/경고 주입/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/경고 주입/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/000-selftest-logs.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/경고 주입/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261102",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "inject",
+              "name": null,
+              "status": "passed",
+              "ms": 33.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "capture",
+              "name": "home",
+              "status": "passed",
+              "ms": 168.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/home.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "ui"
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "home",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/경고 주입/mac-m1-1600p-light-ko/captures/home.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "000-selftest-logs",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "logs": {
+            "ok": false,
+            "errors": [],
+            "warnings": [
+              {
+                "type": "Warning",
+                "message": "[farm] 셀프테스트: 경고 주입"
+              }
+            ],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "fail"
+        }
+      ],
+      "determinism": null,
+      "verdict": "fail",
+      "title": "000-selftest-logs · 경고 주입",
+      "expectedFail": true
+    }
+  ],
+  "selftests": [
+    {
+      "case": "logic",
+      "acs": [],
+      "expected": "EditMode 전체(Slow 제외) 실패 0",
+      "ok": true,
+      "detail": "합계 25 통과 22 실패 0, 37s",
+      "images": []
+    },
+    {
+      "case": "logic-fail",
+      "acs": [
+        "AC-01"
+      ],
+      "expected": "실패 1·통과 2 → 판정 실패, 리포트 맨 위에 실패 메시지",
+      "ok": true,
+      "detail": "합계 3 실패 1 통과 2, 실패가 먼저: True",
+      "images": [
+        "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/selftest-logic-fail.png"
+      ]
+    },
+    {
+      "case": "compile-error",
+      "acs": [
+        "AC-02"
+      ],
+      "expected": "컴파일 에러 → 판정 실패, 리포트에 `error CS` 줄",
+      "ok": true,
+      "detail": "Assets/FarmSelfTest_Tmp/CompileError.cs(2,54): error CS1525: Invalid expression term ';'",
+      "images": [
+        "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/selftest-compile-error.png"
+      ]
+    },
+    {
+      "case": "stability/해상도",
+      "acs": [
+        "AC-03"
+      ],
+      "expected": "smoke 3 프로필 × 캡처, 각 캡처 해상도 = 프로필 해상도",
+      "ok": true,
+      "detail": "조합 3, 캡처 6장 해상도 일치 6/6",
+      "images": [
+        "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/1회차/low-igpu-1080p-light-ko/captures/home.png"
+      ]
+    },
+    {
+      "case": "stability/기준 후보",
+      "acs": [
+        "AC-08"
+      ],
+      "expected": "기준 이미지가 없으면 '기준 후보'",
+      "ok": true,
+      "detail": "6/6 기준 후보",
+      "images": []
+    },
+    {
+      "case": "stability/프로필 간 결정론",
+      "acs": [
+        "AC-16"
+      ],
+      "expected": "해상도가 달라도 체크포인트 해시 동일",
+      "ok": true,
+      "detail": "기준 compact-1366-light-ko, 불일치 0",
+      "images": []
+    },
+    {
+      "case": "stability/성능 기록",
+      "acs": [
+        "AC-09"
+      ],
+      "expected": "프로필별 p95·GC·드로우콜·삼각형·메모리 기록",
+      "ok": true,
+      "detail": "low-igpu-1080p p95 17.6ms; mac-m1-1600p p95 16.7ms; compact-1366 p95 16.7ms",
+      "images": []
+    },
+    {
+      "case": "stability/smoke 시간",
+      "acs": [
+        "AC-15"
+      ],
+      "expected": "smoke(3 프로필, 빌드 준비된 상태) ≤ 300s",
+      "ok": true,
+      "detail": "25s (이번 실행 빌드: 새로 빌드 — 시간에서 제외)",
+      "images": []
+    },
+    {
+      "case": "stability/2회 동일",
+      "acs": [
+        "AC-04"
+      ],
+      "expected": "같은 커밋 2회 실행 → 모든 캡처 차이 0",
+      "ok": true,
+      "detail": "6/6장 차이 0",
+      "images": []
+    },
+    {
+      "case": "stability/승인 후 통과",
+      "acs": [
+        "AC-08"
+      ],
+      "expected": "승인 명령 후 재실행하면 통과",
+      "ok": true,
+      "detail": "승인 6장 → 판정 pass",
+      "images": []
+    },
+    {
+      "case": "diff",
+      "acs": [
+        "AC-05"
+      ],
+      "expected": "버튼 색 변경 → 전 프로필 차이 실패, 차이 이미지가 버튼 영역만 강조",
+      "ok": true,
+      "detail": "실패 3/3, 강조 영역이 버튼 크기 3/3",
+      "images": [
+        "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/버튼 색 변경/low-igpu-1080p-light-ko/diff/home.png"
+      ]
+    },
+    {
+      "case": "clip",
+      "acs": [
+        "AC-06"
+      ],
+      "expected": "en에서 넘치는 라벨 → '잘림 없음' 단언 실패",
+      "ok": true,
+      "detail": "#4 assertNoClip: 잘림 1건: 'card3Caption' 가로 잘림: 글자 464px > 칸 358.5px",
+      "images": [
+        "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/en 넘침/mac-m1-1600p-light-en/captures/_fail_04.png"
+      ]
+    },
+    {
+      "case": "black",
+      "acs": [
+        "AC-07"
+      ],
+      "expected": "검은 화면 → 기준 없어도 실패",
+      "ok": true,
+      "detail": "단색 화면 (렌더 실패 의심: 검은·빈 화면)",
+      "images": [
+        "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/검은 화면/mac-m1-1600p-light-ko/captures/home.png"
+      ]
+    },
+    {
+      "case": "perf/예산",
+      "acs": [
+        "AC-09"
+      ],
+      "expected": "예산을 넘긴 값은 실패로 표시 (실측 p95를 예산 0.001ms와 1000ms로 판정)",
+      "ok": true,
+      "detail": "실측 p95 16.68ms → 예산 0.001: 실패, 1000: 통과; 비기준 프로필은 기록만",
+      "images": []
+    },
+    {
+      "case": "perf/회귀",
+      "acs": [
+        "AC-10"
+      ],
+      "expected": "실측값 대비 +15% → 회귀 실패, +5% → 통과",
+      "ok": true,
+      "detail": "+15%: frameMs.p95 15.0% 실패; +5%: 모두 통과",
+      "images": []
+    },
+    {
+      "case": "determinism",
+      "acs": [
+        "AC-11"
+      ],
+      "expected": "같은 시드 2회 해시 동일, RNG 호출 1개 추가 → 갈라진 첫 체크포인트 보고",
+      "ok": true,
+      "detail": "A=B: True (10개), A≠C 첫 갈림: start/t500 (#4)",
+      "images": []
+    },
+    {
+      "case": "logs",
+      "acs": [
+        "AC-12"
+      ],
+      "expected": "경고 1개 → 실패·로그 요약에 표시 / 사유 있는 무시 목록 → 통과·무시 항목 표시",
+      "ok": true,
+      "detail": "무시 전: 경고 1건 실패 / 무시 후: 통과, 무시 1건",
+      "images": []
+    },
+    {
+      "case": "crash",
+      "acs": [
+        "AC-13"
+      ],
+      "expected": "한 프로필 크래시 → 그 조합만 실패, 나머지 정상",
+      "ok": true,
+      "detail": "low-igpu-1080p: crashed, mac-m1-1600p: passed, compact-1366: passed",
+      "images": []
+    },
+    {
+      "case": "report",
+      "acs": [
+        "AC-14"
+      ],
+      "expected": "400px에서 가로 스크롤 없음, 상단에 커밋·브랜치·시각, 아티팩트 링크",
+      "ok": true,
+      "detail": "레이아웃 ok, 상단 정보 True, 링크 https://claude.ai/artifact/8QDktqWYZ4B5bqnCDLL9e5",
+      "images": [
+        "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-141525-selftest/report-400.png"
+      ]
+    }
+  ],
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "self-test logic-fail",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "self-test compile-error",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "self-test stability/해상도",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "self-test stability/기준 후보",
+        "ok": true
+      },
+      {
+        "label": "self-test stability/승인 후 통과",
+        "ok": true
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "self-test stability/프로필 간 결정론",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "self-test stability/성능 기록",
+        "ok": true
+      },
+      {
+        "label": "self-test perf/예산",
+        "ok": true
+      }
+    ],
+    "AC-15": [
+      {
+        "label": "self-test stability/smoke 시간",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "self-test stability/2회 동일",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "self-test diff",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "self-test clip",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "self-test black",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "self-test perf/회귀",
+        "ok": true
+      }
+    ],
+    "AC-11": [
+      {
+        "label": "self-test determinism",
+        "ok": true
+      }
+    ],
+    "AC-12": [
+      {
+        "label": "self-test logs",
+        "ok": true
+      }
+    ],
+    "AC-13": [
+      {
+        "label": "self-test crash",
+        "ok": true
+      }
+    ],
+    "AC-14": [
+      {
+        "label": "self-test report",
+        "ok": true
+      }
+    ]
+  },
+  "budgets": [
+    {
+      "item": "로직만 검증 (EditMode, Slow 제외)",
+      "budget": "≤ 180s",
+      "value": "37s",
+      "ok": true
+    },
+    {
+      "item": "smoke 매트릭스 (3 프로필, 빌드 캐시)",
+      "budget": "≤ 300s",
+      "value": "25s",
+      "ok": true
+    }
+  ],
+  "requireAllAcs": true,
+  "verdictOverride": "pass",
+  "verdict": "pass"
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "000-selftest-black",
+  "spec": "000",
+  "description": "셀프테스트: 렌더가 검은 화면이면 기준 이미지 없이도 실패 (AC-07). -farmSampleBlack과 함께 실행",
+  "selfTest": true,
+  "scene": "FarmSampleCards",
+  "fixture": { "save": null, "seed": 20261102 },
+  "profiles": ["mac-m1-1600p"],
+  "steps": [
+    { "type": "goto", "screen": "home" },
+    { "type": "capture", "name": "home" }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "comment": "specs/000 FR-60. 항목마다 reason(사유) 필수. 리포트에 무시 항목으로 항상 표시된다.",
+  "ignore": []
+}

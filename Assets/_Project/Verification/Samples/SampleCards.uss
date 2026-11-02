@@ -1,0 +1,99 @@
+/* 디바이스팜 샘플 화면 (specs/000 AC-03~08). 색·간격·글자 크기는 토큰 변수로만. */
+.farm-root {
+    --bg: #f2f3f5;
+    --card: #ffffff;
+    --text: #191f28;
+    --muted: #6b7684;
+    --accent: #3182f6;
+    --on-accent: #ffffff;
+    --gap: 12px;
+    --pad: 24px;
+    --radius: 16px;
+    --fs-title: 26px;
+    --fs-label: 15px;
+    --fs-value: 34px;
+    --fs-caption: 14px;
+    --fs-button: 17px;
+
+    flex-grow: 1;
+    padding: var(--pad);
+    background-color: var(--bg);
+}
+
+.farm-root.theme-dark {
+    --bg: #101215;
+    --card: #1b1e23;
+    --text: #e8eaed;
+    --muted: #9aa0a6;
+}
+
+.title {
+    font-size: var(--fs-title);
+    -unity-font-style: bold;
+    color: var(--text);
+    margin: 0 0 16px 0;
+    padding: 0;
+}
+
+.cards {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin: 0 0 16px 0;
+}
+
+.card {
+    flex-grow: 1;
+    flex-basis: 0;
+    min-width: 220px;
+    margin: 0 var(--gap) var(--gap) 0;
+    padding: 20px;
+    border-radius: var(--radius);
+    background-color: var(--card);
+}
+
+.card-label {
+    font-size: var(--fs-label);
+    color: var(--muted);
+    margin: 0;
+    padding: 0;
+}
+
+.card-value {
+    font-size: var(--fs-value);
+    -unity-font-style: bold;
+    color: var(--text);
+    margin: 6px 0 6px 0;
+    padding: 0;
+}
+
+/* 한 줄 고정: en 긴 문구가 넘치면 '잘림 없음' 단언이 잡아야 한다 (AC-06) */
+.card-caption {
+    font-size: var(--fs-caption);
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.primary {
+    align-self: flex-start;
+    min-width: 200px;
+    height: 52px;
+    margin: 0;
+    padding: 0 24px;
+    border-width: 0;
+    border-radius: 12px;
+    background-color: var(--accent);
+    color: var(--on-accent);
+    font-size: var(--fs-button);
+    -unity-font-style: bold;
+}
+
+.status {
+    font-size: var(--fs-label);
+    color: var(--muted);
+    margin: 12px 0 0 0;
+    padding: 0;
+    min-height: 22px;
+}

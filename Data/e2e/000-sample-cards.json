@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "id": "000-sample-cards",
+  "spec": "000",
+  "description": "샘플 화면(카드 3장 + 버튼) — 캡처·비교·레이아웃 단언·성능 구간·결정론 체크포인트 (AC-03~09·16)",
+  "scene": "FarmSampleCards",
+  "fixture": {
+    "save": null,
+    "seed": 20261102
+  },
+  "profiles": "smoke",
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "home"
+    },
+    {
+      "type": "waitFor",
+      "element": "cards"
+    },
+    {
+      "type": "assertVisible",
+      "element": "confirm"
+    },
+    {
+      "type": "assertNoOverlap",
+      "scope": "cards"
+    },
+    {
+      "type": "assertNoClip",
+      "scope": "root"
+    },
+    {
+      "type": "checkpoint",
+      "name": "start"
+    },
+    {
+      "type": "capture",
+      "name": "home"
+    },
+    {
+      "type": "tap",
+      "element": "confirm"
+    },
+    {
+      "type": "assertText",
+      "element": "status",
+      "text": {
+        "ko": "확인 완료",
+        "en": "Confirmed"
+      }
+    },
+    {
+      "type": "capture",
+      "name": "confirmed"
+    },
+    {
+      "type": "perfBegin",
+      "name": "idle",
+      "warmupFrames": 30,
+      "minFrames": 120
+    },
+    {
+      "type": "perfEnd",
+      "name": "idle"
+    }
+  ],
+  "acs": [
+    "AC-03",
+    "AC-04",
+    "AC-08",
+    "AC-09",
+    "AC-16"
+  ]
+}

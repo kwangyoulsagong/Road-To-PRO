@@ -1,0 +1,25 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="SampleCards.uss" />
+    <ui:VisualElement name="root" class="farm-root">
+        <ui:Label name="title" class="title" />
+        <ui:VisualElement name="cards" class="cards">
+            <ui:VisualElement name="card1" class="card">
+                <ui:Label name="card1Label" class="card-label" />
+                <ui:Label name="card1Value" class="card-value" />
+                <ui:Label name="card1Caption" class="card-caption" />
+            </ui:VisualElement>
+            <ui:VisualElement name="card2" class="card">
+                <ui:Label name="card2Label" class="card-label" />
+                <ui:Label name="card2Value" class="card-value" />
+                <ui:Label name="card2Caption" class="card-caption" />
+            </ui:VisualElement>
+            <ui:VisualElement name="card3" class="card">
+                <ui:Label name="card3Label" class="card-label" />
+                <ui:Label name="card3Value" class="card-value" />
+                <ui:Label name="card3Caption" class="card-caption" />
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:Button name="confirm" class="primary" />
+        <ui:Label name="status" class="status" />
+    </ui:VisualElement>
+</ui:UXML>

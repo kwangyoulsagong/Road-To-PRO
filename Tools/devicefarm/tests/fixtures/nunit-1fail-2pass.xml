@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="3" result="Failed(Child)" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-02 05:00:00Z" end-time="2026-11-02 05:00:01Z" duration="0.42">
+  <test-suite type="TestSuite" id="1000" name="Road To PRO" fullname="Road To PRO" runstate="Runnable" testcasecount="3" result="Failed" site="Child" total="3" passed="2" failed="1" inconclusive="0" skipped="0" asserts="0" duration="0.42">
+    <test-suite type="Assembly" id="1001" name="RoadToPro.Tests.EditMode.dll" fullname="RoadToPro.Tests.EditMode.dll" testcasecount="3" result="Failed" total="3" passed="2" failed="1" duration="0.40">
+      <test-suite type="TestFixture" id="1002" name="SelfTestFixtures" fullname="RoadToPro.Tests.EditMode.Verification.SelfTestFixtures" testcasecount="3" result="Failed" total="3" passed="2" failed="1" duration="0.30">
+        <test-case id="1003" name="Pass_One" fullname="RoadToPro.Tests.EditMode.Verification.SelfTestFixtures.Pass_One" methodname="Pass_One" classname="RoadToPro.Tests.EditMode.Verification.SelfTestFixtures" runstate="Explicit" result="Passed" duration="0.001" asserts="1" />
+        <test-case id="1004" name="Fail_Deliberate" fullname="RoadToPro.Tests.EditMode.Verification.SelfTestFixtures.Fail_Deliberate" methodname="Fail_Deliberate" classname="RoadToPro.Tests.EditMode.Verification.SelfTestFixtures" runstate="Explicit" result="Failed" duration="0.012" asserts="1">
+          <failure>
+            <message><![CDATA[  셀프테스트: 의도한 실패
+  Expected: 2
+  But was:  1
+]]></message>
+            <stack-trace><![CDATA[at RoadToPro.Tests.EditMode.Verification.SelfTestFixtures.Fail_Deliberate () [0x00001] in /Users/dev/Road-To-PRO/Assets/_Project/Tests/EditMode/Verification/SelfTestFixtures.cs:18
+]]></stack-trace>
+          </failure>
+        </test-case>
+        <test-case id="1005" name="Pass_Two" fullname="RoadToPro.Tests.EditMode.Verification.SelfTestFixtures.Pass_Two" methodname="Pass_Two" classname="RoadToPro.Tests.EditMode.Verification.SelfTestFixtures" runstate="Explicit" result="Passed" duration="0.002" asserts="1" />
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>
