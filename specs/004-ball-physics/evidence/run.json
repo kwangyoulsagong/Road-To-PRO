@@ -88,12 +88,12 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/004-ball-physics"
   },
   "meta": {
-    "commit": "ab4aa55a2861bb562c2eaebf91325212553d8ac6",
+    "commit": "0d59b50cb5a2271c5ef8e477a60b03eddf0ecdbe",
     "branch": "feat/004-ball-physics",
     "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-02 16:23:14 +0900",
-    "durationSec": 53.62572002410889,
+    "time": "2026-11-02 16:45:39 +0900",
+    "durationSec": 61.56230401992798,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 004",
     "profiles": [
       "mac-m1-1600p"
@@ -105,11 +105,11 @@
     "passed": 87,
     "failed": 0,
     "skipped": 0,
-    "duration": 33.6446177,
+    "duration": 35.5389274,
     "compileErrors": [],
     "failures": [],
-    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-162314-logic/logic.png",
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-162314-logic/logic.html"
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-164539-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-164539-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -118,10 +118,10 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median": 93.60663,
-      "BallPerfTests.Substep_Air_ns/ns_per_op/median": 218.70104,
-      "BallPerfTests.Predict10s_us/us_per_op/median": 205.2568,
-      "BallPerfTests.GroundInverse_us/us_per_op/median": 0.04900000000000001,
+      "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median": 93.56344,
+      "BallPerfTests.Substep_Air_ns/ns_per_op/median": 229.71316,
+      "BallPerfTests.Predict10s_us/us_per_op/median": 210.381,
+      "BallPerfTests.GroundInverse_us/us_per_op/median": 0.05272,
       "BallPerfTests.ZeroAlloc_StepPredictInverse/gc_alloc_count/max": 0.0
     },
     "budget": [
@@ -129,7 +129,7 @@
         "ac": "AC-14",
         "label": "서브스텝 가중 평균",
         "metric": "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median",
-        "value": 93.60663,
+        "value": 93.56344,
         "budget": 100,
         "unit": "ns",
         "ok": true
@@ -138,7 +138,7 @@
         "ac": "AC-14",
         "label": "서브스텝 Air 최악",
         "metric": "BallPerfTests.Substep_Air_ns/ns_per_op/median",
-        "value": 218.70104,
+        "value": 229.71316,
         "budget": 300,
         "unit": "ns",
         "ok": true
@@ -147,7 +147,7 @@
         "ac": "AC-14",
         "label": "궤적 예측 10 s / 0.04 s",
         "metric": "BallPerfTests.Predict10s_us/us_per_op/median",
-        "value": 205.2568,
+        "value": 210.381,
         "budget": 250,
         "unit": "µs",
         "ok": true
@@ -156,7 +156,7 @@
         "ac": "AC-14",
         "label": "땅볼 역산 1회",
         "metric": "BallPerfTests.GroundInverse_us/us_per_op/median",
-        "value": 0.04900000000000001,
+        "value": 0.05272,
         "budget": 30,
         "unit": "µs",
         "ok": true
@@ -176,36 +176,36 @@
         "ac": "AC-14",
         "label": "서브스텝 가중 평균",
         "metric": "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median",
-        "value": 93.60663,
+        "value": 93.56344,
         "previous": 95.56067,
-        "changePct": -2.0448,
+        "changePct": -2.09,
         "ok": true
       },
       {
         "ac": "AC-14",
         "label": "서브스텝 Air 최악",
         "metric": "BallPerfTests.Substep_Air_ns/ns_per_op/median",
-        "value": 218.70104,
+        "value": 229.71316,
         "previous": 226.29068,
-        "changePct": -3.3539,
+        "changePct": 1.5124,
         "ok": true
       },
       {
         "ac": "AC-14",
         "label": "궤적 예측 10 s / 0.04 s",
         "metric": "BallPerfTests.Predict10s_us/us_per_op/median",
-        "value": 205.2568,
+        "value": 210.381,
         "previous": 206.21855000000005,
-        "changePct": -0.4664,
+        "changePct": 2.0185,
         "ok": true
       },
       {
         "ac": "AC-14",
         "label": "땅볼 역산 1회",
         "metric": "BallPerfTests.GroundInverse_us/us_per_op/median",
-        "value": 0.04900000000000001,
+        "value": 0.05272,
         "previous": 0.0547,
-        "changePct": -10.4205,
+        "changePct": -3.6197,
         "ok": true
       },
       {
@@ -222,6 +222,9 @@
     "power": "ac"
   },
   "requireAllAcs": true,
+  "deferred": {
+    "AC-15": "E2E 궤적 캡처는 040 디버그 뷰(2D 탑뷰)가 필요하다 — 040 완료 후 검증 (2026-11-02 사용자 결정)"
+  },
   "acEvidence": {
     "AC-01": [
       {
@@ -314,5 +317,5 @@
       }
     ]
   },
-  "verdict": "fail"
+  "verdict": "deferred"
 }
