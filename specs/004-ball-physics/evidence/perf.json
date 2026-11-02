@@ -1,0 +1,211 @@
+{
+  "results": [
+    {
+      "name": "BallPerfTests.GroundInverse_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.GroundInverse_us",
+      "groups": {
+        "us_per_op": {
+          "median": 0.0535,
+          "min": 0.05036,
+          "max": 0.07238,
+          "avg": 0.05718285714285715,
+          "unit": "us",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.Predict10s_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Predict10s_us",
+      "groups": {
+        "us_per_op": {
+          "median": 205.85600000000005,
+          "min": 204.33615,
+          "max": 220.43935000000005,
+          "avg": 208.1721,
+          "unit": "us",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.Substep_Air_ns",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_Air_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 219.97474,
+          "min": 216.21556,
+          "max": 223.11454,
+          "avg": 220.17465428571427,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.Substep_Idle_ns",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_Idle_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 9.72523,
+          "min": 9.62419,
+          "max": 9.78989,
+          "avg": 9.706575714285714,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.Substep_Rolling_ns",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_Rolling_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 189.64964,
+          "min": 186.82144,
+          "max": 191.80120000000005,
+          "avg": 189.36214571428576,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.Substep_WeightedAvg_ns",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_WeightedAvg_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 94.28423,
+          "min": 93.54228,
+          "max": 96.68938,
+          "avg": 94.60568,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.ZeroAlloc_StepPredictInverse",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.ZeroAlloc_StepPredictInverse",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 5
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median": 94.28423,
+      "BallPerfTests.Substep_Air_ns/ns_per_op/median": 219.97474,
+      "BallPerfTests.Predict10s_us/us_per_op/median": 205.85600000000005,
+      "BallPerfTests.GroundInverse_us/us_per_op/median": 0.0535,
+      "BallPerfTests.ZeroAlloc_StepPredictInverse/gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-14",
+        "label": "서브스텝 가중 평균",
+        "metric": "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median",
+        "value": 94.28423,
+        "budget": 100,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "서브스텝 Air 최악",
+        "metric": "BallPerfTests.Substep_Air_ns/ns_per_op/median",
+        "value": 219.97474,
+        "budget": 300,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "궤적 예측 10 s / 0.04 s",
+        "metric": "BallPerfTests.Predict10s_us/us_per_op/median",
+        "value": 205.85600000000005,
+        "budget": 250,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "땅볼 역산 1회",
+        "metric": "BallPerfTests.GroundInverse_us/us_per_op/median",
+        "value": 0.0535,
+        "budget": 30,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "서브스텝·예측·역산 GC 할당 (진단 끔 포함)",
+        "metric": "BallPerfTests.ZeroAlloc_StepPredictInverse/gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [
+      {
+        "ac": "AC-14",
+        "label": "서브스텝 가중 평균",
+        "metric": "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median",
+        "value": 94.28423,
+        "previous": 95.56067,
+        "changePct": -1.3357,
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "서브스텝 Air 최악",
+        "metric": "BallPerfTests.Substep_Air_ns/ns_per_op/median",
+        "value": 219.97474,
+        "previous": 226.29068,
+        "changePct": -2.7911,
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "궤적 예측 10 s / 0.04 s",
+        "metric": "BallPerfTests.Predict10s_us/us_per_op/median",
+        "value": 205.85600000000005,
+        "previous": 206.21855000000005,
+        "changePct": -0.1758,
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "땅볼 역산 1회",
+        "metric": "BallPerfTests.GroundInverse_us/us_per_op/median",
+        "value": 0.0535,
+        "previous": 0.0547,
+        "changePct": -2.1938,
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "서브스텝·예측·역산 GC 할당 (진단 끔 포함)",
+        "metric": "BallPerfTests.ZeroAlloc_StepPredictInverse/gc_alloc_count/max",
+        "value": 0.0,
+        "previous": 0.0,
+        "changePct": 0.0,
+        "ok": true
+      }
+    ],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}
