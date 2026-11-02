@@ -1,6 +1,6 @@
 # 001 — 코어 기반 · 태스크
 
-상태: 승인됨
+상태: 완료
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현 태스크보다 먼저 둔다(가능하면). C# 테스트는 `/unity-test` (`.claude/scripts/unity-test.sh EditMode <필터>`), Python은 `python3 -m unittest discover Tools/devicefarm/tests`. 코어 변경 태스크는 블록 끝에서 `determinism-reviewer` 리뷰.
@@ -49,4 +49,4 @@
 - [x] T26a farm logic 종료 코드를 리포트 판정과 맞춤 — 파일: `farm/commands.py`, `tests/test_logic_spec.py` — 검증: `test_unjudged_perf_makes_spec_verdict_fail` — 결과: 추가 태스크(사유: 배터리 전원이라 성능 판정이 빠져 리포트는 fail인데 CLI가 "통과"를 출력). 이제 AC 증거 누락·실패 시 종료 코드 1, Python 112개 통과
 - [x] T27 수용 기준 전체 테스트 통과 — EditMode 전체(`/unity-test`) 실패 0, 콘솔 에러·경고 0, 컴파일 경고 신규 0 — 결과: EditMode 151개 중 통과 148·실패 0·건너뜀 3(000 셀프테스트 전용 픽스처), `warning CS`·`error CS` 0. 콘솔 경고·에러는 `UnityLoggerTests`의 `LogAssert.Expect` 대상뿐
 - [x] T24a 튜닝 로드 성능 측정 안정화 — 파일: `Tests/Performance/Core/CorePerfTests.cs` — 검증: `farm logic --spec 001` 3회 연속 회귀 0건 — 결과: 추가 태스크(사유: 기준 채택 직후 재측정에서 튜닝 로드가 7.4~9.5 ms로 흔들려 +31% 회귀 오탐). 측정마다 GC를 비우고 워밍업 5·표본 30으로 늘림(5.8~6.7 ms). 측정 방식이 바뀌어 기준을 다시 채택
-- [ ] T28 `/verify 001` — `farm.py logic --spec 001` 리포트(로직·결정론·성능), 첫 성능 기준은 사용자 승인 후 `approve-perf`, 리포트 아티팩트 발행, spec·tasks·README 상태 `완료`
+- [x] T28 `/verify 001` — `farm.py logic --spec 001` 리포트(로직·결정론·성능), 첫 성능 기준은 사용자 승인 후 `approve-perf`, 리포트 아티팩트 발행, spec·tasks·README 상태 `완료` — 결과: 깨끗한 작업 트리(커밋 69aaeba)에서 `farm logic --spec 001` 판정 pass — AC 19개 전부 증거 연결(로직 13·결정론 5·성능 1), EditMode 126개 통과, 성능 7항목 예산 안·기준 대비 회귀 0(AC 전원, mac-m1-1600p). 성능 기준 `editmode/001/mac-m1-1600p` 채택(사용자 승인). 리포트 https://claude.ai/artifact/AFz3HpKiUkEPtdNFrW3BXS

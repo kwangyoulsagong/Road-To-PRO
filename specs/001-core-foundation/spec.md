@@ -1,6 +1,6 @@
 # 001 — 코어 기반: asmdef · 수학 · 시드 RNG · 시뮬 시계 · 해시
 
-상태: 승인됨
+상태: 완료
 브랜치: feat/001-core-foundation
 기획 출처: docs/index.html § 아키텍처 1·2(레이어, asmdef 의존성), § 아키텍처 3(결정 10Hz · 물리 100Hz), § 기획서 5.1(시뮬 코어 분리), research[1] 01 A-8(적분·결정론·dt 0.01 s), research[3] 03 A1(정규화 피치 좌표, 105×68 m), research[7] 07 §2.3(10초 간격 체크포인트) / `.claude/rules/10-csharp.md`, `.claude/rules/20-match-engine.md`
 

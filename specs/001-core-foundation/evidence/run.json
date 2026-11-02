@@ -103,12 +103,12 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/001-core-foundation"
   },
   "meta": {
-    "commit": "694ec74824474c38ee06c50da95e90fa1f3b88e8",
+    "commit": "69aaeba9e5c348ed8dcf29fac8607384365203a0",
     "branch": "feat/001-core-foundation",
-    "dirty": true,
+    "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-02 15:13:36 +0900",
-    "durationSec": 45.81038784980774,
+    "time": "2026-11-02 15:33:32 +0900",
+    "durationSec": 58.658568143844604,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 001",
     "profiles": [
       "mac-m1-1600p"
@@ -120,25 +120,25 @@
     "passed": 126,
     "failed": 0,
     "skipped": 0,
-    "duration": 18.9155691,
+    "duration": 33.3647721,
     "compileErrors": [],
     "failures": [],
-    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-151336-logic/logic.png",
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-151336-logic/logic.html"
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-153332-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261102-153332-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
-    "judged": false,
+    "judged": true,
     "ok": true,
-    "note": "전원 상태 battery — 판정 제외",
+    "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "CorePerfTests.Rng_Uniform_ns/ns_per_op/median": 5.52284,
-      "CorePerfTests.Rng_Normal_ns/ns_per_op/median": 60.10321,
-      "CorePerfTests.Vec_Normalize_ns/ns_per_op/median": 35.030440000000006,
-      "CorePerfTests.Swept_ns/ns_per_op/median": 71.56522,
-      "CorePerfTests.Hash_30kEvents_ms/Time/median": 3.5486999999999984,
-      "CorePerfTests.Tuning_Load1000_ms/Time/median": 7.59545,
+      "CorePerfTests.Rng_Uniform_ns/ns_per_op/median": 5.664816000000001,
+      "CorePerfTests.Rng_Normal_ns/ns_per_op/median": 59.82802,
+      "CorePerfTests.Vec_Normalize_ns/ns_per_op/median": 34.79738000000001,
+      "CorePerfTests.Swept_ns/ns_per_op/median": 74.62207000000001,
+      "CorePerfTests.Hash_30kEvents_ms/Time/median": 3.500349999999999,
+      "CorePerfTests.Tuning_Load1000_ms/Time/median": 5.96759999999972,
       "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max": 0.0
     },
     "budget": [
@@ -146,7 +146,7 @@
         "ac": "AC-18",
         "label": "RNG 균등 실수 1회",
         "metric": "CorePerfTests.Rng_Uniform_ns/ns_per_op/median",
-        "value": 5.52284,
+        "value": 5.664816000000001,
         "budget": 8,
         "unit": "ns",
         "ok": true
@@ -155,7 +155,7 @@
         "ac": "AC-18",
         "label": "RNG 정규 1회",
         "metric": "CorePerfTests.Rng_Normal_ns/ns_per_op/median",
-        "value": 60.10321,
+        "value": 59.82802,
         "budget": 80,
         "unit": "ns",
         "ok": true
@@ -164,7 +164,7 @@
         "ac": "AC-18",
         "label": "벡터 정규화 1회",
         "metric": "CorePerfTests.Vec_Normalize_ns/ns_per_op/median",
-        "value": 35.030440000000006,
+        "value": 34.79738000000001,
         "budget": 50,
         "unit": "ns",
         "ok": true
@@ -173,7 +173,7 @@
         "ac": "AC-18",
         "label": "swept 판정 1회",
         "metric": "CorePerfTests.Swept_ns/ns_per_op/median",
-        "value": 71.56522,
+        "value": 74.62207000000001,
         "budget": 100,
         "unit": "ns",
         "ok": true
@@ -182,7 +182,7 @@
         "ac": "AC-18",
         "label": "이벤트 3만 개 해시",
         "metric": "CorePerfTests.Hash_30kEvents_ms/Time/median",
-        "value": 3.5486999999999984,
+        "value": 3.500349999999999,
         "budget": 10,
         "unit": "ms",
         "ok": true
@@ -191,7 +191,7 @@
         "ac": "AC-18",
         "label": "튜닝 1,000개 로드",
         "metric": "CorePerfTests.Tuning_Load1000_ms/Time/median",
-        "value": 7.59545,
+        "value": 5.96759999999972,
         "budget": 20,
         "unit": "ms",
         "ok": true
@@ -206,9 +206,73 @@
         "ok": true
       }
     ],
-    "regression": [],
+    "regression": [
+      {
+        "ac": "AC-18",
+        "label": "RNG 균등 실수 1회",
+        "metric": "CorePerfTests.Rng_Uniform_ns/ns_per_op/median",
+        "value": 5.664816000000001,
+        "previous": 5.629087000000001,
+        "changePct": 0.6347,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "RNG 정규 1회",
+        "metric": "CorePerfTests.Rng_Normal_ns/ns_per_op/median",
+        "value": 59.82802,
+        "previous": 62.06907,
+        "changePct": -3.6106,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "벡터 정규화 1회",
+        "metric": "CorePerfTests.Vec_Normalize_ns/ns_per_op/median",
+        "value": 34.79738000000001,
+        "previous": 34.64651,
+        "changePct": 0.4355,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "swept 판정 1회",
+        "metric": "CorePerfTests.Swept_ns/ns_per_op/median",
+        "value": 74.62207000000001,
+        "previous": 72.88949,
+        "changePct": 2.377,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "이벤트 3만 개 해시",
+        "metric": "CorePerfTests.Hash_30kEvents_ms/Time/median",
+        "value": 3.500349999999999,
+        "previous": 3.645100000000003,
+        "changePct": -3.9711,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "튜닝 1,000개 로드",
+        "metric": "CorePerfTests.Tuning_Load1000_ms/Time/median",
+        "value": 5.96759999999972,
+        "previous": 6.604450000000497,
+        "changePct": -9.6427,
+        "ok": true
+      },
+      {
+        "ac": "AC-18",
+        "label": "수학·RNG·시계·해시·비활성 로그 GC 할당",
+        "metric": "CorePerfTests.ZeroAlloc_MathRngClockLog/gc_alloc_count/max",
+        "value": 0.0,
+        "previous": 0.0,
+        "changePct": 0.0,
+        "ok": true
+      }
+    ],
     "host": "mac-m1-1600p",
-    "power": "battery"
+    "power": "ac"
   },
   "requireAllAcs": true,
   "acEvidence": {
@@ -316,8 +380,8 @@
     ],
     "AC-18": [
       {
-        "label": "EditMode 성능 7항목 — 전원 상태 battery — 판정 제외",
-        "ok": false
+        "label": "EditMode 성능 14/14 통과 (mac-m1-1600p)",
+        "ok": true
       }
     ],
     "AC-19": [
@@ -327,5 +391,5 @@
       }
     ]
   },
-  "verdict": "fail"
+  "verdict": "pass"
 }
