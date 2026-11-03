@@ -1,0 +1,275 @@
+{
+  "title": "005 로직 증거",
+  "spec": {
+    "id": "005",
+    "name": "005 — 선수 운동학 · Steering",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "능력치 15 선수 매핑 결과가 Vmax 9.1 ± 0.1 m/s, a0 8.3 ± 0.1 m/s², τ 1.1 ± 0.05 s다. 능력치 1·20의 Vmax가 25.9·34.9 km/h ± 0.2다."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "정지 출발 직선 스프린트 시뮬의 10/20/30/40 m 통과 시각이 Haugen 국가대표급 스플릿(2.01/3.24/4.39/5.51 s, 첫 동작 보정 0.5 s 포함)과 능력치 15~16 선수에서 각각 ±0.1 s 이내다."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "최고속도 95% 도달 시간이 3τ ± 10%다."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "반경 5 m 원 위를 달리게 하면 속도가 `sqrt(a_lat,max·R)` 이하로 유지되고, 마찰원 제약 위반(a_t² + a_lat² > a_cap²) 서브스텝이 0건이다."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "Arrive로 8 m/s에서 정지 목표에 도착할 때 감속 시작 거리가 v²/(2·a_dec) ± 10% (6~8 m)이고, 목표 0.3 m 이내에서 0.3 m/s 이하로 정지한다. 오버슈트 ≤ 0.3 m."
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "공 인터셉트 탐색이 선택한 지점에 실제로 시뮬하면, 선수가 공 도착 시각 ± 0.1 s 안에 그 지점 컨트롤 반경 안에 들어온다 (무작위 고정 시드 1,000 케이스 중 ≥ 98%)."
+      },
+      {
+        "id": "AC-07",
+        "kind": "로직",
+        "text": "저킹 수비수가 직선 드리블 공격수와의 거리를 1.5~2.5 m로 유지하고, 백페달 속도가 4 m/s를 넘지 않는다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "로직",
+        "text": "22명을 반경 2 m 안에 몰아 시작해도 3 s 안에 모든 쌍의 중심 거리가 0.8 m 이상이 되고, 발산(속도 > Vmax) 0건이다."
+      },
+      {
+        "id": "AC-09",
+        "kind": "로직",
+        "text": "연속 스프린트 4회(각 30 m, 사이 휴식 5 s) 후 W가 0.25~0.35이고, 60 s 저속 후 W ≥ 0.6으로 회복한다."
+      },
+      {
+        "id": "AC-10",
+        "kind": "로직",
+        "text": "90분 표준 활동 프로필(고정 입력)에서 만성 C가 지구력 10 선수 0.6~0.9 범위이고, 지구력 20 선수가 지구력 5 선수보다 낮다."
+      },
+      {
+        "id": "AC-11",
+        "kind": "로직",
+        "text": "경계 · 예외 상황 목록 각각(d = 0, 피치 밖 목표, 같은 위치 시작, 피벗 경계 떨림, 120분 경기) 에서 NaN 0건, 규칙대로 처리된다."
+      },
+      {
+        "id": "AC-12",
+        "kind": "결정론",
+        "text": "22명 고정 시드 무작위 목표점 시퀀스로 90분(54만 서브스텝) 시뮬을 2회 돌려 최종 상태 해시가 같고, 선수 처리 순서를 뒤섞어 입력해도 같은 결과가 나온다(내부에서 id 순 정렬)."
+      },
+      {
+        "id": "AC-13",
+        "kind": "성능",
+        "text": "성능 예산 표 항목이 기준 프로필에서 예산 안, 할당 0 B."
+      },
+      {
+        "id": "AC-14",
+        "kind": "E2E",
+        "text": "디버그 이동 뷰(040 2D 뷰 또는 검증 화면)에서 고정 시나리오 3종(직선 스프린트 경주 3명, 원 주행, 22명 혼잡 해소)의 지정 시각 캡처가 기준 이미지와 일치한다. 프로필: smoke. 뷰가 없으면 040 완료 후 검증."
+      },
+      {
+        "id": "AC-15",
+        "kind": "결정론",
+        "text": "FR-51 진단 출력을 켠 실행과 끈 실행(같은 시드)의 이벤트 로그 해시와 체크포인트 해시가 모두 같다. 끈 실행에서 진단용 할당은 0 B다."
+      },
+      {
+        "id": "AC-16",
+        "kind": "로직",
+        "text": "FR-52: 1,000경기 검증 실행에서 \"운동 한계 초과\" 진단 이벤트가 0건이다. 일부러 가속 상한을 깨는 테스트 입력을 넣으면 그 프레임·선수가 정확히 보고되고 검증이 실패한다."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/005-player-kinematics"
+  },
+  "meta": {
+    "commit": "c8593fa1b44ad6353307a5c1902f78e6009d364e",
+    "branch": "feat/005-player-kinematics",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-03 09:28:38 +0900",
+    "durationSec": 474.23791909217834,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 005",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 74,
+    "passed": 74,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 451.1730914,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261103-092838-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261103-092838-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "KinematicsPerfTests.Substep22_Avg_us/us_per_op/median": 12.02481000000005,
+      "KinematicsPerfTests.Substep22_P95_us/us_per_op/median": 13.4,
+      "KinematicsPerfTests.Tti_ns/ns_per_op/median": 196.77088,
+      "KinematicsPerfTests.BallIntercept_us/us_per_op/median": 9.1850315,
+      "KinematicsPerfTests.ZeroAlloc_StepTtiIntercept/gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-13",
+        "label": "22명 조향+적분 서브스텝 평균",
+        "metric": "KinematicsPerfTests.Substep22_Avg_us/us_per_op/median",
+        "value": 12.02481000000005,
+        "budget": 15,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-13",
+        "label": "22명 서브스텝 p95",
+        "metric": "KinematicsPerfTests.Substep22_P95_us/us_per_op/median",
+        "value": 13.4,
+        "budget": 18,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-13",
+        "label": "TTI 1회",
+        "metric": "KinematicsPerfTests.Tti_ns/ns_per_op/median",
+        "value": 196.77088,
+        "budget": 260,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-13",
+        "label": "공 인터셉트 탐색 (2 s / 0.04 s)",
+        "metric": "KinematicsPerfTests.BallIntercept_us/us_per_op/median",
+        "value": 9.1850315,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-13",
+        "label": "서브스텝·TTI·탐색 GC 할당 (진단 끔)",
+        "metric": "KinematicsPerfTests.ZeroAlloc_StepTtiIntercept/gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "requireAllAcs": true,
+  "deferred": {
+    "AC-14": "E2E 디버그 이동 뷰 캡처는 040 디버그 뷰(2D 탑뷰)가 필요하다 — 040 완료 후 검증 (2026-11-03 스펙 승인 시 결정, 004 AC-15와 같은 보류)"
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-11": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-12": [
+      {
+        "label": "결정론 테스트 3/3 통과",
+        "ok": true
+      }
+    ],
+    "AC-13": [
+      {
+        "label": "EditMode 성능 5/5 통과 (mac-m1-1600p)",
+        "ok": true
+      }
+    ],
+    "AC-15": [
+      {
+        "label": "결정론 테스트 3/3 통과",
+        "ok": true
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "deferred"
+}
