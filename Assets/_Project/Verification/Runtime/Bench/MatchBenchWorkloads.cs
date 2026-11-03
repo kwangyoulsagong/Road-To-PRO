@@ -142,7 +142,7 @@ namespace RoadToPro.Verification.Bench
             };
         }
 
-        /// <summary>임의 11초 클립 재구성 평균 (ms). 30분 경기에서 10개.</summary>
+        /// <summary>임의 11초 클립 재구성 평균 (ms). 30분 경기에서 30개.</summary>
         public double Clip11sMs()
         {
             var sim = NewMatch(CheckpointMode.All);
@@ -151,12 +151,13 @@ namespace RoadToPro.Verification.Bench
             var rng = new SeedRng(11UL);
             Settle();
             var t0 = Stopwatch.GetTimestamp();
-            for (int i = 0; i < 10; i++)
+            const int n = 30; // 클립 30개 평균 (10개는 실행마다 ±7% 흔들림)
+            for (int i = 0; i < n; i++)
             {
                 var from = rng.Range(100, 17_800);
                 sim.ExtractClip(from, from + 110);
             }
-            return Ms(t0) / 10;
+            return Ms(t0) / n;
         }
 
         /// <summary>이벤트 로그·링 버퍼 메모리 (MB).</summary>

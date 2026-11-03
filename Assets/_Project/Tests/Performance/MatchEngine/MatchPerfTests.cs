@@ -53,7 +53,7 @@ namespace RoadToPro.Tests.Performance.MatchEngine
         public void Clip11s_ms()
         {
             var w = W();
-            for (int i = 0; i < 3; i++) Record("ms", SampleUnit.Millisecond, w.Clip11sMs());
+            for (int i = 0; i < 5; i++) Record("ms", SampleUnit.Millisecond, w.Clip11sMs()); // 표본 5개 중앙값
         }
 
         [Test, Performance]
