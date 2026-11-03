@@ -115,3 +115,55 @@ class ScenarioTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ImageChecks044(unittest.TestCase):
+    """specs/044: imageChecks 형식 검증."""
+
+    def _data(self, checks):
+        return {"schemaVersion": 1, "id": "x", "spec": "044", "scene": "S", "fixture": {"seed": 1},
+                "profiles": ["low-igpu-1080p", "uhd-4k-200"],
+                "steps": [{"type": "goto", "screen": "a"}, {"type": "capture", "name": "c1", "kind": "3d"},
+                          {"type": "capture", "name": "c2", "kind": "3d"}],
+                "imageChecks": checks}
+
+    def test_valid(self):
+        from farm import scenario as S
+        sc = S.parse(self._data([{"type": "bandFlip", "capture": "c1", "other": "c2"},
+                                 {"type": "lineContinuity", "capture": "c1"}, {"type": "notBlank", "capture": "c2"},
+                                 {"type": "blobX", "capture": "c1"}]))
+        self.assertEqual(len(sc.image_checks), 4)
+        self.assertEqual(sc.profiles, ["low-igpu-1080p", "uhd-4k-200"])
+
+    def test_unknown_type(self):
+        from farm import scenario as S
+        from farm.errors import RunnerError
+        with self.assertRaises(RunnerError):
+            S.parse(self._data([{"type": "magic", "capture": "c1"}]))
+
+    def test_unknown_capture(self):
+        from farm import scenario as S
+        from farm.errors import RunnerError
+        with self.assertRaises(RunnerError):
+            S.parse(self._data([{"type": "notBlank", "capture": "nope"}]))
+        with self.assertRaises(RunnerError):
+            S.parse(self._data([{"type": "bandFlip", "capture": "c1"}]))
+
+
+class Themes044(unittest.TestCase):
+    def test_themes_field(self):
+        from farm import scenario as S
+        from farm.errors import RunnerError
+        base = {"schemaVersion": 1, "id": "x", "spec": "044", "scene": "S", "fixture": {"seed": 1}, "profiles": "all",
+                "steps": [{"type": "goto", "screen": "a"}]}
+        self.assertEqual(S.parse(dict(base, themes=["light"])).themes, ["light"])
+        self.assertEqual(S.parse(base).themes, [])
+        with self.assertRaises(RunnerError):
+            S.parse(dict(base, themes=["neon"]))
+
+    def test_expand_one_theme_one_lang(self):
+        from farm import profiles
+        ps = profiles.load()
+        combos = ps.expand("full", selector="all", langs=["ko"], themes=["light"])
+        self.assertEqual(len(combos), len(ps.profiles))
+        self.assertTrue(all(c.theme == "light" and c.lang == "ko" for c in combos))

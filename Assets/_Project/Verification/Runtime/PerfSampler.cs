@@ -6,7 +6,7 @@ namespace RoadToPro.Verification
 {
     /// <summary>
     /// 성능 구간 측정 (specs/000 FR-40). 프레임마다 값을 모으고, 워밍업 프레임 수를 함께 남긴다
-    /// (버리는 건 Python farm/perf.py). 렌더 카운터는 개발 빌드에서만 유효하다 — 없으면 null.
+    /// (버리는 건 Python farm/perf.py). 렌더 카운터·GPU 시간은 개발 빌드에서만 유효하다 — 없으면 null.
     /// </summary>
     public sealed class PerfSampler
     {
@@ -17,7 +17,8 @@ namespace RoadToPro.Verification
         string _name;
         int _warmup;
         int _minFrames;
-        List<object> _frame, _main, _gc, _dc, _tri;
+        List<object> _frame, _main, _gc, _dc, _tri, _gpu;
+        readonly FrameTiming[] _timing = new FrameTiming[1];
         ProfilerRecorder _rMain, _rGc, _rDc, _rTri, _rTex, _rTotal;
 
         public bool Active => _name != null;
@@ -35,6 +36,7 @@ namespace RoadToPro.Verification
             _gc = new List<object>();
             _dc = new List<object>();
             _tri = new List<object>();
+            _gpu = new List<object>();
             _rMain = ProfilerRecorder.StartNew(ProfilerCategory.Internal, "Main Thread", 1);
             _rGc = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Allocated In Frame", 1);
             _rDc = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Draw Calls Count", 1);
@@ -52,6 +54,9 @@ namespace RoadToPro.Verification
             _gc.Add(_rGc.Valid ? (object)_rGc.LastValue : null);
             _dc.Add(_rDc.Valid ? (object)_rDc.LastValue : null);
             _tri.Add(_rTri.Valid ? (object)_rTri.LastValue : null);
+            // GPU 프레임 시간 (specs/044). 개발 빌드에서 FrameTimingManager가 켜진다 — 아니면 null
+            FrameTimingManager.CaptureFrameTimings();
+            _gpu.Add(FrameTimingManager.GetLatestTimings(1, _timing) > 0 && _timing[0].gpuFrameTime > 0 ? (object)_timing[0].gpuFrameTime : null);
         }
 
         public void End()
@@ -63,6 +68,7 @@ namespace RoadToPro.Verification
                 { "warmupFrames", _warmup },
                 { "frameMs", _frame },
                 { "mainThreadMs", AllNull(_main) ? null : _main },
+                { "gpuMs", AllNull(_gpu) ? null : _gpu },
                 { "gcAllocBytes", AllNull(_gc) ? null : _gc },
                 { "drawCalls", AllNull(_dc) ? null : _dc },
                 { "triangles", AllNull(_tri) ? null : _tri },

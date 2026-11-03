@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "id": "044-mow-flip",
+  "spec": "044",
+  "description": "같은 줄무늬 띠 두 개를 반대 방향 카메라에서 — 밝기 순서 반전 (AC-11)",
+  "scene": "Stadium044",
+  "fixture": {
+    "save": null,
+    "seed": 20261103
+  },
+  "profiles": "smoke",
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "mowA"
+    },
+    {
+      "type": "capture",
+      "name": "mowA",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "mowB"
+    },
+    {
+      "type": "capture",
+      "name": "mowB",
+      "kind": "3d"
+    }
+  ],
+  "acs": [
+    "AC-11"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "imageChecks": [
+    {
+      "type": "bandFlip",
+      "capture": "mowA",
+      "other": "mowB",
+      "minDelta": 2.0,
+      "ac": "AC-11"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

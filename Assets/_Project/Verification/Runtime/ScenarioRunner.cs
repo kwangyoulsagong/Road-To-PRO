@@ -85,12 +85,13 @@ namespace RoadToPro.Verification
             yield return null;
             yield return null;
 
-            if (FarmContext.Documents.Count == 0)
+            if (FarmContext.Documents.Count == 0 && FarmContext.Cameras.Count == 0)
             {
-                Finish("error", -1, "등록된 UI 문서가 없다 (화면이 FarmContext.RegisterDocument를 부르지 않음)", 2);
+                Finish("error", -1, "등록된 UI 문서도 카메라도 없다 (화면이 FarmContext.RegisterDocument/RegisterCamera를 부르지 않음)", 2);
                 yield break;
             }
             _capture = new OffscreenCapture(_args.Width, _args.Height, _args.UiScale);
+            foreach (var cam in FarmContext.Cameras) _capture.AttachCamera(cam);
             foreach (var doc in FarmContext.Documents) _capture.Attach(doc);
             yield return null;
             yield return null;

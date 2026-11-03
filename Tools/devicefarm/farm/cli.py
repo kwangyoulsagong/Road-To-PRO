@@ -30,7 +30,7 @@ SELF_TEST_CASES = [
 
 
 def _default_handlers():
-    from . import commands, selftest
+    from . import art, commands, selftest
 
     return {
         "logic": lambda a: commands.cmd_logic(a, a._argv),
@@ -40,6 +40,7 @@ def _default_handlers():
         "approve-baseline": lambda a: commands.cmd_approve_baseline(a, a._argv),
         "approve-perf": lambda a: commands.cmd_approve_perf(a, a._argv),
         "bench": lambda a: commands.cmd_bench(a, a._argv),
+        "art": lambda a: art.cmd_art(a, a._argv),
         "self-test": lambda a: selftest.main(a.case, a._argv),
     }
 
@@ -86,6 +87,9 @@ def build_parser():
     bn.add_argument("--spec", required=True, help="스펙 번호 (Data/perf의 il2cpp 예산)")
     bn.add_argument("--backend", choices=["il2cpp", "mono"], default="il2cpp", help="판정은 il2cpp만 (D17)")
     bn.add_argument("--force-build", action="store_true", help="캐시를 무시하고 다시 빌드")
+
+    ar = sub.add_parser("art", help="Blender 생성 스크립트 테스트 (specs/044)")
+    ar.add_argument("--spec", help="스펙 번호 (증거 폴더)")
 
     st = sub.add_parser("self-test", help="하네스 셀프테스트")
     st.add_argument("case", choices=SELF_TEST_CASES)

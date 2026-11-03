@@ -18,6 +18,9 @@ namespace RoadToPro.Verification.Editor
 
         static readonly string[] FarmScenes = { FarmSampleSetup.ScenePath };
 
+        /// <summary>E2E 검증용 씬 (BuildMac만, 벤치 빌드에는 넣지 않는다). specs/044 경기장.</summary>
+        static readonly string[] E2EScenes = { StadiumSceneSetup.ScenePath };
+
         public static void BuildMac()
         {
             var args = Environment.GetCommandLineArgs();
@@ -26,6 +29,7 @@ namespace RoadToPro.Verification.Editor
 
             // 게임 씬(빌드 설정)도 함께 넣어 이후 스펙의 E2E가 같은 빌드로 돈다.
             var scenes = FarmScenes
+                .Concat(E2EScenes)
                 .Concat(EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path))
                 .Distinct()
                 .ToArray();

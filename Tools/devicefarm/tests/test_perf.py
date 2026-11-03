@@ -161,3 +161,38 @@ class PerfTestingJsonTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GpuMs044(unittest.TestCase):
+    """specs/044: GPU 프레임 시간 집계, 측정 불가(null)는 예산 실패."""
+
+    def _sec(self, gpu):
+        return {"name": "s", "warmupFrames": 1, "frameMs": [16.0, 16.0, 16.0], "gpuMs": gpu}
+
+    def test_gpu_stats(self):
+        from farm import perf as P
+        m = P.summarize(self._sec([9.0, 1.0, 2.0]))
+        self.assertEqual(m["gpuMs"]["max"], 2.0)
+        self.assertEqual(m["gpuMs"]["p95"], 2.0)
+
+    def test_gpu_null_fails_budget(self):
+        from farm import perf as P
+        m = P.summarize(self._sec(None))
+        self.assertIsNone(m["gpuMs"])
+        rows = P.judge_budget(m, {"gpuMs.p95": 1.0})
+        self.assertFalse(rows[0]["ok"])
+
+    def test_gpu_in_regression_metrics(self):
+        from farm import perf as P
+        self.assertIn("gpuMs.p95", P.REGRESSION_METRICS)
+
+
+class Derived044(unittest.TestCase):
+    def test_set_get_metric(self):
+        from farm import perf as P
+        m = {}
+        P.set_metric(m, "gpuMs.p95", 1.5)
+        self.assertEqual(P.get_metric(m, "gpuMs.p95"), 1.5)
+        self.assertIsNone(P.get_metric(m, "drawCalls.max"))
+        rows = P.judge_budget(m, {"gpuMs.p95": 1.0, "drawCalls.max": 10})
+        self.assertEqual([r["ok"] for r in rows], [False, False])

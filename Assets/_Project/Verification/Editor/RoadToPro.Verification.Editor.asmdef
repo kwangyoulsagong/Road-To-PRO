@@ -2,7 +2,9 @@
   "name": "RoadToPro.Verification.Editor",
   "rootNamespace": "RoadToPro.Verification.Editor",
   "references": [
-    "RoadToPro.Verification"
+    "RoadToPro.Verification",
+    "RoadToPro.Presentation",
+    "RoadToPro.Presentation.Editor"
   ],
   "includePlatforms": [
     "Editor"

@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "id": "044-stadium-perf",
+  "spec": "044",
+  "description": "경기장 단독 렌더 성능 (AC-14). 구간마다 fps 상한을 풀어(uncapped) GPU가 병목인 상태에서 평균 프레임 간격을 재고, 빈 화면(카메라만) 대비 차이로 판정: 피치만 − 빈 화면 = 피치 셰이더(≤ 1.0 ms), 구조물만 − 빈 화면 = 구조(≤ 1.5 ms), 전체 − 빈 화면 = 드로우콜(≤ 60). Metal FrameTimingManager gpuFrameTime은 처리 중인 여러 프레임이 겹쳐 잡혀(예: 0.81 ms 간격에 1.9 ms) 기록만 한다",
+  "scene": "Stadium044",
+  "fixture": {
+    "save": null,
+    "seed": 20261103
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "mac-m1-1600p"
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "perfEmpty"
+    },
+    {
+      "type": "perfBegin",
+      "name": "empty",
+      "warmupFrames": 60,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "empty"
+    },
+    {
+      "type": "goto",
+      "screen": "perfPitch"
+    },
+    {
+      "type": "perfBegin",
+      "name": "pitch",
+      "warmupFrames": 60,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "pitch"
+    },
+    {
+      "type": "goto",
+      "screen": "perfStructure"
+    },
+    {
+      "type": "perfBegin",
+      "name": "structure",
+      "warmupFrames": 60,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "structure"
+    },
+    {
+      "type": "goto",
+      "screen": "perfFull"
+    },
+    {
+      "type": "perfBegin",
+      "name": "full",
+      "warmupFrames": 60,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "full"
+    }
+  ],
+  "acs": [
+    "AC-14"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "budgets": {
+    "full": {
+      "triangles.max": 100000,
+      "textureMemoryBytes": 134217728
+    }
+  },
+  "derived": {
+    "pitchShader": {
+      "of": "pitch",
+      "minus": "empty",
+      "budget": {
+        "frameMs.avg": 1.0
+      }
+    },
+    "structureCost": {
+      "of": "structure",
+      "minus": "empty",
+      "budget": {
+        "frameMs.avg": 1.5
+      }
+    },
+    "stadium": {
+      "of": "full",
+      "minus": "empty",
+      "budget": {
+        "drawCalls.max": 60
+      }
+    }
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

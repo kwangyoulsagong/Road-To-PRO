@@ -24,6 +24,8 @@ namespace RoadToPro.Tests.EditMode.Architecture
             { "RoadToPro.WorldGen", new[] { "RoadToPro.Core", "RoadToPro.Career", "RoadToPro.MatchEngine" } },
             { "RoadToPro.Data", new[] { "RoadToPro.Core", "RoadToPro.MatchEngine", "RoadToPro.Career", "RoadToPro.WorldGen" } },
             { "RoadToPro.Presentation", Lower },
+            // 프레젠테이션 에디터 도구 (specs/044: 임포트·에셋 생성). 런타임 모듈은 이것을 참조하지 않는다
+            { "RoadToPro.Presentation.Editor", Lower.Concat(new[] { "RoadToPro.Presentation" }).ToArray() },
             { "RoadToPro.UI", Lower },
             { "RoadToPro.Verification", Lower.Concat(new[] { "RoadToPro.Presentation", "RoadToPro.UI" }).ToArray() },
         };

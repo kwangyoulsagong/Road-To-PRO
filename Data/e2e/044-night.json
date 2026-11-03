@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "044-night",
+  "spec": "044",
+  "description": "나이트 프리셋 — 선수 발밑 블롭 그림자 4장 X자 (AC-13)",
+  "scene": "Stadium044",
+  "fixture": {
+    "save": null,
+    "seed": 20261103
+  },
+  "profiles": "smoke",
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "night"
+    },
+    {
+      "type": "capture",
+      "name": "night",
+      "kind": "3d"
+    }
+  ],
+  "acs": [
+    "AC-13"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "imageChecks": [
+    {
+      "type": "blobX",
+      "capture": "night",
+      "minDarkening": 0.12,
+      "ac": "AC-13"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

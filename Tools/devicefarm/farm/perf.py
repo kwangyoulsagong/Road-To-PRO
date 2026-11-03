@@ -1,7 +1,7 @@
 """성능 집계·예산·회귀 판정 (specs/000 FR-40~44).
 
 드라이버(`PerfSampler`)가 남긴 perf.json의 구간 하나:
-{name, warmupFrames, frameMs[], mainThreadMs[], gcAllocBytes[], drawCalls[], triangles[],
+{name, warmupFrames, frameMs[], mainThreadMs[], gpuMs[] (specs/044, 개발 빌드), gcAllocBytes[], drawCalls[], triangles[],
  textureMemoryBytes, totalMemoryBytes, power: "ac"|"battery"|"unknown"}
 """
 import json
@@ -15,6 +15,7 @@ REGRESSION_METRICS = (
     "frameMs.p95",
     "frameMs.avg",
     "mainThreadMs.p95",
+    "gpuMs.p95",
     "gcAllocTotalBytes",
     "drawCalls.max",
     "triangles.max",
@@ -60,10 +61,12 @@ def summarize(sec):
         return v or None
 
     gc, main, dc, tri = cut("gcAllocBytes"), cut("mainThreadMs"), cut("drawCalls"), cut("triangles")
+    gpu = cut("gpuMs")
     return {
         "frames": len(frames),
         "frameMs": _stats(frames),
         "mainThreadMs": _stats(main) if main else None,
+        "gpuMs": _stats(gpu) if gpu else None,
         "gcAllocPerFrameBytes": {"avg": sum(gc) / len(gc), "max": max(gc)} if gc else None,
         "gcAllocTotalBytes": sum(gc) if gc else None,
         "drawCalls": {"avg": sum(dc) / len(dc), "max": max(dc)} if dc else None,
@@ -90,8 +93,16 @@ def get_metric(metrics, path):
     for part in path.split("."):
         if cur is None:
             return None
-        cur = cur[part]
+        cur = cur.get(part) if isinstance(cur, dict) else None
     return cur
+
+
+def set_metric(metrics, path, value):
+    parts = path.split(".")
+    cur = metrics
+    for part in parts[:-1]:
+        cur = cur.setdefault(part, {})
+    cur[parts[-1]] = value
 
 
 def judge_budget(metrics, budget):

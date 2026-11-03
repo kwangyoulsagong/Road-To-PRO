@@ -20,6 +20,20 @@ namespace RoadToPro.Verification
         /// <summary>시나리오가 조작·캡처할 UI 문서들. 화면이 OnEnable에서 등록한다.</summary>
         public static readonly List<UIDocument> Documents = new List<UIDocument>();
 
+        /// <summary>3D 장면 캡처용 카메라 (specs/044). 등록하면 캡처 RT에 그린다. UI 문서 없이 카메라만 있어도 된다.</summary>
+        public static readonly List<UnityEngine.Camera> Cameras = new List<UnityEngine.Camera>();
+
+        /// <summary>
+        /// 캡처 순간의 이름 붙은 영역 (PNG 픽셀, 왼쪽 위 원점) — Python 이미지 검사 입력 (specs/044).
+        /// 값: 사각형 [x, y, w, h], 선분 {a: [x, y], b: [x, y]}, 점 [x, y], 점 목록 [[x, y], ...].
+        /// </summary>
+        public static Func<int, int, Dictionary<string, object>> CaptureRegions { get; set; }
+
+        public static void RegisterCamera(UnityEngine.Camera cam)
+        {
+            if (cam != null && !Cameras.Contains(cam)) Cameras.Add(cam);
+        }
+
         /// <summary>goto(screen) 단계가 부를 화면 전환 함수.</summary>
         public static readonly Dictionary<string, Action> Screens = new Dictionary<string, Action>();
 
@@ -45,6 +59,8 @@ namespace RoadToPro.Verification
         {
             Args = null;
             Documents.Clear();
+            Cameras.Clear();
+            CaptureRegions = null;
             Screens.Clear();
             DeterminismProbe = null;
             Playback = null;

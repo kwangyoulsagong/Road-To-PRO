@@ -53,7 +53,7 @@ namespace RoadToPro.Verification
                 }
                 else masks.Add(md);
             }
-            o.Extra["capture"] = new Dictionary<string, object>
+            var cap = new Dictionary<string, object>
             {
                 { "file", file },
                 { "width", _capture.Width },
@@ -61,11 +61,16 @@ namespace RoadToPro.Verification
                 { "masks", masks },
                 { "kind", s.GetString("kind", "ui") },
             };
+            var regions = FarmContext.CaptureRegions?.Invoke(_capture.Width, _capture.Height);
+            if (regions != null) cap["regions"] = regions;
+            o.Extra["capture"] = cap;
         }
 
         IEnumerator PerfBegin(StepDef s, StepOutcome o)
         {
             Time.captureDeltaTime = 0f; // 실제 프레임 시간으로 잰다
+            // uncapped (specs/044): fps 상한을 풀어 GPU를 최고 클럭으로 — 가벼운 부하에서 동적 클럭이 낮아져 GPU ms가 부풀려지는 것 방지
+            if (s.Has("uncapped") && s.Fields["uncapped"] is bool u && u) Application.targetFrameRate = -1;
             yield return null;
             _perf.Begin(s.GetString("name"),
                 (int)s.GetDouble("warmupFrames", PerfSampler.DefaultWarmup),
@@ -77,6 +82,7 @@ namespace RoadToPro.Verification
             while (!_perf.Enough) yield return null;
             o.Extra["frames"] = _perf.Frames;
             _perf.End();
+            Application.targetFrameRate = _args.TargetFps;
             Time.captureDeltaTime = FixedDelta;
             yield return null;
         }
