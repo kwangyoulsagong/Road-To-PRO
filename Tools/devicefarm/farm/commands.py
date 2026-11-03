@@ -120,6 +120,41 @@ def ac_evidence(info, logic_dict, res, perf_judgement, bench_judgement=None, ben
 
 
 LATEST_LOGIC = os.path.join(paths.FARM_DIR, "latest-logic.json")
+NO_DET = "결정론 테스트 없음"
+
+
+def merge_art(ev, ev_dir):
+    """같은 스펙 evidence/art.json(farm.py art)이 있으면 리포트에 Blender 섹션과 AC 증거를 합친다 (specs/044).
+    EditMode에 결정론 테스트가 없어 생긴 '결정론 테스트 없음'은 Blender 결정론 증거로 대신한다."""
+    p = os.path.join(ev_dir, "art.json")
+    if not os.path.exists(p):
+        return
+    with open(p, encoding="utf-8") as f:
+        art = json.load(f)
+    ev["art"] = {"ok": art["result"]["ok"], "total": art["result"]["total"], "passed": art["result"]["passed"],
+                 "failed": art["result"]["failed"], "png": os.path.join(ev_dir, art["png"]) if art.get("png") else None,
+                 "blender": art.get("meta", {}).get("blender")}
+    acev = ev.setdefault("acEvidence", {})
+    for ac, items in art.get("acEvidence", {}).items():
+        cur = [i for i in acev.get(ac, []) if not i["label"].startswith(NO_DET)]
+        acev[ac] = cur + items
+
+
+def merge_previous(ev, ev_dir, spec):
+    """matrix 리포트에 같은 스펙의 앞선 logic 리포트(run.json) 결과를 합친다 — 한 리포트에 모든 증거 (specs/044)."""
+    p = os.path.join(ev_dir, "run.json")
+    if not spec or not os.path.exists(p):
+        return
+    with open(p, encoding="utf-8") as f:
+        prev = json.load(f)
+    if (prev.get("spec") or {}).get("id") != spec or not prev.get("logic"):
+        return
+    for k in ("logic", "editmodePerf", "benchPerf", "art", "deferred", "requireAllAcs"):
+        if prev.get(k) is not None and ev.get(k) is None:
+            ev[k] = prev[k]
+    acev = ev.setdefault("acEvidence", {})
+    for ac, items in (prev.get("acEvidence") or {}).items():
+        acev[ac] = list(items) + acev.get(ac, [])
 
 
 def cmd_logic(args, argv):
@@ -169,6 +204,7 @@ def cmd_logic(args, argv):
               "editmodePerf": judgement, "benchPerf": bench_j, "requireAllAcs": bool(cfg), "deferred": deferred,
               "acEvidence": {k: v for k, v in ac_evidence(info, lg, res, judgement, bench_j, bench_required).items()
                              if k not in deferred}}  # 보류 AC에 일반 증거(EditMode 통과)를 자동으로 붙이지 않는다 (specs/006)
+        merge_art(ev, ev_dir)
         path = report.write(ev, ev_dir)
     log(f"[farm] 합계 {res.total} 통과 {res.passed} 실패 {res.failed} 컴파일 에러 {len(res.compile_errors)}")
     if judgement:
@@ -217,7 +253,7 @@ def scenarios_for(args):
 
 def run_scenario(exe, sc, tier, ps, run_dir, only=None, langs=None, extra_args=None, baseline_root=None,
                  ignore=None, label="", seed=None):
-    combos = ps.expand(tier, selector=sc.profiles, only=only, langs=langs or sc.langs or None)
+    combos = ps.expand(tier, selector=sc.profiles, only=only, langs=langs or sc.langs or None, themes=sc.themes or None)
     jobs = [runner.Job(c, paths.scenario_file(sc.id), seed if seed is not None else sc.fixture["seed"],
                        extra_args=list(extra_args or []), label=label) for c in combos]
     results = runner.run_matrix([exe], jobs, run_dir, ps, log=log)
@@ -233,7 +269,9 @@ def cmd_matrix(tier, args, argv):
         scs = scenarios_for(args)
         exe, cached, _ = build.ensure_build(log=log)
         run_dir = new_run_dir(tier)
-        runs = [run_scenario(exe, sc, tier, ps, run_dir, only=args.profile) for sc in scs]
+        # 시나리오가 여럿이면 시나리오별 하위 폴더 — 조합 폴더 이름이 같아 캡처가 덮어써지는 것 방지 (specs/044 T18b)
+        runs = [run_scenario(exe, sc, tier, ps, os.path.join(run_dir, sc.id) if len(scs) > 1 else run_dir, only=args.profile)
+                for sc in scs]
         meta = logic.metadata()
         keys = sorted({c["key"] for r in runs for c in r["combos"]})
         meta.update(durationSec=time.time() - t0, command=command_line(argv), profiles=keys, buildCached=cached)
@@ -245,6 +283,8 @@ def cmd_matrix(tier, args, argv):
                 ac_ev.setdefault(ac, []).append({"label": f"{sc.id} ({tier}) {r['verdict']}", "ok": r["verdict"] != "fail"})
         ev = {"title": f"{info['id']} 디바이스팜 증거 ({tier})", "spec": info, "meta": meta, "scenarios": runs,
               "acEvidence": ac_ev}
+        if args.spec:
+            merge_previous(ev, evidence_dir(args.spec, run_dir), args.spec)
         # 스펙 증거 폴더에는 --spec으로 돌렸을 때만 쓴다 (--scenario 단독 실행이 완료 증거를 덮어쓰지 않게)
         path = report.write(ev, evidence_dir(args.spec, run_dir))
         with open(LATEST, "w", encoding="utf-8") as f:

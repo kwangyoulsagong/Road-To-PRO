@@ -1,0 +1,348 @@
+{
+  "result": {
+    "ok": true,
+    "total": 35,
+    "passed": 35,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 18.691824197769165,
+    "compileErrors": [],
+    "failures": []
+  },
+  "meta": {
+    "commit": "4b25d1c7dd42adaa45a98d9461afab722e476d77",
+    "branch": "feat/044-stadium-pitch-art",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-03 17:58:14 +0900",
+    "blender": "Blender 5.1.1",
+    "durationSec": 19.352277994155884,
+    "command": "python3 Tools/devicefarm/farm.py art --spec 044"
+  },
+  "png": "art.png",
+  "previews": {
+    "min": {
+      "main": "blender/min/preview-main.png",
+      "goal": "blender/min/preview-goal.png",
+      "top": "blender/min/preview-top.png"
+    },
+    "default": {
+      "main": "blender/default/preview-main.png",
+      "goal": "blender/default/preview-goal.png",
+      "top": "blender/default/preview-top.png"
+    },
+    "max": {
+      "main": "blender/max/preview-main.png",
+      "goal": "blender/max/preview-goal.png",
+      "top": "blender/max/preview-top.png"
+    }
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "Blender 생성 테스트 4/4 통과",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "Blender 생성 테스트 2/2 통과",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "Blender 생성 테스트 4/4 통과",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ],
+    "AC-15": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "MarkingDimensions.test_boundary_is_105_by_68_line_centers",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "MarkingDimensions.test_center_circle_and_mark",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "MarkingDimensions.test_corner_arcs",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "MarkingDimensions.test_goal_area_left",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "MarkingDimensions.test_goal_posts_on_goal_line",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "MarkingDimensions.test_halfway_line_centered",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "MarkingDimensions.test_mirror_symmetry",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "MarkingDimensions.test_penalty_area_left",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "MarkingDimensions.test_penalty_mark_and_arc",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "MarkingDimensions.test_stripes_default",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ParamValidation.test_args_roundtrip",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ParamValidation.test_default_ok",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ParamValidation.test_full_roof_switches_towers",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ParamValidation.test_invalid",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ParamValidation.test_presets",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "Budgets_Min_Default_Max.test_budgets",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-05"
+      ]
+    },
+    {
+      "name": "Budgets_Min_Default_Max.test_full_roof_switches_light_towers",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-05"
+      ]
+    },
+    {
+      "name": "GenerationTime_Under60s.test_time",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-15"
+      ]
+    },
+    {
+      "name": "GoalColliders_MatchVisual_AndDeterministic.test_colliders",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-16"
+      ]
+    },
+    {
+      "name": "InvalidArgs.test_bad_color",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-06"
+      ]
+    },
+    {
+      "name": "InvalidArgs.test_negative_capacity",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-06"
+      ]
+    },
+    {
+      "name": "InvalidArgs.test_tiers_four",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-06"
+      ]
+    },
+    {
+      "name": "InvalidArgs.test_tiers_zero",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-06"
+      ]
+    },
+    {
+      "name": "LayoutContents.test_cameras_and_lights",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "LayoutContents.test_generator_record",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "LayoutContents.test_names",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "LightmapUv_NoOverlap.test_uv2",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-08"
+      ]
+    },
+    {
+      "name": "SameArgs_SameBytes.test_two_runs_identical",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Seats_CountAndOnMesh.test_sets",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-09"
+      ]
+    },
+    {
+      "name": "SeedChange_ChangesHash_KeepsSpec.test_seed",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-04"
+      ]
+    },
+    {
+      "name": "SpecDimensions.test_corner_flags",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "SpecDimensions.test_lines_match_marking_definition",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "SpecDimensions.test_measured_goal_mesh",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "SpecDimensions.test_pitch_plane_covers_runoff",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "Visibility_And_Runoff_AllSets.test_sets",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-07"
+      ]
+    }
+  ]
+}

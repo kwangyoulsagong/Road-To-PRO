@@ -5,7 +5,8 @@
     "RoadToPro.Core",
     "RoadToPro.MatchEngine",
     "Unity.RenderPipelines.Core.Runtime",
-    "Unity.RenderPipelines.Universal.Runtime"
+    "Unity.RenderPipelines.Universal.Runtime",
+    "RoadToPro.Presentation"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "id": "044-stadium-views",
+  "spec": "044",
+  "description": "기본 경기장 4시점(중계·골대 뒤·탑뷰·피치 레벨) — 빈 화면 없음, 라인·골대·관중석·조명 (AC-10)",
+  "scene": "Stadium044",
+  "fixture": {
+    "save": null,
+    "seed": 20261103
+  },
+  "profiles": "all",
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "main"
+    },
+    {
+      "type": "capture",
+      "name": "main",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "behindGoal"
+    },
+    {
+      "type": "capture",
+      "name": "behindGoal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "top"
+    },
+    {
+      "type": "capture",
+      "name": "top",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "pitchLevel"
+    },
+    {
+      "type": "capture",
+      "name": "pitchLevel",
+      "kind": "3d"
+    }
+  ],
+  "acs": [
+    "AC-10"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "imageChecks": [
+    {
+      "type": "notBlank",
+      "capture": "main",
+      "ac": "AC-10"
+    },
+    {
+      "type": "notBlank",
+      "capture": "behindGoal",
+      "ac": "AC-10"
+    },
+    {
+      "type": "notBlank",
+      "capture": "top",
+      "ac": "AC-10"
+    },
+    {
+      "type": "notBlank",
+      "capture": "pitchLevel",
+      "ac": "AC-10"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

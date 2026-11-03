@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "id": "044-line-sharpness",
+  "spec": "044",
+  "description": "페널티 박스 앞선 FOV 8°·30° — 200 px 구간 끊김 0, 폭 표준편차 ≤ 1 px (AC-12)",
+  "scene": "Stadium044",
+  "fixture": {
+    "save": null,
+    "seed": 20261103
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "mac-m1-1600p",
+    "compact-1366",
+    "uhd-4k-200"
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "lineFov8"
+    },
+    {
+      "type": "capture",
+      "name": "lineFov8",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "lineFov30"
+    },
+    {
+      "type": "capture",
+      "name": "lineFov30",
+      "kind": "3d"
+    }
+  ],
+  "acs": [
+    "AC-12"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "imageChecks": [
+    {
+      "type": "lineContinuity",
+      "capture": "lineFov8",
+      "samples": 200,
+      "maxWidthStd": 1.0,
+      "ac": "AC-12"
+    },
+    {
+      "type": "lineContinuity",
+      "capture": "lineFov30",
+      "samples": 200,
+      "maxWidthStd": 1.0,
+      "ac": "AC-12"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

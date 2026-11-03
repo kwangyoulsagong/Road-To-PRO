@@ -49,6 +49,8 @@ class Scenario:
     defaults: dict
     steps: list
     raw: dict = field(repr=False, default=None)
+    image_checks: list = field(default_factory=list)
+    themes: list = field(default_factory=list)
 
     def capture_names(self):
         return [s["name"] for s in self.steps if s["type"] == "capture"]
@@ -158,6 +160,25 @@ def parse(data):
     if open_perf is not None:
         raise RunnerError(f"시나리오 {sid}: 성능 구간 '{open_perf}'이 닫히지 않음")
 
+    th = data.get("themes")
+    if th is not None and not (isinstance(th, list) and th and all(t in ("light", "dark") for t in th)):
+        raise RunnerError(f"시나리오 {sid}: themes는 ['light'|'dark', ...] (UI가 없는 3D 장면은 테마 한 벌로 충분, specs/044)")
+    for name, d in (data.get("derived") or {}).items():
+        if not (isinstance(d, dict) and d.get("of") and d.get("minus") and isinstance(d.get("budget"), dict)):
+            raise RunnerError(f"시나리오 {sid} derived.{name}: {{of, minus, budget}} 필요")
+
+    from . import imagechecks
+    checks = data.get("imageChecks") or []
+    if not isinstance(checks, list):
+        raise RunnerError(f"시나리오 {sid}: imageChecks는 목록")
+    for k, c in enumerate(checks):
+        if not isinstance(c, dict) or c.get("type") not in imagechecks.TYPES:
+            raise RunnerError(f"시나리오 {sid} imageChecks #{k}: type은 {imagechecks.TYPES} 중 하나")
+        if c.get("capture") not in captures:
+            raise RunnerError(f"시나리오 {sid} imageChecks #{k}: 캡처 '{c.get('capture')}' 없음")
+        if c["type"] in imagechecks.PAIRED and c.get("other") not in captures:
+            raise RunnerError(f"시나리오 {sid} imageChecks #{k}: {c['type']}는 other(두 번째 캡처) 필요")
+
     return Scenario(
         id=data["id"],
         spec=data["spec"],
@@ -170,6 +191,8 @@ def parse(data):
         defaults=defaults,
         steps=steps,
         raw=data,
+        image_checks=checks,
+        themes=list(data.get("themes") or []),
     )
 
 

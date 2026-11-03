@@ -2,7 +2,7 @@
 import os
 import subprocess
 
-from . import baseline, compare, determinism, logs, paths, perf
+from . import baseline, compare, determinism, imagechecks, logs, paths, perf
 from .htmlkit import e  # noqa: F401  (리포트와 같은 이스케이프 규칙 공유)
 
 
@@ -59,6 +59,17 @@ def evaluate_combo(result, scenario, profile_set, baseline_root=None, ignore=Non
 
     fail_caps = [os.path.join(out, st["failCapture"]) for st in steps if st.get("failCapture")]
 
+    img_rows = []
+    checks = getattr(scenario, "image_checks", None) or []
+    if checks:
+        loaded = {}
+        for st in steps:
+            cap = st.get("capture")
+            path = os.path.join(out, cap["file"]) if cap else None
+            if cap and os.path.exists(path):
+                loaded[st["name"]] = (compare.load_rgb(path), cap.get("regions") or {})
+        img_rows = imagechecks.run(checks, loaded)
+
     perf_rows = []
     pj = os.path.join(out, "perf.json")
     if os.path.exists(pj):
@@ -67,6 +78,7 @@ def evaluate_combo(result, scenario, profile_set, baseline_root=None, ignore=Non
         with open(pj, encoding="utf-8") as f:
             sections = json.load(f).get("sections", [])
         budgets = (scenario.raw or {}).get("budgets", {})
+        by_name = {}
         for sec in sections:
             try:
                 metrics = perf.summarize(sec)
@@ -78,6 +90,19 @@ def evaluate_combo(result, scenario, profile_set, baseline_root=None, ignore=Non
             power = perf.power_state(sec.get("power"), power_text)
             ev = perf.evaluate(metrics, budgets.get(sec["name"]), base, p.is_reference_device, power)
             perf_rows.append({"section": sec["name"], "key": key, "metrics": metrics, "power": power, **ev})
+            by_name[sec["name"]] = (metrics, power)
+        # 파생 구간 (specs/044): 두 구간 지표의 차 — 예) 피치만 − 빈 화면 = 피치 셰이더 몫
+        for name, d in sorted(((scenario.raw or {}).get("derived") or {}).items()):
+            if d["of"] not in by_name or d["minus"] not in by_name:
+                perf_rows.append({"section": name, "error": f"파생 구간 입력 없음 ({d['of']} − {d['minus']})", "ok": False})
+                continue
+            (ma, pw), (mb, _) = by_name[d["of"]], by_name[d["minus"]]
+            metrics = {"derived": f"{d['of']} − {d['minus']}"}
+            for path in d.get("budget", {}):
+                va, vb = perf.get_metric(ma, path), perf.get_metric(mb, path)
+                perf.set_metric(metrics, path, None if va is None or vb is None else va - vb)
+            ev = perf.evaluate(metrics, d.get("budget"), None, p.is_reference_device, pw)
+            perf_rows.append({"section": name, "key": f"{scenario.id}/{name}/{p.id}", "metrics": metrics, "power": pw, **ev})
 
     log_summary = logs.judge(logs.read_jsonl(os.path.join(out, "logs.jsonl")), ignore or []).to_dict()
     cps_path = os.path.join(out, "checkpoints.json")
@@ -86,7 +111,8 @@ def evaluate_combo(result, scenario, profile_set, baseline_root=None, ignore=Non
     cap_ok = all(c["status"] == "pass" for c in captures)
     has_candidate = any(c["status"] == "candidate" for c in captures)
     perf_ok = all(r.get("ok", False) for r in perf_rows)
-    ok = result.ok and log_summary["ok"] and perf_ok and all(c["status"] in ("pass", "candidate") for c in captures)
+    img_ok = all(r["ok"] for r in img_rows)
+    ok = result.ok and log_summary["ok"] and perf_ok and img_ok and all(c["status"] in ("pass", "candidate") for c in captures)
     verdict = "pass" if ok and cap_ok else ("candidate" if ok and has_candidate else "fail")
     return {
         "key": combo.key,
@@ -104,6 +130,7 @@ def evaluate_combo(result, scenario, profile_set, baseline_root=None, ignore=Non
         "captures": captures,
         "failCaptures": fail_caps,
         "perf": perf_rows,
+        "imageChecks": img_rows,
         "logs": log_summary,
         "checkpoints": cps,
         "verdict": verdict,

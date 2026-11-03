@@ -168,6 +168,34 @@ def _logic(ev, assets):
     )
 
 
+def _art(ev, assets):
+    a = ev.get("art")
+    if not a:
+        return ""
+    url = assets.copy(a.get("png"), "art.png") if a.get("png") and os.path.exists(a["png"]) else None
+    img = f'<img src="{e(url)}" alt="Blender 생성 테스트 리포트" style="width:100%;border-radius:10px">' if url else ""
+    return (
+        f'<div class="card"><h2>Blender 생성 테스트 {_ok_tag(a["ok"])}</h2>'
+        f'<p class="meta"><span>합계 <b>{a.get("total", 0)}</b></span><span>통과 <b>{a.get("passed", 0)}</b></span>'
+        f'<span>실패 <b>{a.get("failed", 0)}</b></span><span>{e(a.get("blender") or "")}</span></p>{img}</div>'
+    )
+
+
+def _image_checks(scs):
+    rows = []
+    for sc in scs:
+        for c in sc["combos"]:
+            for r in c.get("imageChecks", []):
+                rows.append(f'<tr><td>{e(sc["scenario"])}</td><td>{e(c["key"])}</td><td>{e(r.get("ac") or "")}</td>'
+                            f'<td>{e(r["type"])} · {e(r["capture"])}</td><td>{_ok_tag(r["ok"])}</td>'
+                            f'<td class="muted wrap">{e(r["detail"])}</td></tr>')
+    if not rows:
+        return ""
+    return ('<div class="card"><h2>이미지 검사</h2><div class="scroll"><table>'
+            "<tr><th>시나리오</th><th>조합</th><th>AC</th><th>검사</th><th>판정</th><th>값</th></tr>"
+            + "".join(rows) + "</table></div></div>")
+
+
 def _grid(sc, assets, idx):
     combos = sc["combos"]
     steps = []
@@ -247,7 +275,7 @@ def _perf(scs):
                 rows.append(
                     f'<tr><td>{e(sc["scenario"])}/{e(r["section"])}</td><td>{e(c["key"])}</td><td>{verdict}</td>'
                     f'<td>{_fmt(fm.get("avg"))}</td><td>{_fmt(fm.get("p95"))}</td><td>{_fmt(fm.get("p99"))}</td>'
-                    f'<td>{_fmt((m.get("mainThreadMs") or {}).get("p95"))}</td><td>{_fmt(m.get("gcAllocTotalBytes"))}</td>'
+                    f'<td>{_fmt((m.get("mainThreadMs") or {}).get("p95"))}</td><td>{_fmt((m.get("gpuMs") or {}).get("p95"))}</td><td>{_fmt(m.get("gcAllocTotalBytes"))}</td>'
                     f'<td>{_fmt((m.get("drawCalls") or {}).get("max"))}</td><td>{_fmt((m.get("triangles") or {}).get("max"))}</td>'
                     f'<td>{_fmt(m.get("totalMemoryBytes"))}</td><td class="muted wrap">{e(note)} {e(detail)}</td></tr>'
                 )
@@ -255,7 +283,7 @@ def _perf(scs):
         return ""
     return (
         '<div class="card"><h2>성능 (ms)</h2><div class="scroll"><table>'
-        "<tr><th>구간</th><th>조합</th><th>판정</th><th>평균</th><th>p95</th><th>p99</th><th>메인 p95</th>"
+        "<tr><th>구간</th><th>조합</th><th>판정</th><th>평균</th><th>p95</th><th>p99</th><th>메인 p95</th><th>GPU p95</th>"
         "<th>GC 합</th><th>드로우콜</th><th>삼각형</th><th>메모리</th><th>비고</th></tr>"
         + "".join(rows) + "</table></div></div>"
     )
@@ -416,10 +444,12 @@ def write(ev, out_dir, max_bytes=MAX_BYTES):
         body = "".join([
             _header(ev, verdict, level),
             _ac_table(ev),
+            _art(ev, assets),
             _logic(ev, assets),
             _editmode_perf(ev),
             _bench_perf(ev),
             "".join(_grid(sc, assets, i) for i, sc in enumerate(ev.get("scenarios", []))),
+            _image_checks(ev.get("scenarios", [])),
             _perf(ev.get("scenarios", [])),
             _determinism(ev.get("scenarios", [])),
             _logs(ev.get("scenarios", [])),

@@ -1,0 +1,21 @@
+{
+  "name": "RoadToPro.Presentation.Editor",
+  "rootNamespace": "RoadToPro.Presentation.Editor",
+  "references": [
+    "RoadToPro.Core",
+    "RoadToPro.Presentation",
+    "glTFast",
+    "glTFast.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

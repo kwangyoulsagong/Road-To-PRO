@@ -7,6 +7,7 @@ namespace RoadToPro.Verification
     /// <summary>
     /// 프로필 해상도 RenderTexture에 UI 패널을 그려 캡처한다 (specs/000 FR-23, 경계: 레티나 배율·창 잘림 무관).
     /// 패널 설정은 복제본에 targetTexture·고정 픽셀 배율(=프로필 UI 배율)을 건다. 원본 에셋은 건드리지 않는다.
+    /// 3D 장면(specs/044)은 카메라의 targetTexture를 같은 RT로 돌린다. 카메라가 있으면 UI 패널은 RT를 지우지 않고 위에 그린다.
     /// </summary>
     public sealed class OffscreenCapture
     {
@@ -23,13 +24,25 @@ namespace RoadToPro.Verification
             Width = width;
             Height = height;
             UiScale = uiScale;
-            Target = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB)
+            Target = new RenderTexture(width, height, 32, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB)
             {
                 name = "FarmCapture",
                 antiAliasing = 1,
             };
             Target.Create();
             _read = new Texture2D(width, height, TextureFormat.RGBA32, false, false);
+        }
+
+        readonly List<Camera> _cameras = new List<Camera>();
+
+        public bool HasCameras => _cameras.Count > 0;
+
+        public void AttachCamera(Camera cam)
+        {
+            if (cam == null || _cameras.Contains(cam)) return;
+            cam.targetTexture = Target;
+            _cameras.Add(cam);
+            foreach (var clone in _clones.Values) clone.clearColor = false;
         }
 
         public void Attach(UIDocument doc)
@@ -44,7 +57,7 @@ namespace RoadToPro.Verification
                 clone.targetTexture = Target;
                 clone.scaleMode = PanelScaleMode.ConstantPixelSize;
                 clone.scale = UiScale;
-                clone.clearColor = true;
+                clone.clearColor = !HasCameras;
                 clone.colorClearValue = Color.black;
                 _clones[src] = clone;
             }
