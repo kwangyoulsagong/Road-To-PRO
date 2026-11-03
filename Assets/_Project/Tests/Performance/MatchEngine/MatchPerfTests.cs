@@ -40,13 +40,21 @@ namespace RoadToPro.Tests.Performance.MatchEngine
         [Test, Performance]
         public void Checkpoint_SizeAndRestore()
         {
-            var d = W().Checkpoints();
-            Record("checkpoint_max_kb", SampleUnit.Undefined, d["checkpoint_max_kb"]);
-            Record("restore_avg_ms", SampleUnit.Millisecond, d["restore_avg_ms"]);
+            var w = W();
+            for (int i = 0; i < 3; i++) // 표본 3개 중앙값 (단일 표본은 +10% 회귀 판정에 흔들림 — 006 깨끗한 트리 재검증에서 발견)
+            {
+                var d = w.Checkpoints();
+                Record("checkpoint_max_kb", SampleUnit.Undefined, d["checkpoint_max_kb"]);
+                Record("restore_avg_ms", SampleUnit.Millisecond, d["restore_avg_ms"]);
+            }
         }
 
         [Test, Performance]
-        public void Clip11s_ms() => Record("ms", SampleUnit.Millisecond, W().Clip11sMs());
+        public void Clip11s_ms()
+        {
+            var w = W();
+            for (int i = 0; i < 3; i++) Record("ms", SampleUnit.Millisecond, w.Clip11sMs());
+        }
 
         [Test, Performance]
         public void Memory_LogAndRing_MB()
