@@ -74,12 +74,21 @@ namespace RoadToPro.Verification.Bench
             return new MatchSim(Setup(seed), _tuning, o);
         }
 
+        /// <summary>측정 직전 GC 정리 — 앞선 작업(테스트 묶음의 큰 참조 경기 등)이 남긴 쓰레기가 측정 구간에서 수거되지 않게.</summary>
+        static void Settle()
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+        }
+
         static double Ms(long t0) => (Stopwatch.GetTimestamp() - t0) * 1000.0 / Stopwatch.Frequency;
 
         /// <summary>뼈대 경기 54,000틱 (ms). 물리가 없어 공이 멈춰 있어도 단계·보드·이벤트·체크포인트 해시·진행 판정은 매 틱 돈다.</summary>
         public double SkeletonMatchMs()
         {
             var sim = NewMatch(frozenPhysics: true);
+            Settle();
             var t0 = Stopwatch.GetTimestamp();
             sim.RunUntilTick(54_000);
             return Ms(t0);
@@ -91,6 +100,7 @@ namespace RoadToPro.Verification.Bench
             var sim = NewMatch();
             var timer = new StopwatchStageTimer();
             sim.Timer = timer;
+            Settle();
             var t0 = Stopwatch.GetTimestamp();
             sim.RunToEnd();
             var ms = Ms(t0);
@@ -121,6 +131,7 @@ namespace RoadToPro.Verification.Bench
             foreach (var s in sim.Snapshots) if (s.SizeBytes > maxBytes) maxBytes = s.SizeBytes;
             var fork = sim.Fork();
             fork.Restore(sim.Snapshots[1], sim.Log, sim.Checkpoints); // 워밍업
+            Settle();
             var t0 = Stopwatch.GetTimestamp();
             int n = 0;
             for (int i = 5; i < sim.Snapshots.Count && n < 20; i += 8, n++) fork.Restore(sim.Snapshots[i], sim.Log, sim.Checkpoints);
@@ -138,6 +149,7 @@ namespace RoadToPro.Verification.Bench
             sim.RunUntilTick(18_000);
             sim.ExtractClip(1000, 1110); // 워밍업
             var rng = new SeedRng(11UL);
+            Settle();
             var t0 = Stopwatch.GetTimestamp();
             for (int i = 0; i < 10; i++)
             {
