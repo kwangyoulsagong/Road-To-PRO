@@ -72,6 +72,16 @@ class EditModeNullBudgetTests(unittest.TestCase):
         self.assertFalse(j2["ok"], "회귀 +10% 초과는 실패")
 
 
+class RegressionOptOutTests(unittest.TestCase):
+    def test_regression_false_records_only(self):
+        cfg = {"profile": "mac-m1-1600p", "budgets": [
+            {"ac": "AC-21", "label": "기록만", "test": "T.A", "group": "ms", "stat": "median", "max": None, "unit": "ms", "regression": False}]}
+        rows = [{"name": "T.A", "groups": {"ms": {"median": 999.0}}}]
+        j = perf.judge_editmode(rows, cfg, {"T.A/ms/median": 100.0}, True, "ac")
+        self.assertTrue(j["ok"])
+        self.assertEqual(j["regression"], [])
+
+
 class DeferredEvidenceTests(unittest.TestCase):
     def test_deferred_logic_ac_not_auto_passed(self):
         from farm import commands

@@ -1,7 +1,7 @@
 {
   "spec": "006",
   "profile": "mac-m1-1600p",
-  "note": "specs/006 성능 예산 표의 기계용 사본. 판정 런타임은 IL2CPP 릴리스 플레이어(`il2cpp` 항목, farm.py bench) — 2026-11-03 사용자 결정(README D17). EditMode(Mono) 항목은 max가 null이면 회귀(+10%) 기준선만, 숫자면 판정(크기·메모리·할당은 런타임 무관). 단계별 평균은 bench.json의 stage_us.* 로 기록만. AC-21 중 전체 정밀 경기 ≤ 5 s와 물리 외 단계별 몫 판정은 모든 단계(009·010·013 등) 구현 후 — 이 스펙은 뼈대·물리 몫·체크포인트·클립·메모리를 판정한다.",
+  "note": "specs/006 성능 예산 표의 기계용 사본. 판정 런타임은 IL2CPP 릴리스 플레이어(`il2cpp` 항목, farm.py bench) — 2026-11-03 사용자 결정(README D17). EditMode(Mono) 항목은 max가 null이면 회귀(+10%) 기준선만, 숫자면 판정(크기·메모리·할당은 런타임 무관). 단계별 평균은 bench.json의 stage_us.* 로 기록만. AC-21 중 전체 정밀 경기 ≤ 5 s와 물리 외 단계별 몫 판정은 모든 단계(009·010·013 등) 구현 후 — 이 스펙은 뼈대·물리 몫·체크포인트·클립·메모리를 판정한다. 체크포인트 복원·11초 클립(Mono)은 ms 단위라 기기 부하에 ±35%까지 흔들려(2026-11-03 재검증) 회귀 감시에서 빼고 기록만 한다 — 이 둘의 판정·회귀는 IL2CPP 벤치가 한다.",
   "deferred": {
     "AC-20": "저정밀 모드(016) 구현 후 같은 결과 형식 검사 (2026-11-03 스펙 승인 범위)"
   },
@@ -50,21 +50,23 @@
     },
     {
       "ac": "AC-21",
-      "label": "체크포인트 복원 (Mono 회귀)",
+      "label": "체크포인트 복원 (Mono 기록만)",
       "test": "MatchPerfTests.Checkpoint_SizeAndRestore",
       "group": "restore_avg_ms",
       "stat": "median",
       "max": null,
-      "unit": "ms"
+      "unit": "ms",
+      "regression": false
     },
     {
       "ac": "AC-21",
-      "label": "11초 클립 재구성 (Mono 회귀)",
+      "label": "11초 클립 재구성 (Mono 기록만)",
       "test": "MatchPerfTests.Clip11s_ms",
       "group": "ms",
       "stat": "median",
       "max": null,
-      "unit": "ms"
+      "unit": "ms",
+      "regression": false
     },
     {
       "ac": "AC-21",

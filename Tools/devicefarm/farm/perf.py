@@ -246,7 +246,8 @@ def judge_editmode(rows, cfg, base, is_reference, power):
                             "budget": "—" if limit is None else limit, "unit": b.get("unit", ""),
                             "ok": v is not None and (limit is None or v <= limit)})
         prev = (base or {}).get(_bkey(b))
-        if v is None or prev is None:
+        # "regression": false = 기록만 (짧은 ms 측정이 기기 부하에 흔들리는 항목 — 판정은 다른 런타임에서, specs/006)
+        if v is None or prev is None or b.get("regression", True) is False:
             continue
         if prev == 0:
             change = 0.0 if v == 0 else math.inf
