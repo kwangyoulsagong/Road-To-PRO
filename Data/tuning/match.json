@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "definitions": [
+    {"id": "match.stoppage.coef.goal", "default": 0, "min": 0, "max": 120, "unit": "s", "tag": "[미정]", "source": "specs/006 FR-20 요인별 가산 계수 — 기본 0, 017 대량 시뮬에서 결정 (2026-11-03)"},
+    {"id": "match.stoppage.coef.substitution", "default": 0, "min": 0, "max": 120, "unit": "s", "tag": "[미정]", "source": "specs/006 FR-20 (기본 0)"},
+    {"id": "match.stoppage.coef.injury", "default": 0, "min": 0, "max": 180, "unit": "s", "tag": "[미정]", "source": "specs/006 FR-20 (기본 0, 부상 퇴장 +1~3분 참고: scenarios research INJ-15)"},
+    {"id": "match.stoppage.coef.var", "default": 0, "min": 0, "max": 120, "unit": "s", "tag": "[미정]", "source": "specs/006 FR-20 (기본 0)"},
+    {"id": "match.stoppage.coef.card", "default": 0, "min": 0, "max": 120, "unit": "s", "tag": "[미정]", "source": "specs/006 FR-20 (기본 0)"},
+    {"id": "match.stoppage.coef.dissent", "default": 0, "min": 0, "max": 120, "unit": "s", "tag": "[미정]", "source": "specs/006 FR-20 (기본 0)"},
+
+    {"id": "standin.goalCelebration", "default": 40, "min": 0, "max": 120, "unit": "s", "tag": "[대체]", "source": "대체 단계 전용(디자인 값 아님): 골 후 킥오프까지 데드볼 — 012·027이 실제 값을 줄 때까지"},
+    {"id": "standin.subDelay", "default": 25, "min": 0, "max": 120, "unit": "s", "tag": "[대체]", "source": "대체 단계 전용: 교체 1건이 늘리는 데드볼"},
+    {"id": "standin.restartDelay", "default": 4, "min": 0, "max": 30, "unit": "s", "tag": "[대체]", "source": "대체 단계 전용: 스로인·골킥·코너·프리킥 준비"},
+    {"id": "standin.kickoffDelay", "default": 1, "min": 0, "max": 10, "unit": "s", "tag": "[대체]", "source": "대체 단계 전용: 킥오프 배치 후 출발"},
+    {"id": "standin.holdTime", "default": 1.5, "min": 0.1, "max": 10, "unit": "s", "tag": "[대체]", "source": "대체 단계 전용: 공을 잡고 패스·슈팅까지 최소 시간"},
+    {"id": "standin.shotRange", "default": 24, "min": 5, "max": 40, "unit": "m", "tag": "[대체]", "source": "대체 단계 전용: 슈팅 거리"},
+    {"id": "standin.shotProb", "default": 0.35, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용: 사거리 안 결정마다 슈팅 확률"},
+    {"id": "standin.shotSpeed", "default": 24, "min": 10, "max": 35, "unit": "m/s", "tag": "[대체]", "source": "대체 단계 전용"},
+    {"id": "standin.passRange", "default": 35, "min": 5, "max": 70, "unit": "m", "tag": "[대체]", "source": "대체 단계 전용: 패스 대상 최대 거리"},
+    {"id": "standin.passExtraSpeed", "default": 3, "min": 0, "max": 15, "unit": "m/s", "tag": "[대체]", "source": "대체 단계 전용: 땅볼 역산 잔여 속도"},
+    {"id": "standin.claimRadius", "default": 1.0, "min": 0.3, "max": 3, "unit": "m", "tag": "[대체]", "source": "대체 단계 전용: 느슨한 공 잡는 거리"},
+    {"id": "standin.claimMaxZ", "default": 1.9, "min": 0.2, "max": 3, "unit": "m", "tag": "[대체]", "source": "대체 단계 전용: 잡을 수 있는 공 높이"},
+    {"id": "standin.claimMaxSpeed", "default": 22, "min": 1, "max": 40, "unit": "m/s", "tag": "[대체]", "source": "대체 단계 전용: 잡을 수 있는 공 속도"},
+    {"id": "standin.tackleRange", "default": 1.2, "min": 0.3, "max": 3, "unit": "m", "tag": "[대체]", "source": "대체 단계 전용"},
+    {"id": "standin.tackleProb", "default": 0.12, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용: 결정마다 태클 성공 확률"},
+    {"id": "standin.shapeShiftX", "default": 0.35, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용: 대형이 공 쪽으로 이동하는 비율"},
+    {"id": "standin.shapeShiftY", "default": 0.25, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용"},
+    {"id": "standin.penaltyScoreProb", "default": 0.76, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용: 승부차기·페널티 득점 확률 — 008·011이 판정할 때까지"},
+    {"id": "standin.carrySpeedRatio", "default": 0.7, "min": 0.1, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용: 드리블 이동 속도 비율"}
+  ]
+}

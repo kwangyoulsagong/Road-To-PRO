@@ -2,6 +2,8 @@
   "name": "RoadToPro.Verification",
   "rootNamespace": "RoadToPro.Verification",
   "references": [
+    "RoadToPro.Core",
+    "RoadToPro.MatchEngine",
     "Unity.RenderPipelines.Core.Runtime",
     "Unity.RenderPipelines.Universal.Runtime"
   ],

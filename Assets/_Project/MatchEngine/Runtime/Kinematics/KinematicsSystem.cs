@@ -1,6 +1,7 @@
 using System;
 using RoadToPro.Core.Hashing;
 using RoadToPro.Core.Math;
+using RoadToPro.Core.Serialization;
 
 namespace RoadToPro.MatchEngine.Kinematics
 {
@@ -9,6 +10,8 @@ namespace RoadToPro.MatchEngine.Kinematics
     /// 처리 순서는 생성 시 id 오름차순으로 고정 (입력 순서 무관, AC-12). 서브스텝 경로 할당 0.
     /// 서브스텝 순서: ① 명령 활성화 ② 행동 목표 속도(스냅숏 기준) ③ Separation ④ 합성 ⑤ 한계 풀이·적분
     /// ⑥ 겹침 위치 투영 ⑦ 피치 경계 ⑧ 피로 ⑨ 기록·진단·모니터 ⑩ 수치 검사.
+    /// 006 추가: 비활성 선수(퇴장·교체 대기)는 적분·Separation·기록에서 빠지고 상태가 얼어 있다. 슬롯 재설정(교체 투입)과
+    /// 상태 직렬화(스냅샷). 전원 활성이면 005와 계산·해시가 같다.
     /// </summary>
     public sealed class KinematicsSystem
     {
@@ -19,6 +22,9 @@ namespace RoadToPro.MatchEngine.Kinematics
         readonly int[] _ids;
         readonly PlayerMotionState[] _s;
         readonly PlayerMotionProfile[] _prof;
+        readonly KinematicAttributes[] _attrs;
+        readonly bool[] _active;
+        int _inactive;
         readonly MotionStats[] _stats;
         readonly CommandQueue _queue;
         readonly bool[] _contact;
@@ -51,6 +57,8 @@ namespace RoadToPro.MatchEngine.Kinematics
             _s = new PlayerMotionState[_n];
             _prof = new PlayerMotionProfile[_n];
             _stats = new MotionStats[_n];
+            _attrs = new KinematicAttributes[_n];
+            _active = new bool[_n];
             for (int i = 0; i < _n; i++)
             {
                 if (i > 0 && sorted[i].Id == sorted[i - 1].Id) throw new ArgumentException($"선수 id 중복: {sorted[i].Id}", nameof(players));
@@ -58,6 +66,8 @@ namespace RoadToPro.MatchEngine.Kinematics
                 if (!Finite(su.Position) || !Finite(su.Velocity) || !FloatGuard.IsFinite(su.W) || !FloatGuard.IsFinite(su.C))
                     throw new ArgumentException($"선수 {su.Id} 초기 상태에 NaN/무한대", nameof(players));
                 _ids[i] = su.Id;
+                _attrs[i] = su.Attributes;
+                _active[i] = true;
                 _prof[i] = PlayerMotionProfile.Create(in su.Attributes, p);
                 var speed = su.Velocity.Length();
                 // 몸 방향: 움직이고 있으면 속도 방향 (피벗 시작에서 속도가 순간 회전하지 않게), 아니면 입력 방향, 그것도 0이면 +x (리뷰 R3)
@@ -97,6 +107,120 @@ namespace RoadToPro.MatchEngine.Kinematics
         public ref readonly PlayerMotionProfile Profile(int index) => ref _prof[index];
         public ref readonly MotionStats Stats(int index) => ref _stats[index];
         public int PendingCommands(int index) => _queue.Pending(index);
+        public bool IsActive(int index) => _active[index];
+        public ref readonly KinematicAttributes Attributes(int index) => ref _attrs[index];
+
+        /// <summary>
+        /// 활성 여부 (specs/006: 퇴장·교체 대기). 비활성이 되면 속도 0·대기 명령 비움·Idle이고, 적분·Separation·기록·경계에서 빠진다.
+        /// 다른 선수의 대상(Pursue 등)이면 대상 없음으로 본다.
+        /// </summary>
+        public void SetActive(int id, bool active)
+        {
+            var i = Require(id);
+            if (_active[i] == active) return;
+            _active[i] = active;
+            _inactive += active ? -1 : 1;
+            if (!active) Freeze(i);
+        }
+
+        /// <summary>
+        /// 슬롯에 새 선수를 넣는다 (specs/006 교체 투입): 프로필 재계산, W = 1·C = 0 (005 FR-35), 정지, 기록 0, 활성.
+        /// 슬롯 id는 그대로라 처리 순서가 바뀌지 않는다.
+        /// </summary>
+        public void ResetSlot(int id, in KinematicAttributes attributes, Vec2 position, Vec2 facing)
+        {
+            var i = Require(id);
+            if (!Finite(position)) throw new ArgumentException("위치에 NaN/무한대", nameof(position));
+            _attrs[i] = attributes;
+            _prof[i] = PlayerMotionProfile.Create(in attributes, _p);
+            var f = facing.Normalized();
+            if (f == Vec2.Zero) f = new Vec2(1f, 0f);
+            _s[i] = new PlayerMotionState { Id = id, Position = position, Velocity = Vec2.Zero, Facing = f, Pivoting = true, W = 1f, C = 0f, Active = SteeringCommand.Idle() };
+            _stats[i] = default;
+            _queue.Clear(i);
+            _contact[i] = false;
+            _fault[i] = false;
+            _targetIdx[i] = -1;
+            if (!_active[i]) { _active[i] = true; _inactive--; }
+        }
+
+        /// <summary>즉시 배치 (킥오프·재시작·하프타임): 위치·방향을 놓고 정지·Idle. 피로·기록은 유지.</summary>
+        public void Place(int id, Vec2 position, Vec2 facing)
+        {
+            var i = Require(id);
+            if (!Finite(position)) throw new ArgumentException("위치에 NaN/무한대", nameof(position));
+            var f = facing.Normalized();
+            if (f == Vec2.Zero) f = _s[i].Facing;
+            _s[i].Position = position;
+            _s[i].Facing = f;
+            Freeze(i);
+        }
+
+        void Freeze(int i)
+        {
+            _s[i].Velocity = Vec2.Zero;
+            _s[i].Pivoting = true;
+            _s[i].Active = SteeringCommand.Idle();
+            _queue.Clear(i);
+            _targetIdx[i] = -1;
+            _contact[i] = false;
+            _fault[i] = false;
+        }
+
+        /// <summary>상태 직렬화 (specs/006 FR-60): 서브스텝, 선수별 능력치·활성·상태·접촉·결함·대기 명령·기록. 프로필은 능력치에서 다시 계산한다.</summary>
+        public void WriteState(StateWriter w)
+        {
+            w.Write(Substep);
+            w.Write(_n);
+            for (int i = 0; i < _n; i++)
+            {
+                w.Write(_ids[i]);
+                ref readonly var a = ref _attrs[i];
+                w.Write(a.Pace); w.Write(a.Acceleration); w.Write(a.Agility); w.Write(a.Balance);
+                w.Write(a.Stamina); w.Write(a.Anticipation); w.Write(a.Concentration);
+                w.Write(_active[i]);
+                ref readonly var s = ref _s[i];
+                w.Write(s.Position); w.Write(s.Velocity); w.Write(s.Facing);
+                w.Write(s.Pivoting); w.Write(s.W); w.Write(s.C);
+                s.Active.Write(w);
+                w.Write(_contact[i]);
+                w.Write(_fault[i]);
+                w.Write(_faultVel[i]);
+                _queue.Write(i, w);
+                _stats[i].Write(w);
+            }
+        }
+
+        public void ReadState(StateReader r)
+        {
+            var substep = r.ReadLong();
+            var n = r.ReadInt();
+            if (n != _n) throw new FormatException($"선수 수 불일치: 스냅샷 {n}, 시스템 {_n}");
+            var inactive = 0;
+            for (int i = 0; i < _n; i++)
+            {
+                var id = r.ReadInt();
+                if (id != _ids[i]) throw new FormatException($"선수 id 불일치: 스냅샷 {id}, 시스템 {_ids[i]}");
+                var a = new KinematicAttributes(r.ReadFloat(), r.ReadFloat(), r.ReadFloat(), r.ReadFloat(), r.ReadFloat(), r.ReadFloat(), r.ReadFloat());
+                _attrs[i] = a;
+                _prof[i] = PlayerMotionProfile.Create(in a, _p); // 같은 능력치 → 같은 프로필 (순수 함수)
+                _active[i] = r.ReadBool();
+                if (!_active[i]) inactive++;
+                var s = new PlayerMotionState { Id = id };
+                s.Position = r.ReadVec2(); s.Velocity = r.ReadVec2(); s.Facing = r.ReadVec2();
+                s.Pivoting = r.ReadBool(); s.W = r.ReadFloat(); s.C = r.ReadFloat();
+                s.Active = SteeringCommand.Read(r);
+                _s[i] = s;
+                _contact[i] = r.ReadBool();
+                _fault[i] = r.ReadBool();
+                _faultVel[i] = r.ReadVec2();
+                _queue.Read(i, r);
+                _stats[i] = MotionStats.Read(r);
+            }
+            for (int i = 0; i < _n; i++) _targetIdx[i] = IndexOf(_s[i].Active.TargetId);
+            _inactive = inactive;
+            Substep = substep;
+        }
 
         /// <summary>결정 틱 명령. 반응 지연(인지 + 운동 개시 + 피로 가산) 뒤에 활성화 (FR-06·28).</summary>
         public void SetCommand(int id, in SteeringCommand cmd)
@@ -151,6 +275,9 @@ namespace RoadToPro.MatchEngine.Kinematics
                 _snapVel[i] = _s[i].Velocity;
                 _sepCorr[i] = 0f;
             }
+            if (_inactive > 0)
+                for (int i = 0; i < n; i++)
+                    if (!_active[i]) _snapPos[i] = new Vec2(-1e4f - 10f * i, -1e4f); // 서로·활성 선수와 멀리: Separation 후보에서 빠진다
 
             // ③ Separation (스냅숏)
             _sep.Push(_snapPos, n, _push, p);
@@ -158,8 +285,10 @@ namespace RoadToPro.MatchEngine.Kinematics
             var monitor = Monitor;
             var diag = Diagnostics;
             var vA = p.VmaxAcute; var vC = p.VmaxChronic; var aA = p.AccAcute; var aC = p.AccChronic;
+            var anyInactive = _inactive > 0;
             for (int i = 0; i < n; i++)
             {
+                if (anyInactive && !_active[i]) continue;
                 ref var s = ref _s[i];
                 ref readonly var prof = ref _prof[i];
                 var fatigueW = 1f - s.W;
@@ -230,7 +359,7 @@ namespace RoadToPro.MatchEngine.Kinematics
                     }
                 }
                 var desired = new Vec2(dx, dy);
-                if (cmd.Kind == SteeringKind.OffsetArrive && _targetIdx[i] >= 0 && _targetIdx[i] != i)
+                if (cmd.Kind == SteeringKind.OffsetArrive && _targetIdx[i] >= 0 && _targetIdx[i] != i && _active[_targetIdx[i]])
                     desired = Steering.LimitBackpedal(desired, _snapPos[_targetIdx[i]], cmd.Point, p); // 밀어내기를 더해도 백페달 ≤ 4 m/s (FR-26)
                 _desired[i] = desired;
 
@@ -254,6 +383,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             _sep.Project(_s, _sepCorr, p);
             for (int i = 0; i < n; i++)
             {
+                if (anyInactive && !_active[i]) continue;
                 var pos = _s[i].Position;
                 var x = pos.X < p.MinX ? p.MinX : (pos.X > p.MaxX ? p.MaxX : pos.X);
                 var y = pos.Y < p.MinY ? p.MinY : (pos.Y > p.MaxY ? p.MaxY : pos.Y);
@@ -263,6 +393,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             // ⑧ 피로 ⑨ 기록·진단 ⑩ 수치 검사
             for (int i = 0; i < n; i++)
             {
+                if (anyInactive && !_active[i]) continue;
                 ref var s = ref _s[i];
                 var v = DMath.Sqrt(s.Velocity.X * s.Velocity.X + s.Velocity.Y * s.Velocity.Y);
                 var sv = _snapVel[i];
@@ -285,7 +416,7 @@ namespace RoadToPro.MatchEngine.Kinematics
         Vec2 TargetBehavior(int i, in SteeringCommand cmd, float maxSpeed)
         {
             var t = _targetIdx[i];
-            if (t < 0 || t == i) return Vec2.Zero;
+            if (t < 0 || t == i || !_active[t]) return Vec2.Zero;
             var p = _p;
             var pos = _snapPos[i];
             var vel = _snapVel[i];
@@ -342,6 +473,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             h.Add(_n);
             for (int i = 0; i < _n; i++)
             {
+                if (!_active[i]) h.Add((byte)0xA5); // 비활성 표시 (전원 활성이면 005 해시 그대로)
                 _s[i].AddTo(ref h);
                 h.Add(_contact[i]); // 다음 서브스텝 a_cap 배율에 영향 (리뷰 R1)
                 h.Add(_fault[i]);

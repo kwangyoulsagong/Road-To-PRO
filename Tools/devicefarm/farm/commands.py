@@ -6,7 +6,7 @@ import os
 import re
 import time
 
-from . import baseline, build, chrome, evaluate, logic, logs, paths, perf, preflight, profiles, report, runner, scenario
+from . import baseline, bench, build, chrome, evaluate, logic, logs, paths, perf, preflight, profiles, report, runner, scenario
 from .errors import RunnerError, VerificationFailed
 
 LATEST = os.path.join(paths.RUNS_DIR, "latest.json")
@@ -80,7 +80,7 @@ def logic_section(test_filter="", category="!Slow", out_dir=None, name="logic"):
     return d, res
 
 
-def ac_evidence(info, logic_dict, res, perf_judgement):
+def ac_evidence(info, logic_dict, res, perf_judgement, bench_judgement=None, bench_required=False):
     """스펙 AC ↔ EditMode 증거 (specs/001 T26).
     로직: EditMode 전체 통과. 결정론: `Determinism` 카테고리 테스트가 1개 이상 있고 전부 통과.
     성능: EditMode 성능 예산 판정 (해당 AC 항목만)."""
@@ -104,6 +104,18 @@ def ac_evidence(info, logic_dict, res, perf_judgement):
                 label = f"EditMode 성능 {len(rows) - len(bad)}/{len(rows)} 통과 ({perf_judgement['profile']})"
                 ok = not bad
             out[a["id"]] = [{"label": label, "ok": ok}]
+            # specs/006 D17: 판정 런타임 IL2CPP — farm.py bench 결과가 있어야 통과
+            if bench_required:
+                brow = [r for r in (bench_judgement or {}).get("budget", []) + (bench_judgement or {}).get("regression", [])
+                        if r.get("ac") in (None, a["id"])]
+                if bench_judgement is None:
+                    out[a["id"]].append({"label": "IL2CPP 벤치 결과 없음 (farm.py bench --spec)", "ok": False})
+                elif brow:
+                    bbad = [r for r in brow if not r["ok"]]
+                    if not bench_judgement["judged"]:
+                        out[a["id"]].append({"label": f"벤치({bench_judgement['backend']}) {len(brow)}항목 — {bench_judgement['note']}", "ok": False})
+                    else:
+                        out[a["id"]].append({"label": f"IL2CPP 벤치 {len(brow) - len(bbad)}/{len(brow)} 통과", "ok": not bbad})
     return out
 
 
@@ -146,10 +158,17 @@ def cmd_logic(args, argv):
             perf.write_editmode_perf(ev_dir, rows, judgement)
             with open(LATEST_LOGIC, "w", encoding="utf-8") as f:
                 json.dump({"spec": args.spec, "profile": profile, "metrics": judgement["metrics"]}, f, ensure_ascii=False, indent=2)
+        bench_j = None
+        bench_required = bool((cfg or {}).get("il2cpp"))
+        bp = os.path.join(ev_dir, "bench-perf.json")
+        if bench_required and os.path.exists(bp):
+            with open(bp, encoding="utf-8") as f:
+                bench_j = json.load(f)
         meta["profiles"] = [judgement["host"]] if judgement else []
         ev = {"title": f"{info['id']} 로직 증거", "spec": info, "meta": meta, "logic": lg, "scenarios": [],
-              "editmodePerf": judgement, "requireAllAcs": bool(cfg), "deferred": deferred,
-              "acEvidence": ac_evidence(info, lg, res, judgement)}
+              "editmodePerf": judgement, "benchPerf": bench_j, "requireAllAcs": bool(cfg), "deferred": deferred,
+              "acEvidence": {k: v for k, v in ac_evidence(info, lg, res, judgement, bench_j, bench_required).items()
+                             if k not in deferred}}  # 보류 AC에 일반 증거(EditMode 통과)를 자동으로 붙이지 않는다 (specs/006)
         path = report.write(ev, ev_dir)
     log(f"[farm] 합계 {res.total} 통과 {res.passed} 실패 {res.failed} 컴파일 에러 {len(res.compile_errors)}")
     if judgement:
@@ -256,9 +275,62 @@ def cmd_approve_baseline(args, argv):
     log(f"[farm] {len(done)}장 채택 (기준 후보{' + 차이 실패' if args.include_failed else ''})")
 
 
+LATEST_BENCH = os.path.join(paths.FARM_DIR, "latest-bench.json")
+
+
+def cmd_bench(args, argv):
+    """시뮬 벤치 (specs/006 T21): 백엔드별 릴리스 플레이어 → bench.json → il2cpp 예산·회귀 판정 → evidence/bench-perf.json."""
+    preflight.check_tools(need_chrome=False)
+    cfg = perf.load_spec_config(args.spec)
+    if not cfg or not cfg.get("il2cpp"):
+        raise RunnerError(f"Data/perf에 스펙 {args.spec}의 il2cpp 벤치 예산이 없다")
+    with preflight.RunLock():
+        exe, cached = bench.ensure_build(args.backend, force=args.force_build, log=log)
+        run_dir = new_run_dir(f"bench-{args.backend}")
+        log(f"[farm] 벤치 실행 중 ({args.backend})…")
+        t0 = time.time()
+        doc = bench.run(exe, args.spec, run_dir)
+        profile = perf.host_profile()
+        from .evaluate import pmset_text
+        power = perf.power_state(None, pmset_text())
+        key = bench.baseline_key(args.backend, args.spec, profile)
+        base = perf.load_baseline(paths.PERF_BASELINES_JSON, key)
+        j = bench.judge(doc["metrics"], cfg, args.backend, base, profile == cfg.get("profile"), power)
+        j.update(host=profile, power=power, buildCached=cached, durationSec=round(time.time() - t0, 1),
+                 unity=doc.get("unity"), cpu=doc.get("cpu"), development=doc.get("development"), commit=logic.metadata()["commit"])
+        ev_dir = evidence_dir(args.spec, run_dir)
+        os.makedirs(ev_dir, exist_ok=True)
+        if args.backend == "il2cpp":
+            with open(os.path.join(ev_dir, "bench-perf.json"), "w", encoding="utf-8") as f:
+                json.dump(j, f, ensure_ascii=False, indent=2)
+                f.write("\n")
+        with open(os.path.join(run_dir, "bench-perf.json"), "w", encoding="utf-8") as f:
+            json.dump(j, f, ensure_ascii=False, indent=2)
+        with open(LATEST_BENCH, "w", encoding="utf-8") as f:
+            json.dump({"spec": args.spec, "key": key, "metrics": doc["metrics"]}, f, ensure_ascii=False, indent=2)
+    for r in j["budget"]:
+        log(f"[farm]   {'✓' if r['ok'] else '✗'} {r['label']}: {r['value']} {r['unit']} (예산 {r['budget']})")
+    for name, us in sorted(j["stages"].items()):
+        log(f"[farm]   단계 {name}: {us:.3f} µs")
+    bad = [r for r in j["budget"] + j["regression"] if not r["ok"]]
+    log(f"[farm] 벤치 {'판정' if j['judged'] else '기록만'} ({args.backend}): 초과·회귀 {len(bad)}건 {j['note']}")
+    if j["judged"] and not j["ok"]:
+        raise VerificationFailed("벤치 예산·회귀 실패")
+
+
 def cmd_approve_perf(args, argv):
     commit = logic.metadata()["commit"]
     now = _dt.datetime.now().isoformat(timespec="seconds")
+    if getattr(args, "bench", False):
+        if not os.path.exists(LATEST_BENCH):
+            raise RunnerError("최근 벤치 기록이 없다 — farm.py bench를 먼저 돌린다")
+        with open(LATEST_BENCH, encoding="utf-8") as f:
+            lb = json.load(f)
+        if args.spec and lb.get("spec") != args.spec:
+            raise RunnerError(f"최근 벤치는 스펙 {lb.get('spec')} — --spec {args.spec}와 다르다")
+        perf.store_baseline(paths.PERF_BASELINES_JSON, lb["key"], lb["metrics"], commit, now)
+        log(f"[farm] 벤치 성능 기준 갱신: {lb['key']} ({len(lb['metrics'])}항목)")
+        return
     if args.spec and os.path.exists(LATEST_LOGIC):
         # EditMode 성능 (farm logic --spec) 기준 채택 (specs/001 T26)
         with open(LATEST_LOGIC, encoding="utf-8") as f:

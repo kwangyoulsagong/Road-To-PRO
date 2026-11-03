@@ -240,10 +240,14 @@ def judge_editmode(rows, cfg, base, is_reference, power):
     budget_rows, reg_rows = [], []
     for b in cfg.get("budgets", []):
         v = metrics[_bkey(b)]
+        # max가 null이면 판정 없이 회귀 기준선만 (specs/006: 판정 런타임은 IL2CPP, Mono는 회귀만)
+        limit = b.get("max")
         budget_rows.append({"ac": b.get("ac"), "label": b["label"], "metric": _bkey(b), "value": v,
-                            "budget": b["max"], "unit": b.get("unit", ""), "ok": v is not None and v <= b["max"]})
+                            "budget": "—" if limit is None else limit, "unit": b.get("unit", ""),
+                            "ok": v is not None and (limit is None or v <= limit)})
         prev = (base or {}).get(_bkey(b))
-        if v is None or prev is None:
+        # "regression": false = 기록만 (짧은 ms 측정이 기기 부하에 흔들리는 항목 — 판정은 다른 런타임에서, specs/006)
+        if v is None or prev is None or b.get("regression", True) is False:
             continue
         if prev == 0:
             change = 0.0 if v == 0 else math.inf

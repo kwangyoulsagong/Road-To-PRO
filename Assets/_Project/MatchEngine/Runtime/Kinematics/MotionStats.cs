@@ -1,4 +1,5 @@
 using RoadToPro.Core.Hashing;
+using RoadToPro.Core.Serialization;
 
 namespace RoadToPro.MatchEngine.Kinematics
 {
@@ -34,6 +35,31 @@ namespace RoadToPro.MatchEngine.Kinematics
             else _accRun = 0;
             if (aLong < -p.AccThreshold) { if (++_decRun == p.AccMinSubsteps) Decelerations++; }
             else _decRun = 0;
+        }
+
+        public void Write(StateWriter w)
+        {
+            w.Write(Distance); w.Write(HighIntensityDistance);
+            w.Write(Sprints); w.Write(Accelerations); w.Write(Decelerations);
+            w.Write(TopSpeed);
+            w.Write(_inSprint); w.Write(_accRun); w.Write(_decRun);
+        }
+
+        public static MotionStats Read(StateReader r)
+        {
+            var m = new MotionStats
+            {
+                Distance = r.ReadDouble(),
+                HighIntensityDistance = r.ReadDouble(),
+                Sprints = r.ReadInt(),
+                Accelerations = r.ReadInt(),
+                Decelerations = r.ReadInt(),
+                TopSpeed = r.ReadFloat(),
+            };
+            m._inSprint = r.ReadBool();
+            m._accRun = r.ReadInt();
+            m._decRun = r.ReadInt();
+            return m;
         }
 
         public void AddTo(ref StableHasher h)

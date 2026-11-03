@@ -1,0 +1,73 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
+
+namespace RoadToPro.Verification.Bench
+{
+    /// <summary>
+    /// 시뮬 벤치 플레이어 진입점 (specs/006 T20). <c>-simBench 006 -simBenchOut &lt;폴더&gt; -simBenchData &lt;레포/Data&gt;</c>가 있을 때만
+    /// 워크로드를 돌려 bench.json을 쓰고 종료한다 (종료 코드 0 성공, 2 오류). 판정은 farm.py bench가 Data/perf의 il2cpp 예산으로 한다.
+    /// </summary>
+    public static class SimBench
+    {
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        static void Init()
+        {
+            var argv = Environment.GetCommandLineArgs();
+            var spec = Arg(argv, "-simBench");
+            if (spec == null) return;
+            var outDir = Arg(argv, "-simBenchOut") ?? "bench-out";
+            var data = Arg(argv, "-simBenchData");
+            try
+            {
+                if (spec != "006") throw new ArgumentException($"벤치 없는 스펙: {spec}");
+                if (string.IsNullOrEmpty(data) || !Directory.Exists(data)) throw new ArgumentException($"-simBenchData 폴더 없음: {data}");
+                Directory.CreateDirectory(outDir);
+                var w = new MatchBenchWorkloads(data);
+                var metrics = w.RunAll();
+                var doc = new Dictionary<string, object>
+                {
+                    { "spec", spec },
+                    { "backend", Backend() },
+                    { "unity", Application.unityVersion },
+                    { "cpu", SystemInfo.processorType },
+                    { "os", SystemInfo.operatingSystem },
+                    { "development", Debug.isDebugBuild },
+                    { "metrics", ToObjects(metrics) },
+                };
+                File.WriteAllText(Path.Combine(outDir, "bench.json"), MiniJson.Serialize(doc));
+                Console.WriteLine("[bench] 완료 " + Path.Combine(outDir, "bench.json"));
+                Application.Quit(0);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine("[bench] 오류: " + e);
+                try { File.WriteAllText(Path.Combine(outDir, "bench-error.txt"), e.ToString()); } catch (Exception) { }
+                Application.Quit(2);
+            }
+        }
+
+        static Dictionary<string, object> ToObjects(Dictionary<string, double> m)
+        {
+            var d = new Dictionary<string, object>();
+            foreach (var kv in m) d[kv.Key] = kv.Value;
+            return d;
+        }
+
+        static string Backend()
+        {
+#if ENABLE_IL2CPP
+            return "il2cpp";
+#else
+            return "mono";
+#endif
+        }
+
+        static string Arg(string[] a, string key)
+        {
+            var i = Array.IndexOf(a, key);
+            return i >= 0 && i + 1 < a.Length ? a[i + 1] : null;
+        }
+    }
+}

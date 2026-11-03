@@ -283,6 +283,34 @@ def _editmode_perf(ev):
             + "".join(rows) + "</table></div></div>")
 
 
+def _bench_perf(ev):
+    j = ev.get("benchPerf")
+    if not j:
+        return ""
+    verdict = _ok_tag(j["ok"]) if j["judged"] else '<span class="tag skip">기록만</span>'
+    reg = {r["metric"]: r for r in j.get("regression", [])}
+    rows = []
+    for b in j["budget"]:
+        r = reg.get(b["metric"])
+        change = f'{r["changePct"]:+.1f}%' if r and r.get("changePct") is not None else ("—" if not r else "∞")
+        ok = b["ok"] and (r is None or r["ok"])
+        rows.append(f'<tr><td>{e(b.get("ac") or "")}</td><td>{e(b["label"])}</td><td>{_ok_tag(ok)}</td>'
+                    f'<td>{_fmt(b["value"])} {e(b.get("unit", ""))}</td><td>≤ {e(b["budget"])} {e(b.get("unit", ""))}</td>'
+                    f'<td>{e(change)}</td></tr>')
+    stages = "".join(f'<tr><td>{e(k)}</td><td>{_fmt(v)} µs</td></tr>' for k, v in sorted((j.get("stages") or {}).items()))
+    m = j.get("metrics") or {}
+    extra = "".join(f'<span>{e(k)} <b>{_fmt(m[k])}</b></span>' for k in ("full_match_ms", "full_match_ticks", "tick_avg_us", "stages_sum_us", "alloc_per_tick_b") if k in m)
+    return (f'<div class="card"><h2>시뮬 벤치 ({e(j.get("backend", ""))}) {verdict}</h2>'
+            f'<p class="meta"><span>기기 <b>{e(j.get("host", ""))}</b></span><span>CPU <b>{e(j.get("cpu", ""))}</b></span>'
+            f'<span>전원 <b>{e(j.get("power", ""))}</b></span><span>커밋 <b>{e(j.get("commit", ""))}</b></span></p>'
+            f'<p class="meta">{extra}</p>'
+            + (f'<p class="muted">{e(j["note"])}</p>' if j.get("note") else "")
+            + '<div class="scroll"><table><tr><th>AC</th><th>항목</th><th>판정</th><th>측정</th><th>예산</th><th>기준 대비</th></tr>'
+            + "".join(rows) + "</table></div>"
+            + ('<h3>단계별 평균 (결정 틱 1회)</h3><div class="scroll"><table><tr><th>단계</th><th>평균</th></tr>' + stages + "</table></div>" if stages else "")
+            + "</div>")
+
+
 def _determinism(scs):
     rows = []
     for sc in scs:
@@ -390,6 +418,7 @@ def write(ev, out_dir, max_bytes=MAX_BYTES):
             _ac_table(ev),
             _logic(ev, assets),
             _editmode_perf(ev),
+            _bench_perf(ev),
             "".join(_grid(sc, assets, i) for i, sc in enumerate(ev.get("scenarios", []))),
             _perf(ev.get("scenarios", [])),
             _determinism(ev.get("scenarios", [])),

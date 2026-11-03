@@ -27,13 +27,16 @@ namespace RoadToPro.Core.Hashing
     /// </summary>
     public sealed class CheckpointLog
     {
-        readonly List<Checkpoint> _items = new List<Checkpoint>();
+        readonly List<Checkpoint> _items;
         readonly long _interval;
 
-        public CheckpointLog(long intervalTicks = SimClock.CheckpointIntervalTicks)
+        /// <param name="capacity">미리 잡을 개수 (0이면 최대 경기 길이 기준). 경기 중 목록 확장 할당을 없앤다 (specs/006 틱당 할당 0).</param>
+        public CheckpointLog(long intervalTicks = SimClock.CheckpointIntervalTicks, int capacity = 0)
         {
             if (intervalTicks <= 0) throw new System.ArgumentOutOfRangeException(nameof(intervalTicks), "간격은 1틱 이상");
             _interval = intervalTicks;
+            if (capacity <= 0) capacity = (int)((SimClock.MaxMatchTicks + 10 * SimClock.TicksPerMinute) / intervalTicks) + 1;
+            _items = new List<Checkpoint>(capacity);
         }
 
         public IReadOnlyList<Checkpoint> Items => _items;
