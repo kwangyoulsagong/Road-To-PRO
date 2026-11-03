@@ -35,18 +35,18 @@
     }
   },
   "editmode/006/mac-m1-1600p": {
-    "commit": "1d35d27af80412e9da1b575cc50e77d8444225c2",
-    "measuredAt": "2026-11-03T11:57:56",
+    "commit": "02b410227a65a64de5669434e950ecd37c45875c",
+    "measuredAt": "2026-11-03T14:45:02",
     "metrics": {
       "MatchPerfTests.AllocPerTick_GcAllocCount/gc_alloc_count/max": 0.0,
       "MatchPerfTests.Checkpoint_SizeAndRestore/checkpoint_max_kb/max": 9.603515625,
-      "MatchPerfTests.Checkpoint_SizeAndRestore/restore_avg_ms/median": 0.7569600000000001,
-      "MatchPerfTests.Clip11s_ms/ms/median": 18.37788,
-      "MatchPerfTests.FullMatch_PhysicsAndTick_us/physics_us_per_tick/min": 99.3462265625,
-      "MatchPerfTests.FullMatch_PhysicsAndTick_us/tick_avg_us/min": 106.9640296875,
+      "MatchPerfTests.Checkpoint_SizeAndRestore/restore_avg_ms/median": 0.679165,
+      "MatchPerfTests.Clip11s_ms/ms/median": 17.493693333333333,
+      "MatchPerfTests.FullMatch_PhysicsAndTick_us/physics_us_per_tick/min": 97.36115,
+      "MatchPerfTests.FullMatch_PhysicsAndTick_us/tick_avg_us/min": 104.7025828125,
       "MatchPerfTests.Memory_LogAndRing_MB/event_log_mb/max": 1.375,
       "MatchPerfTests.Memory_LogAndRing_MB/ring_buffer_mb/max": 0.9321212768554688,
-      "MatchPerfTests.SkeletonMatch_ms/ms/min": 269.708
+      "MatchPerfTests.SkeletonMatch_ms/ms/min": 273.6764
     }
   },
   "il2cpp/006/mac-m1-1600p": {
