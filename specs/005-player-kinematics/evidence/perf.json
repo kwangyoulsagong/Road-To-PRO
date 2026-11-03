@@ -1,0 +1,137 @@
+{
+  "results": [
+    {
+      "name": "KinematicsPerfTests.BallIntercept_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.BallIntercept_us",
+      "groups": {
+        "us_per_op": {
+          "median": 9.4968035,
+          "min": 9.344005,
+          "max": 10.9139735,
+          "avg": 9.826175357142857,
+          "unit": "us",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "KinematicsPerfTests.Substep22_Avg_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.Substep22_Avg_us",
+      "groups": {
+        "us_per_op": {
+          "median": 11.991366666666638,
+          "min": 11.7119499999999,
+          "max": 12.02851999999997,
+          "avg": 11.920879047619025,
+          "unit": "us",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "KinematicsPerfTests.Substep22_P95_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.Substep22_P95_us",
+      "groups": {
+        "us_per_op": {
+          "median": 13.8,
+          "min": 13.600000000000001,
+          "max": 15.2,
+          "avg": 14.014285714285716,
+          "unit": "us",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "KinematicsPerfTests.Tti_ns",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.Tti_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 196.11236000000005,
+          "min": 193.07266,
+          "max": 228.99218,
+          "avg": 204.29013142857144,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "KinematicsPerfTests.ZeroAlloc_StepTtiIntercept",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.ZeroAlloc_StepTtiIntercept",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 5
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "KinematicsPerfTests.Substep22_Avg_us/us_per_op/median": 11.991366666666638,
+      "KinematicsPerfTests.Substep22_P95_us/us_per_op/median": 13.8,
+      "KinematicsPerfTests.Tti_ns/ns_per_op/median": 196.11236000000005,
+      "KinematicsPerfTests.BallIntercept_us/us_per_op/median": 9.4968035,
+      "KinematicsPerfTests.ZeroAlloc_StepTtiIntercept/gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-13",
+        "label": "22명 조향+적분 서브스텝 평균",
+        "metric": "KinematicsPerfTests.Substep22_Avg_us/us_per_op/median",
+        "value": 11.991366666666638,
+        "budget": 15,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-13",
+        "label": "22명 서브스텝 p95",
+        "metric": "KinematicsPerfTests.Substep22_P95_us/us_per_op/median",
+        "value": 13.8,
+        "budget": 18,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-13",
+        "label": "TTI 1회",
+        "metric": "KinematicsPerfTests.Tti_ns/ns_per_op/median",
+        "value": 196.11236000000005,
+        "budget": 260,
+        "unit": "ns",
+        "ok": true
+      },
+      {
+        "ac": "AC-13",
+        "label": "공 인터셉트 탐색 (2 s / 0.04 s)",
+        "metric": "KinematicsPerfTests.BallIntercept_us/us_per_op/median",
+        "value": 9.4968035,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-13",
+        "label": "서브스텝·TTI·탐색 GC 할당 (진단 끔)",
+        "metric": "KinematicsPerfTests.ZeroAlloc_StepTtiIntercept/gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}

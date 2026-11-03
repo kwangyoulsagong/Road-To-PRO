@@ -1,0 +1,59 @@
+{
+  "spec": "005",
+  "profile": "mac-m1-1600p",
+  "note": "specs/005-player-kinematics/spec.md 성능 예산 표의 기계용 사본. EditMode(Mono) 측정 기준. 22명 혼합 명령 시나리오는 KinematicsPerfTests 주석 참고. 예산은 2026-11-03 사용자 결정(최적화 후 실측 + 여유 약 30%)으로 원래 [제안] 1.1 µs/50 ns/5 µs에서 수정.",
+  "deferred": {
+    "AC-14": "E2E 디버그 이동 뷰 캡처는 040 디버그 뷰(2D 탑뷰)가 필요하다 — 040 완료 후 검증 (2026-11-03 스펙 승인 시 결정, 004 AC-15와 같은 보류)"
+  },
+  "tests": [
+    "RoadToPro.Tests.EditMode.MatchEngine.Kinematics",
+    "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-13",
+      "label": "22명 조향+적분 서브스텝 평균",
+      "test": "KinematicsPerfTests.Substep22_Avg_us",
+      "group": "us_per_op",
+      "stat": "median",
+      "max": 15,
+      "unit": "µs"
+    },
+    {
+      "ac": "AC-13",
+      "label": "22명 서브스텝 p95",
+      "test": "KinematicsPerfTests.Substep22_P95_us",
+      "group": "us_per_op",
+      "stat": "median",
+      "max": 18,
+      "unit": "µs"
+    },
+    {
+      "ac": "AC-13",
+      "label": "TTI 1회",
+      "test": "KinematicsPerfTests.Tti_ns",
+      "group": "ns_per_op",
+      "stat": "median",
+      "max": 260,
+      "unit": "ns"
+    },
+    {
+      "ac": "AC-13",
+      "label": "공 인터셉트 탐색 (2 s / 0.04 s)",
+      "test": "KinematicsPerfTests.BallIntercept_us",
+      "group": "us_per_op",
+      "stat": "median",
+      "max": 12,
+      "unit": "µs"
+    },
+    {
+      "ac": "AC-13",
+      "label": "서브스텝·TTI·탐색 GC 할당 (진단 끔)",
+      "test": "KinematicsPerfTests.ZeroAlloc_StepTtiIntercept",
+      "group": "gc_alloc_count",
+      "stat": "max",
+      "max": 0,
+      "unit": "회"
+    }
+  ]
+}

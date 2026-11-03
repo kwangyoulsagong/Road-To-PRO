@@ -22,5 +22,16 @@
       "BallPerfTests.Substep_WeightedAvg_ns/ns_per_op/median": 95.56067,
       "BallPerfTests.ZeroAlloc_StepPredictInverse/gc_alloc_count/max": 0.0
     }
+  },
+  "editmode/005/mac-m1-1600p": {
+    "commit": "9a4134500fae33a76b6b4e26c17702ddad568385",
+    "measuredAt": "2026-11-03T10:05:24",
+    "metrics": {
+      "KinematicsPerfTests.BallIntercept_us/us_per_op/median": 9.4968035,
+      "KinematicsPerfTests.Substep22_Avg_us/us_per_op/median": 11.991366666666638,
+      "KinematicsPerfTests.Substep22_P95_us/us_per_op/median": 13.8,
+      "KinematicsPerfTests.Tti_ns/ns_per_op/median": 196.11236000000005,
+      "KinematicsPerfTests.ZeroAlloc_StepTtiIntercept/gc_alloc_count/max": 0.0
+    }
   }
 }
