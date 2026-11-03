@@ -1,0 +1,118 @@
+{
+  "judged": true,
+  "ok": true,
+  "note": "",
+  "backend": "il2cpp",
+  "profile": "mac-m1-1600p",
+  "budget": [
+    {
+      "ac": "AC-21",
+      "label": "루프 뼈대 경기 (물리 제외)",
+      "metric": "skeleton_match_ms",
+      "value": 65.8246,
+      "budget": 100,
+      "unit": "ms",
+      "ok": true
+    },
+    {
+      "ac": "AC-21",
+      "label": "물리 단계 틱당 (FR-80 몫)",
+      "metric": "physics_us_per_tick",
+      "value": 22.876475,
+      "budget": 67,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-21",
+      "label": "체크포인트 최대 크기",
+      "metric": "checkpoint_max_kb",
+      "value": 9.603515625,
+      "budget": 16,
+      "unit": "KB",
+      "ok": true
+    },
+    {
+      "ac": "AC-21",
+      "label": "체크포인트 복원",
+      "metric": "restore_avg_ms",
+      "value": 0.216065,
+      "budget": 5,
+      "unit": "ms",
+      "ok": true
+    },
+    {
+      "ac": "AC-21",
+      "label": "11초 클립 재구성",
+      "metric": "clip_11s_ms",
+      "value": 5.1601799999999995,
+      "budget": 50,
+      "unit": "ms",
+      "ok": true
+    },
+    {
+      "ac": "AC-21",
+      "label": "이벤트 로그 메모리 (90분)",
+      "metric": "event_log_mb",
+      "value": 1.375,
+      "budget": 2,
+      "unit": "MB",
+      "ok": true
+    },
+    {
+      "ac": "AC-21",
+      "label": "링 버퍼 메모리 (60초 × 30 Hz)",
+      "metric": "ring_buffer_mb",
+      "value": 0.9321212768554688,
+      "budget": 4,
+      "unit": "MB",
+      "ok": true
+    }
+  ],
+  "regression": [],
+  "stages": {
+    "TeamTactics": 0.016353125,
+    "Phase": 0.0137609375,
+    "Shape": 0.16129218750000002,
+    "RoleAdjust": 0.0124375,
+    "Tendency": 0.01241875,
+    "ScenarioOrUtility": 0.3609375,
+    "SteeringTargets": 1.0665031249999999,
+    "Physics": 22.876475,
+    "Referee": 0.0363375,
+    "Publish": 0.037215625
+  },
+  "metrics": {
+    "skeleton_match_ms": 65.8246,
+    "full_match_ms": 1606.2527,
+    "full_match_ticks": 64000,
+    "tick_avg_us": 25.0976984375,
+    "stage_us.TeamTactics": 0.016353125,
+    "stage_us.Phase": 0.0137609375,
+    "stage_us.Shape": 0.16129218750000002,
+    "stage_us.RoleAdjust": 0.0124375,
+    "stage_us.Tendency": 0.01241875,
+    "stage_us.ScenarioOrUtility": 0.3609375,
+    "stage_us.SteeringTargets": 1.0665031249999999,
+    "stage_us.Physics": 22.876475,
+    "stage_us.Referee": 0.0363375,
+    "stage_us.Publish": 0.037215625,
+    "stages_sum_us": 24.59373125,
+    "physics_us_per_tick": 22.876475,
+    "checkpoint_max_kb": 9.603515625,
+    "restore_avg_ms": 0.216065,
+    "clip_11s_ms": 5.1601799999999995,
+    "event_log_mb": 1.375,
+    "ring_buffer_mb": 0.9321212768554688,
+    "event_count": 4850,
+    "alloc_per_tick_b": -1
+  },
+  "host": "mac-m1-1600p",
+  "power": "ac",
+  "buildCached": false,
+  "durationSec": 14.8,
+  "unity": "6000.3.27f2",
+  "cpu": "Apple M1 Pro",
+  "development": false,
+  "commit": "1d35d27af80412e9da1b575cc50e77d8444225c2"
+}
