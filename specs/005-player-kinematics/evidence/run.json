@@ -88,12 +88,12 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/005-player-kinematics"
   },
   "meta": {
-    "commit": "c8593fa1b44ad6353307a5c1902f78e6009d364e",
+    "commit": "9a4134500fae33a76b6b4e26c17702ddad568385",
     "branch": "feat/005-player-kinematics",
-    "dirty": true,
+    "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-03 09:28:38 +0900",
-    "durationSec": 474.23791909217834,
+    "time": "2026-11-03 09:56:44 +0900",
+    "durationSec": 511.70351099967957,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 005",
     "profiles": [
       "mac-m1-1600p"
@@ -105,11 +105,11 @@
     "passed": 74,
     "failed": 0,
     "skipped": 0,
-    "duration": 451.1730914,
+    "duration": 477.8063573,
     "compileErrors": [],
     "failures": [],
-    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261103-092838-logic/logic.png",
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261103-092838-logic/logic.html"
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261103-095644-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261103-095644-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -118,10 +118,10 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "KinematicsPerfTests.Substep22_Avg_us/us_per_op/median": 12.02481000000005,
-      "KinematicsPerfTests.Substep22_P95_us/us_per_op/median": 13.4,
-      "KinematicsPerfTests.Tti_ns/ns_per_op/median": 196.77088,
-      "KinematicsPerfTests.BallIntercept_us/us_per_op/median": 9.1850315,
+      "KinematicsPerfTests.Substep22_Avg_us/us_per_op/median": 11.991366666666638,
+      "KinematicsPerfTests.Substep22_P95_us/us_per_op/median": 13.8,
+      "KinematicsPerfTests.Tti_ns/ns_per_op/median": 196.11236000000005,
+      "KinematicsPerfTests.BallIntercept_us/us_per_op/median": 9.4968035,
       "KinematicsPerfTests.ZeroAlloc_StepTtiIntercept/gc_alloc_count/max": 0.0
     },
     "budget": [
@@ -129,7 +129,7 @@
         "ac": "AC-13",
         "label": "22명 조향+적분 서브스텝 평균",
         "metric": "KinematicsPerfTests.Substep22_Avg_us/us_per_op/median",
-        "value": 12.02481000000005,
+        "value": 11.991366666666638,
         "budget": 15,
         "unit": "µs",
         "ok": true
@@ -138,7 +138,7 @@
         "ac": "AC-13",
         "label": "22명 서브스텝 p95",
         "metric": "KinematicsPerfTests.Substep22_P95_us/us_per_op/median",
-        "value": 13.4,
+        "value": 13.8,
         "budget": 18,
         "unit": "µs",
         "ok": true
@@ -147,7 +147,7 @@
         "ac": "AC-13",
         "label": "TTI 1회",
         "metric": "KinematicsPerfTests.Tti_ns/ns_per_op/median",
-        "value": 196.77088,
+        "value": 196.11236000000005,
         "budget": 260,
         "unit": "ns",
         "ok": true
@@ -156,7 +156,7 @@
         "ac": "AC-13",
         "label": "공 인터셉트 탐색 (2 s / 0.04 s)",
         "metric": "KinematicsPerfTests.BallIntercept_us/us_per_op/median",
-        "value": 9.1850315,
+        "value": 9.4968035,
         "budget": 12,
         "unit": "µs",
         "ok": true
