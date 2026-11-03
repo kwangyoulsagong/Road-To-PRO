@@ -13,6 +13,8 @@ namespace RoadToPro.Core.Random
         ScenarioSelect = 5,
         Highlight = 6,
         MatchForm = 7,
+        /// <summary>경기 진행: 동전 던지기, 대체 단계 무작위 (specs/006).</summary>
+        MatchFlow = 8,
 
         CareerWeek = 101,
         CareerEvents = 102,

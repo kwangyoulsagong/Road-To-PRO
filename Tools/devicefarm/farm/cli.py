@@ -39,6 +39,7 @@ def _default_handlers():
         "build": lambda a: commands.cmd_build(a, a._argv),
         "approve-baseline": lambda a: commands.cmd_approve_baseline(a, a._argv),
         "approve-perf": lambda a: commands.cmd_approve_perf(a, a._argv),
+        "bench": lambda a: commands.cmd_bench(a, a._argv),
         "self-test": lambda a: selftest.main(a.case, a._argv),
     }
 
@@ -79,6 +80,12 @@ def build_parser():
     ab.add_argument("--include-failed", action="store_true", help="차이 실패 이미지도 새 기준으로 (의도한 화면 변경)")
     ap = sub.add_parser("approve-perf", help="이번 성능 측정을 기준 측정으로 채택")
     _add_target_options(ap)
+    ap.add_argument("--bench", action="store_true", help="최근 시뮬 벤치(farm.py bench) 측정을 기준으로")
+
+    bn = sub.add_parser("bench", help="시뮬 벤치 (스크립팅 백엔드별 릴리스 플레이어, specs/006)")
+    bn.add_argument("--spec", required=True, help="스펙 번호 (Data/perf의 il2cpp 예산)")
+    bn.add_argument("--backend", choices=["il2cpp", "mono"], default="il2cpp", help="판정은 il2cpp만 (D17)")
+    bn.add_argument("--force-build", action="store_true", help="캐시를 무시하고 다시 빌드")
 
     st = sub.add_parser("self-test", help="하네스 셀프테스트")
     st.add_argument("case", choices=SELF_TEST_CASES)

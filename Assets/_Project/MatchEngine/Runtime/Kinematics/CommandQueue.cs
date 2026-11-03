@@ -1,4 +1,5 @@
 using RoadToPro.Core.Hashing;
+using RoadToPro.Core.Serialization;
 
 namespace RoadToPro.MatchEngine.Kinematics
 {
@@ -67,6 +68,32 @@ namespace RoadToPro.MatchEngine.Kinematics
         }
 
         public void Clear(int index) { _head[index] = 0; _count[index] = 0; }
+
+        /// <summary>선수 index의 대기 명령을 쓴다 (활성화 순서대로, specs/006 FR-60).</summary>
+        public void Write(int index, StateWriter w)
+        {
+            w.Write(_count[index]);
+            for (int k = 0; k < _count[index]; k++)
+            {
+                var slot = index * CapacityPerPlayer + (_head[index] + k) % CapacityPerPlayer;
+                w.Write(_at[slot]);
+                _cmds[slot].Write(w);
+            }
+        }
+
+        public void Read(int index, StateReader r)
+        {
+            var count = r.ReadInt();
+            if (count < 0 || count > CapacityPerPlayer) throw new System.FormatException($"대기 명령 수 {count}가 0~{CapacityPerPlayer} 밖");
+            _head[index] = 0;
+            _count[index] = count;
+            for (int k = 0; k < count; k++)
+            {
+                var slot = index * CapacityPerPlayer + k;
+                _at[slot] = r.ReadLong();
+                _cmds[slot] = SteeringCommand.Read(r);
+            }
+        }
 
         public void AddTo(int index, ref StableHasher h)
         {

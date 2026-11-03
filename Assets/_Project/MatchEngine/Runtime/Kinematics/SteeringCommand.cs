@@ -1,5 +1,6 @@
 using RoadToPro.Core.Hashing;
 using RoadToPro.Core.Math;
+using RoadToPro.Core.Serialization;
 
 namespace RoadToPro.MatchEngine.Kinematics
 {
@@ -58,6 +59,30 @@ namespace RoadToPro.MatchEngine.Kinematics
 
         /// <summary>같은 명령에 낮은 우선순위 대형 앵커를 붙인다.</summary>
         public SteeringCommand WithFormation(Vec2 slot) => new SteeringCommand(Kind, Point, TargetId, MaxSpeed, Side, true, slot);
+
+        /// <summary>상태 직렬화 (specs/006 FR-60). 필드 순서는 <see cref="AddTo"/>와 같다.</summary>
+        public void Write(StateWriter w)
+        {
+            w.Write((byte)Kind);
+            w.Write(Point);
+            w.Write(TargetId);
+            w.Write(MaxSpeed);
+            w.Write(Side);
+            w.Write(HasFormation);
+            w.Write(FormationPoint);
+        }
+
+        public static SteeringCommand Read(StateReader r)
+        {
+            var kind = (SteeringKind)r.ReadByte();
+            var point = r.ReadVec2();
+            var target = r.ReadInt();
+            var maxSpeed = r.ReadFloat();
+            var side = r.ReadFloat();
+            var hasFormation = r.ReadBool();
+            var formation = r.ReadVec2();
+            return new SteeringCommand(kind, point, target, maxSpeed, side, hasFormation, formation);
+        }
 
         public void AddTo(ref StableHasher h)
         {
