@@ -1,0 +1,33 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blender 생성 테스트 리포트</title><meta name="claude:viewport-fit-sides" content="cover"><style>
+:root{--bg:#f2f3f5;--card:#fff;--text:#191f28;--muted:#6b7684;--line:#e5e8eb;
+--accent:#3182f6;--pass:#12a150;--fail:#e5383b;--warn:#f59f00;--cand:#8b5cf6;--code:#f7f8fa;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101215;--card:#1b1e23;
+--text:#e8eaed;--muted:#9aa0a6;--line:#2c3036;--code:#15181c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101215;--card:#1b1e23;--text:#e8eaed;--muted:#9aa0a6;--line:#2c3036;--code:#15181c;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font:15px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+main{max-width:1100px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:22px;margin:4px 0 12px}h2{font-size:17px;margin:0 0 10px}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:0 0 12px;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.meta b{color:var(--text);font-weight:600}
+.verdict{display:inline-block;font-weight:700;font-size:15px;padding:4px 12px;border-radius:999px;color:#fff}
+.verdict.pass{background:var(--pass)}.verdict.fail{background:var(--fail)}
+.big{font-size:34px;font-weight:700;line-height:1.1}
+.stats{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:10px}
+.stats div{min-width:72px}.stats span{display:block;color:var(--muted);font-size:12px}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:6px;color:#fff}
+.tag.pass{background:var(--pass)}.tag.fail{background:var(--fail)}.tag.skip{background:var(--muted)}
+.tag.cand{background:var(--cand)}.tag.warn{background:var(--warn)}.tag.info{background:var(--accent)}
+.warnbar{background:var(--warn);color:#000;border-radius:12px;padding:10px 14px;margin:0 0 12px;font-weight:600}
+pre{background:var(--code);border-radius:10px;padding:10px;font:12px/1.45 ui-monospace,Menlo,monospace;
+overflow-x:auto;white-space:pre;margin:6px 0 0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.case{padding:10px 0;border-bottom:1px solid var(--line)}.case:last-child{border-bottom:0}
+.case .name{font-weight:600}.muted{color:var(--muted)}
+a{color:var(--accent)}
+</style></head><body><main><h1>Blender 생성 테스트 리포트</h1><div class="card"><span class="verdict pass">통과</span><div class="stats"><div><span>합계</span><b class="big">15</b></div><div><span>통과</span><b class="big">15</b></div><div><span>실패</span><b class="big">0</b></div><div><span>건너뜀</span><b class="big">0</b></div><div><span>시간</span><b class="big">52.4s</b></div></div><p class="meta"><span>커밋 <b>2c8b943d97</b></span><span>브랜치 <b>feat/043-player-model-animation</b></span><span>Unity <b>6000.3.27f2</b></span><span>실행 <b>2026-11-04 11:56:46 +0900</b></span></p></div><div class="warnbar">작업 트리에 커밋 안 된 변경이 있다 — 완료 판정 불가</div><div class="card"><h2>전체 테스트</h2><div class="scroll"><table><tr><th>결과</th><th>테스트</th><th>시간</th></tr><tr><td><span class="tag pass">통과</span></td><td>Budgets_Lod_Materials_Textures.test_glb</td><td class="muted">14493 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>Budgets_Lod_Materials_Textures.test_layout_summary</td><td class="muted">0 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>Budgets_Lod_Materials_Textures.test_textures</td><td class="muted">1 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>ClipList_CoversFr31.test_clip_length_matches_tags</td><td class="muted">17 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>ClipList_CoversFr31.test_list</td><td class="muted">11 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>ClipTags_Complete.test_ground_ball_contacts_at_ball_center</td><td class="muted">0 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>ClipTags_Complete.test_tags</td><td class="muted">1 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>ExtremeBodies_FootGround_NoSelfIntersect.test_extremes</td><td class="muted">0 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>Gait_StanceFootFixed.test_slide</td><td class="muted">0 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>GenerationTime.test_time</td><td class="muted">9881 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>InvalidArgs.test_bad_lod</td><td class="muted">570 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>InvalidArgs.test_bad_seed</td><td class="muted">612 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>InvalidArgs.test_unknown_clip</td><td class="muted">3101 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>SameArgs_SameBytes.test_two_runs</td><td class="muted">13844 ms</td></tr><tr><td><span class="tag pass">통과</span></td><td>SeedChange_ChangesTextures_KeepsMesh.test_seed</td><td class="muted">9899 ms</td></tr></table></div></div><style>.pgrid{display:grid;grid-template-columns:repeat(1,1fr);gap:8px;margin:8px 0}.pgrid img{width:100%;border-radius:6px;display:block}.pgrid figure{margin:0}.pgrid figcaption{font-size:12px;color:#666;margin-top:2px}</style><div class="card"><h2>Blender 미리보기 (LOD 3단 + 극단 체형 4종 · 헤어 10종 · 대표 클립 접촉 프레임)</h2><div class="pgrid"><figure><img src="blender/default/preview-lineup.png" alt="default lineup"><figcaption>default · lineup</figcaption></figure><figure><img src="blender/default/preview-heads.png" alt="default heads"><figcaption>default · heads</figcaption></figure><figure><img src="blender/default/preview-poses.png" alt="default poses"><figcaption>default · poses</figcaption></figure></div></div></main></body></html>

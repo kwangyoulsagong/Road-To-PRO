@@ -20,6 +20,18 @@ BLENDER_APP = "/Applications/Blender.app/Contents/MacOS/Blender"
 PREVIEW_SETS = ("min", "default", "max")
 PREVIEW_VIEWS = ("main", "goal", "top")
 
+# 스펙별 테스트·미리보기 설정. 없는 스펙은 044 설정(기존 동작)을 쓴다.
+SPEC_ART = {
+    "044": {"pattern": ("test_markings.py", "test_params.py", "test_stadium.py"), "sets": PREVIEW_SETS, "views": PREVIEW_VIEWS, "stem": "stadium", "cols": 3,
+            "title": "Blender 미리보기 (인자 세트 최소·기본·최대)"},
+    "043": {"pattern": "test_player.py", "sets": ("default",), "views": ("lineup", "heads", "poses"), "stem": "player", "cols": 1,
+            "title": "Blender 미리보기 (LOD 3단 + 극단 체형 4종 · 헤어 10종 · 대표 클립 접촉 프레임)"},
+}
+
+
+def spec_cfg(spec):
+    return SPEC_ART.get(str(spec), SPEC_ART["044"])
+
 
 class _Collector(unittest.TestResult):
     def __init__(self):
@@ -81,7 +93,10 @@ def run_tests(out_root, pattern="test_*.py", start_dir=ART_TESTS):
     os.environ["FARM_ART_OUT"] = out_root
     if start_dir not in sys.path:
         sys.path.insert(0, start_dir)
-    suite = unittest.TestLoader().discover(start_dir, pattern=pattern, top_level_dir=start_dir)
+    pats = (pattern,) if isinstance(pattern, str) else tuple(pattern)
+    suite = unittest.TestSuite()
+    for pat in pats:
+        suite.addTests(unittest.TestLoader().discover(start_dir, pattern=pat, top_level_dir=start_dir))
     col = _Collector()
     t0 = time.time()
     suite.run(col)
@@ -106,12 +121,13 @@ def ac_evidence(res):
     return out
 
 
-def previews(out_root):
+def previews(out_root, cfg=None):
     """{세트: {시점: 경로}} — 있는 것만."""
+    cfg = cfg or SPEC_ART["044"]
     got = {}
-    for s in PREVIEW_SETS:
-        for v in PREVIEW_VIEWS:
-            p = os.path.join(out_root, s, f"stadium.preview-{v}.png")
+    for s in cfg["sets"]:
+        for v in cfg["views"]:
+            p = os.path.join(out_root, s, f"{cfg['stem']}.preview-{v}.png")
             if os.path.exists(p):
                 got.setdefault(s, {})[v] = p
     return got
@@ -129,27 +145,28 @@ def copy_previews(found, ev_dir):
     return out
 
 
-def preview_grid_html(found, base_dir):
+def preview_grid_html(found, base_dir, cfg=None):
+    cfg = cfg or SPEC_ART["044"]
     if not found:
         return ""
     rows = []
-    for s in PREVIEW_SETS:
+    for s in cfg["sets"]:
         if s not in found:
             continue
         cells = "".join(
             f'<figure><img src="{e(os.path.relpath(found[s][v], base_dir))}" alt="{e(s)} {e(v)}">'
             f"<figcaption>{e(s)} · {e(v)}</figcaption></figure>"
-            for v in PREVIEW_VIEWS if v in found[s])
+            for v in cfg["views"] if v in found[s])
         rows.append(f'<div class="pgrid">{cells}</div>')
-    css = ('<style>.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}'
-           '.pgrid img{width:100%;border-radius:6px;display:block}.pgrid figure{margin:0}'
-           '.pgrid figcaption{font-size:12px;color:#666;margin-top:2px}</style>')
-    return f'{css}<div class="card"><h2>Blender 미리보기 (인자 세트 최소·기본·최대)</h2>{"".join(rows)}</div>'
+    css = ('<style>.pgrid{display:grid;grid-template-columns:repeat(%d,1fr);gap:8px;margin:8px 0}'
+           '.pgrid img{width:100%%;border-radius:6px;display:block}.pgrid figure{margin:0}'
+           '.pgrid figcaption{font-size:12px;color:#666;margin-top:2px}</style>') % cfg["cols"]
+    return f'{css}<div class="card"><h2>{e(cfg["title"])}</h2>{"".join(rows)}</div>'
 
 
-def write_report(res, meta, found, out_html):
+def write_report(res, meta, found, out_html, cfg=None):
     html = logic.render_html(res, meta, title="Blender 생성 테스트 리포트")
-    grid = preview_grid_html(found, os.path.dirname(out_html))
+    grid = preview_grid_html(found, os.path.dirname(out_html), cfg)
     html = html.replace("</main>", grid + "</main>", 1) if "</main>" in html else html + grid
     with open(out_html, "w", encoding="utf-8") as f:
         f.write(html)
@@ -166,12 +183,13 @@ def cmd_art(args, argv, log=print):
     meta = logic.metadata()
     meta["blender"] = blender_version()
     log(f"[farm] Blender 생성 테스트 실행 중… ({meta['blender']})")
-    res = run_tests(out_root)
+    cfg = spec_cfg(args.spec)
+    res = run_tests(out_root, pattern=cfg["pattern"])
     ev_dir = commands.evidence_dir(args.spec, run_dir)
     os.makedirs(ev_dir, exist_ok=True)
-    found = copy_previews(previews(out_root), ev_dir)
+    found = copy_previews(previews(out_root, cfg), ev_dir)
     meta.update(durationSec=time.time() - t0, command=commands.command_line(argv))
-    html = write_report(res, meta, found, os.path.join(ev_dir, "art.html"))
+    html = write_report(res, meta, found, os.path.join(ev_dir, "art.html"), cfg)
     png = chrome.screenshot(html, os.path.join(ev_dir, "art.png"))
     import json
     with open(os.path.join(ev_dir, "art.json"), "w", encoding="utf-8") as f:

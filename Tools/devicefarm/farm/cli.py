@@ -88,7 +88,7 @@ def build_parser():
     bn.add_argument("--backend", choices=["il2cpp", "mono"], default="il2cpp", help="판정은 il2cpp만 (D17)")
     bn.add_argument("--force-build", action="store_true", help="캐시를 무시하고 다시 빌드")
 
-    ar = sub.add_parser("art", help="Blender 생성 스크립트 테스트 (specs/044)")
+    ar = sub.add_parser("art", help="Blender 생성 스크립트 테스트 (specs/043·044)")
     ar.add_argument("--spec", help="스펙 번호 (증거 폴더)")
 
     st = sub.add_parser("self-test", help="하네스 셀프테스트")

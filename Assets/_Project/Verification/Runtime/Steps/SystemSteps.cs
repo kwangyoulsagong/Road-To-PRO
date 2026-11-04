@@ -14,6 +14,7 @@ namespace RoadToPro.Verification
         {
             // 애니메이션·폰트 아틀라스가 가라앉을 때까지: 연속 2프레임이 바이트 단위로 같을 때 캡처
             byte[] prev = null;
+            string diff = "";
             bool stable = false;
             for (int i = 0; i < MaxStabilityTries; i++)
             {
@@ -24,12 +25,22 @@ namespace RoadToPro.Verification
                     stable = true;
                     break;
                 }
+                if (prev != null)
+                {
+                    diff = _capture.DiffSummary(prev, cur);
+                    if (i == MaxStabilityTries - 1)
+                    {
+                        // 진단: 마지막 두 프레임을 남긴다 (captures/_unstable_a.png, _b.png)
+                        File.WriteAllBytes(Path.Combine(_args.OutDir, "captures/_unstable_a.png"), _capture.EncodeRaw(prev));
+                        File.WriteAllBytes(Path.Combine(_args.OutDir, "captures/_unstable_b.png"), _capture.EncodeRaw(cur));
+                    }
+                }
                 prev = (byte[])cur.Clone();
                 yield return null;
             }
             if (!stable)
             {
-                o.Fail($"화면이 {MaxStabilityTries}프레임 안에 안정되지 않았다 (불안정)");
+                o.Fail($"화면이 {MaxStabilityTries}프레임 안에 안정되지 않았다 (불안정) — 마지막 두 프레임: {diff}");
                 yield break;
             }
             var name = s.GetString("name");

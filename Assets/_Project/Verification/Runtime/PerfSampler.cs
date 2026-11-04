@@ -20,6 +20,8 @@ namespace RoadToPro.Verification
         List<object> _frame, _main, _gc, _dc, _tri, _gpu;
         readonly FrameTiming[] _timing = new FrameTiming[1];
         ProfilerRecorder _rMain, _rGc, _rDc, _rTri, _rTex, _rTotal;
+        readonly List<string> _customNames = new List<string>();
+        readonly List<List<object>> _custom = new List<List<object>>();
 
         public bool Active => _name != null;
         public int Frames => _frame?.Count ?? 0;
@@ -37,6 +39,15 @@ namespace RoadToPro.Verification
             _dc = new List<object>();
             _tri = new List<object>();
             _gpu = new List<object>();
+            _customNames.Clear();
+            _custom.Clear();
+            var keys = new List<string>(FarmContext.PerfCounters.Keys);
+            keys.Sort(System.StringComparer.Ordinal);
+            foreach (var k in keys)
+            {
+                _customNames.Add(k);
+                _custom.Add(new List<object>(warmup + minFrames));
+            }
             _rMain = ProfilerRecorder.StartNew(ProfilerCategory.Internal, "Main Thread", 1);
             _rGc = ProfilerRecorder.StartNew(ProfilerCategory.Memory, "GC Allocated In Frame", 1);
             _rDc = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Draw Calls Count", 1);
@@ -54,6 +65,11 @@ namespace RoadToPro.Verification
             _gc.Add(_rGc.Valid ? (object)_rGc.LastValue : null);
             _dc.Add(_rDc.Valid ? (object)_rDc.LastValue : null);
             _tri.Add(_rTri.Valid ? (object)_rTri.LastValue : null);
+            for (int i = 0; i < _customNames.Count; i++)
+            {
+                var v = FarmContext.PerfCounters.TryGetValue(_customNames[i], out var f) ? f() : null;
+                _custom[i].Add(v.HasValue ? (object)v.Value : null);
+            }
             // GPU 프레임 시간 (specs/044). 개발 빌드에서 FrameTimingManager가 켜진다 — 아니면 null
             FrameTimingManager.CaptureFrameTimings();
             _gpu.Add(FrameTimingManager.GetLatestTimings(1, _timing) > 0 && _timing[0].gpuFrameTime > 0 ? (object)_timing[0].gpuFrameTime : null);
@@ -76,6 +92,12 @@ namespace RoadToPro.Verification
                 { "totalMemoryBytes", _rTotal.Valid ? (object)_rTotal.LastValue : null },
                 { "power", SystemInfo.batteryStatus.ToString() },
             };
+            if (_customNames.Count > 0)
+            {
+                var c = new Dictionary<string, object>();
+                for (int i = 0; i < _customNames.Count; i++) c[_customNames[i]] = AllNull(_custom[i]) ? null : _custom[i];
+                d["custom"] = c;
+            }
             _sections.Add(d);
             _rMain.Dispose();
             _rGc.Dispose();

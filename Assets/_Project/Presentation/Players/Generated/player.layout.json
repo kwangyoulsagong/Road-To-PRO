@@ -1,0 +1,652 @@
+{
+ "generator": {
+  "blender": "5.1.1",
+  "command": "gen_player.py --out <out> --no-preview",
+  "script": "gen_player.py",
+  "seed": 0
+ },
+ "materials": [
+  "PlayerBody",
+  "PlayerKit"
+ ],
+ "schemaVersion": 1,
+ "shapes": [
+  "Thin",
+  "Muscular",
+  "Heavy",
+  "Hair_Short",
+  "Hair_Long",
+  "Hair_Curly",
+  "Hair_Bun",
+  "Hair_Fade",
+  "Hair_Afro",
+  "Hair_Mohawk",
+  "Hair_Dreads",
+  "Hair_Bald"
+ ],
+ "skeleton": {
+  "bones": [
+   {
+    "head": [
+     0.0,
+     0.98,
+     0.0
+    ],
+    "name": "Hips",
+    "parent": null,
+    "tail": [
+     0.0,
+     1.08,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.0,
+     1.08,
+     0.0
+    ],
+    "name": "Spine",
+    "parent": "Hips",
+    "tail": [
+     0.0,
+     1.22,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.0,
+     1.22,
+     0.0
+    ],
+    "name": "Chest",
+    "parent": "Spine",
+    "tail": [
+     0.0,
+     1.36,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.0,
+     1.36,
+     0.0
+    ],
+    "name": "UpperChest",
+    "parent": "Chest",
+    "tail": [
+     0.0,
+     1.5,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.0,
+     1.5,
+     0.0
+    ],
+    "name": "Neck",
+    "parent": "UpperChest",
+    "tail": [
+     0.0,
+     1.6,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.0,
+     1.6,
+     0.0
+    ],
+    "name": "Head",
+    "parent": "Neck",
+    "tail": [
+     0.0,
+     1.8,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     -0.03,
+     1.45,
+     0.0
+    ],
+    "name": "LeftShoulder",
+    "parent": "UpperChest",
+    "tail": [
+     -0.17,
+     1.46,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     -0.17,
+     1.46,
+     0.0
+    ],
+    "name": "LeftUpperArm",
+    "parent": "LeftShoulder",
+    "tail": [
+     -0.375061,
+     1.254939,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     -0.375061,
+     1.254939,
+     0.0
+    ],
+    "name": "LeftLowerArm",
+    "parent": "LeftUpperArm",
+    "tail": [
+     -0.558909,
+     1.071091,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     -0.558909,
+     1.071091,
+     0.0
+    ],
+    "name": "LeftHand",
+    "parent": "LeftLowerArm",
+    "tail": [
+     -0.679117,
+     0.950883,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.03,
+     1.45,
+     0.0
+    ],
+    "name": "RightShoulder",
+    "parent": "UpperChest",
+    "tail": [
+     0.17,
+     1.46,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.17,
+     1.46,
+     0.0
+    ],
+    "name": "RightUpperArm",
+    "parent": "RightShoulder",
+    "tail": [
+     0.375061,
+     1.254939,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.375061,
+     1.254939,
+     0.0
+    ],
+    "name": "RightLowerArm",
+    "parent": "RightUpperArm",
+    "tail": [
+     0.558909,
+     1.071091,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.558909,
+     1.071091,
+     0.0
+    ],
+    "name": "RightHand",
+    "parent": "RightLowerArm",
+    "tail": [
+     0.679117,
+     0.950883,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     -0.1,
+     0.93,
+     0.0
+    ],
+    "name": "LeftUpperLeg",
+    "parent": "Hips",
+    "tail": [
+     -0.1,
+     0.5,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     -0.1,
+     0.5,
+     0.0
+    ],
+    "name": "LeftLowerLeg",
+    "parent": "LeftUpperLeg",
+    "tail": [
+     -0.1,
+     0.085,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     -0.1,
+     0.085,
+     0.0
+    ],
+    "name": "LeftFoot",
+    "parent": "LeftLowerLeg",
+    "tail": [
+     -0.1,
+     0.025,
+     0.13
+    ]
+   },
+   {
+    "head": [
+     -0.1,
+     0.025,
+     0.13
+    ],
+    "name": "LeftToes",
+    "parent": "LeftFoot",
+    "tail": [
+     -0.1,
+     0.02,
+     0.2
+    ]
+   },
+   {
+    "head": [
+     0.1,
+     0.93,
+     0.0
+    ],
+    "name": "RightUpperLeg",
+    "parent": "Hips",
+    "tail": [
+     0.1,
+     0.5,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.1,
+     0.5,
+     0.0
+    ],
+    "name": "RightLowerLeg",
+    "parent": "RightUpperLeg",
+    "tail": [
+     0.1,
+     0.085,
+     0.0
+    ]
+   },
+   {
+    "head": [
+     0.1,
+     0.085,
+     0.0
+    ],
+    "name": "RightFoot",
+    "parent": "RightLowerLeg",
+    "tail": [
+     0.1,
+     0.025,
+     0.13
+    ]
+   },
+   {
+    "head": [
+     0.1,
+     0.025,
+     0.13
+    ],
+    "name": "RightToes",
+    "parent": "RightFoot",
+    "tail": [
+     0.1,
+     0.02,
+     0.2
+    ]
+   }
+  ],
+  "heightRangeCm": [
+   160.0,
+   200.0
+  ],
+  "refHeight": 1.8
+ },
+ "summary": {
+  "budgets": {
+   "lods": {
+    "0": {
+     "materials": 2,
+     "ok": true,
+     "triangles": 9860
+    },
+    "1": {
+     "materials": 2,
+     "ok": true,
+     "triangles": 2858
+    },
+    "2": {
+     "materials": 2,
+     "ok": true,
+     "triangles": 952
+    }
+   },
+   "ok": true,
+   "textures": {
+    "body.png": [
+     1024,
+     1024
+    ],
+    "kit_mask_halves.png": [
+     1024,
+     1024
+    ],
+    "kit_mask_hoops.png": [
+     1024,
+     1024
+    ],
+    "kit_mask_plain.png": [
+     1024,
+     1024
+    ],
+    "kit_mask_sash.png": [
+     1024,
+     1024
+    ],
+    "kit_mask_stripes.png": [
+     1024,
+     1024
+    ],
+    "kit_mask_yoke.png": [
+     1024,
+     1024
+    ],
+    "kit_normal.png": [
+     512,
+     512
+    ]
+   }
+  },
+  "clips": {
+   "bad": [],
+   "count": 82,
+   "missing": [],
+   "ok": true
+  },
+  "extremes": {
+   "cases": {
+    "hair_Hair_Afro": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "hair_Hair_Bald": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "hair_Hair_Bun": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "hair_Hair_Curly": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "hair_Hair_Dreads": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "hair_Hair_Fade": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "hair_Hair_Long": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "hair_Hair_Mohawk": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "hair_Hair_Short": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "short_heavy": {
+     "allMin": 0.000357,
+     "footMin": 0.000357,
+     "intersections": {},
+     "ok": true
+    },
+    "short_light": {
+     "allMin": 0.000357,
+     "footMin": 0.000357,
+     "intersections": {},
+     "ok": true
+    },
+    "tall_heavy": {
+     "allMin": 0.000446,
+     "footMin": 0.000446,
+     "intersections": {},
+     "ok": true
+    },
+    "tall_light": {
+     "allMin": 0.000446,
+     "footMin": 0.000446,
+     "intersections": {},
+     "ok": true
+    }
+   },
+   "ok": true
+  },
+  "gaitSlide": {
+   "clips": 25,
+   "lowToeSpeed": 9e-05,
+   "ok": true,
+   "worst": 0.0
+  },
+  "ground": {
+   "bad": {},
+   "ok": true
+  }
+ },
+ "textures": {
+  "body.png": [
+   1024,
+   1024
+  ],
+  "kit_mask_halves.png": [
+   1024,
+   1024
+  ],
+  "kit_mask_hoops.png": [
+   1024,
+   1024
+  ],
+  "kit_mask_plain.png": [
+   1024,
+   1024
+  ],
+  "kit_mask_sash.png": [
+   1024,
+   1024
+  ],
+  "kit_mask_stripes.png": [
+   1024,
+   1024
+  ],
+  "kit_mask_yoke.png": [
+   1024,
+   1024
+  ],
+  "kit_normal.png": [
+   512,
+   512
+  ]
+ },
+ "uv": {
+  "body": {
+   "face0": [
+    0.0,
+    0.75,
+    0.25,
+    1.0
+   ],
+   "faces": [
+    0.0,
+    0.5,
+    1.0,
+    1.0
+   ],
+   "hair": [
+    0.5,
+    0.0,
+    1.0,
+    0.5
+   ],
+   "skin": [
+    0.0,
+    0.0,
+    0.5,
+    0.5
+   ]
+  },
+  "face": {
+   "cells": [
+    4,
+    2
+   ],
+   "x": 0.1,
+   "y0": 1.57,
+   "y1": 1.835
+  },
+  "kit": {
+   "boots": [
+    0.5,
+    0.0,
+    1.0,
+    0.25
+   ],
+   "shirtBack": [
+    0.5,
+    0.5,
+    1.0,
+    1.0
+   ],
+   "shirtFront": [
+    0.0,
+    0.5,
+    0.5,
+    1.0
+   ],
+   "shortsL": [
+    0.5,
+    0.25,
+    0.75,
+    0.375
+   ],
+   "shortsR": [
+    0.75,
+    0.25,
+    1.0,
+    0.375
+   ],
+   "shortsWaist": [
+    0.5,
+    0.375,
+    1.0,
+    0.5
+   ],
+   "sleeveL": [
+    0.0,
+    0.3,
+    0.25,
+    0.5
+   ],
+   "sleeveR": [
+    0.25,
+    0.3,
+    0.5,
+    0.5
+   ],
+   "sockL": [
+    0.0,
+    0.05,
+    0.25,
+    0.3
+   ],
+   "sockR": [
+    0.25,
+    0.05,
+    0.5,
+    0.3
+   ]
+  },
+  "text": {
+   "backName": [
+    0.6,
+    0.865,
+    0.9,
+    0.925
+   ],
+   "backNumber": [
+    0.63,
+    0.6,
+    0.87,
+    0.84
+   ],
+   "frontNumber": [
+    0.29,
+    0.8,
+    0.37,
+    0.88
+   ]
+  }
+ }
+}

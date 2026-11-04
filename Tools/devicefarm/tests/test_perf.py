@@ -196,3 +196,36 @@ class Derived044(unittest.TestCase):
         self.assertIsNone(P.get_metric(m, "drawCalls.max"))
         rows = P.judge_budget(m, {"gpuMs.p95": 1.0, "drawCalls.max": 10})
         self.assertEqual([r["ok"] for r in rows], [False, False])
+
+
+class CustomCounters(unittest.TestCase):
+    """specs/043: 화면이 넘긴 사용자 정의 카운터 집계·예산."""
+
+    def test_custom_stats_and_budget(self):
+        from farm import perf as P
+        sec = {"name": "anim", "warmupFrames": 2, "frameMs": [16.0] * 6,
+               "custom": {"animCpuMs": [9.0, 9.0, 1.0, 1.2, 1.4, None], "animGcBytes": [0, 0, 0, 0, 0, 0]}}
+        m = P.summarize(sec)
+        self.assertAlmostEqual(m["custom"]["animCpuMs"]["max"], 1.4)
+        self.assertEqual(m["custom"]["animGcBytes"]["max"], 0)
+        rows = P.judge_budget(m, {"custom.animCpuMs.p95": 2.0, "custom.animGcBytes.max": 0})
+        self.assertTrue(all(r["ok"] for r in rows), rows)
+        rows = P.judge_budget(m, {"custom.missing.p95": 2.0})
+        self.assertFalse(rows[0]["ok"], "없는 카운터는 측정 불가 = 실패")
+
+
+class RenderPairs(unittest.TestCase):
+    """specs/043: 렌더 카운터 '0 → 두 배' 쌍 보정."""
+
+    def test_fold(self):
+        from farm import perf as P
+        self.assertEqual(P.fold_render_pairs([60, 0, 120, 60, 60]), [60, 60.0, 60.0, 60, 60])
+        self.assertEqual(P.fold_render_pairs([60, 122, 0, 60]), [60, 61.0, 61.0, 60])
+        self.assertEqual(P.fold_render_pairs([0, 0, 2, 2]), [0, 0, 2, 2], "진짜 0(빈 화면)은 그대로")
+        self.assertEqual(P.fold_render_pairs([60, 65, 70]), [60, 65, 70])
+
+
+class RenderPairsNear(unittest.TestCase):
+    def test_non_adjacent(self):
+        from farm import perf as P
+        self.assertEqual(P.fold_render_pairs([61, 0, 61, 61, 122, 61]), [61, 61.0, 61, 61, 61.0, 61])

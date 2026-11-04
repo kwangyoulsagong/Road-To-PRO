@@ -1,4 +1,4 @@
-"""캡처 이미지 검사 (specs/044 AC-10~13). 시나리오 `imageChecks`가 캡처 이름과 검사 종류를 지정한다.
+"""캡처 이미지 검사 (specs/044 AC-10~13, specs/043 AC-13). 시나리오 `imageChecks`가 캡처 이름과 검사 종류를 지정한다.
 
 영역 좌표는 드라이버가 캡처 때 남긴 `regions`(PNG 픽셀, 왼쪽 위 원점):
 - 사각형 [x, y, w, h], 선분 {"a": [x, y], "b": [x, y]}, 점 [x, y], 점 목록 [[x, y], ...].
@@ -7,7 +7,7 @@ import re
 
 import numpy as np
 
-TYPES = ("notBlank", "bandFlip", "lineContinuity", "blobX")
+TYPES = ("notBlank", "bandFlip", "lineContinuity", "blobX", "deltaE", "glyphInside")
 PAIRED = ("bandFlip",)  # 캡처 두 장 (capture + other)
 
 
@@ -115,6 +115,156 @@ def blob_x(arr, regions, min_darkening=0.12, box=6, ring=18):
             "detail": f"어두워진 비율 {', '.join(f'{d:.2f}' for d in darks)} (≥ {min_darkening}), 대각 쌍 내적 {', '.join(f'{d:.2f}' for d in opp)} (< −0.7)"}
 
 
+# ---------------------------------------------------------------- specs/043 AC-13
+
+def srgb_to_lab(rgb):
+    """sRGB 0~255 (…, 3) → CIELAB D65. Presentation/Players/Logic/CieDe2000.cs와 같은 상수."""
+    c = np.asarray(rgb, dtype=np.float64) / 255.0
+    lin = np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
+    x = (0.4124564 * lin[..., 0] + 0.3575761 * lin[..., 1] + 0.1804375 * lin[..., 2]) / 0.95047
+    y = 0.2126729 * lin[..., 0] + 0.7151522 * lin[..., 1] + 0.0721750 * lin[..., 2]
+    z = (0.0193339 * lin[..., 0] + 0.1191920 * lin[..., 1] + 0.9503041 * lin[..., 2]) / 1.08883
+
+    def f(t):
+        return np.where(t > 216.0 / 24389.0, np.cbrt(t), (24389.0 / 27.0 * t + 16.0) / 116.0)
+    fx, fy, fz = f(x), f(y), f(z)
+    return np.stack([116.0 * fy - 16.0, 500.0 * (fx - fy), 200.0 * (fy - fz)], axis=-1)
+
+
+def delta_e2000(lab1, lab2):
+    """CIEDE2000 (Sharma·Wu·Dalal 2005), kL = kC = kH = 1. 스칼라 Lab 두 개."""
+    L1, a1, b1 = (float(v) for v in lab1)
+    L2, a2, b2 = (float(v) for v in lab2)
+    import math
+    c1, c2 = math.hypot(a1, b1), math.hypot(a2, b2)
+    cb7 = ((c1 + c2) / 2) ** 7
+    g = 0.5 * (1 - math.sqrt(cb7 / (cb7 + 25.0 ** 7)))
+    a1p, a2p = (1 + g) * a1, (1 + g) * a2
+    c1p, c2p = math.hypot(a1p, b1), math.hypot(a2p, b2)
+    h1 = 0.0 if a1p == 0 and b1 == 0 else math.degrees(math.atan2(b1, a1p)) % 360
+    h2 = 0.0 if a2p == 0 and b2 == 0 else math.degrees(math.atan2(b2, a2p)) % 360
+    dL, dC = L2 - L1, c2p - c1p
+    if c1p * c2p == 0:
+        dh = 0.0
+    elif abs(h2 - h1) <= 180:
+        dh = h2 - h1
+    elif h2 - h1 > 180:
+        dh = h2 - h1 - 360
+    else:
+        dh = h2 - h1 + 360
+    dH = 2 * math.sqrt(c1p * c2p) * math.sin(math.radians(dh / 2))
+    lb, cpb = (L1 + L2) / 2, (c1p + c2p) / 2
+    if c1p * c2p == 0:
+        hb = h1 + h2
+    elif abs(h1 - h2) <= 180:
+        hb = (h1 + h2) / 2
+    elif h1 + h2 < 360:
+        hb = (h1 + h2 + 360) / 2
+    else:
+        hb = (h1 + h2 - 360) / 2
+    t = (1 - 0.17 * math.cos(math.radians(hb - 30)) + 0.24 * math.cos(math.radians(2 * hb))
+         + 0.32 * math.cos(math.radians(3 * hb + 6)) - 0.20 * math.cos(math.radians(4 * hb - 63)))
+    dth = 30 * math.exp(-(((hb - 275) / 25) ** 2))
+    rc = 2 * math.sqrt(cpb ** 7 / (cpb ** 7 + 25.0 ** 7))
+    sl = 1 + 0.015 * (lb - 50) ** 2 / math.sqrt(20 + (lb - 50) ** 2)
+    sc, sh = 1 + 0.045 * cpb, 1 + 0.015 * cpb * t
+    rt = -math.sin(math.radians(2 * dth)) * rc
+    return math.sqrt((dL / sl) ** 2 + (dC / sc) ** 2 + (dH / sh) ** 2 + rt * (dC / sc) * (dH / sh))
+
+
+def _group_color(arr, rects):
+    """사각형들 안 픽셀의 채널별 중앙값(글자·그림자에 강함)."""
+    H, W = arr.shape[:2]
+    px = []
+    for r in rects:
+        x, y, w, h = (int(round(v)) for v in r)
+        x0, y0, x1, y1 = max(0, x), max(0, y), min(W, x + w), min(H, y + h)
+        if x1 > x0 and y1 > y0:
+            px.append(arr[y0:y1, x0:x1, :3].reshape(-1, 3))
+    if not px:
+        raise ValueError(f"색 영역이 화면 밖 {rects}")
+    return np.median(np.concatenate(px, axis=0), axis=0)
+
+
+DELTA_PAIRS = (("home", "away"), ("homeGk", "home"), ("homeGk", "away"), ("awayGk", "home"), ("awayGk", "away"),
+               ("referee", "home"), ("referee", "away"))
+
+
+def delta_e(arr, regions, min_delta_e=20.0):
+    """043 AC-13: 그룹(홈 필드·원정 필드·GK·심판) 셔츠 앞판 색 중앙값끼리 ΔE2000 ≥ 임계.
+    캡처에 있는 그룹 쌍만 본다(줄마다 일부 그룹). 2개 이상 그룹 필요. regions.combos가 있으면 외형 조합 중복 0도 확인."""
+    groups = regions["colorGroups"]
+    labs = {k: srgb_to_lab(_group_color(arr, v)) for k, v in groups.items() if v}
+    rows, ok, n = [], True, 0
+    for a, b in DELTA_PAIRS:
+        if a not in labs or b not in labs:
+            continue
+        d = delta_e2000(labs[a], labs[b])
+        ok &= d >= min_delta_e
+        n += 1
+        rows.append(f"{a}–{b} {d:.1f}")
+    if n == 0:
+        ok = False
+        rows.append(f"비교할 그룹 쌍 없음 ({', '.join(sorted(labs))})")
+    detail = f"ΔE2000 {', '.join(rows)} (≥ {min_delta_e})"
+    combos = regions.get("combos")
+    if combos is not None:
+        dup = len(combos) - len(set(combos))
+        ok &= dup == 0
+        detail += f"; 외형 조합 {len(combos)}개 중복 {dup}"
+    return {"ok": ok, "detail": detail}
+
+
+def glyph_inside(arr, regions, min_glyph_px=12, tolerance_px=2, margin=0.3):
+    """043 AC-13: 뒤 번호·이름 영역(화면 투영 사각형) 밖 주변 띠에 글자 픽셀 0, 번호 글자 높이 ≥ min_glyph_px.
+    regions.textAreas: [{"area": [x,y,w,h], "text": [r,g,b], "base": [r,g,b], "kind": "number"|"name"}] (색은 조명 전 sRGB).
+    조명 배율 k = 주변 띠 중앙값 / base 로 추정 → 글자 픽셀 = 예상 글자색(text·k)에 더 가깝고 거리 < 60인 픽셀."""
+    rows, ok = [], True
+    H, W = arr.shape[:2]
+    a = arr[..., :3].astype(np.float64)
+    # 같은 엔티티의 다른 글자 영역(번호 바로 위 이름 등)은 '밖'으로 치지 않는다
+    areas_by_entity = {}
+    for t in regions["textAreas"]:
+        areas_by_entity.setdefault(t.get("entity"), []).append([float(v) for v in t["area"]])
+    for k, t in enumerate(regions["textAreas"]):
+        x, y, w, h = (float(v) for v in t["area"])
+        text = np.array(t["text"], dtype=np.float64)
+        base = np.array(t["base"], dtype=np.float64)
+        mx, my = w * margin, h * margin
+        X0, Y0 = int(max(0, np.floor(x - mx))), int(max(0, np.floor(y - my)))
+        X1, Y1 = int(min(W, np.ceil(x + w + mx))), int(min(H, np.ceil(y + h + my)))
+        if X1 <= X0 or Y1 <= Y0:
+            ok = False
+            rows.append(f"#{k}: 영역이 화면 밖")
+            continue
+        sub = a[Y0:Y1, X0:X1]
+        yy, xx = np.mgrid[Y0:Y1, X0:X1]
+        inside = (xx >= x - tolerance_px) & (xx < x + w + tolerance_px) & (yy >= y - tolerance_px) & (yy < y + h + tolerance_px)
+        other = np.zeros_like(inside)
+        for ox, oy, ow, oh in areas_by_entity.get(t.get("entity"), []):
+            other |= (xx >= ox - tolerance_px) & (xx < ox + ow + tolerance_px) & (yy >= oy - tolerance_px) & (yy < oy + oh + tolerance_px)
+        band = sub[~(inside | other)]
+        kl = 1.0
+        if band.size:
+            med = np.median(band.reshape(-1, 3), axis=0)
+            kl = float(np.clip(med.sum() / max(base.sum(), 1.0), 0.2, 3.0))
+        tl, bl = np.clip(text * kl, 0, 255), np.clip(base * kl, 0, 255)
+        dt = np.linalg.norm(sub - tl, axis=-1)
+        db = np.linalg.norm(sub - bl, axis=-1)
+        glyph = (dt < db) & (dt < 60.0)
+        outside = int((glyph & ~(inside | other)).sum())
+        rows_in = np.where((glyph & inside).any(axis=1))[0]
+        height = int(rows_in.max() - rows_in.min() + 1) if rows_in.size else 0
+        need_h = min_glyph_px if t.get("kind", "number") == "number" else 1
+        good = outside == 0 and height >= need_h
+        ok &= good
+        rows.append(f"#{k} {t.get('kind', 'number')}: 높이 {height}px (≥ {need_h}), 영역 밖 {outside}px")
+    if not regions["textAreas"]:
+        ok = False
+        rows.append("글자 영역 없음")
+    return {"ok": ok, "detail": "; ".join(rows)}
+
+
 def run(checks, captures):
     """checks: 시나리오 imageChecks. captures: {이름: (RGB 배열, regions)}. → 결과 목록."""
     out = []
@@ -138,6 +288,10 @@ def run(checks, captures):
                 r = line_continuity(arr, reg, **params)
             elif t == "blobX":
                 r = blob_x(arr, reg, **params)
+            elif t == "deltaE":
+                r = delta_e(arr, reg, **params)
+            elif t == "glyphInside":
+                r = glyph_inside(arr, reg, **params)
             else:
                 raise KeyError(f"알 수 없는 검사 {t}")
             row.update(ok=bool(r["ok"]), detail=r["detail"])

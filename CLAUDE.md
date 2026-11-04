@@ -28,7 +28,7 @@
 | 건강 | 부상 + 질병(감기→부상 확률 상승, 드물게 질병 은퇴) |
 | 이벤트 | 스토리렛 방식, 12개 카테고리 300개 이상 |
 | 일정 | 첫 시즌은 **실제 시즌 일정**, 2시즌부터 자동 생성 |
-| 3D 아트 | 경기장·소품은 Blender Python(bpy) 스크립트로 생성 → glb/fbx. 모션은 Mixamo. 텍스처는 CC0(Poly Haven, ambientCG, Kenney). 출처는 `Art/LICENSES.csv`에 기록 |
+| 3D 아트 | 경기장·소품은 Blender Python(bpy) 스크립트로 생성 → glb/fbx. 모션도 bpy 자체 제작(2026-11-04, Mixamo 대체, Unity Humanoid 뼈대). 텍스처는 CC0(Poly Haven, ambientCG, Kenney). 출처는 `Art/LICENSES.csv`에 기록 |
 | 실명 데이터 | **A안** (2026-11-02): 클럽·경기장은 변형 이름, 선수·감독은 가상, 실명 로스터는 커뮤니티가 에디터·가져오기로. "살짝 바꾼" 선수 이름 금지 |
 | 우선순위 | **3D 먼저** (2026-11-02): ① 3D 선수 움직임 ② 매치 엔진 ③ 시나리오 생산 파이프라인(계속). 단계 P1~P6은 `specs/README.md` |
 | 시뮬 주기 | 결정 10Hz · 물리 100Hz · 리플레이 기록 30Hz(화면 보간). 슬로모 0.5x만 |

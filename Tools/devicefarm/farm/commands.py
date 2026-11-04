@@ -154,7 +154,15 @@ def merge_previous(ev, ev_dir, spec):
             ev[k] = prev[k]
     acev = ev.setdefault("acEvidence", {})
     for ac, items in (prev.get("acEvidence") or {}).items():
-        acev[ac] = list(items) + acev.get(ac, [])
+        # 앞선 매트릭스 실행의 시나리오 판정("<id> (full) fail" 등)은 가져오지 않는다 — 이번 실행이 새로 낸다 (specs/043: 재실행마다 옛 실패가 쌓였다)
+        keep = [i for i in items if not _SCENARIO_LABEL.search(i.get("label", ""))]
+        if keep or ac not in acev:
+            acev[ac] = keep + acev.get(ac, [])
+        if not acev[ac]:
+            del acev[ac]
+
+
+_SCENARIO_LABEL = re.compile(r" \((smoke|full)\) (pass|fail|candidate|deferred)$")
 
 
 def cmd_logic(args, argv):
