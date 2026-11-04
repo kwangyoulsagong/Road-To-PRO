@@ -68,7 +68,7 @@ SDD 규칙: `.claude/rules/05-sdd.md`. 템플릿: `_templates/`. 완료 판정�
 | **프레젠테이션 · 아트 · 오디오** | | | | |
 | 041 | [하이라이트 3D 플레이어 · 재생 속도](041-highlight-player-3d/spec.md) | M5 | 018, 043, 044 | 초안 |
 | 042 | [중계 카메라 · 리플레이](042-broadcast-camera-replay/spec.md) | M5 | 041 | 초안 |
-| 043 | [선수 모델 · 애니메이션 매핑](043-player-model-animation/spec.md) | M5 | 006 | 승인됨 |
+| 043 | [선수 모델 · 애니메이션 매핑](043-player-model-animation/spec.md) | M5 | 006 | 완료 (AC-14·15 보류) |
 | 044 | [경기장 · 피치 (bpy 생성)](044-stadium-pitch-art/spec.md) | M5 | — | 완료 |
 | 045 | [관중](045-crowd/spec.md) | M5 | 044 | 초안 |
 | 046 | [현장 사운드](046-ambient-audio/spec.md) | M5 | 041 | 초안 |

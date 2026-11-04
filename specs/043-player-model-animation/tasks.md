@@ -1,6 +1,6 @@
 # 043 — 선수 모델 · 애니메이션 매핑 · 태스크
 
-상태: 승인됨 (2026-11-04, 플랜과 일괄 승인 — "진행")
+상태: 완료 (2026-11-04, T27 후속·보류)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현 태스크보다 먼저 둔다(가능하면).
@@ -65,5 +65,5 @@
 - [x] T25 수용 기준 전체 로직 통과(`farm.py logic --spec 043`, 예상 약 15분) + Blender `art --spec 043`
   - 결과: `logic --spec 043` 513개 중 510 통과·실패 0·컴파일 에러 0(약 13분), `art --spec 043` 15/15 통과.
 - [x] T26 `/verify 043` — full(light·ko 한 벌) E2E·성능, 리포트 아티팩트 발행. AC-14·15는 보류로 표기
-  - 결과: `full --spec 043` 판정 pass(로직 510/513 · Blender 15/15 · kit-lineup 10프로필 · anim-perf 2프로필, 콘솔 경고 0). 리포트 https://claude.ai/artifact/2xMJcHgU79JDxB7HARnbdz. 고친 것: 꺼진/비활성 LODGroup에 ForceLOD 경고, 하네스 merge_previous가 옛 시나리오 판정을 쌓던 버그. 작업 트리 변경 상태 실행 — 커밋 후 재실행이 완료 증거.
+  - 결과: `full --spec 043` 판정 pass(로직 510/513 · Blender 15/15 · kit-lineup 10프로필 · anim-perf 2프로필, 콘솔 경고 0). 리포트 https://claude.ai/artifact/2xMJcHgU79JDxB7HARnbdz. 고친 것: 꺼진/비활성 LODGroup에 ForceLOD 경고, 하네스 merge_previous가 옛 시나리오 판정을 쌓던 버그. 커밋 76b7497 깨끗한 트리에서 재실행 pass(완료 증거).
 - [ ] T27 (후속·보류) IL2CPP 애니메이션 벤치: 25명 AnimPlan 평가 + 포즈 적용 CPU p95 ≤ 2 ms를 IL2CPP 릴리스로 판정 (2026-11-04 사용자 결정: Mono 개발 빌드 E2E 값은 기록만 — 실측 p50 ≈ 0.85 ms, p95 2.0~2.4 ms)

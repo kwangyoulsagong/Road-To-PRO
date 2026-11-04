@@ -1,6 +1,6 @@
 # 043 — 선수 모델 · 애니메이션 매핑 · 플랜
 
-상태: 승인됨 (2026-11-04, Animator → 믹서 블렌드 변경 포함)
+상태: 완료 (2026-11-04, 리포트 https://claude.ai/artifact/2xMJcHgU79JDxB7HARnbdz)
 스펙: ./spec.md
 
 ## 접근

@@ -1,6 +1,6 @@
 # 043 — 선수 모델 · 애니메이션 매핑
 
-상태: 승인됨
+상태: 완료 (2026-11-04, AC-14·15 보류 — 041 이후, 리포트 https://claude.ai/artifact/2xMJcHgU79JDxB7HARnbdz)
 브랜치: feat/043-player-model-animation
 기획 출처: docs/index.html § 기획서 5.5(Animator + Blend Tree; 기획서의 Mixamo는 2026-11-04 자체 제작으로 변경), 5.5.1(선수 모델 LOD·팀 컬러·클로스 없음), 5A.1(선수 모델 1종 + 셰이프키·스케일 + 텍스처), 5A.3(폴리곤 예산), 4.4(1.5x에서 자연스러운 모션) / research 06 § 2(선수 모델), § 3(애니메이션)
 
