@@ -17,7 +17,9 @@ namespace RoadToPro.Presentation.Editor.Players
             {
                 // 생성 텍스처는 마스크·명암·노말 데이터 → 선형, 최대 2K(FR-12), 밉맵(원거리 LOD)
                 var t = (TextureImporter)assetImporter;
-                t.textureType = TextureImporterType.Default;
+                bool normal = System.IO.Path.GetFileName(assetPath).StartsWith("skin") && assetPath.EndsWith("_normal.png");
+                // 056: skin*_normal은 탄젠트 노멀(kit_normal은 043 규칙 그대로 데이터 텍스처)
+                t.textureType = normal ? TextureImporterType.NormalMap : TextureImporterType.Default;
                 t.sRGBTexture = false;
                 t.mipmapEnabled = true;
                 t.maxTextureSize = 2048;

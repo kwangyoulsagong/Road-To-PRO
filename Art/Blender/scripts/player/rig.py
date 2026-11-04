@@ -55,20 +55,18 @@ def _top4(w):
     return [(k, v / tot) for k, v in items]
 
 
-def lod_object(lod, rig, mats):
-    m = B.build(lod)
-    name = f"Player_LOD{lod}"
+def mesh_object(name, m, rig, mats, keys=None):
+    """body.Mesh → 스킨 메시 오브젝트. 셰이프키는 이 메시에서 0이 아닌 델타만 (keys로 강제 포함 가능), 이름 정렬."""
     bm = bmesh.new()
     vs = [bm.verts.new(to_blender(p)) for p in m.verts]
     bm.verts.ensure_lookup_table()
     uv = bm.loops.layers.uv.new("UVMap")
     for idx, mat, uvs, part, ref in m.faces:
-        f = bm.faces.new([vs[i] for i in idx])
+        try:
+            f = bm.faces.new([vs[i] for i in idx])
+        except ValueError:
+            continue  # 같은 정점 집합 면(감량 잔재)은 건너뛴다
         f.material_index = mat
-        f.normal_update()
-        c = f.calc_center_median()
-        if f.normal.dot(c - Vector(to_blender(ref))) < 0:
-            f.normal_flip()  # UV는 아래에서 정점 기준으로 넣으므로 순서가 바뀌어도 맞다
         corner = {vs[i]: u for i, u in zip(idx, uvs)}
         for loop in f.loops:
             loop[uv].uv = corner[loop.vert]
@@ -89,20 +87,42 @@ def lod_object(lod, rig, mats):
     mod = obj.modifiers.new("Armature", "ARMATURE")
     mod.object = rig
     obj.shape_key_add(name="Basis")
-    for key, verts in B.shape_keys(lod).items():
+    names = []
+    for key in sorted(m.deltas):
+        d = m.deltas[key]
+        if (keys is None or key not in keys) and float(abs(d).max()) < 1e-5:
+            continue
         sk = obj.shape_key_add(name=key, from_mix=False)
         sk.value = 0.0  # Blender 5 기본값은 1.0 — glb 기본 가중치에도 들어간다
-        for i, p in enumerate(verts):
+        co = m.verts + d
+        for i, p in enumerate(co):
             sk.data[i].co = to_blender(p)
-    return obj, m
+        names.append(key)
+    return obj, names
+
+
+REQUIRED_KEYS = ("Thin", "Muscular", "Heavy", "HideHead")
 
 
 def build(lods):
+    """→ (뼈대, {lod: (obj, mesh)}, {이름: (obj, mesh)} 헤어·클로즈업 머리). 056: MPFB2 기준 선수에서."""
+    from . import hair as H
+    from . import headlod as HL
     reset_scene()
+    R = B.reference()  # skeleton.configure 포함 — 뼈대보다 먼저
     mats = materials()
     rig = armature()
-    meshes = {}
+    meshes, parts = {}, {}
     for lod in lods:
-        obj, m = lod_object(lod, rig, mats)
+        m = B.build(lod)
+        obj, _ = mesh_object(f"Player_LOD{lod}", m, rig, mats, keys=REQUIRED_KEYS)
         meshes[lod] = (obj, m)
-    return rig, meshes
+    for style in H.MESH_STYLES:
+        for lod in lods:
+            m = H.build(R, style, lod)
+            obj, _ = mesh_object(f"{style}_LOD{lod}", m, rig, mats)
+            parts[f"{style}_LOD{lod}"] = (obj, m)
+    m = HL.build(R)
+    obj, _ = mesh_object(HL.NAME, m, rig, mats)
+    parts[HL.NAME] = (obj, m)
+    return rig, meshes, parts

@@ -87,7 +87,7 @@ def lineup(rig, lod_objs, out_png, tmp):
         tiles.append(_render(os.path.join(tmp, f"_l{lod}.png")))
     base = lod_objs[min(lod_objs)]
     _show_only([base])
-    for name, (height, weights) in CK.EXTREMES.items():
+    for name, (height, weights, _style) in CK.EXTREMES.items():
         for kb in base.data.shape_keys.key_blocks[1:]:
             kb.value = weights.get(kb.name, 0.0)
         s = height / 180.0
@@ -119,22 +119,37 @@ def poses(rig, lod_obj, tags, ids, out_png, tmp):
     T.write_png(out_png, np.concatenate(rows, axis=0)[:, :, :3])
 
 
-def heads(rig, lod_obj, out_png, tmp):
-    """헤어 스타일 10종(기본 버즈 + 셰이프키 9) 머리 클로즈업, 3/4 정면."""
-    from . import body as Bd
+def heads(rig, lod_obj, hair_objs, out_png, tmp):
+    """헤어 10종 × 서로 다른 얼굴(얼굴 축 무작위, 시드 고정) 머리 클로즈업, 3/4 정면 (056 FR-22·40)."""
+    import random
+    from . import face as F
+    from . import hair as HR
     _use_action(rig, None)
     cam = _setup()
+    bpy.context.scene.display.shading.color_type = "OBJECT"
+    lod_obj.color = (0.78, 0.58, 0.47, 1.0)
+    for ho in hair_objs.values():
+        ho.color = (0.10, 0.07, 0.05, 1.0)
     cam.data.lens = 85
-    _look(cam, (0.55, 1.78, 1.05), (0.0, 1.70, 0.0))
-    _show_only([lod_obj])
+    _look(cam, (0.55, 1.74, 1.05), (0.0, 1.66, 0.0))
     keys = lod_obj.data.shape_keys.key_blocks
+    rnd = random.Random(56)
     tiles = []
-    for style in (None,) + tuple(Bd.HAIR_STYLES):
-        for kb in keys[1:]:
-            kb.value = 1.0 if kb.name == style else 0.0
-        tiles.append(_render(os.path.join(tmp, f"_h{style}.png"))[80:560, 0:480])
-    for kb in keys[1:]:
-        kb.value = 0.0
+    for style in HR.STYLES:
+        ho = hair_objs.get(style)
+        _show_only([lod_obj] + ([ho] if ho else []))
+        vals = {}
+        for a, _, _, r in F.AXES:
+            x = rnd.uniform(-r, r)
+            vals[f"Face_{a}_{'pos' if x >= 0 else 'neg'}"] = abs(x)
+        for ob in [lod_obj] + ([ho] if ho else []):
+            for kb in ob.data.shape_keys.key_blocks[1:]:
+                kb.value = vals.get(kb.name, 0.0)
+        tiles.append(_render(os.path.join(tmp, f"_h{style}.png"))[60:540, 0:480])
+    for ob in [lod_obj] + list(hair_objs.values()):
+        for kb in ob.data.shape_keys.key_blocks[1:]:
+            kb.value = 0.0
+    bpy.context.scene.display.shading.color_type = "MATERIAL"
     rows = [np.concatenate(tiles[i:i + 5], axis=1) for i in range(0, len(tiles), 5)]
     T.write_png(out_png, np.concatenate(rows, axis=0)[:, :, :3])
 

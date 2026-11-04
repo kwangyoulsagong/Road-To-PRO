@@ -17,6 +17,8 @@ from .. import skeleton as S
 from ..pose import Pose, X, Y, Z, leg_ik, q
 from .base import smooth
 
+ARM_DOWN_MAX = 27.0  # 레스트 45°에서 내리는 최대 각 → 수직에서 18° (056, 손이 반바지를 뚫지 않게)
+
 STAND = {
     "hips": (0.0, -0.02, 0.0), "hrot": (0.0, 0.0, 0.0), "spine": (3.0, 0.0, 0.0), "head": (-2.0, 0.0),
     "armL": (33.0, 5.0, 15.0), "armR": (33.0, 5.0, 15.0),
@@ -99,6 +101,7 @@ def to_pose(k):
     for s, side in (("L", -1), ("R", 1)):
         n = "Left" if side < 0 else "Right"
         down, flex, elbow = k.get("arm" + s, (33.0, 0.0, 10.0))
+        down = min(down, ARM_DOWN_MAX)  # 056: MPFB 몸(엉덩이·반바지)이 043 튜브보다 넓다 — 팔을 몸통에 붙이지 않는다
         p.local[n + "UpperArm"] = q(X, -flex) @ q(Z, -side * down)
         p.local[n + "LowerArm"] = q(X, -elbow)
         p.local[n + "Hand"] = Quaternion()

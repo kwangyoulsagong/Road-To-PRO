@@ -21,11 +21,21 @@ namespace RoadToPro.Presentation.Players
             new Color32(200, 160, 90, 255), new Color32(150, 60, 30, 255), new Color32(170, 170, 165, 255),
         };
 
-        /// <summary>헤어 스타일 0 = 버즈컷(셰이프키 없음), 1~9 = 셰이프키 (생성기 body.HAIR_STYLES).</summary>
-        public static readonly string[] HairKeys =
+        /// <summary>헤어 스타일 0~9 → 메시 조각 이름 접두(생성기 hair.STYLES, 056). 9 = 삭발(형상 없음 → null). LOD는 "_LOD0..2".</summary>
+        public static readonly string[] HairMeshes =
         {
-            null, "Hair_Short", "Hair_Long", "Hair_Curly", "Hair_Bun", "Hair_Fade", "Hair_Afro", "Hair_Mohawk", "Hair_Dreads", "Hair_Bald",
+            "Hair_Buzz", "Hair_Short", "Hair_Long", "Hair_Curly", "Hair_Bun", "Hair_Fade", "Hair_Afro", "Hair_Mohawk", "Hair_Dreads", null,
         };
+
+        /// <summary>홍채 색 (가상 팔레트, FR-23 [미정] — 043처럼 균등). 갈색 쪽이 많다.</summary>
+        public static readonly Color[] EyeColors =
+        {
+            new Color32(60, 36, 20, 255), new Color32(84, 52, 28, 255), new Color32(46, 30, 18, 255), new Color32(110, 78, 40, 255),
+            new Color32(70, 90, 60, 255), new Color32(70, 100, 130, 255),
+        };
+
+        /// <summary>수염 종류(face.json beards 순서: none·stubble·short·full) → 셰이더 _BeardLevel.</summary>
+        public static readonly float[] BeardLevels = { 0f, 0.45f, 0.75f, 1f };
 
         public const int AtlasSize = 1024;
         public const int CellW = 256, CellH = 160, Cols = 4, Rows = 6;

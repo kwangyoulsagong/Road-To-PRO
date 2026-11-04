@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "spec": "056",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "profiles": "smoke",
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "id": "056-body-lineup",
+  "description": "체형 극단 4종(키 160·200 × 마른·무거운) + 보통 4명 전신 정면·옆·뒤(LOD0 정지)와 방송 원거리(LOD 자동) (AC-07). 근육 형태·유니폼 경계(소매·칼라·밑단·양말)·관통 없음을 캡처로 확인. 기준 이미지 비교.",
+  "acs": [
+    "AC-07"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "bodyFront"
+    },
+    {
+      "type": "capture",
+      "name": "bodyFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodySide"
+    },
+    {
+      "type": "capture",
+      "name": "bodySide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodyBack"
+    },
+    {
+      "type": "capture",
+      "name": "bodyBack",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodyBroadcast"
+    },
+    {
+      "type": "capture",
+      "name": "bodyBroadcast",
+      "kind": "3d"
+    }
+  ]
+}

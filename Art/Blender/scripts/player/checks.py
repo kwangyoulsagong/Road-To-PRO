@@ -1,4 +1,5 @@
-"""생성 검사 (specs/043 AC-02·03·09, FR-31·32). 실패 항목이 있으면 gen_player가 종료 코드 3.
+"""생성 검사 (specs/043 AC-02·03·09, FR-31·32 + specs/056 AC-01~03, FR-12·41·50·60·61). 실패 항목이 있으면 gen_player가 종료 코드 3.
+056: 몸 메시는 body.Mesh(numpy). 포즈는 pose.fk 결과로 직접 선형 블렌드 스키닝(Blender 평가 없이 — 빠르고 결정론).
 
 - 예산(AC-03): LOD0 6k~10k, LOD1 2k~3k, LOD2 ≤ 1k tris, 머티리얼 ≤ 3, 텍스처 ≤ 2048.
 - 극단 체형(AC-02): 키 최소·최대(루트 균등 스케일 160/180·200/180) × 체중 최소(Thin)·최대(Heavy+Muscular) 4조합에서
@@ -7,6 +8,8 @@
 - 걸음 접지 미끄러짐(AC-09 원본 쪽): 로코모션 클립 접지 구간 볼(발가락 뿌리) 이동 ≤ 5 mm.
 """
 import math
+
+import numpy as np
 
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
@@ -40,83 +43,268 @@ REQUIRED_GROUPS = {
 DIRS8 = ("f", "fr", "r", "br", "b", "bl", "l", "fl")
 
 
-def budgets(meshes, textures):
+def _tris(m, pred=None):
+    return sum(len(f[0]) - 2 for f in m.faces if pred is None or pred(f))
+
+
+HEAD_MIN = 2000
+CLOSEUP_MAX = 6000
+
+
+def budgets(meshes, parts, textures):
+    """LOD 삼각형 = 몸 + 가장 무거운 헤어 조각 (FR-60). 머리 몫 = Head 관절 위 면(몸 LOD0)."""
+    from . import hair as H
+    from . import headlod as HL
     out = {"ok": True, "lods": {}, "textures": textures}
+    hy = S.HEAD["Head"][1]
     for lod, m in sorted(meshes.items()):
-        tris = m.triangles
+        hair = max(_tris(parts[f"{st}_LOD{lod}"]) for st in H.MESH_STYLES)
+        tris = m.triangles + hair
         lo, hi = TRI_BUDGET[lod]
         mats = len({f[1] for f in m.faces})
-        ok = lo <= tris <= hi and mats <= MATERIAL_BUDGET
-        out["lods"][str(lod)] = {"triangles": tris, "materials": mats, "ok": ok}
+        head = _tris(m, lambda f: m.verts[list(f[0]), 1].mean() > hy)
+        ok = lo <= tris <= hi and mats <= MATERIAL_BUDGET and (lod != 0 or head >= HEAD_MIN)
+        out["lods"][str(lod)] = {"triangles": tris, "body": m.triangles, "hairMax": hair, "headTriangles": head,
+                                 "materials": mats, "ok": ok}
         out["ok"] &= ok
         for f in m.faces:
             for u in f[2]:
-                if not (-1e-6 <= u[0] <= 1 + 1e-6 and -1e-6 <= u[1] <= 1 + 1e-6):
+                if not (-1e-6 <= u[0] <= 2 + 1e-6 and -1e-6 <= u[1] <= 1 + 1e-6):
                     out["ok"] = False
                     out["uvOutOfRange"] = True
+    hc = parts[HL.NAME].triangles
+    out["headCloseup"] = {"triangles": hc, "ok": hc <= CLOSEUP_MAX}
+    out["ok"] &= hc <= CLOSEUP_MAX
     for name, (w, h) in textures.items():
         if w > TEXTURE_MAX or h > TEXTURE_MAX:
             out["ok"] = False
     return out
 
 
-def _blend(base, keys, weights):
-    out = []
-    for i, p in enumerate(base):
-        x, y, z = p
-        for k, w in weights.items():
-            q = keys[k][i]
-            x += (q[0] - p[0]) * w
-            y += (q[1] - p[1]) * w
-            z += (q[2] - p[2]) * w
-        out.append((x, y, z))
+def _blend(m, weights):
+    V = m.verts.copy()
+    for k, w in weights.items():
+        if k in m.deltas:
+            V = V + m.deltas[k] * w
+    return V
+
+
+def _skin(m, V, rw, head):
+    """선형 블렌드 스키닝: v' = Σ w_b (head_b + R_b (v − rest_head_b))."""
+    out = np.zeros_like(V)
+    for bi, n in enumerate(S.NAMES):
+        w = m.W[:, bi]
+        nz = w > 1e-6
+        if not nz.any():
+            continue
+        R = np.array(rw[n].to_matrix())
+        h0 = np.array(S.HEAD[n])
+        h1 = np.array(head[n])
+        out[nz] += w[nz, None] * ((V[nz] - h0) @ R.T + h1)
     return out
 
 
-def _part_bvh(m, verts, part):
-    polys = [f[0] for f in m.faces if f[3] == part]
-    used = sorted({i for p in polys for i in p})
-    remap = {i: j for j, i in enumerate(used)}
-    return BVHTree.FromPolygons([verts[i] for i in used], [[remap[i] for i in p] for p in polys], all_triangles=False)
+def _bvh(V, faces):
+    return BVHTree.FromPolygons([tuple(p) for p in V], [list(f) for f in faces], all_triangles=False)
 
 
 EXTREMES = {
-    "short_light": (HEIGHT_RANGE_CM[0], {"Thin": 1.0}),
-    "short_heavy": (HEIGHT_RANGE_CM[0], {"Heavy": 1.0, "Muscular": 1.0}),
-    "tall_light": (HEIGHT_RANGE_CM[1], {"Thin": 1.0, "Hair_Long": 1.0}),
-    "tall_heavy": (HEIGHT_RANGE_CM[1], {"Heavy": 1.0, "Muscular": 1.0, "Hair_Dreads": 1.0}),
+    "short_light": (HEIGHT_RANGE_CM[0], {"Thin": 1.0}, "Hair_Afro"),
+    "short_heavy": (HEIGHT_RANGE_CM[0], {"Heavy": 1.0, "Muscular": 1.0}, "Hair_Bun"),
+    "tall_light": (HEIGHT_RANGE_CM[1], {"Thin": 1.0}, "Hair_Long"),
+    "tall_heavy": (HEIGHT_RANGE_CM[1], {"Heavy": 1.0, "Muscular": 1.0}, "Hair_Dreads"),
 }
 
 
-def extremes(lod=0):
-    m = B.build(lod)
-    keys = B.shape_keys(lod)
+def _sets(m):
+    """관통 검사 면 집합: 피부(유니폼에서 3 cm 넘게 떨어진 것) / 유니폼(턱 제외) / 머리 아닌 몸."""
+    hi = S.NAMES.index("Head")
+    ni = S.NAMES.index("Neck")
+    pos = m.verts
+    kit_faces = [f[0] for f in m.faces if f[1] == B.KIT and not f[3].endswith("_rim")]
+    tree = _bvh(pos, kit_faces) if kit_faces else None
+    skin, nonhead = [], []
+    for f in m.faces:
+        idx = list(f[0])
+        headish = (m.W[idx, hi] + m.W[idx, ni]).mean() > 0.5
+        if f[3] == "skin":
+            c = pos[idx].mean(axis=0)
+            if tree is None or tree.find_nearest(tuple(c), 0.03)[0] is None:
+                skin.append(f[0])
+        if not headish and f[3] not in ("eye", "hair"):
+            nonhead.append(f[0])
+    return skin, kit_faces, nonhead
+
+
+RIGID = 0.8  # 뒤집힘 실패 판정: 세 정점 모두 같은 뼈 가중치가 이 이상인 면(블렌드로는 뒤집힐 수 없는 면) (관절 주름 면의 선형 스키닝 접힘은 creaseFolds로 따로 기록)
+
+
+def _flipped(m, V0, V1, faces, rw):
+    """포즈 뒤 면 법선이 지배 뼈 회전으로 옮긴 레스트 법선과 반대(내적 < 0)면 뒤집힘. → (단단한 면 뒤집힘, 주름 접힘). numpy 일괄."""
+    F = np.asarray(faces, dtype=np.int64)
+    n0 = np.cross(V0[F[:, 1]] - V0[F[:, 0]], V0[F[:, 2]] - V0[F[:, 0]])
+    n1 = np.cross(V1[F[:, 1]] - V1[F[:, 0]], V1[F[:, 2]] - V1[F[:, 0]])
+    w = m.W[F].mean(axis=1)
+    dom = np.argmax(w, axis=1)
+    vdom = np.argmax(m.W[F], axis=2)          # (f, 3) 정점별 지배 뼈
+    vmax = m.W[F].max(axis=2)
+    Rm = np.stack([np.array(rw[n].to_matrix()) for n in S.NAMES])
+    pred = np.einsum("fij,fj->fi", Rm[dom], n0)
+    valid = (np.linalg.norm(n0, axis=1) > 1e-10) & (np.linalg.norm(n1, axis=1) > 1e-10)
+    flip = valid & ((n1 * pred).sum(axis=1) < 0)
+    rigid = (vdom == dom[:, None]).all(axis=1) & (vmax >= RIGID).all(axis=1)  # 세 정점 모두 같은 뼈가 0.8 이상
+    return int((flip & rigid).sum()), int((flip & ~rigid).sum())
+
+
+def _hops(a, b):
+    """뼈대 계층 거리 (같은 뼈 0, 부모-자식 1 …)."""
+    def chain(x):
+        out = []
+        while x:
+            out.append(x)
+            x = S.PARENT[x]
+        return out
+    ca, cb = chain(a), chain(b)
+    for i, x in enumerate(ca):
+        if x in cb:
+            return i + cb.index(x)
+    return 99
+
+
+ADJACENT_HOPS = 2  # 043 CHECK_PAIRS와 같은 뜻: 붙어 있는 부위(관절로 이어진 2단계 이내)의 접촉은 관통이 아니다
+
+
+def _dom(m, faces):
+    return [S.NAMES[int(np.argmax(m.W[list(f)].sum(axis=0)))] for f in faces]
+
+
+def _overlaps(m, P, fa, fb, da, db):
+    """두 면 집합의 교차 중 서로 떨어진 부위(ADJACENT_HOPS 초과) 쌍 수."""
+    if not fa or not fb:
+        return 0
+    n = 0
+    for i, j in _bvh(P, fa).overlap(_bvh(P, fb)):
+        if _hops(da[i], db[j]) > ADJACENT_HOPS:
+            n += 1
+    return n
+
+
+def extremes(meshes, parts, lod=0):
+    """극단 체형 4종(레스트): 축구화 바닥 접지 ≤ 2 cm, 바닥 아래 0, 헤어 10종 × 머리 아닌 몸 교차 0."""
+    from . import hair as H
+    m = meshes[lod]
     out = {"ok": True, "cases": {}}
-    foot_idx = [i for i, p in enumerate(m.vpart) if p.startswith("foot_")]
-    for name, (height, weights) in EXTREMES.items():
+    boot = [i for i, p in enumerate(m.vpart) if p == "boot"]
+    for name, (height, weights, style) in EXTREMES.items():
         scale = height / (S.REF_HEIGHT * 100.0)
-        verts = [(x * scale, y * scale, z * scale) for x, y, z in _blend(m.verts, keys, weights)]
-        foot_min = min(verts[i][1] for i in foot_idx)
-        all_min = min(v[1] for v in verts)
-        hits = {}
-        for a, b in B.CHECK_PAIRS:
-            n = len(_part_bvh(m, verts, a).overlap(_part_bvh(m, verts, b)))
-            if n:
-                hits[f"{a}×{b}"] = n
-        ok = abs(foot_min) <= 0.02 and all_min >= -1e-6 and not hits
-        out["cases"][name] = {"footMin": foot_min, "allMin": all_min, "intersections": hits, "ok": ok}
+        V = _blend(m, weights) * scale
+        foot_min = float(V[boot, 1].min())
+        all_min = float(V[:, 1].min())
+        ok = abs(foot_min) <= 0.02 and all_min >= -1e-6
+        out["cases"][name] = {"footMin": foot_min, "allMin": all_min, "intersections": {}, "ok": ok}
         out["ok"] &= ok
-    # 헤어 스타일마다 머리카락이 몸통·귀를 뚫지 않는지(기본 체형)
-    for style in B.HAIR_STYLES:
-        verts = _blend(m.verts, keys, {style: 1.0})
+    _, _, nonhead = _sets(m)
+    body_tree = _bvh(m.verts, nonhead)
+    for style in H.STYLES:
+        key = f"{style}_LOD{lod}"
         hits = {}
-        for a, b in (("hair", "torso"), ("hair", "ear_L"), ("hair", "ear_R")):
-            n = len(_part_bvh(m, verts, a).overlap(_part_bvh(m, verts, b)))
+        if key in parts:
+            hm = parts[key]
+            n = len(_bvh(hm.verts, [f[0] for f in hm.faces]).overlap(body_tree))
             if n:
-                hits[f"{a}×{b}"] = n
+                hits["hair×body"] = n
         out["cases"]["hair_" + style] = {"intersections": hits, "ok": not hits, "footMin": 0.0, "allMin": 0.0}
         out["ok"] &= not hits
     return out
+
+
+def _sample_frames(c):
+    fr = [0, c.frames // 3, (2 * c.frames) // 3, c.frames]
+    ct = c.tags.get("contact")
+    if ct:
+        fr[1] = ct["frame"]
+    return fr
+
+
+def penetration(clips, meshes, parts, lod=0):
+    """056 AC-03: 클립 × 극단 4 × 4프레임 — 피부×유니폼, 머리카락×머리 아닌 몸, 뒤집힌 삼각형."""
+    m = meshes[lod]
+    skin, kit, nonhead = _sets(m)
+    ds, dk = _dom(m, skin), _dom(m, kit)
+    tri_faces = [f[0] for f in m.faces if len(f[0]) == 3]
+    poses, sk, hb, fl, cr = 0, 0, 0, 0, 0
+    worst = []
+    for name, (height, weights, style) in EXTREMES.items():
+        V = _blend(m, weights)
+        hm = parts.get(f"{style}_LOD{lod}")
+        HV = _blend(hm, weights) if hm is not None else None
+        for c in clips:
+            for f in _sample_frames(c):
+                rw, head, _ = PO.fk(c.sample(f / 30.0))
+                P = _skin(m, V, rw, head)
+                poses += 1
+                n1 = _overlaps(m, P, skin, kit, ds, dk)
+                n2 = 0
+                if HV is not None:
+                    HP = _skin(hm, HV, rw, head)
+                    n2 = len(_bvh(HP, [x[0] for x in hm.faces]).overlap(_bvh(P, nonhead)))
+                n3, c3 = _flipped(m, V, P, tri_faces, rw)
+                sk, hb, fl, cr = sk + n1, hb + n2, fl + n3, cr + c3
+                if (n1 or n2 or n3) and len(worst) < 16:
+                    worst.append({"case": name, "clip": c.id, "frame": f, "skinKit": n1, "hairBody": n2, "flipped": n3})
+    return {"ok": sk == 0 and hb == 0 and fl == 0, "poses": poses, "skinKit": sk, "hairBody": hb, "flipped": fl,
+            "creaseFolds": cr, "worst": worst}
+
+
+def proportions(meshes, samples=200):
+    """FR-10·12: 200명(키 160~200 cm 균등, 체형 가중치 무작위 — 시드 고정) 메시 키 오차·머리 높이 비율(정수리~턱끝 / 키)."""
+    from . import face as F
+    m = meshes[0]
+    rng = np.random.default_rng(56)
+    body = [i for i, p in enumerate(m.vpart) if p not in ("hair", "eye")]
+    R = B.reference()
+    lm = {x["name"]: x for x in F.landmarks(R, B._ref_tree(R))}
+    chin_y = lm["chin"]["base"][1]
+    errs, ratios = [], []
+    for _ in range(samples):
+        h = float(rng.uniform(HEIGHT_RANGE_CM[0], HEIGHT_RANGE_CM[1]))
+        w = {"Thin": float(rng.uniform(0, 1)), "Muscular": float(rng.uniform(0, 1)), "Heavy": float(rng.uniform(0, 1))}
+        V = _blend(m, w)
+        scale = h / (S.REF_HEIGHT * 100.0)
+        top = float(V[body, 1].max())
+        errs.append(abs(top * scale * 100.0 - h))
+        ratios.append((top - chin_y) / top)
+    hmin, hmax = min(ratios), max(ratios)
+    ok = max(errs) <= 1.0 and hmin >= 1 / 8.0 - 1e-4 and hmax <= 1 / 7.5 + 1e-4
+    return {"ok": ok, "samples": samples, "heightErrCmMax": max(errs), "headRatioMin": hmin, "headRatioMax": hmax}
+
+
+def licenses(used, assets_json, licenses_csv):
+    """056 AC-01: 쓴 MPFB 파일이 모두 assets.json(sha256 고정)에 있고, LICENSES.csv에 MPFB2 CC0 줄이 있다."""
+    import json
+    import os
+    from . import mpfb_src as MS
+    out = {"ok": True, "missing": [], "hashMismatch": []}
+    pinned = {}
+    if os.path.exists(assets_json):
+        with open(assets_json, encoding="utf-8") as f:
+            pinned = {a["path"]: a["sha256"] for a in json.load(f)["files"]}
+    root = MS.data_dir()
+    files = []
+    for rel in used:
+        sha = MS.sha256(os.path.join(root, rel))
+        files.append({"path": rel, "sha256": sha})
+        if rel not in pinned:
+            out["missing"].append(rel)
+        elif pinned[rel] != sha:
+            out["hashMismatch"].append(rel)
+    rows = []
+    if os.path.exists(licenses_csv):
+        with open(licenses_csv, encoding="utf-8") as f:
+            rows = [r for r in f.read().splitlines() if r.startswith("MPFB2")]
+    out["csvRows"] = len(rows)
+    out["ok"] = not out["missing"] and not out["hashMismatch"] and bool(rows) and all("CC0" in r for r in rows)
+    return out, files
 
 
 def clip_list(tags):

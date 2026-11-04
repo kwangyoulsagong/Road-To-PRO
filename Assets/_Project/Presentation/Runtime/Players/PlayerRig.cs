@@ -5,8 +5,10 @@ using UnityEngine;
 namespace RoadToPro.Presentation.Players
 {
     /// <summary>
-    /// 선수 한 명 (specs/043 FR-01·10·11·13·20). player.glb 인스턴스 루트에 붙는다.
-    /// LOD 3단(LODGroup 크로스페이드, 화면 높이 비율), 루트 균등 스케일 = 키/180 cm, 체형·헤어 블렌드셰이프, 머티리얼 2개(Body·Kit) 인스턴스.
+    /// 선수 한 명 (specs/043 FR-01·10·11·13·20, 056 FR-22·40·61). player.glb 인스턴스 루트에 붙는다.
+    /// LOD 3단(히스테리시스), 루트 균등 스케일 = 키/180 cm, 머티리얼 2개(Body·Kit) 인스턴스.
+    /// 056: 체형·얼굴·수염·헤어는 로딩 때 PlayerMeshBaker로 선수별 메시를 구워 넣는다(재생 중 블렌드셰이프는 HideHead 하나).
+    /// 클로즈업 머리(Head_Closeup + 헤어 LOD0)는 SetCloseup(true)일 때만 그린다(FR-61).
     /// 루트 위치·정면 각은 매 프레임 SetRoot로(애니메이션 시스템이) 정한다. 정면 = 로컬 +Z, yaw는 +Z → +X 쪽이 양수(라디안).
     /// </summary>
     public sealed class PlayerRig : MonoBehaviour
@@ -20,7 +22,14 @@ namespace RoadToPro.Presentation.Players
 
         [SerializeField] SkinnedMeshRenderer[] _lods = new SkinnedMeshRenderer[3];
         [SerializeField] Animator _animator;
-        Material _body, _kit;
+        Material _body, _kit, _closeupMat;
+        readonly Mesh[] _srcLods = new Mesh[3];
+        readonly Dictionary<string, SkinnedMeshRenderer> _parts = new Dictionary<string, SkinnedMeshRenderer>();
+        SkinnedMeshRenderer _closeup;
+        Mesh _closeupSrc;
+        readonly List<Mesh> _baked = new List<Mesh>();
+        Mesh _shadowMesh;
+        bool _closeupOn;
         readonly Dictionary<string, Transform> _bones = new Dictionary<string, Transform>();
         float _baseScale = 1f;
 
@@ -31,7 +40,7 @@ namespace RoadToPro.Presentation.Players
         public PlayerAppearance Appearance { get; private set; }
 
         /// <summary>glb 프리팹을 인스턴스로 만들고 리그를 붙인다. bodyShader·kitShader로 이 선수 전용 머티리얼 2개를 만든다.</summary>
-        public static PlayerRig Create(GameObject prefab, Transform parent, Shader bodyShader, Shader kitShader, Texture bodyTex,
+        public static PlayerRig Create(GameObject prefab, Transform parent, Shader bodyShader, Shader kitShader, PlayerBodyAssets bodyTex,
             Texture fabricTex)
         {
             var go = Instantiate(prefab, parent);
@@ -43,12 +52,36 @@ namespace RoadToPro.Presentation.Players
             rig._animator.applyRootMotion = false;
             foreach (var smr in go.GetComponentsInChildren<SkinnedMeshRenderer>(true))
             {
-                int l = smr.name.EndsWith("LOD0") ? 0 : smr.name.EndsWith("LOD1") ? 1 : smr.name.EndsWith("LOD2") ? 2 : -1;
-                if (l >= 0) rig._lods[l] = smr;
+                if (smr.name.StartsWith("Player_LOD"))
+                {
+                    int l = smr.name[smr.name.Length - 1] - '0';
+                    rig._lods[l] = smr;
+                    rig._srcLods[l] = smr.sharedMesh;
+                }
+                else if (smr.name == "Head_Closeup")
+                {
+                    rig._closeup = smr;
+                    rig._closeupSrc = smr.sharedMesh;
+                    smr.enabled = false;
+                }
+                else if (smr.name.StartsWith("Hair_"))
+                {
+                    rig._parts[smr.name] = smr;
+                    smr.enabled = false; // 헤어 조각은 굽기 재료 — 직접 그리지 않는다
+                }
             }
             rig._body = new Material(bodyShader) { name = "PlayerBody (instance)" };
             rig._kit = new Material(kitShader) { name = "PlayerKit (instance)" };
-            rig._body.SetTexture("_BodyTex", bodyTex);
+            SetBodyTextures(rig._body, bodyTex.skin, bodyTex.skinNormal, bodyTex.parts);
+            if (rig._closeup != null)
+            {
+                rig._closeupMat = new Material(bodyShader) { name = "PlayerBody closeup (instance)" };
+                SetBodyTextures(rig._closeupMat, bodyTex.closeupSkin, bodyTex.closeupNormal, bodyTex.parts);
+                rig._closeup.sharedMaterials = new[] { rig._closeupMat, rig._closeupMat };
+                rig._closeup.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                rig._closeup.updateWhenOffscreen = false;
+                rig._closeup.skinnedMotionVectors = false;
+            }
             rig._kit.SetTexture("_FabricTex", fabricTex);
             rig._kit.SetVector("_NameArea", PlayerLook.NameArea);
             rig._kit.SetVector("_NumberArea", PlayerLook.NumberArea);
@@ -78,21 +111,46 @@ namespace RoadToPro.Presentation.Players
 
         public Transform Bone(string name) => _bones.TryGetValue(name, out var t) ? t : null;
 
-        static readonly Dictionary<Mesh, Mesh> SingleSubmesh = new Dictionary<Mesh, Mesh>();
+        static void SetBodyTextures(Material m, Texture skin, Texture normal, Texture parts)
+        {
+            m.SetTexture("_SkinTex", skin);
+            m.SetTexture("_SkinNormal", normal);
+            m.SetTexture("_PartsTex", parts);
+        }
 
-        /// <summary>LOD2 메시를 서브메시 하나로 합친 복사본(공유)으로 그림자 전용 스킨 렌더러를 만든다.</summary>
+        public bool CloseupActive => _closeupOn;
+        public SkinnedMeshRenderer CloseupRenderer => _closeup;
+
+        /// <summary>
+        /// 클로즈업 머리 켜기/끄기 (FR-61). 켜면 몸 LOD의 머리를 HideHead로 접고 고해상도 머리(Head_Closeup + 헤어 LOD0)를 그린다.
+        /// 할당 없음(메시는 ApplyAppearance 때 구워 둔다).
+        /// </summary>
+        public void SetCloseup(bool on)
+        {
+            if (_closeup == null || on == _closeupOn) return;
+            _closeupOn = on;
+            _closeup.enabled = on;
+            float w = on ? 1f : 0f;
+            foreach (var l in _lods)
+                if (l != null && l.sharedMesh != null && l.sharedMesh.blendShapeCount > 0) l.SetBlendShapeWeight(0, w);
+        }
+
+        /// <summary>메시를 서브메시 하나로 합친 복사본 (그림자 전용).</summary>
+        static Mesh SingleSubmesh(Mesh src)
+        {
+            var m = Object.Instantiate(src);
+            m.name = src.name + " (shadow)";
+            var tris = new List<int>();
+            for (int i = 0; i < m.subMeshCount; i++) tris.AddRange(m.GetTriangles(i));
+            m.subMeshCount = 1;
+            m.SetTriangles(tris, 0);
+            return m;
+        }
+
+        /// <summary>LOD2 메시를 서브메시 하나로 합친 복사본으로 그림자 전용 스킨 렌더러를 만든다.</summary>
         static SkinnedMeshRenderer ShadowProxy(SkinnedMeshRenderer src)
         {
-            if (!SingleSubmesh.TryGetValue(src.sharedMesh, out var m) || m == null)
-            {
-                m = Object.Instantiate(src.sharedMesh);
-                m.name = src.sharedMesh.name + " (shadow)";
-                var tris = new List<int>();
-                for (int i = 0; i < m.subMeshCount; i++) tris.AddRange(m.GetTriangles(i));
-                m.subMeshCount = 1;
-                m.SetTriangles(tris, 0);
-                SingleSubmesh[src.sharedMesh] = m;
-            }
+            var m = SingleSubmesh(src.sharedMesh);
             var go = new GameObject("ShadowProxy");
             go.transform.SetParent(src.transform.parent, false);
             go.transform.localPosition = src.transform.localPosition;
@@ -108,6 +166,7 @@ namespace RoadToPro.Presentation.Players
             r.updateWhenOffscreen = false;
             r.skinnedMotionVectors = false;
             r.localBounds = src.localBounds;
+            r.GetComponentInParent<PlayerRig>(true)?.TrackShadow(m);
             return r;
         }
 
@@ -153,39 +212,87 @@ namespace RoadToPro.Presentation.Players
             if (Live(g)) g.ForceLOD(lod);
         }
 
-        /// <summary>체형·피부·얼굴·헤어 (FR-01·02).</summary>
-        public void ApplyAppearance(in PlayerAppearance a)
+        void TrackShadow(Mesh m) => _shadowMesh = m;
+
+        static void Release(Object o)
+        {
+            if (Application.isPlaying) Destroy(o);
+            else DestroyImmediate(o); // EditMode 테스트·에디터 도구
+        }
+
+        /// <summary>체형·피부·헤어 (043 FR-01·02) — 얼굴은 중립(축 0, 수염 없음).</summary>
+        public void ApplyAppearance(in PlayerAppearance a) => ApplyAppearance(a, null, null);
+
+        /// <summary>
+        /// 체형·피부·얼굴·수염·헤어 (043 FR-01·02, 056 FR-10·22·23·40). 로딩 단계에서 부른다 — 선수별 메시를 굽는다(LOD 3 + 클로즈업 머리).
+        /// face·data가 null이면 중립 얼굴.
+        /// </summary>
+        public void ApplyAppearance(in PlayerAppearance a, FaceShape face, FaceData data)
         {
             Appearance = a;
             _baseScale = a.Scale;
             transform.localScale = new Vector3(_baseScale, _baseScale, _baseScale);
-            _body.SetColor("_SkinColor", PlayerLook.SkinTones[a.SkinTone]);
-            _body.SetColor("_HairColor", PlayerLook.HairColors[a.HairColor]);
-            _body.SetFloat("_FaceCell", a.Face);
-            foreach (var smr in Renderers())
+            var w = new Dictionary<string, float>
             {
-                var mesh = smr.sharedMesh;
-                for (int i = 0; i < mesh.blendShapeCount; i++) smr.SetBlendShapeWeight(i, 0f);
-                Set(smr, "Thin", a.Thin);
-                Set(smr, "Muscular", a.Muscular);
-                Set(smr, "Heavy", a.Heavy);
-                var hk = PlayerLook.HairKeys[a.HairStyle];
-                if (hk != null) Set(smr, hk, 1f);
+                ["Thin"] = BodyShapeMap.Thin(a),
+                ["Muscular"] = BodyShapeMap.Muscular(a),
+                ["Heavy"] = BodyShapeMap.Heavy(a),
+            };
+            int beard = 0;
+            if (face != null && data != null)
+            {
+                for (int i = 0; i < face.Axis.Length; i++)
+                {
+                    face.Key(data, i, out var key, out var v);
+                    if (v > 0f) w[key] = v;
+                }
+                beard = face.Beard;
+                if (beard > 0) w["Beard_" + data.Beards[beard]] = 1f;
             }
-        }
-
-        IEnumerable<SkinnedMeshRenderer> Renderers()
-        {
-            foreach (var l in _lods) yield return l;
-            if (_shadow != null) yield return _shadow;
-        }
-
-        static void Set(SkinnedMeshRenderer smr, string key, float w)
-        {
-            // glTFast는 프레임 가중치를 1로 만든다(FBX 관례 100이 아님) → 가중치 = 비율 × 프레임 가중치
-            var mesh = smr.sharedMesh;
-            int i = mesh.GetBlendShapeIndex(key);
-            if (i >= 0) smr.SetBlendShapeWeight(i, w * mesh.GetBlendShapeFrameWeight(i, mesh.GetBlendShapeFrameCount(i) - 1));
+            foreach (var m in _baked)
+                if (m != null) Release(m);
+            _baked.Clear();
+            string hair = PlayerLook.HairMeshes[a.HairStyle];
+            for (int l = 0; l < 3; l++)
+            {
+                if (_lods[l] == null || _srcLods[l] == null) continue;
+                Mesh hm = null;
+                if (hair != null && _parts.TryGetValue($"{hair}_LOD{l}", out var hs)) hm = hs.sharedMesh;
+                var baked = PlayerMeshBaker.Bake(_srcLods[l], hm, w, $"Player_LOD{l} (baked)");
+                _baked.Add(baked);
+                _lods[l].sharedMesh = baked;
+                // localBounds는 루트 뼈 기준 — 임포트 값 유지(메시 좌표 bounds를 넣으면 머리가 컬링된다)
+            }
+            if (_closeup != null && _closeupSrc != null)
+            {
+                Mesh hm = null;
+                if (hair != null && _parts.TryGetValue($"{hair}_LOD0", out var hs)) hm = hs.sharedMesh;
+                var baked = PlayerMeshBaker.Bake(_closeupSrc, hm, w, "Head_Closeup (baked)");
+                _baked.Add(baked);
+                _closeup.sharedMesh = baked;
+                // localBounds는 루트 뼈 기준 — 임포트 값 유지(메시 좌표 bounds를 넣으면 머리가 컬링된다)
+            }
+            if (_shadow != null)
+            {
+                var old = _shadowMesh;
+                _shadowMesh = SingleSubmesh(_lods[2].sharedMesh);
+                _shadow.sharedMesh = _shadowMesh;
+                if (old != null) Release(old);
+            }
+            var c = PlayerLook.SkinTones[a.SkinTone];
+            foreach (var m in new[] { _body, _closeupMat })
+            {
+                if (m == null) continue;
+                m.SetColor("_SkinColor", c);
+                m.SetColor("_HairColor", PlayerLook.HairColors[a.HairColor]);
+                m.SetColor("_EyeColor", PlayerLook.EyeColors[(a.SkinTone * 7 + a.Face) % PlayerLook.EyeColors.Length]);
+                m.SetFloat("_BeardLevel", PlayerLook.BeardLevels[Mathf.Clamp(beard, 0, PlayerLook.BeardLevels.Length - 1)]);
+            }
+            if (_closeupOn)
+            {
+                _closeupOn = false;
+                SetCloseup(true);
+            }
         }
 
         /// <summary>키트 색·패턴·번호/이름 칸 (FR-20·21). textAtlas가 null이면 번호·이름 없음.</summary>
@@ -270,6 +377,10 @@ namespace RoadToPro.Presentation.Players
         void OnDestroy()
         {
             if (_frozenMesh != null) Destroy(_frozenMesh);
+            foreach (var m in _baked)
+                if (m != null) Destroy(m);
+            if (_shadowMesh != null) Destroy(_shadowMesh);
+            if (_closeupMat != null) Destroy(_closeupMat);
             if (_body != null) Destroy(_body);
             if (_kit != null) Destroy(_kit);
         }

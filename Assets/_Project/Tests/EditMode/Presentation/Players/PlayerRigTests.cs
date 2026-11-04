@@ -14,9 +14,20 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         internal static PlayerRig NewRig()
         {
             var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(Gen + "/player.glb");
-            var body = AssetDatabase.LoadAssetAtPath<Texture2D>(Gen + "/Textures/body.png");
+            var body = BodyAssets();
             var fabric = AssetDatabase.LoadAssetAtPath<Texture2D>(Gen + "/Textures/kit_normal.png");
             return PlayerRig.Create(prefab, null, Shader.Find("RoadToPro/PlayerBody"), Shader.Find("RoadToPro/PlayerKit"), body, fabric);
+        }
+
+        internal static PlayerBodyAssets BodyAssets()
+        {
+            Texture2D T(string p) => AssetDatabase.LoadAssetAtPath<Texture2D>(Gen + "/" + p);
+            return new PlayerBodyAssets
+            {
+                skin = T(PlayerBodyAssets.Skin), skinNormal = T(PlayerBodyAssets.SkinNormal), parts = T(PlayerBodyAssets.Parts),
+                closeupSkin = T(PlayerBodyAssets.CloseupSkin), closeupNormal = T(PlayerBodyAssets.CloseupNormal),
+                faceJson = AssetDatabase.LoadAssetAtPath<TextAsset>(Gen + "/" + PlayerBodyAssets.FaceJson),
+            };
         }
 
         [Test]

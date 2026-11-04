@@ -23,7 +23,8 @@ namespace RoadToPro.Verification.Samples
         {
             public GameObject prefab;
             public TextAsset clipsJson, mapJson, glyphJson;
-            public Texture2D body, fabric, names, numbers;
+            public PlayerBodyAssets body;
+            public Texture2D fabric, names, numbers;
             public Texture2D[] masks; // textures.PATTERNS 순서
             public Shader bodyShader, kitShader;
             public AnimationClip[] clips; // ClipLibrary 인덱스 순서
@@ -57,6 +58,8 @@ namespace RoadToPro.Verification.Samples
         readonly PlayerAppearance[] _looks = new PlayerAppearance[HighlightData.Entities];
         PlayerAnimationSystem _sys;
         KitAssignment _kits;
+        FaceShape[] _faces;
+        BodyInput[] _inputs;
         Texture2D _homeAtlas, _awayAtlas;
         readonly FixedPlaybackClock _clock = new FixedPlaybackClock();
         string _view = "";
@@ -100,12 +103,26 @@ namespace RoadToPro.Verification.Samples
                 var kind = k;
                 FarmContext.Screens["contact" + k] = () => ShowContact(kind);
             }
+            // 056: 얼굴·체형 라인업 (AC-06·07)
+            for (int f = 0; f < FacePlayers.Length; f++)
+            {
+                int fi = f;
+                FarmContext.Screens[$"face{f + 1}Front"] = () => ShowFace(fi, 0f);
+                FarmContext.Screens[$"face{f + 1}Three"] = () => ShowFace(fi, 35f);
+                FarmContext.Screens[$"face{f + 1}Side"] = () => ShowFace(fi, 90f);
+            }
+            FarmContext.Screens["bodyFront"] = () => ShowBodies(0);
+            FarmContext.Screens["bodySide"] = () => ShowBodies(1);
+            FarmContext.Screens["bodyBack"] = () => ShowBodies(2);
+            FarmContext.Screens["bodyBroadcast"] = () => ShowBodies(3);
+            FarmContext.Screens["perfCloseup"] = () => ShowPerf(4);
             FarmContext.Screens["speed1x"] = () => ShowSpeed(1f, 90);
             FarmContext.Screens["speed15x"] = () => ShowSpeed(1.5f, 60);
             FarmContext.Screens["speed3x"] = () => ShowSpeed(3f, 30);
             FarmContext.CaptureRegions = Regions;
             FarmContext.PerfCounters["animCpuMs"] = () => _perf ? _cpuMs : (double?)null;
             FarmContext.PerfCounters["animGcBytes"] = () => _perf ? _gcBytes : (double?)null;
+            FarmContext.PerfCounters["closeupSwitchMs"] = () => _closeupPerf ? _switchMs : (double?)null;
             ShowRow(0, false);
         }
 
@@ -115,6 +132,7 @@ namespace RoadToPro.Verification.Samples
             FarmContext.CaptureRegions = null;
             FarmContext.PerfCounters.Remove("animCpuMs");
             FarmContext.PerfCounters.Remove("animGcBytes");
+            FarmContext.PerfCounters.Remove("closeupSwitchMs");
             KitCompositor.PlaybackActive = false;
         }
 
@@ -142,11 +160,19 @@ namespace RoadToPro.Verification.Samples
             var inputs = new BodyInput[HighlightData.Entities];
             for (int e = 0; e < inputs.Length; e++) inputs[e] = new BodyInput(4300 + e * 13, null, null, RoleOf(e));
             AppearanceGenerator.GenerateGroup(inputs, _looks);
+            // 056: 얼굴 — 같은 장면 안에서 서로 충분히 다르게(AC-04)
+            var faceData = FaceData.Parse(assets.body.faceJson.text);
+            var ids = new int[inputs.Length];
+            for (int e = 0; e < ids.Length; e++) ids[e] = inputs[e].Id;
+            var faces = new FaceShape[ids.Length];
+            FaceGenerator.GenerateGroup(faceData, new FaceLandmarks(faceData), ids, faces);
+            _faces = faces;
+            _inputs = inputs;
             for (int e = 0; e < HighlightData.Entities; e++)
             {
                 var rig = PlayerRig.Create(assets.prefab, transform, assets.bodyShader, assets.kitShader, assets.body, assets.fabric);
                 rig.name = $"Entity{e:00}";
-                rig.ApplyAppearance(_looks[e]);
+                rig.ApplyAppearance(_looks[e], faces[e], faceData);
                 KitColors k;
                 Texture2D atlas = null;
                 int cell = -1;
@@ -195,6 +221,8 @@ namespace RoadToPro.Verification.Samples
             KitCompositor.PlaybackActive = false;
             _key = key;
             _view = $"row{row + 1}{(back ? "Back" : "Front")}{(key ? "Key" : "")}";
+            if (_bodiesApplied) RestoreLooks();
+            foreach (var rg in _rigs) rg.SetCloseup(false);
             for (int e = 0; e < _rigs.Length; e++) _rigs[e].SetTextKey(key ? TextKey : (Color?)null, KitOf(e));
             _row = Rows[row];
             _back = back;
@@ -231,13 +259,134 @@ namespace RoadToPro.Verification.Samples
             cam.transform.rotation = Quaternion.LookRotation(new Vector3(0f, 1.0f, 0f) - cam.transform.position, Vector3.up);
         }
 
+        // ---------------------------------------------------------------- 056 얼굴·체형 라인업 (AC-06·07)
+
+        /// <summary>얼굴 라인업 엔티티 (홈 필드 1~8 — 서로 다른 얼굴·피부·머리).</summary>
+        static readonly int[] FacePlayers = { 1, 2, 3, 4, 5, 6, 7, 8 };
+
+        /// <summary>체형 라인업: 극단 4종(키 160·200 × 마른·무거운) + 보통 4명. (키 cm, 체중 kg; 0 = 생성값)</summary>
+        static readonly (int e, float h, float w)[] BodyPlayers =
+        {
+            (1, 160f, 47f), (2, 160f, 75f), (3, 200f, 76f), (4, 200f, 108f), (5, 0f, 0f), (6, 0f, 0f), (7, 0f, 0f), (8, 0f, 0f),
+        };
+
+        bool _bodiesApplied;
+        bool _closeupPerf;
+        float _switchMs;
+
+        void PrepareStill(string view)
+        {
+            if (_ball != null) _ball.gameObject.SetActive(false);
+            _contactView = false;
+            _perf = false;
+            KitCompositor.PlaybackActive = false;
+            _key = false;
+            _view = view;
+            foreach (var r in stadium) r.enabled = false;
+            pitch.enabled = true;
+            for (int e = 0; e < _rigs.Length; e++)
+            {
+                _rigs[e].SetTextKey(null, KitOf(e));
+                _rigs[e].SetCloseup(false);
+            }
+        }
+
+        void PoseStill(Func<int, (bool on, float x, float z, float yaw)> place, bool freeze, int lod)
+        {
+            var d = new HighlightData(0f, 4);
+            for (int f = 0; f < d.Frames; f++)
+                for (int e = 0; e < HighlightData.Entities; e++)
+                {
+                    var p = place(e);
+                    d.Set(f, e, p.x, p.z, p.yaw, p.on);
+                }
+            var plan = AnimPlan.Build(_lib, _map, d, _log);
+            _clock.Start = 0.05f;
+            _clock.Rate = 0f;
+            _clock.Frame = 0;
+            _sys.Init(plan, _rigs, assets.clips, null);
+            _sys.ApplyAt(_clock.SimTime);
+            foreach (var rig in _rigs)
+            {
+                rig.Freeze(false);
+                rig.ForceLod(lod);
+                if (freeze && rig.gameObject.activeSelf) rig.Freeze(true);
+            }
+        }
+
+        /// <summary>얼굴 클로즈업 한 명: 클로즈업 머리(FR-61)를 켜고 머리 높이가 화면의 약 45 %가 되게. yaw = 선수가 카메라에서 돌아선 각.</summary>
+        void ShowFace(int idx, float yawDeg)
+        {
+            int ent = FacePlayers[idx];
+            PrepareStill($"face{idx + 1}{(yawDeg == 0f ? "Front" : yawDeg < 60f ? "Three" : "Side")}");
+            if (_bodiesApplied) RestoreLooks();
+            float yaw = yawDeg * Mathf.Deg2Rad;
+            PoseStill(e => (e == ent, 0f, 0f, yaw), false, 0);
+            var rig = _rigs[ent];
+            rig.SetCloseup(true);
+            var head = rig.Bone("Head").position + new Vector3(0f, 0.09f * rig.transform.localScale.y, 0f);
+            float vHalf = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            float dist = 0.24f * rig.transform.localScale.y / (0.45f * 2f * Mathf.Tan(vHalf));
+            cam.transform.position = head + new Vector3(0f, 0.02f, dist);
+            cam.transform.rotation = Quaternion.LookRotation(head - cam.transform.position, Vector3.up);
+        }
+
+        void RestoreLooks()
+        {
+            var faceData = FaceData.Parse(assets.body.faceJson.text);
+            foreach (var bp in BodyPlayers) _rigs[bp.e].ApplyAppearance(_looks[bp.e], _faces[bp.e], faceData);
+            _bodiesApplied = false;
+        }
+
+        /// <summary>체형 라인업 8명. view 0 정면 · 1 옆 · 2 뒤 (LOD0 정지) · 3 방송 원거리(LOD 자동).</summary>
+        void ShowBodies(int view)
+        {
+            PrepareStill(view == 0 ? "bodyFront" : view == 1 ? "bodySide" : view == 2 ? "bodyBack" : "bodyBroadcast");
+            if (!_bodiesApplied)
+            {
+                var faceData = FaceData.Parse(assets.body.faceJson.text);
+                foreach (var bp in BodyPlayers)
+                {
+                    var a = bp.h > 0f
+                        ? AppearanceGenerator.Generate(new BodyInput(_inputs[bp.e].Id, bp.h, bp.w, RoleOf(bp.e)))
+                        : _looks[bp.e];
+                    a = a.WithCombo(_looks[bp.e].ComboKey);
+                    _rigs[bp.e].ApplyAppearance(a, _faces[bp.e], faceData);
+                }
+                _bodiesApplied = true;
+            }
+            const float gap = 1.1f;
+            float yaw = view == 1 ? Mathf.PI * 0.5f : 0f;
+            PoseStill(e =>
+            {
+                int i = Array.FindIndex(BodyPlayers, b => b.e == e);
+                return (i >= 0, (i - 3.5f) * gap, 0f, yaw);
+            }, view != 3, view == 3 ? -1 : 0);
+            if (view == 3)
+            {
+                cam.transform.position = new Vector3(0f, 16f, 30f);
+                cam.transform.rotation = Quaternion.LookRotation(new Vector3(0f, 0.9f, 0f) - cam.transform.position, Vector3.up);
+                return;
+            }
+            float halfW = (3.5f * gap + 0.6f) * 1.1f;
+            float vHalf = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            float hHalf = Mathf.Atan(Mathf.Tan(vHalf) * cam.aspect);
+            float dist = Mathf.Max(halfW / Mathf.Tan(hHalf), 1.2f / Mathf.Tan(vHalf));
+            float z = view == 2 ? -dist : dist;
+            cam.transform.position = new Vector3(0f, 1.1f, z);
+            cam.transform.rotation = Quaternion.LookRotation(new Vector3(0f, 1.0f, 0f) - cam.transform.position, Vector3.up);
+        }
+
         // ---------------------------------------------------------------- 성능 (AC-16·17)
 
         void ShowPerf(int show)
         {
             if (_ball != null) _ball.gameObject.SetActive(false);
             _contactView = false;
-            _view = show == 0 ? "perfEmpty" : show == 1 ? "perfPlayers" : show == 2 ? "perfFull" : "perfPlayersNoShadow";
+            if (_bodiesApplied) RestoreLooks();
+            _view = show == 0 ? "perfEmpty" : show == 1 ? "perfPlayers" : show == 2 ? "perfFull" : show == 3 ? "perfPlayersNoShadow" : "perfCloseup";
+            _closeupPerf = show == 4;
+            _switchMs = 0f;
             foreach (var r in stadium) r.enabled = show == 2;
             pitch.enabled = show == 2;
             var d = PerfHighlight.Build();
@@ -271,6 +420,16 @@ namespace RoadToPro.Verification.Samples
             var sw = Stopwatch.StartNew();
             _sys.ApplyAt(t);
             sw.Stop();
+            if (_closeupPerf && _clock.Frame % 90 == 0)
+            {
+                // 056 FR-61: 클로즈업 머리 전환 프레임 비용 (2명 켜기/끄기)
+                bool on = !_rigs[9].CloseupActive;
+                var s2 = Stopwatch.StartNew();
+                _rigs[9].SetCloseup(on);
+                _rigs[10].SetCloseup(on);
+                s2.Stop();
+                _switchMs = Mathf.Max(_switchMs, (float)s2.Elapsed.TotalMilliseconds);
+            }
             _gcBytes = GC.GetAllocatedBytesForCurrentThread() - gc0;
             _cpuMs = (float)sw.Elapsed.TotalMilliseconds;
             if (_clock.Frame == 240)

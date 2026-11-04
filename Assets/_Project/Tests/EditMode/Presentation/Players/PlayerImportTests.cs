@@ -17,13 +17,33 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             var root = AssetDatabase.LoadAssetAtPath<GameObject>(gen + "/player.glb");
             Assert.IsNotNull(root);
             int[] max = { 10000, 3000, 1000 };
-            foreach (var smr in root.GetComponentsInChildren<SkinnedMeshRenderer>(true))
+            // 056: 몸 LOD 3 + 헤어 조각 9종 × 3 + 클로즈업 머리. 몸 + 가장 무거운 헤어 조각 ≤ LOD 예산(FR-60)
+            var smrs = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            Assert.AreEqual(3 + 27 + 1, smrs.Length);
+            var hairMax = new int[3];
+            foreach (var smr in smrs)
+                if (smr.name.StartsWith("Hair_"))
+                {
+                    int l = smr.name[smr.name.Length - 1] - '0';
+                    hairMax[l] = Mathf.Max(hairMax[l], smr.sharedMesh.triangles.Length / 3);
+                }
+            foreach (var smr in smrs)
             {
-                int lod = smr.name.EndsWith("LOD0") ? 0 : smr.name.EndsWith("LOD1") ? 1 : 2;
-                Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3, max[lod], smr.name);
                 Assert.LessOrEqual(smr.sharedMaterials.Length, 3, smr.name);
-                Assert.AreEqual(12, smr.sharedMesh.blendShapeCount, smr.name); // 체형 3 + 헤어 9
+                if (smr.name == "Head_Closeup")
+                {
+                    Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3, 6000, smr.name);
+                    continue;
+                }
+                if (!smr.name.StartsWith("Player_LOD")) continue;
+                int lod = smr.name[smr.name.Length - 1] - '0';
+                Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3 + hairMax[lod], max[lod], smr.name);
+                var names = Enumerable.Range(0, smr.sharedMesh.blendShapeCount).Select(i => smr.sharedMesh.GetBlendShapeName(i)).ToList();
+                foreach (var k in new[] { "Thin", "Muscular", "Heavy", "HideHead" }) CollectionAssert.Contains(names, k, smr.name);
+                Assert.GreaterOrEqual(names.Count(n => n.StartsWith("Face_")), 20, smr.name);
             }
+            foreach (var smr in smrs)
+                Assert.AreEqual(smrs[0].sharedMesh.bindposeCount, smr.sharedMesh.bindposeCount, smr.name + ": 뼈대 공유");
             foreach (var guid in AssetDatabase.FindAssets("t:Texture2D", new[] { gen + "/Textures" }))
             {
                 var t = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(guid));

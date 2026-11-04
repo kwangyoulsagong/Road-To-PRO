@@ -295,6 +295,7 @@ namespace RoadToPro.Presentation.Players.Logic
                 float d0 = _dir[i0], d1 = _dir[i1];
                 float dd = (float)Math.IEEERemainder(d1 - d0, 360.0);
                 float dir = d0 + dd * a;
+                dir -= 360f * (float)Math.Floor(dir / 360f); // 0°/359.99° 사이 보간이 음수가 되면 엉뚱한 방향 클립을 고른다 (056 T14a)
                 float ph0 = _phase[i0], ph1 = _phase[i1];
                 float dp = ph1 - ph0;
                 if (dp < 0) dp += 1f;
