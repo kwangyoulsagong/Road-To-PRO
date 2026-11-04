@@ -1,6 +1,6 @@
 # 044 — 경기장 · 피치 (bpy 생성) · 플랜
 
-상태: 승인됨 (2026-11-03, FR-03 스펙 수정 승인 포함)
+상태: 완료 (2026-11-04, 리포트 https://claude.ai/artifact/942SnwzJsn4vmSP7GkHvg1)
 스펙: ./spec.md
 
 ## 접근

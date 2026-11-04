@@ -1,6 +1,6 @@
 # 044 — 경기장 · 피치 (bpy 생성)
 
-상태: 승인됨 (2026-11-03, [미정]·[제안] 결정 반영)
+상태: 완료 (2026-11-04, 리포트 https://claude.ai/artifact/942SnwzJsn4vmSP7GkHvg1)
 브랜치: feat/044-stadium-pitch-art
 기획 출처: docs/index.html § 기획서 5A(3D 아트 파이프라인: 역할 분담·작업 방식·내보내기 규칙), 5.5.1(렌더링 구성·경기장·잔디·폴리곤 예산), CLAUDE.md 3D 아트 결정 / research 06 § 4(스타디움과 피치), § 8-5(실존 요소 회피) / research 00 § 4(CC0 텍스처 소스)
 
