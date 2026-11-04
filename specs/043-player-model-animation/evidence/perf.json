@@ -5,10 +5,10 @@
       "fullName": "RoadToPro.Tests.Performance.Presentation.KitCompositorPerfTests.PerTeam_Under50ms",
       "groups": {
         "KitCompose.PerTeam": {
-          "median": 16.093,
-          "min": 15.847700000000001,
-          "max": 18.8503,
-          "avg": 16.60374285714286,
+          "median": 16.2634,
+          "min": 16.044900000000005,
+          "max": 20.799300000000002,
+          "avg": 16.864857142857144,
           "unit": "ms",
           "samples": 7
         }
@@ -21,14 +21,14 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "KitCompositorPerfTests.PerTeam_Under50ms/KitCompose.PerTeam/median": 16.093
+      "KitCompositorPerfTests.PerTeam_Under50ms/KitCompose.PerTeam/median": 16.2634
     },
     "budget": [
       {
         "ac": "AC-17",
         "label": "키트 합성 팀당 (24명 칸, 중앙값)",
         "metric": "KitCompositorPerfTests.PerTeam_Under50ms/KitCompose.PerTeam/median",
-        "value": 16.093,
+        "value": 16.2634,
         "budget": 50,
         "unit": "ms",
         "ok": true

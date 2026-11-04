@@ -83,12 +83,12 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/043-player-model-animation"
   },
   "meta": {
-    "commit": "2f4ba84ac83f4d169d7a6fe246eb4819dd5ab106",
+    "commit": "d63b52f1f4cebc27e535d2dd06133fd20dfeaf42",
     "branch": "feat/043-player-model-animation",
     "dirty": true,
     "unity": "6000.3.27f2",
-    "time": "2026-11-04 14:28:40 +0900",
-    "durationSec": 28.339715003967285,
+    "time": "2026-11-04 14:36:20 +0900",
+    "durationSec": 23.848676919937134,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 043",
     "profiles": [
       "mac-m1-1600p"
@@ -100,11 +100,11 @@
     "passed": 94,
     "failed": 0,
     "skipped": 0,
-    "duration": 3.4299986,
+    "duration": 2.6824859,
     "compileErrors": [],
     "failures": [],
-    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-142840-logic/logic.png",
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-142840-logic/logic.html"
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-143620-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-143620-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -113,14 +113,14 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "KitCompositorPerfTests.PerTeam_Under50ms/KitCompose.PerTeam/median": 16.093
+      "KitCompositorPerfTests.PerTeam_Under50ms/KitCompose.PerTeam/median": 16.2634
     },
     "budget": [
       {
         "ac": "AC-17",
         "label": "키트 합성 팀당 (24명 칸, 중앙값)",
         "metric": "KitCompositorPerfTests.PerTeam_Under50ms/KitCompose.PerTeam/median",
-        "value": 16.093,
+        "value": 16.2634,
         "budget": 50,
         "unit": "ms",
         "ok": true
@@ -258,8 +258,8 @@
     ],
     "AC-12": [
       {
-        "label": "결정론 테스트 없음",
-        "ok": false
+        "label": "결정론 테스트 3/3 통과",
+        "ok": true
       }
     ],
     "AC-16": [

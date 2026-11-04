@@ -12,14 +12,13 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
     /// 결정론 (specs/043 AC-12). 같은 장면을 30 fps·60 fps로 재생하면 같은 재생 시각의 클립 id·클립 시각이 같다(렌더 fps가 선택에 영향 없음).
     /// 2회 재생 포즈 해시 동일(본 로컬 회전 1e-4 양자화). 시각은 누적하지 않고 시작 + n/fps로 계산(FixedPlaybackClock과 같은 방식).
     /// </summary>
-    [Category("Determinism")]
     public class AnimDeterminismTests
     {
         static HighlightData Scene(int i) => i % 2 == 0
             ? SyntheticScenes.Kick(900 + i, i % 4 == 0 ? SimEventKind.Pass : SimEventKind.Shot, out _)
             : SyntheticScenes.Run(2f + i, 0.2f * i, 30f * i, 0.3f);
 
-        [Test]
+        [Test, Category("Determinism")]
         public void Fps30vs60_SameClipAndTime()
         {
             for (int i = 0; i < 6; i++)
@@ -53,7 +52,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             }
         }
 
-        [Test]
+        [Test, Category("Determinism")]
         public void SpeedChange_DoesNotChangePose()
         {
             // 1x·1.5x·3x 재생에서 같은 재생 시각이면 같은 포즈(FR-50~52, AC-15의 로직 쪽)
@@ -95,7 +94,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             return h.Value;
         }
 
-        [Test]
+        [Test, Category("Determinism")]
         public void TwoRuns_SamePoseHash()
         {
             var d = Scene(2);
