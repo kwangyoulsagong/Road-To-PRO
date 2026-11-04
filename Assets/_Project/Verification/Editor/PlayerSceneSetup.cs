@@ -38,7 +38,15 @@ namespace RoadToPro.Verification.Editor
                 clipsJson = clipsJson,
                 mapJson = Load<TextAsset>("Assets/_Project/Presentation/Players/Data/043-anim-map.json"),
                 glyphJson = Load<TextAsset>(Fonts + "/kit-glyphs.json"),
-                body = Load<Texture2D>(Gen + "/Textures/body.png"),
+                body = new PlayerBodyAssets
+                {
+                    skin = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.Skin),
+                    skinNormal = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.SkinNormal),
+                    parts = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.Parts),
+                    closeupSkin = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.CloseupSkin),
+                    closeupNormal = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.CloseupNormal),
+                    faceJson = Load<TextAsset>(Gen + "/" + PlayerBodyAssets.FaceJson),
+                },
                 fabric = Load<Texture2D>(Gen + "/Textures/kit_normal.png"),
                 names = Load<Texture2D>(Fonts + "/kit-glyphs-names.png"),
                 numbers = Load<Texture2D>(Fonts + "/kit-glyphs-numbers.png"),

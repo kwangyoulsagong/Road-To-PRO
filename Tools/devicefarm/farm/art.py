@@ -26,6 +26,8 @@ SPEC_ART = {
             "title": "Blender 미리보기 (인자 세트 최소·기본·최대)"},
     "043": {"pattern": "test_player.py", "sets": ("default",), "views": ("lineup", "heads", "poses"), "stem": "player", "cols": 1,
             "title": "Blender 미리보기 (LOD 3단 + 극단 체형 4종 · 헤어 10종 · 대표 클립 접촉 프레임)"},
+    "056": {"pattern": ("test_player.py", "test_face.py"), "sets": ("default",), "views": ("lineup", "heads", "poses"), "stem": "player",
+            "cols": 1, "title": "Blender 미리보기 (MPFB2 기준 LOD 3단 + 극단 체형 4종 · 헤어 10종 × 얼굴 변주 · 대표 클립)"},
 }
 
 

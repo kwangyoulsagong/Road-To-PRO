@@ -241,8 +241,8 @@ def body(seed=0):
     return np.stack([_to8(R), _to8(G), _to8(Bc), _to8(A)], axis=-1)
 
 
-def write_all(out_dir, seed=0):
-    """→ {파일 이름: (가로, 세로)}"""
+def write_all(out_dir, seed=0, R=None):
+    """→ {파일 이름: (가로, 세로)}. 056: 몸 텍스처는 skin.py(피부·노멀·클로즈업·parts) — R(기준 선수) 필요."""
     out = {}
     for p in PATTERNS:
         name = f"kit_mask_{p}.png"
@@ -250,6 +250,6 @@ def write_all(out_dir, seed=0):
         out[name] = (KIT_SIZE, KIT_SIZE)
     write_png(os.path.join(out_dir, "kit_normal.png"), kit_normal())
     out["kit_normal.png"] = (NORMAL_SIZE, NORMAL_SIZE)
-    write_png(os.path.join(out_dir, "body.png"), body(seed))
-    out["body.png"] = (BODY_SIZE, BODY_SIZE)
+    from . import skin
+    out.update(skin.write_all(out_dir, R, seed))
     return out

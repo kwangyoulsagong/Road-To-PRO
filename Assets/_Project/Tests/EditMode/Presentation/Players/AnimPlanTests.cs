@@ -10,6 +10,24 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
     /// <summary>애니메이션 계획 (specs/043 FR-40~48·60, 비기능: 시뮬 불변).</summary>
     public class AnimPlanTests
     {
+        /// <summary>056 T14a: 정면 직진(방향 0° 근처, 359.99° 잡음)에서 프레임 사이 보간이 다른 방향·보법 클립을 고르지 않는다.</summary>
+        [Test]
+        public void StraightRun_NeverPicksDiagonalClip()
+        {
+            var d = SyntheticScenes.Run(1.4f, 0.3f, 0f, 0f);
+            var plan = AnimPlan.Build(AnimTestKit.Lib, AnimTestKit.Map, d, RoadToPro.Core.Logging.NullLogger.Instance);
+            var s = new PoseSample();
+            for (int k = 0; k < (int)(SyntheticScenes.Length * 120); k++)
+            {
+                plan.Evaluate(0, SyntheticScenes.Start + k / 120f, ref s);
+                for (int i = 0; i < s.Count; i++)
+                {
+                    var id = plan.Library.Get(s.Clip(i)).Id;
+                    Assert.IsTrue(id == "walk_f" || id.StartsWith("idle"), $"k {k}: {id}");
+                }
+            }
+        }
+
         [Test]
         public void Weights_SumToOne_AllEntities()
         {

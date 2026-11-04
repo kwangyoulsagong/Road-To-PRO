@@ -202,3 +202,20 @@ class ContactAndSame(unittest.TestCase):
         self.assertTrue(ic.same_image(a, {}, b, {})["ok"])
         b[50:90, 50:90] = (200, 30, 30)
         self.assertFalse(ic.same_image(a, {}, b, {})["ok"])
+
+
+class GlyphBandMixedColors(unittest.TestCase):
+    """specs/056 T19b: 번호 아래 띠가 검은 반바지에 걸쳐도 조명 배율을 셔츠 색조로만 추정해 글자를 놓치지 않는다."""
+
+    def test_dark_shorts_in_band(self):
+        import numpy as np
+        from farm import imagechecks as IC
+        H, W = 200, 120
+        a = np.zeros((H, W, 3), dtype=np.uint8)
+        a[:150] = (0, 200, 215)          # 하늘색 셔츠 (조명 0.85배)
+        a[150:] = (5, 5, 5)              # 검은 반바지 — 띠 아래쪽 절반
+        a[90:140, 55:62] = (230, 4, 218)  # 마젠타 번호 "1"
+        reg = {"textAreas": [{"area": [40, 88, 36, 55], "text": [255, 0, 255], "base": [0, 229, 255], "kind": "number", "entity": 0}]}
+        r = IC.glyph_inside(a, reg, min_glyph_px=12)
+        self.assertTrue(r["ok"], r["detail"])
+

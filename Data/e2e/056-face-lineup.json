@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "spec": "056",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "profiles": "smoke",
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "id": "056-face-lineup",
+  "description": "가상 선수 8명 얼굴 클로즈업(클로즈업 머리 LOD, FR-61) 정면·3/4·옆 (AC-06). 눈두덩·광대·콧대·입술·턱선·귀가 형태로 보이고 눈에 하이라이트가 있는지 캡처를 직접 열어 확인. 기준 이미지 비교.",
+  "acs": [
+    "AC-06"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "face1Front"
+    },
+    {
+      "type": "capture",
+      "name": "face1Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face1Three"
+    },
+    {
+      "type": "capture",
+      "name": "face1Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face1Side"
+    },
+    {
+      "type": "capture",
+      "name": "face1Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face2Front"
+    },
+    {
+      "type": "capture",
+      "name": "face2Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face2Three"
+    },
+    {
+      "type": "capture",
+      "name": "face2Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face2Side"
+    },
+    {
+      "type": "capture",
+      "name": "face2Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face3Front"
+    },
+    {
+      "type": "capture",
+      "name": "face3Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face3Three"
+    },
+    {
+      "type": "capture",
+      "name": "face3Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face3Side"
+    },
+    {
+      "type": "capture",
+      "name": "face3Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face4Front"
+    },
+    {
+      "type": "capture",
+      "name": "face4Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face4Three"
+    },
+    {
+      "type": "capture",
+      "name": "face4Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face4Side"
+    },
+    {
+      "type": "capture",
+      "name": "face4Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face5Front"
+    },
+    {
+      "type": "capture",
+      "name": "face5Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face5Three"
+    },
+    {
+      "type": "capture",
+      "name": "face5Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face5Side"
+    },
+    {
+      "type": "capture",
+      "name": "face5Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face6Front"
+    },
+    {
+      "type": "capture",
+      "name": "face6Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face6Three"
+    },
+    {
+      "type": "capture",
+      "name": "face6Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face6Side"
+    },
+    {
+      "type": "capture",
+      "name": "face6Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face7Front"
+    },
+    {
+      "type": "capture",
+      "name": "face7Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face7Three"
+    },
+    {
+      "type": "capture",
+      "name": "face7Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face7Side"
+    },
+    {
+      "type": "capture",
+      "name": "face7Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face8Front"
+    },
+    {
+      "type": "capture",
+      "name": "face8Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face8Three"
+    },
+    {
+      "type": "capture",
+      "name": "face8Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "face8Side"
+    },
+    {
+      "type": "capture",
+      "name": "face8Side",
+      "kind": "3d"
+    }
+  ]
+}

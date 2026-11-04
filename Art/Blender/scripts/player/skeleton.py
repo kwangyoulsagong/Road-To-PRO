@@ -72,3 +72,24 @@ NAMES = [x[0] for x in BONES]
 PARENT = {x[0]: x[1] for x in BONES}
 HEAD = {x[0]: x[2] for x in BONES}
 TAIL = {x[0]: x[3] for x in BONES}
+
+
+def configure(joints):
+    """056: 기준 선수(MPFB2) 관절로 뼈대 위치를 바꾼다. 이름·계층·순서는 043 그대로(FR-62).
+    joints = {뼈 이름: (head, tail)} 선수 좌표. 클립·검사는 모듈 속성(S.HEAD 등)을 호출 시점에 읽으므로 생성 전에 한 번 부른다."""
+    global BONES, NAMES, PARENT, HEAD, TAIL, HIP_X, ANKLE_Y, SHOULDER_Y, L_UPPER_ARM, L_LOWER_ARM, L_HAND, L_THIGH, L_SHIN
+    old = BONES
+    BONES = [(n, p, tuple(joints[n][0]), tuple(joints[n][1])) for n, p, _, _ in old]
+    NAMES = [x[0] for x in BONES]
+    PARENT = {x[0]: x[1] for x in BONES}
+    HEAD = {x[0]: x[2] for x in BONES}
+    TAIL = {x[0]: x[3] for x in BONES}
+
+    def L(n):
+        return math.dist(HEAD[n], TAIL[n])
+
+    HIP_X = abs(HEAD["RightUpperLeg"][0])
+    ANKLE_Y = HEAD["RightFoot"][1]
+    SHOULDER_Y = HEAD["RightUpperArm"][1]
+    L_UPPER_ARM, L_LOWER_ARM, L_HAND = L("RightUpperArm"), L("RightLowerArm"), L("RightHand")
+    L_THIGH, L_SHIN = L("RightUpperLeg"), L("RightLowerLeg")

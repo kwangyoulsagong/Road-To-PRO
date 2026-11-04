@@ -1,3 +1,4 @@
 source,url,license,files,added
 ambientCG Grass004,https://ambientcg.com/view?id=Grass004,CC0 1.0,"Art/ThirdParty/ambientCG/Grass004/Grass004_1K-JPG_{Color,NormalGL}.jpg; Assets/_Project/Presentation/Stadium/Textures/Grass004_{Color,NormalGL}.jpg",2026-11-03
 Noto Sans KR Black (notofonts/noto-cjk),https://github.com/notofonts/noto-cjk/blob/main/Sans/SubsetOTF/KR/NotoSansKR-Black.otf,SIL OFL 1.1,"Art/ThirdParty/NotoSansKR/{NotoSansKR-Black.otf,OFL.txt}; Assets/_Project/Presentation/Players/Fonts/NotoSansKR-Black.otf",2026-11-04
+MPFB2 2.0.18 data (MakeHuman base mesh hm08 · targets · game_engine rig/weights · mesh metadata),https://github.com/makehumancommunity/mpfb2/blob/master/LICENSE.ASSETS.md,CC0 1.0,"Art/ThirdParty/MPFB2/data/** (101 files, list+sha256 in Art/ThirdParty/MPFB2/assets.json); 생성물 Assets/_Project/Presentation/Players/Generated/player.glb",2026-11-04
