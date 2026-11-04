@@ -60,6 +60,9 @@
 - [x] T19a (추가) 하네스: 다른 스펙의 회귀 시나리오를 이 스펙 증거로(`alsoSpecs`), 사용자 육안 승인 기록 파일을 AC 증거로(`Data/perf/<spec>.json` `manual`) — AC-08·AC-09가 기계 증거로 연결되지 않던 문제 — 파일: `Tools/devicefarm/farm/commands.py`, `Data/e2e/043-*.json`, `Data/perf/056-realistic-player-model.json`, `Tools/devicefarm/tests/test_commands_merge.py` — 검증: 하네스 테스트 175/175
   - 결과: 통과. 파일이 없거나 AC id가 없으면 실패 증거, 스펙에 없는 AC는 설정 오류.
 
+- [x] T19b (추가) 하네스 glyphInside 조명 배율을 바탕(셔츠)과 같은 색조 띠 픽셀로만 추정 — phone-portrait 하늘색 GK에서 번호 아래 띠가 검은 반바지에 걸쳐 배율이 틀어져 선명한 글자를 놓쳤다(056 몸의 셔츠 밑단이 043보다 번호에 가까움) — 파일: `Tools/devicefarm/farm/imagechecks.py`, `tests/test_imagechecks.py` — 검증: 하네스 176/176, 실패 캡처 재판정 통과(번호 높이 59 px)
+  - 결과: 통과. full 전용 7프로필 043-kit-lineup 기준 84장은 사용자 승인으로 채택.
+
 ## F. 마무리
 - [ ] T20 수용 기준 전체 테스트 통과: `farm.py logic --spec 056`(EditMode 043·056) + Blender 테스트 + 결정론 2회 렌더 동일 (AC-01~05·11)
 - [ ] T21 `/verify 056` — 리포트 아티팩트 발행, face/body lineup 캡처로 **사용자 육안 승인(AC-09)** 받아 `evidence/approval.md` 기록, 실패 0·성능 예산 통과 확인 → spec 상태 `완료`

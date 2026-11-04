@@ -246,7 +246,12 @@ def glyph_inside(arr, regions, min_glyph_px=12, tolerance_px=2, margin=0.3):
         band = sub[~(inside | other)]
         kl = 1.0
         if band.size:
-            med = np.median(band.reshape(-1, 3), axis=0)
+            px = band.reshape(-1, 3)
+            # 조명 배율은 바탕(셔츠)과 같은 색조 픽셀로만 — 띠가 반바지·피부·하늘에 걸치면 중앙값이 틀어진다 (specs/056 T19b)
+            bn = base / max(np.linalg.norm(base), 1.0)
+            cos = (px @ bn) / np.maximum(np.linalg.norm(px, axis=1), 1.0)
+            same = px[cos > 0.97]
+            med = np.median(same if len(same) >= 20 else px, axis=0)
             kl = float(np.clip(med.sum() / max(base.sum(), 1.0), 0.2, 3.0))
         tl, bl = np.clip(text * kl, 0, 255), np.clip(base * kl, 0, 255)
         dt = np.linalg.norm(sub - tl, axis=-1)
