@@ -19,6 +19,13 @@ namespace RoadToPro.Verification.Bench
             if (spec == null) return;
             var outDir = Arg(argv, "-simBenchOut") ?? "bench-out";
             var data = Arg(argv, "-simBenchData");
+            if (spec == "043")
+            {
+                // 애니메이션 벤치: 씬을 열어야 해서 다음 프레임들에 걸쳐 돈다 (specs/043 T27)
+                Directory.CreateDirectory(outDir);
+                AnimBench.Start(outDir, m => Write(spec, outDir, m), e => Fail(outDir, e));
+                return;
+            }
             try
             {
                 if (spec != "006") throw new ArgumentException($"벤치 없는 스펙: {spec}");
@@ -46,6 +53,30 @@ namespace RoadToPro.Verification.Bench
                 try { File.WriteAllText(Path.Combine(outDir, "bench-error.txt"), e.ToString()); } catch (Exception) { }
                 Application.Quit(2);
             }
+        }
+
+        static void Write(string spec, string outDir, Dictionary<string, double> metrics)
+        {
+            var doc = new Dictionary<string, object>
+            {
+                { "spec", spec },
+                { "backend", Backend() },
+                { "unity", Application.unityVersion },
+                { "cpu", SystemInfo.processorType },
+                { "os", SystemInfo.operatingSystem },
+                { "development", Debug.isDebugBuild },
+                { "metrics", ToObjects(metrics) },
+            };
+            File.WriteAllText(Path.Combine(outDir, "bench.json"), MiniJson.Serialize(doc));
+            Console.WriteLine("[bench] 완료 " + Path.Combine(outDir, "bench.json"));
+            Application.Quit(0);
+        }
+
+        static void Fail(string outDir, Exception e)
+        {
+            Console.Error.WriteLine("[bench] 오류: " + e);
+            try { File.WriteAllText(Path.Combine(outDir, "bench-error.txt"), e.ToString()); } catch (Exception) { }
+            Application.Quit(2);
         }
 
         static Dictionary<string, object> ToObjects(Dictionary<string, double> m)

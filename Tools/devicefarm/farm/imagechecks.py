@@ -7,8 +7,8 @@ import re
 
 import numpy as np
 
-TYPES = ("notBlank", "bandFlip", "lineContinuity", "blobX", "deltaE", "glyphInside")
-PAIRED = ("bandFlip",)  # 캡처 두 장 (capture + other)
+TYPES = ("notBlank", "bandFlip", "lineContinuity", "blobX", "deltaE", "glyphInside", "contactDistance", "sameImage")
+PAIRED = ("bandFlip", "sameImage")  # 캡처 두 장 (capture + other)
 
 
 def _lum(a):
@@ -265,6 +265,26 @@ def glyph_inside(arr, regions, min_glyph_px=12, tolerance_px=2, margin=0.3):
     return {"ok": ok, "detail": "; ".join(rows)}
 
 
+def contact_distance(arr, regions, max_ratio=0.5):
+    """043 AC-14: 접촉 프레임에서 접촉 신체 부위(클립 접촉 규칙을 실제 본으로 계산한 점)의 화면 투영과 공 중심 투영 거리 ≤ 공 화면 지름 × max_ratio."""
+    c = regions["contact"]
+    p, b, dia = np.array(c["point"], dtype=np.float64), np.array(c["ball"], dtype=np.float64), float(c["ballDiameter"])
+    dist = float(np.hypot(*(p - b)))
+    ok = dia > 0 and dist <= max_ratio * dia
+    return {"ok": ok, "detail": f"{c.get('clip', '')}: 접촉점–공 {dist:.1f}px ≤ {max_ratio} × 공 지름 {dia:.1f}px ({max_ratio * dia:.1f})"}
+
+
+def same_image(arr_a, reg_a, arr_b, reg_b, max_mean_diff=0.5, max_diff_ratio=0.001):
+    """043 AC-15: 같은 시뮬 시각을 다른 배속으로 캡처한 두 장이 같은 포즈(픽셀 평균 차·다른 픽셀 비율)."""
+    if arr_a.shape != arr_b.shape:
+        return {"ok": False, "detail": f"크기 다름 {arr_a.shape} vs {arr_b.shape}"}
+    d = np.abs(arr_a[..., :3].astype(np.int16) - arr_b[..., :3].astype(np.int16)).max(axis=-1)
+    mean = float(d.mean())
+    ratio = float((d > 8).mean())
+    ok = mean <= max_mean_diff and ratio <= max_diff_ratio
+    return {"ok": ok, "detail": f"평균 차 {mean:.3f} (≤ {max_mean_diff}), 다른 픽셀(>8) {ratio * 100:.3f}% (≤ {max_diff_ratio * 100:.3f}%)"}
+
+
 def run(checks, captures):
     """checks: 시나리오 imageChecks. captures: {이름: (RGB 배열, regions)}. → 결과 목록."""
     out = []
@@ -292,6 +312,13 @@ def run(checks, captures):
                 r = delta_e(arr, reg, **params)
             elif t == "glyphInside":
                 r = glyph_inside(arr, reg, **params)
+            elif t == "contactDistance":
+                r = contact_distance(arr, reg, **params)
+            elif t == "sameImage":
+                if c["other"] not in captures:
+                    raise KeyError(f"캡처 없음: {c['other']}")
+                arr2, reg2 = captures[c["other"]]
+                r = same_image(arr, reg, arr2, reg2, **params)
             else:
                 raise KeyError(f"알 수 없는 검사 {t}")
             row.update(ok=bool(r["ok"]), detail=r["detail"])

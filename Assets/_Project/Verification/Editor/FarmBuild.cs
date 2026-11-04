@@ -66,7 +66,8 @@ namespace RoadToPro.Verification.Editor
                 if (before != backend) PlayerSettings.SetScriptingBackend(target, backend);
                 var opts = new BuildPlayerOptions
                 {
-                    scenes = FarmScenes,
+                    // 043 애니메이션 벤치(T27)는 선수 씬이 필요하다
+                    scenes = FarmScenes.Concat(new[] { PlayerSceneSetup.ScenePath }).ToArray(),
                     locationPathName = outPath,
                     target = BuildTarget.StandaloneOSX,
                     options = BuildOptions.None,

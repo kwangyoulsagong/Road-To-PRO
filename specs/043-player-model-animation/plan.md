@@ -83,9 +83,9 @@ Unity 쪽 애니메이션은 **시뮬 시각의 함수**로 평가한다. 하이
 | AC-11 | `ActionClipSelectorTests.OneTouch_NeverLate` | 로직 | — |
 | AC-12 | `AnimDeterminismTests.Fps30vs60_SameClipAndTime`, `TwoRuns_SamePoseHash` | 결정론 | — |
 | AC-13 | `e2e/043-kit-lineup` + `deltaE`·`glyphInside` | E2E | 전체 |
-| AC-14 | 보류 (041 이후, 스펙 승인 2026-11-04) | E2E | smoke |
-| AC-15 | 보류 (041 이후) | E2E | smoke |
-| AC-16 | `e2e/043-anim-perf` 예산 | 성능 | low-igpu-1080p (GC는 mac-m1-1600p) |
+| AC-14 | `e2e/043-contact-closeup` + `contactDistance` (041 대신 FixedPlaybackClock, 2026-11-04) | E2E | smoke |
+| AC-15 | `e2e/043-speed-motion` + `sameImage` | E2E | smoke |
+| AC-16 | `e2e/043-anim-perf`(GC·드로우콜·삼각형) + `farm.py bench --spec 043`(IL2CPP CPU p95) | 성능 | low-igpu-1080p · mac-m1-1600p(IL2CPP) |
 | AC-17 | `KitCompositorPerf.PerTeam_Under50ms`, `KitCompositorTests.DuringPlayback_Zero` + `043-anim-perf` 로그 카운터 | 성능 | low-igpu-1080p |
 
 하네스 확장 테스트: `Tools/devicefarm/tests/test_imagechecks.py`에 `deltaE`·`glyphInside` 통과·실패 합성 이미지. 기존 셀프테스트 회귀 없음.

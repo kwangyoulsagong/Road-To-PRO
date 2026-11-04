@@ -185,3 +185,20 @@ class GlyphInsideNeighbours(unittest.TestCase):
             {"area": [60, 50, 80, 60], "text": [255, 255, 255], "base": [200, 20, 40], "kind": "number", "entity": 3},
             {"area": [60, 38, 80, 12], "text": [255, 255, 255], "base": [200, 20, 40], "kind": "name", "entity": 3}]}
         self.assertTrue(ic.glyph_inside(a, reg)["ok"], ic.glyph_inside(a, reg))
+
+
+class ContactAndSame(unittest.TestCase):
+    """specs/043 AC-14·15."""
+
+    def test_contact_distance(self):
+        reg = {"contact": {"point": [100, 100], "ball": [104, 103], "ballDiameter": 20, "clip": "pass_inside_r"}}
+        self.assertTrue(ic.contact_distance(None, reg)["ok"])
+        reg["contact"]["ball"] = [100, 115]
+        self.assertFalse(ic.contact_distance(None, reg)["ok"])
+
+    def test_same_image(self):
+        a = grass()
+        b = a.copy()
+        self.assertTrue(ic.same_image(a, {}, b, {})["ok"])
+        b[50:90, 50:90] = (200, 30, 30)
+        self.assertFalse(ic.same_image(a, {}, b, {})["ok"])

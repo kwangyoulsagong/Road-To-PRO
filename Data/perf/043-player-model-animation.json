@@ -1,0 +1,16 @@
+{
+  "spec": "043",
+  "profile": "mac-m1-1600p",
+  "note": "specs/043 성능 예산의 기계용 사본. 애니메이션 CPU(AC-16)의 판정 런타임은 IL2CPP 릴리스 플레이어(farm.py bench --spec 043, T27) — 2026-11-04 사용자 결정(006 D17과 같은 규칙). E2E(Mono 개발 빌드) animCpuMs는 기록만. 드로우콜·삼각형·GC는 E2E 043-anim-perf가 판정, 키트 합성 시간(AC-17)은 Tests/Performance KitCompositorPerfTests.",
+  "tests": [
+    "RoadToPro.Tests.EditMode.Presentation.Players",
+    "RoadToPro.Tests.Performance.Presentation"
+  ],
+  "budgets": [],
+  "il2cpp": {
+    "budgets": [
+      {"ac": "AC-16", "label": "선수 25명 애니메이션 갱신 p95 (헤드리스, 1.5x 합성 하이라이트)", "metric": "anim_p95_ms", "max": 2.0, "unit": "ms"},
+      {"ac": "AC-16", "label": "애니메이션 갱신 관리 힙 할당 (1200프레임 합)", "metric": "anim_gc_bytes", "max": 0, "unit": "B"}
+    ]
+  }
+}

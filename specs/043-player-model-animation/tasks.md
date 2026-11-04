@@ -66,4 +66,10 @@
   - 결과: `logic --spec 043` 513개 중 510 통과·실패 0·컴파일 에러 0(약 13분), `art --spec 043` 15/15 통과.
 - [x] T26 `/verify 043` — full(light·ko 한 벌) E2E·성능, 리포트 아티팩트 발행. AC-14·15는 보류로 표기
   - 결과: `full --spec 043` 판정 pass(로직 510/513 · Blender 15/15 · kit-lineup 10프로필 · anim-perf 2프로필, 콘솔 경고 0). 리포트 https://claude.ai/artifact/2xMJcHgU79JDxB7HARnbdz. 고친 것: 꺼진/비활성 LODGroup에 ForceLOD 경고, 하네스 merge_previous가 옛 시나리오 판정을 쌓던 버그. 커밋 76b7497 깨끗한 트리에서 재실행 pass(완료 증거).
-- [ ] T27 (후속·보류) IL2CPP 애니메이션 벤치: 25명 AnimPlan 평가 + 포즈 적용 CPU p95 ≤ 2 ms를 IL2CPP 릴리스로 판정 (2026-11-04 사용자 결정: Mono 개발 빌드 E2E 값은 기록만 — 실측 p50 ≈ 0.85 ms, p95 2.0~2.4 ms)
+- [x] T27 IL2CPP 애니메이션 벤치: 25명 AnimPlan 평가 + 포즈 적용 CPU p95 ≤ 2 ms를 IL2CPP 릴리스로 판정 (2026-11-04 사용자 결정: Mono 개발 빌드 E2E 값은 기록만 — 실측 p50 ≈ 0.85 ms, p95 2.0~2.4 ms)
+  - 결과: `farm.py bench --spec 043`(IL2CPP 릴리스, 헤드리스 25명 1.5x 1200프레임) 충전 상태 정식 판정 통과 — p95 0.20 ms ≤ 2 ms, GC 0 B. 벤치 빌드에 Player043 씬 추가, `AnimBench`·`PlayerScreen.BenchAnim`, `Data/perf/043-player-model-animation.json`.
+- [x] T28 AC-14 E2E `043-contact-closeup`(smoke): 패스·슛·헤딩·태클 접촉 순간 0.5x 시계로 멈춘 클로즈업, 접촉점–공 화면 거리 ≤ 공 지름 × 0.5 — 파일: `PlayerScreen`(contact*), imagechecks `contactDistance`, `Data/e2e/043-contact-closeup.json` (2026-11-04 사용자 요청: 041 대신 고정 재생 시계)
+  - 결과: smoke 3프로필 통과 — 접촉점–공 화면 거리 패스 21 · 슛 28 · 헤딩 68 · 태클 39 px ≤ 공 지름 × 0.5(≈ 99 px). 캡처 눈 확인(발 안쪽·발등·이마·발이 공에 닿음). 기준 12장 사용자 승인 채택.
+- [x] T29 AC-15 E2E `043-speed-motion`(smoke): 같은 질주 장면을 1x·1.5x·3x로 같은 시뮬 시각에 캡처, 세 장 동일 — 파일: `PlayerScreen`(speed*), imagechecks `sameImage`, `Data/e2e/043-speed-motion.json`
+  - 결과: smoke 3프로필 통과 — 1x·1.5x·3x 같은 시뮬 시각 캡처 평균 차 0.000, 다른 픽셀 0%. 기준 9장 사용자 승인 채택.
+- [ ] T30 `/verify 043` 재실행(보류 없이 AC-01~17 전부) + 리포트 갱신

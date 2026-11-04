@@ -95,6 +95,14 @@ namespace RoadToPro.Verification.Samples
             FarmContext.Screens["perfPlayers"] = () => ShowPerf(1);
             FarmContext.Screens["perfFull"] = () => ShowPerf(2);
             FarmContext.Screens["perfPlayersNoShadow"] = () => ShowPerf(3);
+            foreach (var k in new[] { "Pass", "Shot", "Header", "Tackle" })
+            {
+                var kind = k;
+                FarmContext.Screens["contact" + k] = () => ShowContact(kind);
+            }
+            FarmContext.Screens["speed1x"] = () => ShowSpeed(1f, 90);
+            FarmContext.Screens["speed15x"] = () => ShowSpeed(1.5f, 60);
+            FarmContext.Screens["speed3x"] = () => ShowSpeed(3f, 30);
             FarmContext.CaptureRegions = Regions;
             FarmContext.PerfCounters["animCpuMs"] = () => _perf ? _cpuMs : (double?)null;
             FarmContext.PerfCounters["animGcBytes"] = () => _perf ? _gcBytes : (double?)null;
@@ -181,6 +189,8 @@ namespace RoadToPro.Verification.Samples
         /// <param name="key">글자를 키 색(마젠타)으로 — 번호·이름 영역 검사용 캡처.</param>
         void ShowRow(int row, bool back, bool key = false)
         {
+            if (_ball != null) _ball.gameObject.SetActive(false);
+            _contactView = false;
             _perf = false;
             KitCompositor.PlaybackActive = false;
             _key = key;
@@ -225,6 +235,8 @@ namespace RoadToPro.Verification.Samples
 
         void ShowPerf(int show)
         {
+            if (_ball != null) _ball.gameObject.SetActive(false);
+            _contactView = false;
             _view = show == 0 ? "perfEmpty" : show == 1 ? "perfPlayers" : show == 2 ? "perfFull" : "perfPlayersNoShadow";
             foreach (var r in stadium) r.enabled = show == 2;
             pitch.enabled = show == 2;
@@ -279,6 +291,172 @@ namespace RoadToPro.Verification.Samples
             }
         }
 
+        /// <summary>
+        /// specs/043 T27 IL2CPP 벤치: perfPlayers 화면을 띄우고 warmup 뒤 frames 프레임 동안 애니메이션 갱신 1회 시간(ms)·할당을 잰다.
+        /// 렌더 없이(헤드리스) 같은 경로(AnimPlan 평가 + 포즈 적용 + 그래프 평가 + 발 접지)를 돈다.
+        /// </summary>
+        public Dictionary<string, double> BenchAnim(int warmup, int frames)
+        {
+            ShowPerf(1);
+            _perf = false; // Update가 같이 돌지 않게
+            var d = _sys.Plan.Data;
+            float len = d.EndTime - d.StartTime - 0.05f;
+            var ms = new double[frames];
+            long gc = 0;
+            for (int i = -warmup; i < frames; i++)
+            {
+                _clock.Frame++;
+                float t = d.StartTime + Mathf.Repeat(_clock.SimTime - d.StartTime, len);
+                long g0 = GC.GetAllocatedBytesForCurrentThread();
+                var sw = Stopwatch.StartNew();
+                _sys.ApplyAt(t);
+                sw.Stop();
+                long g = GC.GetAllocatedBytesForCurrentThread() - g0;
+                if (i < 0) continue;
+                ms[i] = sw.Elapsed.TotalMilliseconds;
+                gc += g;
+            }
+            Array.Sort(ms);
+            double P(double q) => ms[Math.Min(frames - 1, Math.Max(0, (int)Math.Ceiling(q * frames) - 1))];
+            return new Dictionary<string, double>
+            {
+                { "anim_p50_ms", P(0.50) },
+                { "anim_p95_ms", P(0.95) },
+                { "anim_max_ms", ms[frames - 1] },
+                { "anim_gc_bytes", gc },
+                { "anim_frames", frames },
+                { "anim_players", HighlightData.Entities },
+            };
+        }
+
+        // ---------------------------------------------------------------- 접촉 클로즈업 (AC-14) · 배속 (AC-15)
+
+        Transform _ball;
+        RoadToPro.Presentation.Players.Logic.ContactRule _rule;
+        bool _contactView;
+
+        Transform Ball()
+        {
+            if (_ball != null) return _ball;
+            var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            go.name = "Ball";
+            Destroy(go.GetComponent<Collider>());
+            go.transform.localScale = Vector3.one * 0.22f;
+            var r = go.GetComponent<Renderer>();
+            r.sharedMaterial = new Material(assets.kitShader) { name = "BallStandIn" };
+            r.sharedMaterial.SetColor("_Primary", Color.white);
+            r.sharedMaterial.SetColor("_BootColor", Color.white);
+            r.sharedMaterial.SetVector("_TextCell", Vector4.zero);
+            _ball = go.transform;
+            return _ball;
+        }
+
+        /// <summary>접촉 장면: 엔티티 0이 +Z로 달려와 시작 + 2초에 공을 찬다(헤딩은 공 높이 2.25 m, 태클은 0.8 m 앞 땅볼).</summary>
+        HighlightData ContactScene(string kind, out float contact)
+        {
+            const float start = 50f, len = 3f;
+            int frames = (int)(len * HighlightData.FrameRate) + 1;
+            var d = new HighlightData(start, frames);
+            contact = start + 2f;
+            float v = kind == "Tackle" ? 4f : kind == "Header" ? 2f : 3.5f;
+            for (int f = 0; f < frames; f++)
+            {
+                float t = f / HighlightData.FrameRate;
+                // 접촉 0.4 s 전부터 절반 속도로 감속, 이후 절반 속도
+                float tc = 2f, t1 = tc - 0.4f;
+                float z = t <= t1 ? v * t : v * t1 + v * Mathf.Min(t - t1, 0.4f) - 0.5f * (0.5f * v / 0.4f) * Mathf.Pow(Mathf.Min(t - t1, 0.4f), 2) + (t > tc ? 0.5f * v * (t - tc) : 0f);
+                d.Set(f, 0, 0f, z - 7f, 0f);
+                for (int e = 1; e < HighlightData.Entities; e++) d.Set(f, e, 0f, 0f, 0f, false);
+            }
+            var p = d.Pos(0, contact);
+            Vec3 ball; Vec3 vel;
+            var part = RoadToPro.MatchEngine.Match.Events.BodyPart.None;
+            var ev = RoadToPro.MatchEngine.Match.Events.SimEventKind.Pass;
+            switch (kind)
+            {
+                case "Shot": ball = p + new Vec3(0.05f, 0.11f, 0.58f); vel = new Vec3(0, 3, 24); ev = RoadToPro.MatchEngine.Match.Events.SimEventKind.Shot; part = RoadToPro.MatchEngine.Match.Events.BodyPart.RightFoot; break;
+                case "Header": ball = p + new Vec3(0f, 2.15f, 0.34f); vel = new Vec3(0, -2, 12); ev = RoadToPro.MatchEngine.Match.Events.SimEventKind.Shot; part = RoadToPro.MatchEngine.Match.Events.BodyPart.Head; break;
+                case "Tackle": ball = p + new Vec3(0.08f, 0.11f, 0.78f); vel = new Vec3(2, 0, 4); ev = RoadToPro.MatchEngine.Match.Events.SimEventKind.Tackle; part = RoadToPro.MatchEngine.Match.Events.BodyPart.RightFoot; break;
+                default: ball = p + new Vec3(-0.13f, 0.11f, 0.49f); vel = new Vec3(-3, 0, 10); part = RoadToPro.MatchEngine.Match.Events.BodyPart.RightFoot; break;
+            }
+            for (int f = 0; f < frames; f++)
+            {
+                float t = start + f / HighlightData.FrameRate;
+                d.Ball[f] = t <= contact ? ball + new Vec3(0, 0, Mathf.Max(0f, contact - t) * 2f) : ball + vel * (t - contact);
+            }
+            d.Events.Add(new AnimEvent(contact, 1, ev, 0, -1, part, ActionOutcome.Success, ball, vel));
+            return d;
+        }
+
+        void Prepare(HighlightData d, float t, float rate, long frame)
+        {
+            _perf = false;
+            KitCompositor.PlaybackActive = false;
+            foreach (var r in stadium) r.enabled = false;
+            pitch.enabled = true;
+            var plan = AnimPlan.Build(_lib, _map, d, _log);
+            _clock.Start = d.StartTime;
+            _clock.Fps = 60f;
+            _clock.Rate = rate;
+            _clock.Frame = frame;
+            _sys.Init(plan, _rigs, assets.clips, null);
+            foreach (var rig in _rigs) rig.Freeze(false);
+            _sys.ApplyAt(t);
+            foreach (var rig in _rigs)
+            {
+                rig.ForceLod(0);
+                if (rig.gameObject.activeSelf) rig.Freeze(true);
+            }
+            var b = plan.BallVisual(t);
+            Ball().position = new Vector3(b.X, b.Y, b.Z);
+            Ball().gameObject.SetActive(true);
+        }
+
+        void ShowContact(string kind)
+        {
+            _view = "contact" + kind;
+            _contactView = true;
+            var d = ContactScene(kind, out var contact);
+            // 0.5x 리플레이: 접촉 시각이 되는 프레임 = (contact − start) · fps / 0.5
+            long frame = (long)Math.Round((contact - d.StartTime) * 60.0 / 0.5);
+            Prepare(d, contact, 0.5f, frame);
+            var a = _sys.Plan.Timeline(0);
+            _rule = _lib.Get(a.Get(0).Clip).Rule;
+            // 옆(오른쪽)에서 본 클로즈업, 접촉점 높이
+            var cp = ContactWorld();
+            var target = new Vector3(cp.x, Mathf.Max(0.5f, cp.y), cp.z);
+            cam.transform.position = target + new Vector3(3.2f, 0.4f, -0.6f);
+            cam.transform.rotation = Quaternion.LookRotation(target - cam.transform.position, Vector3.up);
+        }
+
+        void ShowSpeed(float rate, long frame)
+        {
+            _view = $"speed{rate:0.#}x";
+            _contactView = false;
+            var d = PerfHighlight.Build();
+            for (int f = 0; f < d.Frames; f++)
+                for (int e = 0; e < HighlightData.Entities; e++)
+                    d.Set(f, e, e == 0 ? 0f : 0f, e == 0 ? -20f + 7.6f * f / HighlightData.FrameRate : 0f, 0f, e == 0);
+            d.Events.Clear();
+            // 시뮬 시각 = 시작 + 프레임 · 배속 / 60 → 세 배속 모두 시작 + 1.5 s
+            float t = d.StartTime + (float)(frame * (double)rate / 60.0);
+            Prepare(d, t, rate, frame);
+            Ball().gameObject.SetActive(false);
+            var root = _rigs[0].transform.position;
+            cam.transform.position = root + new Vector3(4.5f, 1.4f, 0.5f);
+            cam.transform.rotation = Quaternion.LookRotation(root + Vector3.up * 0.9f - cam.transform.position, Vector3.up);
+        }
+
+        Vector3 ContactWorld()
+        {
+            var rig = _rigs[0];
+            Vec3 V(Transform t) => new Vec3(t.position.x, t.position.y, t.position.z);
+            var bone = V(rig.Bone(_rule.Bone));
+            var toward = _rule.Toward != null ? V(rig.Bone(_rule.Toward)) : bone;
+            var p = _rule.Evaluate(bone, toward, V(rig.Bone("LeftUpperLeg")), V(rig.Bone("RightUpperLeg")));
+            return new Vector3(p.X, p.Y, p.Z);
+        }
+
         // ---------------------------------------------------------------- 캡처 영역
 
         static readonly Vector4 ShirtCenter = new Vector4(0.12f, 0.60f, 0.38f, 0.76f);
@@ -286,6 +464,20 @@ namespace RoadToPro.Verification.Samples
         Dictionary<string, object> Regions(int w, int h)
         {
             var r = new Dictionary<string, object> { { "view", _view } };
+            if (_view.StartsWith("contact", StringComparison.Ordinal) && _contactView)
+            {
+                var cp = cam.WorldToScreenPoint(ContactWorld());
+                var bc = cam.WorldToScreenPoint(_ball.position);
+                var edge = cam.WorldToScreenPoint(_ball.position + cam.transform.right * 0.11f);
+                r["contact"] = new Dictionary<string, object>
+                {
+                    { "point", new List<object> { Math.Round(cp.x, 2), Math.Round(h - cp.y, 2) } },
+                    { "ball", new List<object> { Math.Round(bc.x, 2), Math.Round(h - bc.y, 2) } },
+                    { "ballDiameter", Math.Round(2.0 * Vector2.Distance(new Vector2(bc.x, bc.y), new Vector2(edge.x, edge.y)), 2) },
+                    { "clip", _lib.Get(_sys.Plan.Timeline(0).Get(0).Clip).Id },
+                };
+                return r;
+            }
             if (!_view.StartsWith("row", StringComparison.Ordinal)) return r;
             if (!_back)
             {
