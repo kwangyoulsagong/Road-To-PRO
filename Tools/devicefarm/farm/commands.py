@@ -52,6 +52,24 @@ def deferred_acs(cfg, info):
     return dict(d)
 
 
+def manual_acs(cfg, info):
+    """Data/perf/<spec>.json의 "manual": {"AC-09": "evidence/approval.md"} (specs/056 T19a).
+    사용자 육안 승인처럼 기계가 낼 수 없는 증거: 스펙 폴더 기준 파일이 있고 그 안에 AC id가 적혀 있으면 통과 증거로 붙인다.
+    스펙에 없는 AC id는 설정 오류. 파일이 없거나 AC id가 없으면 실패 증거(빠뜨림이 통과로 보이지 않게)."""
+    m = (cfg or {}).get("manual") or {}
+    if not isinstance(m, dict):
+        raise RunnerError("manual은 {\"AC-NN\": \"상대 경로\"} 객체여야 한다")
+    ids = {a["id"] for a in info.get("acs", [])}
+    out = {}
+    for ac, rel in m.items():
+        if ac not in ids:
+            raise RunnerError(f"manual의 {ac}가 스펙 AC 목록에 없다")
+        path = os.path.join(info["dir"] or "", rel)
+        ok = os.path.exists(path) and ac in open(path, encoding="utf-8").read()
+        out[ac] = [{"label": f"수동 승인 기록 {rel}" + ("" if ok else " (없음 또는 AC 미기재)"), "ok": ok}]
+    return out
+
+
 def evidence_dir(spec, run_dir):
     info = spec_info(spec) if spec else None
     if info and info["dir"]:
@@ -214,6 +232,8 @@ def cmd_logic(args, argv):
               "editmodePerf": judgement, "benchPerf": bench_j, "requireAllAcs": bool(cfg), "deferred": deferred,
               "acEvidence": {k: v for k, v in ac_evidence(info, lg, res, judgement, bench_j, bench_required).items()
                              if k not in deferred}}  # 보류 AC에 일반 증거(EditMode 통과)를 자동으로 붙이지 않는다 (specs/006)
+        if args.spec:
+            ev["acEvidence"].update(manual_acs(cfg, info))
         merge_art(ev, ev_dir)
         path = report.write(ev, ev_dir)
     log(f"[farm] 합계 {res.total} 통과 {res.passed} 실패 {res.failed} 컴파일 에러 {len(res.compile_errors)}")
@@ -253,7 +273,8 @@ def scenarios_for(args):
         s = scenario.load(p)
         if s.self_test:
             continue
-        if args.spec and s.spec != args.spec:
+        # alsoSpecs: 다른 스펙의 회귀 시나리오를 이 스펙 증거로도 돌린다 {"056": ["AC-08"]} (specs/056 T19a)
+        if args.spec and s.spec != args.spec and args.spec not in ((s.raw or {}).get("alsoSpecs") or {}):
             continue
         out.append(s)
     if not out:
@@ -288,13 +309,16 @@ def cmd_matrix(tier, args, argv):
         info = spec_info(args.spec or (scs[0].spec if len(scs) == 1 else None))
         ac_ev = {}
         for sc, r in zip(scs, runs):
-            for ac in (sc.raw or {}).get("acs", []):
+            acs = (sc.raw or {}).get("acs", []) if not args.spec or sc.spec == args.spec \
+                else ((sc.raw or {}).get("alsoSpecs") or {}).get(args.spec, [])
+            for ac in acs:
                 # 기준 후보는 실패가 아니라 승인 대기 — 전체 판정이 'candidate'로 남는다
                 ac_ev.setdefault(ac, []).append({"label": f"{sc.id} ({tier}) {r['verdict']}", "ok": r["verdict"] != "fail"})
         ev = {"title": f"{info['id']} 디바이스팜 증거 ({tier})", "spec": info, "meta": meta, "scenarios": runs,
               "acEvidence": ac_ev}
         if args.spec:
             merge_previous(ev, evidence_dir(args.spec, run_dir), args.spec)
+            ev["acEvidence"].update(manual_acs(perf.load_spec_config(args.spec), info))
         # 스펙 증거 폴더에는 --spec으로 돌렸을 때만 쓴다 (--scenario 단독 실행이 완료 증거를 덮어쓰지 않게)
         path = report.write(ev, evidence_dir(args.spec, run_dir))
         with open(LATEST, "w", encoding="utf-8") as f:

@@ -1,5 +1,5 @@
 {
-  "title": "056 디바이스팜 증거 (smoke)",
+  "title": "056 디바이스팜 증거 (full)",
   "spec": {
     "id": "056",
     "name": "056 — 사람다운 선수 모델 (MPFB2 CC0 바탕 · 얼굴 · 피부 · 머리카락)",
@@ -63,13 +63,13 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/056-realistic-player-model"
   },
   "meta": {
-    "commit": "ab7feaf6b2d48e87f9c73b7b13aeceaaff529348",
+    "commit": "4f702388756f9d659d103b551b7d14c157f05165",
     "branch": "feat/056-realistic-player-model",
     "dirty": true,
     "unity": "6000.3.27f2",
-    "time": "2026-11-04 17:07:31 +0900",
-    "durationSec": 197.21476888656616,
-    "command": "python3 Tools/devicefarm/farm.py smoke --spec 056",
+    "time": "2026-11-04 17:22:39 +0900",
+    "durationSec": 173.89800381660461,
+    "command": "python3 Tools/devicefarm/farm.py full --spec 056",
     "profiles": [
       "compact-1366-light-ko",
       "low-igpu-1080p-light-ko",
@@ -91,8 +91,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 10.2,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/low-igpu-1080p-light-ko",
+          "durationSec": 9.8,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/low-igpu-1080p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -102,11 +102,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/low-igpu-1080p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/low-igpu-1080p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/056-body-lineup.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/low-igpu-1080p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/low-igpu-1080p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -136,7 +136,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 149,
+              "ms": 149.8,
               "message": "",
               "timedOut": false
             },
@@ -145,7 +145,7 @@
               "type": "capture",
               "name": "bodyFront",
               "status": "passed",
-              "ms": 162.9,
+              "ms": 158.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -164,7 +164,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 20.3,
+              "ms": 23.6,
               "message": "",
               "timedOut": false
             },
@@ -173,7 +173,7 @@
               "type": "capture",
               "name": "bodySide",
               "status": "passed",
-              "ms": 134.7,
+              "ms": 135.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -192,7 +192,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.5,
+              "ms": 31.7,
               "message": "",
               "timedOut": false
             },
@@ -201,7 +201,7 @@
               "type": "capture",
               "name": "bodyBack",
               "status": "passed",
-              "ms": 134.3,
+              "ms": 138.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -220,7 +220,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.2,
+              "ms": 28.2,
               "message": "",
               "timedOut": false
             },
@@ -229,7 +229,7 @@
               "type": "capture",
               "name": "bodyBroadcast",
               "status": "passed",
-              "ms": 187,
+              "ms": 185.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -247,52 +247,52 @@
           "captures": [
             {
               "step": "bodyFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/low-igpu-1080p-light-ko/captures/bodyFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/low-igpu-1080p-light-ko/captures/bodyFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodyFront/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "bodySide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/low-igpu-1080p-light-ko/captures/bodySide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/low-igpu-1080p-light-ko/captures/bodySide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodySide/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "bodyBack",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/low-igpu-1080p-light-ko/captures/bodyBack.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/low-igpu-1080p-light-ko/captures/bodyBack.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodyBack/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "bodyBroadcast",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/low-igpu-1080p-light-ko/captures/bodyBroadcast.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/low-igpu-1080p-light-ko/captures/bodyBroadcast.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodyBroadcast/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
@@ -308,7 +308,7 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "candidate"
+          "verdict": "pass"
         },
         {
           "key": "mac-m1-1600p-light-ko",
@@ -319,8 +319,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 6.1,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/mac-m1-1600p-light-ko",
+          "durationSec": 6.3,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/mac-m1-1600p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -330,11 +330,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/mac-m1-1600p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/mac-m1-1600p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/056-body-lineup.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/mac-m1-1600p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/mac-m1-1600p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -364,7 +364,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 132.9,
+              "ms": 149.5,
               "message": "",
               "timedOut": false
             },
@@ -373,7 +373,7 @@
               "type": "capture",
               "name": "bodyFront",
               "status": "passed",
-              "ms": 256.5,
+              "ms": 260,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -392,7 +392,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 26.9,
+              "ms": 23,
               "message": "",
               "timedOut": false
             },
@@ -401,7 +401,7 @@
               "type": "capture",
               "name": "bodySide",
               "status": "passed",
-              "ms": 250.5,
+              "ms": 253.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -420,7 +420,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.8,
+              "ms": 29.5,
               "message": "",
               "timedOut": false
             },
@@ -429,7 +429,7 @@
               "type": "capture",
               "name": "bodyBack",
               "status": "passed",
-              "ms": 252,
+              "ms": 264.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -448,7 +448,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 31.1,
+              "ms": 35.5,
               "message": "",
               "timedOut": false
             },
@@ -457,7 +457,7 @@
               "type": "capture",
               "name": "bodyBroadcast",
               "status": "passed",
-              "ms": 345.7,
+              "ms": 359.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -475,52 +475,52 @@
           "captures": [
             {
               "step": "bodyFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/mac-m1-1600p-light-ko/captures/bodyFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/mac-m1-1600p-light-ko/captures/bodyFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodyFront/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "bodySide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/mac-m1-1600p-light-ko/captures/bodySide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/mac-m1-1600p-light-ko/captures/bodySide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodySide/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "bodyBack",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/mac-m1-1600p-light-ko/captures/bodyBack.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/mac-m1-1600p-light-ko/captures/bodyBack.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodyBack/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "bodyBroadcast",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/mac-m1-1600p-light-ko/captures/bodyBroadcast.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/mac-m1-1600p-light-ko/captures/bodyBroadcast.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodyBroadcast/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
@@ -536,7 +536,7 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "candidate"
+          "verdict": "pass"
         },
         {
           "key": "compact-1366-light-ko",
@@ -547,8 +547,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 5.3,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/compact-1366-light-ko",
+          "durationSec": 7.5,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/compact-1366-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -558,11 +558,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/compact-1366-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/compact-1366-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/056-body-lineup.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/compact-1366-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/compact-1366-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -592,7 +592,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 149.8,
+              "ms": 166.7,
               "message": "",
               "timedOut": false
             },
@@ -601,7 +601,7 @@
               "type": "capture",
               "name": "bodyFront",
               "status": "passed",
-              "ms": 81.8,
+              "ms": 86.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -620,7 +620,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34.6,
+              "ms": 30.3,
               "message": "",
               "timedOut": false
             },
@@ -629,7 +629,7 @@
               "type": "capture",
               "name": "bodySide",
               "status": "passed",
-              "ms": 78.1,
+              "ms": 79.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -648,7 +648,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.8,
+              "ms": 20,
               "message": "",
               "timedOut": false
             },
@@ -657,7 +657,7 @@
               "type": "capture",
               "name": "bodyBack",
               "status": "passed",
-              "ms": 79.9,
+              "ms": 85.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -676,7 +676,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 20.1,
+              "ms": 30.7,
               "message": "",
               "timedOut": false
             },
@@ -685,7 +685,7 @@
               "type": "capture",
               "name": "bodyBroadcast",
               "status": "passed",
-              "ms": 99.4,
+              "ms": 104.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -703,52 +703,52 @@
           "captures": [
             {
               "step": "bodyFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/compact-1366-light-ko/captures/bodyFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/compact-1366-light-ko/captures/bodyFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodyFront/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "bodySide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/compact-1366-light-ko/captures/bodySide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/compact-1366-light-ko/captures/bodySide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodySide/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "bodyBack",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/compact-1366-light-ko/captures/bodyBack.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/compact-1366-light-ko/captures/bodyBack.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodyBack/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "bodyBroadcast",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-body-lineup/compact-1366-light-ko/captures/bodyBroadcast.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-body-lineup/compact-1366-light-ko/captures/bodyBroadcast.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-body-lineup/bodyBroadcast/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-body-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
@@ -764,11 +764,11 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "candidate"
+          "verdict": "pass"
         }
       ],
       "determinism": null,
-      "verdict": "candidate"
+      "verdict": "pass"
     },
     {
       "scenario": "056-face-lineup",
@@ -783,8 +783,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 9.2,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko",
+          "durationSec": 10.0,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -794,11 +794,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/056-face-lineup.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -837,7 +837,7 @@
               "type": "capture",
               "name": "face1Front",
               "status": "passed",
-              "ms": 134.4,
+              "ms": 144,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -856,7 +856,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 31.3,
+              "ms": 22.3,
               "message": "",
               "timedOut": false
             },
@@ -865,7 +865,7 @@
               "type": "capture",
               "name": "face1Three",
               "status": "passed",
-              "ms": 132.6,
+              "ms": 136,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -884,7 +884,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34.6,
+              "ms": 30.2,
               "message": "",
               "timedOut": false
             },
@@ -893,7 +893,7 @@
               "type": "capture",
               "name": "face1Side",
               "status": "passed",
-              "ms": 128.9,
+              "ms": 133.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -912,7 +912,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 20.5,
+              "ms": 33.4,
               "message": "",
               "timedOut": false
             },
@@ -921,7 +921,7 @@
               "type": "capture",
               "name": "face2Front",
               "status": "passed",
-              "ms": 128.7,
+              "ms": 133,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -940,7 +940,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.8,
+              "ms": 33.3,
               "message": "",
               "timedOut": false
             },
@@ -949,7 +949,7 @@
               "type": "capture",
               "name": "face2Three",
               "status": "passed",
-              "ms": 133.2,
+              "ms": 136.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -968,7 +968,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32,
+              "ms": 30.5,
               "message": "",
               "timedOut": false
             },
@@ -977,7 +977,7 @@
               "type": "capture",
               "name": "face2Side",
               "status": "passed",
-              "ms": 130.7,
+              "ms": 136.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -996,7 +996,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 19.3,
+              "ms": 30.4,
               "message": "",
               "timedOut": false
             },
@@ -1005,7 +1005,7 @@
               "type": "capture",
               "name": "face3Front",
               "status": "passed",
-              "ms": 124,
+              "ms": 133.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1024,7 +1024,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.9,
+              "ms": 33.4,
               "message": "",
               "timedOut": false
             },
@@ -1033,7 +1033,7 @@
               "type": "capture",
               "name": "face3Three",
               "status": "passed",
-              "ms": 129,
+              "ms": 132.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1052,7 +1052,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 20.9,
+              "ms": 32.9,
               "message": "",
               "timedOut": false
             },
@@ -1061,7 +1061,7 @@
               "type": "capture",
               "name": "face3Side",
               "status": "passed",
-              "ms": 127.6,
+              "ms": 139.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1080,7 +1080,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.1,
+              "ms": 27.4,
               "message": "",
               "timedOut": false
             },
@@ -1089,7 +1089,7 @@
               "type": "capture",
               "name": "face4Front",
               "status": "passed",
-              "ms": 128.3,
+              "ms": 137.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1108,7 +1108,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.7,
+              "ms": 28.4,
               "message": "",
               "timedOut": false
             },
@@ -1117,7 +1117,7 @@
               "type": "capture",
               "name": "face4Three",
               "status": "passed",
-              "ms": 126.5,
+              "ms": 136.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1136,7 +1136,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.5,
+              "ms": 29.7,
               "message": "",
               "timedOut": false
             },
@@ -1145,7 +1145,7 @@
               "type": "capture",
               "name": "face4Side",
               "status": "passed",
-              "ms": 126.9,
+              "ms": 137.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1164,7 +1164,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.4,
+              "ms": 28.6,
               "message": "",
               "timedOut": false
             },
@@ -1173,7 +1173,7 @@
               "type": "capture",
               "name": "face5Front",
               "status": "passed",
-              "ms": 128.6,
+              "ms": 138.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1192,7 +1192,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.3,
+              "ms": 28.4,
               "message": "",
               "timedOut": false
             },
@@ -1201,7 +1201,7 @@
               "type": "capture",
               "name": "face5Three",
               "status": "passed",
-              "ms": 126.9,
+              "ms": 162.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1220,7 +1220,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.5,
+              "ms": 19.6,
               "message": "",
               "timedOut": false
             },
@@ -1229,7 +1229,7 @@
               "type": "capture",
               "name": "face5Side",
               "status": "passed",
-              "ms": 127.4,
+              "ms": 151,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1248,7 +1248,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.2,
+              "ms": 32.3,
               "message": "",
               "timedOut": false
             },
@@ -1257,7 +1257,7 @@
               "type": "capture",
               "name": "face6Front",
               "status": "passed",
-              "ms": 127.8,
+              "ms": 136.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1276,7 +1276,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.9,
+              "ms": 30.9,
               "message": "",
               "timedOut": false
             },
@@ -1285,7 +1285,7 @@
               "type": "capture",
               "name": "face6Three",
               "status": "passed",
-              "ms": 178.1,
+              "ms": 136.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1304,7 +1304,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.4,
+              "ms": 29,
               "message": "",
               "timedOut": false
             },
@@ -1313,7 +1313,7 @@
               "type": "capture",
               "name": "face6Side",
               "status": "passed",
-              "ms": 196.3,
+              "ms": 133.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1332,7 +1332,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.1,
+              "ms": 33.5,
               "message": "",
               "timedOut": false
             },
@@ -1341,7 +1341,7 @@
               "type": "capture",
               "name": "face7Front",
               "status": "passed",
-              "ms": 166.6,
+              "ms": 133.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1360,7 +1360,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.1,
+              "ms": 33.5,
               "message": "",
               "timedOut": false
             },
@@ -1369,7 +1369,7 @@
               "type": "capture",
               "name": "face7Three",
               "status": "passed",
-              "ms": 148.6,
+              "ms": 144.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1388,7 +1388,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34.4,
+              "ms": 23,
               "message": "",
               "timedOut": false
             },
@@ -1397,7 +1397,7 @@
               "type": "capture",
               "name": "face7Side",
               "status": "passed",
-              "ms": 153.6,
+              "ms": 142.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1416,7 +1416,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 29.7,
+              "ms": 23,
               "message": "",
               "timedOut": false
             },
@@ -1425,7 +1425,7 @@
               "type": "capture",
               "name": "face8Front",
               "status": "passed",
-              "ms": 138.2,
+              "ms": 130.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1444,7 +1444,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.5,
+              "ms": 34.2,
               "message": "",
               "timedOut": false
             },
@@ -1453,7 +1453,7 @@
               "type": "capture",
               "name": "face8Three",
               "status": "passed",
-              "ms": 142.7,
+              "ms": 134.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1472,7 +1472,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.3,
+              "ms": 32.7,
               "message": "",
               "timedOut": false
             },
@@ -1481,7 +1481,7 @@
               "type": "capture",
               "name": "face8Side",
               "status": "passed",
-              "ms": 142,
+              "ms": 131,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1499,312 +1499,312 @@
           "captures": [
             {
               "step": "face1Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face1Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face1Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face1Front/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face1Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face1Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face1Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face1Three/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face1Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face1Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face1Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face1Side/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face2Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face2Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face2Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face2Front/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face2Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face2Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face2Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face2Three/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face2Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face2Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face2Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face2Side/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face3Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face3Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face3Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face3Front/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face3Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face3Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face3Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face3Three/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face3Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face3Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face3Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face3Side/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face4Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face4Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face4Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face4Front/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face4Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face4Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face4Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face4Three/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face4Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face4Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face4Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face4Side/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face5Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face5Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face5Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face5Front/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face5Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face5Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face5Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face5Three/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face5Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face5Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face5Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face5Side/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face6Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face6Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face6Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face6Front/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face6Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face6Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face6Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face6Three/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face6Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face6Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face6Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face6Side/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face7Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face7Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face7Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face7Front/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face7Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face7Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face7Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face7Three/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face7Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face7Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face7Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face7Side/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face8Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face8Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face8Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face8Front/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face8Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face8Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face8Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face8Three/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face8Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/low-igpu-1080p-light-ko/captures/face8Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/low-igpu-1080p-light-ko/captures/face8Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face8Side/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
@@ -1820,7 +1820,7 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "candidate"
+          "verdict": "pass"
         },
         {
           "key": "mac-m1-1600p-light-ko",
@@ -1831,8 +1831,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 11.9,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko",
+          "durationSec": 13.6,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -1842,11 +1842,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/056-face-lineup.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -1876,7 +1876,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.2,
+              "ms": 64.8,
               "message": "",
               "timedOut": false
             },
@@ -1885,7 +1885,7 @@
               "type": "capture",
               "name": "face1Front",
               "status": "passed",
-              "ms": 262.7,
+              "ms": 304.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1904,7 +1904,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 20.3,
+              "ms": 29.3,
               "message": "",
               "timedOut": false
             },
@@ -1913,7 +1913,7 @@
               "type": "capture",
               "name": "face1Three",
               "status": "passed",
-              "ms": 250.6,
+              "ms": 271.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1932,7 +1932,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.6,
+              "ms": 28.4,
               "message": "",
               "timedOut": false
             },
@@ -1941,7 +1941,7 @@
               "type": "capture",
               "name": "face1Side",
               "status": "passed",
-              "ms": 249.2,
+              "ms": 305.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1960,7 +1960,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34,
+              "ms": 27.4,
               "message": "",
               "timedOut": false
             },
@@ -1969,7 +1969,7 @@
               "type": "capture",
               "name": "face2Front",
               "status": "passed",
-              "ms": 236.2,
+              "ms": 284.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1988,7 +1988,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 30.3,
+              "ms": 32.5,
               "message": "",
               "timedOut": false
             },
@@ -1997,7 +1997,7 @@
               "type": "capture",
               "name": "face2Three",
               "status": "passed",
-              "ms": 234.8,
+              "ms": 259.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2016,7 +2016,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 31.9,
+              "ms": 23.7,
               "message": "",
               "timedOut": false
             },
@@ -2025,7 +2025,7 @@
               "type": "capture",
               "name": "face2Side",
               "status": "passed",
-              "ms": 241.2,
+              "ms": 270,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2044,7 +2044,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.6,
+              "ms": 31.2,
               "message": "",
               "timedOut": false
             },
@@ -2053,7 +2053,7 @@
               "type": "capture",
               "name": "face3Front",
               "status": "passed",
-              "ms": 245.5,
+              "ms": 282.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2072,7 +2072,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 20.7,
+              "ms": 32.9,
               "message": "",
               "timedOut": false
             },
@@ -2081,7 +2081,7 @@
               "type": "capture",
               "name": "face3Three",
               "status": "passed",
-              "ms": 228.8,
+              "ms": 268.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2100,7 +2100,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.2,
+              "ms": 32,
               "message": "",
               "timedOut": false
             },
@@ -2109,7 +2109,7 @@
               "type": "capture",
               "name": "face3Side",
               "status": "passed",
-              "ms": 246.8,
+              "ms": 256.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2128,7 +2128,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 19.7,
+              "ms": 26.2,
               "message": "",
               "timedOut": false
             },
@@ -2137,7 +2137,7 @@
               "type": "capture",
               "name": "face4Front",
               "status": "passed",
-              "ms": 280.7,
+              "ms": 230.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2156,7 +2156,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 19.4,
+              "ms": 19.2,
               "message": "",
               "timedOut": false
             },
@@ -2165,7 +2165,7 @@
               "type": "capture",
               "name": "face4Three",
               "status": "passed",
-              "ms": 253.1,
+              "ms": 240.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2184,7 +2184,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 30,
+              "ms": 27.1,
               "message": "",
               "timedOut": false
             },
@@ -2193,7 +2193,7 @@
               "type": "capture",
               "name": "face4Side",
               "status": "passed",
-              "ms": 253.1,
+              "ms": 232.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2212,7 +2212,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 30,
+              "ms": 33.9,
               "message": "",
               "timedOut": false
             },
@@ -2221,7 +2221,7 @@
               "type": "capture",
               "name": "face5Front",
               "status": "passed",
-              "ms": 246.8,
+              "ms": 259.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2240,7 +2240,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 19.7,
+              "ms": 23.8,
               "message": "",
               "timedOut": false
             },
@@ -2249,7 +2249,7 @@
               "type": "capture",
               "name": "face5Three",
               "status": "passed",
-              "ms": 233.7,
+              "ms": 255.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2268,7 +2268,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.9,
+              "ms": 27.4,
               "message": "",
               "timedOut": false
             },
@@ -2277,7 +2277,7 @@
               "type": "capture",
               "name": "face5Side",
               "status": "passed",
-              "ms": 270.4,
+              "ms": 247.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2296,7 +2296,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 29.4,
+              "ms": 19.3,
               "message": "",
               "timedOut": false
             },
@@ -2305,7 +2305,7 @@
               "type": "capture",
               "name": "face6Front",
               "status": "passed",
-              "ms": 258.9,
+              "ms": 246.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2324,7 +2324,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 24.8,
+              "ms": 18.9,
               "message": "",
               "timedOut": false
             },
@@ -2333,7 +2333,7 @@
               "type": "capture",
               "name": "face6Three",
               "status": "passed",
-              "ms": 260.7,
+              "ms": 241.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2352,7 +2352,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.9,
+              "ms": 25.5,
               "message": "",
               "timedOut": false
             },
@@ -2361,7 +2361,7 @@
               "type": "capture",
               "name": "face6Side",
               "status": "passed",
-              "ms": 257.3,
+              "ms": 243.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2380,7 +2380,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.8,
+              "ms": 22.5,
               "message": "",
               "timedOut": false
             },
@@ -2389,7 +2389,7 @@
               "type": "capture",
               "name": "face7Front",
               "status": "passed",
-              "ms": 267.3,
+              "ms": 244,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2408,7 +2408,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.5,
+              "ms": 22.3,
               "message": "",
               "timedOut": false
             },
@@ -2417,7 +2417,7 @@
               "type": "capture",
               "name": "face7Three",
               "status": "passed",
-              "ms": 268,
+              "ms": 240.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2436,7 +2436,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 31.9,
+              "ms": 26.3,
               "message": "",
               "timedOut": false
             },
@@ -2445,7 +2445,7 @@
               "type": "capture",
               "name": "face7Side",
               "status": "passed",
-              "ms": 263.4,
+              "ms": 245.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2464,7 +2464,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 19.8,
+              "ms": 21.2,
               "message": "",
               "timedOut": false
             },
@@ -2473,7 +2473,7 @@
               "type": "capture",
               "name": "face8Front",
               "status": "passed",
-              "ms": 277.6,
+              "ms": 230.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2492,7 +2492,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.6,
+              "ms": 19.7,
               "message": "",
               "timedOut": false
             },
@@ -2501,7 +2501,7 @@
               "type": "capture",
               "name": "face8Three",
               "status": "passed",
-              "ms": 289.4,
+              "ms": 242.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2520,7 +2520,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 26.7,
+              "ms": 23.9,
               "message": "",
               "timedOut": false
             },
@@ -2529,7 +2529,7 @@
               "type": "capture",
               "name": "face8Side",
               "status": "passed",
-              "ms": 238.5,
+              "ms": 238.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2547,312 +2547,312 @@
           "captures": [
             {
               "step": "face1Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face1Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face1Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face1Front/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face1Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face1Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face1Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face1Three/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face1Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face1Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face1Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face1Side/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face2Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face2Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face2Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face2Front/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face2Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face2Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face2Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face2Three/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face2Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face2Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face2Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face2Side/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face3Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face3Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face3Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face3Front/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face3Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face3Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face3Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face3Three/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face3Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face3Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face3Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face3Side/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face4Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face4Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face4Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face4Front/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face4Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face4Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face4Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face4Three/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face4Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face4Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face4Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face4Side/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face5Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face5Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face5Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face5Front/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face5Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face5Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face5Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face5Three/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face5Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face5Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face5Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face5Side/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face6Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face6Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face6Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face6Front/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face6Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face6Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face6Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face6Three/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face6Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face6Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face6Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face6Side/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face7Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face7Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face7Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face7Front/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face7Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face7Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face7Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face7Three/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face7Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face7Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face7Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face7Side/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face8Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face8Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face8Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face8Front/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face8Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face8Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face8Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face8Three/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face8Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/mac-m1-1600p-light-ko/captures/face8Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/mac-m1-1600p-light-ko/captures/face8Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face8Side/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
@@ -2868,7 +2868,7 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "candidate"
+          "verdict": "pass"
         },
         {
           "key": "compact-1366-light-ko",
@@ -2879,8 +2879,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 7.9,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko",
+          "durationSec": 7.3,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -2890,11 +2890,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/056-face-lineup.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -2933,7 +2933,7 @@
               "type": "capture",
               "name": "face1Front",
               "status": "passed",
-              "ms": 78.9,
+              "ms": 78.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2952,7 +2952,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 20.4,
+              "ms": 20.6,
               "message": "",
               "timedOut": false
             },
@@ -2961,7 +2961,7 @@
               "type": "capture",
               "name": "face1Three",
               "status": "passed",
-              "ms": 73.7,
+              "ms": 74.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2980,7 +2980,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 26.4,
+              "ms": 25.8,
               "message": "",
               "timedOut": false
             },
@@ -2989,7 +2989,7 @@
               "type": "capture",
               "name": "face1Side",
               "status": "passed",
-              "ms": 74.9,
+              "ms": 75.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3008,7 +3008,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25,
+              "ms": 24.1,
               "message": "",
               "timedOut": false
             },
@@ -3017,7 +3017,7 @@
               "type": "capture",
               "name": "face2Front",
               "status": "passed",
-              "ms": 73.9,
+              "ms": 74.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3036,7 +3036,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 26,
+              "ms": 25.5,
               "message": "",
               "timedOut": false
             },
@@ -3045,7 +3045,7 @@
               "type": "capture",
               "name": "face2Three",
               "status": "passed",
-              "ms": 75.3,
+              "ms": 74.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3064,7 +3064,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 24.6,
+              "ms": 25.7,
               "message": "",
               "timedOut": false
             },
@@ -3073,7 +3073,7 @@
               "type": "capture",
               "name": "face2Side",
               "status": "passed",
-              "ms": 74.8,
+              "ms": 78.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3092,7 +3092,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.1,
+              "ms": 21.4,
               "message": "",
               "timedOut": false
             },
@@ -3101,7 +3101,7 @@
               "type": "capture",
               "name": "face3Front",
               "status": "passed",
-              "ms": 76.5,
+              "ms": 76.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3120,7 +3120,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.4,
+              "ms": 23.8,
               "message": "",
               "timedOut": false
             },
@@ -3129,7 +3129,7 @@
               "type": "capture",
               "name": "face3Three",
               "status": "passed",
-              "ms": 75.9,
+              "ms": 78.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3148,7 +3148,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 24,
+              "ms": 21.3,
               "message": "",
               "timedOut": false
             },
@@ -3157,7 +3157,7 @@
               "type": "capture",
               "name": "face3Side",
               "status": "passed",
-              "ms": 74.9,
+              "ms": 76.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3176,7 +3176,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25,
+              "ms": 23.7,
               "message": "",
               "timedOut": false
             },
@@ -3185,7 +3185,7 @@
               "type": "capture",
               "name": "face4Front",
               "status": "passed",
-              "ms": 74.7,
+              "ms": 74.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3213,7 +3213,7 @@
               "type": "capture",
               "name": "face4Three",
               "status": "passed",
-              "ms": 75.2,
+              "ms": 75.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3232,7 +3232,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 24.5,
+              "ms": 24.1,
               "message": "",
               "timedOut": false
             },
@@ -3241,7 +3241,7 @@
               "type": "capture",
               "name": "face4Side",
               "status": "passed",
-              "ms": 76.7,
+              "ms": 78.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3260,7 +3260,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.4,
+              "ms": 21.6,
               "message": "",
               "timedOut": false
             },
@@ -3269,7 +3269,7 @@
               "type": "capture",
               "name": "face5Front",
               "status": "passed",
-              "ms": 77.5,
+              "ms": 77.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3288,7 +3288,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.4,
+              "ms": 23.3,
               "message": "",
               "timedOut": false
             },
@@ -3297,7 +3297,7 @@
               "type": "capture",
               "name": "face5Three",
               "status": "passed",
-              "ms": 78.7,
+              "ms": 76.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3316,7 +3316,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.3,
+              "ms": 23.4,
               "message": "",
               "timedOut": false
             },
@@ -3325,7 +3325,7 @@
               "type": "capture",
               "name": "face5Side",
               "status": "passed",
-              "ms": 76.6,
+              "ms": 77.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3344,7 +3344,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.9,
+              "ms": 21.8,
               "message": "",
               "timedOut": false
             },
@@ -3353,7 +3353,7 @@
               "type": "capture",
               "name": "face6Front",
               "status": "passed",
-              "ms": 76.2,
+              "ms": 77.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3372,7 +3372,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.8,
+              "ms": 22.6,
               "message": "",
               "timedOut": false
             },
@@ -3381,7 +3381,7 @@
               "type": "capture",
               "name": "face6Three",
               "status": "passed",
-              "ms": 77.9,
+              "ms": 77.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3400,7 +3400,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.8,
+              "ms": 22.7,
               "message": "",
               "timedOut": false
             },
@@ -3409,7 +3409,7 @@
               "type": "capture",
               "name": "face6Side",
               "status": "passed",
-              "ms": 77.3,
+              "ms": 76.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3428,7 +3428,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.7,
+              "ms": 23.3,
               "message": "",
               "timedOut": false
             },
@@ -3437,7 +3437,7 @@
               "type": "capture",
               "name": "face7Front",
               "status": "passed",
-              "ms": 75.1,
+              "ms": 75.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3456,7 +3456,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.3,
+              "ms": 24.1,
               "message": "",
               "timedOut": false
             },
@@ -3465,7 +3465,7 @@
               "type": "capture",
               "name": "face7Three",
               "status": "passed",
-              "ms": 74.8,
+              "ms": 77.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3484,7 +3484,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.2,
+              "ms": 22.5,
               "message": "",
               "timedOut": false
             },
@@ -3493,7 +3493,7 @@
               "type": "capture",
               "name": "face7Side",
               "status": "passed",
-              "ms": 75.7,
+              "ms": 77.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3512,7 +3512,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 24,
+              "ms": 22.6,
               "message": "",
               "timedOut": false
             },
@@ -3521,7 +3521,7 @@
               "type": "capture",
               "name": "face8Front",
               "status": "passed",
-              "ms": 75.4,
+              "ms": 76.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3540,7 +3540,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 24.5,
+              "ms": 23,
               "message": "",
               "timedOut": false
             },
@@ -3549,7 +3549,7 @@
               "type": "capture",
               "name": "face8Three",
               "status": "passed",
-              "ms": 75.5,
+              "ms": 77,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3568,7 +3568,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 24.4,
+              "ms": 22.8,
               "message": "",
               "timedOut": false
             },
@@ -3577,7 +3577,7 @@
               "type": "capture",
               "name": "face8Side",
               "status": "passed",
-              "ms": 75.2,
+              "ms": 75.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3595,312 +3595,312 @@
           "captures": [
             {
               "step": "face1Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face1Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face1Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face1Front/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face1Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face1Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face1Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face1Three/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face1Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face1Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face1Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face1Side/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face2Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face2Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face2Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face2Front/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face2Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face2Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face2Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face2Three/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face2Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face2Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face2Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face2Side/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face3Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face3Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face3Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face3Front/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face3Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face3Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face3Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face3Three/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face3Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face3Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face3Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face3Side/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face4Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face4Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face4Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face4Front/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face4Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face4Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face4Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face4Three/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face4Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face4Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face4Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face4Side/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face5Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face5Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face5Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face5Front/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face5Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face5Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face5Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face5Three/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face5Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face5Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face5Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face5Side/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face6Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face6Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face6Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face6Front/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face6Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face6Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face6Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face6Three/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face6Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face6Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face6Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face6Side/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face7Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face7Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face7Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face7Front/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face7Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face7Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face7Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face7Three/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face7Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face7Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face7Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face7Side/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face8Front",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face8Front.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face8Front.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face8Front/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face8Three",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face8Three.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face8Three.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face8Three/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "face8Side",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-face-lineup/compact-1366-light-ko/captures/face8Side.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-face-lineup/compact-1366-light-ko/captures/face8Side.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/056-face-lineup/face8Side/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "056-face-lineup",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
@@ -3916,11 +3916,11 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "candidate"
+          "verdict": "pass"
         }
       ],
       "determinism": null,
-      "verdict": "candidate"
+      "verdict": "pass"
     },
     {
       "scenario": "056-model-perf",
@@ -3935,8 +3935,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 41.6,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-model-perf/low-igpu-1080p-light-ko",
+          "durationSec": 42.5,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-model-perf/low-igpu-1080p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -3946,11 +3946,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-model-perf/low-igpu-1080p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-model-perf/low-igpu-1080p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/056-model-perf.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-model-perf/low-igpu-1080p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-model-perf/low-igpu-1080p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -3980,7 +3980,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.3,
+              "ms": 33.2,
               "message": "",
               "timedOut": false
             },
@@ -3998,7 +3998,7 @@
               "type": "perfEnd",
               "name": "empty",
               "status": "passed",
-              "ms": 6070.9,
+              "ms": 6165.9,
               "message": "",
               "timedOut": false,
               "frames": 360
@@ -4008,7 +4008,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 44.6,
+              "ms": 49.5,
               "message": "",
               "timedOut": false
             },
@@ -4017,7 +4017,7 @@
               "type": "perfBegin",
               "name": "players",
               "status": "passed",
-              "ms": 19.9,
+              "ms": 17.9,
               "message": "",
               "timedOut": false
             },
@@ -4026,7 +4026,7 @@
               "type": "perfEnd",
               "name": "players",
               "status": "passed",
-              "ms": 11130.9,
+              "ms": 11350.2,
               "message": "",
               "timedOut": false,
               "frames": 660
@@ -4036,7 +4036,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.5,
+              "ms": 47.9,
               "message": "",
               "timedOut": false
             },
@@ -4045,7 +4045,7 @@
               "type": "perfBegin",
               "name": "playersNoShadow",
               "status": "passed",
-              "ms": 16.7,
+              "ms": 16.8,
               "message": "",
               "timedOut": false
             },
@@ -4054,7 +4054,7 @@
               "type": "perfEnd",
               "name": "playersNoShadow",
               "status": "passed",
-              "ms": 4383.9,
+              "ms": 4435.3,
               "message": "",
               "timedOut": false,
               "frames": 260
@@ -4064,7 +4064,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 48.6,
+              "ms": 47.5,
               "message": "",
               "timedOut": false
             },
@@ -4073,7 +4073,7 @@
               "type": "perfBegin",
               "name": "full",
               "status": "passed",
-              "ms": 16.7,
+              "ms": 17.3,
               "message": "",
               "timedOut": false
             },
@@ -4082,7 +4082,7 @@
               "type": "perfEnd",
               "name": "full",
               "status": "passed",
-              "ms": 6084.6,
+              "ms": 6150,
               "message": "",
               "timedOut": false,
               "frames": 360
@@ -4092,7 +4092,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 48.9,
+              "ms": 33.2,
               "message": "",
               "timedOut": false
             },
@@ -4101,7 +4101,7 @@
               "type": "perfBegin",
               "name": "closeup",
               "status": "passed",
-              "ms": 16.6,
+              "ms": 16.8,
               "message": "",
               "timedOut": false
             },
@@ -4110,7 +4110,7 @@
               "type": "perfEnd",
               "name": "closeup",
               "status": "passed",
-              "ms": 7883.3,
+              "ms": 7737.6,
               "message": "",
               "timedOut": false,
               "frames": 460
@@ -4125,41 +4125,41 @@
               "metrics": {
                 "frames": 300,
                 "frameMs": {
-                  "avg": 16.84753595540921,
-                  "p50": 16.671959310770035,
-                  "p95": 17.58107915520668,
-                  "p99": 18.25104095041752,
-                  "max": 20.091582089662552
+                  "avg": 17.102277831484873,
+                  "p50": 16.883205622434616,
+                  "p95": 17.759205773472786,
+                  "p99": 20.933376625180244,
+                  "max": 24.212662130594254
                 },
                 "mainThreadMs": {
-                  "avg": 16.83042622666668,
-                  "p50": 16.673208,
-                  "p95": 17.556125,
-                  "p99": 18.20775,
-                  "max": 20.091416
+                  "avg": 17.077826796666667,
+                  "p50": 16.890291,
+                  "p95": 17.93825,
+                  "p99": 20.75775,
+                  "max": 21.155958
                 },
                 "gpuMs": {
-                  "avg": 0.13360846865301332,
-                  "p50": 0.13208342716097832,
-                  "p95": 0.1419165637344122,
-                  "p99": 0.18712482415139675,
-                  "max": 0.31741661950945854
+                  "avg": 0.1322433267099162,
+                  "p50": 0.1324999611824751,
+                  "p95": 0.13954169116914272,
+                  "p99": 0.15125004574656487,
+                  "max": 0.27879164554178715
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 785.95,
+                  "avg": 785.65,
                   "max": 21152
                 },
-                "gcAllocTotalBytes": 235785,
+                "gcAllocTotalBytes": 235695,
                 "drawCalls": {
                   "avg": 2.0,
-                  "max": 4
+                  "max": 2
                 },
                 "triangles": {
                   "avg": 4.0,
-                  "max": 8
+                  "max": 4
                 },
                 "textureMemoryBytes": 126367193,
-                "totalMemoryBytes": 370436133,
+                "totalMemoryBytes": 370418537,
                 "custom": {
                   "animCpuMs": null,
                   "animGcBytes": null,
@@ -4179,48 +4179,48 @@
               "metrics": {
                 "frames": 600,
                 "frameMs": {
-                  "avg": 16.83319728821516,
-                  "p50": 16.667665913701057,
-                  "p95": 17.57829450070858,
-                  "p99": 17.906172201037407,
-                  "max": 21.999623626470566
+                  "avg": 17.19238112680614,
+                  "p50": 16.82562381029129,
+                  "p95": 17.8085807710886,
+                  "p99": 22.251127287745476,
+                  "max": 36.24824807047844
                 },
                 "mainThreadMs": {
-                  "avg": 16.819559023333333,
-                  "p50": 16.662333,
-                  "p95": 17.569,
-                  "p99": 17.984625,
-                  "max": 21.992833
+                  "avg": 17.163758733333328,
+                  "p50": 16.81025,
+                  "p95": 18.262458,
+                  "p99": 22.348625,
+                  "max": 36.251583
                 },
                 "gpuMs": {
-                  "avg": 0.573927778362607,
-                  "p50": 0.5967500619590282,
-                  "p95": 0.6495416164398193,
-                  "p99": 0.6801667623221874,
-                  "max": 1.3336250558495522
+                  "avg": 0.6076059071347117,
+                  "p50": 0.5973333027213812,
+                  "p95": 0.6601251661777496,
+                  "p99": 1.3580834493041039,
+                  "max": 5.39449998177588
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3100.31,
+                  "avg": 3100.01,
                   "max": 43920
                 },
-                "gcAllocTotalBytes": 1860186,
+                "gcAllocTotalBytes": 1860006,
                 "drawCalls": {
                   "avg": 63.37166666666667,
-                  "max": 132
+                  "max": 69
                 },
                 "triangles": {
                   "avg": 54352.17833333334,
-                  "max": 112808
+                  "max": 59359
                 },
                 "textureMemoryBytes": 128465567,
-                "totalMemoryBytes": 365903849,
+                "totalMemoryBytes": 365792392,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.6278964991370837,
-                    "p50": 0.4675000011920929,
-                    "p95": 1.2925000190734863,
-                    "p99": 1.6303000450134277,
-                    "max": 3.444499969482422
+                    "avg": 0.8787979996204376,
+                    "p50": 0.8065000176429749,
+                    "p95": 1.7976000308990479,
+                    "p99": 2.551300048828125,
+                    "max": 8.594200134277344
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -4252,48 +4252,48 @@
               "metrics": {
                 "frames": 200,
                 "frameMs": {
-                  "avg": 16.83371353894472,
-                  "p50": 16.668247058987617,
-                  "p95": 17.576707527041435,
-                  "p99": 17.603415995836258,
-                  "max": 20.371081307530403
+                  "avg": 17.05706429667771,
+                  "p50": 16.732128337025642,
+                  "p95": 18.038704991340637,
+                  "p99": 22.193005308508873,
+                  "max": 23.893417790532112
                 },
                 "mainThreadMs": {
-                  "avg": 16.816176469999988,
-                  "p50": 16.666375,
-                  "p95": 17.511666,
-                  "p99": 17.624333,
-                  "max": 20.1745
+                  "avg": 17.035456195,
+                  "p50": 16.752041,
+                  "p95": 18.023125,
+                  "p99": 22.245166,
+                  "max": 23.785333
                 },
                 "gpuMs": {
-                  "avg": 0.48287290963344276,
-                  "p50": 0.5044166464358568,
-                  "p95": 0.5512081552296877,
-                  "p99": 0.5985833704471588,
-                  "max": 0.6343333516269922
+                  "avg": 0.538729167310521,
+                  "p50": 0.5044583231210709,
+                  "p95": 0.6049999501556158,
+                  "p99": 1.616583438590169,
+                  "max": 3.1031665857881308
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3174.575,
+                  "avg": 3174.305,
                   "max": 23440
                 },
-                "gcAllocTotalBytes": 634915,
+                "gcAllocTotalBytes": 634861,
                 "drawCalls": {
-                  "avg": 40.42,
-                  "max": 88
+                  "avg": 40.64,
+                  "max": 44
                 },
                 "triangles": {
-                  "avg": 34647.815,
-                  "max": 74726
+                  "avg": 34834.63,
+                  "max": 37363
                 },
                 "textureMemoryBytes": 126367193,
-                "totalMemoryBytes": 365459393,
+                "totalMemoryBytes": 365411459,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.8666304990649223,
-                    "p50": 0.7777000069618225,
-                    "p95": 1.573699951171875,
-                    "p99": 1.8393000364303589,
-                    "max": 2.1354000568389893
+                    "avg": 0.9298400010168553,
+                    "p50": 0.8634999990463257,
+                    "p95": 2.0917000770568848,
+                    "p99": 3.1438000202178955,
+                    "max": 3.5713000297546387
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -4318,48 +4318,48 @@
               "metrics": {
                 "frames": 300,
                 "frameMs": {
-                  "avg": 16.886692699044943,
-                  "p50": 16.671208664774895,
-                  "p95": 17.58020743727684,
-                  "p99": 18.22841539978981,
-                  "max": 21.295662969350815
+                  "avg": 17.036564548810322,
+                  "p50": 16.70675352215767,
+                  "p95": 17.621003091335297,
+                  "p99": 21.448539569973946,
+                  "max": 25.341879576444626
                 },
                 "mainThreadMs": {
-                  "avg": 16.873768863333336,
-                  "p50": 16.675917,
-                  "p95": 17.575209,
-                  "p99": 18.196084,
-                  "max": 21.256125
+                  "avg": 17.01701209666666,
+                  "p50": 16.728084,
+                  "p95": 17.709292,
+                  "p99": 21.409583,
+                  "max": 25.290792
                 },
                 "gpuMs": {
-                  "avg": 2.1077111130580306,
-                  "p50": 2.444749930873513,
-                  "p95": 2.5450417306274176,
-                  "p99": 2.57875001989305,
-                  "max": 2.6027916464954615
+                  "avg": 2.2578929093045494,
+                  "p50": 2.4682083167135715,
+                  "p95": 2.858125139027834,
+                  "p99": 4.400250036269426,
+                  "max": 4.765749908983707
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3110.616666666667,
+                  "avg": 3110.3166666666666,
                   "max": 23440
                 },
-                "gcAllocTotalBytes": 933185,
+                "gcAllocTotalBytes": 933095,
                 "drawCalls": {
-                  "avg": 77.35333333333334,
-                  "max": 148
+                  "avg": 77.61666666666666,
+                  "max": 83
                 },
                 "triangles": {
-                  "avg": 55551.06,
-                  "max": 107430
+                  "avg": 55735.98,
+                  "max": 61059
                 },
                 "textureMemoryBytes": 128465567,
-                "totalMemoryBytes": 368558748,
+                "totalMemoryBytes": 368517994,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.6587656655907631,
-                    "p50": 0.5824999809265137,
-                    "p95": 1.2979999780654907,
-                    "p99": 1.917199969291687,
-                    "max": 2.3461999893188477
+                    "avg": 0.9090873339772224,
+                    "p50": 0.8532000184059143,
+                    "p95": 1.7826999425888062,
+                    "p99": 2.7281999588012695,
+                    "max": 6.730400085449219
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -4384,48 +4384,48 @@
               "metrics": {
                 "frames": 400,
                 "frameMs": {
-                  "avg": 17.10982803720981,
-                  "p50": 16.69749803841114,
-                  "p95": 17.58645847439766,
-                  "p99": 18.46037432551384,
-                  "max": 71.91691547632217
+                  "avg": 16.78245081100613,
+                  "p50": 16.667162999510765,
+                  "p95": 17.460495233535767,
+                  "p99": 17.688456922769547,
+                  "max": 21.899957209825516
                 },
                 "mainThreadMs": {
-                  "avg": 17.092902505,
-                  "p50": 16.691083,
-                  "p95": 17.583791,
-                  "p99": 19.157334,
-                  "max": 71.916709
+                  "avg": 16.7690138575,
+                  "p50": 16.660792,
+                  "p95": 17.44175,
+                  "p99": 18.142458,
+                  "max": 21.851625
                 },
                 "gpuMs": {
-                  "avg": 0.835567400790751,
-                  "p50": 0.665250001475215,
-                  "p95": 1.499250065535307,
-                  "p99": 3.6134999245405197,
-                  "max": 14.81750002130866
+                  "avg": 0.7628745801048353,
+                  "p50": 0.6667498964816332,
+                  "p95": 0.8335416205227375,
+                  "p99": 2.4623749777674675,
+                  "max": 14.473624993115664
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3104.8025,
+                  "avg": 3080.19,
                   "max": 23464
                 },
-                "gcAllocTotalBytes": 1241921,
+                "gcAllocTotalBytes": 1232076,
                 "drawCalls": {
                   "avg": 64.1925,
-                  "max": 138
+                  "max": 140
                 },
                 "triangles": {
                   "avg": 59461.0625,
-                  "max": 116332
+                  "max": 143870
                 },
                 "textureMemoryBytes": 128465567,
-                "totalMemoryBytes": 369245888,
+                "totalMemoryBytes": 369177936,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.6698962491750717,
-                    "p50": 0.47209998965263367,
-                    "p95": 1.6754000186920166,
-                    "p99": 2.4388999938964844,
-                    "max": 5.375100135803223
+                    "avg": 0.45380600057542325,
+                    "p50": 0.3675000071525574,
+                    "p95": 0.9714999794960022,
+                    "p99": 1.750100016593933,
+                    "max": 2.078700065612793
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -4435,11 +4435,11 @@
                     "max": 0
                   },
                   "closeupSwitchMs": {
-                    "avg": 0.6075237375497818,
-                    "p50": 0.6514999866485596,
-                    "p95": 0.6514999866485596,
-                    "p99": 0.6514999866485596,
-                    "max": 0.6514999866485596
+                    "avg": 0.5803879867494106,
+                    "p50": 0.6223999857902527,
+                    "p95": 0.6223999857902527,
+                    "p99": 0.6223999857902527,
+                    "max": 0.6223999857902527
                   }
                 }
               },
@@ -4450,7 +4450,7 @@
               "budget": [
                 {
                   "metric": "custom.closeupSwitchMs.max",
-                  "value": 0.6514999866485596,
+                  "value": 0.6223999857902527,
                   "budget": 2.0,
                   "ok": true
                 }
@@ -4522,8 +4522,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 42.1,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-model-perf/compact-1366-light-ko",
+          "durationSec": 42.2,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-model-perf/compact-1366-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -4533,11 +4533,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-model-perf/compact-1366-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-model-perf/compact-1366-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/056-model-perf.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-170505-smoke/056-model-perf/compact-1366-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171959-full/056-model-perf/compact-1366-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -4567,7 +4567,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.6,
+              "ms": 49.4,
               "message": "",
               "timedOut": false
             },
@@ -4576,7 +4576,7 @@
               "type": "perfBegin",
               "name": "empty",
               "status": "passed",
-              "ms": 17.1,
+              "ms": 17.4,
               "message": "",
               "timedOut": false
             },
@@ -4585,7 +4585,7 @@
               "type": "perfEnd",
               "name": "empty",
               "status": "passed",
-              "ms": 6072.3,
+              "ms": 6082.3,
               "message": "",
               "timedOut": false,
               "frames": 360
@@ -4595,7 +4595,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 43.5,
+              "ms": 50,
               "message": "",
               "timedOut": false
             },
@@ -4604,7 +4604,7 @@
               "type": "perfBegin",
               "name": "players",
               "status": "passed",
-              "ms": 17.4,
+              "ms": 20.2,
               "message": "",
               "timedOut": false
             },
@@ -4613,7 +4613,7 @@
               "type": "perfEnd",
               "name": "players",
               "status": "passed",
-              "ms": 11153,
+              "ms": 11282.1,
               "message": "",
               "timedOut": false,
               "frames": 660
@@ -4623,7 +4623,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.3,
+              "ms": 46.1,
               "message": "",
               "timedOut": false
             },
@@ -4632,7 +4632,7 @@
               "type": "perfBegin",
               "name": "playersNoShadow",
               "status": "passed",
-              "ms": 17,
+              "ms": 19.1,
               "message": "",
               "timedOut": false
             },
@@ -4641,7 +4641,7 @@
               "type": "perfEnd",
               "name": "playersNoShadow",
               "status": "passed",
-              "ms": 4398.4,
+              "ms": 4432.3,
               "message": "",
               "timedOut": false,
               "frames": 260
@@ -4651,7 +4651,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 46.9,
+              "ms": 48.3,
               "message": "",
               "timedOut": false
             },
@@ -4660,7 +4660,7 @@
               "type": "perfBegin",
               "name": "full",
               "status": "passed",
-              "ms": 16.7,
+              "ms": 16.9,
               "message": "",
               "timedOut": false
             },
@@ -4669,7 +4669,7 @@
               "type": "perfEnd",
               "name": "full",
               "status": "passed",
-              "ms": 6116.5,
+              "ms": 6187.5,
               "message": "",
               "timedOut": false,
               "frames": 360
@@ -4679,7 +4679,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.1,
+              "ms": 46.4,
               "message": "",
               "timedOut": false
             },
@@ -4688,7 +4688,7 @@
               "type": "perfBegin",
               "name": "closeup",
               "status": "passed",
-              "ms": 16.6,
+              "ms": 16.7,
               "message": "",
               "timedOut": false
             },
@@ -4697,7 +4697,7 @@
               "type": "perfEnd",
               "name": "closeup",
               "status": "passed",
-              "ms": 7779.4,
+              "ms": 7848.9,
               "message": "",
               "timedOut": false,
               "frames": 460
@@ -4712,41 +4712,41 @@
               "metrics": {
                 "frames": 300,
                 "frameMs": {
-                  "avg": 16.852326778074104,
-                  "p50": 16.66979119181633,
-                  "p95": 17.58708246052265,
-                  "p99": 18.08466576039791,
-                  "max": 19.663995131850243
+                  "avg": 16.833201454331476,
+                  "p50": 16.67499914765358,
+                  "p95": 17.577126622200012,
+                  "p99": 17.694083973765373,
+                  "max": 18.061790615320206
                 },
                 "mainThreadMs": {
-                  "avg": 16.838501793333336,
-                  "p50": 16.671292,
-                  "p95": 17.566625,
-                  "p99": 18.213333,
-                  "max": 19.67825
+                  "avg": 16.820469020000015,
+                  "p50": 16.672666,
+                  "p95": 17.565958,
+                  "p99": 17.860042,
+                  "max": 18.593083
                 },
                 "gpuMs": {
-                  "avg": 0.12699027778580785,
-                  "p50": 0.1257502008229494,
-                  "p95": 0.15762494876980782,
-                  "p99": 0.19808346405625343,
-                  "max": 0.24670828133821487
+                  "avg": 0.12223707977682352,
+                  "p50": 0.122124794870615,
+                  "p95": 0.128875020891428,
+                  "p99": 0.1318750437349081,
+                  "max": 0.16024988144636154
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 785.35,
+                  "avg": 785.05,
                   "max": 21152
                 },
-                "gcAllocTotalBytes": 235605,
+                "gcAllocTotalBytes": 235515,
                 "drawCalls": {
-                  "avg": 2.0,
+                  "avg": 1.9933333333333334,
                   "max": 4
                 },
                 "triangles": {
-                  "avg": 4.0,
+                  "avg": 3.986666666666667,
                   "max": 8
                 },
                 "textureMemoryBytes": 108950489,
-                "totalMemoryBytes": 336235711,
+                "totalMemoryBytes": 352976119,
                 "custom": {
                   "animCpuMs": null,
                   "animGcBytes": null,
@@ -4766,48 +4766,48 @@
               "metrics": {
                 "frames": 600,
                 "frameMs": {
-                  "avg": 16.865791010980804,
-                  "p50": 16.67758636176586,
-                  "p95": 17.576664686203003,
-                  "p99": 18.984870985150337,
-                  "max": 20.610332489013672
+                  "avg": 16.972240669031937,
+                  "p50": 16.71699993312359,
+                  "p95": 17.585791647434235,
+                  "p99": 20.588917657732964,
+                  "max": 28.39895896613598
                 },
                 "mainThreadMs": {
-                  "avg": 16.85231881000001,
-                  "p50": 16.676917,
-                  "p95": 17.562792,
-                  "p99": 18.762333,
-                  "max": 20.723375
+                  "avg": 16.953749973333313,
+                  "p50": 16.712125,
+                  "p95": 17.664292,
+                  "p99": 20.569584,
+                  "max": 26.892208
                 },
                 "gpuMs": {
-                  "avg": 0.5637498576349268,
-                  "p50": 0.5594582762569189,
-                  "p95": 0.6240000948309898,
-                  "p99": 0.6659999489784241,
-                  "max": 1.436250051483512
+                  "avg": 0.6318763837528726,
+                  "p50": 0.5437501240521669,
+                  "p95": 1.1255000717937946,
+                  "p99": 3.0575417913496494,
+                  "max": 6.868250202387571
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3099.71,
+                  "avg": 3099.41,
                   "max": 43920
                 },
-                "gcAllocTotalBytes": 1859826,
+                "gcAllocTotalBytes": 1859646,
                 "drawCalls": {
                   "avg": 63.391666666666666,
-                  "max": 138
+                  "max": 134
                 },
                 "triangles": {
                   "avg": 54368.53,
-                  "max": 116332
+                  "max": 114866
                 },
                 "textureMemoryBytes": 111048863,
-                "totalMemoryBytes": 348494657,
+                "totalMemoryBytes": 348480583,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.6658120003839334,
-                    "p50": 0.5367000102996826,
-                    "p95": 1.5012999773025513,
-                    "p99": 2.0352001190185547,
-                    "max": 3.473900079727173
+                    "avg": 0.6330123321712017,
+                    "p50": 0.43790000677108765,
+                    "p95": 1.5393999814987183,
+                    "p99": 2.6171998977661133,
+                    "max": 8.931699752807617
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -4839,48 +4839,48 @@
               "metrics": {
                 "frames": 200,
                 "frameMs": {
-                  "avg": 16.839667074382305,
-                  "p50": 16.669295728206635,
-                  "p95": 17.583580687642097,
-                  "p99": 19.918162375688553,
-                  "max": 20.644791424274445
+                  "avg": 16.945931892842054,
+                  "p50": 16.703251749277115,
+                  "p95": 17.58708246052265,
+                  "p99": 20.551452413201332,
+                  "max": 22.18891680240631
                 },
                 "mainThreadMs": {
-                  "avg": 16.818566705000002,
-                  "p50": 16.670625,
-                  "p95": 17.603042,
-                  "p99": 19.9455,
-                  "max": 20.655584
+                  "avg": 16.925005595000002,
+                  "p50": 16.6885,
+                  "p95": 17.670292,
+                  "p99": 20.498417,
+                  "max": 22.082458
                 },
                 "gpuMs": {
-                  "avg": 0.48004812211729586,
-                  "p50": 0.4657499957829714,
-                  "p95": 0.5125417374074459,
-                  "p99": 0.8618750143796206,
-                  "max": 2.0610415376722813
+                  "avg": 0.5469406303018332,
+                  "p50": 0.45258342288434505,
+                  "p95": 1.0499998461455107,
+                  "p99": 2.17616674490273,
+                  "max": 5.081041716039181
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3174.035,
+                  "avg": 3173.765,
                   "max": 23440
                 },
-                "gcAllocTotalBytes": 634807,
+                "gcAllocTotalBytes": 634753,
                 "drawCalls": {
-                  "avg": 40.85,
-                  "max": 80
+                  "avg": 40.65,
+                  "max": 44
                 },
                 "triangles": {
-                  "avg": 35007.93,
-                  "max": 71172
+                  "avg": 34839.035,
+                  "max": 37363
                 },
                 "textureMemoryBytes": 108950489,
-                "totalMemoryBytes": 348082285,
+                "totalMemoryBytes": 348041195,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.9439050005376339,
-                    "p50": 0.7753999829292297,
-                    "p95": 1.8912999629974365,
-                    "p99": 2.5741000175476074,
-                    "max": 2.7732999324798584
+                    "avg": 0.8232470025122166,
+                    "p50": 0.5924000144004822,
+                    "p95": 1.9909000396728516,
+                    "p99": 2.530400037765503,
+                    "max": 2.785900115966797
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -4905,48 +4905,48 @@
               "metrics": {
                 "frames": 300,
                 "frameMs": {
-                  "avg": 16.975286845117807,
-                  "p50": 16.668876633048058,
-                  "p95": 17.599787563085556,
-                  "p99": 21.66137285530567,
-                  "max": 22.919707000255585
+                  "avg": 17.210047816236813,
+                  "p50": 16.7587511241436,
+                  "p95": 18.644629046320915,
+                  "p99": 23.416077718138695,
+                  "max": 45.40225490927696
                 },
                 "mainThreadMs": {
-                  "avg": 16.957297406666683,
-                  "p50": 16.669708,
-                  "p95": 17.781833,
-                  "p99": 21.458875,
-                  "max": 22.872209
+                  "avg": 17.19313430333335,
+                  "p50": 16.750084,
+                  "p95": 19.000125,
+                  "p99": 23.221292,
+                  "max": 45.374083
                 },
                 "gpuMs": {
-                  "avg": 1.5148893053022523,
-                  "p50": 1.5589999966323376,
-                  "p95": 1.612083287909627,
-                  "p99": 1.6504167579114437,
-                  "max": 3.4446250647306442
+                  "avg": 1.4508880636033912,
+                  "p50": 1.5337499789893627,
+                  "p95": 2.0236249547451735,
+                  "p99": 3.3229999244213104,
+                  "max": 3.56895849108696
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3110.016666666667,
-                  "max": 23440
+                  "avg": 3217.6833333333334,
+                  "max": 24846
                 },
-                "gcAllocTotalBytes": 933005,
+                "gcAllocTotalBytes": 965305,
                 "drawCalls": {
                   "avg": 77.37666666666667,
-                  "max": 162
+                  "max": 83.0
                 },
                 "triangles": {
                   "avg": 55572.06,
-                  "max": 116236
+                  "max": 61059
                 },
                 "textureMemoryBytes": 111048863,
-                "totalMemoryBytes": 351149220,
+                "totalMemoryBytes": 351208432,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.8820100027322769,
-                    "p50": 0.6912000179290771,
-                    "p95": 1.7178000211715698,
-                    "p99": 2.3255999088287354,
-                    "max": 6.766900062561035
+                    "avg": 0.9272680003444354,
+                    "p50": 0.5324000120162964,
+                    "p95": 2.1084001064300537,
+                    "p99": 4.9604997634887695,
+                    "max": 12.05780029296875
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -4971,48 +4971,48 @@
               "metrics": {
                 "frames": 400,
                 "frameMs": {
-                  "avg": 16.896775127388537,
-                  "p50": 16.670620068907738,
-                  "p95": 17.579330131411552,
-                  "p99": 19.37895454466343,
-                  "max": 25.911040604114532
+                  "avg": 17.001735921949148,
+                  "p50": 16.693416982889175,
+                  "p95": 17.621250823140144,
+                  "p99": 22.27932959794998,
+                  "max": 27.48958393931389
                 },
                 "mainThreadMs": {
-                  "avg": 16.878842497500013,
-                  "p50": 16.680125,
-                  "p95": 17.564792,
-                  "p99": 19.497958,
-                  "max": 25.62275
+                  "avg": 16.978739567500003,
+                  "p50": 16.6855,
+                  "p95": 18.101458,
+                  "p99": 22.086625,
+                  "max": 27.251958
                 },
                 "gpuMs": {
-                  "avg": 0.6738213507924229,
-                  "p50": 0.6123750936239958,
-                  "p95": 0.7603748235851526,
-                  "p99": 1.5511249657720327,
-                  "max": 13.521375134587288
+                  "avg": 0.7485389587236568,
+                  "p50": 0.6071249954402447,
+                  "p95": 1.6334166284650564,
+                  "p99": 2.366458298638463,
+                  "max": 16.813875176012516
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3102.7675,
+                  "avg": 3079.65,
                   "max": 23464
                 },
-                "gcAllocTotalBytes": 1241107,
+                "gcAllocTotalBytes": 1231860,
                 "drawCalls": {
-                  "avg": 64.205,
-                  "max": 138
+                  "avg": 64.215,
+                  "max": 124
                 },
                 "triangles": {
-                  "avg": 59441.045,
-                  "max": 140346
+                  "avg": 59479.0525,
+                  "max": 107554
                 },
                 "textureMemoryBytes": 111048863,
-                "totalMemoryBytes": 351844131,
+                "totalMemoryBytes": 352084500,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.8578495011478663,
-                    "p50": 0.6632000207901001,
-                    "p95": 1.7161999940872192,
-                    "p99": 2.9684998989105225,
-                    "max": 9.515800476074219
+                    "avg": 0.7519677487015725,
+                    "p50": 0.483599990606308,
+                    "p95": 1.6607999801635742,
+                    "p99": 2.347899913787842,
+                    "max": 5.495999813079834
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -5022,11 +5022,11 @@
                     "max": 0
                   },
                   "closeupSwitchMs": {
-                    "avg": 0.27415499977767466,
-                    "p50": 0.2939999997615814,
-                    "p95": 0.2939999997615814,
-                    "p99": 0.2939999997615814,
-                    "max": 0.2939999997615814
+                    "avg": 0.4540342516452074,
+                    "p50": 0.4869000017642975,
+                    "p95": 0.4869000017642975,
+                    "p99": 0.4869000017642975,
+                    "max": 0.4869000017642975
                   }
                 }
               },
@@ -5037,7 +5037,7 @@
               "budget": [
                 {
                   "metric": "custom.closeupSwitchMs.max",
-                  "value": 0.2939999997615814,
+                  "value": 0.4869000017642975,
                   "budget": 2.0,
                   "ok": true
                 }
@@ -5063,10 +5063,10 @@
               "metrics": {
                 "derived": "players − empty",
                 "drawCalls": {
-                  "avg": 61.391666666666666
+                  "avg": 61.39833333333333
                 },
                 "triangles": {
-                  "avg": 54364.53
+                  "avg": 54364.543333333335
                 }
               },
               "power": "ac",
@@ -5076,13 +5076,13 @@
               "budget": [
                 {
                   "metric": "drawCalls.avg",
-                  "value": 61.391666666666666,
+                  "value": 61.39833333333333,
                   "budget": 74.7,
                   "ok": true
                 },
                 {
                   "metric": "triangles.avg",
-                  "value": 54364.53,
+                  "value": 54364.543333333335,
                   "budget": 150000,
                   "ok": true
                 }
@@ -5108,22 +5108,132 @@
   "acEvidence": {
     "AC-07": [
       {
-        "label": "056-body-lineup (smoke) candidate",
+        "label": "056-body-lineup (full) pass",
         "ok": true
       }
     ],
     "AC-06": [
       {
-        "label": "056-face-lineup (smoke) candidate",
+        "label": "056-face-lineup (full) pass",
         "ok": true
       }
     ],
     "AC-10": [
       {
-        "label": "056-model-perf (smoke) pass",
+        "label": "IL2CPP 벤치 2/2 통과",
+        "ok": true
+      },
+      {
+        "label": "056-model-perf (full) pass",
+        "ok": true
+      }
+    ],
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-11": [
+      {
+        "label": "결정론 테스트 3/3 통과",
         "ok": true
       }
     ]
   },
-  "verdict": "candidate"
+  "logic": {
+    "ok": true,
+    "total": 111,
+    "passed": 111,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 2.9361378,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171914-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-171914-logic/logic.html"
+  },
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {},
+    "budget": [],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-10",
+        "label": "선수 25명 애니메이션 갱신 p95 (헤드리스, 1.5x 합성 하이라이트)",
+        "metric": "anim_p95_ms",
+        "value": 0.2008,
+        "budget": 2.0,
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-10",
+        "label": "애니메이션 갱신 관리 힙 할당 (1200프레임 합)",
+        "metric": "anim_gc_bytes",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "anim_p50_ms": 0.1325,
+      "anim_p95_ms": 0.2008,
+      "anim_max_ms": 1.4959,
+      "anim_gc_bytes": 0,
+      "anim_frames": 1200,
+      "anim_players": 25
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": false,
+    "durationSec": 5.8,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M1 Pro",
+    "development": false,
+    "commit": "ab7feaf6b2d48e87f9c73b7b13aeceaaff529348"
+  },
+  "deferred": {},
+  "requireAllAcs": true,
+  "verdict": "fail"
 }

@@ -23,5 +23,8 @@
         "unit": "B"
       }
     ]
+  },
+  "manual": {
+    "AC-09": "evidence/approval.md"
   }
 }
