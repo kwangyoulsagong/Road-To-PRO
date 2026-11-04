@@ -1,6 +1,6 @@
 # 056 — 사람다운 선수 모델 · 태스크
 
-상태: 승인됨 (2026-11-04, 플랜 승인 + 태스크 바로 진행)
+상태: 완료 (2026-11-04, 리포트 https://claude.ai/artifact/9Be1MxU9wuigesRNpTxqB6)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현 태스크보다 먼저 둔다(가능하면).
@@ -52,10 +52,10 @@
 ## E. E2E · 성능
 - [x] T17 E2E 장면·시나리오: `056-face-lineup`(8명 × 정면·3/4·옆, 클로즈업 머리), `056-body-lineup`(극단 포함 8명 × 정면·옆·뒤 + 방송 원거리) — 파일: `Verification/Runtime/Samples/FaceLineupScene.cs`, `BodyLineupScene.cs`, `Data/e2e/056-*.json` — 검증: `farm.py e2e --spec 056 --profile smoke` 캡처 직접 확인 (AC-06·07)
   - 결과: PlayerScreen에 `face{1..8}{Front,Three,Side}`·`body{Front,Side,Back,Broadcast}`·`perfCloseup` 화면, 시나리오 `056-face-lineup`(24장)·`056-body-lineup`(4장). smoke 3프로필 통과, 캡처 직접 확인(클로즈업 머리 컬링 버그 — 구운 메시 bounds를 localBounds에 넣던 것 — 수정 후 얼굴 정상). 기준 후보 84장(승인 대기).
-- [ ] T18 043 E2E 3종 새 모델 재실행 → 기준 이미지 후보 생성, **사용자 승인 후** 갱신 — 파일: `Data/e2e/baselines/043-*`, `Data/e2e/baselines/056-*` — 검증: 승인 후 비교 통과 (AC-08)
-  - 진행: 043-kit-lineup·contact-closeup·speed-motion smoke 재실행 — 이미지 검사(ΔE·등번호 글자·접촉)·로그 전부 통과, 실패는 기준 이미지 차이 57장뿐(모델 변경). **기준 갱신은 사용자 승인 대기.**
-- [ ] T19 성능 시나리오 `056-model-perf`(프레임 p95·GPU 시간·드로우콜·클로즈업 전환 스파이크; GPU 카운터 없으면 하네스에 추가) + IL2CPP AnimBench + `perf-baselines.json` 056 항목(채택은 승인 후) — 파일: `Data/e2e/056-model-perf.json`, `Verification/Runtime/PerfSampler.cs`(필요 시), `Data/e2e/perf-baselines.json` — 검증: `farm.py e2e --spec 056`, `farm.py bench --spec 056` 예산 통과 (AC-10)
-  - 진행: `056-model-perf`(low-igpu-1080p·compact-1366) 예산 전부 통과 — 선수 드로우콜 61.4(043 59.8, 예산 74.7), GPU 선수 몫 0.67 ms(043 0.70 ms, −5 %), GC 0, 클로즈업 전환 최대 0.81 ms(≤ 2). IL2CPP 벤치(`farm.py bench --spec 056`, `Data/perf/056-realistic-player-model.json`) 진행 중. 성능 기준 채택은 승인 대기.
+- [x] T18 043 E2E 3종 새 모델 재실행 → 기준 이미지 후보 생성, **사용자 승인 후** 갱신 — 파일: `Data/e2e/baselines/043-*`, `Data/e2e/baselines/056-*` — 검증: 승인 후 비교 통과 (AC-08)
+  - 결과: 043 E2E 3종 full 매트릭스 통과(이미지 검사·로그 전부 통과). 기준 이미지 141장(smoke) + 84장(full 전용 7프로필)은 사용자 승인으로 갱신.
+- [x] T19 성능 시나리오 `056-model-perf`(프레임 p95·GPU 시간·드로우콜·클로즈업 전환 스파이크; GPU 카운터 없으면 하네스에 추가) + IL2CPP AnimBench + `perf-baselines.json` 056 항목(채택은 승인 후) — 파일: `Data/e2e/056-model-perf.json`, `Verification/Runtime/PerfSampler.cs`(필요 시), `Data/e2e/perf-baselines.json` — 검증: `farm.py e2e --spec 056`, `farm.py bench --spec 056` 예산 통과 (AC-10)
+  - 결과: `056-model-perf` 통과 + IL2CPP 벤치 애니메이션 p95 0.20 ms(예산 2 ms)·GC 0. 성능 기준(perf-baselines) 갱신은 하지 않음(043 기준 대비 판정).
 
 - [x] T19a (추가) 하네스: 다른 스펙의 회귀 시나리오를 이 스펙 증거로(`alsoSpecs`), 사용자 육안 승인 기록 파일을 AC 증거로(`Data/perf/<spec>.json` `manual`) — AC-08·AC-09가 기계 증거로 연결되지 않던 문제 — 파일: `Tools/devicefarm/farm/commands.py`, `Data/e2e/043-*.json`, `Data/perf/056-realistic-player-model.json`, `Tools/devicefarm/tests/test_commands_merge.py` — 검증: 하네스 테스트 175/175
   - 결과: 통과. 파일이 없거나 AC id가 없으면 실패 증거, 스펙에 없는 AC는 설정 오류.
@@ -64,5 +64,7 @@
   - 결과: 통과. full 전용 7프로필 043-kit-lineup 기준 84장은 사용자 승인으로 채택.
 
 ## F. 마무리
-- [ ] T20 수용 기준 전체 테스트 통과: `farm.py logic --spec 056`(EditMode 043·056) + Blender 테스트 + 결정론 2회 렌더 동일 (AC-01~05·11)
-- [ ] T21 `/verify 056` — 리포트 아티팩트 발행, face/body lineup 캡처로 **사용자 육안 승인(AC-09)** 받아 `evidence/approval.md` 기록, 실패 0·성능 예산 통과 확인 → spec 상태 `완료`
+- [x] T20 수용 기준 전체 테스트 통과: `farm.py logic --spec 056`(EditMode 043·056) + Blender 테스트 + 결정론 2회 렌더 동일 (AC-01~05·11)
+  - 결과: `farm.py logic --spec 056` EditMode 111/111, Blender 테스트 26/26, 하네스 176/176, 결정론 테스트 통과.
+- [x] T21 `/verify 056` — 리포트 아티팩트 발행, face/body lineup 캡처로 **사용자 육안 승인(AC-09)** 받아 `evidence/approval.md` 기록, 실패 0·성능 예산 통과 확인 → spec 상태 `완료`
+  - 결과: `farm.py full --spec 056` pass(AC-01~11 전부), AC-09 육안 승인 `evidence/approval.md`. 리포트 아티팩트 갱신.
