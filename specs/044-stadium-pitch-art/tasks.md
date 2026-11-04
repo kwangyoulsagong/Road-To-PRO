@@ -1,6 +1,6 @@
 # 044 — 경기장 · 피치 (bpy 생성) · 태스크
 
-상태: 승인됨 (2026-11-03, 플랜 승인과 함께 바로 진행)
+상태: 완료 (2026-11-04, 리포트 https://claude.ai/artifact/942SnwzJsn4vmSP7GkHvg1)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현 태스크보다 먼저 둔다. Blender 순수 Python 테스트는 `python3 -m unittest`, Blender 통합 테스트는 `farm.py art --spec 044`, C# 테스트는 `/unity-test`. 코어(Core·MatchEngine) 변경 없음 → 결정론 리뷰 대상 아님.
@@ -42,4 +42,4 @@
 
 ## F. 마무리
 - [x] T21 수용 기준 전체 테스트 통과 — `farm.py art --spec 044`, `farm.py logic --spec 044`, 파이썬 테스트 전체 — 검증: 실패 0, 콘솔 에러·경고 0, 컴파일 경고 신규 0 — 결과: art 35/35, logic 416 통과·실패 0·건너뜀 3(SelfTestFixtures, 의도된 건너뜀)·컴파일 에러 0·경고 0, 하네스 파이썬 158 + Blender 순수 15 통과(하네스 테스트는 `Tools/devicefarm`에서 실행해야 `farm` 임포트됨). glb 재생성 해시 변화 없음
-- [ ] T22 `/verify 044` — 디바이스팜 증거 리포트 생성·아티팩트 발행, 실패 0·성능 예산 통과 확인, spec·plan·tasks 상태 갱신
+- [x] T22 `/verify 044` — 디바이스팜 증거 리포트 생성·아티팩트 발행, 실패 0·성능 예산 통과 확인, spec·plan·tasks 상태 갱신 — 결과: `full --spec 044` 판정 pass, 깨끗한 트리(a4c2850). E2E 4개 시나리오 21조합(light·ko 한 벌) 기준 이미지 비교 통과, 캡처 직접 확인. 성능 044-stadium-perf 2조합 예산 안(m1: 피치 셰이더 0.48/1.0 ms, 구조 0.14/1.5 ms, 드로우콜 54/60, 삼각형 9.5k/100k, 텍스처 76/128 MB). **배터리 전원 측정이라 하네스는 "판정 제외"로 기록** — 사용자 결정(2026-11-04)으로 이 수치를 받아들여 완료. 리포트 https://claude.ai/artifact/942SnwzJsn4vmSP7GkHvg1

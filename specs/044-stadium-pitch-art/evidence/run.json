@@ -1,5 +1,5 @@
 {
-  "title": "044 로직 증거",
+  "title": "044 디바이스팜 증거 (full)",
   "spec": {
     "id": "044",
     "name": "044 — 경기장 · 피치 (bpy 생성)",
@@ -88,33 +88,5367 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/044-stadium-pitch-art"
   },
   "meta": {
-    "commit": "b044d3d69b1e9becb02774c2d56a4d499341c8eb",
+    "commit": "a4c2850ac2482967c801d9dbee4dc30108cceb03",
     "branch": "feat/044-stadium-verify",
-    "dirty": true,
+    "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-04 09:02:04 +0900",
-    "durationSec": 767.2812860012054,
-    "command": "python3 Tools/devicefarm/farm.py logic --spec 044",
-    "profiles": []
+    "time": "2026-11-04 09:19:14 +0900",
+    "durationSec": 160.63096594810486,
+    "command": "python3 Tools/devicefarm/farm.py full --spec 044",
+    "profiles": [
+      "compact-1366-light-ko",
+      "desktop-1440p-light-ko",
+      "handheld-800p-light-ko",
+      "low-igpu-1080p-light-ko",
+      "mac-m1-1600p-light-ko",
+      "phone-landscape-light-ko",
+      "phone-portrait-light-ko",
+      "tablet-4x3-light-ko",
+      "uhd-4k-200-light-ko",
+      "ultrawide-1080-light-ko"
+    ],
+    "buildCached": false
   },
-  "logic": {
-    "ok": true,
-    "total": 419,
-    "passed": 416,
-    "failed": 0,
-    "skipped": 3,
-    "duration": 744.3586766,
-    "compileErrors": [],
-    "failures": [],
-    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-090204-logic/logic.png",
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-090204-logic/logic.html"
-  },
-  "scenarios": [],
-  "editmodePerf": null,
-  "benchPerf": null,
-  "requireAllAcs": false,
-  "deferred": {},
+  "scenarios": [
+    {
+      "scenario": "044-line-sharpness",
+      "description": "페널티 박스 앞선 FOV 8°·30° — 200 px 구간 끊김 0, 폭 표준편차 ≤ 1 px (AC-12)",
+      "combos": [
+        {
+          "key": "low-igpu-1080p-light-ko",
+          "profile": "low-igpu-1080p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 8.2,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/low-igpu-1080p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/low-igpu-1080p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-line-sharpness.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/low-igpu-1080p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "low-igpu-1080p",
+            "-farmWidth",
+            "1920",
+            "-farmHeight",
+            "1080",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.67",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "lineFov8",
+              "status": "passed",
+              "ms": 219.3,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/lineFov8.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "lineFov8",
+                  "line": {
+                    "a": [
+                      827.75,
+                      540
+                    ],
+                    "b": [
+                      1092.25,
+                      540
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 30.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "lineFov30",
+              "status": "passed",
+              "ms": 171.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/lineFov30.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "lineFov30",
+                  "line": {
+                    "a": [
+                      828.85,
+                      540
+                    ],
+                    "b": [
+                      1091.15,
+                      540
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "lineFov8",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/low-igpu-1080p-light-ko/captures/lineFov8.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-line-sharpness/lineFov8/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "044-line-sharpness",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "lineFov30",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/low-igpu-1080p-light-ko/captures/lineFov30.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-line-sharpness/lineFov30/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "044-line-sharpness",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "lineContinuity",
+              "capture": "lineFov8",
+              "ac": "AC-12",
+              "ok": true,
+              "detail": "샘플 200칸 중 끊김 0, 폭 평균 14.00px 표준편차 0.00px (≤ 1.0)"
+            },
+            {
+              "type": "lineContinuity",
+              "capture": "lineFov30",
+              "ac": "AC-12",
+              "ok": true,
+              "detail": "샘플 200칸 중 끊김 0, 폭 평균 4.00px 표준편차 0.00px (≤ 1.0)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-line-sharpness.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "lineFov8",
+              "status": "passed",
+              "ms": 400.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/lineFov8.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "lineFov8",
+                  "line": {
+                    "a": [
+                      1149.39,
+                      800
+                    ],
+                    "b": [
+                      1410.61,
+                      800
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 32.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "lineFov30",
+              "status": "passed",
+              "ms": 341.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/lineFov30.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "lineFov30",
+                  "line": {
+                    "a": [
+                      1148.77,
+                      800
+                    ],
+                    "b": [
+                      1411.23,
+                      800
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "lineFov8",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/mac-m1-1600p-light-ko/captures/lineFov8.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-line-sharpness/lineFov8/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "044-line-sharpness",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "lineFov30",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/mac-m1-1600p-light-ko/captures/lineFov30.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-line-sharpness/lineFov30/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "044-line-sharpness",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "lineContinuity",
+              "capture": "lineFov8",
+              "ac": "AC-12",
+              "ok": true,
+              "detail": "샘플 200칸 중 끊김 0, 폭 평균 20.00px 표준편차 0.00px (≤ 1.0)"
+            },
+            {
+              "type": "lineContinuity",
+              "capture": "lineFov30",
+              "ac": "AC-12",
+              "ok": true,
+              "detail": "샘플 200칸 중 끊김 0, 폭 평균 6.00px 표준편차 0.00px (≤ 1.0)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "compact-1366-light-ko",
+          "profile": "compact-1366",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 4.5,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/compact-1366-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/compact-1366-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-line-sharpness.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/compact-1366-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "compact-1366",
+            "-farmWidth",
+            "1366",
+            "-farmHeight",
+            "768",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "lineFov8",
+              "status": "passed",
+              "ms": 114.9,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/lineFov8.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "lineFov8",
+                  "line": {
+                    "a": [
+                      551.34,
+                      384
+                    ],
+                    "b": [
+                      814.66,
+                      384
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 17.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "lineFov30",
+              "status": "passed",
+              "ms": 94.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/lineFov30.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "lineFov30",
+                  "line": {
+                    "a": [
+                      552.93,
+                      384
+                    ],
+                    "b": [
+                      813.07,
+                      384
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "lineFov8",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/compact-1366-light-ko/captures/lineFov8.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-line-sharpness/lineFov8/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "044-line-sharpness",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "lineFov30",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/compact-1366-light-ko/captures/lineFov30.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-line-sharpness/lineFov30/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "044-line-sharpness",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "lineContinuity",
+              "capture": "lineFov8",
+              "ac": "AC-12",
+              "ok": true,
+              "detail": "샘플 200칸 중 끊김 0, 폭 평균 10.00px 표준편차 0.00px (≤ 1.0)"
+            },
+            {
+              "type": "lineContinuity",
+              "capture": "lineFov30",
+              "ac": "AC-12",
+              "ok": true,
+              "detail": "샘플 200칸 중 끊김 0, 폭 평균 3.31px 표준편차 0.69px (≤ 1.0)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "uhd-4k-200-light-ko",
+          "profile": "uhd-4k-200",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.3,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/uhd-4k-200-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/uhd-4k-200-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-line-sharpness.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/uhd-4k-200-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "uhd-4k-200",
+            "-farmWidth",
+            "3840",
+            "-farmHeight",
+            "2160",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.5",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.4,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "lineFov8",
+              "status": "passed",
+              "ms": 717.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/lineFov8.png",
+                "width": 3840,
+                "height": 2160,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "lineFov8",
+                  "line": {
+                    "a": [
+                      1787.75,
+                      1080
+                    ],
+                    "b": [
+                      2052.25,
+                      1080
+                    ]
+                  }
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 32.4,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "lineFov30",
+              "status": "passed",
+              "ms": 687.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/lineFov30.png",
+                "width": 3840,
+                "height": 2160,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "lineFov30",
+                  "line": {
+                    "a": [
+                      1788.85,
+                      1080
+                    ],
+                    "b": [
+                      2051.15,
+                      1080
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "lineFov8",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/uhd-4k-200-light-ko/captures/lineFov8.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-line-sharpness/lineFov8/uhd-4k-200-light-ko.png",
+              "diff": null,
+              "scenario": "044-line-sharpness",
+              "combo": "uhd-4k-200-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "lineFov30",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-line-sharpness/uhd-4k-200-light-ko/captures/lineFov30.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-line-sharpness/lineFov30/uhd-4k-200-light-ko.png",
+              "diff": null,
+              "scenario": "044-line-sharpness",
+              "combo": "uhd-4k-200-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "lineContinuity",
+              "capture": "lineFov8",
+              "ac": "AC-12",
+              "ok": true,
+              "detail": "샘플 200칸 중 끊김 0, 폭 평균 28.00px 표준편차 0.00px (≤ 1.0)"
+            },
+            {
+              "type": "lineContinuity",
+              "capture": "lineFov30",
+              "ac": "AC-12",
+              "ok": true,
+              "detail": "샘플 200칸 중 끊김 0, 폭 평균 8.00px 표준편차 0.00px (≤ 1.0)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        }
+      ],
+      "determinism": null,
+      "verdict": "pass"
+    },
+    {
+      "scenario": "044-mow-flip",
+      "description": "같은 줄무늬 띠 두 개를 반대 방향 카메라에서 — 밝기 순서 반전 (AC-11)",
+      "combos": [
+        {
+          "key": "low-igpu-1080p-light-ko",
+          "profile": "low-igpu-1080p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/low-igpu-1080p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/low-igpu-1080p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-mow-flip.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/low-igpu-1080p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "low-igpu-1080p",
+            "-farmWidth",
+            "1920",
+            "-farmHeight",
+            "1080",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.67",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "mowA",
+              "status": "passed",
+              "ms": 202.7,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/mowA.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "mowA",
+                  "bandA": [
+                    792.7,
+                    458,
+                    334.5,
+                    56.2
+                  ],
+                  "bandB": [
+                    761.8,
+                    570.8,
+                    396.4,
+                    77.4
+                  ]
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 30.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "mowB",
+              "status": "passed",
+              "ms": 180.8,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/mowB.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "mowB",
+                  "bandA": [
+                    761.8,
+                    570.8,
+                    396.4,
+                    77.4
+                  ],
+                  "bandB": [
+                    792.7,
+                    458,
+                    334.5,
+                    56.2
+                  ]
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "mowA",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/low-igpu-1080p-light-ko/captures/mowA.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-mow-flip/mowA/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "044-mow-flip",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "mowB",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/low-igpu-1080p-light-ko/captures/mowB.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-mow-flip/mowB/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "044-mow-flip",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "bandFlip",
+              "capture": "mowA",
+              "ac": "AC-11",
+              "ok": true,
+              "detail": "시점 A: 띠A 85.1 / 띠B 97.3 (차 -12.1), 시점 B: 97.3 / 85.1 (차 +12.1), 최소 차 2.0"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 4.7,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-mow-flip.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "mowA",
+              "status": "passed",
+              "ms": 365.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/mowA.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "mowA",
+                  "bandA": [
+                    1032.2,
+                    678.6,
+                    495.6,
+                    83.2
+                  ],
+                  "bandB": [
+                    986.3,
+                    845.7,
+                    587.3,
+                    114.6
+                  ]
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 17.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "mowB",
+              "status": "passed",
+              "ms": 352.3,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/mowB.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "mowB",
+                  "bandA": [
+                    986.3,
+                    845.7,
+                    587.3,
+                    114.6
+                  ],
+                  "bandB": [
+                    1032.2,
+                    678.6,
+                    495.6,
+                    83.2
+                  ]
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "mowA",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/mac-m1-1600p-light-ko/captures/mowA.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-mow-flip/mowA/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "044-mow-flip",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "mowB",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/mac-m1-1600p-light-ko/captures/mowB.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-mow-flip/mowB/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "044-mow-flip",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "bandFlip",
+              "capture": "mowA",
+              "ac": "AC-11",
+              "ok": true,
+              "detail": "시점 A: 띠A 84.9 / 띠B 96.9 (차 -12.0), 시점 B: 96.9 / 84.9 (차 +12.0), 최소 차 2.0"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "compact-1366-light-ko",
+          "profile": "compact-1366",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 4.3,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/compact-1366-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/compact-1366-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-mow-flip.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/compact-1366-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "compact-1366",
+            "-farmWidth",
+            "1366",
+            "-farmHeight",
+            "768",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "mowA",
+              "status": "passed",
+              "ms": 105.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/mowA.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "mowA",
+                  "bandA": [
+                    564.1,
+                    325.7,
+                    237.9,
+                    40
+                  ],
+                  "bandB": [
+                    542,
+                    405.9,
+                    281.9,
+                    55
+                  ]
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 27.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "mowB",
+              "status": "passed",
+              "ms": 101.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/mowB.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "mowB",
+                  "bandA": [
+                    542,
+                    405.9,
+                    281.9,
+                    55
+                  ],
+                  "bandB": [
+                    564.1,
+                    325.7,
+                    237.9,
+                    40
+                  ]
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "mowA",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/compact-1366-light-ko/captures/mowA.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-mow-flip/mowA/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "044-mow-flip",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "mowB",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-mow-flip/compact-1366-light-ko/captures/mowB.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-mow-flip/mowB/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "044-mow-flip",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "bandFlip",
+              "capture": "mowA",
+              "ac": "AC-11",
+              "ok": true,
+              "detail": "시점 A: 띠A 85.3 / 띠B 97.7 (차 -12.3), 시점 B: 97.6 / 85.4 (차 +12.2), 최소 차 2.0"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        }
+      ],
+      "determinism": null,
+      "verdict": "pass"
+    },
+    {
+      "scenario": "044-night",
+      "description": "나이트 프리셋 — 선수 발밑 블롭 그림자 4장 X자 (AC-13)",
+      "combos": [
+        {
+          "key": "low-igpu-1080p-light-ko",
+          "profile": "low-igpu-1080p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 4.5,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/low-igpu-1080p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/low-igpu-1080p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-night.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/low-igpu-1080p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "low-igpu-1080p",
+            "-farmWidth",
+            "1920",
+            "-farmHeight",
+            "1080",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.67",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "night",
+              "status": "passed",
+              "ms": 203.8,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/night.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "night",
+                  "blobs": [
+                    [
+                      1047.21,
+                      437.79
+                    ],
+                    [
+                      853.87,
+                      457.61
+                    ],
+                    [
+                      1061.55,
+                      627.97
+                    ],
+                    [
+                      843.47,
+                      606.87
+                    ]
+                  ],
+                  "refs": [
+                    [
+                      [
+                        1174.96,
+                        546.8
+                      ],
+                      [
+                        919.45,
+                        328.78
+                      ]
+                    ],
+                    [
+                      [
+                        956.87,
+                        324.95
+                      ],
+                      [
+                        750.89,
+                        590.26
+                      ]
+                    ],
+                    [
+                      [
+                        951.59,
+                        754.9
+                      ],
+                      [
+                        1171.51,
+                        501.03
+                      ]
+                    ],
+                    [
+                      [
+                        759.88,
+                        461.21
+                      ],
+                      [
+                        927.06,
+                        752.53
+                      ]
+                    ]
+                  ],
+                  "foot": [
+                    960,
+                    540
+                  ]
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "night",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/low-igpu-1080p-light-ko/captures/night.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-night/night/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "044-night",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "blobX",
+              "capture": "night",
+              "ac": "AC-13",
+              "ok": true,
+              "detail": "어두워진 비율 0.29, 0.31, 0.39, 0.38 (≥ 0.12), 대각 쌍 내적 -1.00, -0.94 (< −0.7)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 4.5,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-night.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "night",
+              "status": "passed",
+              "ms": 366.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/night.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "night",
+                  "blobs": [
+                    [
+                      1409.2,
+                      648.58
+                    ],
+                    [
+                      1122.78,
+                      677.94
+                    ],
+                    [
+                      1430.45,
+                      930.32
+                    ],
+                    [
+                      1107.36,
+                      899.07
+                    ]
+                  ],
+                  "refs": [
+                    [
+                      [
+                        1598.46,
+                        810.08
+                      ],
+                      [
+                        1219.93,
+                        487.09
+                      ]
+                    ],
+                    [
+                      [
+                        1275.36,
+                        481.41
+                      ],
+                      [
+                        970.2,
+                        874.46
+                      ]
+                    ],
+                    [
+                      [
+                        1267.54,
+                        1118.38
+                      ],
+                      [
+                        1593.35,
+                        742.26
+                      ]
+                    ],
+                    [
+                      [
+                        983.53,
+                        683.27
+                      ],
+                      [
+                        1231.2,
+                        1114.86
+                      ]
+                    ]
+                  ],
+                  "foot": [
+                    1280,
+                    800
+                  ]
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "night",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/mac-m1-1600p-light-ko/captures/night.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-night/night/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "044-night",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "blobX",
+              "capture": "night",
+              "ac": "AC-13",
+              "ok": true,
+              "detail": "어두워진 비율 0.32, 0.41, 0.44, 0.39 (≥ 0.12), 대각 쌍 내적 -1.00, -0.94 (< −0.7)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "compact-1366-light-ko",
+          "profile": "compact-1366",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 4.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/compact-1366-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/compact-1366-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-night.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/compact-1366-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "compact-1366",
+            "-farmWidth",
+            "1366",
+            "-farmHeight",
+            "768",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "night",
+              "status": "passed",
+              "ms": 104.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/night.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "night",
+                  "blobs": [
+                    [
+                      745.01,
+                      311.32
+                    ],
+                    [
+                      607.53,
+                      325.41
+                    ],
+                    [
+                      755.21,
+                      446.55
+                    ],
+                    [
+                      600.13,
+                      431.55
+                    ]
+                  ],
+                  "refs": [
+                    [
+                      [
+                        835.86,
+                        388.84
+                      ],
+                      [
+                        654.17,
+                        233.8
+                      ]
+                    ],
+                    [
+                      [
+                        680.77,
+                        231.08
+                      ],
+                      [
+                        534.3,
+                        419.74
+                      ]
+                    ],
+                    [
+                      [
+                        677.02,
+                        536.82
+                      ],
+                      [
+                        833.41,
+                        356.29
+                      ]
+                    ],
+                    [
+                      [
+                        540.69,
+                        327.97
+                      ],
+                      [
+                        659.57,
+                        535.13
+                      ]
+                    ]
+                  ],
+                  "foot": [
+                    683,
+                    384
+                  ]
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "night",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-night/compact-1366-light-ko/captures/night.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-night/night/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "044-night",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "blobX",
+              "capture": "night",
+              "ac": "AC-13",
+              "ok": true,
+              "detail": "어두워진 비율 0.28, 0.25, 0.32, 0.36 (≥ 0.12), 대각 쌍 내적 -1.00, -0.94 (< −0.7)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        }
+      ],
+      "determinism": null,
+      "verdict": "pass"
+    },
+    {
+      "scenario": "044-stadium-perf",
+      "description": "경기장 단독 렌더 성능 (AC-14). 구간마다 fps 상한을 풀어(uncapped) GPU가 병목인 상태에서 평균 프레임 간격을 재고, 빈 화면(카메라만) 대비 차이로 판정: 피치만 − 빈 화면 = 피치 셰이더(≤ 1.0 ms), 구조물만 − 빈 화면 = 구조(≤ 1.5 ms), 전체 − 빈 화면 = 드로우콜(≤ 60). Metal FrameTimingManager gpuFrameTime은 처리 중인 여러 프레임이 겹쳐 잡혀(예: 0.81 ms 간격에 1.9 ms) 기록만 한다",
+      "combos": [
+        {
+          "key": "low-igpu-1080p-light-ko",
+          "profile": "low-igpu-1080p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-perf/low-igpu-1080p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-perf/low-igpu-1080p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-perf.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-perf/low-igpu-1080p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "low-igpu-1080p",
+            "-farmWidth",
+            "1920",
+            "-farmHeight",
+            "1080",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.67",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "perfBegin",
+              "name": "empty",
+              "status": "passed",
+              "ms": 1.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "perfEnd",
+              "name": "empty",
+              "status": "passed",
+              "ms": 140.4,
+              "message": "",
+              "timedOut": false,
+              "frames": 360
+            },
+            {
+              "index": 3,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 4,
+              "type": "perfBegin",
+              "name": "pitch",
+              "status": "passed",
+              "ms": 0.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "perfEnd",
+              "name": "pitch",
+              "status": "passed",
+              "ms": 183.2,
+              "message": "",
+              "timedOut": false,
+              "frames": 360
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "perfBegin",
+              "name": "structure",
+              "status": "passed",
+              "ms": 0.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 8,
+              "type": "perfEnd",
+              "name": "structure",
+              "status": "passed",
+              "ms": 171.3,
+              "message": "",
+              "timedOut": false,
+              "frames": 360
+            },
+            {
+              "index": 9,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 10,
+              "type": "perfBegin",
+              "name": "full",
+              "status": "passed",
+              "ms": 0.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "perfEnd",
+              "name": "full",
+              "status": "passed",
+              "ms": 253.3,
+              "message": "",
+              "timedOut": false,
+              "frames": 360
+            }
+          ],
+          "captures": [],
+          "failCaptures": [],
+          "perf": [
+            {
+              "section": "empty",
+              "key": "044-stadium-perf/empty/low-igpu-1080p",
+              "metrics": {
+                "frames": 300,
+                "frameMs": {
+                  "avg": 0.32296681369189173,
+                  "p50": 0.30441468697972596,
+                  "p95": 0.4232922219671309,
+                  "p99": 0.5020833341404796,
+                  "max": 0.5164611502550542
+                },
+                "mainThreadMs": {
+                  "avg": 0.31051543333333326,
+                  "p50": 0.297625,
+                  "p95": 0.407125,
+                  "p99": 0.480792,
+                  "max": 0.4975
+                },
+                "gpuMs": {
+                  "avg": 0.10720652993768454,
+                  "p50": 0.10654167272150517,
+                  "p95": 0.13062520883977413,
+                  "p99": 0.1695833634585142,
+                  "max": 0.20795827731490135
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 633.0666666666667,
+                  "max": 21152
+                },
+                "gcAllocTotalBytes": 189920,
+                "drawCalls": {
+                  "avg": 2.0,
+                  "max": 4
+                },
+                "triangles": {
+                  "avg": 4.0,
+                  "max": 8
+                },
+                "textureMemoryBytes": 43437973,
+                "totalMemoryBytes": 194219530
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [],
+              "regression": []
+            },
+            {
+              "section": "pitch",
+              "key": "044-stadium-perf/pitch/low-igpu-1080p",
+              "metrics": {
+                "frames": 300,
+                "frameMs": {
+                  "avg": 0.43365346258118126,
+                  "p50": 0.41708475328050554,
+                  "p95": 0.5686295335181057,
+                  "p99": 0.6386692402884364,
+                  "max": 0.6892077508382499
+                },
+                "mainThreadMs": {
+                  "avg": 0.41900182,
+                  "p50": 0.407375,
+                  "p95": 0.555083,
+                  "p99": 0.616875,
+                  "max": 0.679625
+                },
+                "gpuMs": {
+                  "avg": 0.6702798643770317,
+                  "p50": 0.6903749890625477,
+                  "p95": 0.7952500600367785,
+                  "p99": 0.837583327665925,
+                  "max": 0.9194582235068083
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 633.0666666666667,
+                  "max": 21152
+                },
+                "gcAllocTotalBytes": 189920,
+                "drawCalls": {
+                  "avg": 2.99,
+                  "max": 6
+                },
+                "triangles": {
+                  "avg": 5.98,
+                  "max": 12
+                },
+                "textureMemoryBytes": 43437973,
+                "totalMemoryBytes": 173487474
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [],
+              "regression": []
+            },
+            {
+              "section": "structure",
+              "key": "044-stadium-perf/structure/low-igpu-1080p",
+              "metrics": {
+                "frames": 300,
+                "frameMs": {
+                  "avg": 0.4167420639229628,
+                  "p50": 0.4023313522338867,
+                  "p95": 0.5185445188544691,
+                  "p99": 0.7041666540317237,
+                  "max": 0.9852111106738448
+                },
+                "mainThreadMs": {
+                  "avg": 0.4033827566666666,
+                  "p50": 0.391375,
+                  "p95": 0.515167,
+                  "p99": 0.680208,
+                  "max": 0.940292
+                },
+                "gpuMs": {
+                  "avg": 0.3262251305083434,
+                  "p50": 0.31787483021616936,
+                  "p95": 0.37812511436641216,
+                  "p99": 0.39950013160705566,
+                  "max": 0.4846665542572737
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 665.5166666666667,
+                  "max": 21152
+                },
+                "gcAllocTotalBytes": 199655,
+                "drawCalls": {
+                  "avg": 28.093333333333334,
+                  "max": 56
+                },
+                "triangles": {
+                  "avg": 4775.866666666667,
+                  "max": 9520
+                },
+                "textureMemoryBytes": 45536347,
+                "totalMemoryBytes": 176007606
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [],
+              "regression": []
+            },
+            {
+              "section": "full",
+              "key": "044-stadium-perf/full/low-igpu-1080p",
+              "metrics": {
+                "frames": 300,
+                "frameMs": {
+                  "avg": 0.641144865755147,
+                  "p50": 0.6345025612972677,
+                  "p95": 0.7597505464218557,
+                  "p99": 0.8248724625445902,
+                  "max": 1.1858772486448288
+                },
+                "mainThreadMs": {
+                  "avg": 0.6296528233333334,
+                  "p50": 0.623875,
+                  "p95": 0.749625,
+                  "p99": 0.816208,
+                  "max": 1.176375
+                },
+                "gpuMs": {
+                  "avg": 1.2022149935364723,
+                  "p50": 1.2019167188555002,
+                  "p95": 1.3552084565162659,
+                  "p99": 1.3976248446851969,
+                  "max": 1.4494999777525663
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 633.0666666666667,
+                  "max": 21152
+                },
+                "gcAllocTotalBytes": 189920,
+                "drawCalls": {
+                  "avg": 29.0,
+                  "max": 58
+                },
+                "triangles": {
+                  "avg": 4762.0,
+                  "max": 9524
+                },
+                "textureMemoryBytes": 45536347,
+                "totalMemoryBytes": 175708214
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [
+                {
+                  "metric": "textureMemoryBytes",
+                  "value": 45536347,
+                  "budget": 134217728,
+                  "ok": true
+                },
+                {
+                  "metric": "triangles.max",
+                  "value": 9524,
+                  "budget": 100000,
+                  "ok": true
+                }
+              ],
+              "regression": []
+            },
+            {
+              "section": "pitchShader",
+              "key": "044-stadium-perf/pitchShader/low-igpu-1080p",
+              "metrics": {
+                "derived": "pitch − empty",
+                "frameMs": {
+                  "avg": 0.11068664888928953
+                }
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [
+                {
+                  "metric": "frameMs.avg",
+                  "value": 0.11068664888928953,
+                  "budget": 1.0,
+                  "ok": true
+                }
+              ],
+              "regression": []
+            },
+            {
+              "section": "stadium",
+              "key": "044-stadium-perf/stadium/low-igpu-1080p",
+              "metrics": {
+                "derived": "full − empty",
+                "drawCalls": {
+                  "max": 54
+                }
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [
+                {
+                  "metric": "drawCalls.max",
+                  "value": 54,
+                  "budget": 60,
+                  "ok": true
+                }
+              ],
+              "regression": []
+            },
+            {
+              "section": "structureCost",
+              "key": "044-stadium-perf/structureCost/low-igpu-1080p",
+              "metrics": {
+                "derived": "structure − empty",
+                "frameMs": {
+                  "avg": 0.09377525023107108
+                }
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "기준 기기 아님 — 기록·상대 비교만",
+              "budget": [
+                {
+                  "metric": "frameMs.avg",
+                  "value": 0.09377525023107108,
+                  "budget": 1.5,
+                  "ok": true
+                }
+              ],
+              "regression": []
+            }
+          ],
+          "imageChecks": [],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.3,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-perf/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-perf/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-perf.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-perf/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "perfBegin",
+              "name": "empty",
+              "status": "passed",
+              "ms": 1.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "perfEnd",
+              "name": "empty",
+              "status": "passed",
+              "ms": 145,
+              "message": "",
+              "timedOut": false,
+              "frames": 360
+            },
+            {
+              "index": 3,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 4,
+              "type": "perfBegin",
+              "name": "pitch",
+              "status": "passed",
+              "ms": 0.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "perfEnd",
+              "name": "pitch",
+              "status": "passed",
+              "ms": 318,
+              "message": "",
+              "timedOut": false,
+              "frames": 360
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "perfBegin",
+              "name": "structure",
+              "status": "passed",
+              "ms": 0.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 8,
+              "type": "perfEnd",
+              "name": "structure",
+              "status": "passed",
+              "ms": 195.8,
+              "message": "",
+              "timedOut": false,
+              "frames": 360
+            },
+            {
+              "index": 9,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 10,
+              "type": "perfBegin",
+              "name": "full",
+              "status": "passed",
+              "ms": 0.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "perfEnd",
+              "name": "full",
+              "status": "passed",
+              "ms": 443,
+              "message": "",
+              "timedOut": false,
+              "frames": 360
+            }
+          ],
+          "captures": [],
+          "failCaptures": [],
+          "perf": [
+            {
+              "section": "empty",
+              "key": "044-stadium-perf/empty/mac-m1-1600p",
+              "metrics": {
+                "frames": 300,
+                "frameMs": {
+                  "avg": 0.34466612293423776,
+                  "p50": 0.3091624239459634,
+                  "p95": 0.4972080350853503,
+                  "p99": 0.5963364383205771,
+                  "max": 1.2013321975246072
+                },
+                "mainThreadMs": {
+                  "avg": 0.32842304666666683,
+                  "p50": 0.304083,
+                  "p95": 0.469875,
+                  "p99": 0.56975,
+                  "max": 1.200042
+                },
+                "gpuMs": {
+                  "avg": 0.14140889203796783,
+                  "p50": 0.13870839029550552,
+                  "p95": 0.15495833940804005,
+                  "p99": 0.19587506540119648,
+                  "max": 0.23308326490223408
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 633.0666666666667,
+                  "max": 21152
+                },
+                "gcAllocTotalBytes": 189920,
+                "drawCalls": {
+                  "avg": 2.0,
+                  "max": 4
+                },
+                "triangles": {
+                  "avg": 4.0,
+                  "max": 8
+                },
+                "textureMemoryBytes": 77818773,
+                "totalMemoryBytes": 228475145
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "전원 상태 battery — 판정 제외",
+              "budget": [],
+              "regression": []
+            },
+            {
+              "section": "pitch",
+              "key": "044-stadium-perf/pitch/mac-m1-1600p",
+              "metrics": {
+                "frames": 300,
+                "frameMs": {
+                  "avg": 0.8202158210527463,
+                  "p50": 0.8152069058269262,
+                  "p95": 0.8928783936426044,
+                  "p99": 0.9982497431337833,
+                  "max": 1.6943381633609533
+                },
+                "mainThreadMs": {
+                  "avg": 0.8061726600000001,
+                  "p50": 0.804,
+                  "p95": 0.887875,
+                  "p99": 0.987625,
+                  "max": 1.635
+                },
+                "gpuMs": {
+                  "avg": 1.798441675491631,
+                  "p50": 1.8173335120081902,
+                  "p95": 1.964125083759427,
+                  "p99": 2.0024168770760298,
+                  "max": 2.071208553388715
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 665.3966666666666,
+                  "max": 21152
+                },
+                "gcAllocTotalBytes": 199619,
+                "drawCalls": {
+                  "avg": 3.01,
+                  "max": 6
+                },
+                "triangles": {
+                  "avg": 6.02,
+                  "max": 12
+                },
+                "textureMemoryBytes": 77818773,
+                "totalMemoryBytes": 207755689
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "전원 상태 battery — 판정 제외",
+              "budget": [],
+              "regression": []
+            },
+            {
+              "section": "structure",
+              "key": "044-stadium-perf/structure/mac-m1-1600p",
+              "metrics": {
+                "frames": 300,
+                "frameMs": {
+                  "avg": 0.48882749940579134,
+                  "p50": 0.49320433754473925,
+                  "p95": 0.6034934776835144,
+                  "p99": 0.6429138593375683,
+                  "max": 0.831916113384068
+                },
+                "mainThreadMs": {
+                  "avg": 0.47851833666666665,
+                  "p50": 0.484708,
+                  "p95": 0.5965,
+                  "p99": 0.65275,
+                  "max": 0.810875
+                },
+                "gpuMs": {
+                  "avg": 0.8270555501803756,
+                  "p50": 0.8493750356137753,
+                  "p95": 0.9543749038130045,
+                  "p99": 1.002499833703041,
+                  "max": 1.0386251378804445
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 633.0666666666667,
+                  "max": 21152
+                },
+                "gcAllocTotalBytes": 189920,
+                "drawCalls": {
+                  "avg": 28.093333333333334,
+                  "max": 56
+                },
+                "triangles": {
+                  "avg": 4775.866666666667,
+                  "max": 9520
+                },
+                "textureMemoryBytes": 79917147,
+                "totalMemoryBytes": 210211381
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "전원 상태 battery — 판정 제외",
+              "budget": [],
+              "regression": []
+            },
+            {
+              "section": "full",
+              "key": "044-stadium-perf/full/mac-m1-1600p",
+              "metrics": {
+                "frames": 300,
+                "frameMs": {
+                  "avg": 1.1840663970603298,
+                  "p50": 1.177706872113049,
+                  "p95": 1.2560869799926877,
+                  "p99": 1.4334608567878604,
+                  "max": 2.1594599820673466
+                },
+                "mainThreadMs": {
+                  "avg": 1.1665565066666654,
+                  "p50": 1.166542,
+                  "p95": 1.249084,
+                  "p99": 1.495917,
+                  "max": 2.133625
+                },
+                "gpuMs": {
+                  "avg": 2.777752081553141,
+                  "p50": 2.8115417808294296,
+                  "p95": 2.97949998639524,
+                  "p99": 3.022416727617383,
+                  "max": 3.1007914803922176
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 633.0666666666667,
+                  "max": 21152
+                },
+                "gcAllocTotalBytes": 189920,
+                "drawCalls": {
+                  "avg": 29.096666666666668,
+                  "max": 58
+                },
+                "triangles": {
+                  "avg": 4777.873333333333,
+                  "max": 9524
+                },
+                "textureMemoryBytes": 79917147,
+                "totalMemoryBytes": 209948461
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "전원 상태 battery — 판정 제외",
+              "budget": [
+                {
+                  "metric": "textureMemoryBytes",
+                  "value": 79917147,
+                  "budget": 134217728,
+                  "ok": true
+                },
+                {
+                  "metric": "triangles.max",
+                  "value": 9524,
+                  "budget": 100000,
+                  "ok": true
+                }
+              ],
+              "regression": []
+            },
+            {
+              "section": "pitchShader",
+              "key": "044-stadium-perf/pitchShader/mac-m1-1600p",
+              "metrics": {
+                "derived": "pitch − empty",
+                "frameMs": {
+                  "avg": 0.4755496981185085
+                }
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "전원 상태 battery — 판정 제외",
+              "budget": [
+                {
+                  "metric": "frameMs.avg",
+                  "value": 0.4755496981185085,
+                  "budget": 1.0,
+                  "ok": true
+                }
+              ],
+              "regression": []
+            },
+            {
+              "section": "stadium",
+              "key": "044-stadium-perf/stadium/mac-m1-1600p",
+              "metrics": {
+                "derived": "full − empty",
+                "drawCalls": {
+                  "max": 54
+                }
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "전원 상태 battery — 판정 제외",
+              "budget": [
+                {
+                  "metric": "drawCalls.max",
+                  "value": 54,
+                  "budget": 60,
+                  "ok": true
+                }
+              ],
+              "regression": []
+            },
+            {
+              "section": "structureCost",
+              "key": "044-stadium-perf/structureCost/mac-m1-1600p",
+              "metrics": {
+                "derived": "structure − empty",
+                "frameMs": {
+                  "avg": 0.14416137647155358
+                }
+              },
+              "power": "battery",
+              "judged": false,
+              "ok": true,
+              "note": "전원 상태 battery — 판정 제외",
+              "budget": [
+                {
+                  "metric": "frameMs.avg",
+                  "value": 0.14416137647155358,
+                  "budget": 1.5,
+                  "ok": true
+                }
+              ],
+              "regression": []
+            }
+          ],
+          "imageChecks": [],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        }
+      ],
+      "determinism": null,
+      "verdict": "pass"
+    },
+    {
+      "scenario": "044-stadium-views",
+      "description": "기본 경기장 4시점(중계·골대 뒤·탑뷰·피치 레벨) — 빈 화면 없음, 라인·골대·관중석·조명 (AC-10)",
+      "combos": [
+        {
+          "key": "low-igpu-1080p-light-ko",
+          "profile": "low-igpu-1080p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/low-igpu-1080p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/low-igpu-1080p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-views.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/low-igpu-1080p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "low-igpu-1080p",
+            "-farmWidth",
+            "1920",
+            "-farmHeight",
+            "1080",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.67",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "main",
+              "status": "passed",
+              "ms": 149.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/main.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "main"
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "behindGoal",
+              "status": "passed",
+              "ms": 181.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/behindGoal.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "behindGoal"
+                }
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 18.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "top",
+              "status": "passed",
+              "ms": 159.3,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/top.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "top"
+                }
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 24.8,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "pitchLevel",
+              "status": "passed",
+              "ms": 127.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/pitchLevel.png",
+                "width": 1920,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "pitchLevel"
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "main",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/low-igpu-1080p-light-ko/captures/main.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/main/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "behindGoal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/low-igpu-1080p-light-ko/captures/behindGoal.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/behindGoal/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "top",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/low-igpu-1080p-light-ko/captures/top.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/top/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "pitchLevel",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/low-igpu-1080p-light-ko/captures/pitchLevel.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/pitchLevel/low-igpu-1080p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "low-igpu-1080p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "notBlank",
+              "capture": "main",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 53.9 (≥ 8.0), 색 5009 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "behindGoal",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 25.2 (≥ 8.0), 색 11561 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "top",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 42.1 (≥ 8.0), 색 3216 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "pitchLevel",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 58.9 (≥ 8.0), 색 8285 (≥ 3)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.9,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-views.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.8,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "main",
+              "status": "passed",
+              "ms": 287.3,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/main.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "main"
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 28.4,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "behindGoal",
+              "status": "passed",
+              "ms": 372.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/behindGoal.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "behindGoal"
+                }
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 27.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "top",
+              "status": "passed",
+              "ms": 330.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/top.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "top"
+                }
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 19.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "pitchLevel",
+              "status": "passed",
+              "ms": 251.9,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/pitchLevel.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "pitchLevel"
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "main",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/mac-m1-1600p-light-ko/captures/main.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/main/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "behindGoal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/mac-m1-1600p-light-ko/captures/behindGoal.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/behindGoal/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "top",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/mac-m1-1600p-light-ko/captures/top.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/top/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "pitchLevel",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/mac-m1-1600p-light-ko/captures/pitchLevel.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/pitchLevel/mac-m1-1600p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "notBlank",
+              "capture": "main",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 53.7 (≥ 8.0), 색 6797 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "behindGoal",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 23.5 (≥ 8.0), 색 15551 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "top",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 32.8 (≥ 8.0), 색 6423 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "pitchLevel",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 59.2 (≥ 8.0), 색 9528 (≥ 3)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "compact-1366-light-ko",
+          "profile": "compact-1366",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 4.7,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/compact-1366-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/compact-1366-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-views.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/compact-1366-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "compact-1366",
+            "-farmWidth",
+            "1366",
+            "-farmHeight",
+            "768",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "main",
+              "status": "passed",
+              "ms": 85.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/main.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "main"
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 30.8,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "behindGoal",
+              "status": "passed",
+              "ms": 100.5,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/behindGoal.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "behindGoal"
+                }
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 32.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "top",
+              "status": "passed",
+              "ms": 89,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/top.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "top"
+                }
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 27.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "pitchLevel",
+              "status": "passed",
+              "ms": 73.3,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/pitchLevel.png",
+                "width": 1366,
+                "height": 768,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "pitchLevel"
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "main",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/compact-1366-light-ko/captures/main.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/main/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "behindGoal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/compact-1366-light-ko/captures/behindGoal.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/behindGoal/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "top",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/compact-1366-light-ko/captures/top.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/top/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "pitchLevel",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/compact-1366-light-ko/captures/pitchLevel.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/pitchLevel/compact-1366-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "compact-1366-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "notBlank",
+              "capture": "main",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 53.9 (≥ 8.0), 색 3428 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "behindGoal",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 24.6 (≥ 8.0), 색 8910 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "top",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 41.7 (≥ 8.0), 색 3194 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "pitchLevel",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 58.8 (≥ 8.0), 색 7326 (≥ 3)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "handheld-800p-light-ko",
+          "profile": "handheld-800p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 4.7,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/handheld-800p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/handheld-800p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-views.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/handheld-800p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "handheld-800p",
+            "-farmWidth",
+            "1280",
+            "-farmHeight",
+            "800",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "main",
+              "status": "passed",
+              "ms": 81.7,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/main.png",
+                "width": 1280,
+                "height": 800,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "main"
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 34.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "behindGoal",
+              "status": "passed",
+              "ms": 104.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/behindGoal.png",
+                "width": 1280,
+                "height": 800,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "behindGoal"
+                }
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 29.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "top",
+              "status": "passed",
+              "ms": 91.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/top.png",
+                "width": 1280,
+                "height": 800,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "top"
+                }
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 25.4,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "pitchLevel",
+              "status": "passed",
+              "ms": 73.7,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/pitchLevel.png",
+                "width": 1280,
+                "height": 800,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "pitchLevel"
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "main",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/handheld-800p-light-ko/captures/main.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/main/handheld-800p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "handheld-800p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "behindGoal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/handheld-800p-light-ko/captures/behindGoal.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/behindGoal/handheld-800p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "handheld-800p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "top",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/handheld-800p-light-ko/captures/top.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/top/handheld-800p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "handheld-800p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "pitchLevel",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/handheld-800p-light-ko/captures/pitchLevel.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/pitchLevel/handheld-800p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "handheld-800p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "notBlank",
+              "capture": "main",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 53.6 (≥ 8.0), 색 3632 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "behindGoal",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 22.0 (≥ 8.0), 색 8937 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "top",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 32.0 (≥ 8.0), 색 2910 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "pitchLevel",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 59.0 (≥ 8.0), 색 7421 (≥ 3)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "ultrawide-1080-light-ko",
+          "profile": "ultrawide-1080",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/ultrawide-1080-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/ultrawide-1080-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-views.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/ultrawide-1080-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "ultrawide-1080",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1080",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "1.0",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "main",
+              "status": "passed",
+              "ms": 203.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/main.png",
+                "width": 2560,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "main"
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 29.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "behindGoal",
+              "status": "passed",
+              "ms": 223.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/behindGoal.png",
+                "width": 2560,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "behindGoal"
+                }
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 26.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "top",
+              "status": "passed",
+              "ms": 178.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/top.png",
+                "width": 2560,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "top"
+                }
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 21.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "pitchLevel",
+              "status": "passed",
+              "ms": 166.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/pitchLevel.png",
+                "width": 2560,
+                "height": 1080,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "pitchLevel"
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "main",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/ultrawide-1080-light-ko/captures/main.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/main/ultrawide-1080-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "ultrawide-1080-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "behindGoal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/ultrawide-1080-light-ko/captures/behindGoal.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/behindGoal/ultrawide-1080-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "ultrawide-1080-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "top",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/ultrawide-1080-light-ko/captures/top.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/top/ultrawide-1080-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "ultrawide-1080-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "pitchLevel",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/ultrawide-1080-light-ko/captures/pitchLevel.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/pitchLevel/ultrawide-1080-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "ultrawide-1080-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "notBlank",
+              "capture": "main",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 55.4 (≥ 8.0), 색 4023 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "behindGoal",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 31.3 (≥ 8.0), 색 10088 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "top",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 53.1 (≥ 8.0), 색 2796 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "pitchLevel",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 58.1 (≥ 8.0), 색 8049 (≥ 3)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "desktop-1440p-light-ko",
+          "profile": "desktop-1440p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.3,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/desktop-1440p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/desktop-1440p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-views.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/desktop-1440p-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "desktop-1440p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1440",
+            "-farmUiScale",
+            "1.0",
+            "-farmQuality",
+            "High",
+            "-farmUnityQuality",
+            "PC",
+            "-farmRenderScale",
+            "1.0",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "main",
+              "status": "passed",
+              "ms": 251,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/main.png",
+                "width": 2560,
+                "height": 1440,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "main"
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 32.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "behindGoal",
+              "status": "passed",
+              "ms": 311.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/behindGoal.png",
+                "width": 2560,
+                "height": 1440,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "behindGoal"
+                }
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 22.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "top",
+              "status": "passed",
+              "ms": 273.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/top.png",
+                "width": 2560,
+                "height": 1440,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "top"
+                }
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 26.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "pitchLevel",
+              "status": "passed",
+              "ms": 224.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/pitchLevel.png",
+                "width": 2560,
+                "height": 1440,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "pitchLevel"
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "main",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/desktop-1440p-light-ko/captures/main.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/main/desktop-1440p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "desktop-1440p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "behindGoal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/desktop-1440p-light-ko/captures/behindGoal.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/behindGoal/desktop-1440p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "desktop-1440p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "top",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/desktop-1440p-light-ko/captures/top.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/top/desktop-1440p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "desktop-1440p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "pitchLevel",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/desktop-1440p-light-ko/captures/pitchLevel.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/pitchLevel/desktop-1440p-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "desktop-1440p-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "notBlank",
+              "capture": "main",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 52.9 (≥ 8.0), 색 5570 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "behindGoal",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 24.7 (≥ 8.0), 색 12149 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "top",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 41.9 (≥ 8.0), 색 3222 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "pitchLevel",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 59.0 (≥ 8.0), 색 9219 (≥ 3)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "uhd-4k-200-light-ko",
+          "profile": "uhd-4k-200",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 6.5,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/uhd-4k-200-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/uhd-4k-200-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-views.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/uhd-4k-200-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "uhd-4k-200",
+            "-farmWidth",
+            "3840",
+            "-farmHeight",
+            "2160",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.5",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "main",
+              "status": "passed",
+              "ms": 587.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/main.png",
+                "width": 3840,
+                "height": 2160,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "main"
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 29.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "behindGoal",
+              "status": "passed",
+              "ms": 734.5,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/behindGoal.png",
+                "width": 3840,
+                "height": 2160,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "behindGoal"
+                }
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 32.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "top",
+              "status": "passed",
+              "ms": 638.9,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/top.png",
+                "width": 3840,
+                "height": 2160,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "top"
+                }
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 27.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "pitchLevel",
+              "status": "passed",
+              "ms": 441.9,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/pitchLevel.png",
+                "width": 3840,
+                "height": 2160,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "pitchLevel"
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "main",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/uhd-4k-200-light-ko/captures/main.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/main/uhd-4k-200-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "uhd-4k-200-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "behindGoal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/uhd-4k-200-light-ko/captures/behindGoal.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/behindGoal/uhd-4k-200-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "uhd-4k-200-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "top",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/uhd-4k-200-light-ko/captures/top.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/top/uhd-4k-200-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "uhd-4k-200-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "pitchLevel",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/uhd-4k-200-light-ko/captures/pitchLevel.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/pitchLevel/uhd-4k-200-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "uhd-4k-200-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "notBlank",
+              "capture": "main",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 54.1 (≥ 8.0), 색 10708 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "behindGoal",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 27.1 (≥ 8.0), 색 22934 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "top",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 42.8 (≥ 8.0), 색 10380 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "pitchLevel",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 59.1 (≥ 8.0), 색 10388 (≥ 3)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "tablet-4x3-light-ko",
+          "profile": "tablet-4x3",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/tablet-4x3-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/tablet-4x3-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-views.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/tablet-4x3-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "tablet-4x3",
+            "-farmWidth",
+            "2048",
+            "-farmHeight",
+            "1536",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "main",
+              "status": "passed",
+              "ms": 223.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/main.png",
+                "width": 2048,
+                "height": 1536,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "main"
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 26.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "behindGoal",
+              "status": "passed",
+              "ms": 282,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/behindGoal.png",
+                "width": 2048,
+                "height": 1536,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "behindGoal"
+                }
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 34.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "top",
+              "status": "passed",
+              "ms": 268.9,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/top.png",
+                "width": 2048,
+                "height": 1536,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "top"
+                }
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 30.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "pitchLevel",
+              "status": "passed",
+              "ms": 182,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/pitchLevel.png",
+                "width": 2048,
+                "height": 1536,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "pitchLevel"
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "main",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/tablet-4x3-light-ko/captures/main.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/main/tablet-4x3-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "tablet-4x3-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "behindGoal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/tablet-4x3-light-ko/captures/behindGoal.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/behindGoal/tablet-4x3-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "tablet-4x3-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "top",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/tablet-4x3-light-ko/captures/top.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/top/tablet-4x3-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "tablet-4x3-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "pitchLevel",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/tablet-4x3-light-ko/captures/pitchLevel.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/pitchLevel/tablet-4x3-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "tablet-4x3-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "notBlank",
+              "capture": "main",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 53.2 (≥ 8.0), 색 6605 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "behindGoal",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 22.4 (≥ 8.0), 색 14058 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "top",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 20.7 (≥ 8.0), 색 6702 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "pitchLevel",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 59.2 (≥ 8.0), 색 9396 (≥ 3)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "phone-portrait-light-ko",
+          "profile": "phone-portrait",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 5.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-portrait-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-portrait-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-views.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-portrait-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "phone-portrait",
+            "-farmWidth",
+            "1170",
+            "-farmHeight",
+            "2532",
+            "-farmUiScale",
+            "3.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.67",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "main",
+              "status": "passed",
+              "ms": 220.3,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/main.png",
+                "width": 1170,
+                "height": 2532,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "main"
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 29.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "behindGoal",
+              "status": "passed",
+              "ms": 278.7,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/behindGoal.png",
+                "width": 1170,
+                "height": 2532,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "behindGoal"
+                }
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 21.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "top",
+              "status": "passed",
+              "ms": 261.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/top.png",
+                "width": 1170,
+                "height": 2532,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "top"
+                }
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 22.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "pitchLevel",
+              "status": "passed",
+              "ms": 167.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/pitchLevel.png",
+                "width": 1170,
+                "height": 2532,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "pitchLevel"
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "main",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-portrait-light-ko/captures/main.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/main/phone-portrait-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "phone-portrait-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "behindGoal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-portrait-light-ko/captures/behindGoal.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/behindGoal/phone-portrait-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "phone-portrait-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "top",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-portrait-light-ko/captures/top.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/top/phone-portrait-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "phone-portrait-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "pitchLevel",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-portrait-light-ko/captures/pitchLevel.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/pitchLevel/phone-portrait-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "phone-portrait-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "notBlank",
+              "capture": "main",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 53.5 (≥ 8.0), 색 11570 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "behindGoal",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 24.8 (≥ 8.0), 색 20907 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "top",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 20.4 (≥ 8.0), 색 12495 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "pitchLevel",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 59.7 (≥ 8.0), 색 10925 (≥ 3)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        },
+        {
+          "key": "phone-landscape-light-ko",
+          "profile": "phone-landscape",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 4.9,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-landscape-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-landscape-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/044-stadium-views.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-landscape-light-ko",
+            "-farmSeed",
+            "20261103",
+            "-farmProfile",
+            "phone-landscape",
+            "-farmWidth",
+            "2532",
+            "-farmHeight",
+            "1170",
+            "-farmUiScale",
+            "3.0",
+            "-farmQuality",
+            "Low",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.67",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "capture",
+              "name": "main",
+              "status": "passed",
+              "ms": 221.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/main.png",
+                "width": 2532,
+                "height": 1170,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "main"
+                }
+              }
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 28,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "behindGoal",
+              "status": "passed",
+              "ms": 258.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/behindGoal.png",
+                "width": 2532,
+                "height": 1170,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "behindGoal"
+                }
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 24.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "top",
+              "status": "passed",
+              "ms": 188.5,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/top.png",
+                "width": 2532,
+                "height": 1170,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "top"
+                }
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 28,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "pitchLevel",
+              "status": "passed",
+              "ms": 168.7,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/pitchLevel.png",
+                "width": 2532,
+                "height": 1170,
+                "masks": [],
+                "kind": "3d",
+                "regions": {
+                  "view": "pitchLevel"
+                }
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "main",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-landscape-light-ko/captures/main.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/main/phone-landscape-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "phone-landscape-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "behindGoal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-landscape-light-ko/captures/behindGoal.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/behindGoal/phone-landscape-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "phone-landscape-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "top",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-landscape-light-ko/captures/top.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/top/phone-landscape-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "phone-landscape-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "pitchLevel",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-091653-full/044-stadium-views/phone-landscape-light-ko/captures/pitchLevel.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/044-stadium-views/pitchLevel/phone-landscape-light-ko.png",
+              "diff": null,
+              "scenario": "044-stadium-views",
+              "combo": "phone-landscape-light-ko",
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [
+            {
+              "type": "notBlank",
+              "capture": "main",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 54.3 (≥ 8.0), 색 5534 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "behindGoal",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 30.0 (≥ 8.0), 색 12347 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "top",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 52.5 (≥ 8.0), 색 2974 (≥ 3)"
+            },
+            {
+              "type": "notBlank",
+              "capture": "pitchLevel",
+              "ac": "AC-10",
+              "ok": true,
+              "detail": "밝기 표준편차 58.4 (≥ 8.0), 색 8561 (≥ 3)"
+            }
+          ],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": []
+          },
+          "checkpoints": [],
+          "verdict": "pass"
+        }
+      ],
+      "determinism": null,
+      "verdict": "pass"
+    }
+  ],
   "acEvidence": {
+    "AC-12": [
+      {
+        "label": "044-line-sharpness (full) pass",
+        "ok": true
+      }
+    ],
+    "AC-11": [
+      {
+        "label": "044-mow-flip (full) pass",
+        "ok": true
+      }
+    ],
+    "AC-13": [
+      {
+        "label": "044-night (full) pass",
+        "ok": true
+      }
+    ],
+    "AC-14": [
+      {
+        "label": "044-stadium-perf (full) pass",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "044-stadium-views (full) pass",
+        "ok": true
+      }
+    ],
     "AC-01": [
       {
         "label": "EditMode 테스트",
@@ -218,6 +5552,18 @@
       }
     ]
   },
+  "logic": {
+    "ok": true,
+    "total": 419,
+    "passed": 416,
+    "failed": 0,
+    "skipped": 3,
+    "duration": 744.3586766,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-090204-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261104-090204-logic/logic.html"
+  },
   "art": {
     "ok": true,
     "total": 35,
@@ -226,5 +5572,7 @@
     "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/044-stadium-pitch-art/evidence/art.png",
     "blender": "Blender 5.1.1"
   },
+  "deferred": {},
+  "requireAllAcs": false,
   "verdict": "pass"
 }
