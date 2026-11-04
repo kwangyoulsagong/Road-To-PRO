@@ -34,6 +34,12 @@ namespace RoadToPro.Verification
             if (cam != null && !Cameras.Contains(cam)) Cameras.Add(cam);
         }
 
+        /// <summary>
+        /// 성능 구간에서 프레임마다 읽는 사용자 정의 카운터 (specs/043: 애니메이션 CPU ms·GC 바이트). 값이 null이면 그 프레임은 기록 없음.
+        /// perf.json 구간의 "custom": {이름: [값…]} → perf.py가 custom.이름.p95 등으로 집계.
+        /// </summary>
+        public static readonly Dictionary<string, Func<double?>> PerfCounters = new Dictionary<string, Func<double?>>();
+
         /// <summary>goto(screen) 단계가 부를 화면 전환 함수.</summary>
         public static readonly Dictionary<string, Action> Screens = new Dictionary<string, Action>();
 
@@ -64,6 +70,7 @@ namespace RoadToPro.Verification
             Screens.Clear();
             DeterminismProbe = null;
             Playback = null;
+            PerfCounters.Clear();
             Changed = null;
         }
     }

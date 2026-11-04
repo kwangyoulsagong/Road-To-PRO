@@ -95,22 +95,24 @@ def ac_evidence(info, logic_dict, res, perf_judgement, bench_judgement=None, ben
             out[a["id"]] = [{"label": det_label, "ok": det_ok}]
         elif a["kind"] == "성능" and perf_judgement is not None:
             rows = [r for r in perf_judgement["budget"] + perf_judgement["regression"] if r.get("ac") in (None, a["id"])]
-            if not rows:
-                continue
-            bad = [r for r in rows if not r["ok"]]
-            if not perf_judgement["judged"]:
-                label, ok = f"EditMode 성능 {len(rows)}항목 — {perf_judgement['note']}", False
-            else:
-                label = f"EditMode 성능 {len(rows) - len(bad)}/{len(rows)} 통과 ({perf_judgement['profile']})"
-                ok = not bad
-            out[a["id"]] = [{"label": label, "ok": ok}]
-            # specs/006 D17: 판정 런타임 IL2CPP — farm.py bench 결과가 있어야 통과
+            if rows:
+                bad = [r for r in rows if not r["ok"]]
+                if not perf_judgement["judged"]:
+                    label, ok = f"EditMode 성능 {len(rows)}항목 — {perf_judgement['note']}", False
+                else:
+                    label = f"EditMode 성능 {len(rows) - len(bad)}/{len(rows)} 통과 ({perf_judgement['profile']})"
+                    ok = not bad
+                out[a["id"]] = [{"label": label, "ok": ok}]
+            # specs/006 D17: 판정 런타임 IL2CPP — farm.py bench 결과가 있어야 통과.
+            # EditMode 예산이 없는 AC도 벤치 예산이 있으면 벤치 증거를 붙인다 (specs/043: CPU는 벤치만)
             if bench_required:
                 brow = [r for r in (bench_judgement or {}).get("budget", []) + (bench_judgement or {}).get("regression", [])
                         if r.get("ac") in (None, a["id"])]
                 if bench_judgement is None:
-                    out[a["id"]].append({"label": "IL2CPP 벤치 결과 없음 (farm.py bench --spec)", "ok": False})
+                    if rows:
+                        out[a["id"]].append({"label": "IL2CPP 벤치 결과 없음 (farm.py bench --spec)", "ok": False})
                 elif brow:
+                    out.setdefault(a["id"], [])
                     bbad = [r for r in brow if not r["ok"]]
                     if not bench_judgement["judged"]:
                         out[a["id"]].append({"label": f"벤치({bench_judgement['backend']}) {len(brow)}항목 — {bench_judgement['note']}", "ok": False})
@@ -154,7 +156,15 @@ def merge_previous(ev, ev_dir, spec):
             ev[k] = prev[k]
     acev = ev.setdefault("acEvidence", {})
     for ac, items in (prev.get("acEvidence") or {}).items():
-        acev[ac] = list(items) + acev.get(ac, [])
+        # 앞선 매트릭스 실행의 시나리오 판정("<id> (full) fail" 등)은 가져오지 않는다 — 이번 실행이 새로 낸다 (specs/043: 재실행마다 옛 실패가 쌓였다)
+        keep = [i for i in items if not _SCENARIO_LABEL.search(i.get("label", ""))]
+        if keep or ac not in acev:
+            acev[ac] = keep + acev.get(ac, [])
+        if not acev[ac]:
+            del acev[ac]
+
+
+_SCENARIO_LABEL = re.compile(r" \((smoke|full)\) (pass|fail|candidate|deferred)$")
 
 
 def cmd_logic(args, argv):

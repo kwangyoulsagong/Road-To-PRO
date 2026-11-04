@@ -114,3 +114,91 @@ class RunChecks(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DeltaE(unittest.TestCase):
+    """specs/043 AC-13: ΔE2000 (Sharma 2005 표 일부) + 그룹 색 검사."""
+
+    def test_sharma_pairs(self):
+        for l1, l2, de in (((50, 2.6772, -79.7751), (50, 0, -82.7485), 2.0425),
+                           ((50, 2.5, 0), (73, 25, -18), 27.1492),
+                           ((60.2574, -34.0099, 36.2677), (60.4626, -34.1751, 39.4387), 1.2644),
+                           ((2.0776, 0.0795, -1.1350), (0.9033, -0.0636, -0.5514), 0.9082)):
+            self.assertAlmostEqual(ic.delta_e2000(l1, l2), de, places=4)
+
+    def test_white_lab(self):
+        lab = ic.srgb_to_lab([255, 255, 255])
+        self.assertAlmostEqual(lab[0], 100.0, delta=0.01)
+
+    def _img(self, colors):
+        a = np.zeros((100, 500, 3), dtype=np.uint8)
+        for i, c in enumerate(colors):
+            a[:, i * 100:(i + 1) * 100] = c
+        return a
+
+    def _regions(self):
+        names = ("home", "away", "homeGk", "awayGk", "referee")
+        return {"colorGroups": {n: [[i * 100 + 20, 20, 60, 60]] for i, n in enumerate(names)}}
+
+    def test_distinct_passes(self):
+        r = ic.delta_e(self._img([(200, 20, 40), (30, 60, 150), (0, 200, 80), (255, 210, 0), (20, 20, 20)]), self._regions())
+        self.assertTrue(r["ok"], r)
+
+    def test_similar_fails(self):
+        r = ic.delta_e(self._img([(200, 20, 40), (205, 25, 45), (0, 200, 80), (255, 210, 0), (20, 20, 20)]), self._regions())
+        self.assertFalse(r["ok"])
+
+
+class GlyphInside(unittest.TestCase):
+    def _shirt(self):
+        a = np.zeros((200, 200, 3), dtype=np.uint8)
+        a[:] = (200, 20, 40)
+        return a
+
+    def test_inside_passes(self):
+        a = self._shirt()
+        a[60:100, 80:90] = (255, 255, 255)   # 높이 40px 글자
+        reg = {"textAreas": [{"area": [60, 50, 80, 60], "text": [255, 255, 255], "base": [200, 20, 40], "kind": "number"}]}
+        self.assertTrue(ic.glyph_inside(a, reg)["ok"])
+
+    def test_overflow_fails(self):
+        a = self._shirt()
+        a[60:100, 80:90] = (255, 255, 255)
+        a[60:70, 145:150] = (255, 255, 255)  # 영역 오른쪽 밖(주변 띠 안)
+        reg = {"textAreas": [{"area": [60, 50, 80, 60], "text": [255, 255, 255], "base": [200, 20, 40], "kind": "number"}]}
+        self.assertFalse(ic.glyph_inside(a, reg)["ok"])
+
+    def test_too_small_fails(self):
+        a = self._shirt()
+        a[60:68, 80:84] = (255, 255, 255)    # 8px
+        reg = {"textAreas": [{"area": [60, 50, 80, 60], "text": [255, 255, 255], "base": [200, 20, 40], "kind": "number"}]}
+        self.assertFalse(ic.glyph_inside(a, reg, min_glyph_px=12)["ok"])
+
+
+class GlyphInsideNeighbours(unittest.TestCase):
+    def test_same_entity_neighbour_area_not_outside(self):
+        a = np.zeros((200, 200, 3), dtype=np.uint8)
+        a[:] = (200, 20, 40)
+        a[60:100, 80:90] = (255, 255, 255)   # 번호
+        a[40:48, 70:120] = (255, 255, 255)   # 바로 위 이름(번호 주변 띠 안)
+        reg = {"textAreas": [
+            {"area": [60, 50, 80, 60], "text": [255, 255, 255], "base": [200, 20, 40], "kind": "number", "entity": 3},
+            {"area": [60, 38, 80, 12], "text": [255, 255, 255], "base": [200, 20, 40], "kind": "name", "entity": 3}]}
+        self.assertTrue(ic.glyph_inside(a, reg)["ok"], ic.glyph_inside(a, reg))
+
+
+class ContactAndSame(unittest.TestCase):
+    """specs/043 AC-14·15."""
+
+    def test_contact_distance(self):
+        reg = {"contact": {"point": [100, 100], "ball": [104, 103], "ballDiameter": 20, "clip": "pass_inside_r"}}
+        self.assertTrue(ic.contact_distance(None, reg)["ok"])
+        reg["contact"]["ball"] = [100, 115]
+        self.assertFalse(ic.contact_distance(None, reg)["ok"])
+
+    def test_same_image(self):
+        a = grass()
+        b = a.copy()
+        self.assertTrue(ic.same_image(a, {}, b, {})["ok"])
+        b[50:90, 50:90] = (200, 30, 30)
+        self.assertFalse(ic.same_image(a, {}, b, {})["ok"])

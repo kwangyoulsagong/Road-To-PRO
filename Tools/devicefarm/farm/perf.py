@@ -44,6 +44,30 @@ def _stats(vals):
     }
 
 
+def fold_render_pairs(vals):
+    """렌더 카운터(드로우콜·삼각형)의 '0 → 두 배' 쌍을 반씩 나눈다 (specs/043 실측).
+    ProfilerRecorder.LastValue가 한 표본 구간에 렌더 두 번(값 두 배), 다음 구간에 0번(값 0)을 기록하는 프레임 페이싱 때문 —
+    렌더 1회당 값을 재려면 쌍을 합쳐 반으로 나눈다. 0이 아닌 두 값이 이어지면 그대로."""
+    v = list(vals)
+    nz = sorted(x for x in v if x)
+    if not nz:
+        return v
+    med = nz[len(nz) // 2]
+    used = set()
+    for i in range(len(v)):
+        if v[i] != 0:
+            continue
+        # 앞뒤 4프레임 안에서 아직 짝이 없는 '두 배' 값을 찾는다(가까운 것부터)
+        for d in (1, -1, 2, -2, 3, -3, 4, -4):
+            j = i + d
+            if 0 <= j < len(v) and j not in used and v[j] and v[j] > 1.5 * med:
+                half = v[j] / 2
+                v[i] = v[j] = half
+                used.update((i, j))
+                break
+    return v
+
+
 def summarize(sec):
     w = int(sec.get("warmupFrames", 0))
     frames = sec["frameMs"][w:]
@@ -61,8 +85,18 @@ def summarize(sec):
         return v or None
 
     gc, main, dc, tri = cut("gcAllocBytes"), cut("mainThreadMs"), cut("drawCalls"), cut("triangles")
+    dc = fold_render_pairs(dc) if dc else dc
+    tri = fold_render_pairs(tri) if tri else tri
     gpu = cut("gpuMs")
-    return {
+    custom = {}
+    for k, v in sorted((sec.get("custom") or {}).items()):
+        if not v:
+            custom[k] = None
+            continue
+        vv = v[w:] if len(v) == len(sec["frameMs"]) else v
+        vv = [x for x in vv if x is not None]
+        custom[k] = _stats(vv) if vv else None
+    out = {
         "frames": len(frames),
         "frameMs": _stats(frames),
         "mainThreadMs": _stats(main) if main else None,
@@ -74,6 +108,9 @@ def summarize(sec):
         "textureMemoryBytes": sec.get("textureMemoryBytes"),
         "totalMemoryBytes": sec.get("totalMemoryBytes"),
     }
+    if custom:
+        out["custom"] = custom  # specs/043: 화면이 넘긴 카운터 (예: custom.animCpuMs.p95)
+    return out
 
 
 def power_state(unity_battery_status, pmset_text=None):

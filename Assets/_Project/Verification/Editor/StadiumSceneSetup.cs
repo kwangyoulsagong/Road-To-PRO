@@ -25,51 +25,16 @@ namespace RoadToPro.Verification.Editor
         [MenuItem("Road To PRO/디바이스팜/경기장 씬(044) 다시 만들기")]
         public static void Generate()
         {
-            StadiumAssets.Generate();
-            var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
-            var layoutAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(LayoutPath);
-            if (glb == null || layoutAsset == null) throw new System.InvalidOperationException($"경기장 산출물 없음: glb={glb != null} layout={layoutAsset != null}");
-            var layout = StadiumLayout.Parse(layoutAsset.text);
-
             var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-            var stadium = (GameObject)PrefabUtility.InstantiatePrefab(glb, scene);
-            stadium.name = "Stadium";
-
-            Renderer pitch = null;
-            var structure = new List<Renderer>();
-            Material emissive = null;
-            foreach (var r in stadium.GetComponentsInChildren<Renderer>(true))
-            {
-                GameObjectUtility.SetStaticEditorFlags(r.gameObject, StaticEditorFlags.BatchingStatic | StaticEditorFlags.ContributeGI | StaticEditorFlags.OccluderStatic | StaticEditorFlags.OccludeeStatic);
-                if (r.name == "Pitch") { pitch = r; continue; }
-                structure.Add(r);
-                // FR-22: glTFast 머티리얼 → URP Lit
-                var mats = r.sharedMaterials;
-                for (int i = 0; i < mats.Length; i++)
-                    if (mats[i] != null)
-                    {
-                        mats[i] = StadiumAssets.LitFor(mats[i]);
-                        if (mats[i].name.StartsWith("Stadium_LightEmit")) emissive = mats[i];
-                    }
-                r.sharedMaterials = mats;
-                // 작은 소품·반투명은 그림자를 드리우지 않는다 (그림자 패스 비용)
-                if (r.name.StartsWith("Net_") || r.name.StartsWith("Boards") || r.name.StartsWith("Bench_") || r.name == "Tunnel" || r.name == "CornerFlags" || r.name == "Ground")
-                    r.shadowCastingMode = ShadowCastingMode.Off;
-            }
-            if (pitch == null) throw new System.InvalidOperationException("Pitch 렌더러 없음");
-            pitch.sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>(StadiumAssets.PitchMatPath);
-            pitch.shadowCastingMode = ShadowCastingMode.Off;
-            var binder = stadium.AddComponent<PitchMaterialBinder>();
-            binder.Configure(layoutAsset, pitch);
-
-            var sun = new GameObject("Sun").AddComponent<Light>();
-            sun.type = LightType.Directional;
-
-            var camGo = new GameObject("FarmCamera");
-            var cam = camGo.AddComponent<Camera>();
-            cam.nearClipPlane = 0.3f;
-            cam.farClipPlane = 1500f;
-            cam.allowMSAA = false;
+            var st = BuildStadium(scene);
+            var layout = st.Layout;
+            var layoutAsset = st.LayoutAsset;
+            var binder = st.Binder;
+            var pitch = st.Pitch;
+            var structure = st.Structure;
+            var emissive = st.Emissive;
+            var sun = st.Sun;
+            var cam = st.Camera;
 
             var standInMat = AssetDatabase.LoadAssetAtPath<Material>(StandInMatPath);
             if (standInMat == null)
@@ -121,6 +86,73 @@ namespace RoadToPro.Verification.Editor
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.SaveAssets();
             Debug.Log($"[farm] 경기장 씬 생성: {ScenePath} (구조 렌더러 {structure.Count}, 발광 머티리얼 {(emissive != null ? emissive.name : "없음")})");
+        }
+
+        /// <summary>경기장·피치 바인더·태양·카메라 (044 E2E 씬과 043 선수 씬이 공유).</summary>
+        public sealed class StadiumParts
+        {
+            public StadiumLayout Layout;
+            public TextAsset LayoutAsset;
+            public PitchMaterialBinder Binder;
+            public Renderer Pitch;
+            public List<Renderer> Structure;
+            public Material Emissive;
+            public Light Sun;
+            public Camera Camera;
+        }
+
+        public static StadiumParts BuildStadium(UnityEngine.SceneManagement.Scene scene)
+        {
+            StadiumAssets.Generate();
+            var glb = AssetDatabase.LoadAssetAtPath<GameObject>(GlbPath);
+            var layoutAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(LayoutPath);
+            if (glb == null || layoutAsset == null) throw new System.InvalidOperationException($"경기장 산출물 없음: glb={glb != null} layout={layoutAsset != null}");
+            var layout = StadiumLayout.Parse(layoutAsset.text);
+
+            var stadium = (GameObject)PrefabUtility.InstantiatePrefab(glb, scene);
+            stadium.name = "Stadium";
+
+            Renderer pitch = null;
+            var structure = new List<Renderer>();
+            Material emissive = null;
+            foreach (var r in stadium.GetComponentsInChildren<Renderer>(true))
+            {
+                GameObjectUtility.SetStaticEditorFlags(r.gameObject, StaticEditorFlags.BatchingStatic | StaticEditorFlags.ContributeGI | StaticEditorFlags.OccluderStatic | StaticEditorFlags.OccludeeStatic);
+                if (r.name == "Pitch") { pitch = r; continue; }
+                structure.Add(r);
+                // FR-22: glTFast 머티리얼 → URP Lit
+                var mats = r.sharedMaterials;
+                for (int i = 0; i < mats.Length; i++)
+                    if (mats[i] != null)
+                    {
+                        mats[i] = StadiumAssets.LitFor(mats[i]);
+                        if (mats[i].name.StartsWith("Stadium_LightEmit")) emissive = mats[i];
+                    }
+                r.sharedMaterials = mats;
+                // 작은 소품·반투명은 그림자를 드리우지 않는다 (그림자 패스 비용)
+                if (r.name.StartsWith("Net_") || r.name.StartsWith("Boards") || r.name.StartsWith("Bench_") || r.name == "Tunnel" || r.name == "CornerFlags" || r.name == "Ground")
+                    r.shadowCastingMode = ShadowCastingMode.Off;
+            }
+            if (pitch == null) throw new System.InvalidOperationException("Pitch 렌더러 없음");
+            pitch.sharedMaterial = AssetDatabase.LoadAssetAtPath<Material>(StadiumAssets.PitchMatPath);
+            pitch.shadowCastingMode = ShadowCastingMode.Off;
+            var binder = stadium.AddComponent<PitchMaterialBinder>();
+            binder.Configure(layoutAsset, pitch);
+
+            var sun = new GameObject("Sun").AddComponent<Light>();
+            sun.type = LightType.Directional;
+
+            var camGo = new GameObject("FarmCamera");
+            var cam = camGo.AddComponent<Camera>();
+            cam.nearClipPlane = 0.3f;
+            cam.farClipPlane = 1500f;
+            cam.allowMSAA = false;
+
+            return new StadiumParts
+            {
+                Layout = layout, LayoutAsset = layoutAsset, Binder = binder, Pitch = pitch, Structure = structure,
+                Emissive = emissive, Sun = sun, Camera = cam,
+            };
         }
 
         static StadiumViewsScreen.View V(string name, Vector3 pos, Vector3 target, float fov, bool night = false, int show = 0) =>

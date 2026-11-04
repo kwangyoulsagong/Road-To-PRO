@@ -1,2 +1,3 @@
 source,url,license,files,added
 ambientCG Grass004,https://ambientcg.com/view?id=Grass004,CC0 1.0,"Art/ThirdParty/ambientCG/Grass004/Grass004_1K-JPG_{Color,NormalGL}.jpg; Assets/_Project/Presentation/Stadium/Textures/Grass004_{Color,NormalGL}.jpg",2026-11-03
+Noto Sans KR Black (notofonts/noto-cjk),https://github.com/notofonts/noto-cjk/blob/main/Sans/SubsetOTF/KR/NotoSansKR-Black.otf,SIL OFL 1.1,"Art/ThirdParty/NotoSansKR/{NotoSansKR-Black.otf,OFL.txt}; Assets/_Project/Presentation/Players/Fonts/NotoSansKR-Black.otf",2026-11-04

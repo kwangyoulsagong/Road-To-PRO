@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Object = UnityEngine.Object;
 using UnityEngine.UIElements;
 
 namespace RoadToPro.Verification
@@ -81,6 +82,40 @@ namespace RoadToPro.Verification
         public RectInt ToPixels(Rect panelRect) => new RectInt(
             Mathf.RoundToInt(panelRect.x * UiScale), Mathf.RoundToInt(panelRect.y * UiScale),
             Mathf.RoundToInt(panelRect.width * UiScale), Mathf.RoundToInt(panelRect.height * UiScale));
+
+        /// <summary>
+        /// 두 프레임에서 달라진 픽셀 수와 경계 상자(PNG 좌표, 왼쪽 위 원점) — 불안정 캡처 진단용 (specs/043).
+        /// 픽셀당 4바이트(RGBA32), 행은 아래에서 위.
+        /// </summary>
+        public string DiffSummary(byte[] a, byte[] b)
+        {
+            if (a == null || b == null || a.Length != b.Length) return "비교 불가";
+            int n = 0, x0 = int.MaxValue, y0 = int.MaxValue, x1 = -1, y1 = -1, maxd = 0;
+            int stride = Width * 4;
+            for (int y = 0; y < Height; y++)
+                for (int x = 0; x < Width; x++)
+                {
+                    int i = y * stride + x * 4, d = 0;
+                    for (int c = 0; c < 3; c++) d = Mathf.Max(d, Mathf.Abs(a[i + c] - b[i + c]));
+                    if (d == 0) continue;
+                    n++;
+                    maxd = Mathf.Max(maxd, d);
+                    int py = Height - 1 - y;
+                    x0 = Mathf.Min(x0, x); x1 = Mathf.Max(x1, x); y0 = Mathf.Min(y0, py); y1 = Mathf.Max(y1, py);
+                }
+            return n == 0 ? "차이 없음" : $"다른 픽셀 {n}개, 영역 [{x0},{y0},{x1 - x0 + 1},{y1 - y0 + 1}], 최대 채널 차 {maxd}";
+        }
+
+        /// <summary>원시 프레임 바이트를 PNG로 (진단용).</summary>
+        public byte[] EncodeRaw(byte[] raw)
+        {
+            var t = new Texture2D(Width, Height, _read.format, false);
+            t.LoadRawTextureData(raw);
+            t.Apply(false);
+            var png = t.EncodeToPNG();
+            Object.Destroy(t);
+            return png;
+        }
 
         public static bool SameBytes(byte[] a, byte[] b)
         {

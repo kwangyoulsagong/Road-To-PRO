@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "id": "043-contact-closeup",
+  "spec": "043",
+  "description": "패스·슛·헤딩·태클 접촉 순간을 0.5x 리플레이 시계로 멈춘 클로즈업 (AC-14). 접촉 프레임에서 클립 접촉 규칙을 실제 본 위치로 계산한 점(접촉 신체 부위)과 공 중심의 화면 투영 거리 ≤ 공 화면 지름의 0.5배. 041 재생기 대신 FixedPlaybackClock(같은 시각 공식)로 재생 시각을 정한다",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-14"
+  ],
+  "defaults": {
+    "timeoutSec": 40
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "contactPass"
+    },
+    {
+      "type": "capture",
+      "name": "contactPass",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "contactShot"
+    },
+    {
+      "type": "capture",
+      "name": "contactShot",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "contactHeader"
+    },
+    {
+      "type": "capture",
+      "name": "contactHeader",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "contactTackle"
+    },
+    {
+      "type": "capture",
+      "name": "contactTackle",
+      "kind": "3d"
+    }
+  ],
+  "imageChecks": [
+    {
+      "type": "contactDistance",
+      "capture": "contactPass",
+      "maxRatio": 0.5,
+      "ac": "AC-14"
+    },
+    {
+      "type": "contactDistance",
+      "capture": "contactShot",
+      "maxRatio": 0.5,
+      "ac": "AC-14"
+    },
+    {
+      "type": "contactDistance",
+      "capture": "contactHeader",
+      "maxRatio": 0.5,
+      "ac": "AC-14"
+    },
+    {
+      "type": "contactDistance",
+      "capture": "contactTackle",
+      "maxRatio": 0.5,
+      "ac": "AC-14"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

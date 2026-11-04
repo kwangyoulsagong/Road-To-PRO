@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "043-anim-perf",
+  "spec": "043",
+  "description": "선수 25명 하이라이트 애니메이션 성능 (AC-16·17). 합성 하이라이트를 1.5x로 반복 재생. animCpuMs = 25명 AnimPlan 평가 + 포즈 적용 + 발 접지(프레임당), animGcBytes = 그 구간 할당. 선수 드로우콜·삼각형 = 선수만 − 빈 화면. 재생 중 키트 합성이 일어나면 콘솔 에러(AC-17). 렌더 카운터(드로우콜·삼각형)는 구간 평균으로 판정 — ProfilerRecorder가 프레임 페이싱 때문에 '0 → 두 배' 쌍을 섞어 기록해 프레임별 최대값을 믿을 수 없다(043 실측, perf.fold_render_pairs로 보정 후에도 짝 없는 두 배 값이 남음). 애니메이션 CPU(custom.animCpuMs)는 Mono 개발 빌드 측정이라 기록만 — 판정은 IL2CPP 기준(006 D17과 같은 규칙, 2026-11-04 사용자 결정), IL2CPP 애니메이션 벤치는 후속 태스크 T27",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "mac-m1-1600p"
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "perfEmpty"
+    },
+    {
+      "type": "perfBegin",
+      "name": "empty",
+      "warmupFrames": 60,
+      "minFrames": 300
+    },
+    {
+      "type": "perfEnd",
+      "name": "empty"
+    },
+    {
+      "type": "goto",
+      "screen": "perfPlayers"
+    },
+    {
+      "type": "perfBegin",
+      "name": "players",
+      "warmupFrames": 60,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "players"
+    },
+    {
+      "type": "goto",
+      "screen": "perfPlayersNoShadow"
+    },
+    {
+      "type": "perfBegin",
+      "name": "playersNoShadow",
+      "warmupFrames": 60,
+      "minFrames": 200
+    },
+    {
+      "type": "perfEnd",
+      "name": "playersNoShadow"
+    },
+    {
+      "type": "goto",
+      "screen": "perfFull"
+    },
+    {
+      "type": "perfBegin",
+      "name": "full",
+      "warmupFrames": 60,
+      "minFrames": 300
+    },
+    {
+      "type": "perfEnd",
+      "name": "full"
+    }
+  ],
+  "acs": [
+    "AC-16",
+    "AC-17"
+  ],
+  "defaults": {
+    "timeoutSec": 90
+  },
+  "budgets": {
+    "players": {
+      "custom.animGcBytes.max": 0
+    }
+  },
+  "derived": {
+    "playersRender": {
+      "of": "players",
+      "minus": "empty",
+      "budget": {
+        "drawCalls.avg": 75,
+        "triangles.avg": 150000
+      }
+    },
+    "playersMainPass": {
+      "of": "playersNoShadow",
+      "minus": "empty",
+      "budget": {}
+    }
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

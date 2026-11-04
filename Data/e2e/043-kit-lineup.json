@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "id": "043-kit-lineup",
+  "spec": "043",
+  "description": "양 팀 22명 + 심판 3명을 한 줄 7명 이하 4줄로 세워 앞·뒤 캡처 (AC-13). 앞: 셔츠 앞판 색 그룹 ΔE2000 ≥ 20(홈·원정·GK·심판), 외형 조합 중복 0. 뒤(키 색): 글자만 마젠타로 그린 캡처에서 등번호 글자 높이 ≥ 12 px, 번호·이름 영역 밖 글자 픽셀 0. 뒤(실제 색)는 눈 확인용",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "profiles": "all",
+  "acs": [
+    "AC-13"
+  ],
+  "defaults": {
+    "timeoutSec": 40
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "row1Front"
+    },
+    {
+      "type": "capture",
+      "name": "row1Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row1Back"
+    },
+    {
+      "type": "capture",
+      "name": "row1Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row1BackKey"
+    },
+    {
+      "type": "capture",
+      "name": "row1BackKey",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row2Front"
+    },
+    {
+      "type": "capture",
+      "name": "row2Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row2Back"
+    },
+    {
+      "type": "capture",
+      "name": "row2Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row2BackKey"
+    },
+    {
+      "type": "capture",
+      "name": "row2BackKey",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row3Front"
+    },
+    {
+      "type": "capture",
+      "name": "row3Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row3Back"
+    },
+    {
+      "type": "capture",
+      "name": "row3Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row3BackKey"
+    },
+    {
+      "type": "capture",
+      "name": "row3BackKey",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row4Front"
+    },
+    {
+      "type": "capture",
+      "name": "row4Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row4Back"
+    },
+    {
+      "type": "capture",
+      "name": "row4Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "row4BackKey"
+    },
+    {
+      "type": "capture",
+      "name": "row4BackKey",
+      "kind": "3d"
+    }
+  ],
+  "imageChecks": [
+    {
+      "type": "deltaE",
+      "capture": "row1Front",
+      "minDeltaE": 20,
+      "ac": "AC-13"
+    },
+    {
+      "type": "glyphInside",
+      "capture": "row1BackKey",
+      "minGlyphPx": 12,
+      "ac": "AC-13"
+    },
+    {
+      "type": "deltaE",
+      "capture": "row2Front",
+      "minDeltaE": 20,
+      "ac": "AC-13"
+    },
+    {
+      "type": "glyphInside",
+      "capture": "row2BackKey",
+      "minGlyphPx": 12,
+      "ac": "AC-13"
+    },
+    {
+      "type": "deltaE",
+      "capture": "row3Front",
+      "minDeltaE": 20,
+      "ac": "AC-13"
+    },
+    {
+      "type": "glyphInside",
+      "capture": "row3BackKey",
+      "minGlyphPx": 12,
+      "ac": "AC-13"
+    },
+    {
+      "type": "deltaE",
+      "capture": "row4Front",
+      "minDeltaE": 20,
+      "ac": "AC-13"
+    },
+    {
+      "type": "glyphInside",
+      "capture": "row4BackKey",
+      "minGlyphPx": 12,
+      "ac": "AC-13"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

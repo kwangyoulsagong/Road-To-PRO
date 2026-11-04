@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "id": "043-speed-motion",
+  "spec": "043",
+  "description": "같은 질주 장면을 1x·1.5x·3x 재생 시계로 같은 시뮬 시각(시작 + 1.5 s)에 멈춰 캡처 (AC-15). 재생 속도가 포즈를 바꾸지 않으면 세 장이 같다",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-15"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "speed1x"
+    },
+    {
+      "type": "capture",
+      "name": "speed1x",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "speed15x"
+    },
+    {
+      "type": "capture",
+      "name": "speed15x",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "speed3x"
+    },
+    {
+      "type": "capture",
+      "name": "speed3x",
+      "kind": "3d"
+    }
+  ],
+  "imageChecks": [
+    {
+      "type": "sameImage",
+      "capture": "speed1x",
+      "other": "speed15x",
+      "ac": "AC-15"
+    },
+    {
+      "type": "sameImage",
+      "capture": "speed1x",
+      "other": "speed3x",
+      "ac": "AC-15"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

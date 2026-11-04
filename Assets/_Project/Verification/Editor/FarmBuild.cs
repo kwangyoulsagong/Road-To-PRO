@@ -18,8 +18,8 @@ namespace RoadToPro.Verification.Editor
 
         static readonly string[] FarmScenes = { FarmSampleSetup.ScenePath };
 
-        /// <summary>E2E 검증용 씬 (BuildMac만, 벤치 빌드에는 넣지 않는다). specs/044 경기장.</summary>
-        static readonly string[] E2EScenes = { StadiumSceneSetup.ScenePath };
+        /// <summary>E2E 검증용 씬 (BuildMac만, 벤치 빌드에는 넣지 않는다). specs/044 경기장, specs/043 선수.</summary>
+        static readonly string[] E2EScenes = { StadiumSceneSetup.ScenePath, PlayerSceneSetup.ScenePath };
 
         public static void BuildMac()
         {
@@ -66,7 +66,8 @@ namespace RoadToPro.Verification.Editor
                 if (before != backend) PlayerSettings.SetScriptingBackend(target, backend);
                 var opts = new BuildPlayerOptions
                 {
-                    scenes = FarmScenes,
+                    // 043 애니메이션 벤치(T27)는 선수 씬이 필요하다
+                    scenes = FarmScenes.Concat(new[] { PlayerSceneSetup.ScenePath }).ToArray(),
                     locationPathName = outPath,
                     target = BuildTarget.StandaloneOSX,
                     options = BuildOptions.None,

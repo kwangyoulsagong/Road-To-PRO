@@ -1,0 +1,152 @@
+{
+  "result": {
+    "ok": true,
+    "total": 15,
+    "passed": 15,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 52.43187212944031,
+    "compileErrors": [],
+    "failures": []
+  },
+  "meta": {
+    "commit": "2c8b943d9799c1f6f0f9a2fb811302a72ad37277",
+    "branch": "feat/043-player-model-animation",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-04 11:56:46 +0900",
+    "blender": "Blender 5.1.1",
+    "durationSec": 52.99933409690857,
+    "command": "python3 Tools/devicefarm/farm.py art --spec 043"
+  },
+  "png": "art.png",
+  "previews": {
+    "default": {
+      "lineup": "blender/default/preview-lineup.png",
+      "heads": "blender/default/preview-heads.png",
+      "poses": "blender/default/preview-poses.png"
+    }
+  },
+  "acEvidence": {
+    "AC-02": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "Blender 생성 테스트 3/3 통과",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_glb",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_layout_summary",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_textures",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-03"
+      ]
+    },
+    {
+      "name": "ClipList_CoversFr31.test_clip_length_matches_tags",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ClipList_CoversFr31.test_list",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ClipTags_Complete.test_ground_ball_contacts_at_ball_center",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ClipTags_Complete.test_tags",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ExtremeBodies_FootGround_NoSelfIntersect.test_extremes",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02"
+      ]
+    },
+    {
+      "name": "Gait_StanceFootFixed.test_slide",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-09"
+      ]
+    },
+    {
+      "name": "GenerationTime.test_time",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "InvalidArgs.test_bad_lod",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "InvalidArgs.test_bad_seed",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "InvalidArgs.test_unknown_clip",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "SameArgs_SameBytes.test_two_runs",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "SeedChange_ChangesTextures_KeepsMesh.test_seed",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    }
+  ]
+}
