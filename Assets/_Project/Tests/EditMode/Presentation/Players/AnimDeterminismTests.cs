@@ -12,6 +12,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
     /// 결정론 (specs/043 AC-12). 같은 장면을 30 fps·60 fps로 재생하면 같은 재생 시각의 클립 id·클립 시각이 같다(렌더 fps가 선택에 영향 없음).
     /// 2회 재생 포즈 해시 동일(본 로컬 회전 1e-4 양자화). 시각은 누적하지 않고 시작 + n/fps로 계산(FixedPlaybackClock과 같은 방식).
     /// </summary>
+    [Category("Determinism")]
     public class AnimDeterminismTests
     {
         static HighlightData Scene(int i) => i % 2 == 0

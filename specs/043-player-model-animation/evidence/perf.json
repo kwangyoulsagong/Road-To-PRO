@@ -1,0 +1,41 @@
+{
+  "results": [
+    {
+      "name": "KitCompositorPerfTests.PerTeam_Under50ms",
+      "fullName": "RoadToPro.Tests.Performance.Presentation.KitCompositorPerfTests.PerTeam_Under50ms",
+      "groups": {
+        "KitCompose.PerTeam": {
+          "median": 16.093,
+          "min": 15.847700000000001,
+          "max": 18.8503,
+          "avg": 16.60374285714286,
+          "unit": "ms",
+          "samples": 7
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "KitCompositorPerfTests.PerTeam_Under50ms/KitCompose.PerTeam/median": 16.093
+    },
+    "budget": [
+      {
+        "ac": "AC-17",
+        "label": "키트 합성 팀당 (24명 칸, 중앙값)",
+        "metric": "KitCompositorPerfTests.PerTeam_Under50ms/KitCompose.PerTeam/median",
+        "value": 16.093,
+        "budget": 50,
+        "unit": "ms",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}
