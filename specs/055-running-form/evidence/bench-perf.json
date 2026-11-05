@@ -1,0 +1,45 @@
+{
+  "judged": true,
+  "ok": true,
+  "note": "",
+  "backend": "il2cpp",
+  "profile": "mac-m1-1600p",
+  "budget": [
+    {
+      "ac": "AC-13",
+      "label": "선수 25명 애니메이션 갱신 p95 (헤드리스, 1.5x 합성 하이라이트, 원형 블렌드 포함)",
+      "metric": "anim_p95_ms",
+      "value": 0.2442,
+      "budget": 2.0,
+      "unit": "ms",
+      "ok": true
+    },
+    {
+      "ac": "AC-13",
+      "label": "애니메이션 갱신 관리 힙 할당 (1200프레임 합)",
+      "metric": "anim_gc_bytes",
+      "value": 0,
+      "budget": 0,
+      "unit": "B",
+      "ok": true
+    }
+  ],
+  "regression": [],
+  "stages": {},
+  "metrics": {
+    "anim_p50_ms": 0.14780000000000001,
+    "anim_p95_ms": 0.2442,
+    "anim_max_ms": 0.8829,
+    "anim_gc_bytes": 0,
+    "anim_frames": 1200,
+    "anim_players": 25
+  },
+  "host": "mac-m1-1600p",
+  "power": "ac",
+  "buildCached": false,
+  "durationSec": 5.9,
+  "unity": "6000.3.27f2",
+  "cpu": "Apple M1 Pro",
+  "development": false,
+  "commit": "08b9137198f9c01acb29925ee68b6320a4b38f33"
+}
