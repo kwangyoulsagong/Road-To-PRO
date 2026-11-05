@@ -1,6 +1,6 @@
 # 055 — 사람다운 달리기·킥 폼 · 태스크
 
-상태: 승인됨 (2026-11-05)
+상태: 완료 (2026-11-05, 리포트 https://claude.ai/artifact/MDktJ53t7xX2pzfXtJMA7A)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현 태스크보다 먼저 둔다(가능하면).
@@ -62,5 +62,7 @@
 ## G. 마무리
 - [x] T21 커밋(사용자 요청 시) 전 정리: plan '구현 중 바뀐 점', spec 수정 필요분 반영 확인 — 파일: `plan.md`, `spec.md` — 검증: `spec-lint.py`
   - 결과: 스펙 해석 6건 사용자 승인(2026-11-05 '다 고치고 ㄱㄱ') → spec.md 반영(FR-13·FR-60·FR-60a·FR-50 판정·FR-44, 미정/질문 '정리됨'). 알려진 미흡도 손봄: 걷기 뒤꿈치 들기 접지 35 → 45 %(접지 최대 무릎 47 → 42°, 블렌드 미끄러짐 043 수준 유지), 킥 백스윙 최대 → 접촉 4 → 3프레임(접촉 발 속도 8~10 → 10~20 m/s). spec-lint 통과, Unity Players 134/134.
-- [ ] T22 최종 검증 각 1회: `farm.py art --spec 055`(≈ 7~10분) · EditMode 전체 · `full --spec 055`(055-gait-filmstrip + 043 회귀) · `bench --spec 055`(IL2CPP) → 기준 이미지 채택 승인 · AC-12 육안 승인(`evidence/approval.md`) — 검증: 실패 0·성능 예산 통과 (AC-01~14)
-- [ ] T23 `/verify 055` — 리포트 `evidence/report.html` 아티팩트 발행, spec·plan·tasks 상태 `완료`
+- [x] T22 최종 검증 각 1회: `farm.py art --spec 055`(≈ 7~10분) · EditMode 전체 · `full --spec 055`(055-gait-filmstrip + 043 회귀) · `bench --spec 055`(IL2CPP) → 기준 이미지 채택 승인 · AC-12 육안 승인(`evidence/approval.md`) — 검증: 실패 0·성능 예산 통과 (AC-01~14)
+  - 결과: farm.py art 50/50, EditMode 전체 551/554(실패 0, 건너뜀 3 기존), logic(Players) 134/134, bench IL2CPP 25명 p95 0.24 ms·GC 0 B(벤치에 055 등록 필요했음 — SimBench), full 3프로필: 첫 실행은 기준 후보 54 + 043 회귀 의도 변경 15(043-speed-motion·contact-closeup을 055 AC-10·11에 alsoSpecs로 연결) → 사용자 '베스트 케이스'로 69장 채택·AC-12 승인(evidence/approval.md) → 깨끗한 트리(0fb690f) full 재실행 pass.
+- [x] T23 `/verify 055` — 리포트 `evidence/report.html` 아티팩트 발행, spec·plan·tasks 상태 `완료`
+  - 결과: evidence/report.html pass(AC-01~14 전부 증거 통과) → 아티팩트 https://claude.ai/artifact/MDktJ53t7xX2pzfXtJMA7A (evidence/artifact-url.txt). spec·plan·tasks 상태 완료.

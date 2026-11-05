@@ -78,19 +78,19 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/055-running-form"
   },
   "meta": {
-    "commit": "08b9137198f9c01acb29925ee68b6320a4b38f33",
+    "commit": "0fb690f98337ea9521a4df7bbbe841c5a660d4f8",
     "branch": "feat/055-running-form-impl",
-    "dirty": true,
+    "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-05 16:13:08 +0900",
-    "durationSec": 187.8302800655365,
+    "time": "2026-11-05 16:18:24 +0900",
+    "durationSec": 151.30069208145142,
     "command": "python3 Tools/devicefarm/farm.py full --spec 055",
     "profiles": [
       "compact-1366-light-ko",
       "low-igpu-1080p-light-ko",
       "mac-m1-1600p-light-ko"
     ],
-    "buildCached": false
+    "buildCached": true
   },
   "scenarios": [
     {
@@ -106,8 +106,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 8.3,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/low-igpu-1080p-light-ko",
+          "durationSec": 7.2,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/low-igpu-1080p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -117,11 +117,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/low-igpu-1080p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/low-igpu-1080p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/043-contact-closeup.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/low-igpu-1080p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/low-igpu-1080p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -151,7 +151,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34.2,
+              "ms": 42,
               "message": "",
               "timedOut": false
             },
@@ -160,7 +160,7 @@
               "type": "capture",
               "name": "contactPass",
               "status": "passed",
-              "ms": 165.3,
+              "ms": 167.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -191,7 +191,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 31.9,
+              "ms": 30.3,
               "message": "",
               "timedOut": false
             },
@@ -200,7 +200,7 @@
               "type": "capture",
               "name": "contactShot",
               "status": "passed",
-              "ms": 148.9,
+              "ms": 145.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -231,7 +231,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34.3,
+              "ms": 20.8,
               "message": "",
               "timedOut": false
             },
@@ -240,7 +240,7 @@
               "type": "capture",
               "name": "contactHeader",
               "status": "passed",
-              "ms": 147.3,
+              "ms": 150.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -271,7 +271,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 36.2,
+              "ms": 32.5,
               "message": "",
               "timedOut": false
             },
@@ -280,7 +280,7 @@
               "type": "capture",
               "name": "contactTackle",
               "status": "passed",
-              "ms": 145,
+              "ms": 147.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -310,43 +310,33 @@
           "captures": [
             {
               "step": "contactPass",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/low-igpu-1080p-light-ko/captures/contactPass.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/low-igpu-1080p-light-ko/captures/contactPass.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactPass/low-igpu-1080p-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/low-igpu-1080p-light-ko/diff/contactPass.png",
+              "diff": null,
               "scenario": "043-contact-closeup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 53.9398% > 허용 0.5000%",
-              "diffPixels": 1118495,
-              "diffRatio": 0.5393976658950618,
-              "bbox": [
-                0,
-                0,
-                1920,
-                1080
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "contactShot",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/low-igpu-1080p-light-ko/captures/contactShot.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/low-igpu-1080p-light-ko/captures/contactShot.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactShot/low-igpu-1080p-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/low-igpu-1080p-light-ko/diff/contactShot.png",
+              "diff": null,
               "scenario": "043-contact-closeup",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 45.5242% > 허용 0.5000%",
-              "diffPixels": 943989,
-              "diffRatio": 0.45524160879629627,
-              "bbox": [
-                0,
-                0,
-                1920,
-                1080
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "contactHeader",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/low-igpu-1080p-light-ko/captures/contactHeader.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/low-igpu-1080p-light-ko/captures/contactHeader.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactHeader/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "043-contact-closeup",
@@ -359,7 +349,7 @@
             },
             {
               "step": "contactTackle",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/low-igpu-1080p-light-ko/captures/contactTackle.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/low-igpu-1080p-light-ko/captures/contactTackle.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactTackle/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "043-contact-closeup",
@@ -410,7 +400,7 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "fail"
+          "verdict": "pass"
         },
         {
           "key": "mac-m1-1600p-light-ko",
@@ -421,8 +411,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 5.9,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/mac-m1-1600p-light-ko",
+          "durationSec": 6.9,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/mac-m1-1600p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -432,11 +422,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/mac-m1-1600p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/mac-m1-1600p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/043-contact-closeup.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/mac-m1-1600p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/mac-m1-1600p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -466,7 +456,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.5,
+              "ms": 33.7,
               "message": "",
               "timedOut": false
             },
@@ -475,7 +465,7 @@
               "type": "capture",
               "name": "contactPass",
               "status": "passed",
-              "ms": 283.6,
+              "ms": 292.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -506,7 +496,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 31.4,
+              "ms": 22.6,
               "message": "",
               "timedOut": false
             },
@@ -515,7 +505,7 @@
               "type": "capture",
               "name": "contactShot",
               "status": "passed",
-              "ms": 278.1,
+              "ms": 291.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -546,7 +536,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.3,
+              "ms": 25.8,
               "message": "",
               "timedOut": false
             },
@@ -555,7 +545,7 @@
               "type": "capture",
               "name": "contactHeader",
               "status": "passed",
-              "ms": 279.4,
+              "ms": 301.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -586,7 +576,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 35.3,
+              "ms": 31.3,
               "message": "",
               "timedOut": false
             },
@@ -595,7 +585,7 @@
               "type": "capture",
               "name": "contactTackle",
               "status": "passed",
-              "ms": 260.4,
+              "ms": 297.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -625,43 +615,33 @@
           "captures": [
             {
               "step": "contactPass",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/mac-m1-1600p-light-ko/captures/contactPass.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/mac-m1-1600p-light-ko/captures/contactPass.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactPass/mac-m1-1600p-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/mac-m1-1600p-light-ko/diff/contactPass.png",
+              "diff": null,
               "scenario": "043-contact-closeup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 57.4840% > 허용 0.5000%",
-              "diffPixels": 2354543,
-              "diffRatio": 0.574839599609375,
-              "bbox": [
-                0,
-                0,
-                2560,
-                1600
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "contactShot",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/mac-m1-1600p-light-ko/captures/contactShot.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/mac-m1-1600p-light-ko/captures/contactShot.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactShot/mac-m1-1600p-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/mac-m1-1600p-light-ko/diff/contactShot.png",
+              "diff": null,
               "scenario": "043-contact-closeup",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 48.7834% > 허용 0.5000%",
-              "diffPixels": 1998168,
-              "diffRatio": 0.487833984375,
-              "bbox": [
-                0,
-                0,
-                2560,
-                1600
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "contactHeader",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/mac-m1-1600p-light-ko/captures/contactHeader.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/mac-m1-1600p-light-ko/captures/contactHeader.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactHeader/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "043-contact-closeup",
@@ -674,7 +654,7 @@
             },
             {
               "step": "contactTackle",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/mac-m1-1600p-light-ko/captures/contactTackle.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/mac-m1-1600p-light-ko/captures/contactTackle.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactTackle/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "043-contact-closeup",
@@ -725,7 +705,7 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "fail"
+          "verdict": "pass"
         },
         {
           "key": "compact-1366-light-ko",
@@ -736,8 +716,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 6.1,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/compact-1366-light-ko",
+          "durationSec": 6.3,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/compact-1366-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -747,11 +727,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/compact-1366-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/compact-1366-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/043-contact-closeup.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/compact-1366-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/compact-1366-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -781,7 +761,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.8,
+              "ms": 34,
               "message": "",
               "timedOut": false
             },
@@ -790,7 +770,7 @@
               "type": "capture",
               "name": "contactPass",
               "status": "passed",
-              "ms": 85.7,
+              "ms": 90.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -821,7 +801,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 29.9,
+              "ms": 25.2,
               "message": "",
               "timedOut": false
             },
@@ -830,7 +810,7 @@
               "type": "capture",
               "name": "contactShot",
               "status": "passed",
-              "ms": 85.5,
+              "ms": 86.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -861,7 +841,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 31,
+              "ms": 30.2,
               "message": "",
               "timedOut": false
             },
@@ -870,7 +850,7 @@
               "type": "capture",
               "name": "contactHeader",
               "status": "passed",
-              "ms": 85.2,
+              "ms": 85.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -901,7 +881,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 31.3,
+              "ms": 30.2,
               "message": "",
               "timedOut": false
             },
@@ -910,7 +890,7 @@
               "type": "capture",
               "name": "contactTackle",
               "status": "passed",
-              "ms": 84.1,
+              "ms": 86.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -940,43 +920,33 @@
           "captures": [
             {
               "step": "contactPass",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/compact-1366-light-ko/captures/contactPass.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/compact-1366-light-ko/captures/contactPass.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactPass/compact-1366-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/compact-1366-light-ko/diff/contactPass.png",
+              "diff": null,
               "scenario": "043-contact-closeup",
               "combo": "compact-1366-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 51.1631% > 허용 0.5000%",
-              "diffPixels": 536746,
-              "diffRatio": 0.5116310547828209,
-              "bbox": [
-                0,
-                0,
-                1366,
-                768
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "contactShot",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/compact-1366-light-ko/captures/contactShot.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/compact-1366-light-ko/captures/contactShot.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactShot/compact-1366-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/compact-1366-light-ko/diff/contactShot.png",
+              "diff": null,
               "scenario": "043-contact-closeup",
               "combo": "compact-1366-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 43.2182% > 허용 0.5000%",
-              "diffPixels": 453397,
-              "diffRatio": 0.4321820476451928,
-              "bbox": [
-                0,
-                0,
-                1366,
-                768
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "contactHeader",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/compact-1366-light-ko/captures/contactHeader.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/compact-1366-light-ko/captures/contactHeader.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactHeader/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "043-contact-closeup",
@@ -989,7 +959,7 @@
             },
             {
               "step": "contactTackle",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-contact-closeup/compact-1366-light-ko/captures/contactTackle.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-contact-closeup/compact-1366-light-ko/captures/contactTackle.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-contact-closeup/contactTackle/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "043-contact-closeup",
@@ -1040,11 +1010,11 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "fail"
+          "verdict": "pass"
         }
       ],
       "determinism": null,
-      "verdict": "fail"
+      "verdict": "pass"
     },
     {
       "scenario": "043-speed-motion",
@@ -1059,8 +1029,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 6.1,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/low-igpu-1080p-light-ko",
+          "durationSec": 6.3,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/low-igpu-1080p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -1070,11 +1040,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/low-igpu-1080p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/low-igpu-1080p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/043-speed-motion.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/low-igpu-1080p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/low-igpu-1080p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -1104,7 +1074,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34.3,
+              "ms": 33.6,
               "message": "",
               "timedOut": false
             },
@@ -1113,7 +1083,7 @@
               "type": "capture",
               "name": "speed1x",
               "status": "passed",
-              "ms": 165.9,
+              "ms": 168.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1132,7 +1102,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.2,
+              "ms": 29.8,
               "message": "",
               "timedOut": false
             },
@@ -1141,7 +1111,7 @@
               "type": "capture",
               "name": "speed15x",
               "status": "passed",
-              "ms": 146.9,
+              "ms": 149,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1160,7 +1130,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 36.6,
+              "ms": 34.3,
               "message": "",
               "timedOut": false
             },
@@ -1169,7 +1139,7 @@
               "type": "capture",
               "name": "speed3x",
               "status": "passed",
-              "ms": 151.6,
+              "ms": 145.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1187,57 +1157,42 @@
           "captures": [
             {
               "step": "speed1x",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/low-igpu-1080p-light-ko/captures/speed1x.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/low-igpu-1080p-light-ko/captures/speed1x.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-speed-motion/speed1x/low-igpu-1080p-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/low-igpu-1080p-light-ko/diff/speed1x.png",
+              "diff": null,
               "scenario": "043-speed-motion",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 11.0815% > 허용 0.5000%",
-              "diffPixels": 229787,
-              "diffRatio": 0.1108154899691358,
-              "bbox": [
-                510,
-                54,
-                1174,
-                955
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "speed15x",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/low-igpu-1080p-light-ko/captures/speed15x.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/low-igpu-1080p-light-ko/captures/speed15x.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-speed-motion/speed15x/low-igpu-1080p-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/low-igpu-1080p-light-ko/diff/speed15x.png",
+              "diff": null,
               "scenario": "043-speed-motion",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 11.0815% > 허용 0.5000%",
-              "diffPixels": 229787,
-              "diffRatio": 0.1108154899691358,
-              "bbox": [
-                510,
-                54,
-                1174,
-                955
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "speed3x",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/low-igpu-1080p-light-ko/captures/speed3x.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/low-igpu-1080p-light-ko/captures/speed3x.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-speed-motion/speed3x/low-igpu-1080p-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/low-igpu-1080p-light-ko/diff/speed3x.png",
+              "diff": null,
               "scenario": "043-speed-motion",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 11.0815% > 허용 0.5000%",
-              "diffPixels": 229787,
-              "diffRatio": 0.1108154899691358,
-              "bbox": [
-                510,
-                54,
-                1174,
-                955
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             }
           ],
           "failCaptures": [],
@@ -1265,7 +1220,7 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "fail"
+          "verdict": "pass"
         },
         {
           "key": "mac-m1-1600p-light-ko",
@@ -1276,8 +1231,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 6.1,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/mac-m1-1600p-light-ko",
+          "durationSec": 5.7,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/mac-m1-1600p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -1287,11 +1242,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/mac-m1-1600p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/mac-m1-1600p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/043-speed-motion.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/mac-m1-1600p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/mac-m1-1600p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -1321,7 +1276,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34.2,
+              "ms": 34,
               "message": "",
               "timedOut": false
             },
@@ -1330,7 +1285,7 @@
               "type": "capture",
               "name": "speed1x",
               "status": "passed",
-              "ms": 294.2,
+              "ms": 276.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1349,7 +1304,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 20.9,
+              "ms": 22.9,
               "message": "",
               "timedOut": false
             },
@@ -1358,7 +1313,7 @@
               "type": "capture",
               "name": "speed15x",
               "status": "passed",
-              "ms": 274.1,
+              "ms": 273,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1377,7 +1332,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.6,
+              "ms": 26.8,
               "message": "",
               "timedOut": false
             },
@@ -1386,7 +1341,7 @@
               "type": "capture",
               "name": "speed3x",
               "status": "passed",
-              "ms": 273.2,
+              "ms": 273.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1404,57 +1359,42 @@
           "captures": [
             {
               "step": "speed1x",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/mac-m1-1600p-light-ko/captures/speed1x.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/mac-m1-1600p-light-ko/captures/speed1x.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-speed-motion/speed1x/mac-m1-1600p-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/mac-m1-1600p-light-ko/diff/speed1x.png",
+              "diff": null,
               "scenario": "043-speed-motion",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 12.2365% > 허용 0.5000%",
-              "diffPixels": 501206,
-              "diffRatio": 0.12236474609375,
-              "bbox": [
-                614,
-                80,
-                1727,
-                1410
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "speed15x",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/mac-m1-1600p-light-ko/captures/speed15x.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/mac-m1-1600p-light-ko/captures/speed15x.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-speed-motion/speed15x/mac-m1-1600p-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/mac-m1-1600p-light-ko/diff/speed15x.png",
+              "diff": null,
               "scenario": "043-speed-motion",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 12.2365% > 허용 0.5000%",
-              "diffPixels": 501206,
-              "diffRatio": 0.12236474609375,
-              "bbox": [
-                614,
-                80,
-                1727,
-                1410
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "speed3x",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/mac-m1-1600p-light-ko/captures/speed3x.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/mac-m1-1600p-light-ko/captures/speed3x.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-speed-motion/speed3x/mac-m1-1600p-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/mac-m1-1600p-light-ko/diff/speed3x.png",
+              "diff": null,
               "scenario": "043-speed-motion",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 12.2365% > 허용 0.5000%",
-              "diffPixels": 501206,
-              "diffRatio": 0.12236474609375,
-              "bbox": [
-                614,
-                80,
-                1727,
-                1410
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             }
           ],
           "failCaptures": [],
@@ -1482,7 +1422,7 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "fail"
+          "verdict": "pass"
         },
         {
           "key": "compact-1366-light-ko",
@@ -1493,8 +1433,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 5.5,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/compact-1366-light-ko",
+          "durationSec": 5.1,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/compact-1366-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -1504,11 +1444,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/compact-1366-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/compact-1366-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/043-speed-motion.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/compact-1366-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/compact-1366-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -1538,7 +1478,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.8,
+              "ms": 33.9,
               "message": "",
               "timedOut": false
             },
@@ -1547,7 +1487,7 @@
               "type": "capture",
               "name": "speed1x",
               "status": "passed",
-              "ms": 86.6,
+              "ms": 89.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1566,7 +1506,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 29,
+              "ms": 26.5,
               "message": "",
               "timedOut": false
             },
@@ -1575,7 +1515,7 @@
               "type": "capture",
               "name": "speed15x",
               "status": "passed",
-              "ms": 83.4,
+              "ms": 85.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1594,7 +1534,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.7,
+              "ms": 31.1,
               "message": "",
               "timedOut": false
             },
@@ -1603,7 +1543,7 @@
               "type": "capture",
               "name": "speed3x",
               "status": "passed",
-              "ms": 84.6,
+              "ms": 86.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -1621,57 +1561,42 @@
           "captures": [
             {
               "step": "speed1x",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/compact-1366-light-ko/captures/speed1x.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/compact-1366-light-ko/captures/speed1x.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-speed-motion/speed1x/compact-1366-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/compact-1366-light-ko/diff/speed1x.png",
+              "diff": null,
               "scenario": "043-speed-motion",
               "combo": "compact-1366-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 11.0487% > 허용 0.5000%",
-              "diffPixels": 115911,
-              "diffRatio": 0.11048739476573939,
-              "bbox": [
-                363,
-                38,
-                834,
-                680
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "speed15x",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/compact-1366-light-ko/captures/speed15x.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/compact-1366-light-ko/captures/speed15x.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-speed-motion/speed15x/compact-1366-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/compact-1366-light-ko/diff/speed15x.png",
+              "diff": null,
               "scenario": "043-speed-motion",
               "combo": "compact-1366-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 11.0487% > 허용 0.5000%",
-              "diffPixels": 115911,
-              "diffRatio": 0.11048739476573939,
-              "bbox": [
-                363,
-                38,
-                834,
-                680
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             },
             {
               "step": "speed3x",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/compact-1366-light-ko/captures/speed3x.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/043-speed-motion/compact-1366-light-ko/captures/speed3x.png",
               "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/043-speed-motion/speed3x/compact-1366-light-ko.png",
-              "diff": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/043-speed-motion/compact-1366-light-ko/diff/speed3x.png",
+              "diff": null,
               "scenario": "043-speed-motion",
               "combo": "compact-1366-light-ko",
-              "status": "fail",
-              "reason": "바뀐 픽셀 11.0487% > 허용 0.5000%",
-              "diffPixels": 115911,
-              "diffRatio": 0.11048739476573939,
-              "bbox": [
-                363,
-                38,
-                834,
-                680
-              ]
+              "status": "pass",
+              "reason": "",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
             }
           ],
           "failCaptures": [],
@@ -1699,11 +1624,11 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "fail"
+          "verdict": "pass"
         }
       ],
       "determinism": null,
-      "verdict": "fail"
+      "verdict": "pass"
     },
     {
       "scenario": "055-anim-perf",
@@ -1718,8 +1643,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 33.4,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-anim-perf/low-igpu-1080p-light-ko",
+          "durationSec": 34.0,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-anim-perf/low-igpu-1080p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -1729,11 +1654,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-anim-perf/low-igpu-1080p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-anim-perf/low-igpu-1080p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/055-anim-perf.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-anim-perf/low-igpu-1080p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-anim-perf/low-igpu-1080p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -1772,7 +1697,7 @@
               "type": "perfBegin",
               "name": "empty",
               "status": "passed",
-              "ms": 17.5,
+              "ms": 17.8,
               "message": "",
               "timedOut": false
             },
@@ -1781,7 +1706,7 @@
               "type": "perfEnd",
               "name": "empty",
               "status": "passed",
-              "ms": 6117.2,
+              "ms": 6044.5,
               "message": "",
               "timedOut": false,
               "frames": 360
@@ -1791,7 +1716,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 48.7,
+              "ms": 37.4,
               "message": "",
               "timedOut": false
             },
@@ -1800,7 +1725,7 @@
               "type": "perfBegin",
               "name": "players",
               "status": "passed",
-              "ms": 17.1,
+              "ms": 17.2,
               "message": "",
               "timedOut": false
             },
@@ -1809,7 +1734,7 @@
               "type": "perfEnd",
               "name": "players",
               "status": "passed",
-              "ms": 11117.3,
+              "ms": 11133,
               "message": "",
               "timedOut": false,
               "frames": 660
@@ -1828,7 +1753,7 @@
               "type": "perfBegin",
               "name": "playersNoShadow",
               "status": "passed",
-              "ms": 16.9,
+              "ms": 17.1,
               "message": "",
               "timedOut": false
             },
@@ -1837,7 +1762,7 @@
               "type": "perfEnd",
               "name": "playersNoShadow",
               "status": "passed",
-              "ms": 4401.8,
+              "ms": 4399.4,
               "message": "",
               "timedOut": false,
               "frames": 260
@@ -1847,7 +1772,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 47,
+              "ms": 49.8,
               "message": "",
               "timedOut": false
             },
@@ -1856,7 +1781,7 @@
               "type": "perfBegin",
               "name": "full",
               "status": "passed",
-              "ms": 16.6,
+              "ms": 19.3,
               "message": "",
               "timedOut": false
             },
@@ -1865,7 +1790,7 @@
               "type": "perfEnd",
               "name": "full",
               "status": "passed",
-              "ms": 6088.4,
+              "ms": 6069.4,
               "message": "",
               "timedOut": false,
               "frames": 360
@@ -1880,25 +1805,25 @@
               "metrics": {
                 "frames": 300,
                 "frameMs": {
-                  "avg": 17.000248916447163,
-                  "p50": 16.787627711892128,
-                  "p95": 17.601460218429565,
-                  "p99": 18.87662336230278,
-                  "max": 20.4258281737566
+                  "avg": 16.76321718841791,
+                  "p50": 16.667170450091362,
+                  "p95": 17.378244549036026,
+                  "p99": 17.57841557264328,
+                  "max": 17.63475127518177
                 },
                 "mainThreadMs": {
-                  "avg": 16.98034902333332,
-                  "p50": 16.813167,
-                  "p95": 17.753125,
-                  "p99": 18.76375,
-                  "max": 20.402583
+                  "avg": 16.751996426666665,
+                  "p50": 16.661375,
+                  "p95": 17.427875,
+                  "p99": 17.576542,
+                  "max": 17.660584
                 },
                 "gpuMs": {
-                  "avg": 0.16514041667808974,
-                  "p50": 0.1314583332714392,
-                  "p95": 0.4093749994353857,
-                  "p99": 0.4918750000797445,
-                  "max": 0.5281249996187398
+                  "avg": 0.13788805559670436,
+                  "p50": 0.1368749999528518,
+                  "p95": 0.14612500126531813,
+                  "p99": 0.1831666650105035,
+                  "max": 0.42962499901477713
                 },
                 "gcAllocPerFrameBytes": {
                   "avg": 785.35,
@@ -1914,7 +1839,7 @@
                   "max": 4
                 },
                 "textureMemoryBytes": 126367193,
-                "totalMemoryBytes": 405127122,
+                "totalMemoryBytes": 405126841,
                 "custom": {
                   "animCpuMs": null,
                   "animGcBytes": null,
@@ -1935,48 +1860,48 @@
               "metrics": {
                 "frames": 600,
                 "frameMs": {
-                  "avg": 16.810007138798635,
-                  "p50": 16.668828204274178,
-                  "p95": 17.563292756676674,
-                  "p99": 17.99074560403824,
-                  "max": 20.662499591708183
+                  "avg": 16.86108874467512,
+                  "p50": 16.670791432261467,
+                  "p95": 17.57482998073101,
+                  "p99": 18.633708357810974,
+                  "max": 25.90503916144371
                 },
                 "mainThreadMs": {
-                  "avg": 16.794262131666663,
-                  "p50": 16.665709,
-                  "p95": 17.558875,
-                  "p99": 18.664666,
-                  "max": 20.591333
+                  "avg": 16.843504449999987,
+                  "p50": 16.670458,
+                  "p95": 17.561208,
+                  "p99": 18.626958,
+                  "max": 25.829
                 },
                 "gpuMs": {
-                  "avg": 0.6156033332808875,
-                  "p50": 0.6180000000313157,
-                  "p95": 0.6815416672907304,
-                  "p99": 1.009750001685461,
-                  "max": 2.063750000161235
+                  "avg": 0.6404709028356592,
+                  "p50": 0.6069999999454012,
+                  "p95": 0.676208332151873,
+                  "p99": 2.4287500000355067,
+                  "max": 3.7738749997515697
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3119.71,
-                  "max": 43920
+                  "avg": 3348.23,
+                  "max": 98872
                 },
-                "gcAllocTotalBytes": 1871826,
+                "gcAllocTotalBytes": 2008938,
                 "drawCalls": {
                   "avg": 63.31,
-                  "max": 134
+                  "max": 132
                 },
                 "triangles": {
                   "avg": 54486.48166666667,
-                  "max": 115094
+                  "max": 113256
                 },
                 "textureMemoryBytes": 128465567,
-                "totalMemoryBytes": 400972805,
+                "totalMemoryBytes": 401136516,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.7783251675963402,
-                    "p50": 0.6610999703407288,
-                    "p95": 1.5542000532150269,
-                    "p99": 2.1475000381469727,
-                    "max": 3.4765000343322754
+                    "avg": 0.6786691660185655,
+                    "p50": 0.46560001373291016,
+                    "p95": 1.5793999433517456,
+                    "p99": 2.0539000034332275,
+                    "max": 4.310500144958496
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -2009,48 +1934,48 @@
               "metrics": {
                 "frames": 200,
                 "frameMs": {
-                  "avg": 16.83266437612474,
-                  "p50": 16.66979119181633,
-                  "p95": 17.464498057961464,
-                  "p99": 17.606625333428383,
-                  "max": 21.289795637130737
+                  "avg": 16.90221332013607,
+                  "p50": 16.68778993189335,
+                  "p95": 17.579995095729828,
+                  "p99": 18.28650012612343,
+                  "max": 19.257504492998123
                 },
                 "mainThreadMs": {
-                  "avg": 16.811669345000006,
-                  "p50": 16.676917,
-                  "p95": 17.406625,
-                  "p99": 17.806792,
-                  "max": 21.096375
+                  "avg": 16.888583345000008,
+                  "p50": 16.693958,
+                  "p95": 17.579333,
+                  "p99": 18.260584,
+                  "max": 19.2195
                 },
                 "gpuMs": {
-                  "avg": 0.5027983333820885,
-                  "p50": 0.5258750006760238,
-                  "p95": 0.5593750011030352,
-                  "p99": 0.5824999989272328,
-                  "max": 0.5928749997110572
+                  "avg": 0.5126397915955749,
+                  "p50": 0.5077916666778037,
+                  "p95": 0.5363750005926704,
+                  "p99": 0.7713750001130393,
+                  "max": 1.07962500078429
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3234.035,
-                  "max": 25870
+                  "avg": 4493.675,
+                  "max": 132768
                 },
-                "gcAllocTotalBytes": 646807,
+                "gcAllocTotalBytes": 898735,
                 "drawCalls": {
-                  "avg": 40.78,
-                  "max": 84
+                  "avg": 40.58,
+                  "max": 44
                 },
                 "triangles": {
-                  "avg": 35223.17,
-                  "max": 73522
+                  "avg": 35053.37,
+                  "max": 37626
                 },
                 "textureMemoryBytes": 126367193,
-                "totalMemoryBytes": 400750470,
+                "totalMemoryBytes": 401180685,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.9414210002124309,
-                    "p50": 0.7565000057220459,
-                    "p95": 1.7402000427246094,
-                    "p99": 2.0922000408172607,
-                    "max": 3.8213999271392822
+                    "avg": 0.4601445011794567,
+                    "p50": 0.4074999988079071,
+                    "p95": 0.7064999938011169,
+                    "p99": 1.1811000108718872,
+                    "max": 1.476099967956543
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -2076,29 +2001,29 @@
               "metrics": {
                 "frames": 300,
                 "frameMs": {
-                  "avg": 16.850688910732668,
-                  "p50": 16.678910702466965,
-                  "p95": 17.57870614528656,
-                  "p99": 18.36624927818775,
-                  "max": 20.765498280525208
+                  "avg": 16.848864387720823,
+                  "p50": 16.687996685504913,
+                  "p95": 17.575666308403015,
+                  "p99": 18.605584278702736,
+                  "max": 21.13204449415207
                 },
                 "mainThreadMs": {
-                  "avg": 16.832187226666672,
-                  "p50": 16.671833,
-                  "p95": 17.569542,
-                  "p99": 18.246875,
-                  "max": 20.733125
+                  "avg": 16.830678203333328,
+                  "p50": 16.676625,
+                  "p95": 17.565292,
+                  "p99": 19.548042,
+                  "max": 22.107916
                 },
                 "gpuMs": {
-                  "avg": 2.3846793055417947,
-                  "p50": 2.481958334101364,
-                  "p95": 2.5160833338304656,
-                  "p99": 2.529125000364729,
-                  "max": 2.5382499989063945
+                  "avg": 2.4047851388847143,
+                  "p50": 2.480249999280204,
+                  "p95": 2.518791667171172,
+                  "p99": 2.6906250004685717,
+                  "max": 6.082208332372829
                 },
                 "gcAllocPerFrameBytes": {
                   "avg": 3157.25,
-                  "max": 25790
+                  "max": 32579
                 },
                 "gcAllocTotalBytes": 947175,
                 "drawCalls": {
@@ -2110,14 +2035,14 @@
                   "max": 61160
                 },
                 "textureMemoryBytes": 128465567,
-                "totalMemoryBytes": 403369763,
+                "totalMemoryBytes": 403754859,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.6889756683508556,
-                    "p50": 0.5112000107765198,
-                    "p95": 1.3550000190734863,
-                    "p99": 1.8152999877929688,
-                    "max": 3.816499948501587
+                    "avg": 0.44159399886926015,
+                    "p50": 0.3889999985694885,
+                    "p95": 0.5758000016212463,
+                    "p99": 1.1758999824523926,
+                    "max": 3.773699998855591
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -2202,8 +2127,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 32.9,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-anim-perf/mac-m1-1600p-light-ko",
+          "durationSec": 34.2,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-anim-perf/mac-m1-1600p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -2213,11 +2138,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-anim-perf/mac-m1-1600p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-anim-perf/mac-m1-1600p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/055-anim-perf.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-anim-perf/mac-m1-1600p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-anim-perf/mac-m1-1600p-light-ko",
             "-farmSeed",
             "20261104",
             "-farmProfile",
@@ -2247,7 +2172,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33,
+              "ms": 49.5,
               "message": "",
               "timedOut": false
             },
@@ -2256,7 +2181,7 @@
               "type": "perfBegin",
               "name": "empty",
               "status": "passed",
-              "ms": 17.6,
+              "ms": 17.9,
               "message": "",
               "timedOut": false
             },
@@ -2265,7 +2190,7 @@
               "type": "perfEnd",
               "name": "empty",
               "status": "passed",
-              "ms": 6082.7,
+              "ms": 6048.9,
               "message": "",
               "timedOut": false,
               "frames": 360
@@ -2275,7 +2200,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 50.4,
+              "ms": 50.1,
               "message": "",
               "timedOut": false
             },
@@ -2284,7 +2209,7 @@
               "type": "perfBegin",
               "name": "players",
               "status": "passed",
-              "ms": 17,
+              "ms": 17.1,
               "message": "",
               "timedOut": false
             },
@@ -2293,7 +2218,7 @@
               "type": "perfEnd",
               "name": "players",
               "status": "passed",
-              "ms": 11116.1,
+              "ms": 11083,
               "message": "",
               "timedOut": false,
               "frames": 660
@@ -2312,7 +2237,7 @@
               "type": "perfBegin",
               "name": "playersNoShadow",
               "status": "passed",
-              "ms": 17.3,
+              "ms": 18.8,
               "message": "",
               "timedOut": false
             },
@@ -2321,7 +2246,7 @@
               "type": "perfEnd",
               "name": "playersNoShadow",
               "status": "passed",
-              "ms": 4382.8,
+              "ms": 4381.7,
               "message": "",
               "timedOut": false,
               "frames": 260
@@ -2331,7 +2256,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 49.6,
+              "ms": 33.2,
               "message": "",
               "timedOut": false
             },
@@ -2340,7 +2265,7 @@
               "type": "perfBegin",
               "name": "full",
               "status": "passed",
-              "ms": 16.8,
+              "ms": 16.7,
               "message": "",
               "timedOut": false
             },
@@ -2349,7 +2274,7 @@
               "type": "perfEnd",
               "name": "full",
               "status": "passed",
-              "ms": 6049.8,
+              "ms": 6034,
               "message": "",
               "timedOut": false,
               "frames": 360
@@ -2364,25 +2289,25 @@
               "metrics": {
                 "frames": 300,
                 "frameMs": {
-                  "avg": 16.833469048142433,
-                  "p50": 16.667544841766357,
-                  "p95": 17.57529005408287,
-                  "p99": 17.668040469288826,
-                  "max": 20.275291055440903
+                  "avg": 16.776421411583822,
+                  "p50": 16.66724681854248,
+                  "p95": 17.563123255968094,
+                  "p99": 17.59866811335087,
+                  "max": 17.81950145959854
                 },
                 "mainThreadMs": {
-                  "avg": 16.818510556666673,
-                  "p50": 16.669584,
-                  "p95": 17.56275,
-                  "p99": 17.859333,
-                  "max": 20.224
+                  "avg": 16.762387509999982,
+                  "p50": 16.660042,
+                  "p95": 17.434209,
+                  "p99": 17.816459,
+                  "max": 18.830208
                 },
                 "gpuMs": {
-                  "avg": 0.16469680560476263,
-                  "p50": 0.16383333422709256,
-                  "p95": 0.1785000004019821,
-                  "p99": 0.2006249997066334,
-                  "max": 0.5052500000601867
+                  "avg": 0.16136236106831348,
+                  "p50": 0.16295833302137908,
+                  "p95": 0.16725000023143366,
+                  "p99": 0.16962499830697197,
+                  "max": 0.21787500008940697
                 },
                 "gcAllocPerFrameBytes": {
                   "avg": 784.75,
@@ -2391,14 +2316,14 @@
                 "gcAllocTotalBytes": 235425,
                 "drawCalls": {
                   "avg": 2.0,
-                  "max": 4
+                  "max": 2
                 },
                 "triangles": {
                   "avg": 4.0,
-                  "max": 8
+                  "max": 4
                 },
                 "textureMemoryBytes": 160747993,
-                "totalMemoryBytes": 439396615,
+                "totalMemoryBytes": 456272167,
                 "custom": {
                   "animCpuMs": null,
                   "animGcBytes": null,
@@ -2419,48 +2344,48 @@
               "metrics": {
                 "frames": 600,
                 "frameMs": {
-                  "avg": 16.79621937063833,
-                  "p50": 16.667921096086502,
-                  "p95": 17.505329102277756,
-                  "p99": 17.6091268658638,
-                  "max": 22.6052924990654
+                  "avg": 16.777945378174383,
+                  "p50": 16.66741818189621,
+                  "p95": 17.50716380774975,
+                  "p99": 17.58662797510624,
+                  "max": 18.49895901978016
                 },
                 "mainThreadMs": {
-                  "avg": 16.781363380000027,
-                  "p50": 16.663583,
-                  "p95": 17.508167,
-                  "p99": 17.670042,
-                  "max": 22.310959
+                  "avg": 16.765212223333332,
+                  "p50": 16.660542,
+                  "p95": 17.557917,
+                  "p99": 17.641291,
+                  "max": 18.479
                 },
                 "gpuMs": {
-                  "avg": 0.7279349999832144,
-                  "p50": 0.7202500000857981,
-                  "p95": 0.7941250005387701,
-                  "p99": 1.3723749998462154,
-                  "max": 2.5248750007449416
+                  "avg": 0.7008743055303057,
+                  "p50": 0.7050833319226513,
+                  "p95": 0.7386249999399297,
+                  "p99": 0.7529583326686407,
+                  "max": 0.7921666674519656
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3228.71,
+                  "avg": 3119.11,
                   "max": 43920
                 },
-                "gcAllocTotalBytes": 1937226,
+                "gcAllocTotalBytes": 1871466,
                 "drawCalls": {
-                  "avg": 59.27,
-                  "max": 128
+                  "avg": 59.175,
+                  "max": 67
                 },
                 "triangles": {
-                  "avg": 50513.14166666667,
-                  "max": 109848
+                  "avg": 50432.455,
+                  "max": 57547
                 },
                 "textureMemoryBytes": 162846367,
-                "totalMemoryBytes": 435307386,
+                "totalMemoryBytes": 453371876,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.6692761657635371,
-                    "p50": 0.521399974822998,
-                    "p95": 1.4414000511169434,
-                    "p99": 1.9088000059127808,
-                    "max": 3.9052999019622803
+                    "avg": 0.4153348330159982,
+                    "p50": 0.3727000057697296,
+                    "p95": 0.5630999803543091,
+                    "p99": 0.9521999955177307,
+                    "max": 1.7497999668121338
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -2493,25 +2418,25 @@
               "metrics": {
                 "frames": 200,
                 "frameMs": {
-                  "avg": 16.831822246313095,
-                  "p50": 16.670791432261467,
-                  "p95": 17.570961266756058,
-                  "p99": 17.59732887148857,
-                  "max": 22.57603406906128
+                  "avg": 16.830327920615673,
+                  "p50": 16.676126047968864,
+                  "p95": 17.477374523878098,
+                  "p99": 17.597420141100883,
+                  "max": 19.92049254477024
                 },
                 "mainThreadMs": {
-                  "avg": 16.806962540000008,
-                  "p50": 16.670625,
-                  "p95": 17.535,
-                  "p99": 17.670167,
-                  "max": 22.381292
+                  "avg": 16.81913815499999,
+                  "p50": 16.673458,
+                  "p95": 17.466,
+                  "p99": 17.846334,
+                  "max": 19.653709
                 },
                 "gpuMs": {
-                  "avg": 0.6214197917142883,
-                  "p50": 0.6397916677087778,
-                  "p95": 0.6896249997225823,
-                  "p99": 0.6962499992368976,
-                  "max": 0.7032083321973914
+                  "avg": 0.6163583333182032,
+                  "p50": 0.6127500000729924,
+                  "p95": 0.6490416672022548,
+                  "p99": 0.6819583322794642,
+                  "max": 0.7041249991743825
                 },
                 "gcAllocPerFrameBytes": {
                   "avg": 3233.495,
@@ -2519,22 +2444,22 @@
                 },
                 "gcAllocTotalBytes": 646699,
                 "drawCalls": {
-                  "avg": 37.04,
-                  "max": 42.0
+                  "avg": 37.25,
+                  "max": 42
                 },
                 "triangles": {
-                  "avg": 31331.71,
+                  "avg": 31505.73,
                   "max": 49270
                 },
                 "textureMemoryBytes": 160747993,
-                "totalMemoryBytes": 434606568,
+                "totalMemoryBytes": 452004341,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.9222520001232624,
-                    "p50": 0.767799973487854,
-                    "p95": 1.694200038909912,
-                    "p99": 1.9000999927520752,
-                    "max": 2.7534000873565674
+                    "avg": 0.43254150047898293,
+                    "p50": 0.383899986743927,
+                    "p95": 0.6137999892234802,
+                    "p99": 0.9804999828338623,
+                    "max": 1.30649995803833
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -2560,48 +2485,48 @@
               "metrics": {
                 "frames": 300,
                 "frameMs": {
-                  "avg": 16.771246461818617,
-                  "p50": 16.667453572154045,
-                  "p95": 17.39816553890705,
-                  "p99": 17.65829138457775,
-                  "max": 21.742580458521843
+                  "avg": 16.719188230733078,
+                  "p50": 16.666829586029053,
+                  "p95": 17.001666128635406,
+                  "p99": 17.578832805156708,
+                  "max": 18.679166212677956
                 },
                 "mainThreadMs": {
-                  "avg": 16.756844343333338,
-                  "p50": 16.661333,
-                  "p95": 17.405625,
-                  "p99": 17.797709,
-                  "max": 21.676833
+                  "avg": 16.70811070333334,
+                  "p50": 16.658292,
+                  "p95": 16.989041,
+                  "p99": 17.566292,
+                  "max": 18.656208
                 },
                 "gpuMs": {
-                  "avg": 3.18521305553683,
-                  "p50": 3.1669166673964355,
-                  "p95": 4.390791666082805,
-                  "p99": 4.434541666341829,
-                  "max": 4.459499999938998
+                  "avg": 3.2874715278012445,
+                  "p50": 3.4887916681327624,
+                  "p95": 4.374374999315478,
+                  "p99": 4.404875000545871,
+                  "max": 6.740749999153195
                 },
                 "gcAllocPerFrameBytes": {
-                  "avg": 3156.65,
+                  "avg": 3149.4166666666665,
                   "max": 25790
                 },
-                "gcAllocTotalBytes": 946995,
+                "gcAllocTotalBytes": 944825,
                 "drawCalls": {
-                  "avg": 72.63666666666667,
+                  "avg": 72.88333333333334,
                   "max": 150
                 },
                 "triangles": {
-                  "avg": 50959.45,
-                  "max": 107119
+                  "avg": 51129.51666666667,
+                  "max": 109710
                 },
                 "textureMemoryBytes": 162846367,
-                "totalMemoryBytes": 437178542,
+                "totalMemoryBytes": 454915608,
                 "custom": {
                   "animCpuMs": {
-                    "avg": 0.7125606684883435,
-                    "p50": 0.5357999801635742,
-                    "p95": 1.6742000579833984,
-                    "p99": 2.4990999698638916,
-                    "max": 2.8457000255584717
+                    "avg": 0.4985353342692057,
+                    "p50": 0.43299999833106995,
+                    "p95": 0.9124000072479248,
+                    "p99": 1.464400053024292,
+                    "max": 1.840000033378601
                   },
                   "animGcBytes": {
                     "avg": 0.0,
@@ -2640,10 +2565,10 @@
               "metrics": {
                 "derived": "players − empty",
                 "drawCalls": {
-                  "avg": 57.27
+                  "avg": 57.175
                 },
                 "triangles": {
-                  "avg": 50509.14166666667
+                  "avg": 50428.455
                 }
               },
               "power": "ac",
@@ -2653,13 +2578,13 @@
               "budget": [
                 {
                   "metric": "drawCalls.avg",
-                  "value": 57.27,
+                  "value": 57.175,
                   "budget": 75,
                   "ok": true
                 },
                 {
                   "metric": "triangles.avg",
-                  "value": 50509.14166666667,
+                  "value": 50428.455,
                   "budget": 150000,
                   "ok": true
                 }
@@ -2694,8 +2619,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 8.6,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko",
+          "durationSec": 8.5,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -2705,11 +2630,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/055-gait-filmstrip.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko",
             "-farmSeed",
             "20261105",
             "-farmProfile",
@@ -2739,7 +2664,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.3,
+              "ms": 33.1,
               "message": "",
               "timedOut": false
             },
@@ -2748,7 +2673,7 @@
               "type": "capture",
               "name": "gaitFilmWalkSide",
               "status": "passed",
-              "ms": 133.9,
+              "ms": 140.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2767,7 +2692,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.3,
+              "ms": 25.5,
               "message": "",
               "timedOut": false
             },
@@ -2776,7 +2701,7 @@
               "type": "capture",
               "name": "gaitFilmWalkFront",
               "status": "passed",
-              "ms": 127.1,
+              "ms": 132.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2795,7 +2720,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.7,
+              "ms": 34.2,
               "message": "",
               "timedOut": false
             },
@@ -2804,7 +2729,7 @@
               "type": "capture",
               "name": "gaitFilmJogSide",
               "status": "passed",
-              "ms": 127.8,
+              "ms": 132.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2823,7 +2748,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.3,
+              "ms": 33.8,
               "message": "",
               "timedOut": false
             },
@@ -2832,7 +2757,7 @@
               "type": "capture",
               "name": "gaitFilmJogFront",
               "status": "passed",
-              "ms": 129,
+              "ms": 138.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2851,7 +2776,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21,
+              "ms": 28.3,
               "message": "",
               "timedOut": false
             },
@@ -2860,7 +2785,7 @@
               "type": "capture",
               "name": "gaitFilmRunSide",
               "status": "passed",
-              "ms": 131,
+              "ms": 134.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2879,7 +2804,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 36.3,
+              "ms": 30.2,
               "message": "",
               "timedOut": false
             },
@@ -2888,7 +2813,7 @@
               "type": "capture",
               "name": "gaitFilmRunFront",
               "status": "passed",
-              "ms": 124.3,
+              "ms": 132.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2907,7 +2832,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.1,
+              "ms": 34.3,
               "message": "",
               "timedOut": false
             },
@@ -2916,7 +2841,7 @@
               "type": "capture",
               "name": "gaitFilmSprintSide",
               "status": "passed",
-              "ms": 127.2,
+              "ms": 131.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2935,7 +2860,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.8,
+              "ms": 34.4,
               "message": "",
               "timedOut": false
             },
@@ -2944,7 +2869,7 @@
               "type": "capture",
               "name": "gaitFilmSprintFront",
               "status": "passed",
-              "ms": 131,
+              "ms": 132.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2963,7 +2888,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 36,
+              "ms": 34.1,
               "message": "",
               "timedOut": false
             },
@@ -2972,7 +2897,7 @@
               "type": "capture",
               "name": "gaitFilmStartSide",
               "status": "passed",
-              "ms": 130.4,
+              "ms": 133.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -2991,7 +2916,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 36,
+              "ms": 33.4,
               "message": "",
               "timedOut": false
             },
@@ -3000,7 +2925,7 @@
               "type": "capture",
               "name": "gaitFilmStartFront",
               "status": "passed",
-              "ms": 135.4,
+              "ms": 168.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3019,7 +2944,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 31.3,
+              "ms": 48.6,
               "message": "",
               "timedOut": false
             },
@@ -3028,7 +2953,7 @@
               "type": "capture",
               "name": "gaitFilmStopSide",
               "status": "passed",
-              "ms": 131.9,
+              "ms": 158.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3047,7 +2972,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34.8,
+              "ms": 24.2,
               "message": "",
               "timedOut": false
             },
@@ -3056,7 +2981,7 @@
               "type": "capture",
               "name": "gaitFilmStopFront",
               "status": "passed",
-              "ms": 175.9,
+              "ms": 156.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3075,7 +3000,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.2,
+              "ms": 27.4,
               "message": "",
               "timedOut": false
             },
@@ -3084,7 +3009,7 @@
               "type": "capture",
               "name": "gaitFilmDribbleSide",
               "status": "passed",
-              "ms": 144.2,
+              "ms": 142.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3103,7 +3028,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.8,
+              "ms": 23.6,
               "message": "",
               "timedOut": false
             },
@@ -3112,7 +3037,7 @@
               "type": "capture",
               "name": "gaitFilmDribbleFront",
               "status": "passed",
-              "ms": 143,
+              "ms": 140.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3131,7 +3056,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 44.3,
+              "ms": 43.8,
               "message": "",
               "timedOut": false
             },
@@ -3140,7 +3065,7 @@
               "type": "capture",
               "name": "gaitSprint1",
               "status": "passed",
-              "ms": 173.3,
+              "ms": 147.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3159,7 +3084,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.5,
+              "ms": 34.6,
               "message": "",
               "timedOut": false
             },
@@ -3168,7 +3093,7 @@
               "type": "capture",
               "name": "gaitSprint2",
               "status": "passed",
-              "ms": 135.1,
+              "ms": 148.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3187,7 +3112,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 31.5,
+              "ms": 34.7,
               "message": "",
               "timedOut": false
             },
@@ -3196,7 +3121,7 @@
               "type": "capture",
               "name": "gaitSprint3",
               "status": "passed",
-              "ms": 138.9,
+              "ms": 160.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3215,7 +3140,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 27.8,
+              "ms": 39.4,
               "message": "",
               "timedOut": false
             },
@@ -3224,7 +3149,7 @@
               "type": "capture",
               "name": "gaitSprint4",
               "status": "passed",
-              "ms": 139.2,
+              "ms": 147.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3242,234 +3167,234 @@
           "captures": [
             {
               "step": "gaitFilmWalkSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmWalkSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmWalkSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmWalkSide/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmWalkFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmWalkFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmWalkFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmWalkFront/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmJogSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmJogSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmJogSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmJogSide/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmJogFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmJogFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmJogFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmJogFront/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmRunSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmRunSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmRunSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmRunSide/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmRunFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmRunFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmRunFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmRunFront/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmSprintSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmSprintSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmSprintSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmSprintSide/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmSprintFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmSprintFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmSprintFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmSprintFront/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStartSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmStartSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmStartSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStartSide/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStartFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmStartFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmStartFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStartFront/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStopSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmStopSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmStopSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStopSide/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStopFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmStopFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmStopFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStopFront/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmDribbleSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmDribbleSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmDribbleSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmDribbleSide/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmDribbleFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmDribbleFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitFilmDribbleFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmDribbleFront/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint1",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitSprint1.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitSprint1.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint1/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint2",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitSprint2.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitSprint2.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint2/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint3",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitSprint3.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitSprint3.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint3/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint4",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitSprint4.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/low-igpu-1080p-light-ko/captures/gaitSprint4.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint4/low-igpu-1080p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "low-igpu-1080p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
@@ -3485,7 +3410,7 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "candidate"
+          "verdict": "pass"
         },
         {
           "key": "mac-m1-1600p-light-ko",
@@ -3496,8 +3421,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 9.4,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko",
+          "durationSec": 10.3,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -3507,11 +3432,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/055-gait-filmstrip.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko",
             "-farmSeed",
             "20261105",
             "-farmProfile",
@@ -3550,7 +3475,7 @@
               "type": "capture",
               "name": "gaitFilmWalkSide",
               "status": "passed",
-              "ms": 254.7,
+              "ms": 259.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3569,7 +3494,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 27.8,
+              "ms": 23.7,
               "message": "",
               "timedOut": false
             },
@@ -3578,7 +3503,7 @@
               "type": "capture",
               "name": "gaitFilmWalkFront",
               "status": "passed",
-              "ms": 240.1,
+              "ms": 285.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3597,7 +3522,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 26.6,
+              "ms": 31.3,
               "message": "",
               "timedOut": false
             },
@@ -3606,7 +3531,7 @@
               "type": "capture",
               "name": "gaitFilmJogSide",
               "status": "passed",
-              "ms": 245.7,
+              "ms": 265.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3625,7 +3550,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 20.8,
+              "ms": 33.9,
               "message": "",
               "timedOut": false
             },
@@ -3634,7 +3559,7 @@
               "type": "capture",
               "name": "gaitFilmJogFront",
               "status": "passed",
-              "ms": 228.1,
+              "ms": 249.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3653,7 +3578,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.4,
+              "ms": 34.3,
               "message": "",
               "timedOut": false
             },
@@ -3662,7 +3587,7 @@
               "type": "capture",
               "name": "gaitFilmRunSide",
               "status": "passed",
-              "ms": 241.5,
+              "ms": 254.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3681,7 +3606,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.5,
+              "ms": 29,
               "message": "",
               "timedOut": false
             },
@@ -3690,7 +3615,7 @@
               "type": "capture",
               "name": "gaitFilmRunFront",
               "status": "passed",
-              "ms": 226.5,
+              "ms": 253,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3709,7 +3634,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.6,
+              "ms": 30,
               "message": "",
               "timedOut": false
             },
@@ -3718,7 +3643,7 @@
               "type": "capture",
               "name": "gaitFilmSprintSide",
               "status": "passed",
-              "ms": 222.8,
+              "ms": 237.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3737,7 +3662,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 27.1,
+              "ms": 29.2,
               "message": "",
               "timedOut": false
             },
@@ -3746,7 +3671,7 @@
               "type": "capture",
               "name": "gaitFilmSprintFront",
               "status": "passed",
-              "ms": 238.9,
+              "ms": 257.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3765,7 +3690,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 27.7,
+              "ms": 25.7,
               "message": "",
               "timedOut": false
             },
@@ -3774,7 +3699,7 @@
               "type": "capture",
               "name": "gaitFilmStartSide",
               "status": "passed",
-              "ms": 232.2,
+              "ms": 233.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3793,7 +3718,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34.4,
+              "ms": 33.3,
               "message": "",
               "timedOut": false
             },
@@ -3802,7 +3727,7 @@
               "type": "capture",
               "name": "gaitFilmStartFront",
               "status": "passed",
-              "ms": 243.5,
+              "ms": 228.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3821,7 +3746,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.1,
+              "ms": 22,
               "message": "",
               "timedOut": false
             },
@@ -3830,7 +3755,7 @@
               "type": "capture",
               "name": "gaitFilmStopSide",
               "status": "passed",
-              "ms": 226.9,
+              "ms": 241.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3849,7 +3774,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.9,
+              "ms": 24.9,
               "message": "",
               "timedOut": false
             },
@@ -3858,7 +3783,7 @@
               "type": "capture",
               "name": "gaitFilmStopFront",
               "status": "passed",
-              "ms": 222.7,
+              "ms": 260.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3877,7 +3802,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 27.2,
+              "ms": 22.1,
               "message": "",
               "timedOut": false
             },
@@ -3886,7 +3811,7 @@
               "type": "capture",
               "name": "gaitFilmDribbleSide",
               "status": "passed",
-              "ms": 246.5,
+              "ms": 238.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3905,7 +3830,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 36.6,
+              "ms": 28.3,
               "message": "",
               "timedOut": false
             },
@@ -3914,7 +3839,7 @@
               "type": "capture",
               "name": "gaitFilmDribbleFront",
               "status": "passed",
-              "ms": 218.4,
+              "ms": 254.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3933,7 +3858,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 32.2,
+              "ms": 46.1,
               "message": "",
               "timedOut": false
             },
@@ -3942,7 +3867,7 @@
               "type": "capture",
               "name": "gaitSprint1",
               "status": "passed",
-              "ms": 254.6,
+              "ms": 264.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3961,7 +3886,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 27.4,
+              "ms": 34.5,
               "message": "",
               "timedOut": false
             },
@@ -3970,7 +3895,7 @@
               "type": "capture",
               "name": "gaitSprint2",
               "status": "passed",
-              "ms": 254.1,
+              "ms": 272.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -3989,7 +3914,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 29.7,
+              "ms": 27.1,
               "message": "",
               "timedOut": false
             },
@@ -3998,7 +3923,7 @@
               "type": "capture",
               "name": "gaitSprint3",
               "status": "passed",
-              "ms": 254.9,
+              "ms": 267.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4017,7 +3942,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 28.3,
+              "ms": 32,
               "message": "",
               "timedOut": false
             },
@@ -4026,7 +3951,7 @@
               "type": "capture",
               "name": "gaitSprint4",
               "status": "passed",
-              "ms": 237.6,
+              "ms": 267.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4044,234 +3969,234 @@
           "captures": [
             {
               "step": "gaitFilmWalkSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmWalkSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmWalkSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmWalkSide/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmWalkFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmWalkFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmWalkFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmWalkFront/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmJogSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmJogSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmJogSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmJogSide/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmJogFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmJogFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmJogFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmJogFront/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmRunSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmRunSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmRunSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmRunSide/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmRunFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmRunFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmRunFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmRunFront/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmSprintSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmSprintSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmSprintSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmSprintSide/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmSprintFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmSprintFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmSprintFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmSprintFront/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStartSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmStartSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmStartSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStartSide/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStartFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmStartFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmStartFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStartFront/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStopSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmStopSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmStopSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStopSide/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStopFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmStopFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmStopFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStopFront/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmDribbleSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmDribbleSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmDribbleSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmDribbleSide/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmDribbleFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmDribbleFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitFilmDribbleFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmDribbleFront/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint1",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitSprint1.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitSprint1.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint1/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint2",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitSprint2.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitSprint2.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint2/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint3",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitSprint3.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitSprint3.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint3/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint4",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitSprint4.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/mac-m1-1600p-light-ko/captures/gaitSprint4.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint4/mac-m1-1600p-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
@@ -4287,7 +4212,7 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "candidate"
+          "verdict": "pass"
         },
         {
           "key": "compact-1366-light-ko",
@@ -4298,8 +4223,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 7.3,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko",
+          "durationSec": 6.9,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -4309,11 +4234,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/055-gait-filmstrip.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko",
             "-farmSeed",
             "20261105",
             "-farmProfile",
@@ -4343,7 +4268,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.3,
+              "ms": 33.7,
               "message": "",
               "timedOut": false
             },
@@ -4352,7 +4277,7 @@
               "type": "capture",
               "name": "gaitFilmWalkSide",
               "status": "passed",
-              "ms": 78.6,
+              "ms": 80.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4371,7 +4296,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 21.1,
+              "ms": 35.7,
               "message": "",
               "timedOut": false
             },
@@ -4380,7 +4305,7 @@
               "type": "capture",
               "name": "gaitFilmWalkFront",
               "status": "passed",
-              "ms": 73.7,
+              "ms": 80.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4399,7 +4324,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.9,
+              "ms": 36.3,
               "message": "",
               "timedOut": false
             },
@@ -4408,7 +4333,7 @@
               "type": "capture",
               "name": "gaitFilmJogSide",
               "status": "passed",
-              "ms": 76.6,
+              "ms": 78.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4427,7 +4352,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.5,
+              "ms": 21.5,
               "message": "",
               "timedOut": false
             },
@@ -4436,7 +4361,7 @@
               "type": "capture",
               "name": "gaitFilmJogFront",
               "status": "passed",
-              "ms": 73.4,
+              "ms": 76.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4455,7 +4380,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 26.6,
+              "ms": 23.1,
               "message": "",
               "timedOut": false
             },
@@ -4464,7 +4389,7 @@
               "type": "capture",
               "name": "gaitFilmRunSide",
               "status": "passed",
-              "ms": 75.7,
+              "ms": 79.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4483,7 +4408,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.8,
+              "ms": 21.5,
               "message": "",
               "timedOut": false
             },
@@ -4492,7 +4417,7 @@
               "type": "capture",
               "name": "gaitFilmRunFront",
               "status": "passed",
-              "ms": 73.9,
+              "ms": 76.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4511,7 +4436,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 26.5,
+              "ms": 23.8,
               "message": "",
               "timedOut": false
             },
@@ -4520,7 +4445,7 @@
               "type": "capture",
               "name": "gaitFilmSprintSide",
               "status": "passed",
-              "ms": 75.2,
+              "ms": 80.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4539,7 +4464,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 24.7,
+              "ms": 36.5,
               "message": "",
               "timedOut": false
             },
@@ -4548,7 +4473,7 @@
               "type": "capture",
               "name": "gaitFilmSprintFront",
               "status": "passed",
-              "ms": 80.9,
+              "ms": 76.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4567,7 +4492,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 35.7,
+              "ms": 23.2,
               "message": "",
               "timedOut": false
             },
@@ -4576,7 +4501,7 @@
               "type": "capture",
               "name": "gaitFilmStartSide",
               "status": "passed",
-              "ms": 75.3,
+              "ms": 79.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4595,7 +4520,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 24.6,
+              "ms": 20.9,
               "message": "",
               "timedOut": false
             },
@@ -4604,7 +4529,7 @@
               "type": "capture",
               "name": "gaitFilmStartFront",
               "status": "passed",
-              "ms": 72.9,
+              "ms": 77.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4623,7 +4548,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 27,
+              "ms": 22.7,
               "message": "",
               "timedOut": false
             },
@@ -4632,7 +4557,7 @@
               "type": "capture",
               "name": "gaitFilmStopSide",
               "status": "passed",
-              "ms": 75.8,
+              "ms": 78.1,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4651,7 +4576,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 23.6,
+              "ms": 21.7,
               "message": "",
               "timedOut": false
             },
@@ -4660,7 +4585,7 @@
               "type": "capture",
               "name": "gaitFilmStopFront",
               "status": "passed",
-              "ms": 74.4,
+              "ms": 80,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4679,7 +4604,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.3,
+              "ms": 36.5,
               "message": "",
               "timedOut": false
             },
@@ -4688,7 +4613,7 @@
               "type": "capture",
               "name": "gaitFilmDribbleSide",
               "status": "passed",
-              "ms": 74.7,
+              "ms": 77.6,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4707,7 +4632,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 25.5,
+              "ms": 22.1,
               "message": "",
               "timedOut": false
             },
@@ -4716,7 +4641,7 @@
               "type": "capture",
               "name": "gaitFilmDribbleFront",
               "status": "passed",
-              "ms": 72.9,
+              "ms": 77.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4735,7 +4660,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 27.7,
+              "ms": 40.1,
               "message": "",
               "timedOut": false
             },
@@ -4744,7 +4669,7 @@
               "type": "capture",
               "name": "gaitSprint1",
               "status": "passed",
-              "ms": 78.1,
+              "ms": 82.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4763,7 +4688,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 37.8,
+              "ms": 33.2,
               "message": "",
               "timedOut": false
             },
@@ -4772,7 +4697,7 @@
               "type": "capture",
               "name": "gaitSprint2",
               "status": "passed",
-              "ms": 78.7,
+              "ms": 84.2,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4791,7 +4716,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 37.9,
+              "ms": 32.4,
               "message": "",
               "timedOut": false
             },
@@ -4800,7 +4725,7 @@
               "type": "capture",
               "name": "gaitSprint3",
               "status": "passed",
-              "ms": 79,
+              "ms": 80.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4819,7 +4744,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 37.6,
+              "ms": 35.8,
               "message": "",
               "timedOut": false
             },
@@ -4828,7 +4753,7 @@
               "type": "capture",
               "name": "gaitSprint4",
               "status": "passed",
-              "ms": 79.5,
+              "ms": 85.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -4846,234 +4771,234 @@
           "captures": [
             {
               "step": "gaitFilmWalkSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmWalkSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmWalkSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmWalkSide/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmWalkFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmWalkFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmWalkFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmWalkFront/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmJogSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmJogSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmJogSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmJogSide/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmJogFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmJogFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmJogFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmJogFront/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmRunSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmRunSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmRunSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmRunSide/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmRunFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmRunFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmRunFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmRunFront/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmSprintSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmSprintSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmSprintSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmSprintSide/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmSprintFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmSprintFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmSprintFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmSprintFront/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStartSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmStartSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmStartSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStartSide/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStartFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmStartFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmStartFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStartFront/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStopSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmStopSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmStopSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStopSide/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmStopFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmStopFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmStopFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmStopFront/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmDribbleSide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmDribbleSide.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmDribbleSide.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmDribbleSide/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitFilmDribbleFront",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmDribbleFront.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitFilmDribbleFront.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitFilmDribbleFront/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint1",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitSprint1.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitSprint1.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint1/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint2",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitSprint2.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitSprint2.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint2/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint3",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitSprint3.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitSprint3.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint3/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
             },
             {
               "step": "gaitSprint4",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161042-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitSprint4.png",
-              "baseline": null,
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261105-161552-full/055-gait-filmstrip/compact-1366-light-ko/captures/gaitSprint4.png",
+              "baseline": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/baselines/055-gait-filmstrip/gaitSprint4/compact-1366-light-ko.png",
               "diff": null,
               "scenario": "055-gait-filmstrip",
               "combo": "compact-1366-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
+              "status": "pass",
+              "reason": "",
               "diffPixels": 0,
               "diffRatio": 0.0,
               "bbox": null
@@ -5089,11 +5014,11 @@
             "ignored": []
           },
           "checkpoints": [],
-          "verdict": "candidate"
+          "verdict": "pass"
         }
       ],
       "determinism": null,
-      "verdict": "candidate"
+      "verdict": "pass"
     }
   ],
   "acEvidence": {
@@ -5107,25 +5032,25 @@
         "ok": true
       },
       {
-        "label": "043-contact-closeup (full) fail",
-        "ok": false
+        "label": "043-contact-closeup (full) pass",
+        "ok": true
       },
       {
-        "label": "043-speed-motion (full) fail",
-        "ok": false
+        "label": "043-speed-motion (full) pass",
+        "ok": true
       }
     ],
     "AC-11": [
       {
-        "label": "043-contact-closeup (full) fail",
-        "ok": false
+        "label": "043-contact-closeup (full) pass",
+        "ok": true
       },
       {
-        "label": "043-speed-motion (full) fail",
-        "ok": false
+        "label": "043-speed-motion (full) pass",
+        "ok": true
       },
       {
-        "label": "055-gait-filmstrip (full) candidate",
+        "label": "055-gait-filmstrip (full) pass",
         "ok": true
       }
     ],
@@ -5137,8 +5062,8 @@
     ],
     "AC-12": [
       {
-        "label": "수동 승인 기록 evidence/approval.md (없음 또는 AC 미기재)",
-        "ok": false
+        "label": "수동 승인 기록 evidence/approval.md",
+        "ok": true
       }
     ],
     "AC-01": [
@@ -5271,5 +5196,5 @@
   },
   "deferred": {},
   "requireAllAcs": true,
-  "verdict": "fail"
+  "verdict": "pass"
 }
