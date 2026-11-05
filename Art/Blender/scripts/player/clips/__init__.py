@@ -2,5 +2,5 @@
 
 
 def all_clips():
-    from . import actions, gait, reactions
-    return gait.clips() + actions.clips() + reactions.clips()
+    from . import actions, football, gait, reactions, styles
+    return gait.clips() + football.clips() + styles.clips() + actions.clips() + reactions.clips()

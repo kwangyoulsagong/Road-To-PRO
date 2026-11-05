@@ -6,6 +6,7 @@
   player.glb            Player_LOD0..2·Hair_<스타일>_LOD0..2·Head_Closeup(스킨·셰이프키) + PlayerRig + 클립(NLA 트랙)
   player.face.json      얼굴 축·수염·랜드마크 (specs/056 FR-22, Unity FaceGenerator·FaceLandmarks)
   player.clips.json     클립 태그 (FR-32)
+  player.gait-metrics.json / player.gait-reference.json  055 형태 지표·연구 기준 스틱 피겨 (FR-70·71)
   player.layout.json    뼈대·UV 영역·번호/이름 영역·검사 요약
   Textures/*.png        키트 마스크 6종·원단 노말·몸(얼굴 8종·피부·머리카락)
   player.preview-lineup.png, player.preview-heads.png, player.preview-poses.png  (--no-preview면 없음)
@@ -114,6 +115,19 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     export.write_glb(os.path.join(stem_dir, "player.glb"))
     export.write_json(os.path.join(stem_dir, "player.clips.json"), {"schemaVersion": 1, "fps": 30, "clips": tags})
     export.write_json(os.path.join(stem_dir, "player.face.json"), face_json)
+    # 055 FR-70·71: 형태 지표(클립 → 지표)와 연구 기준 스틱 피겨
+    from player import gait_metrics as GM
+    from player.clips import reference as REF
+    gm = {"schemaVersion": 1, "spec": "specs/055-running-form FR-70", "clips": {}, "kicks": {}}
+    for c in clips:
+        if c.group == "locomotion" and c.loop and c.tags.get("gait") not in (None, "idle"):
+            gm["clips"][c.id] = GM.round_floats(GM.locomotion(c))
+        elif c.tags.get("football") in ("start", "stop"):
+            gm["clips"][c.id] = GM.round_floats(GM.football(c))
+        elif c.tags.get("contact") and c.tags["contact"]["part"] in ("RightFoot", "LeftFoot") and c.tags.get("kind"):
+            gm["kicks"][c.id] = GM.round_floats(GM.kick(c))
+    export.write_json(os.path.join(stem_dir, "player.gait-metrics.json"), gm)
+    export.write_json(os.path.join(stem_dir, "player.gait-reference.json"), REF.build())
     layout = {
         "schemaVersion": 2,
         "generator": {"blender": blender, "script": "gen_player.py", "command": command, "seed": seed,
@@ -139,6 +153,9 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         ids = [i for i in PV.POSE_IDS if i in {t["id"] for t in tags}]
         if ids:
             PV.poses(rig_obj, objs[min(objs)], tags, ids, os.path.join(stem_dir, "player.preview-poses.png"), stem_dir)
+        film = [i for i in PV.FILM_IDS if i in {t["id"] for t in tags}]
+        if film:
+            PV.filmstrip(rig_obj, objs[min(objs)], tags, film, os.path.join(stem_dir, "player.preview-film.png"), stem_dir)
     failed = [k for k, v in summary.items() if not v.get("ok")]
     tris = {l: summary["budgets"]["lods"][str(l)]["triangles"] for l in lods}
     print(f"[player] triangles {tris}, clips {len(tags)}, textures {len(tex)}, parts {len(parts)}")

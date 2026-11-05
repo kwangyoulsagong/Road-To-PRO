@@ -127,6 +127,8 @@ namespace RoadToPro.Presentation.Players.Logic
         readonly HighlightData _d;
         readonly float[] _speed, _dir, _phase;     // [frame * E + e]
         readonly ActionTimeline[] _tl;
+        readonly LocoStyle[] _style;            // 엔티티별 정면 원형 로코모션 (055)
+        readonly KickArchetype[] _kick;         // 엔티티별 킥 원형 (055)
         readonly List<(float contactAt, Vec3 pull)> _ballPulls = new List<(float, Vec3)>();
 
         public ClipLibrary Library => _lib;
@@ -143,11 +145,22 @@ namespace RoadToPro.Presentation.Players.Logic
             _phase = new float[n];
             _tl = new ActionTimeline[HighlightData.Entities];
             for (int e = 0; e < _tl.Length; e++) _tl[e] = new ActionTimeline();
+            _style = new LocoStyle[HighlightData.Entities];
+            _kick = new KickArchetype[HighlightData.Entities];
         }
 
-        public static AnimPlan Build(ClipLibrary lib, AnimationMap map, HighlightData d, ILogger log)
+        public static AnimPlan Build(ClipLibrary lib, AnimationMap map, HighlightData d, ILogger log) => Build(lib, map, d, log, null);
+
+        /// <summary>styles[e] = 엔티티 e의 달리기·킥 원형 (055 FR-51). null이거나 None이면 공유 클립·원형 점수 없음.</summary>
+        public static AnimPlan Build(ClipLibrary lib, AnimationMap map, HighlightData d, ILogger log, RunStyleChoice[] styles)
         {
             var p = new AnimPlan(lib, d);
+            if (styles != null)
+                for (int e = 0; e < HighlightData.Entities && e < styles.Length; e++)
+                {
+                    p._style[e] = lib.Style(styles[e]);
+                    p._kick[e] = styles[e].Kick;
+                }
             p.BuildLocomotion(log);
             p.BuildActions(map, log);
             return p;
@@ -183,7 +196,7 @@ namespace RoadToPro.Presentation.Players.Logic
                     _speed[i] = v;
                     _dir[i] = dir;
                     _phase[i] = phase;
-                    phase += LocomotionBlend.PhaseRate(_lib, v, dir) * dt;
+                    phase += LocomotionBlend.PhaseRate(_lib, v, dir, _style[e]) * dt;
                     phase -= (float)Math.Floor(phase);
                 }
             }
@@ -230,7 +243,7 @@ namespace RoadToPro.Presentation.Players.Logic
                     float now = tl.EarliestStart(Math.Max(_d.StartTime, ev.Time - Lookahead), false);
                     float contact = Math.Max(t, now);
                     var q = new ActionRequest(now, contact, _d.Pos(e, contact), _d.YawAt(e, contact), ev.BallPos, ev.BallVelOut,
-                        SpeedAt(e, contact - 0.3f), ev.Part);
+                        SpeedAt(e, contact - 0.3f), ev.Part, _kick[e]);
                     choice = ActionClipSelector.Select(_lib, cands, q);
                     if (_lib.Get(choice.Clip).HasContact)
                     {
@@ -300,7 +313,7 @@ namespace RoadToPro.Presentation.Players.Logic
                 float dp = ph1 - ph0;
                 if (dp < 0) dp += 1f;
                 float ph = ph0 + dp * a;
-                var ls = LocomotionBlend.Evaluate(_lib, v, dir, ph, t);
+                var ls = LocomotionBlend.Evaluate(_lib, v, dir, ph, t, _style[e]);
                 for (int i = 0; i < ls.Count; i++) s.Add(ls.Clip(i), ls.Time(i), ls.Weight(i) * locoW);
             }
             s.Normalize();

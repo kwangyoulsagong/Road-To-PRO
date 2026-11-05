@@ -90,6 +90,29 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             }
         }
 
+        /// <summary>055 FR-61·AC-09: 같은 상황 후보 안에서 선수 킥 원형과 같은 원형 클립을 고른다. 원형 없음이면 043 선택과 같다.</summary>
+        [Test]
+        public void KickStyle_PrefersMatchingClip()
+        {
+            var lib = AnimTestKit.Lib;
+            var cands = AnimTestKit.Map.Candidates(SimEventKind.Shot);
+            int styled = 0;
+            foreach (int ci in cands)
+            {
+                var c = lib.Get(ci);
+                if (c.KickStyle == KickArchetype.None || !c.HasContact) continue;
+                styled++;
+                // 그 클립이 기대하는 공 위치·접촉 부위로 요청 → 원형이 같으면 그 클립 (다른 원형 클립이 기하로 더 가까워도)
+                var q = new ActionRequest(0f, 2f, Vec3.Zero, 0f, c.ContactPoint, new Vec3(0, 0, 20f), 4f, c.ContactPart, c.KickStyle);
+                Assert.AreEqual(c.Id, lib.Get(ActionClipSelector.Select(lib, cands, q).Clip).Id, c.Id);
+            }
+            Assert.GreaterOrEqual(styled, 3, "슈팅 후보에 원형 클립 K1·K2·K3 이상");
+            // 원형 없음: 043 점수 그대로
+            lib.TryGet("shot_instep_r", out var ins);
+            var q0 = new ActionRequest(0f, 2f, Vec3.Zero, 0f, ins.ContactPoint, new Vec3(0, 0, 20f), 4f, BodyPart.RightFoot);
+            Assert.AreEqual("shot_instep_r", lib.Get(ActionClipSelector.Select(lib, cands, q0).Clip).Id);
+        }
+
         [Test]
         public void Deterministic()
         {

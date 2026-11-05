@@ -28,6 +28,33 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             }
         }
 
+        /// <summary>055 AC-08·14: 원형을 받은 선수의 정면 질주는 원형 클립을 쓰고, 같은 장면 2회 → 원형·클립 시퀀스 동일.</summary>
+        [Test, Category("Determinism")]
+        public void SameScene_StyleAndClipSequence_Same()
+        {
+            var d = SyntheticScenes.Run(8.8f, 0.2f, 0f, 0f);
+            var styles = new RunStyleChoice[HighlightData.Entities];
+            styles[0] = new RunStyleChoice(RunArchetype.R1, KickArchetype.K3, 0.4f);
+            ulong Hash(out bool usedStyle)
+            {
+                var plan = AnimPlan.Build(AnimTestKit.Lib, AnimTestKit.Map, d, NullLogger.Instance, styles);
+                var h = RoadToPro.Core.Hashing.StableHasher.Create();
+                var s = new PoseSample();
+                usedStyle = false;
+                for (int k = 0; k < (int)(SyntheticScenes.Length * 60); k++)
+                {
+                    plan.Evaluate(0, SyntheticScenes.Start + k / 60f, ref s);
+                    h.Add(s.Hash());
+                    for (int i = 0; i < s.Count; i++)
+                        if (plan.Library.Get(s.Clip(i)).Style == "r1") usedStyle = true;
+                }
+                return h.Value;
+            }
+            ulong a = Hash(out bool used), b = Hash(out _);
+            Assert.AreEqual(a, b);
+            Assert.IsTrue(used, "R1 선수 정면 질주에 원형 클립");
+        }
+
         [Test]
         public void Weights_SumToOne_AllEntities()
         {

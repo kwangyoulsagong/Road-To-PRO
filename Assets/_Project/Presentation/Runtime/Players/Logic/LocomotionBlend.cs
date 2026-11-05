@@ -42,9 +42,12 @@ namespace RoadToPro.Presentation.Players.Logic
     }
 
     /// <summary>
-    /// 속도·방향 → 로코모션 클립 가중치 (specs/043 FR-41·62). Blend Tree와 같은 역할(2D: 속도 × 8방향).
+    /// 속도·방향 → 로코모션 클립 가중치 (specs/043 FR-41·62, specs/055 FR-01·50~52). Blend Tree와 같은 역할(2D: 속도 × 8방향).
     /// 모든 로코모션 클립은 정규화 위상 φ(0~1)를 공유한다. 위상 속도 = 속도 / 블렌드 보폭(한 주기 이동 거리) → 접지 발이 시뮬 속도와 맞는다.
     /// 방향은 선수 정면 기준 각(°, 0 정면, 90 오른쪽).
+    /// 055: 보법 단계 walk·jog·run·sprint. run 클립은 정면에만 있다 — 없는 방향의 run 단계는 같은 방향 jog·sprint를 정면과 같은 비율(RunMix)로
+    /// 섞은 가상 단계다. 선수 원형(LocoStyle)이 있으면 정면 run은 원형 run, 정면 sprint는 원형 극단 lo·hi를 Jitter로 섞는다.
+    /// 슬롯: 방향 2 × 단계 2 × (가상·극단 2) 이지만 같은 클립은 합쳐져 최대 5 (LocoSample.Capacity).
     /// </summary>
     public static class LocomotionBlend
     {
@@ -53,7 +56,23 @@ namespace RoadToPro.Presentation.Players.Logic
         /// <summary>이보다 큰 속도 점프는 시뮬 오류로 진단 로그 (FR-62).</summary>
         public const float SimErrorAccel = 25f;
 
-        static readonly Gait[] Levels = { Gait.Walk, Gait.Jog, Gait.Sprint };
+        static readonly Gait[] Levels = { Gait.Walk, Gait.Jog, Gait.Run, Gait.Sprint };
+
+        /// <summary>한 방향·한 단계의 클립 1~2개(같은 위상 공유) + 단계 속도·보폭.</summary>
+        readonly struct Level
+        {
+            public readonly int C0, C1;
+            public readonly float W1, Speed, Stride;
+
+            public Level(int c0, int c1, float w1, float speed, float stride)
+            {
+                C0 = c0;
+                C1 = c1;
+                W1 = w1;
+                Speed = speed;
+                Stride = stride;
+            }
+        }
 
         static void Dirs(float dirDeg, out int i0, out int i1, out float f)
         {
@@ -65,18 +84,63 @@ namespace RoadToPro.Presentation.Players.Logic
             if (f > 1) f = 1;
         }
 
-        static float SpeedOf(ClipLibrary lib, Gait g, int dir) => lib.Get(lib.Locomotion(g, dir)).Speed;
-
-        public static float GaitSpeed(ClipLibrary lib, Gait g, float dirDeg)
+        static Level Single(ClipLibrary lib, int c)
         {
-            Dirs(dirDeg, out var i0, out var i1, out var f);
-            return SpeedOf(lib, g, i0) * (1 - f) + SpeedOf(lib, g, i1) * f;
+            var ci = lib.Get(c);
+            return new Level(c, -1, 0f, ci.Speed, ci.Speed * ci.Length);
         }
 
-        /// <summary>속도 → (보법 a, 보법 b, b 비율). a = −1이면 idle↔걷기. 기준 속도는 방향 보간값(두 방향 클립에 같은 보법 가중치 = 2D Blend Tree).</summary>
-        static void GaitPair(ClipLibrary lib, float dirDeg, float v, out int a, out int b, out float t)
+        static Level Mix(ClipLibrary lib, int a, int b, float w)
         {
-            float vw = GaitSpeed(lib, Gait.Walk, dirDeg);
+            if (a == b || w <= 0f) return Single(lib, a);
+            var ca = lib.Get(a);
+            var cb = lib.Get(b);
+            return new Level(a, b, w, ca.Speed + (cb.Speed - ca.Speed) * w,
+                ca.Speed * ca.Length + (cb.Speed * cb.Length - ca.Speed * ca.Length) * w);
+        }
+
+        /// <summary>run 클립이 없는 방향의 run 단계 비율 = 정면 (run − jog) / (sprint − jog) 속도 비 (공유 클립 기준).</summary>
+        static float RunMix(ClipLibrary lib)
+        {
+            float vj = lib.Get(lib.Locomotion(Gait.Jog, 0)).Speed;
+            float vr = lib.Get(lib.Locomotion(Gait.Run, 0)).Speed;
+            float vs = lib.Get(lib.Locomotion(Gait.Sprint, 0)).Speed;
+            return vs > vj ? (vr - vj) / (vs - vj) : 0.5f;
+        }
+
+        static Level LevelAt(ClipLibrary lib, int level, int dir, in LocoStyle st)
+        {
+            var g = Levels[level];
+            if (g == Gait.Run)
+            {
+                if (dir == 0 && st.Valid) return Single(lib, st.Run);
+                int r = lib.Locomotion(Gait.Run, dir);
+                if (r >= 0) return Single(lib, r);
+                return Mix(lib, lib.Locomotion(Gait.Jog, dir), lib.Locomotion(Gait.Sprint, dir), RunMix(lib));
+            }
+            if (g == Gait.Sprint && dir == 0 && st.Valid) return Mix(lib, st.SprintLo, st.SprintHi, st.Jitter);
+            return Single(lib, lib.Locomotion(g, dir));
+        }
+
+        static float LevelSpeed(ClipLibrary lib, int level, float dirDeg, in LocoStyle st)
+        {
+            Dirs(dirDeg, out var i0, out var i1, out var f);
+            return LevelAt(lib, level, i0, st).Speed * (1 - f) + LevelAt(lib, level, i1, st).Speed * f;
+        }
+
+        public static float GaitSpeed(ClipLibrary lib, Gait g, float dirDeg) => GaitSpeed(lib, g, dirDeg, default);
+
+        public static float GaitSpeed(ClipLibrary lib, Gait g, float dirDeg, in LocoStyle st)
+        {
+            for (int i = 0; i < Levels.Length; i++)
+                if (Levels[i] == g) return LevelSpeed(lib, i, dirDeg, st);
+            return 0f;
+        }
+
+        /// <summary>속도 → (단계 a, 단계 b, b 비율). a = −1이면 idle↔걷기. 기준 속도는 방향 보간값(두 방향 클립에 같은 단계 가중치 = 2D Blend Tree).</summary>
+        static void GaitPair(ClipLibrary lib, float dirDeg, float v, in LocoStyle st, out int a, out int b, out float t)
+        {
+            float vw = LevelSpeed(lib, 0, dirDeg, st);
             if (v <= vw)
             {
                 a = -1;
@@ -84,82 +148,92 @@ namespace RoadToPro.Presentation.Players.Logic
                 t = vw > 0 ? Math.Max(0f, v) / vw : 0f;
                 return;
             }
+            float v0 = vw;
             for (int i = 0; i < Levels.Length - 1; i++)
             {
-                float v0 = GaitSpeed(lib, Levels[i], dirDeg), v1 = GaitSpeed(lib, Levels[i + 1], dirDeg);
+                float v1 = LevelSpeed(lib, i + 1, dirDeg, st);
                 if (v <= v1)
                 {
                     a = i;
                     b = i + 1;
-                    t = (v - v0) / (v1 - v0);
+                    t = v1 > v0 ? (v - v0) / (v1 - v0) : 1f;
                     return;
                 }
+                v0 = v1;
             }
             a = Levels.Length - 1;
             b = a;
             t = 0;
         }
 
-        /// <summary>블렌드 보폭(m/주기)과 이동 가중치 합.</summary>
-        static float Stride(ClipLibrary lib, float v, float dirDeg)
+        /// <summary>블렌드 보폭(m/주기) — Evaluate와 같은 가중치 규칙.</summary>
+        static float Stride(ClipLibrary lib, float v, float dirDeg, in LocoStyle st)
         {
             Dirs(dirDeg, out var i0, out var i1, out var f);
+            GaitPair(lib, dirDeg, v, st, out var a, out var b, out var t);
             float s = 0, w = 0;
             for (int k = 0; k < 2; k++)
             {
                 int dir = k == 0 ? i0 : i1;
                 float wd = k == 0 ? 1 - f : f;
                 if (wd <= 0) continue;
-                GaitPair(lib, dirDeg, v, out var a, out var b, out var t);
                 if (a >= 0)
                 {
-                    var ca = lib.Get(lib.Locomotion(Levels[a], dir));
-                    s += wd * (1 - t) * ca.Speed * ca.Length;
+                    s += wd * (1 - t) * LevelAt(lib, a, dir, st).Stride;
                     w += wd * (1 - t);
                 }
-                var cb = lib.Get(lib.Locomotion(Levels[b], dir));
                 float wb = a >= 0 ? t : 1f; // idle↔walk 구간에서는 걷기 보폭으로 위상을 진행
-                s += wd * wb * cb.Speed * cb.Length;
+                s += wd * wb * LevelAt(lib, b, dir, st).Stride;
                 w += wd * wb;
             }
             return w > 0 ? s / w : 0f;
         }
 
         /// <summary>위상 속도(주기/초).</summary>
-        public static float PhaseRate(ClipLibrary lib, float speed, float dirDeg)
+        public static float PhaseRate(ClipLibrary lib, float speed, float dirDeg) => PhaseRate(lib, speed, dirDeg, default);
+
+        public static float PhaseRate(ClipLibrary lib, float speed, float dirDeg, in LocoStyle st)
         {
             if (speed <= 1e-4f) return 0f;
-            float L = Stride(lib, speed, dirDeg);
+            float L = Stride(lib, speed, dirDeg, st);
             return L > 0 ? speed / L : 0f;
         }
 
-        public static LocoSample Evaluate(ClipLibrary lib, float speed, float dirDeg, float phase, float idleTime = 0f)
+        public static LocoSample Evaluate(ClipLibrary lib, float speed, float dirDeg, float phase, float idleTime = 0f) =>
+            Evaluate(lib, speed, dirDeg, phase, idleTime, default);
+
+        static void AddLevel(ref LocoSample s, ClipLibrary lib, in Level l, float w, float phase)
+        {
+            var c0 = lib.Get(l.C0);
+            s.Add(l.C0, w * (1 - l.W1), phase * c0.Length);
+            if (l.C1 >= 0)
+            {
+                var c1 = lib.Get(l.C1);
+                s.Add(l.C1, w * l.W1, phase * c1.Length);
+            }
+        }
+
+        public static LocoSample Evaluate(ClipLibrary lib, float speed, float dirDeg, float phase, float idleTime, in LocoStyle st)
         {
             var s = new LocoSample();
             phase -= (float)Math.Floor(phase);
             Dirs(dirDeg, out var i0, out var i1, out var f);
+            GaitPair(lib, dirDeg, speed, st, out var a, out var b, out var t);
             for (int k = 0; k < 2; k++)
             {
                 int dir = k == 0 ? i0 : i1;
                 float wd = k == 0 ? 1 - f : f;
                 if (wd <= 0) continue;
-                GaitPair(lib, dirDeg, speed, out var a, out var b, out var t);
                 if (a < 0)
                 {
                     var idle = lib.Get(lib.IdleIndex);
                     float it = idleTime - (float)Math.Floor(idleTime / idle.Length) * idle.Length;
                     s.Add(lib.IdleIndex, wd * (1 - t), it);
-                    var w = lib.Get(lib.Locomotion(Gait.Walk, dir));
-                    s.Add(w.Index, wd * t, phase * w.Length);
+                    AddLevel(ref s, lib, LevelAt(lib, 0, dir, st), wd * t, phase);
                     continue;
                 }
-                var ca = lib.Get(lib.Locomotion(Levels[a], dir));
-                s.Add(ca.Index, wd * (1 - t), phase * ca.Length);
-                if (b != a)
-                {
-                    var cb = lib.Get(lib.Locomotion(Levels[b], dir));
-                    s.Add(cb.Index, wd * t, phase * cb.Length);
-                }
+                AddLevel(ref s, lib, LevelAt(lib, a, dir, st), wd * (1 - t), phase);
+                if (b != a) AddLevel(ref s, lib, LevelAt(lib, b, dir, st), wd * t, phase);
             }
             return s;
         }

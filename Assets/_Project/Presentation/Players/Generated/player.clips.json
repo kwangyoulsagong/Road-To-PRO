@@ -41,9 +41,9 @@
    }
   },
   {
-   "cycle": 30,
+   "cycle": 32,
    "dir": 0,
-   "frames": 30,
+   "frames": 32,
    "gait": "walk",
    "group": "locomotion",
    "id": "walk_f",
@@ -61,9 +61,9 @@
    }
   },
   {
-   "cycle": 30,
+   "cycle": 32,
    "dir": 45,
-   "frames": 30,
+   "frames": 32,
    "gait": "walk",
    "group": "locomotion",
    "id": "walk_fr",
@@ -81,9 +81,9 @@
    }
   },
   {
-   "cycle": 30,
+   "cycle": 32,
    "dir": 90,
-   "frames": 30,
+   "frames": 32,
    "gait": "walk",
    "group": "locomotion",
    "id": "walk_r",
@@ -101,9 +101,9 @@
    }
   },
   {
-   "cycle": 30,
+   "cycle": 32,
    "dir": 135,
-   "frames": 30,
+   "frames": 32,
    "gait": "walk",
    "group": "locomotion",
    "id": "walk_br",
@@ -121,9 +121,9 @@
    }
   },
   {
-   "cycle": 30,
+   "cycle": 32,
    "dir": 180,
-   "frames": 30,
+   "frames": 32,
    "gait": "walk",
    "group": "locomotion",
    "id": "walk_b",
@@ -141,9 +141,9 @@
    }
   },
   {
-   "cycle": 30,
+   "cycle": 32,
    "dir": 225,
-   "frames": 30,
+   "frames": 32,
    "gait": "walk",
    "group": "locomotion",
    "id": "walk_bl",
@@ -161,9 +161,9 @@
    }
   },
   {
-   "cycle": 30,
+   "cycle": 32,
    "dir": 270,
-   "frames": 30,
+   "frames": 32,
    "gait": "walk",
    "group": "locomotion",
    "id": "walk_l",
@@ -181,9 +181,9 @@
    }
   },
   {
-   "cycle": 30,
+   "cycle": 32,
    "dir": 315,
-   "frames": 30,
+   "frames": 32,
    "gait": "walk",
    "group": "locomotion",
    "id": "walk_fl",
@@ -201,9 +201,9 @@
    }
   },
   {
-   "cycle": 23,
+   "cycle": 22,
    "dir": 0,
-   "frames": 23,
+   "frames": 22,
    "gait": "jog",
    "group": "locomotion",
    "id": "jog_f",
@@ -212,18 +212,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.3
+     0.35
     ],
     "Right": [
      0.5,
-     0.8
+     0.85
     ]
    }
   },
   {
-   "cycle": 23,
+   "cycle": 22,
    "dir": 45,
-   "frames": 23,
+   "frames": 22,
    "gait": "jog",
    "group": "locomotion",
    "id": "jog_fr",
@@ -232,18 +232,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.3
+     0.35
     ],
     "Right": [
      0.5,
-     0.8
+     0.85
     ]
    }
   },
   {
-   "cycle": 23,
+   "cycle": 22,
    "dir": 90,
-   "frames": 23,
+   "frames": 22,
    "gait": "jog",
    "group": "locomotion",
    "id": "jog_r",
@@ -252,18 +252,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.3
+     0.35
     ],
     "Right": [
      0.5,
-     0.8
+     0.85
     ]
    }
   },
   {
-   "cycle": 23,
+   "cycle": 22,
    "dir": 135,
-   "frames": 23,
+   "frames": 22,
    "gait": "jog",
    "group": "locomotion",
    "id": "jog_br",
@@ -272,18 +272,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.3
+     0.35
     ],
     "Right": [
      0.5,
-     0.8
+     0.85
     ]
    }
   },
   {
-   "cycle": 23,
+   "cycle": 22,
    "dir": 180,
-   "frames": 23,
+   "frames": 22,
    "gait": "jog",
    "group": "locomotion",
    "id": "jog_b",
@@ -292,18 +292,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.3
+     0.35
     ],
     "Right": [
      0.5,
-     0.8
+     0.85
     ]
    }
   },
   {
-   "cycle": 23,
+   "cycle": 22,
    "dir": 225,
-   "frames": 23,
+   "frames": 22,
    "gait": "jog",
    "group": "locomotion",
    "id": "jog_bl",
@@ -312,18 +312,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.3
+     0.35
     ],
     "Right": [
      0.5,
-     0.8
+     0.85
     ]
    }
   },
   {
-   "cycle": 23,
+   "cycle": 22,
    "dir": 270,
-   "frames": 23,
+   "frames": 22,
    "gait": "jog",
    "group": "locomotion",
    "id": "jog_l",
@@ -332,18 +332,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.3
+     0.35
     ],
     "Right": [
      0.5,
-     0.8
+     0.85
     ]
    }
   },
   {
-   "cycle": 23,
+   "cycle": 22,
    "dir": 315,
-   "frames": 23,
+   "frames": 22,
    "gait": "jog",
    "group": "locomotion",
    "id": "jog_fl",
@@ -352,18 +352,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.3
+     0.35
     ],
     "Right": [
      0.5,
-     0.8
+     0.85
     ]
    }
   },
   {
-   "cycle": 19,
+   "cycle": 15,
    "dir": 0,
-   "frames": 19,
+   "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
    "id": "sprint_f",
@@ -372,18 +372,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.16
+     0.225
     ],
     "Right": [
      0.5,
-     0.66
+     0.725
     ]
    }
   },
   {
-   "cycle": 19,
+   "cycle": 15,
    "dir": 45,
-   "frames": 19,
+   "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
    "id": "sprint_fr",
@@ -392,18 +392,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.16
+     0.225
     ],
     "Right": [
      0.5,
-     0.66
+     0.725
     ]
    }
   },
   {
-   "cycle": 19,
+   "cycle": 15,
    "dir": 90,
-   "frames": 19,
+   "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
    "id": "sprint_r",
@@ -412,18 +412,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.16
+     0.225
     ],
     "Right": [
      0.5,
-     0.66
+     0.725
     ]
    }
   },
   {
-   "cycle": 19,
+   "cycle": 15,
    "dir": 135,
-   "frames": 19,
+   "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
    "id": "sprint_br",
@@ -432,18 +432,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.16
+     0.225
     ],
     "Right": [
      0.5,
-     0.66
+     0.725
     ]
    }
   },
   {
-   "cycle": 19,
+   "cycle": 15,
    "dir": 180,
-   "frames": 19,
+   "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
    "id": "sprint_b",
@@ -452,18 +452,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.16
+     0.225
     ],
     "Right": [
      0.5,
-     0.66
+     0.725
     ]
    }
   },
   {
-   "cycle": 19,
+   "cycle": 15,
    "dir": 225,
-   "frames": 19,
+   "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
    "id": "sprint_bl",
@@ -472,18 +472,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.16
+     0.225
     ],
     "Right": [
      0.5,
-     0.66
+     0.725
     ]
    }
   },
   {
-   "cycle": 19,
+   "cycle": 15,
    "dir": 270,
-   "frames": 19,
+   "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
    "id": "sprint_l",
@@ -492,18 +492,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.16
+     0.225
     ],
     "Right": [
      0.5,
-     0.66
+     0.725
     ]
    }
   },
   {
-   "cycle": 19,
+   "cycle": 15,
    "dir": 315,
-   "frames": 19,
+   "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
    "id": "sprint_fl",
@@ -512,18 +512,18 @@
    "stance": {
     "Left": [
      0.0,
-     0.16
+     0.225
     ],
     "Right": [
      0.5,
-     0.66
+     0.725
     ]
    }
   },
   {
-   "cycle": 21,
+   "cycle": 19,
    "dir": 0,
-   "frames": 21,
+   "frames": 19,
    "gait": "run",
    "group": "locomotion",
    "id": "run_f",
@@ -532,19 +532,701 @@
    "stance": {
     "Left": [
      0.0,
-     0.22
+     0.27
     ],
     "Right": [
      0.5,
-     0.72
+     0.77
     ]
    }
+  },
+  {
+   "dir": 0,
+   "football": "start",
+   "frames": 44,
+   "gait": "start",
+   "group": "locomotion",
+   "id": "start_f",
+   "loop": false,
+   "speed": 7.175,
+   "speedCurve": [
+    3.6,
+    4.875,
+    5.8,
+    6.56,
+    7.175
+   ],
+   "stepFrames": [
+    6.0,
+    14.33,
+    22.03,
+    29.53,
+    36.84
+   ],
+   "stepLengths": [
+    1.0,
+    1.25,
+    1.45,
+    1.6,
+    1.75
+   ]
+  },
+  {
+   "dir": 0,
+   "football": "stop",
+   "frames": 32,
+   "gait": "stop",
+   "group": "locomotion",
+   "id": "stop_f",
+   "loop": false,
+   "speed": 0.0,
+   "speedCurve": [
+    4.8,
+    3.42,
+    1.87
+   ],
+   "stepFrames": [
+    0.0,
+    7.5,
+    15.39
+   ],
+   "stepLengths": [
+    1.2,
+    0.9,
+    0.55
+   ]
+  },
+  {
+   "cycle": 20,
+   "dir": 0,
+   "football": "dribble",
+   "frames": 20,
+   "gait": "dribble",
+   "group": "locomotion",
+   "id": "dribble_run_30",
+   "loop": true,
+   "speed": 3.0,
+   "stance": {
+    "Left": [
+     0.0,
+     0.4
+    ],
+    "Right": [
+     0.5,
+     0.9
+    ]
+   }
+  },
+  {
+   "cycle": 17,
+   "dir": 0,
+   "football": "dribble",
+   "frames": 17,
+   "gait": "dribble",
+   "group": "locomotion",
+   "id": "dribble_run_50",
+   "loop": true,
+   "speed": 5.0,
+   "stance": {
+    "Left": [
+     0.0,
+     0.286
+    ],
+    "Right": [
+     0.5,
+     0.786
+    ]
+   }
+  },
+  {
+   "cycle": 14,
+   "dir": 0,
+   "football": "dribble",
+   "frames": 14,
+   "gait": "dribble",
+   "group": "locomotion",
+   "id": "dribble_run_65",
+   "loop": true,
+   "speed": 6.5,
+   "stance": {
+    "Left": [
+     0.0,
+     0.2475
+    ],
+    "Right": [
+     0.5,
+     0.7475
+    ]
+   }
+  },
+  {
+   "cycle": 16,
+   "dir": 0,
+   "frames": 16,
+   "gait": "run",
+   "group": "locomotion",
+   "id": "run_f_r1",
+   "loop": true,
+   "speed": 5.4,
+   "stance": {
+    "Left": [
+     0.0,
+     0.27
+    ],
+    "Right": [
+     0.5,
+     0.77
+    ]
+   },
+   "style": "r1"
+  },
+  {
+   "cycle": 13,
+   "dir": 0,
+   "frames": 13,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r1_lo",
+   "loop": true,
+   "speed": 8.7875,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r1",
+   "variant": "lo"
+  },
+  {
+   "cycle": 12,
+   "dir": 0,
+   "frames": 12,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r1_hi",
+   "loop": true,
+   "speed": 8.7875,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r1",
+   "variant": "hi"
+  },
+  {
+   "cycle": 19,
+   "dir": 0,
+   "frames": 19,
+   "gait": "run",
+   "group": "locomotion",
+   "id": "run_f_r2",
+   "loop": true,
+   "speed": 5.4,
+   "stance": {
+    "Left": [
+     0.0,
+     0.27
+    ],
+    "Right": [
+     0.5,
+     0.77
+    ]
+   },
+   "style": "r2"
+  },
+  {
+   "cycle": 15,
+   "dir": 0,
+   "frames": 15,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r2_lo",
+   "loop": true,
+   "speed": 9.545,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r2",
+   "variant": "lo"
+  },
+  {
+   "cycle": 14,
+   "dir": 0,
+   "frames": 14,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r2_hi",
+   "loop": true,
+   "speed": 9.545,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r2",
+   "variant": "hi"
+  },
+  {
+   "cycle": 17,
+   "dir": 0,
+   "frames": 17,
+   "gait": "run",
+   "group": "locomotion",
+   "id": "run_f_r3",
+   "loop": true,
+   "speed": 5.4,
+   "stance": {
+    "Left": [
+     0.0,
+     0.27
+    ],
+    "Right": [
+     0.5,
+     0.77
+    ]
+   },
+   "style": "r3"
+  },
+  {
+   "cycle": 14,
+   "dir": 0,
+   "frames": 14,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r3_lo",
+   "loop": true,
+   "speed": 9.66,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r3",
+   "variant": "lo"
+  },
+  {
+   "cycle": 13,
+   "dir": 0,
+   "frames": 13,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r3_hi",
+   "loop": true,
+   "speed": 9.66,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r3",
+   "variant": "hi"
+  },
+  {
+   "cycle": 19,
+   "dir": 0,
+   "frames": 19,
+   "gait": "run",
+   "group": "locomotion",
+   "id": "run_f_r4",
+   "loop": true,
+   "speed": 5.4,
+   "stance": {
+    "Left": [
+     0.0,
+     0.27
+    ],
+    "Right": [
+     0.5,
+     0.77
+    ]
+   },
+   "style": "r4"
+  },
+  {
+   "cycle": 14,
+   "dir": 0,
+   "frames": 14,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r4_lo",
+   "loop": true,
+   "speed": 9.7875,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r4",
+   "variant": "lo"
+  },
+  {
+   "cycle": 13,
+   "dir": 0,
+   "frames": 13,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r4_hi",
+   "loop": true,
+   "speed": 9.7875,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r4",
+   "variant": "hi"
+  },
+  {
+   "cycle": 17,
+   "dir": 0,
+   "frames": 17,
+   "gait": "run",
+   "group": "locomotion",
+   "id": "run_f_r5",
+   "loop": true,
+   "speed": 5.4,
+   "stance": {
+    "Left": [
+     0.0,
+     0.27
+    ],
+    "Right": [
+     0.5,
+     0.77
+    ]
+   },
+   "style": "r5"
+  },
+  {
+   "cycle": 14,
+   "dir": 0,
+   "frames": 14,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r5_lo",
+   "loop": true,
+   "speed": 9.3275,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r5",
+   "variant": "lo"
+  },
+  {
+   "cycle": 13,
+   "dir": 0,
+   "frames": 13,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r5_hi",
+   "loop": true,
+   "speed": 9.3275,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r5",
+   "variant": "hi"
+  },
+  {
+   "cycle": 20,
+   "dir": 0,
+   "frames": 20,
+   "gait": "run",
+   "group": "locomotion",
+   "id": "run_f_r6",
+   "loop": true,
+   "speed": 5.4,
+   "stance": {
+    "Left": [
+     0.0,
+     0.27
+    ],
+    "Right": [
+     0.5,
+     0.77
+    ]
+   },
+   "style": "r6"
+  },
+  {
+   "cycle": 15,
+   "dir": 0,
+   "frames": 15,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r6_lo",
+   "loop": true,
+   "speed": 9.84,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r6",
+   "variant": "lo"
+  },
+  {
+   "cycle": 14,
+   "dir": 0,
+   "frames": 14,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r6_hi",
+   "loop": true,
+   "speed": 9.84,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r6",
+   "variant": "hi"
+  },
+  {
+   "cycle": 18,
+   "dir": 0,
+   "frames": 18,
+   "gait": "run",
+   "group": "locomotion",
+   "id": "run_f_r7",
+   "loop": true,
+   "speed": 5.4,
+   "stance": {
+    "Left": [
+     0.0,
+     0.27
+    ],
+    "Right": [
+     0.5,
+     0.77
+    ]
+   },
+   "style": "r7"
+  },
+  {
+   "cycle": 15,
+   "dir": 0,
+   "frames": 15,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r7_lo",
+   "loop": true,
+   "speed": 9.03,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r7",
+   "variant": "lo"
+  },
+  {
+   "cycle": 14,
+   "dir": 0,
+   "frames": 14,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r7_hi",
+   "loop": true,
+   "speed": 9.03,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r7",
+   "variant": "hi"
+  },
+  {
+   "cycle": 17,
+   "dir": 0,
+   "frames": 17,
+   "gait": "run",
+   "group": "locomotion",
+   "id": "run_f_r8",
+   "loop": true,
+   "speed": 5.4,
+   "stance": {
+    "Left": [
+     0.0,
+     0.27
+    ],
+    "Right": [
+     0.5,
+     0.77
+    ]
+   },
+   "style": "r8"
+  },
+  {
+   "cycle": 14,
+   "dir": 0,
+   "frames": 14,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r8_lo",
+   "loop": true,
+   "speed": 8.8,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r8",
+   "variant": "lo"
+  },
+  {
+   "cycle": 13,
+   "dir": 0,
+   "frames": 13,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_r8_hi",
+   "loop": true,
+   "speed": 8.8,
+   "stance": {
+    "Left": [
+     0.0,
+     0.225
+    ],
+    "Right": [
+     0.5,
+     0.725
+    ]
+   },
+   "style": "r8",
+   "variant": "hi"
+  },
+  {
+   "cycle": 18,
+   "dir": 0,
+   "frames": 18,
+   "gait": "run",
+   "group": "locomotion",
+   "id": "run_f_gk",
+   "loop": true,
+   "speed": 5.4,
+   "stance": {
+    "Left": [
+     0.0,
+     0.27
+    ],
+    "Right": [
+     0.5,
+     0.77
+    ]
+   },
+   "style": "gk"
+  },
+  {
+   "cycle": 15,
+   "dir": 0,
+   "frames": 15,
+   "gait": "sprint",
+   "group": "locomotion",
+   "id": "sprint_f_gk",
+   "loop": true,
+   "speed": 7.5,
+   "stance": {
+    "Left": [
+     0.0,
+     0.227045
+    ],
+    "Right": [
+     0.5,
+     0.727045
+    ]
+   },
+   "style": "gk"
   },
   {
    "approach": [
     -40,
     40
    ],
+   "backswing": "small",
    "ballHeight": [
     0.0,
     0.3
@@ -557,9 +1239,9 @@
     "frame": 12,
     "part": "RightFoot",
     "point": [
-     -0.09789,
-     0.109847,
-     0.528852
+     -0.402385,
+     0.11,
+     0.571911
     ],
     "rule": {
      "basis": "foot",
@@ -579,13 +1261,15 @@
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
     -40,
     40
    ],
+   "backswing": "small",
    "ballHeight": [
     0.0,
     0.3
@@ -598,9 +1282,9 @@
     "frame": 12,
     "part": "LeftFoot",
     "point": [
-     0.09789,
-     0.109847,
-     0.528852
+     0.402385,
+     0.11,
+     0.571911
     ],
     "rule": {
      "basis": "foot",
@@ -620,13 +1304,15 @@
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
     -20,
     40
    ],
+   "backswing": "small",
    "ballHeight": [
     0.0,
     0.3
@@ -639,9 +1325,9 @@
     "frame": 12,
     "part": "RightFoot",
     "point": [
-     0.257193,
-     0.109069,
-     0.520157
+     0.350603,
+     0.11,
+     0.217126
     ],
     "rule": {
      "basis": "foot",
@@ -656,18 +1342,21 @@
    "frames": 22,
    "group": "pass",
    "id": "pass_outside_r",
+   "kickStyle": "k4",
    "kind": "outside",
    "loop": false,
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
     -30,
     30
    ],
+   "backswing": "big",
    "ballHeight": [
     0.0,
     0.3
@@ -677,12 +1366,12 @@
     25
    ],
    "contact": {
-    "frame": 13,
+    "frame": 37,
     "part": "RightFoot",
     "point": [
-     0.074449,
-     0.108706,
-     0.62298
+     0.070138,
+     0.11,
+     0.589343
     ],
     "rule": {
      "basis": "foot",
@@ -694,21 +1383,29 @@
      "up": 0.03
     }
    },
-   "frames": 26,
+   "frames": 50,
    "group": "pass",
    "id": "pass_lofted_r",
+   "kickStyle": "k5",
    "kind": "lofted",
    "loop": false,
    "root": [
-    0.0,
-    0.35
-   ]
+    1.478,
+    2.241
+   ],
+   "runup": {
+    "dir": 38.0,
+    "speed": 3.0,
+    "steps": 2
+   },
+   "runupFrames": 24
   },
   {
    "approach": [
     -30,
     30
    ],
+   "backswing": "small",
    "ballHeight": [
     0.0,
     0.3
@@ -721,9 +1418,9 @@
     "frame": 6,
     "part": "RightFoot",
     "point": [
-     -0.093567,
-     0.109557,
-     0.418743
+     -0.396048,
+     0.11,
+     0.564397
     ],
     "rule": {
      "basis": "foot",
@@ -738,18 +1435,21 @@
    "frames": 14,
    "group": "pass",
    "id": "onetouch_pass_r",
+   "kickStyle": "k6",
    "kind": "onetouch_pass",
    "loop": false,
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
     -60,
     10
    ],
+   "backswing": "big",
    "ballHeight": [
     0.0,
     0.3
@@ -762,9 +1462,9 @@
     "frame": 14,
     "part": "RightFoot",
     "point": [
-     0.160315,
-     0.11054,
-     0.614936
+     -0.091925,
+     0.11,
+     0.632318
     ],
     "rule": {
      "basis": "foot",
@@ -784,13 +1484,15 @@
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
     -10,
     60
    ],
+   "backswing": "big",
    "ballHeight": [
     0.0,
     0.3
@@ -803,9 +1505,9 @@
     "frame": 14,
     "part": "LeftFoot",
     "point": [
-     -0.160315,
-     0.11054,
-     0.614936
+     0.091925,
+     0.11,
+     0.632318
     ],
     "rule": {
      "basis": "foot",
@@ -825,13 +1527,15 @@
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
     -30,
     30
    ],
+   "backswing": "big",
    "ballHeight": [
     0.0,
     0.3
@@ -844,9 +1548,9 @@
     "frame": 13,
     "part": "RightFoot",
     "point": [
-     0.075223,
-     0.110149,
-     0.633838
+     0.06199,
+     0.11,
+     0.493418
     ],
     "rule": {
      "basis": "foot",
@@ -866,13 +1570,15 @@
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
     -30,
     30
    ],
+   "backswing": "big",
    "ballHeight": [
     0.0,
     0.3
@@ -885,9 +1591,9 @@
     "frame": 13,
     "part": "LeftFoot",
     "point": [
-     -0.075223,
-     0.110149,
-     0.633838
+     -0.06199,
+     0.11,
+     0.493418
     ],
     "rule": {
      "basis": "foot",
@@ -907,13 +1613,15 @@
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
     -40,
     20
    ],
+   "backswing": "medium",
    "ballHeight": [
     0.0,
     0.3
@@ -923,12 +1631,12 @@
     34
    ],
    "contact": {
-    "frame": 13,
+    "frame": 49,
     "part": "RightFoot",
     "point": [
-     0.071224,
-     0.110931,
-     0.644721
+     -0.131968,
+     0.11,
+     0.595143
     ],
     "rule": {
      "basis": "foot",
@@ -940,21 +1648,29 @@
      "up": 0.03
     }
    },
-   "frames": 26,
+   "frames": 62,
    "group": "shot",
    "id": "shot_curl_r",
+   "kickStyle": "k3",
    "kind": "curl",
    "loop": false,
    "root": [
-    0.0,
-    0.35
-   ]
+    2.758,
+    2.664
+   ],
+   "runup": {
+    "dir": 50.0,
+    "speed": 3.0,
+    "steps": 3
+   },
+   "runupFrames": 36
   },
   {
    "approach": [
     -30,
     30
    ],
+   "backswing": "big",
    "ballHeight": [
     0.35,
     1.0
@@ -967,9 +1683,9 @@
     "frame": 12,
     "part": "RightFoot",
     "point": [
-     0.300031,
-     0.599482,
-     0.993193
+     0.291385,
+     0.6,
+     0.962322
     ],
     "rule": {
      "basis": "foot",
@@ -989,13 +1705,15 @@
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
     -30,
     30
    ],
+   "backswing": "small",
    "ballHeight": [
     0.0,
     0.4
@@ -1008,9 +1726,9 @@
     "frame": 7,
     "part": "RightFoot",
     "point": [
-     0.075223,
-     0.110149,
-     0.633838
+     0.063453,
+     0.11,
+     0.514473
     ],
     "rule": {
      "basis": "foot",
@@ -1025,33 +1743,36 @@
    "frames": 16,
    "group": "shot",
    "id": "onetouch_shot_r",
+   "kickStyle": "k6",
    "kind": "onetouch_shot",
    "loop": false,
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
-    -30,
-    30
+    -15,
+    15
    ],
+   "backswing": "big",
    "ballHeight": [
     0.0,
     0.3
    ],
    "ballSpeed": [
-    12,
-    25
+    20,
+    34
    ],
    "contact": {
-    "frame": 13,
+    "frame": 57,
     "part": "RightFoot",
     "point": [
-     0.074449,
-     0.108706,
-     0.62298
+     0.06199,
+     0.11,
+     0.493418
     ],
     "rule": {
      "basis": "foot",
@@ -1063,15 +1784,208 @@
      "up": 0.03
     }
    },
-   "frames": 26,
-   "group": "clearance",
-   "id": "clearance_r",
-   "kind": "lofted",
+   "frames": 70,
+   "group": "shot",
+   "id": "shot_power_r",
+   "kickStyle": "k1",
+   "kind": "power",
+   "loop": false,
+   "root": [
+    0.714,
+    5.433
+   ],
+   "runup": {
+    "dir": 8.0,
+    "speed": 3.5,
+    "steps": 4
+   },
+   "runupFrames": 44
+  },
+  {
+   "approach": [
+    -30,
+    30
+   ],
+   "backswing": "small",
+   "ballHeight": [
+    0.0,
+    0.3
+   ],
+   "ballSpeed": [
+    8,
+    22
+   ],
+   "contact": {
+    "frame": 9,
+    "part": "RightFoot",
+    "point": [
+     -0.397639,
+     0.11,
+     0.543596
+    ],
+    "rule": {
+     "basis": "foot",
+     "bone": "RightFoot",
+     "fwd": 0.0,
+     "side": -0.155,
+     "t": 0.35,
+     "toward": "RightToes",
+     "up": 0.03
+    }
+   },
+   "frames": 18,
+   "group": "shot",
+   "id": "shot_inside_r",
+   "kickStyle": "k2",
+   "kind": "finish",
    "loop": false,
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
+  },
+  {
+   "approach": [
+    -30,
+    30
+   ],
+   "backswing": "big",
+   "ballHeight": [
+    0.0,
+    0.3
+   ],
+   "ballSpeed": [
+    12,
+    25
+   ],
+   "contact": {
+    "frame": 37,
+    "part": "RightFoot",
+    "point": [
+     0.070138,
+     0.11,
+     0.589343
+    ],
+    "rule": {
+     "basis": "foot",
+     "bone": "RightFoot",
+     "fwd": 0.1,
+     "side": 0.0,
+     "t": 0.7,
+     "toward": "RightToes",
+     "up": 0.03
+    }
+   },
+   "frames": 50,
+   "group": "clearance",
+   "id": "clearance_r",
+   "kickStyle": "k7",
+   "kind": "lofted",
+   "loop": false,
+   "root": [
+    1.478,
+    2.241
+   ],
+   "runup": {
+    "dir": 38.0,
+    "speed": 3.0,
+    "steps": 2
+   },
+   "runupFrames": 24
+  },
+  {
+   "approach": [
+    -30,
+    30
+   ],
+   "backswing": "big",
+   "ballHeight": [
+    0.0,
+    0.3
+   ],
+   "ballSpeed": [
+    12,
+    25
+   ],
+   "contact": {
+    "frame": 57,
+    "part": "RightFoot",
+    "point": [
+     0.063453,
+     0.11,
+     0.514473
+    ],
+    "rule": {
+     "basis": "foot",
+     "bone": "RightFoot",
+     "fwd": 0.1,
+     "side": 0.0,
+     "t": 0.7,
+     "toward": "RightToes",
+     "up": 0.03
+    }
+   },
+   "frames": 70,
+   "group": "keeper",
+   "id": "gk_goalkick_r",
+   "kickStyle": "k8",
+   "kind": "lofted",
+   "loop": false,
+   "root": [
+    0.866,
+    5.261
+   ],
+   "runup": {
+    "dir": 10.0,
+    "speed": 3.4,
+    "steps": 4
+   },
+   "runupFrames": 44
+  },
+  {
+   "approach": [
+    -20,
+    20
+   ],
+   "backswing": "big",
+   "ballHeight": [
+    0.4,
+    0.8
+   ],
+   "ballSpeed": [
+    18,
+    30
+   ],
+   "contact": {
+    "frame": 12,
+    "part": "RightFoot",
+    "point": [
+     0.10763,
+     0.6,
+     0.993452
+    ],
+    "rule": {
+     "basis": "foot",
+     "bone": "RightFoot",
+     "fwd": 0.1,
+     "side": 0.0,
+     "t": 0.7,
+     "toward": "RightToes",
+     "up": 0.03
+    }
+   },
+   "frames": 24,
+   "group": "keeper",
+   "id": "gk_punt_r",
+   "kickStyle": "k8",
+   "kind": "punt",
+   "loop": false,
+   "root": [
+    0.0,
+    0.35
+   ],
+   "runupFrames": 0
   },
   {
    "approach": [
@@ -2114,6 +3028,7 @@
     -30,
     30
    ],
+   "backswing": "big",
    "ballHeight": [
     0.0,
     0.3
@@ -2126,9 +3041,9 @@
     "frame": 13,
     "part": "RightFoot",
     "point": [
-     0.074449,
-     0.108706,
-     0.62298
+     0.06199,
+     0.11,
+     0.493418
     ],
     "rule": {
      "basis": "foot",
@@ -2148,7 +3063,8 @@
    "root": [
     0.0,
     0.35
-   ]
+   ],
+   "runupFrames": 0
   },
   {
    "frames": 40,
@@ -2252,7 +3168,7 @@
   },
   {
    "dir": 0,
-   "frames": 23,
+   "frames": 22,
    "group": "flow",
    "id": "enter_jog_on",
    "loop": true,
@@ -2260,7 +3176,7 @@
   },
   {
    "dir": 0,
-   "frames": 30,
+   "frames": 32,
    "group": "flow",
    "id": "exit_walk_off",
    "loop": true,

@@ -156,3 +156,32 @@ def heads(rig, lod_obj, hair_objs, out_png, tmp):
 
 POSE_IDS = ("idle", "walk_f", "sprint_f", "pass_inside_r", "shot_instep_r", "cross_r",
             "trap_chest", "header_jump", "tackle_slide_r", "fall_n", "gk_dive_r", "celebrate_arms")
+
+
+FILM_IDS = ("walk_f", "jog_f", "run_f", "sprint_f", "start_f", "stop_f", "dribble_run_50", "sprint_f_r1_lo", "sprint_f_r2_lo",
+            "shot_power_r", "shot_curl_r")
+
+
+def filmstrip(rig, lod_obj, tags, ids, out_png, tmp):
+    """055 FR-71 미리보기: 클립마다 8위상(루프는 주기 8등분, 비루프는 길이 8등분) 측면 렌더를 한 줄로. 타일은 반 해상도."""
+    cam = _setup()
+    cam.data.lens = 50
+    _look(cam, (4.6, 0.95, 0.15), (0.0, 0.95, 0.15))  # 오른쪽 측면, 골반 높이에서 수평
+    _show_only([lod_obj])
+    by = {t["id"]: t for t in tags}
+    rows = []
+    for cid in ids:
+        if cid not in by:
+            continue
+        t = by[cid]
+        _use_action(rig, cid)
+        n = t["frames"]
+        tiles = []
+        for i in range(8):
+            bpy.context.scene.frame_set(int(round(n * i / 8.0)))
+            tiles.append(_render(os.path.join(tmp, f"_f{cid}{i}.png"))[::2, ::2])
+        rows.append(np.concatenate(tiles, axis=1))
+    _use_action(rig, None)
+    rig.animation_data.use_nla = True
+    if rows:
+        T.write_png(out_png, np.concatenate(rows, axis=0)[:, :, :3])

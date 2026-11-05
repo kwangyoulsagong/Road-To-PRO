@@ -105,9 +105,10 @@ def ref(name, arm_r, arm_l, frames):
 def flow(name, gait_like, head):
     from . import gait as G
     g = G.GAITS[gait_like]
+    gg = G._Gait(g, 0)  # 055: 보법 엔진 객체
 
     def sample(t):
-        k = G.gait_keypose(g, 0, (t * 30.0 / g["frames"]) % 1.0)
+        k = G.gait_keypose(gg, (t * 30.0 / g["frames"]) % 1.0)
         k["head"] = head
         return P.to_pose(k)
     return B.Clip(name, "flow", g["frames"], sample, loop=True, speed=round(g["v"], 4), dir=0)

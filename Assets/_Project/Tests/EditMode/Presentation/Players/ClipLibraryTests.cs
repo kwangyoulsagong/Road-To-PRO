@@ -37,6 +37,35 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 for (int d = 0; d < 8; d++)
                     Assert.GreaterOrEqual(lib.Locomotion(g, d), 0, $"{g} 방향 {d}");
             Assert.GreaterOrEqual(lib.IdleIndex, 0);
+            Assert.GreaterOrEqual(lib.Locomotion(Gait.Run, 0), 0, "run 정면 (055)");
+        }
+
+        /// <summary>055 새 태그: 원형(style·variant)·킥 원형·속도 곡선. 클립 117개 (plan 클립 목록).</summary>
+        [Test]
+        public void Parses_055Tags_StyleVariantKickSpeedCurve()
+        {
+            var lib = AnimTestKit.Lib;
+            Assert.AreEqual(117, lib.Count);
+            Assert.IsTrue(lib.TryGet("sprint_f_r1_lo", out var lo));
+            Assert.AreEqual("r1", lo.Style);
+            Assert.AreEqual("lo", lo.Variant);
+            Assert.AreEqual("sprint", lo.Gait);
+            Assert.IsTrue(lib.TryGet("run_f_gk", out var gk));
+            Assert.AreEqual("gk", gk.Style);
+            Assert.IsTrue(lib.TryGet("shot_power_r", out var k1));
+            Assert.AreEqual(KickArchetype.K1, k1.KickStyle);
+            Assert.IsTrue(lib.TryGet("shot_curl_r", out var k3));
+            Assert.AreEqual(KickArchetype.K3, k3.KickStyle);
+            Assert.IsTrue(lib.TryGet("pass_inside_r", out var pi));
+            Assert.AreEqual(KickArchetype.None, pi.KickStyle);
+            Assert.IsTrue(lib.TryGet("start_f", out var st));
+            Assert.IsNotNull(st.SpeedCurve);
+            Assert.GreaterOrEqual(st.SpeedCurve.Length, 4);
+            // 원형 클립은 공유 로코모션 격자에 들어가지 않는다
+            Assert.AreEqual("sprint_f", lib.Get(lib.Locomotion(Gait.Sprint, 0)).Id);
+            Assert.AreEqual("run_f", lib.Get(lib.Locomotion(Gait.Run, 0)).Id);
+            for (var r = RunArchetype.R1; r <= RunArchetype.GK; r++)
+                Assert.IsTrue(lib.Style(new RunStyleChoice(r, KickArchetype.None, 0f)).Valid, r.ToString());
         }
     }
 }

@@ -50,48 +50,10 @@ def _side(s):
     return ("R", "L") if s > 0 else ("L", "R")
 
 
-def kick(id_, s, kind, group):
-    """s = +1 오른발, −1 왼발. kind: inside, outside, instep, lofted, curl, volley, cross, onetouch_pass, onetouch_shot."""
-    k, pl = _side(s)  # 차는 발, 디딤발
-    sp = {"inside": (22, 12), "outside": (22, 12), "instep": (26, 13), "lofted": (26, 13), "curl": (26, 13),
-          "volley": (24, 12), "cross": (28, 14), "onetouch_pass": (14, 6), "onetouch_shot": (16, 7)}[kind]
-    frames, c = sp
-    rot = {"inside": 65, "outside": -25, "curl": 25, "cross": 30}.get(kind, 0)
-    back = {"inside": (-25, 60, 10), "outside": (-25, 70, 30), "onetouch_pass": (-12, 40, 10), "onetouch_shot": (-25, 80, 35),
-            "volley": (-10, 90, 35), "lofted": (-40, 95, 30), "cross": (-35, 95, 25)}.get(kind, (-40, 100, 35))
-    hit = {"inside": (8, 15, 5), "outside": (12, 15, 35), "onetouch_pass": (8, 15, 5), "onetouch_shot": (18, 20, 40),
-           "volley": (62, 25, 40), "lofted": (22, 18, 35), "cross": (20, 18, 30)}.get(kind, (18, 20, 40))
-    follow = {"inside": (30, 10, 5), "outside": (30, 10, 30), "onetouch_pass": (25, 10, 5), "volley": (85, 20, 35),
-              "lofted": (70, 10, 30), "cross": (60, 10, 25)}.get(kind, (65, 10, 40))
-    lean = {"lofted": -10, "cross": -8, "volley": -14}.get(kind, 4)
-    abd = {"volley": 10, "cross": 5}.get(kind, 0)
-    plant_x = -s * (0.30 if kind != "volley" else 0.40)
-    arm_k, arm_p = "arm" + k, "arm" + pl
-    start = M(P.READY, **{"ik" + pl: (s * -0.12 + 0.0 * s, -0.25, 0.0, -s * 8.0), "ik" + k: (s * 0.12, -0.35, 0.0, s * 8.0)},
-              hips=(0.0, -0.06, -0.30), spine=(10.0, 0.0, 0.0))
-    plant = {"ik" + pl: (plant_x, 0.0, 0.0, -s * 10.0)}
-    windup = M(P.READY, **plant, **{"leg" + k: back + (abd, rot * 0.6)},
-               hips=(s * -0.05, -0.08, -0.08), hrot=(0.0, -s * 15.0, 0.0), spine=(12.0 + lean * 0.3, -s * 20.0, -s * 6.0),
-               **{arm_p: (0.0, 35.0, 30.0), arm_k: (15.0, -20.0, 30.0)})
-    contact = M(P.READY, **plant, **{"leg" + k: hit + (abd, rot)},
-                hips=(s * -0.08, -0.07, 0.0), hrot=(0.0, s * 5.0, 0.0), spine=(6.0 + lean, s * 10.0, -s * 10.0),
-                head=(15.0, 0.0), **{arm_p: (-10.0, 25.0, 30.0), arm_k: (20.0, -30.0, 30.0)})
-    end = M(P.READY, **plant, **{"leg" + k: follow + (abd, rot * 0.5)},
-            hips=(s * -0.06, -0.05, 0.10), hrot=(0.0, s * 15.0, 0.0), spine=(4.0 + lean, s * 20.0, -s * 6.0),
-            **{arm_p: (5.0, 10.0, 30.0), arm_k: (25.0, -10.0, 30.0)})
-    settle = M(P.READY, ikL=(-0.14, 0.15 if k == "L" else 0.0, 0.0, -8.0), ikR=(0.14, 0.15 if k == "R" else 0.0, 0.0, 8.0),
-               hips=(0.0, -0.06, 0.08))
-    rule = {"inside": B.inside(s), "outside": B.outside(s), "onetouch_pass": B.inside(s)}.get(kind, B.instep(s))
-    target = {"volley": 0.60}.get(kind, B.BALL_R)
-    contact = fit_leg(contact, "leg" + k, rule, target)
-    keys = [(0, start), (max(2, c - 6), windup), (c, contact), (min(frames - 4, c + 5), end), (frames, settle)]
-    part = "RightFoot" if s > 0 else "LeftFoot"
-    height = {"volley": (0.35, 1.0), "onetouch_shot": (0.0, 0.4)}.get(kind, (0.0, 0.3))
-    speed = {"inside": (4, 16), "outside": (4, 16), "onetouch_pass": (4, 15), "lofted": (12, 25), "cross": (14, 27)}.get(kind, (15, 34))
-    approach = {"cross": (-60, 10), "inside": (-40, 40), "curl": (-40, 20), "outside": (-20, 40)}.get(kind, (-30, 30))
-    if s < 0:
-        approach = (-approach[1], -approach[0])
-    return _clip(id_, group, frames, keys, c, part, rule, approach, height, speed, root=(0.0, 0.35), kind=kind)
+def kick(id_, s, kind, group, style=None):
+    """055: 킥 생성은 kicks.py (FR-60·61 공통 기준·원형). 043 호출(reactions gk_kick)과 이름을 맞춘 얇은 래퍼."""
+    from . import kicks
+    return kicks.kick(id_, s, kind, group, style)
 
 
 def trap_foot(id_, s, fail=False):
@@ -211,20 +173,8 @@ def throw_in():
 
 
 def clips():
-    out = []
-    for s, n in ((1, "r"), (-1, "l")):
-        out.append(kick(f"pass_inside_{n}", s, "inside", "pass"))
-    out.append(kick("pass_outside_r", 1, "outside", "pass"))
-    out.append(kick("pass_lofted_r", 1, "lofted", "pass"))
-    out.append(kick("onetouch_pass_r", 1, "onetouch_pass", "pass"))
-    out.append(kick("cross_r", 1, "cross", "cross"))
-    out.append(kick("cross_l", -1, "cross", "cross"))
-    out.append(kick("shot_instep_r", 1, "instep", "shot"))
-    out.append(kick("shot_instep_l", -1, "instep", "shot"))
-    out.append(kick("shot_curl_r", 1, "curl", "shot"))
-    out.append(kick("shot_volley_r", 1, "volley", "shot"))
-    out.append(kick("onetouch_shot_r", 1, "onetouch_shot", "shot"))
-    out.append(kick("clearance_r", 1, "lofted", "clearance"))
+    from . import kicks
+    out = kicks.clips()
     out.append(trap_foot("trap_foot_r", 1))
     out.append(trap_foot("trap_foot_l", -1))
     out.append(trap_foot("trap_fail_r", 1, fail=True))

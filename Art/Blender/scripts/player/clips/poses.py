@@ -4,7 +4,8 @@
   hips: (dx, dy, dz) m        hrot: (pitch, yaw, roll)°  — 골반
   spine: (pitch, yaw, roll)°  — Spine·Chest·UpperChest에 0.4·0.35·0.25로 나눔. pitch + = 앞으로 숙임, yaw + = 오른쪽으로 돎
   head: (pitch, yaw)°         — Neck 0.4 · Head 0.6
-  armL/armR: (down, flex, elbow)°  down = 레스트 A-포즈(45°)에서 몸쪽으로 내림(35 ≈ 차렷), flex + = 앞으로 듦, elbow + = 굽힘
+  armL/armR: (down, flex, elbow[, cap])°  down = 레스트 A-포즈(45°)에서 몸쪽으로 내림(35 ≈ 차렷), flex + = 앞으로 듦, elbow + = 굽힘
+             cap(055) = 내림 상한(기본 ARM_DOWN_MAX), cap이 있으면 elbow는 실제 굴곡 각(위팔 수직 경첩)
   legL/legR FK: (flex, knee, ankle, abduct, rot)°  flex + = 허벅지 앞으로, knee + = 굽힘, ankle + = 발끝 내림, abduct + = 바깥, rot + = 발끝 바깥
   ikL/ikR IK: (x, z, lift, yaw)  발목 목표(선수 좌표, 바닥 기준 높이 lift), 발 방향 yaw°. ik가 있으면 FK leg 무시
   footL/footR: (pitch, roll)°  IK 발의 추가 기울기
@@ -82,6 +83,14 @@ def timeline(keys, ease=smooth):
     return at
 
 
+def elbow_hinge(n):
+    """팔꿈치 경첩 축(선수 좌표, 레스트 기준): 정면 Z × 위팔 레스트 방향. 이 축으로 −e 돌리면 아래팔이 앞으로 e°만큼 굽는다.
+    043 키(선수 X축 회전)는 A-포즈 팔에서 실제 굴곡이 줄어든다(키 90 → 60°, 최대 90°) — 055 보법은 이 축을 쓴다."""
+    a = (Vector(S.HEAD[n + "LowerArm"]) - Vector(S.HEAD[n + "UpperArm"])).normalized()
+    h = Z.cross(a)
+    return h.normalized()
+
+
 def _split(name_parts, vals, total):
     return {n: v * total for n, v in zip(name_parts, vals)}
 
@@ -100,10 +109,13 @@ def to_pose(k):
     p.local["Head"] = q(Y, hy2 * 0.6) @ q(X, hp * 0.6)
     for s, side in (("L", -1), ("R", 1)):
         n = "Left" if side < 0 else "Right"
-        down, flex, elbow = k.get("arm" + s, (33.0, 0.0, 10.0))
-        down = min(down, ARM_DOWN_MAX)  # 056: MPFB 몸(엉덩이·반바지)이 043 튜브보다 넓다 — 팔을 몸통에 붙이지 않는다
+        arm = k.get("arm" + s, (33.0, 0.0, 10.0))
+        down, flex, elbow = arm[0], arm[1], arm[2]
+        # 056: MPFB 몸(엉덩이·반바지)이 043 튜브보다 넓다 — 팔을 몸통에 붙이지 않는다.
+        # 055: 4번째 값이 있으면 그 값이 내림 상한이고, 팔꿈치는 위팔에 수직인 경첩 축으로 굽힌다(elbow = 실제 굴곡 각).
+        down = min(down, arm[3] if len(arm) > 3 else ARM_DOWN_MAX)
         p.local[n + "UpperArm"] = q(X, -flex) @ q(Z, -side * down)
-        p.local[n + "LowerArm"] = q(X, -elbow)
+        p.local[n + "LowerArm"] = q(elbow_hinge(n), -elbow) if len(arm) > 3 else q(X, -elbow)
         p.local[n + "Hand"] = Quaternion()
     # 골반 회전 이후 엉덩이 관절 위치가 필요하다 (IK)
     hips_rw = p.local["Hips"]

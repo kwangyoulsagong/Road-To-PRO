@@ -24,9 +24,13 @@ namespace RoadToPro.Presentation.Players.Logic
         public readonly float Speed;
         /// <summary>시뮬이 정한 사용 부위(None이면 제한 없음).</summary>
         public readonly BodyPart Part;
+        /// <summary>선수 킥 원형 (055 FR-61). None이면 원형 점수 없음(043과 같은 선택).</summary>
+        public readonly KickArchetype KickStyle;
 
-        public ActionRequest(float now, float contactTime, Vec3 simPos, float yaw, Vec3 ball, Vec3 ballVelOut, float speed, BodyPart part)
+        public ActionRequest(float now, float contactTime, Vec3 simPos, float yaw, Vec3 ball, Vec3 ballVelOut, float speed, BodyPart part,
+            KickArchetype kickStyle = KickArchetype.None)
         {
+            KickStyle = kickStyle;
             Now = now;
             ContactTime = contactTime;
             SimPos = simPos;
@@ -145,7 +149,7 @@ namespace RoadToPro.Presentation.Players.Logic
                     float along = Vec3.Dot(offset, fwd) / (steps * stepLen);
                     stride = 1f + Math.Max(-MaxStrideChange, Math.Min(MaxStrideChange, along));
                 }
-                float score = (rate - 1f) * 4f + offset.Length();
+                float score = (rate - 1f) * 4f + offset.Length() + StylePenalty(q.KickStyle, c.KickStyle);
                 if (c.HasContact)
                 {
                     score += Outside(q.Ball.Y, c.BallHeightMin, c.BallHeightMax) * 5f;
@@ -163,10 +167,20 @@ namespace RoadToPro.Presentation.Players.Logic
             if (best >= 0) return bestC;
             if (bestAny >= 0) return bestAnyC;
             // 부위가 맞는 후보가 없으면 부위 제한 없이 다시
-            return Select(lib, candidates, new ActionRequest(q.Now, q.ContactTime, q.SimPos, q.Yaw, q.Ball, q.BallVelOut, q.Speed, BodyPart.None));
+            return Select(lib, candidates, new ActionRequest(q.Now, q.ContactTime, q.SimPos, q.Yaw, q.Ball, q.BallVelOut, q.Speed, BodyPart.None, q.KickStyle));
         }
 
         static float Outside(float v, float lo, float hi) => v < lo ? lo - v : v > hi ? v - hi : 0f;
+
+        /// <summary>055 FR-61: 같은 상황 후보 안에서 선수 원형과 같은 원형 클립 0, 원형 없는 클립 MismatchNeutral, 다른 원형 클립 MismatchOther.</summary>
+        public const float MismatchNeutral = 0.3f, MismatchOther = 1.0f;
+
+        static float StylePenalty(KickArchetype want, KickArchetype clip)
+        {
+            if (want == KickArchetype.None) return 0f;
+            if (clip == want) return 0f;
+            return clip == KickArchetype.None ? MismatchNeutral : MismatchOther;
+        }
     }
 
     /// <summary>

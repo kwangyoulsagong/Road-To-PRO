@@ -1744,7 +1744,7 @@
   },
   "clips": {
    "bad": [],
-   "count": 82,
+   "count": 117,
    "missing": [],
    "ok": true
   },
@@ -1963,10 +1963,10 @@
    "ok": true
   },
   "gaitSlide": {
-   "clips": 25,
-   "lowToeSpeed": 9e-05,
+   "clips": 54,
+   "lowToeSpeed": 0.000132,
    "ok": true,
-   "worst": 0.0
+   "worst": 1e-06
   },
   "ground": {
    "bad": {},
@@ -2161,14 +2161,14 @@
    "ok": true
   },
   "penetration": {
-   "creaseFolds": 6862,
+   "creaseFolds": 17676,
    "flipped": 0,
    "hairBody": 0,
-   "hairPoses": 9512,
+   "hairPoses": 13572,
    "hairStyles": 29,
    "hairWorst": {},
    "ok": true,
-   "poses": 1312,
+   "poses": 1872,
    "skinKit": 0,
    "worst": []
   },

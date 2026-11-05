@@ -31,6 +31,8 @@ namespace RoadToPro.Verification.Samples
             public Texture2D[] masks; // textures.PATTERNS 순서
             public Shader bodyShader, kitShader;
             public AnimationClip[] clips; // ClipLibrary 인덱스 순서
+            public TextAsset gaitReferenceJson; // 055 연구 기준 스틱 피겨 (player.gait-reference.json)
+            public Material stickMaterial;      // 055 스틱 피겨 선 (URP Unlit)
         }
 
         // 엔티티: 0 홈 GK, 1~10 홈 필드, 11 원정 GK, 12~21 원정 필드, 22~24 심판
@@ -138,6 +140,18 @@ namespace RoadToPro.Verification.Samples
             FarmContext.Screens["flickerNormal"] = () => ShowFlicker(false);
             FarmContext.Screens["flickerFlat"] = () => ShowFlicker(true);
             FarmContext.PerfCounters["faceFlicker"] = () => _flickerOn && _flickerValid ? _flicker : (double?)null;
+            // 055: 보법 필름스트립(8위상 × 측면·정면 + 연구 기준 스틱 피겨, AC-11)·원형 질주 1.5x(AC-12)
+            foreach (var kv in FilmClips)
+            {
+                string name = kv.Key, id = kv.Value;
+                FarmContext.Screens[$"gaitFilm{name}Side"] = () => ShowGaitFilm(name, id, true);
+                FarmContext.Screens[$"gaitFilm{name}Front"] = () => ShowGaitFilm(name, id, false);
+            }
+            for (int i = 0; i < SprintShots; i++)
+            {
+                int k = i;
+                FarmContext.Screens[$"gaitSprint{i + 1}"] = () => ShowGaitSprint(k);
+            }
             FarmContext.Screens["speed1x"] = () => ShowSpeed(1f, 90);
             FarmContext.Screens["speed15x"] = () => ShowSpeed(1.5f, 60);
             FarmContext.Screens["speed3x"] = () => ShowSpeed(3f, 30);
@@ -238,6 +252,7 @@ namespace RoadToPro.Verification.Samples
         /// <param name="key">글자를 키 색(마젠타)으로 — 번호·이름 영역 검사용 캡처.</param>
         void ShowRow(int row, bool back, bool key = false)
         {
+            ClearSticks();
             if (_ball != null) _ball.gameObject.SetActive(false);
             _contactView = false;
             _perf = false;
@@ -433,6 +448,7 @@ namespace RoadToPro.Verification.Samples
 
         void PrepareStill(string view)
         {
+            ClearSticks();
             if (_flickerOn)
             {
                 _flickerOn = false;
@@ -544,6 +560,7 @@ namespace RoadToPro.Verification.Samples
 
         void ShowPerf(int show)
         {
+            ClearSticks();
             if (_ball != null) _ball.gameObject.SetActive(false);
             _contactView = false;
             if (_bodiesApplied) RestoreLooks();
@@ -553,7 +570,7 @@ namespace RoadToPro.Verification.Samples
             foreach (var r in stadium) r.enabled = show == 2;
             pitch.enabled = show == 2;
             var d = PerfHighlight.Build();
-            var plan = AnimPlan.Build(_lib, _map, d, _log);
+            var plan = AnimPlan.Build(_lib, _map, d, _log, PerfHighlight.Styles()); // 055: 원형 블렌드 포함 비용
             _clock.Start = d.StartTime;
             _clock.Rate = 1.5f;
             _clock.Fps = 60f;
@@ -710,13 +727,13 @@ namespace RoadToPro.Verification.Samples
             return d;
         }
 
-        void Prepare(HighlightData d, float t, float rate, long frame)
+        void Prepare(HighlightData d, float t, float rate, long frame, RunStyleChoice[] styles = null)
         {
             _perf = false;
             KitCompositor.PlaybackActive = false;
             foreach (var r in stadium) r.enabled = false;
             pitch.enabled = true;
-            var plan = AnimPlan.Build(_lib, _map, d, _log);
+            var plan = AnimPlan.Build(_lib, _map, d, _log, styles);
             _clock.Start = d.StartTime;
             _clock.Fps = 60f;
             _clock.Rate = rate;
@@ -736,6 +753,7 @@ namespace RoadToPro.Verification.Samples
 
         void ShowContact(string kind)
         {
+            ClearSticks();
             _view = "contact" + kind;
             _contactView = true;
             var d = ContactScene(kind, out var contact);
@@ -751,8 +769,186 @@ namespace RoadToPro.Verification.Samples
             cam.transform.rotation = Quaternion.LookRotation(target - cam.transform.position, Vector3.up);
         }
 
+        // ---------------------------------------------------------------- 055 필름스트립·원형 질주 (AC-11·12)
+
+        /// <summary>필름스트립 클립 (화면 이름 → 클립 id). 보법 4 + 출발·감속·드리블 런.</summary>
+        static readonly KeyValuePair<string, string>[] FilmClips =
+        {
+            new KeyValuePair<string, string>("Walk", "walk_f"), new KeyValuePair<string, string>("Jog", "jog_f"),
+            new KeyValuePair<string, string>("Run", "run_f"), new KeyValuePair<string, string>("Sprint", "sprint_f"),
+            new KeyValuePair<string, string>("Start", "start_f"), new KeyValuePair<string, string>("Stop", "stop_f"),
+            new KeyValuePair<string, string>("Dribble", "dribble_run_50"),
+        };
+        const int FilmTiles = 8;
+        const float FilmGap = 1.25f;    // 칸 간격 (m)
+        const float StickRow = 2.25f;   // 스틱 피겨 줄 높이 (모델 줄 위)
+        const int SprintShots = 4;
+        readonly List<GameObject> _sticks = new List<GameObject>();
+        GaitReference _ref;
+
+        void ClearSticks()
+        {
+            foreach (var g in _sticks) if (g != null) Destroy(g);
+            _sticks.Clear();
+        }
+
+        /// <summary>클립을 8위상(루프 = 주기 8등분, 비루프 = 길이 8등분)에 고정해 한 줄로 세운다. side = 오른쪽 측면에서, 아니면 정면에서.
+        /// 위 줄에 같은 위상의 연구 기준 스틱 피겨(player.gait-reference.json, 보법 4종만).</summary>
+        void ShowGaitFilm(string name, string id, bool side)
+        {
+            PrepareStill($"gaitFilm{name}{(side ? "Side" : "Front")}");
+            if (_bodiesApplied) RestoreLooks();
+            ClearSticks();
+            int ci = _lib.IndexOf(id);
+            if (ci < 0) throw new InvalidOperationException("클립 없음: " + id);
+            var info = _lib.Get(ci);
+            var clip = assets.clips[ci];
+            // 모델: 측면이면 진행 방향(+Z)을 따라, 정면이면 X를 따라 늘어선다. 모두 +Z를 본다
+            PoseStill(e =>
+            {
+                int i = Array.IndexOf(FacePlayers, e);
+                float o = (i - (FilmTiles - 1) * 0.5f) * FilmGap;
+                return (i >= 0 && i < FilmTiles, side ? 0f : -o, side ? o : 0f, 0f); // 정면은 카메라가 −Z를 보므로 X를 뒤집어 위상이 왼쪽 → 오른쪽
+            }, false, 0);
+            for (int i = 0; i < FilmTiles; i++)
+            {
+                var rig = _rigs[FacePlayers[i]];
+                float t = info.Length * i / FilmTiles;
+                clip.SampleAnimation(rig.Animator.gameObject, t);
+                rig.ForceLod(0);
+                rig.Freeze(true);
+            }
+            _ref ??= GaitReference.Parse(assets.gaitReferenceJson.text);
+            var g = _ref.Get(info.Gait);
+            if (g != null)
+                for (int i = 0; i < FilmTiles; i++)
+                {
+                    float o = (i - (FilmTiles - 1) * 0.5f) * FilmGap;
+                    var origin = side ? new Vector3(0f, StickRow, o) : new Vector3(-o, StickRow, 0f);
+                    DrawStick(g, i, origin, side);
+                }
+            float halfW = (FilmTiles - 1) * FilmGap * 0.5f + 0.7f;
+            float vHalf = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            float hHalf = Mathf.Atan(Mathf.Tan(vHalf) * cam.aspect);
+            float dist = Mathf.Max(halfW / Mathf.Tan(hHalf), 2.35f / Mathf.Tan(vHalf)) * 1.05f;
+            var c = new Vector3(0f, 2.1f, 0f);
+            cam.transform.position = side ? c + new Vector3(dist, 0f, 0f) : c + new Vector3(0f, 0f, dist);
+            cam.transform.rotation = Quaternion.LookRotation(c - cam.transform.position, Vector3.up);
+        }
+
+        void Line(Vector3 a, Vector3 b, Color col)
+        {
+            var go = new GameObject("GaitStick");
+            go.transform.SetParent(transform, false);
+            var lr = go.AddComponent<LineRenderer>();
+            lr.sharedMaterial = assets.stickMaterial;
+            lr.useWorldSpace = true;
+            lr.positionCount = 2;
+            lr.SetPosition(0, a);
+            lr.SetPosition(1, b);
+            lr.startWidth = lr.endWidth = 0.035f;
+            lr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            lr.receiveShadows = false;
+            var mpb = new MaterialPropertyBlock();
+            mpb.SetColor("_BaseColor", col);
+            lr.SetPropertyBlock(mpb);
+            _sticks.Add(go);
+        }
+
+        static readonly Color StickLeft = new Color(0.25f, 0.55f, 1f), StickRight = new Color(1f, 0.6f, 0.2f), StickBody = new Color(0.95f, 0.95f, 0.95f);
+
+        /// <summary>연구 기준 스틱 피겨 한 칸. 측면: 시상면 각(엉덩이·무릎은 몸통선 기준, 팔도), 정면: 골반 기울기·팔 벌림·발 간격.</summary>
+        void DrawStick(GaitReference.Gait g, int phase, Vector3 o, bool side)
+        {
+            var sg = _ref.Segments;
+            var sp = g.Side[phase];
+            var fr = g.Front[phase];
+            if (side)
+            {
+                // 측면: 화면 평면 = (Z 앞, Y 위). 각은 아래 방향에서 앞(+Z)으로 + (°)
+                Vector3 Dir(float deg) => new Vector3(0f, -Mathf.Cos(deg * Mathf.Deg2Rad), Mathf.Sin(deg * Mathf.Deg2Rad));
+                var hip = o + new Vector3(0f, sg.PelvisHeight + sp.PelvisY, 0f);
+                float down = -sp.Trunk; // 몸통선 아래 방향의 각
+                var neck = hip - Dir(down) * sg.Trunk;
+                var head = neck - Dir(down) * (sg.Neck + sg.Head);
+                Line(hip, neck, StickBody);
+                Line(neck, head, StickBody);
+                void Leg(float hipDeg, float kneeDeg, Color col)
+                {
+                    float a = down + hipDeg;
+                    var knee = hip + Dir(a) * sg.Thigh;
+                    var ankle = knee + Dir(a - kneeDeg) * sg.Shin;
+                    Line(hip, knee, col);
+                    Line(knee, ankle, col);
+                    Line(ankle, ankle + new Vector3(0f, 0f, sg.Foot), col);
+                }
+                void Arm(float shDeg, float elDeg, Color col)
+                {
+                    var sh = neck + Dir(down) * 0.05f;
+                    float a = down + shDeg;
+                    var elbow = sh + Dir(a) * sg.UpperArm;
+                    var hand = elbow + Dir(a + elDeg) * sg.ForeArm;
+                    Line(sh, elbow, col);
+                    Line(elbow, hand, col);
+                }
+                Leg(sp.HipL, sp.KneeL, StickLeft);
+                Leg(sp.HipR, sp.KneeR, StickRight);
+                Arm(sp.ShoulderL, sp.ElbowL, StickLeft);
+                Arm(sp.ShoulderR, sp.ElbowR, StickRight);
+                return;
+            }
+            // 정면: 화면 평면 = (X 오른쪽, Y 위). 골반 기울기(+ = 오른쪽 내려감), 팔 벌림, 발 간격
+            float ob = fr.Obliquity * Mathf.Deg2Rad;
+            var pc = o + new Vector3(0f, sg.PelvisHeight + sp.PelvisY, 0f);
+            var hr = pc + new Vector3(0.1f * Mathf.Cos(ob), -0.1f * Mathf.Sin(ob), 0f);
+            var hl = pc - new Vector3(0.1f * Mathf.Cos(ob), -0.1f * Mathf.Sin(ob), 0f);
+            var nk = pc + new Vector3(0f, sg.Trunk, 0f);
+            Line(hl, hr, StickBody);
+            Line(pc, nk, StickBody);
+            Line(nk, nk + new Vector3(0f, sg.Neck + sg.Head, 0f), StickBody);
+            float fw = fr.FootWidth * 0.5f;
+            Line(hl, o + new Vector3(-fw, 0.08f, 0f), StickLeft);
+            Line(hr, o + new Vector3(fw, 0.08f, 0f), StickRight);
+            float ab = fr.Abduction * Mathf.Deg2Rad, arm = sg.UpperArm + sg.ForeArm * 0.6f;
+            var shl = nk + new Vector3(-0.18f, -0.05f, 0f);
+            var shr = nk + new Vector3(0.18f, -0.05f, 0f);
+            Line(shl, shl + new Vector3(-Mathf.Sin(ab), -Mathf.Cos(ab), 0f) * arm, StickLeft);
+            Line(shr, shr + new Vector3(Mathf.Sin(ab), -Mathf.Cos(ab), 0f) * arm, StickRight);
+        }
+
+        /// <summary>AC-12: 1.5x 하이라이트 질주 — 두 선수(R1 저중심 숏스텝 · R2 장신 파워 스트라이드)가 8.8 m/s로 나란히. 연속 4장(0.1 s 간격) 측면.</summary>
+        void ShowGaitSprint(int k)
+        {
+            ClearSticks();
+            _view = $"gaitSprint{k + 1}";
+            _contactView = false;
+            if (_bodiesApplied) RestoreLooks();
+            RestoreOverrides();
+            var d = PerfHighlight.Build();
+            for (int f = 0; f < d.Frames; f++)
+                for (int e = 0; e < HighlightData.Entities; e++)
+                {
+                    bool on = e == 1 || e == 2;
+                    float x = e == 1 ? -1.6f : 1.6f;
+                    d.Set(f, e, on ? x : 0f, on ? -30f + 8.8f * f / HighlightData.FrameRate : 0f, 0f, on);
+                }
+            d.Events.Clear();
+            var styles = new RunStyleChoice[HighlightData.Entities];
+            styles[1] = new RunStyleChoice(RunArchetype.R1, KickArchetype.None, 0.5f);
+            styles[2] = new RunStyleChoice(RunArchetype.R2, KickArchetype.None, 0.5f);
+            // 1.5x: 시뮬 시각 = 시작 + 2 s + k·0.1 s
+            float t = d.StartTime + 2f + 0.1f * k;
+            long frame = (long)Math.Round((t - d.StartTime) * 60.0 / 1.5);
+            Prepare(d, t, 1.5f, frame, styles);
+            Ball().gameObject.SetActive(false);
+            var mid = (_rigs[1].transform.position + _rigs[2].transform.position) * 0.5f;
+            cam.transform.position = mid + new Vector3(7.0f, 1.5f, 5.5f); // 앞쪽 비스듬히 — 측면이면 두 선수가 겹친다
+            cam.transform.rotation = Quaternion.LookRotation(mid + Vector3.up * 0.95f - cam.transform.position, Vector3.up);
+        }
+
         void ShowSpeed(float rate, long frame)
         {
+            ClearSticks();
             _view = $"speed{rate:0.#}x";
             _contactView = false;
             var d = PerfHighlight.Build();
@@ -911,6 +1107,19 @@ namespace RoadToPro.Verification.Samples
     public static class PerfHighlight
     {
         public const float Start = 100f, Length = 12f;
+
+        /// <summary>055: 엔티티마다 원형(GK는 GK, 필드는 R1~R8 순환)·킥 원형·흔들기 — 원형 블렌드까지 포함한 애니메이션 비용 측정용.</summary>
+        public static RunStyleChoice[] Styles()
+        {
+            var s = new RunStyleChoice[HighlightData.Entities];
+            for (int e = 0; e < HighlightData.Players; e++)
+            {
+                bool gk = e == 0 || e == 11;
+                s[e] = new RunStyleChoice(gk ? RunArchetype.GK : (RunArchetype)(1 + e % 8), gk ? KickArchetype.K8 : (KickArchetype)(1 + e % 7),
+                    (e % 5) / 4f);
+            }
+            return s;
+        }
 
         public static HighlightData Build()
         {

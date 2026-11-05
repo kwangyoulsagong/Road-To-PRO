@@ -1,0 +1,30 @@
+{
+  "spec": "055",
+  "profile": "mac-m1-1600p",
+  "note": "specs/055 AC-13 성능 예산의 기계용 사본. 선수 25명 애니메이션 갱신(원형 블렌드 포함) p95 ≤ 2 ms·GC 0 — IL2CPP 릴리스 플레이어(farm.py bench --spec 055, 043 예산 유지). 클립 메모리(043 대비 ≤ +50 %)는 EditMode PlayerImportTests.ClipMemory_Within150Percent, 생성 시간(≤ 10분)은 farm.py art 리포트. AC-12 육안 승인은 evidence/approval.md.",
+  "tests": [
+    "RoadToPro.Tests.EditMode.Presentation.Players"
+  ],
+  "budgets": [],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-13",
+        "label": "선수 25명 애니메이션 갱신 p95 (헤드리스, 1.5x 합성 하이라이트, 원형 블렌드 포함)",
+        "metric": "anim_p95_ms",
+        "max": 2.0,
+        "unit": "ms"
+      },
+      {
+        "ac": "AC-13",
+        "label": "애니메이션 갱신 관리 힙 할당 (1200프레임 합)",
+        "metric": "anim_gc_bytes",
+        "max": 0,
+        "unit": "B"
+      }
+    ]
+  },
+  "manual": {
+    "AC-12": "evidence/approval.md"
+  }
+}
