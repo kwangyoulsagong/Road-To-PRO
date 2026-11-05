@@ -49,6 +49,7 @@ def _tris(m, pred=None):
 
 HEAD_MIN = 2000
 CLOSEUP_MAX = 6000
+HAIR_LOD0_MAX = 1350  # 057 plan T01: 몸 LOD0 + 헤어(셸 + 카드 + 부속) ≤ 10k
 
 
 def budgets(meshes, parts, textures):
@@ -75,6 +76,20 @@ def budgets(meshes, parts, textures):
     hc = parts[HL.NAME].triangles
     out["headCloseup"] = {"triangles": hc, "ok": hc <= CLOSEUP_MAX}
     out["ok"] &= hc <= CLOSEUP_MAX
+    # 057 스타일별: 헤어 삼각형(LOD별), 카드 삼각형 — 클로즈업 머리는 LOD0 헤어 조각을 그대로 쓴다(056 구조)
+    out["hair"] = {}
+    for st in H.MESH_STYLES:
+        rec = {"tris": {}, "cards": {}, "closeup": hc}
+        for lod in sorted(meshes):
+            hm = parts[f"{st}_LOD{lod}"]
+            rec["tris"][str(lod)] = hm.triangles
+            rec["cards"][str(lod)] = _tris(hm, lambda f: f[3] == "hair_card")
+        rec["cards"]["closeup"] = rec["cards"].get("0", 0)
+        ok = rec["tris"].get("0", 0) <= HAIR_LOD0_MAX and (0 not in meshes or 0 < rec["cards"]["0"] <= H.CARD_MAX)
+        ok &= all(rec["cards"][str(l)] == 0 for l in sorted(meshes) if l > 0)
+        rec["ok"] = ok
+        out["hair"][st] = rec
+        out["ok"] &= ok
     for name, (w, h) in textures.items():
         if w > TEXTURE_MAX or h > TEXTURE_MAX:
             out["ok"] = False
@@ -228,16 +243,24 @@ def _sample_frames(c):
 
 def penetration(clips, meshes, parts, lod=0):
     """056 AC-03: 클립 × 극단 4 × 4프레임 — 피부×유니폼, 머리카락×머리 아닌 몸, 뒤집힌 삼각형."""
+    from . import hair as H
     m = meshes[lod]
     skin, kit, nonhead = _sets(m)
     ds, dk = _dom(m, skin), _dom(m, kit)
     tri_faces = [f[0] for f in m.faces if len(f[0]) == 3]
-    poses, sk, hb, fl, cr = 0, 0, 0, 0, 0
+    poses, sk, hb, fl, cr, hposes = 0, 0, 0, 0, 0, 0
     worst = []
-    for name, (height, weights, style) in EXTREMES.items():
+    hair_worst = {}
+    # 057 AC-02: 헤어 29조각(셸 + 카드 + 부속) 전부 — 스타일 i는 극단 체형 (기본 배정 우선, 나머지는 i % 4)에 붙여 클립 × 4프레임
+    names = list(EXTREMES)
+    assign = {n: [EXTREMES[n][2]] for n in names}
+    for i, st in enumerate(H.MESH_STYLES):
+        if not any(st in v for v in assign.values()):
+            assign[names[i % len(names)]].append(st)
+    for name, (height, weights, _style) in EXTREMES.items():
         V = _blend(m, weights)
-        hm = parts.get(f"{style}_LOD{lod}")
-        HV = _blend(hm, weights) if hm is not None else None
+        hms = [(st, parts[f"{st}_LOD{lod}"]) for st in assign[name] if f"{st}_LOD{lod}" in parts]
+        HVs = [(st, hm, _blend(hm, weights), [x[0] for x in hm.faces]) for st, hm in hms]
         for c in clips:
             for f in _sample_frames(c):
                 rw, head, _ = PO.fk(c.sample(f / 30.0))
@@ -245,15 +268,22 @@ def penetration(clips, meshes, parts, lod=0):
                 poses += 1
                 n1 = _overlaps(m, P, skin, kit, ds, dk)
                 n2 = 0
-                if HV is not None:
-                    HP = _skin(hm, HV, rw, head)
-                    n2 = len(_bvh(HP, [x[0] for x in hm.faces]).overlap(_bvh(P, nonhead)))
+                if HVs:
+                    bt = _bvh(P, nonhead)
+                    for st, hm, HV, hf in HVs:
+                        HP = _skin(hm, HV, rw, head)
+                        k = len(_bvh(HP, hf).overlap(bt))
+                        hposes += 1
+                        if k:
+                            n2 += k
+                            hair_worst.setdefault(st, {"clip": c.id, "frame": f, "case": name, "hits": k})
                 n3, c3 = _flipped(m, V, P, tri_faces, rw)
                 sk, hb, fl, cr = sk + n1, hb + n2, fl + n3, cr + c3
                 if (n1 or n2 or n3) and len(worst) < 16:
                     worst.append({"case": name, "clip": c.id, "frame": f, "skinKit": n1, "hairBody": n2, "flipped": n3})
+    nst = sum(len(v) for v in assign.values())
     return {"ok": sk == 0 and hb == 0 and fl == 0, "poses": poses, "skinKit": sk, "hairBody": hb, "flipped": fl,
-            "creaseFolds": cr, "worst": worst}
+            "creaseFolds": cr, "worst": worst, "hairStyles": nst, "hairPoses": hposes, "hairWorst": hair_worst}
 
 
 def proportions(meshes, samples=200):
@@ -398,3 +428,126 @@ def ground(clips, step=2):
         if worst:
             bad[c.id] = {"depth": round(worst[0], 3), "bone": worst[1], "frame": worst[2]}
     return {"ok": not bad, "bad": bad}
+
+
+# ---------------------------------------------------------------- 057 유니폼 경계 매끈함 (AC-01, FR-01·02)
+
+BOUNDARY_TURN_MAX = {"collar": 20.0}  # 이웃 정점 꺾임 각 상한 (도) — specs/057 FR-01 칼라 20°, 나머지 40° (FR-02)
+BOUNDARY_TURN_OTHER = 40.0
+ZIGZAG_DEG = 10.0           # 계단: 이웃 꺾임 부호가 번갈아 바뀌고 둘 다 이 이상
+BOUNDARY_DEV_MAX = 0.003    # 경계 평면 이탈 상한 (m)
+
+
+def _loops(edges):
+    return B.chain_loops(edges)
+
+
+def kit_boundary(m, lod=0):
+    """턱 면(`*_rim`)의 바깥 변 = 유니폼 경계(보이는 턱 선). 고리마다 가장 가까운 절단 평면을 찾아 평면 투영 꺾임 각(최대·p95)·계단
+    수를 재고, 평면 이탈(평균 대비 최대)은 피부 쪽 절단선에서 잰다(피부 없는 경계는 턱 선). → {ok, loops: {평면: {...}}}"""
+    planes = B.cut_planes()
+    V = np.asarray(m.verts)
+    edges = []
+    for f, mat, uvs, part, _ in m.faces:
+        if part.endswith("_rim"):
+            ob, oa = f[0], f[1]
+            edges.append((min(oa, ob), max(oa, ob)))
+    out = {"ok": True, "lod": lod, "loops": {}}
+    if not edges:
+        return out
+    # 절단선(피부 쪽 경계 = 피부 면에서 한 번만 쓰인 변) — 평면 이탈은 이 선에서 잰다(셸 턱은 띄움 두께만큼 법선으로 떠 있다)
+    se = {}
+    for f, mat, uvs, part, _ in m.faces:
+        if part == "skin":
+            for i in range(len(f)):
+                a, b = f[i], f[(i + 1) % len(f)]
+                se[(min(a, b), max(a, b))] = se.get((min(a, b), max(a, b)), 0) + 1
+    cut_loops = [V[lp] for lp, cl in _loops(sorted(e for e, c in se.items() if c == 1)) if cl]
+    for loop, closed in _loops(sorted(set(edges))):
+        P = V[loop]
+        best = min(planes, key=lambda pl: float(np.abs((P - np.array(pl[1])) @ np.array(pl[2])).mean()))
+        name, pt, nrm, _ = best
+        n = np.array(nrm)
+        d = (P - np.array(pt)) @ n
+        cen = P.mean(axis=0)
+        cands = [C for C in cut_loops if np.linalg.norm(C.mean(axis=0) - cen) < 0.03
+                 and abs(float(((C - np.array(pt)) @ n).mean())) < 0.02]
+        dd = ((cands[0] - np.array(pt)) @ n) if cands else d  # 피부가 없는 경계(밑단·축구화 목)는 셸 고리
+        dev = float(np.abs(dd - dd.mean()).max())
+        Q = P - np.outer(d, n)  # 평면 투영
+        turns = []
+        k = len(Q)
+        rng = range(k) if closed else range(1, k - 1)
+        for i in rng:
+            e0 = Q[i] - Q[i - 1]
+            e1 = Q[(i + 1) % k] - Q[i]
+            l0, l1 = np.linalg.norm(e0), np.linalg.norm(e1)
+            if l0 < 1e-7 or l1 < 1e-7:
+                continue
+            c = float(np.clip(e0 @ e1 / (l0 * l1), -1.0, 1.0))
+            sgn = 1.0 if float(np.cross(e0, e1) @ n) >= 0 else -1.0
+            turns.append(sgn * math.degrees(math.acos(c)))
+        zig = sum(1 for a, b in zip(turns, turns[1:] + (turns[:1] if closed else []))
+                  if a * b < 0 and abs(a) > ZIGZAG_DEG and abs(b) > ZIGZAG_DEG)
+        t = sorted(abs(x) for x in turns)
+        rec = {"verts": k, "closed": bool(closed), "turnMax": round(t[-1], 2) if t else 0.0,
+               "turnP95": round(t[int(0.95 * (len(t) - 1))], 2) if t else 0.0, "devMax": round(dev, 5), "zigzag": zig}
+        key = name
+        i = 2
+        while key in out["loops"]:
+            key = f"{name}#{i}"
+            i += 1
+        out["loops"][key] = rec
+        if lod == 0 and (rec["turnMax"] > BOUNDARY_TURN_MAX.get(name, BOUNDARY_TURN_OTHER) or zig):
+            out["ok"] = False
+        if dev > BOUNDARY_DEV_MAX or not closed:
+            out["ok"] = False
+    return out
+
+
+def kit_rim_uv(m):
+    """057 FR-04: 칼라 포인트색 띠(셔츠 판 v_local ≥ 0.96 — textures.kit_mask `collar`)가 칼라 경계를 따라간다.
+    missing = 칼라 턱(경계 3 cm 안 shirt_rim) 코너인데 띠 밖, bleed = 칼라 평면 아래 3 cm 넘는 셔츠 면 코너인데 띠 안."""
+    from . import uv as U
+    pl = B.cut_planes()[0]
+    V = np.asarray(m.verts)
+    fr, bk = U.KIT_REGIONS["shirtFront"], U.KIT_REGIONS["shirtBack"]
+    out = {"ok": True, "collarRimCorners": 0, "missing": 0, "bleed": 0}
+    for f, mat, uvs, part, _ in m.faces:
+        if part not in ("shirt", "shirt_rim"):
+            continue
+        for vi, (u, v) in zip(f, uvs):
+            reg = fr if u < 0.5 else bk
+            vl = (v - reg[1]) / (reg[3] - reg[1])
+            d = B._side(V[vi], pl)
+            if part == "shirt_rim" and d > -0.03:
+                out["collarRimCorners"] += 1
+                if vl < 0.96 - 1e-6:
+                    out["missing"] += 1
+            elif part == "shirt" and vl >= 0.96 and d < -0.03:
+                out["bleed"] += 1
+    # 턱 면 정점이 셸 정점과 같은 위치(굽기 용접 격자 0.01 mm)에 있으면 법선이 섞인다 — 0이어야 한다
+    shell = {tuple(np.round(V[v] * 1e5).astype(np.int64)) for f, mat, uvs, part, _ in m.faces
+             if mat == B.KIT and not part.endswith("_rim") for v in f}
+    out["rimWelded"] = sum(1 for f, mat, uvs, part, _ in m.faces if part.endswith("_rim")
+                           for v in f[:2] if tuple(np.round(V[v] * 1e5).astype(np.int64)) in shell)
+    out["ok"] = out["missing"] == 0 and out["bleed"] == 0 and out["collarRimCorners"] > 0 and out["rimWelded"] == 0
+    return out
+
+
+SKIN_056_NORMAL_HF = 0.070367  # 056 클로즈업 얼굴 노멀 고주파 RMS (specs/057 plan T01)
+SKIN_056_ROUGH = {"nose": 0.591938, "cheek": 0.67973, "forehead": 0.566366, "eyeArea": 0.678763, "lips": 0.521222}
+
+
+def skin_detail(metrics):
+    """057 AC-05: 얼굴 노멀 고주파 ≤ 056 × 0.5 이고 > 0.002, 코·볼 > 이마·눈가·입술, 거칠기 평균 056 ± 0.02."""
+    out = dict(metrics)
+    face = metrics["face"]["normalHf"]
+    ok = face <= SKIN_056_NORMAL_HF * 0.5 and face > 0.002
+    ok &= min(metrics["nose"]["normalHf"], metrics["cheek"]["normalHf"]) > max(
+        metrics["forehead"]["normalHf"], metrics["eyeArea"]["normalHf"], metrics["lips"]["normalHf"])
+    ok &= all(abs(metrics[k]["rough"] - v) <= 0.02 for k, v in SKIN_056_ROUGH.items())
+    bd = metrics["beard"]  # 057 FR-24
+    ok &= bd["coreHf"] <= 0.05 and bd["lowNeck"] <= 0.01 and bd["mouthCorner"] >= 0.3
+    out["ok"] = bool(ok)
+    return out

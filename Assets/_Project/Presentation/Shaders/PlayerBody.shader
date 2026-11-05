@@ -1,6 +1,8 @@
 // 선수 몸 (specs/056 FR-21·30·31·40, 043 FR-01·02 대체). 피부·눈·머리카락이 한 머티리얼(드로우콜 증가 없음).
 // UV u < 1 → 피부(_SkinTex: R 밝기 디테일 0.8 = 1배, G 붉은 기운, B 수염 밀도, A 거칠기 / _SkinNormal 탄젠트 노멀)
 // UV u ≥ 1 → parts(_PartsTex, u − 1): 눈 칸(R 밝기·반사점, G 홍채 마스크, A 거칠기), 머리카락 칸(R 가닥 밝기, G 결 위상, B 마스크 1).
+// UV u ≥ 2 → 가닥 카드(specs/057 FR-10·12): parts(u − 2) 카드 칸(R 가닥 밝기, G 알파, B 마스크 1). 4×4 화면 디더로 알파 클립 —
+//            투명 큐·정렬 없이 불투명 패스 안에서 그린다(드로우콜 증가 0). 깊이·그림자 패스도 같은 클립.
 // 조명: 피부는 채널별 랩 조명(그림자 경계가 붉고 부드러움 — 저비용 산란 근사) + 정규화 블린-퐁(정반사 세기 상한, "플라스틱 피부" 방지),
 //       눈은 매끈한 정반사, 머리카락은 Kajiya-Kay 이방성 하이라이트(가닥 = UV v 방향). 시간 의존 항 없음.
 Shader "RoadToPro/PlayerBody"
@@ -18,7 +20,7 @@ Shader "RoadToPro/PlayerBody"
     }
     SubShader
     {
-        Tags { "RenderType" = "Opaque" "RenderPipeline" = "UniversalPipeline" "Queue" = "Geometry" }
+        Tags { "RenderType" = "TransparentCutout" "RenderPipeline" = "UniversalPipeline" "Queue" = "AlphaTest" }
 
         HLSLINCLUDE
         #include "PlayerCommon.hlsl"
@@ -33,6 +35,26 @@ Shader "RoadToPro/PlayerBody"
             half _BeardLevel;
             half _NormalStrength;
         CBUFFER_END
+
+        // 057: 카드 픽셀 알파(u ≥ 2만, 나머지 1). 화면 4×4 베이어 디더 문턱 — MSAA·TAA 없이도 가장자리가 가닥처럼 끊긴다
+        half CardAlpha(float2 uv)
+        {
+            half isCard = (half)step(2.0, uv.x);
+            half a = SAMPLE_TEXTURE2D(_PartsTex, sampler_PartsTex, float2(uv.x - 2.0, uv.y)).g;
+            return lerp(1.0h, a, isCard);
+        }
+
+        half Bayer4(float2 pix)
+        {
+            uint2 p = (uint2)pix & 3u;
+            const half m[16] = { 0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5 };
+            return (m[p.y * 4u + p.x] + 0.5h) / 16.0h;
+        }
+
+        void ClipCard(float2 uv, float4 positionCS)
+        {
+            clip(CardAlpha(uv) - Bayer4(positionCS.xy));
+        }
         ENDHLSL
 
         Pass
@@ -99,11 +121,14 @@ Shader "RoadToPro/PlayerBody"
             #if defined(LOD_FADE_CROSSFADE)
                 LODFadeCrossFade(i.positionCS);
             #endif
+                ClipCard(i.uv, i.positionCS);
                 // 두 텍스처를 분기 없이 읽는다(암시적 미분이 정의되도록) — 043 키트 셰이더 교훈
                 half isPart = (half)step(1.0, i.uv.x);
+                half isCard = (half)step(2.0, i.uv.x);
                 half4 s = SAMPLE_TEXTURE2D(_SkinTex, sampler_SkinTex, frac(i.uv));
                 half3 tn = UnpackNormal(SAMPLE_TEXTURE2D(_SkinNormal, sampler_SkinNormal, frac(i.uv)));
-                half4 pt = SAMPLE_TEXTURE2D(_PartsTex, sampler_PartsTex, float2(i.uv.x - 1.0, i.uv.y));
+                half4 pt = SAMPLE_TEXTURE2D(_PartsTex, sampler_PartsTex, float2(i.uv.x - 1.0 - isCard, i.uv.y));
+                pt.g = lerp(pt.g, 0.5h, isCard); // 카드의 G는 알파 — 결 위상은 가운데
 
                 half3 nG = normalize(i.normalWS);
                 half3 t = normalize(i.tangentWS.xyz);
@@ -124,8 +149,12 @@ Shader "RoadToPro/PlayerBody"
                 // 피부
                 half3 skin = _SkinColor.rgb * (s.r * 1.25h);
                 skin *= lerp(half3(1, 1, 1), half3(1.10h, 0.86h, 0.82h), s.g * 0.7h);
-                half beard = saturate((s.b - (1.0h - _BeardLevel)) * 3.0h) * step(0.01h, _BeardLevel);
-                skin = lerp(skin, _HairColor.rgb * 0.55h, beard * 0.85h);
+                // 057 FR-24: 수염 = 밀도(s.b)의 부드러운 문턱(경계 흐림) × 종류별 덮임. 짧을수록 피부가 비치는 옅은 색조(잔털), 길수록 짙다.
+                half lvl = _BeardLevel;
+                half lo = 0.75h - lvl * 0.6h;
+                half beard = smoothstep(lo, lo + 0.45h, s.b) * lvl * step(0.01h, lvl);
+                half3 beardCol = _HairColor.rgb * lerp(0.75h, 0.55h, lvl) * lerp(0.9h, 1.1h, s.b);
+                skin = lerp(skin, beardCol, beard * lerp(0.55h, 0.92h, lvl));
                 half skinRough = saturate(s.a + beard * 0.3h);
                 half3 cSkin = skin * (lc * SkinDiffuse(ndlRaw) + amb) + lc * 0.028h * Spec(n, h, ndl, skinRough);
 
@@ -147,14 +176,40 @@ Shader "RoadToPro/PlayerBody"
             ENDHLSL
         }
 
+        HLSLINCLUDE
+        struct DA { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
+        struct DV { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+
+        DV BodyShadowVert(DA i)
+        {
+            PlayerAttributes a;
+            a.positionOS = i.positionOS; a.normalOS = i.normalOS; a.uv = i.uv;
+            DV o; o.positionCS = PlayerShadowVert(a); o.uv = i.uv; return o;
+        }
+
+        DV BodyDepthVert(DA i)
+        {
+            DV o; o.positionCS = TransformObjectToHClip(i.positionOS.xyz); o.uv = i.uv; return o;
+        }
+
+        half BodyDepthFrag(DV i) : SV_Target
+        {
+        #if defined(LOD_FADE_CROSSFADE)
+            LODFadeCrossFade(i.positionCS);
+        #endif
+            ClipCard(i.uv, i.positionCS);
+            return 0;
+        }
+        ENDHLSL
+
         Pass
         {
             Name "ShadowCaster"
             Tags { "LightMode" = "ShadowCaster" }
             ZWrite On ZTest LEqual ColorMask 0
             HLSLPROGRAM
-            #pragma vertex PlayerShadowVert
-            #pragma fragment PlayerDepthFrag
+            #pragma vertex BodyShadowVert
+            #pragma fragment BodyDepthFrag
             ENDHLSL
         }
 
@@ -164,8 +219,8 @@ Shader "RoadToPro/PlayerBody"
             Tags { "LightMode" = "DepthOnly" }
             ColorMask R
             HLSLPROGRAM
-            #pragma vertex PlayerDepthVert
-            #pragma fragment PlayerDepthFrag
+            #pragma vertex BodyDepthVert
+            #pragma fragment BodyDepthFrag
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             ENDHLSL
         }

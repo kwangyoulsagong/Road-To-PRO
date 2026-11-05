@@ -83,6 +83,7 @@ SDD 규칙: `.claude/rules/05-sdd.md`. 템플릿: `_templates/`. 완료 판정�
 | 054 | [3D 선수 로코모션 · 공 접촉 동기화](054-locomotion-ball-sync/spec.md) | P1 | 005, 006, 041, 043 | 초안 |
 | 055 | [사람다운 달리기·킥 폼 (생체역학 기준 · 스타일 원형)](055-running-form/spec.md) | P1 | 043, 054 | 승인됨 |
 | 056 | [사람다운 선수 모델 (MPFB2 CC0 · 얼굴 · 피부 · 머리카락)](056-realistic-player-model/spec.md) | P1 | 043 | 완료 |
+| 057 | [선수 외형 다듬기 (칼라 경계 · 머리카락 카드 · 피부 질감 · 헤어 30종)](057-player-appearance-polish/spec.md) | P1 | 056 | 승인됨 |
 
 ## 아직 결정되지 않은 것 (스펙이 결정하지 않음) — 2026-11-02 아래 '스펙 간 결정' 참고, 실명 정책은 A안으로 확정
 - 실명 데이터 정책 (docs/index.html 00 문서 A/B/C) → 020, 022, 049에 영향

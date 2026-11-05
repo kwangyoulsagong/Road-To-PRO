@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "id": "057-model-perf",
+  "spec": "057",
+  "description": "057 외형 다듬기(칼라 경계 · 헤어 카드 디더 알파 클립 · 헤어 30종)로 선수 25명 하이라이트 성능 (AC-10). 056-model-perf와 같은 장면·구간. 기준: 056 low-igpu-1080p 실측(20261104-174228-full) 선수 드로우콜 61.6 × 1.10 = 67.8, 선수 렌더 GPU 몫 0.498 ms × 1.15 = 0.573 ms (compact-1366 056 GPU 몫 0.441 ms는 기록). 클로즈업 전환 ≤ 2 ms, GC 0. 애니메이션 CPU는 IL2CPP 벤치(farm.py bench --spec 057).",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "compact-1366"
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "perfEmpty"
+    },
+    {
+      "type": "perfBegin",
+      "name": "empty",
+      "warmupFrames": 60,
+      "minFrames": 300
+    },
+    {
+      "type": "perfEnd",
+      "name": "empty"
+    },
+    {
+      "type": "goto",
+      "screen": "perfPlayers"
+    },
+    {
+      "type": "perfBegin",
+      "name": "players",
+      "warmupFrames": 60,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "players"
+    },
+    {
+      "type": "goto",
+      "screen": "perfPlayersNoShadow"
+    },
+    {
+      "type": "perfBegin",
+      "name": "playersNoShadow",
+      "warmupFrames": 60,
+      "minFrames": 200
+    },
+    {
+      "type": "perfEnd",
+      "name": "playersNoShadow"
+    },
+    {
+      "type": "goto",
+      "screen": "perfFull"
+    },
+    {
+      "type": "perfBegin",
+      "name": "full",
+      "warmupFrames": 60,
+      "minFrames": 300
+    },
+    {
+      "type": "perfEnd",
+      "name": "full"
+    },
+    {
+      "type": "goto",
+      "screen": "perfCloseup"
+    },
+    {
+      "type": "perfBegin",
+      "name": "closeup",
+      "warmupFrames": 60,
+      "minFrames": 400
+    },
+    {
+      "type": "perfEnd",
+      "name": "closeup"
+    }
+  ],
+  "acs": [
+    "AC-10"
+  ],
+  "defaults": {
+    "timeoutSec": 90
+  },
+  "budgets": {
+    "players": {
+      "custom.animGcBytes.max": 0
+    },
+    "closeup": {
+      "custom.closeupSwitchMs.max": 2.0
+    }
+  },
+  "derived": {
+    "playersRender": {
+      "of": "players",
+      "minus": "empty",
+      "budget": {
+        "drawCalls.avg": 67.8,
+        "gpuMs.avg": 0.573,
+        "triangles.avg": 150000
+      }
+    },
+    "playersMainPass": {
+      "of": "playersNoShadow",
+      "minus": "empty",
+      "budget": {}
+    }
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

@@ -103,6 +103,11 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         "licenses": lic,
         "eyes": F.eyes_covered(R, tree, eye_keys),
     }
+    kb = {str(l): checks.kit_boundary(mm[l], l) for l in sorted(mm) if l < 2}
+    summary["kitBoundary"] = dict(kb, ok=all(v["ok"] for v in kb.values()))
+    summary["kitRimUv"] = checks.kit_rim_uv(mm[min(mm)])
+    from player import skin as SK
+    summary["skinDetail"] = checks.skin_detail(SK.LAST_METRICS)
     if 0 in mm:
         summary["proportions"] = checks.proportions(mm)
         summary["penetration"] = checks.penetration(clips, mm, pm, 0)
@@ -118,7 +123,8 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         "uv": uv.layout(),
         "shapes": sorted({k for (o, m) in list(meshes.values()) for k in m.deltas}),
         "hair": {st: [f"{st}_LOD{l}" for l in lods] for st in H.MESH_STYLES},
-        "hairStyles": list(H.STYLES),
+        "hairStyles": [{"name": st, "family": H.FAMILY[st],
+                        "meshes": [f"{st}_LOD{l}" for l in lods] if st in H.MESH_STYLES else None} for st in H.STYLES],
         "headCloseup": HL.NAME,
         "materials": list(rig.MATERIALS),
         "textures": {k: list(v) for k, v in sorted(tex.items())},

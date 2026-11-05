@@ -19,6 +19,10 @@ from . import hair as H
 from .textures import _noise, _to8, write_png
 
 SKIN = 1024
+PORE_AMP = 0.45     # 057: 056 대비 모공 높이 진폭
+PORE_SMOOTH = 0.35  # 057: 이마·눈가·입술 등 코·볼 밖 얼굴의 모공 가중치 [제안]
+LAST_METRICS = {}   # 마지막 write_all의 클로즈업 피부 지표 (checks.skin_detail 입력)
+PORE_BODY = 0.6     # 057: 얼굴 밖 몸 피부 모공 가중치 (원거리 깜빡임 완화, FR-22)
 CLOSEUP = 2048
 PARTS = 1024
 
@@ -114,15 +118,19 @@ def _fields(R, pos, valid, size, seed):
     red = red + 0.25 * knee
     red = np.clip(red, 0, 1)
     lum = lum * (1 - 0.08 * lips)
-    # 수염 밀도 (점 노이즈 = 모낭)
+    # 수염 밀도 (057 FR-24): 매끈한 밀도 마스크 × 낮은 대비 결(아래로 자라는 방향으로 늘인 노이즈 — 털 결).
+    # 056의 모낭 점 노이즈(0.35 + 0.65 × 점)는 소금·후추처럼 보여 버렸다. 셰이더가 _BeardLevel로 부드럽게 문턱을 넘긴다.
     bm = F.beard_mask(R, pos) * valid
-    follicle = _noise(u, v, 13 + seed, size // 1)
-    beard = np.clip(bm * (0.35 + 0.65 * follicle), 0, 1)
+    grain = _noise(u * 1.0, v * 0.35, 13 + seed, size // 2) * 0.6 + _noise(u, v * 0.5, 14 + seed, size // 4) * 0.4
+    beard = np.clip(bm * (0.88 + 0.12 * grain), 0, 1)
     # 거칠기
     rough = 0.68 - 0.18 * _blob(rx, ry, 0.0, 0.9, 0.7, 0.45) * face - 0.16 * _blob(rx, ry, 0.0, -0.8, 0.25, 0.4) * face
     rough = rough - 0.22 * lips + 0.02 * (_noise(u, v, 17 + seed, size // 4) - 0.5)
-    # 높이장 (노멀): 모공 + 이마 잔주름
-    pores = _noise(u, v, 21 + seed, size // 2) * 0.6 + _noise(u, v, 23 + seed, size) * 0.4
+    # 높이장 (노멀): 모공 + 이마 잔주름.
+    # 057 FR-20·21: 모공 진폭 PORE_AMP배(클로즈업 사포 느낌 제거), 부위 가중치 — 코·볼 1.0, 이마·눈가·입술 PORE_SMOOTH, 몸 PORE_BODY
+    pw = np.clip(_blob(rx, ry, 0.0, -0.6, 0.25, 0.45) + _blob(ax, ry, 0.78, -0.62, 0.38, 0.32), 0, 1)
+    pw = np.where(face, PORE_SMOOTH + (1.0 - PORE_SMOOTH) * pw, PORE_BODY)
+    pores = (_noise(u, v, 21 + seed, size // 2) * 0.6 + _noise(u, v, 23 + seed, size) * 0.4 - 0.5) * PORE_AMP * pw + 0.5
     wr = 0.5 + 0.5 * np.sin(ry * 60.0) * _blob(rx, ry, 0.0, 1.0, 0.8, 0.25) * face * 0.3
     height = pores * 0.7 + wr * 0.3
     return lum, red, beard, rough, height
@@ -135,14 +143,64 @@ def _normal_from_height(h, strength):
     return n * 0.5 + 0.5
 
 
-def skin_maps(R, size, seed):
+def skin_maps(R, size, seed, metrics=None):
     pos, valid = _raster(R, size)
     lum, red, beard, rough, height = _fields(R, pos, valid, size, seed)
     rgba = np.stack([lum, red, beard, rough], axis=-1)
     rgba = _dilate(rgba, valid)
     nrm = _normal_from_height(height, 0.5 * size / 1024)
     nrm = _dilate(nrm, valid)
+    if metrics is not None:
+        metrics.update(detail_metrics(R, pos, valid, rgba, nrm))
     return _to8(rgba), _to8(nrm)
+
+
+# ---------------------------------------------------------------- 057 피부 디테일 지표 (AC-05, FR-20·21·23)
+
+def _box(img, r):
+    """정사각 상자 블러 (반경 r 텍셀, 가장자리 반복). 누적합 — 결정론."""
+    k = 2 * r + 1
+    p = np.pad(img, ((r + 1, r), (r + 1, r)), mode="edge")
+    c = p.cumsum(0).cumsum(1)
+    return (c[k:, k:] - c[:-k, k:] - c[k:, :-k] + c[:-k, :-k]) / (k * k)
+
+
+def face_regions(R, pos, valid):
+    """얼굴 부위 마스크 (눈 중심·눈 사이 거리 d 기준 비율). → {이름: bool (S,S)}"""
+    c, d = F.eye_frame(R)
+    rx = (pos[..., 0] - c[0]) / d
+    ax = np.abs(rx)
+    ry = (pos[..., 1] - c[1]) / d
+    rz = (pos[..., 2] - c[2]) / d
+    front = valid & (rz > -0.6)
+    return {
+        "nose": front & (ax < 0.22) & (ry > -1.0) & (ry < -0.25),
+        "cheek": front & (ax > 0.55) & (ax < 1.0) & (ry > -0.95) & (ry < -0.35),
+        "forehead": front & (ax < 0.6) & (ry > 0.75) & (ry < 1.3),
+        "eyeArea": front & (ax > 0.3) & (ax < 0.8) & (ry > -0.35) & (ry < -0.12),
+        "lips": front & (ax < 0.35) & (ry > -1.62) & (ry < -1.38),
+    }
+
+
+def detail_metrics(R, pos, valid, rgba, nrm):
+    """부위별 고주파 표준편차: 밝기(R − 상자 블러 r=2), 노멀 기울기(xy − 블러), 거칠기 평균. 6자리."""
+    lum = rgba[..., 0]
+    hl = lum - _box(lum, 2)
+    nx, ny = nrm[..., 0] - 0.5, nrm[..., 1] - 0.5
+    hn = np.sqrt((nx - _box(nx, 2)) ** 2 + (ny - _box(ny, 2)) ** 2)
+    out = {}
+    for name, m in face_regions(R, pos, valid).items():
+        if not m.any():
+            out[name] = None
+            continue
+        out[name] = {"lumHf": round(float(hl[m].std()), 6), "normalHf": round(float(np.sqrt((hn[m] ** 2).mean())), 6),
+                     "rough": round(float(rgba[..., 3][m].mean()), 6), "texels": int(m.sum())}
+    out["beard"] = beard_metrics(R, pos, valid, rgba[..., 2])
+    allm = np.zeros_like(valid)
+    for m in face_regions(R, pos, valid).values():
+        allm |= m
+    out["face"] = {"lumHf": round(float(hl[allm].std()), 6), "normalHf": round(float(np.sqrt((hn[allm] ** 2).mean())), 6)}
+    return out
 
 
 def parts_map(R, seed):
@@ -181,6 +239,21 @@ def parts_map(R, seed):
     out[..., 1] = np.where(m, _noise(hu, hv * 0.03, 47 + seed, 300), out[..., 1])
     out[..., 2] = np.where(m, 1.0, 0.0)
     out[..., 3] = np.where(m, 0.45, out[..., 3])
+    # 057 가닥 카드 칸 (H.CARD_REGION): R 가닥 밝기, G 알파(뿌리 v=1 → 끝 v=0 으로 가닥이 듬성해진다), B 머리카락 마스크 1, A 거칠기
+    cm = (u >= H.CARD_REGION[0]) & (u < H.CARD_REGION[2]) & (v >= H.CARD_REGION[1]) & (v < H.CARD_REGION[3])
+    cu = (u - H.CARD_REGION[0]) / (H.CARD_REGION[2] - H.CARD_REGION[0])
+    cv = (v - H.CARD_REGION[1]) / (H.CARD_REGION[3] - H.CARD_REGION[1])
+    lane = _noise(cu * 0.9, cv * 0.004, 51 + seed, 512)          # 가닥마다 길이(가로로만 변하는 값)
+    clump = _noise(cu * 0.9, cv * 0.004, 53 + seed, 64)
+    reach = 0.10 + 0.90 * (0.6 * lane + 0.4 * clump)            # 이 가닥이 끝(0)까지 얼마나 내려오는가
+    # 057: 알파는 거의 0/1 (가닥이 있거나 없거나) — 중간 알파가 넓으면 디더 점이 박힌 사각형으로 보인다(smoke 캡처 2026-11-05)
+    alpha = np.clip((cv - (1.0 - reach)) / 0.02, 0, 1) * np.clip(cv / 0.02, 0, 1)
+    gap = _noise(cu * 0.9, cv * 0.004, 57 + seed, 900)
+    alpha = alpha * np.clip((gap - 0.40) / 0.03, 0, 1)
+    out[..., 0] = np.where(cm, 0.5 + 0.3 * lane + 0.2 * _noise(cu, cv * 0.05, 59 + seed, 700), out[..., 0])
+    out[..., 1] = np.where(cm, alpha, out[..., 1])
+    out[..., 2] = np.where(cm, 1.0, out[..., 2])
+    out[..., 3] = np.where(cm, 0.45, out[..., 3])
     return _to8(out)
 
 
@@ -191,10 +264,30 @@ def write_all(out_dir, R, seed=0):
     write_png(os.path.join(out_dir, "skin.png"), s)
     write_png(os.path.join(out_dir, "skin_normal.png"), n)
     out["skin.png"] = out["skin_normal.png"] = (SKIN, SKIN)
-    s, n = skin_maps(R, CLOSEUP, seed)
+    LAST_METRICS.clear()
+    s, n = skin_maps(R, CLOSEUP, seed, LAST_METRICS)
     write_png(os.path.join(out_dir, "skin_closeup.png"), s)
     write_png(os.path.join(out_dir, "skin_closeup_normal.png"), n)
     out["skin_closeup.png"] = out["skin_closeup_normal.png"] = (CLOSEUP, CLOSEUP)
     write_png(os.path.join(out_dir, "parts.png"), parts_map(R, seed))
     out["parts.png"] = (PARTS, PARTS)
     return out
+
+
+def beard_metrics(R, pos, valid, b):
+    """057 FR-24 수염 채널(B) 지표: 영역 안 고주파 RMS(점 노이즈), 아래 목 누출(울대 아래 평균), 입꼬리 밀도(입 둘레 타원 구멍 여부),
+    경계 부드러움(0.1 < b < 0.9 비율 — 칼로 자른 경계면 작다)."""
+    c, d = F.eye_frame(R)
+    rx = (pos[..., 0] - c[0]) / d
+    ry = (pos[..., 1] - c[1]) / d
+    rz = (pos[..., 2] - c[2]) / d
+    front = valid & (rz > -1.6)
+    core = front & (b > 0.5)
+    hf = b - _box(b, 2)
+    low_neck = front & (ry < -2.95) & (ry > -3.6) & (np.abs(rx) < 0.8)
+    corner = front & (np.abs(np.abs(rx) - 0.5) < 0.06) & (np.abs(ry + 1.5) < 0.05)
+    some = front & (b > 0.1)
+    return {"coreHf": round(float(np.sqrt((hf[core] ** 2).mean())) if core.any() else 0.0, 6),
+            "lowNeck": round(float(b[low_neck].mean()) if low_neck.any() else 0.0, 6),
+            "mouthCorner": round(float(b[corner].mean()) if corner.any() else 0.0, 6),
+            "softEdge": round(float(((b > 0.1) & (b < 0.9))[some].mean()) if some.any() else 0.0, 6)}

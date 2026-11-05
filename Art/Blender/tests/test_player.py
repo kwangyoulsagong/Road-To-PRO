@@ -87,8 +87,18 @@ def png_size(path):
     return struct.unpack(">II", head[16:24])
 
 
+# specs/057 FR-30: 30종. 0~9는 056 순서 그대로(기준 이미지·기존 시드 해석), 삭발(9)은 형상 없음.
 HAIR = ("Hair_Buzz", "Hair_Short", "Hair_Long", "Hair_Curly", "Hair_Bun", "Hair_Fade", "Hair_Afro", "Hair_Mohawk", "Hair_Dreads",
-        "Hair_Bald")
+        "Hair_Bald",
+        "Hair_Crew", "Hair_SidePart", "Hair_Undercut", "Hair_SlickBack", "Hair_Quiff", "Hair_Curtains", "Hair_TexturedCrop",
+        "Hair_BuzzLine", "Hair_HighTop", "Hair_Cornrows", "Hair_Twists", "Hair_TopKnot", "Hair_Ponytail", "Hair_MediumWave",
+        "Hair_FrenchCrop", "Hair_IvyLeague", "Hair_Spiky", "Hair_CurlyTop", "Hair_BoxBraids", "Hair_HalfUp")
+MESH_HAIR = tuple(h for h in HAIR if h != "Hair_Bald")
+FAMILY = {"short": {0, 1, 5, 9, 10, 11, 12, 14, 16, 17, 19, 24, 25, 26, 27}, "medium": {3, 6, 7, 13, 15, 18, 20, 23},
+          "long": {2, 4, 8, 21, 22, 28, 29}}
+# 056 기준 (specs/057 plan '구현 중 바뀐 점' T01): 클로즈업 피부 얼굴 노멀 고주파 RMS, 부위별 거칠기 평균
+SKIN_056_NORMAL_HF = 0.070367
+SKIN_056_ROUGH = {"nose": 0.591938, "cheek": 0.67973, "forehead": 0.566366, "eyeArea": 0.678763, "lips": 0.521222}
 
 
 class Budgets_Lod_Materials_Textures(unittest.TestCase):
@@ -106,13 +116,44 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         self.assertLessEqual(b["lods"]["2"]["triangles"], 1_000)
         self.assertLessEqual(b["headCloseup"]["triangles"], 6_000)
 
+    def test_hair_styles_budget_and_cards(self):
+        """057 AC-03·FR-10·11·40: 스타일마다 몸 + 헤어 LOD0 6k~10k, LOD1 2k~3k, LOD2 ≤ 1k, 클로즈업 머리 메시 ≤ 6k(056 기준).
+        카드는 LOD0(클로즈업 머리는 LOD0 헤어 조각을 쓴다)에만, 삭발 제외 전부. LOD1·LOD2엔 없다. 헤어 LOD0 ≤ 1,350 (plan T01)."""
+        g = generated("default")
+        b = g.layout["summary"]["budgets"]
+        hs = b["hair"]
+        self.assertEqual(sorted(hs), sorted(MESH_HAIR))
+        for st, h in hs.items():
+            self.assertLessEqual(h["tris"]["0"], 1_350, st)
+            self.assertGreater(h["cards"]["0"], 0, f"{st} LOD0 카드 없음")
+            self.assertLessEqual(h["cards"]["0"], 400, st)
+            self.assertEqual(h["cards"]["1"], 0, st)
+            self.assertEqual(h["cards"]["2"], 0, st)
+            self.assertGreater(h["cards"]["closeup"], 0, st)
+            self.assertLessEqual(h["closeup"], 6_000, st)
+            for lod, (lo, hi) in {"0": (6_000, 10_000), "1": (2_000, 3_000), "2": (0, 1_000)}.items():
+                t = b["lods"][lod]["body"] + h["tris"][lod]
+                self.assertTrue(lo <= t <= hi, f"{st} LOD{lod} {t}")
+
+    def test_hair_style_order_and_family(self):
+        """057 FR-30·31: 30종 순서(0~9 = 056), 계열 표."""
+        hl = generated("default").layout["hairStyles"]
+        self.assertEqual([h["name"] for h in hl], list(HAIR))
+        for fam, idx in FAMILY.items():
+            for i in idx:
+                self.assertEqual(hl[i]["family"], fam, hl[i]["name"])
+        self.assertIsNone(hl[9]["meshes"])
+        for i, h in enumerate(hl):
+            if i != 9:
+                self.assertEqual(h["meshes"], [f"{h['name']}_LOD{l}" for l in (0, 1, 2)])
+
     def test_glb(self):
         gj = generated("default").glb_json()
         self.assertLessEqual(len(gj.get("materials", [])), 3)
         self.assertEqual(gj.get("images", []), [], "텍스처는 glb에 넣지 않는다(Unity 쪽 PNG)")
         names = sorted(m["name"] for m in gj["meshes"])
         want = ["Head_Closeup", "Player_LOD0", "Player_LOD1", "Player_LOD2"]
-        want += [f"{h}_LOD{l}" for h in HAIR[:-1] for l in (0, 1, 2)]  # 삭발은 형상 없음
+        want += [f"{h}_LOD{l}" for h in MESH_HAIR for l in (0, 1, 2)]  # 삭발은 형상 없음
         self.assertEqual(names, sorted(want))
         self.assertEqual(len(gj.get("skins", [])), 1, "모든 메시가 뼈대 하나를 공유")
         for m in gj["meshes"]:
@@ -188,6 +229,70 @@ class Penetration_ClipsExtremes(unittest.TestCase):
         self.assertEqual(p["flipped"], 0, p)
         self.assertTrue(p["ok"])
 
+    def test_all_hair_styles_with_cards(self):
+        """057 AC-02·FR-13·33: 헤어 29조각(삭발 제외, 셸 + 카드) 전부 클립 82 × 4프레임에서 머리카락×몸·유니폼 0."""
+        p = generated("default").layout["summary"]["penetration"]
+        self.assertEqual(p["hairStyles"], len(MESH_HAIR), p)
+        self.assertGreaterEqual(p["hairPoses"], len(MESH_HAIR) * 82 * 4)
+        self.assertEqual(p["hairBody"], 0, p)
+
+
+class KitBoundary_Smooth(unittest.TestCase):
+    """057 AC-01·FR-01·02: LOD0 유니폼 경계 고리(칼라·소매 2·밑단·반바지 2·양말 2·축구화 2)가 닫힌 고리 하나씩이고
+    평면 투영 이웃 꺾임 각 칼라 ≤ 20° · 나머지 ≤ 40°, 계단 0, 평면 이탈 ≤ 3 mm. LOD1은 닫힌 고리·이탈만 (plan T01·T04)."""
+
+    def test_lod0_loops(self):
+        kb = generated("default").layout["summary"]["kitBoundary"]
+        loops = kb["0"]["loops"]
+        base = sorted(k.split("#")[0] for k in loops)
+        self.assertEqual(base.count("collar"), 1, loops)
+        self.assertEqual(base.count("hem"), 1, loops)
+        self.assertEqual(len(loops), 10, loops)
+        for name, r in loops.items():
+            self.assertTrue(r["closed"], name)
+            self.assertLessEqual(r["turnMax"], 20.0 if name == "collar" else 40.0, f"{name} {r}")
+            self.assertEqual(r["zigzag"], 0, f"{name} {r}")
+            self.assertLessEqual(r["devMax"], 0.003, f"{name} {r}")
+        self.assertTrue(kb["0"]["ok"])
+
+    def test_lod1_closed(self):
+        loops = generated("default").layout["summary"]["kitBoundary"]["1"]["loops"]
+        self.assertEqual(len(loops), 10, loops)
+        for name, r in loops.items():
+            self.assertTrue(r["closed"], name)
+            self.assertLessEqual(r["devMax"], 0.003, f"{name} {r}")
+
+    def test_kit_rim_uv_region(self):
+        """057 FR-04: 칼라 포인트색 띠(셔츠 v ≥ 0.96)는 칼라 경계를 따라가고(칼라 턱 전부 띠 안) 경계 아래로 번지지 않는다."""
+        r = generated("default").layout["summary"]["kitRimUv"]
+        self.assertGreater(r["collarRimCorners"], 0, r)
+        self.assertEqual(r["missing"], 0, r)
+        self.assertEqual(r["bleed"], 0, r)
+        self.assertEqual(r["rimWelded"], 0, "턱 면 정점이 셸 정점과 같은 위치 → 굽기 법선 섞임(톱니 음영)")
+        self.assertTrue(r["ok"])
+
+
+class SkinDetail_Closeup(unittest.TestCase):
+    """057 AC-05·FR-20·21·23: 클로즈업 피부 고주파(노멀)가 056의 절반 이하이면서 0이 아니고, 코·볼 > 이마·눈가,
+    거칠기(정반사) 평균은 056 ± 0.02 (플라스틱 피부 금지 유지)."""
+
+    def test_detail(self):
+        s = generated("default").layout["summary"]["skinDetail"]
+        face = s["face"]["normalHf"]
+        self.assertLessEqual(face, SKIN_056_NORMAL_HF * 0.5, s)
+        self.assertGreater(face, 0.002, s)
+        self.assertGreater(min(s["nose"]["normalHf"], s["cheek"]["normalHf"]),
+                           max(s["forehead"]["normalHf"], s["eyeArea"]["normalHf"], s["lips"]["normalHf"]), s)
+        for k, v in SKIN_056_ROUGH.items():
+            self.assertAlmostEqual(s[k]["rough"], v, delta=0.02, msg=k)
+
+    def test_beard(self):
+        """057 FR-24: 수염 밀도 점 노이즈 ≤ 0.05(056 0.164), 울대 아래 목 ≤ 0.01, 입꼬리 ≥ 0.3(056 0 — 입 둘레 타원 구멍)."""
+        b = generated("default").layout["summary"]["skinDetail"]["beard"]
+        self.assertLessEqual(b["coreHf"], 0.05, b)
+        self.assertLessEqual(b["lowNeck"], 0.01, b)
+        self.assertGreaterEqual(b["mouthCorner"], 0.3, b)
+
 
 class KitUv_SameAs043(unittest.TestCase):
     """056 FR-51: 유니폼 UV 영역·번호/이름 영역이 043과 같다 (Unity PlayerLook 상수 불변)."""
@@ -206,7 +311,7 @@ class ExtremeBodies_FootGround_NoSelfIntersect(unittest.TestCase):
         e = generated("default").layout["summary"]["extremes"]
         body_cases = sorted(k for k in e["cases"] if not k.startswith("hair_"))
         self.assertEqual(body_cases, ["short_heavy", "short_light", "tall_heavy", "tall_light"])
-        self.assertEqual(len([k for k in e["cases"] if k.startswith("hair_")]), 10, "헤어 10종 관통 검사")
+        self.assertEqual(len([k for k in e["cases"] if k.startswith("hair_")]), 30, "헤어 30종 관통 검사")
         for name, c in e["cases"].items():
             self.assertLessEqual(abs(c["footMin"]), 0.02, name)
             self.assertEqual(c["intersections"], {}, name)
@@ -319,8 +424,8 @@ class InvalidArgs(unittest.TestCase):
 
 
 class GenerationTime(unittest.TestCase):
-    """생성 시간: 미리보기 제외 300초 이내 (056: 감량·묶음·관통 검사 1,312포즈 포함)."""
+    """생성 시간: 미리보기 제외 300초 이내 (056: 감량·묶음·관통 검사 1,312포즈 포함, 057: 헤어 30종 · 헤어 관통 29 × 328포즈, FR-42 ≤ 180 s 목표는 기록)."""
 
     def test_time(self):
         g = generated("default", preview=False)
-        self.assertLessEqual(g.seconds, 300.0, f"{g.seconds:.1f}s")
+        self.assertLessEqual(g.seconds, 180.0, f"{g.seconds:.1f}s")  # 057 FR-42
