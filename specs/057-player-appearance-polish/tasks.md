@@ -1,6 +1,6 @@
 # 057 — 선수 외형 다듬기 · 태스크
 
-상태: 승인됨 (2026-11-05, 플랜 승인과 함께 — "승인 + 태스크도 바로 진행")
+상태: 완료 (2026-11-05, 리포트 https://claude.ai/artifact/G4Ac9tZrT99VY4e9ESX3w9)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현 태스크보다 먼저 둔다(가능하면).
@@ -54,4 +54,5 @@
 ## F. 마무리
 - [x] T17 수용 기준 전체 테스트 통과: `farm.py logic --spec 057` + Blender 테스트 + 결정론 2회 동일 (AC-01~06·10)
   - 결과: `farm.py logic --spec 057` EditMode 118/118(성능 초과·회귀 0), `farm.py art --spec 057` Blender 34/34(2회 생성 바이트 동일 `test_two_runs`, 굽기 해시 동일 `SameSeed_SameMeshHash`).
-- [ ] T18 `/verify 057` — 리포트 아티팩트 발행, 클로즈업·헤어 일람으로 **사용자 육안 승인(AC-09)** → `evidence/approval.md`, 실패 0·성능 예산 통과 → spec 상태 `완료`
+- [x] T18 `/verify 057` — 리포트 아티팩트 발행, 클로즈업·헤어 일람으로 **사용자 육안 승인(AC-09)** → `evidence/approval.md`, 실패 0·성능 예산 통과 → spec 상태 `완료`
+  - 결과: 커밋 728a95e 깨끗한 트리에서 `farm.py full --spec 057` AC-01~08·10 통과, IL2CPP 벤치 애니메이션 p95 0.21 ms·GC 0(SimBench에 057 등록). 리포트 아티팩트 발행(이미지 재압축 단일 파일 — 원본 746개 분할 발행 대신). AC-09 사용자 '통과' → `evidence/approval.md`.
