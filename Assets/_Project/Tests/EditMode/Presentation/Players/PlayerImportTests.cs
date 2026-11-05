@@ -17,9 +17,13 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             var root = AssetDatabase.LoadAssetAtPath<GameObject>(gen + "/player.glb");
             Assert.IsNotNull(root);
             int[] max = { 10000, 3000, 1000 };
-            // 056: 몸 LOD 3 + 헤어 조각 9종 × 3 + 클로즈업 머리. 몸 + 가장 무거운 헤어 조각 ≤ LOD 예산(FR-60)
+            // 057: 몸 LOD 3 + 헤어 조각 29종(삭발 제외) × 3 + 클로즈업 머리. 몸 + 가장 무거운 헤어 조각 ≤ LOD 예산(056 FR-60, 057 FR-40)
             var smrs = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-            Assert.AreEqual(3 + 27 + 1, smrs.Length);
+            Assert.AreEqual(3 + 29 * 3 + 1, smrs.Length);
+            foreach (var h in RoadToPro.Presentation.Players.PlayerLook.HairMeshes)
+                if (h != null)
+                    for (int l = 0; l < 3; l++)
+                        Assert.IsTrue(smrs.Any(s => s.name == h + "_LOD" + l), h + "_LOD" + l + " 없음");
             var hairMax = new int[3];
             foreach (var smr in smrs)
                 if (smr.name.StartsWith("Hair_"))
@@ -51,6 +55,20 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             }
             var clips = AssetDatabase.LoadAllAssetsAtPath(gen + "/player.glb").OfType<AnimationClip>().Count(c => !c.name.StartsWith("__preview"));
             Assert.GreaterOrEqual(clips, 75);
+        }
+
+        [Test]
+        public void SkinNormals_MipFadeToFlat()
+        {
+            // 057 FR-22: 피부 노멀맵은 밉맵 페이드(먼 밉 = 평탄) — 원거리 깜빡임 방지
+            foreach (var name in new[] { "skin_normal.png", "skin_closeup_normal.png" })
+            {
+                var ti = (TextureImporter)AssetImporter.GetAtPath("Assets/_Project/Presentation/Players/Generated/Textures/" + name);
+                Assert.IsNotNull(ti, name);
+                Assert.AreEqual(TextureImporterType.NormalMap, ti.textureType, name);
+                Assert.IsTrue(ti.fadeout, name);
+                Assert.Less(ti.mipmapFadeDistanceStart, ti.mipmapFadeDistanceEnd, name);
+            }
         }
 
         [Test]

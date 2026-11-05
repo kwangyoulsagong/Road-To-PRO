@@ -23,7 +23,7 @@ BODY, KIT = 0, 1
 
 # LOD 예산(몸 표면 삼각형, 머리 몫). 눈·머리카락·턱은 따로 더해진다 → checks.TRI_BUDGET 안 (FR-60).
 LODS = {
-    0: dict(tris=7000, head=2400),
+    0: dict(tris=6900, head=2400),  # 057: 칼라 고리 정점 추가(약 +110) 상쇄로 7,000 → 6,900
     1: dict(tris=1650, head=430),
     2: dict(tris=480, head=110),
 }
@@ -35,6 +35,7 @@ KIT_PARTS = {
     "sock": (0.0035, 2),
     "boot": (0.006, 6),
 }
+RIM_SPLIT = 0.0002  # 턱 면 바깥 정점을 셸 정점에서 떼는 거리 (m, 057)
 RIM = {"top": 0.006, "shorts": 0.005, "sock": 0.004, "boot": 0.003}  # 경계 턱 안쪽 깊이(띄움과 함께 두께가 된다)
 # UV 부위 → 셸 묶음 (같은 묶음은 정점을 나누지 않는다: 셔츠 몸판·소매 사이 틈 없음)
 GROUP = {"skin": "skin", "shirt": "top", "sleeve": "top", "shorts": "shorts", "sock": "sock", "boot": "boot"}
@@ -196,7 +197,8 @@ def cut_planes():
     knee_y = H["LeftLowerLeg"][1]
     hips_y = H["LeftUpperLeg"][1]
     out = [
-        ("collar", (0.0, H["Neck"][1] - 0.035, 0.0), _unit((0.0, 1.0, -0.42)), {"Neck", "UpperChest", "Head", "LeftShoulder", "RightShoulder"}),
+        # 057: 크루넥은 뒤가 높고 앞이 낮다 — 056의 기울기(0, 1, −0.42)는 반대라 뒤가 깊게 파였다(smoke 캡처 2026-11-05)
+        ("collar", (0.0, H["Neck"][1] - 0.035, 0.0), _unit((0.0, 1.0, COLLAR_TILT)), {"Neck", "UpperChest", "Head", "LeftShoulder", "RightShoulder"}),
         ("hem", (0.0, hips_y - 0.005, 0.0), (0.0, 1.0, 0.0), {"Hips", "Spine", "Chest", "LeftUpperLeg", "RightUpperLeg"}),
     ]
     for n in ("Left", "Right"):
@@ -211,6 +213,7 @@ def cut_planes():
 
 
 SLEEVE_T = 0.55            # 소매 끝 = 위팔 길이의 55 %
+COLLAR_TILT = 0.10         # 칼라 평면 기울기 (+ = 앞이 낮고 뒤가 높다, 057 — 0.25 이상은 앞이 흉골 위 패임까지 내려가 고리가 패인다)
 SHORTS_ABOVE_KNEE = 0.15   # 반바지 밑단 = 무릎 관절 위 15 cm
 SOCK_BELOW_KNEE = 0.06     # 양말 윗단 = 무릎 관절 아래 6 cm
 BOOT_Y = 0.105             # 축구화 목 높이
@@ -245,7 +248,8 @@ def _bisect(co, faces, fuv, R):
         for f in bm.faces:
             c = f.calc_center_median()
             w = _bind_point(R, tree, np.array(c))[1]
-            if int(np.argmax(w)) in bi:
+            # 057: 칼라는 띠 안 면도 주 뼈와 상관없이 자른다 (위팔·Head 주 뼈 면이 고리를 끊지 않게)
+            if int(np.argmax(w)) in bi or (name == "collar" and any(in_collar_band(np.array(v.co)) for v in f.verts)):
                 geom.append(f)
         if not geom:
             continue
@@ -314,6 +318,7 @@ class Binding:
         tt = _ref_tree(R)
         self.tri = np.zeros((len(co), 3), dtype=np.int64)
         self.bc = np.zeros((len(co), 3))
+        self.offset = {}  # 정점 → 위치 오프셋 (057 경계 평활, positions()에만 더한다)
         for i, p in enumerate(co):
             (t, bc), _ = _bind_point(R, tt, p)
             self.tri[i] = t
@@ -321,6 +326,220 @@ class Binding:
 
     def apply(self, A):
         return (A[self.tri] * self.bc[:, :, None]).sum(axis=1)
+
+    def positions(self, R):
+        P = self.apply(R.verts)
+        for v in sorted(self.offset):
+            P[v] = P[v] + self.offset[v]
+        return P
+
+
+# ---------------------------------------------------------------- 3b. 경계 고리 다듬기 (specs/057 FR-01·02)
+
+RELAX_ITERS = 5
+CORNER_DEG = 15.0       # 경계 고리 마지막 모서리 다듬기 문턱 (도)
+CORNER_ITERS = 40       # 칼라 고리만 (정점 적은 소매·축구화 고리는 간격이 틀어진다)
+NEIGHBOR_SMOOTH = 4    # 경계 고리 옆 두 줄 표면 평활 반복
+BORDER_NORMAL_SPAN = 2  # 경계 정점 띄움 방향 = 고리 앞뒤 2정점까지 법선 평균
+COLLAR_DENSITY = {0: 2.0}  # LOD별 칼라 고리 정점 배율 (057 FR-01: 클로즈업 = LOD0만, 꺾임 ≤ 20°)
+LOOP_SMOOTH = 12        # 경계 고리 평면 안 Taubin 평활 반복 (칼라 밖)
+LOOP_SMOOTH_MAX = 0.004  # 평활로 표면에서 떨어지는 최대 거리 (m) — 피부·유니폼이 같은 경계 정점을 쓰므로 틈은 생기지 않는다
+COLLAR_SMOOTH = 30       # 칼라 고리: 목-승모근 모서리를 더 둥글게 (클로즈업, FR-01 ≤ 20°)
+COLLAR_SMOOTH_MAX = 0.008
+LOOP_PLANE_MAX = 0.02   # 고리 평균 평면 거리가 이보다 크면 절단 평면 고리가 아니다(건드리지 않음)
+
+
+def chain_loops(edges):
+    """무방향 변 목록 → [(정점 고리, 닫힘)] (작은 정점 id부터, 이웃은 작은 id 우선 — 결정론)."""
+    adj = {}
+    for a, b in edges:
+        adj.setdefault(a, []).append(b)
+        adj.setdefault(b, []).append(a)
+    seen, loops = set(), []
+    for s in sorted(adj):
+        if s in seen:
+            continue
+        loop, prev, cur = [s], None, s
+        seen.add(s)
+        while True:
+            nxt = [n for n in sorted(adj[cur]) if n != prev and n not in seen]
+            if not nxt:
+                break
+            prev, cur = cur, nxt[0]
+            seen.add(cur)
+            loop.append(cur)
+        loops.append((loop, len(loop) > 2 and loop[0] in adj[loop[-1]]))
+    return loops
+
+
+def _resample_closed(P):
+    """닫힌 꺾은선 P (n,3)를 같은 호 길이 간격 n점으로. 시작 위상은 원래 점 이동 합이 작게(평균 위상)."""
+    n = len(P)
+    seg = np.linalg.norm(np.roll(P, -1, axis=0) - P, axis=1)
+    L = float(seg.sum())
+    if L < 1e-9:
+        return P.copy()
+    s = np.concatenate([[0.0], np.cumsum(seg)[:-1]])
+    step = L / n
+    phase = float(np.mean((s - np.arange(n) * step + L / 2) % L - L / 2))
+    out = np.zeros_like(P)
+    cs = np.concatenate([s, [L]])
+    Pc = np.vstack([P, P[:1]])
+    for i in range(n):
+        t = (phase + i * step) % L
+        j = int(np.searchsorted(cs, t, side="right") - 1)
+        j = min(max(j, 0), n - 1)
+        a = (t - cs[j]) / max(cs[j + 1] - cs[j], 1e-12)
+        out[i] = Pc[j] * (1 - a) + Pc[j + 1] * a
+    return out
+
+
+def _split_edges(R, bind, faces, fuv, fpart, splits):
+    """splits: [(a, b)] 변마다 중점 정점을 넣고 붙은 면을 그 정점에서 부채꼴 삼각형으로 나눈다(일직선 세 점 퇴화 면 방지).
+    → (faces, fuv, fpart, {변: 새 정점})"""
+    tt = _ref_tree(R)
+    P = bind.positions(R)
+    newv = {}
+    tri, bc = [bind.tri], [bind.bc]
+    n0 = len(bind.tri)
+    for a, b in splits:
+        key = (min(a, b), max(a, b))
+        if key in newv:
+            continue
+        (t3, w3), _ = _bind_point(R, tt, 0.5 * (P[a] + P[b]))
+        newv[key] = n0 + len(newv)
+        tri.append(np.array([t3])), bc.append(np.array([w3]))
+    bind.tri = np.vstack(tri)
+    bind.bc = np.vstack(bc)
+    of, ou, op = [], [], []
+    for f, fu, part in zip(faces, fuv, fpart):
+        k = len(f)
+        ring, rus, mids = [], [], []
+        for i in range(k):
+            a, b = f[i], f[(i + 1) % k]
+            ring.append(a), rus.append(tuple(fu[i]))
+            m = newv.get((min(a, b), max(a, b)))
+            if m is not None:
+                mids.append(len(ring))
+                ring.append(m)
+                rus.append(tuple(0.5 * (fu[i][j] + fu[(i + 1) % k][j]) for j in (0, 1)))
+        if not mids:
+            of.append(f), ou.append(fu), op.append(part)
+            continue
+        s = mids[0]  # 첫 중점에서 부채꼴 (한 면에 경계 변이 둘이어도 퇴화 면 없음)
+        ring, rus = ring[s:] + ring[:s], rus[s:] + rus[:s]
+        for j in range(1, len(ring) - 1):
+            of.append((ring[0], ring[j], ring[j + 1]))
+            ou.append((rus[0], rus[j], rus[j + 1]))
+            op.append(part)
+    return of, ou, op, newv
+
+
+def _relax_boundaries(R, bind, faces, fuv, fpart, lod=0):
+    """부위 묶음(GROUP)이 바뀌는 변 = 유니폼 경계. 고리마다 가장 가까운 절단 평면을 찾아
+    ① 평면 위로 투영 ② 같은 호 길이로 재배치 ③ 기준 표면 최근접점에 다시 묶기를 RELAX_ITERS번. bind를 고친다.
+    → ({원래 정점: (평면 안 바깥 방향, 고리 접선, 앞뒤 고리 정점들)}, faces, fuv, fpart) — 경계 정점 셸 띄움·턱 방향."""
+    tt = _ref_tree(R)
+    planes = cut_planes()
+
+    def boundary_loops():
+        ef = {}
+        for fi, f in enumerate(faces):
+            for k in range(len(f)):
+                a, b = f[k], f[(k + 1) % len(f)]
+                ef.setdefault((min(a, b), max(a, b)), []).append(fi)
+        edges = [e for e, fs in sorted(ef.items()) if len(fs) == 2 and GROUP[fpart[fs[0]]] != GROUP[fpart[fs[1]]]]
+        return chain_loops(edges)
+
+    # 칼라 고리 정점 늘리기 (LOD0): 고르게 흩은 변에 중점 삽입 → 고리 정점 COLLAR_DENSITY배
+    dens = COLLAR_DENSITY.get(lod, 1.0)
+    if dens > 1.0:
+        P0 = bind.positions(R)
+        col = planes[0]
+        for loop, closed in boundary_loops():
+            d = (P0[loop] - np.array(col[1])) @ np.array(col[2])
+            if not closed or float(np.abs(d).mean()) > LOOP_PLANE_MAX:
+                continue
+            n = len(loop)
+            k = int(math.ceil(n * (dens - 1.0)))
+            pick = [i for i in range(n) if (i + 1) * k // n > i * k // n]
+            faces, fuv, fpart, _ = _split_edges(R, bind, faces, fuv, fpart, [(loop[i], loop[(i + 1) % n]) for i in pick])
+            break
+    out = {}
+    loops_done = []
+    for loop, closed in boundary_loops():
+        if not closed or len(loop) < 4:
+            continue
+        P = bind.apply(R.verts)[loop]
+        best = min(planes, key=lambda pl: float(np.abs((P - np.array(pl[1])) @ np.array(pl[2])).mean()))
+        n, pt = np.array(best[2]), np.array(best[1])
+        if float(np.abs((P - pt) @ n).mean()) > LOOP_PLANE_MAX:
+            continue
+        loops_done.append(loop)
+        for _ in range(RELAX_ITERS):
+            P = bind.apply(R.verts)[loop]
+            P = P - np.outer((P - pt) @ n, n)
+            P = _resample_closed(P)
+            for i, v in enumerate(loop):
+                (tri, bc), _ = _bind_point(R, tt, P[i])
+                bind.tri[v] = tri
+                bind.bc[v] = bc
+        # 마지막: 평면 안에서 고리를 평활하고 기준 표면에서 떨어진 만큼은 오프셋으로 둔다(정점 위치에만, 가중치·델타는 묶음 그대로)
+        S0 = bind.apply(R.verts)[loop]
+        S0 = S0 - np.outer((S0 - pt) @ n, n)
+        S0 = _resample_closed(S0)  # 표면에 다시 붙이며 벌어진 간격을 평면 안에서 한 번 더 고르게 (차이는 오프셋이 맡는다)
+        Q = S0.copy()
+        is_collar = best[0] == "collar"
+        for _ in range(COLLAR_SMOOTH if is_collar else LOOP_SMOOTH):  # Taubin (수축 없음)
+            for lam in (0.5, -0.53):
+                Q = Q + lam * (0.5 * (np.roll(Q, 1, axis=0) + np.roll(Q, -1, axis=0)) - Q)
+        # 남은 모서리만 둥글게: 평면 투영 꺾임이 CORNER_DEG를 넘는 정점을 이웃 중점 쪽으로 (이동 상한 안에서)
+        for _ in range(CORNER_ITERS if is_collar else 0):
+            e0 = Q - np.roll(Q, 1, axis=0)
+            e1 = np.roll(Q, -1, axis=0) - Q
+            c = (e0 * e1).sum(axis=1) / np.maximum(np.linalg.norm(e0, axis=1) * np.linalg.norm(e1, axis=1), 1e-12)
+            sharp = np.degrees(np.arccos(np.clip(c, -1.0, 1.0))) > CORNER_DEG
+            if not sharp.any():
+                break
+            mid = 0.5 * (np.roll(Q, 1, axis=0) + np.roll(Q, -1, axis=0))
+            Q = np.where(sharp[:, None], 0.5 * Q + 0.5 * mid, Q)
+        dq = Q - S0
+        ln = np.linalg.norm(dq, axis=1)
+        lim = COLLAR_SMOOTH_MAX if is_collar else LOOP_SMOOTH_MAX
+        dq *= np.minimum(1.0, lim / np.maximum(ln, 1e-12))[:, None]
+        surf = bind.apply(R.verts)[loop]
+        F = S0 + dq
+        tang = np.roll(F, -1, axis=0) - np.roll(F, 1, axis=0)
+        outw = np.cross(tang, n)
+        outw /= np.maximum(np.linalg.norm(outw, axis=1, keepdims=True), 1e-12)
+        cen = F.mean(axis=0)
+        sign = np.where(((F - cen) * outw).sum(axis=1) >= 0, 1.0, -1.0)  # 고리 중심에서 바깥 (목·팔다리·몸통 고리는 별 모양)
+        outw *= sign[:, None]
+        k = len(loop)
+        for i, v in enumerate(loop):
+            bind.offset[v] = F[i] - surf[i]
+            out[v] = (outw[i], tang[i] / max(np.linalg.norm(tang[i]), 1e-12),
+                      tuple(loop[(i + j) % k] for j in range(-BORDER_NORMAL_SPAN, BORDER_NORMAL_SPAN + 1)))
+    # 고리 옆 두 줄(고리 아닌 정점)을 표면 위에서 평활 — 고리 정점이 미끄러지며 붙은 면이 뒤집히지 않게
+    onloop = {v for lp in loops_done for v in lp}
+    nb = {}
+    for f in faces:
+        k = len(f)
+        for i in range(k):
+            a, b = f[i], f[(i + 1) % k]
+            nb.setdefault(a, set()).add(b)
+            nb.setdefault(b, set()).add(a)
+    ring1 = sorted({u for v in onloop for u in nb.get(v, ()) if u not in onloop})
+    ring2 = sorted({u for v in ring1 for u in nb.get(v, ()) if u not in onloop and u not in set(ring1)})
+    moving = ring1 + ring2
+    for _ in range(NEIGHBOR_SMOOTH):
+        P = bind.positions(R)
+        newp = {v: 0.5 * P[v] + 0.5 * np.mean([P[u] for u in sorted(nb[v])], axis=0) for v in moving}
+        for v in moving:
+            (tri, bc), _ = _bind_point(R, tt, newp[v])
+            bind.tri[v] = tri
+            bind.bc[v] = bc
+    return out, faces, fuv, fpart
 
 
 # ---------------------------------------------------------------- 4. 부위 · 유니폼 셸
@@ -330,9 +549,27 @@ def _side(p, plane):
     return float(np.dot(np.array(p) - np.array(pt), np.array(nrm)))
 
 
+COLLAR_BAND = 0.05     # 칼라 평면에서 이 거리 안 (m)
+COLLAR_RADIUS = 0.13   # 목 축(x = 0, z = Neck)에서 수평 거리 안 (m)
+
+
+def in_collar_band(p):
+    """칼라 띠: 칼라 평면 ± COLLAR_BAND, 목 축에서 수평 COLLAR_RADIUS 안, 어깨 관절 높이 − 6 cm 위."""
+    pl = cut_planes()[0]
+    if abs(_side(p, pl)) >= COLLAR_BAND:
+        return False
+    nz = S.HEAD["Neck"][2]
+    if math.hypot(float(p[0]), float(p[2]) - nz) >= COLLAR_RADIUS:
+        return False
+    return float(p[1]) > S.HEAD["LeftShoulder"][1] - 0.06
+
+
 def classify(p, w):
     """정점·면 중심 위치 p와 가중치 w(22) → 부위 이름."""
     planes = {pl[0]: pl for pl in cut_planes()}
+    if in_collar_band(p):
+        # 057 FR-01: 칼라 띠 안에서는 주 뼈(Head·Neck·어깨·위팔)와 상관없이 평면만 본다 — 경계가 가중치 변을 따라 계단이 되지 않게
+        return "skin" if _side(p, planes["collar"]) > 0 else "shirt"
     b = MS.OUR_NAMES[int(np.argmax(w))]
     if b in ("Head",):
         return "skin"
@@ -432,15 +669,20 @@ def build(lod):
     pos = bind.apply(R.verts)
     W = bind.apply(R.weights)
     W /= W.sum(axis=1, keepdims=True)
-    deltas = {k: bind.apply(d) for k, d in sorted(R.body_deltas.items())}
-    for k, d in sorted(R.extra_deltas.items()):
-        deltas[k] = bind.apply(d)
     # 면 부위
     fpart = []
     for f in faces:
         c = pos[list(f)].mean(axis=0)
         fpart.append(classify(c, W[list(f)].mean(axis=0)))
-    m = _assemble(pos, W, faces, fuv, fpart, deltas)
+    # 057: 경계 고리를 절단 평면 위로 투영·고르게 재배치하고 기준 표면에 다시 묶는다 (FR-01·02)
+    border_plane, faces, fuv, fpart = _relax_boundaries(R, bind, faces, fuv, fpart, lod)
+    pos = bind.positions(R)
+    W = bind.apply(R.weights)
+    W /= W.sum(axis=1, keepdims=True)
+    deltas = {k: bind.apply(d) for k, d in sorted(R.body_deltas.items())}
+    for k, d in sorted(R.extra_deltas.items()):
+        deltas[k] = bind.apply(d)
+    m = _assemble(pos, W, faces, fuv, fpart, deltas, border_plane)
     _append_eyes(R, m, lod)
     return m
 
@@ -539,8 +781,10 @@ def _all_deltas(R):
     return d
 
 
-def _assemble(pos, W, faces, fuv, fpart, deltas):
-    """피부/유니폼 정점 나누기 + 셸 띄움 + 턱 + UV."""
+def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
+    """피부/유니폼 정점 나누기 + 셸 띄움 + 턱 + UV. border_plane {원래 정점: 바깥 방향}: 경계 정점의 띄움·턱 방향
+    (평면 안·고리에 수직) — 고리가 평면을 벗어나거나 순서가 꼬이지 않게 한다 (057 FR-01)."""
+    border_plane = border_plane or {}
     nv = len(pos)
     # 정점마다 쓰는 부위 목록 → (원래 정점, 부위)별 새 정점
     key_of = {}
@@ -585,6 +829,16 @@ def _assemble(pos, W, faces, fuv, fpart, deltas):
         for j, k in enumerate(keys):
             D[k][sel] = A2[sel, 3 + 3 * j:6 + 3 * j]
     N = N0[src]
+    for i, v in enumerate(new_src):
+        o = border_plane.get(v)
+        if o is not None:
+            # 경계 정점: 띄움 방향 = 고리 이웃 (2 × BORDER_NORMAL_SPAN + 1)정점 법선 평균에서 고리 접선 성분을 뺀 것 (안쪽 정점과 같은 쪽으로 떠서 면이 접히지 않고,
+            # 접선 성분이 없어 고리 순서가 꼬이지 않는다). 평균이 고리 바깥과 반대면(얇은 면 법선 뒤집힘) 평면 안 바깥 방향을 쓴다.
+            outw, tg, around = o
+            q = N0[list(around)].sum(axis=0)
+            q = q - (q @ tg) * tg
+            ln = np.linalg.norm(q)
+            N[i] = q / ln if ln > 1e-6 else outw  # 5정점 평균이면 얇은 면 법선 뒤집힘은 묻힌다 — 바깥 방향 판정(중심 기준)은 볼록하지 않은 고리에서 틀려 쓰지 않는다
     _boot_hull(P, parts, border)
     base = P.copy()
     for i in range(len(P)):
@@ -609,16 +863,17 @@ def _assemble(pos, W, faces, fuv, fpart, deltas):
     extra_P, extra_W, extra_D, extra_part = [], [], {k: [] for k in D}, []
     rim_of = {}
 
-    def rim_vert(i, depth):
-        if i in rim_of:
-            return rim_of[i]
+    def rim_vert(i, depth, outer=False):
+        key = (i, outer)
+        if key in rim_of:
+            return rim_of[key]
         j = len(P) + len(extra_P)
-        extra_P.append(base[i] - N[i] * depth)
+        extra_P.append(P[i] - N[i] * RIM_SPLIT if outer else base[i] - N[i] * depth)
         extra_W.append(Wn[i])
         for k in D:
             extra_D[k].append(D[k][i])
         extra_part.append(parts[i])
-        rim_of[i] = j
+        rim_of[key] = j
         return j
 
     for key in sorted(edge_faces):
@@ -642,8 +897,11 @@ def _assemble(pos, W, faces, fuv, fpart, deltas):
             oa, ob, part = a1, b1, p1
         depth = RIM.get(part, 0.003)
         ra, rb = rim_vert(oa, depth), rim_vert(ob, depth)
+        # 057: 턱 면은 셸 바깥 정점의 복제본(RIM_SPLIT만큼 안쪽)을 쓴다 — 셸과 같은 위치면 Unity 굽기(위치 용접 법선)가
+        #      수직 턱 면 법선을 셸 경계에 섞어 칼라 띠에 톱니 음영이 생긴다. 0.2 mm 떨어뜨려 용접 격자(0.01 mm)에서 갈라 둔다
+        da, db = rim_vert(oa, 0.0, outer=True), rim_vert(ob, 0.0, outer=True)
         # 면 방향: 바깥 면의 변 a→b 와 반대로 감아 바깥을 향하게. UV 부위는 바깥 면의 부위
-        rim_faces.append(((ob, oa, ra, rb), face_part[f0] if part == parts[a0] else face_part[f1]))
+        rim_faces.append(((db, da, ra, rb), face_part[f0] if part == parts[a0] else face_part[f1]))
     if extra_P:
         P = np.vstack([P, np.array(extra_P)])
         Wn = np.vstack([Wn, np.array(extra_W)])
@@ -697,6 +955,23 @@ def _limb_frame(bone):
     return h, d, x, z, float(np.linalg.norm(t - h))
 
 
+COLLAR_UV_AFFINE = 0.05  # 칼라 평면 아래 이 거리(m)까지는 v 높이 = Y1 + d (위치의 1차식 → 삼각형 안 UV 보간이 정확, 띠 경계가 꺾이지 않는다)
+COLLAR_UV_BLEND = 0.05   # 그 아래 이 거리에 걸쳐 원래 높이 매핑으로 이어진다 (띠가 생기지 않는 구간)
+
+
+def shirt_v_height(p):
+    """셔츠 v 계산용 높이 (057 FR-04). 칼라 포인트색 띠(v ≥ 0.96 ≈ 경계에서 2.3 cm)가 기울어진 칼라 평면을 따라가도록,
+    평면 아래 COLLAR_UV_AFFINE 안에서는 높이 = SHIRT_Y1 + d (d = 평면 거리, 아래 음수)로 둔다. 이 값은 위치의 1차식이라
+    큰 삼각형 안에서도 선형 보간이 정확해 띠 경계가 삼각형 변을 따라 톱니가 되지 않는다. 그 아래는 원래 높이로 섞되
+    SHIRT_Y1 − COLLAR_UV_AFFINE 위로는 못 올라가게 해 등·어깨로 띠가 번지지 않는다. 번호·이름은 UV 영역 고정이라 겹치지 않는다."""
+    d = _side(p, cut_planes()[0])
+    y = float(p[1])
+    if d >= -COLLAR_UV_AFFINE:
+        return U.SHIRT_Y1 + min(d, 0.0)
+    w = min(max(1.0 + (d + COLLAR_UV_AFFINE) / COLLAR_UV_BLEND, 0.0), 1.0)
+    return min(y + (U.SHIRT_Y1 + d - y) * w, U.SHIRT_Y1 - COLLAR_UV_AFFINE)
+
+
 def kit_uvs(P, f, part):
     pts = P[list(f)]
     c = pts.mean(axis=0)
@@ -710,12 +985,13 @@ def kit_uvs(P, f, part):
         fc = sum(fs) / len(fs)
         out = []
         for p, fv in zip(pts, fs):
+            y = shirt_v_height(p)
             if fc % 1.0 <= 0.5:
                 fl = min(max(fv - math.floor(fc), 0.0), 0.5)
-                out.append(U.torso_shirt(fl, p[1]))
+                out.append(U.torso_shirt(fl, y))
             else:
                 fl = min(max(fv - math.floor(fc), 0.5), 1.0)
-                out.append(U.torso_shirt(fl, p[1]))
+                out.append(U.torso_shirt(fl, y))
         return tuple(out)
     if base == "sleeve":
         h, d, x, z, L = _limb_frame(sn + "UpperArm")

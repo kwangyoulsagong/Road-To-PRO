@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using RoadToPro.Core.Logging;
@@ -15,6 +16,8 @@ namespace RoadToPro.Verification.Samples
     /// specs/043 E2E 씬 제어 (게임 화면 아님). goto 화면:
     /// - row1Front … row4Back: 25명(선수 22 + 심판 3)을 한 줄 7명 이하 4줄로 나눠 앞·뒤에서 캡처 (AC-13). 영역: 셔츠 앞판 색 그룹, 뒤 번호·이름.
     /// - perfEmpty / perfPlayers / perfFull: 25명이 합성 하이라이트를 1.5x로 뛰는 성능 구간 (AC-16·17). 카운터 animCpuMs·animGcBytes.
+    /// - 057: collar1Front … collar8Back(칼라·머리카락 클로즈업, AC-07), hair1Front … hair6Far(헤어 30종 일람 5명씩, AC-08),
+    ///   flickerNormal / flickerFlat(방송 원거리 얼굴 깜빡임 — 노멀맵 켬/끔, 카운터 faceFlicker, FR-22).
     /// </summary>
     public sealed class PlayerScreen : MonoBehaviour
     {
@@ -116,6 +119,25 @@ namespace RoadToPro.Verification.Samples
             FarmContext.Screens["bodyBack"] = () => ShowBodies(2);
             FarmContext.Screens["bodyBroadcast"] = () => ShowBodies(3);
             FarmContext.Screens["perfCloseup"] = () => ShowPerf(4);
+            // 057: 칼라·머리카락 클로즈업 (AC-07), 헤어 30종 일람 (AC-08), 원거리 깜빡임 (FR-22)
+            for (int i = 0; i < CollarHair.Length; i++)
+            {
+                int ci = i;
+                FarmContext.Screens[$"collar{i + 1}Front"] = () => ShowCollar(ci, 0f);
+                FarmContext.Screens[$"collar{i + 1}Three"] = () => ShowCollar(ci, 35f);
+                FarmContext.Screens[$"collar{i + 1}Back"] = () => ShowCollar(ci, 180f);
+            }
+            for (int g = 0; g < AppearanceGenerator.HairStyles / HairGroup; g++)
+            {
+                int gi = g;
+                FarmContext.Screens[$"hair{g + 1}Front"] = () => ShowHairGroup(gi, 0);
+                FarmContext.Screens[$"hair{g + 1}Side"] = () => ShowHairGroup(gi, 1);
+                FarmContext.Screens[$"hair{g + 1}Back"] = () => ShowHairGroup(gi, 2);
+                FarmContext.Screens[$"hair{g + 1}Far"] = () => ShowHairGroup(gi, 3);
+            }
+            FarmContext.Screens["flickerNormal"] = () => ShowFlicker(false);
+            FarmContext.Screens["flickerFlat"] = () => ShowFlicker(true);
+            FarmContext.PerfCounters["faceFlicker"] = () => _flickerOn && _flickerValid ? _flicker : (double?)null;
             FarmContext.Screens["speed1x"] = () => ShowSpeed(1f, 90);
             FarmContext.Screens["speed15x"] = () => ShowSpeed(1.5f, 60);
             FarmContext.Screens["speed3x"] = () => ShowSpeed(3f, 30);
@@ -133,6 +155,7 @@ namespace RoadToPro.Verification.Samples
             FarmContext.PerfCounters.Remove("animCpuMs");
             FarmContext.PerfCounters.Remove("animGcBytes");
             FarmContext.PerfCounters.Remove("closeupSwitchMs");
+            FarmContext.PerfCounters.Remove("faceFlicker");
             KitCompositor.PlaybackActive = false;
         }
 
@@ -274,8 +297,148 @@ namespace RoadToPro.Verification.Samples
         bool _closeupPerf;
         float _switchMs;
 
+        // ---------------------------------------------------------------- 057 칼라·헤어·깜빡임 (AC-07·08, FR-22)
+
+        /// <summary>칼라·머리카락 클로즈업 8명의 헤어스타일 (계열을 섞는다: 짧은·긴·쿠이프·커튼·포니테일·아프로·콘로·박스 브레이드).</summary>
+        static readonly int[] CollarHair = { 1, 2, 14, 15, 22, 6, 19, 28 };
+        const int HairGroup = 5;
+        readonly HashSet<int> _overridden = new HashSet<int>();
+        bool _flickerOn, _flickerValid;
+        double _flicker;
+        float[] _flickPrev;
+        Coroutine _flickCo;
+
+        static PlayerAppearance WithHair(in PlayerAppearance a, int hs) =>
+            a.WithCombo(((a.SkinTone * AppearanceGenerator.Faces + a.Face) * AppearanceGenerator.HairStyles + hs) * AppearanceGenerator.HairColors + a.HairColor);
+
+        void Override(int ent, int hs)
+        {
+            var faceData = FaceData.Parse(assets.body.faceJson.text);
+            _rigs[ent].ApplyAppearance(WithHair(_looks[ent], hs), _faces[ent], faceData);
+            _overridden.Add(ent);
+        }
+
+        void RestoreOverrides()
+        {
+            if (_overridden.Count == 0) return;
+            var faceData = FaceData.Parse(assets.body.faceJson.text);
+            foreach (int e in _overridden) _rigs[e].ApplyAppearance(_looks[e], _faces[e], faceData);
+            _overridden.Clear();
+        }
+
+        /// <summary>칼라·머리카락 클로즈업: 머리 + 목 + 어깨 윗부분(약 0.42 m)이 화면 높이 60 %. 클로즈업 머리 켬. yaw 180 = 뒤.</summary>
+        void ShowCollar(int idx, float yawDeg)
+        {
+            int ent = FacePlayers[idx];
+            PrepareStill($"collar{idx + 1}{(yawDeg == 0f ? "Front" : yawDeg < 60f ? "Three" : "Back")}");
+            if (_bodiesApplied) RestoreLooks();
+            Override(ent, CollarHair[idx]);
+            float yaw = yawDeg * Mathf.Deg2Rad;
+            PoseStill(e => (e == ent, 0f, 0f, yaw), false, 0);
+            var rig = _rigs[ent];
+            rig.SetCloseup(true);
+            float s = rig.transform.localScale.y;
+            // smoke 캡처(2026-11-05)에서 Head 뼈 − 6 cm가 가슴 높이로 찍혀 머리 쪽으로 올린다(Head 뼈 + 12 cm ≈ 턱)
+            var c = rig.Bone("Head").position + new Vector3(0f, 0.12f * s, 0f);
+            float vHalf = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            float dist = 0.42f * s / (0.6f * 2f * Mathf.Tan(vHalf));
+            cam.transform.position = c + new Vector3(0f, 0.04f, dist);
+            cam.transform.rotation = Quaternion.LookRotation(c - cam.transform.position, Vector3.up);
+        }
+
+        /// <summary>헤어 일람: 스타일 g×5 … g×5+4를 5명에게 입혀 한 줄. view 0 정면 · 1 옆 · 2 뒤(LOD0 근거리) · 3 방송 원거리(LOD 자동).</summary>
+        void ShowHairGroup(int g, int view)
+        {
+            PrepareStill($"hair{g + 1}{(view == 0 ? "Front" : view == 1 ? "Side" : view == 2 ? "Back" : "Far")}");
+            if (_bodiesApplied) RestoreLooks();
+            for (int i = 0; i < HairGroup; i++) Override(FacePlayers[i], g * HairGroup + i);
+            const float gap = 0.5f;  // 머리 일람 — 어깨는 겹쳐도 머리는 떨어진다
+            float yaw = view == 1 ? Mathf.PI * 0.5f : view == 2 ? Mathf.PI : 0f;
+            PoseStill(e =>
+            {
+                int i = Array.IndexOf(FacePlayers, e);
+                return (i >= 0 && i < HairGroup, (i - 2f) * gap, 0f, yaw);
+            }, view != 3, view == 3 ? -1 : 0);
+            if (view == 3)
+            {
+                cam.transform.position = new Vector3(0f, 16f, 30f);
+                cam.transform.rotation = Quaternion.LookRotation(new Vector3(0f, 1.2f, 0f) - cam.transform.position, Vector3.up);
+                return;
+            }
+            float halfW = (2f * gap + 0.3f) * 1.1f;
+            float vHalf = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            float hHalf = Mathf.Atan(Mathf.Tan(vHalf) * cam.aspect);
+            float dist = Mathf.Max(halfW / Mathf.Tan(hHalf), 0.4f / Mathf.Tan(vHalf));
+            // 머리 높이를 화면 가운데로 (smoke 캡처에서 1.62 m 조준이 목·가슴에 찍혔다)
+            cam.transform.position = new Vector3(0f, 1.86f, dist);
+            cam.transform.rotation = Quaternion.LookRotation(new Vector3(0f, 1.82f, 0f) - cam.transform.position, Vector3.up);
+        }
+
+        /// <summary>FR-22 깜빡임: 8명을 방송 원거리(LOD 자동)에 세우고 카메라를 아주 천천히(프레임당 2 mm) 옮기며, 머리 둘레 12×12 px의
+        /// 프레임 간 밝기 차 평균(0~255)을 카운터 faceFlicker로 낸다. flat = 노멀맵 세기 0(기하 기준선) — 판정은 비율.</summary>
+        void ShowFlicker(bool flat)
+        {
+            PrepareStill(flat ? "flickerFlat" : "flickerNormal");
+            if (_bodiesApplied) RestoreLooks();
+            PoseStill(e =>
+            {
+                int i = Array.IndexOf(FacePlayers, e);
+                return (i >= 0, (i - 3.5f) * 1.1f, 0f, 0f);
+            }, false, -1);
+            foreach (int e in FacePlayers) _rigs[e].BodyMaterial.SetFloat("_NormalStrength", flat ? 0f : 0.6f);
+            cam.transform.position = new Vector3(-0.5f, 16f, 30f);
+            cam.transform.rotation = Quaternion.LookRotation(new Vector3(-0.5f, 1.2f, 0f) - cam.transform.position, Vector3.up);
+            _flickPrev = null;
+            _flickerValid = false;
+            _flickerOn = true;
+            if (_flickCo == null) _flickCo = StartCoroutine(FlickerLoop());
+        }
+
+        IEnumerator FlickerLoop()
+        {
+            var wait = new WaitForEndOfFrame();
+            const int R = 12;
+            var tex = new Texture2D(R, R, TextureFormat.RGB24, false);
+            var cur = new float[FacePlayers.Length * R * R];
+            while (_flickerOn)
+            {
+                yield return wait;
+                if (!_flickerOn) break;
+                int k = 0;
+                bool ok = true;
+                foreach (int e in FacePlayers)
+                {
+                    var sp = cam.WorldToScreenPoint(_rigs[e].Bone("Head").position);
+                    // 카메라 픽셀 크기와 화면 크기가 다를 수 있다(렌더 스케일) — 화면 비율로 옮기고 화면 안으로 클램프
+                    float fx = sp.x / Mathf.Max(1, cam.pixelWidth) * Screen.width, fy = sp.y / Mathf.Max(1, cam.pixelHeight) * Screen.height;
+                    int x = Mathf.Clamp(Mathf.RoundToInt(fx) - R / 2, 0, Screen.width - R), y = Mathf.Clamp(Mathf.RoundToInt(fy) - R / 2, 0, Screen.height - R);
+                    if (sp.z <= 0f) { ok = false; break; }
+                    tex.ReadPixels(new Rect(x, y, R, R), 0, 0, false);
+                    var px = tex.GetPixels32();
+                    for (int i = 0; i < px.Length; i++) cur[k++] = 0.2126f * px[i].r + 0.7152f * px[i].g + 0.0722f * px[i].b;
+                }
+                if (ok && _flickPrev != null)
+                {
+                    double sum = 0;
+                    for (int i = 0; i < cur.Length; i++) sum += Math.Abs(cur[i] - _flickPrev[i]);
+                    _flicker = sum / cur.Length;
+                    _flickerValid = true;
+                }
+                if (ok) { _flickPrev ??= new float[cur.Length]; Array.Copy(cur, _flickPrev, cur.Length); }
+                cam.transform.position += new Vector3(0.002f, 0f, 0f);
+            }
+            Destroy(tex);
+            _flickCo = null;
+        }
+
         void PrepareStill(string view)
         {
+            if (_flickerOn)
+            {
+                _flickerOn = false;
+                foreach (int e in FacePlayers) _rigs[e].BodyMaterial.SetFloat("_NormalStrength", 0.6f);
+            }
+            RestoreOverrides();
             if (_ball != null) _ball.gameObject.SetActive(false);
             _contactView = false;
             _perf = false;

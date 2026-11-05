@@ -141,5 +141,38 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 Object.DestroyImmediate(rig.gameObject);
             }
         }
+
+        // 057 AC-10: 하이라이트 로딩 시 선수 25명 굽기 시간 ≤ 056 측정 × 1.2.
+        // Mono EditMode ms 값은 부하에 흔들려 5회 최소값으로 판정한다. 056 기준은 057 T03에서 056 산출물로 측정.
+        internal const double Bake25Ms056 = 309.5;  // 2026-11-05 056 산출물, Mono EditMode 5회 최소
+
+        [Test]
+        public void Bake25Players_Time_Within056Plus20()
+        {
+            var data = FaceGeneratorTests.Data;
+            var rigs = new PlayerRig[25];
+            for (int i = 0; i < rigs.Length; i++) rigs[i] = PlayerRigTests.NewRig();
+            try
+            {
+                double best = double.MaxValue;
+                for (int rep = 0; rep < 5; rep++)
+                {
+                    var sw = System.Diagnostics.Stopwatch.StartNew();
+                    for (int i = 0; i < rigs.Length; i++)
+                    {
+                        int id = 3_000 + i * 11 + rep * 400;
+                        rigs[i].ApplyAppearance(AppearanceGenerator.Generate(new BodyInput(id)), FaceGenerator.Generate(data, id), data);
+                    }
+                    best = System.Math.Min(best, sw.Elapsed.TotalMilliseconds);
+                }
+                TestContext.WriteLine($"[057] bake25Ms={best:0.0}");
+                UnityEngine.Debug.Log($"[057] bake25Ms={best:0.0}");
+                if (Bake25Ms056 > 0) Assert.LessOrEqual(best, Bake25Ms056 * 1.2, "057 AC-10 굽기 시간 056 대비 +20%");
+            }
+            finally
+            {
+                foreach (var r in rigs) Object.DestroyImmediate(r.gameObject);
+            }
+        }
     }
 }

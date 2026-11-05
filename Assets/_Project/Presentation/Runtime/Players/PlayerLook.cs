@@ -21,10 +21,14 @@ namespace RoadToPro.Presentation.Players
             new Color32(200, 160, 90, 255), new Color32(150, 60, 30, 255), new Color32(170, 170, 165, 255),
         };
 
-        /// <summary>헤어 스타일 0~9 → 메시 조각 이름 접두(생성기 hair.STYLES, 056). 9 = 삭발(형상 없음 → null). LOD는 "_LOD0..2".</summary>
+        /// <summary>헤어 스타일 0~29 → 메시 조각 이름 접두(생성기 hair.STYLE_TABLE, specs/057 FR-30). 0~9는 056 순서, 9 = 삭발(형상 없음 → null).
+        /// LOD는 "_LOD0..2". 순서는 AppearanceGenerator 가중치·계열 표와 같다.</summary>
         public static readonly string[] HairMeshes =
         {
             "Hair_Buzz", "Hair_Short", "Hair_Long", "Hair_Curly", "Hair_Bun", "Hair_Fade", "Hair_Afro", "Hair_Mohawk", "Hair_Dreads", null,
+            "Hair_Crew", "Hair_SidePart", "Hair_Undercut", "Hair_SlickBack", "Hair_Quiff", "Hair_Curtains", "Hair_TexturedCrop",
+            "Hair_BuzzLine", "Hair_HighTop", "Hair_Cornrows", "Hair_Twists", "Hair_TopKnot", "Hair_Ponytail", "Hair_MediumWave",
+            "Hair_FrenchCrop", "Hair_IvyLeague", "Hair_Spiky", "Hair_CurlyTop", "Hair_BoxBraids", "Hair_HalfUp",
         };
 
         /// <summary>홍채 색 (가상 팔레트, FR-23 [미정] — 043처럼 균등). 갈색 쪽이 많다.</summary>

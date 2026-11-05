@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "id": "057-collar-hair-closeup",
+  "spec": "057",
+  "profiles": "smoke",
+  "acs": [
+    "AC-07"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "description": "칼라·머리카락 클로즈업 (AC-07): 가상 선수 8명(헤어 짧은·긴·쿠이프·커튼·포니테일·아프로·콘로·박스 브레이드) × 정면·3/4·뒤, 클로즈업 머리 켬. 칼라 경계가 매끈한 곡선이고 포인트색 띠가 경계를 따라가는지, 머리카락 가장자리가 가닥으로 끝나는지, 피부가 사포처럼 거칠지 않은지 캡처를 직접 열어 확인. 기준 이미지 비교.",
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "collar1Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar1Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar1Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar1Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar1Back"
+    },
+    {
+      "type": "capture",
+      "name": "collar1Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar2Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar2Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar2Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar2Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar2Back"
+    },
+    {
+      "type": "capture",
+      "name": "collar2Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar3Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar3Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar3Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar3Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar3Back"
+    },
+    {
+      "type": "capture",
+      "name": "collar3Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar4Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar4Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar4Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar4Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar4Back"
+    },
+    {
+      "type": "capture",
+      "name": "collar4Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar5Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar5Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar5Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar5Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar5Back"
+    },
+    {
+      "type": "capture",
+      "name": "collar5Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar6Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar6Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar6Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar6Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar6Back"
+    },
+    {
+      "type": "capture",
+      "name": "collar6Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar7Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar7Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar7Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar7Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar7Back"
+    },
+    {
+      "type": "capture",
+      "name": "collar7Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar8Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar8Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar8Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar8Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar8Back"
+    },
+    {
+      "type": "capture",
+      "name": "collar8Back",
+      "kind": "3d"
+    }
+  ]
+}

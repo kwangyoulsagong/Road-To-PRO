@@ -1,0 +1,279 @@
+{
+  "schemaVersion": 1,
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "id": "057-hair-catalog",
+  "spec": "057",
+  "profiles": "smoke",
+  "acs": [
+    "AC-08"
+  ],
+  "defaults": {
+    "timeoutSec": 90
+  },
+  "description": "헤어 30종 일람 (AC-08, FR-30·33): 5명씩 6묶음 × 정면·옆·뒤(LOD0 근거리)·방송 원거리(LOD 자동). 그리고 FR-22 깜빡임 — 8명을 방송 원거리에 두고 카메라를 프레임당 2 mm씩 옮기며 머리 둘레 12×12 px 프레임 간 밝기 차(custom.faceFlicker)를 노멀맵 켬(flickerNormal)·끔(flickerFlat)으로 잰다. 판정(2026-11-05 사용자 승인 '비율 ≤ 1.10'): 노멀맵 켬 − 끔 평균 차 ≤ 0.2 (평탄 기준선 약 2.2 기준 1.10배 상당; 하네스 파생 구간은 차만 지원). 1차 측정 차 0.00~−0.005.",
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "hair1Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair1Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair1Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair1Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair1Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair1Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair1Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair1Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair2Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair2Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair2Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair2Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair2Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair2Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair2Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair2Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair3Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair3Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair3Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair3Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair3Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair3Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair3Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair3Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair4Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair4Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair4Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair4Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair4Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair4Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair4Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair4Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair5Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair5Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair5Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair5Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair5Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair5Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair5Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair5Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair6Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair6Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair6Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair6Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair6Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair6Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair6Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair6Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "flickerNormal"
+    },
+    {
+      "type": "perfBegin",
+      "name": "flickerNormal",
+      "warmupFrames": 30,
+      "minFrames": 240
+    },
+    {
+      "type": "perfEnd",
+      "name": "flickerNormal"
+    },
+    {
+      "type": "goto",
+      "screen": "flickerFlat"
+    },
+    {
+      "type": "perfBegin",
+      "name": "flickerFlat",
+      "warmupFrames": 30,
+      "minFrames": 240
+    },
+    {
+      "type": "perfEnd",
+      "name": "flickerFlat"
+    }
+  ],
+  "derived": {
+    "flickerFromNormals": {
+      "of": "flickerNormal",
+      "minus": "flickerFlat",
+      "budget": {
+        "custom.faceFlicker.avg": 0.2
+      }
+    }
+  }
+}

@@ -238,5 +238,10 @@
       "name": "face8Side",
       "kind": "3d"
     }
-  ]
+  ],
+  "alsoSpecs": {
+    "057": [
+      "AC-08"
+    ]
+  }
 }

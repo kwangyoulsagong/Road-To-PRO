@@ -25,6 +25,14 @@ namespace RoadToPro.Presentation.Editor.Players
                 t.maxTextureSize = 2048;
                 t.wrapMode = assetPath.EndsWith("kit_normal.png") ? UnityEngine.TextureWrapMode.Repeat : UnityEngine.TextureWrapMode.Clamp;
                 t.textureCompression = TextureImporterCompression.Uncompressed;
+                // 057 FR-22: 피부 노멀은 먼 밉일수록 평탄하게 (방송 시점 원거리 모공 깜빡임 방지). 1K는 밉 2→5, 클로즈업 2K는 3→6
+                t.fadeout = normal;
+                if (normal)
+                {
+                    bool closeup = assetPath.Contains("closeup");
+                    t.mipmapFadeDistanceStart = closeup ? 3 : 2;
+                    t.mipmapFadeDistanceEnd = closeup ? 6 : 5;
+                }
                 return;
             }
             if (!assetPath.StartsWith(FontsDir + "/kit-glyphs")) return;

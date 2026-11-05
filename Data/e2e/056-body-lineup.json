@@ -58,5 +58,10 @@
       "name": "bodyBroadcast",
       "kind": "3d"
     }
-  ]
+  ],
+  "alsoSpecs": {
+    "057": [
+      "AC-08"
+    ]
+  }
 }
