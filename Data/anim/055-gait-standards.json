@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "spec": "specs/055-running-form",
+  "note": "달리기·킥 형태 기준 범위 (spec FR-01~44·60). handBackBehindHip = 어깨 최대 신전 순간 손이 골반보다 진행 방향 앞에 있는 거리(≤ 0 = 엉덩이 뒤, FR-32). [최소, 최대]. 각도 °, 길이 m, 시간 s. null = 기준 없음. 정의는 Art/Blender/scripts/player/gait_metrics.py 머리말.",
+  "sources": {
+    "jssm-t4": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3761913/table/table004",
+    "konstanz": "https://ojs.ub.uni-konstanz.de/cpa/article/view/1308/1229",
+    "humboldt": "https://digitalcommons.humboldt.edu/etd/248",
+    "weyand": "https://core.ac.uk/download/235627693.pdf",
+    "salford": "https://salford-repository.worktribe.com/output/1417697",
+    "novacheck": "https://scilit.com/publications/9ebe16e627b5d803cc0713ba99eb0c81",
+    "garden2022": "https://commons.nmu.edu/isbs/vol40/iss1/53/",
+    "jssm13-128": "https://www.jssm.org/tablejssm-13-128.xml/table002.xml",
+    "hinrichs": "https://www.bohrium.com/paper-details/upper-extremity-function-in-running-ii-angular-momentum-considerations/811167247862071296-46421",
+    "preece2016": "https://salford-repository.worktribe.com/output/1404607/how-do-elite-endurance-runners-alter-movements-of-the-spine-and-pelvis-as-running-speed-increases",
+    "kellis2007": "Kellis & Katis 2007, J Sports Sci Med 6(2)",
+    "hay1993": "Hay 1993 (Kellis & Katis 인용)",
+    "levanon1998": "Levanon & Dapena 1998",
+    "dorge1999": "Dörge 1999 / Nunome 2002",
+    "spec": "specs/055 [제안]"
+  },
+  "gaits": {
+    "walk": {
+      "speed": 1.4,
+      "cadence": [1.8, 2.0], "stepLength": [0.70, 0.78], "duty": [0.58, 0.62], "contactTime": null,
+      "flightTime": [0.0, 0.0], "pelvisBob": [0.03, 0.05],
+      "pelvisMinInStance": null,
+      "landingDist": null, "kneeTouchdown": null, "kneeStanceMax": null, "kneeToeOff": null,
+      "kneeSwingMax": null, "hipSwingMax": null, "swingFootClear": null, "kneeLeadsFoot": false,
+      "trunkLean": [0.0, 4.0], "neckExtMax": [-90.0, 10.0], "headForwardMax": [-1.0, 0.06],
+      "pelvisYaw": [4.0, 6.0], "thoraxPelvisRel": null, "pelvisObliquity": [3.0, 6.0], "trunkRoll": [0.0, 3.0],
+      "armLegPhaseErr": [0.0, 0.08],
+      "elbowMean": [10.0, 30.0], "elbowMin": null, "elbowMax": null, "elbowRange": [5.0, 90.0],
+      "shoulderRom": [25.0, 40.0], "armAbduction": [5.0, 15.0], "handMidline": true
+    },
+    "jog": {
+      "speed": 3.4,
+      "cadence": [2.6, 2.9], "stepLength": [1.17, 1.31], "duty": [0.30, 0.38], "contactTime": [0.22, 0.27],
+      "flightTime": [0.001, 1.0], "pelvisBob": [0.06, 0.08],
+      "pelvisMinInStance": [0.40, 0.60],
+      "landingDist": [0.0, 0.30], "kneeTouchdown": [10.0, 25.0], "kneeStanceMax": [35.0, 45.0], "kneeToeOff": [10.0, 90.0],
+      "kneeSwingMax": [80.0, 100.0], "hipSwingMax": [35.0, 50.0], "swingFootClear": [0.15, 1.0], "kneeLeadsFoot": true,
+      "trunkLean": [3.0, 8.0], "neckExtMax": [-90.0, 10.0], "headForwardMax": [-1.0, 0.06],
+      "pelvisYaw": [6.0, 10.0], "thoraxPelvisRel": [8.0, 15.0], "pelvisObliquity": [3.0, 6.0], "trunkRoll": [0.0, 3.0],
+      "armLegPhaseErr": [0.0, 0.08],
+      "elbowMean": [80.0, 100.0], "elbowMin": [60.0, 80.0], "elbowMax": [100.0, 120.0], "elbowRange": [15.0, 60.0],
+      "shoulderRom": [50.0, 70.0], "armAbduction": [5.0, 15.0], "handMidline": true, "handBackBehindHip": [-1.0, 0.0]
+    },
+    "run": {
+      "speed": 5.4,
+      "cadence": [3.0, 3.3], "stepLength": [1.64, 1.80], "duty": [0.26, 0.30], "contactTime": [0.17, 0.18],
+      "flightTime": [0.001, 1.0], "pelvisBob": [0.06, 0.08],
+      "pelvisMinInStance": [0.40, 0.60],
+      "landingDist": [0.0, 0.30], "kneeTouchdown": [10.0, 25.0], "kneeStanceMax": [35.0, 45.0], "kneeToeOff": [10.0, 90.0],
+      "kneeSwingMax": [95.0, 115.0], "hipSwingMax": [45.0, 60.0], "swingFootClear": [0.20, 1.0], "kneeLeadsFoot": true,
+      "trunkLean": [4.0, 10.0], "neckExtMax": [-90.0, 10.0], "headForwardMax": [-1.0, 0.06],
+      "pelvisYaw": [6.0, 12.0], "thoraxPelvisRel": [8.0, 15.0], "pelvisObliquity": [3.0, 6.0], "trunkRoll": [0.0, 3.0],
+      "armLegPhaseErr": [0.0, 0.08],
+      "elbowMean": [80.0, 100.0], "elbowMin": [60.0, 80.0], "elbowMax": [100.0, 120.0], "elbowRange": [20.0, 60.0],
+      "shoulderRom": [70.0, 90.0], "armAbduction": [5.0, 15.0], "handMidline": true, "handBackBehindHip": [-1.0, 0.0]
+    },
+    "sprint": {
+      "speed": 7.6,
+      "cadence": [3.8, 4.3], "stepLength": [1.77, 2.00], "duty": [0.22, 0.26], "contactTime": [0.11, 0.13],
+      "flightTime": [0.10, 0.14], "pelvisBob": [0.05, 0.07],
+      "pelvisMinInStance": [0.40, 0.60],
+      "landingDist": [0.0, 0.35], "kneeTouchdown": [10.0, 25.0], "kneeStanceMax": [30.0, 40.0], "kneeToeOff": [10.0, 90.0],
+      "kneeSwingMax": [110.0, 130.0], "hipSwingMax": [55.0, 70.0], "swingFootClear": [0.30, 1.0], "kneeLeadsFoot": true,
+      "trunkLean": [5.0, 12.0], "neckExtMax": [-90.0, 10.0], "headForwardMax": [-1.0, 0.06],
+      "pelvisYaw": [8.0, 12.0], "thoraxPelvisRel": [8.0, 15.0], "pelvisObliquity": [3.0, 6.0], "trunkRoll": [0.0, 3.0],
+      "armLegPhaseErr": [0.0, 0.08],
+      "elbowMean": [80.0, 100.0], "elbowMin": [60.0, 80.0], "elbowMax": [100.0, 120.0], "elbowRange": [25.0, 60.0],
+      "shoulderRom": [100.0, 120.0], "armAbduction": [5.0, 15.0], "handMidline": true, "handBackBehindHip": [-1.0, 0.0]
+    }
+  },
+  "swingContinuity": {"ankleAccelNorm": [0.0, 50.0], "ankleAccelNormWalk": [0.0, 70.0], "tdEntrySlide": [0.0, 0.015], "note": "[제안] 월드 발목 수평 가속도 / (속도 × 걸음 빈도) 상한 — 접지↔스윙 경계 꺾임 검사. 순수 사인 스윙은 약 3, 055 생성 클립 16~45(이지 직후 발 경로 섞기·다리 길이 상한 구간), 043 기준선 84~180, 옆걸음 경계 불연속 2,000+. 걷기는 속도 × 빈도가 작아(2.6) 정규화 값이 커진다 — 70 ≈ 180 m/s² (043 걷기 131)"},
+  "directions": {
+    "note": "FR-44: 옆·뒤 방향 클립은 방향에 적용 가능한 항목만 — 팔 반대 위상, 팔꿈치 변동, 머리 정렬, 골반 진동 위상(jog 이상)",
+    "items": ["armLegPhaseErr", "elbowRange", "neckExtMax", "headForwardMax", "pelvisMinInStance"],
+    "elbowRangeScale": 0.5,
+    "phaseMinHipRom": 10.0,
+    "phaseNote": "엉덩이 굴곡(몸 기준) 가동 범위가 이보다 작은 클립(순수 옆걸음 사이드 셔플)은 팔-다리 반대 위상 항목 적용 불가 [제안]"
+  },
+  "football": {
+    "start": {"firstStepLean": [30.0, 45.0], "leanMonotonic": true, "firstStepRatio": [0.50, 0.65], "steps": [4, 6], "shoulderRom": [100.0, 120.0]},
+    "stop": {"trunkLean": [-15.0, -5.0], "pelvisDrop": [0.08, 0.15], "steps": [2, 4], "heelFirst": true},
+    "dribble": {"stepShorter": [0.10, 0.20], "pelvisLower": [0.03, 0.06], "speeds": [3.0, 5.0, 6.5]}
+  },
+  "kicks": {
+    "plantBehind": [0.05, 0.10],
+    "plantSide": [0.05, 0.28],
+    "plantFootNote": "디딤발 중심 = (발목 + 발끝)/2 수평. 뒤 = 공 중심과 발 중심의 정면 방향 거리(공이 앞). 옆 = 중심 간 옆 거리 − 공 반지름 0.11 − 발 반폭 0.045 (가장자리 간)",
+    "hipExtBackswing": {"big": [20.0, 40.0], "medium": [10.0, 28.0], "small": [-10.0, 12.0]},
+    "hipExtNote": "백스윙 엉덩이 최대 신전(몸통선 기준 뒤로). big = Levanon & Dapena ~29°, medium·small은 [제안] (K2 '무릎 아래만'은 small)",
+    "followThrough": {"short": [0.0, 25.0], "medium": [15.0, 45.0], "long": [35.0, 110.0]},
+    "followThroughNote": "[제안] 접촉 뒤 차는 다리 엉덩이 굴곡 최대 − 접촉 순간 굴곡(°)",
+    "kneeContactKick": [40.0, 60.0],
+    "kneeContactPlant": [25.0, 40.0],
+    "hipFlexVelPeak": [0.25, 0.30],
+    "hipFlexVelPeakNote": "백스윙 최대(차는 발 이지 → 접촉 중 엉덩이 굴곡 최소) → 접촉 구간에서 엉덩이 굴곡 각속도 최대 시점의 비율 (Dörge 1999 근육 타이밍을 운동학으로 옮긴 [제안] 정의 — 이지부터 재면 백스윙이 그 앞 27% 안에 끝나야 해 0.07 s짜리 백스윙이 된다)"
+  }
+}

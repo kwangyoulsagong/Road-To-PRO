@@ -1,0 +1,189 @@
+{
+  "schemaVersion": 1,
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261105
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "id": "055-gait-filmstrip",
+  "spec": "055",
+  "profiles": "smoke",
+  "acs": [
+    "AC-11",
+    "AC-12"
+  ],
+  "defaults": {
+    "timeoutSec": 90
+  },
+  "description": "055 달리기·킥 폼 (AC-11·12). 보법 4종(walk·jog·run·sprint) + 출발(start_f)·감속(stop_f)·드리블 런(dribble_run_50)을 주기 8위상에 고정해 측면·정면 한 줄(아래)과 같은 위상의 연구 기준 스틱 피겨(위, 파랑 = 왼쪽·주황 = 오른쪽, 보법 4종만 — player.gait-reference.json)를 나란히. 캡처를 직접 열어 팔꿈치 굽힘·머리 정렬·무릎 들기를 본다. gaitSprint1~4: 1.5x 하이라이트 질주 연속 4장(0.1 s 간격) — 왼쪽 R1 저중심 숏스텝·오른쪽 R2 장신 파워 스트라이드(사용자 육안 승인 AC-12).",
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "gaitFilmWalkSide"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmWalkSide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmWalkFront"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmWalkFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmJogSide"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmJogSide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmJogFront"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmJogFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmRunSide"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmRunSide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmRunFront"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmRunFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmSprintSide"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmSprintSide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmSprintFront"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmSprintFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmStartSide"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmStartSide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmStartFront"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmStartFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmStopSide"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmStopSide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmStopFront"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmStopFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmDribbleSide"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmDribbleSide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitFilmDribbleFront"
+    },
+    {
+      "type": "capture",
+      "name": "gaitFilmDribbleFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitSprint1"
+    },
+    {
+      "type": "capture",
+      "name": "gaitSprint1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitSprint2"
+    },
+    {
+      "type": "capture",
+      "name": "gaitSprint2",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitSprint3"
+    },
+    {
+      "type": "capture",
+      "name": "gaitSprint3",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "gaitSprint4"
+    },
+    {
+      "type": "capture",
+      "name": "gaitSprint4",
+      "kind": "3d"
+    }
+  ]
+}

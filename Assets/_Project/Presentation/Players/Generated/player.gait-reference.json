@@ -1,0 +1,626 @@
+{
+ "gaits": {
+  "jog": {
+   "front": [
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 2.17
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 4.32
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 3.94
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 1.26
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -2.17
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -4.32
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -3.94
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -1.26
+    }
+   ],
+   "phases": [
+    0.0,
+    0.125,
+    0.25,
+    0.375,
+    0.5,
+    0.625,
+    0.75,
+    0.875
+   ],
+   "side": [
+    {
+     "elbowL": 83.98,
+     "elbowR": 96.02,
+     "hipL": 23.38,
+     "hipR": 0.91,
+     "kneeL": 17.5,
+     "kneeR": 76.27,
+     "pelvisY": 0.0,
+     "shoulderL": -9.63,
+     "shoulderR": 9.63,
+     "trunk": 5.5
+    },
+    {
+     "elbowL": 98.3,
+     "elbowR": 81.7,
+     "hipL": 9.27,
+     "hipR": 23.65,
+     "kneeL": 39.82,
+     "kneeR": 89.41,
+     "pelvisY": -0.032,
+     "shoulderL": 13.28,
+     "shoulderR": -13.28,
+     "trunk": 5.5
+    },
+    {
+     "elbowL": 107.76,
+     "elbowR": 72.24,
+     "hipL": -4.84,
+     "hipR": 40.48,
+     "kneeL": 45.88,
+     "kneeR": 67.7,
+     "pelvisY": -0.0259,
+     "shoulderL": 28.41,
+     "shoulderR": -28.41,
+     "trunk": 5.5
+    },
+    {
+     "elbowL": 106.81,
+     "elbowR": 73.19,
+     "hipL": -14.06,
+     "hipR": 36.62,
+     "kneeL": 51.92,
+     "kneeR": 34.61,
+     "pelvisY": 0.0222,
+     "shoulderL": 26.9,
+     "shoulderR": -26.9,
+     "trunk": 5.5
+    },
+    {
+     "elbowL": 96.02,
+     "elbowR": 83.98,
+     "hipL": 0.91,
+     "hipR": 23.38,
+     "kneeL": 76.27,
+     "kneeR": 17.5,
+     "pelvisY": 0.0,
+     "shoulderL": 9.63,
+     "shoulderR": -9.63,
+     "trunk": 5.5
+    },
+    {
+     "elbowL": 81.7,
+     "elbowR": 98.3,
+     "hipL": 23.65,
+     "hipR": 9.27,
+     "kneeL": 89.41,
+     "kneeR": 39.82,
+     "pelvisY": -0.032,
+     "shoulderL": -13.28,
+     "shoulderR": 13.28,
+     "trunk": 5.5
+    },
+    {
+     "elbowL": 72.24,
+     "elbowR": 107.76,
+     "hipL": 40.48,
+     "hipR": -4.84,
+     "kneeL": 67.7,
+     "kneeR": 45.88,
+     "pelvisY": -0.0259,
+     "shoulderL": -28.41,
+     "shoulderR": 28.41,
+     "trunk": 5.5
+    },
+    {
+     "elbowL": 73.19,
+     "elbowR": 106.81,
+     "hipL": 36.62,
+     "hipR": -14.06,
+     "kneeL": 34.61,
+     "kneeR": 51.92,
+     "pelvisY": 0.0222,
+     "shoulderL": -26.9,
+     "shoulderR": 26.9,
+     "trunk": 5.5
+    }
+   ]
+  },
+  "run": {
+   "front": [
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 2.87
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 4.48
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 3.47
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 0.42
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -2.87
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -4.48
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -3.47
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -0.42
+    }
+   ],
+   "phases": [
+    0.0,
+    0.125,
+    0.25,
+    0.375,
+    0.5,
+    0.625,
+    0.75,
+    0.875
+   ],
+   "side": [
+    {
+     "elbowL": 85.76,
+     "elbowR": 94.24,
+     "hipL": 28.88,
+     "hipR": 10.57,
+     "kneeL": 17.5,
+     "kneeR": 97.25,
+     "pelvisY": 0.0,
+     "shoulderL": -8.48,
+     "shoulderR": 8.48,
+     "trunk": 7.0
+    },
+    {
+     "elbowL": 100.82,
+     "elbowR": 79.18,
+     "hipL": 7.95,
+     "hipR": 35.88,
+     "kneeL": 40.17,
+     "kneeR": 100.83,
+     "pelvisY": -0.0345,
+     "shoulderL": 21.64,
+     "shoulderR": -21.64,
+     "trunk": 7.0
+    },
+    {
+     "elbowL": 109.55,
+     "elbowR": 70.45,
+     "hipL": -12.98,
+     "hipR": 51.58,
+     "kneeL": 49.16,
+     "kneeR": 71.49,
+     "pelvisY": -0.0116,
+     "shoulderL": 39.09,
+     "shoulderR": -39.09,
+     "trunk": 7.0
+    },
+    {
+     "elbowL": 106.82,
+     "elbowR": 73.18,
+     "hipL": -11.43,
+     "hipR": 43.45,
+     "kneeL": 64.01,
+     "kneeR": 35.24,
+     "pelvisY": 0.0342,
+     "shoulderL": 33.64,
+     "shoulderR": -33.64,
+     "trunk": 7.0
+    },
+    {
+     "elbowL": 94.24,
+     "elbowR": 85.76,
+     "hipL": 10.57,
+     "hipR": 28.88,
+     "kneeL": 97.25,
+     "kneeR": 17.5,
+     "pelvisY": 0.0,
+     "shoulderL": 8.48,
+     "shoulderR": -8.48,
+     "trunk": 7.0
+    },
+    {
+     "elbowL": 79.18,
+     "elbowR": 100.82,
+     "hipL": 35.88,
+     "hipR": 7.95,
+     "kneeL": 100.83,
+     "kneeR": 40.17,
+     "pelvisY": -0.0345,
+     "shoulderL": -21.64,
+     "shoulderR": 21.64,
+     "trunk": 7.0
+    },
+    {
+     "elbowL": 70.45,
+     "elbowR": 109.55,
+     "hipL": 51.58,
+     "hipR": -12.98,
+     "kneeL": 71.49,
+     "kneeR": 49.16,
+     "pelvisY": -0.0116,
+     "shoulderL": -39.09,
+     "shoulderR": 39.09,
+     "trunk": 7.0
+    },
+    {
+     "elbowL": 73.18,
+     "elbowR": 106.82,
+     "hipL": 43.45,
+     "hipR": -11.43,
+     "kneeL": 35.24,
+     "kneeR": 64.01,
+     "pelvisY": 0.0342,
+     "shoulderL": -33.64,
+     "shoulderR": 33.64,
+     "trunk": 7.0
+    }
+   ]
+  },
+  "sprint": {
+   "front": [
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 3.28
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 4.5
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 3.08
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -0.14
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -3.28
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -4.5
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -3.08
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 0.14
+    }
+   ],
+   "phases": [
+    0.0,
+    0.125,
+    0.25,
+    0.375,
+    0.5,
+    0.625,
+    0.75,
+    0.875
+   ],
+   "side": [
+    {
+     "elbowL": 87.07,
+     "elbowR": 92.93,
+     "hipL": 34.38,
+     "hipR": 19.85,
+     "kneeL": 17.5,
+     "kneeR": 116.03,
+     "pelvisY": 0.0,
+     "shoulderL": -7.58,
+     "shoulderR": 7.58,
+     "trunk": 8.5
+    },
+    {
+     "elbowL": 102.81,
+     "elbowR": 77.19,
+     "hipL": 6.05,
+     "hipR": 47.08,
+     "kneeL": 36.58,
+     "kneeR": 111.45,
+     "pelvisY": -0.0299,
+     "shoulderL": 33.16,
+     "shoulderR": -33.16,
+     "trunk": 8.5
+    },
+    {
+     "elbowL": 111.05,
+     "elbowR": 68.95,
+     "hipL": -19.91,
+     "hipR": 62.09,
+     "kneeL": 50.22,
+     "kneeR": 76.14,
+     "pelvisY": 0.0036,
+     "shoulderL": 54.48,
+     "shoulderR": -54.48,
+     "trunk": 8.5
+    },
+    {
+     "elbowL": 106.95,
+     "elbowR": 73.05,
+     "hipL": -6.76,
+     "hipR": 50.47,
+     "kneeL": 79.15,
+     "kneeR": 36.38,
+     "pelvisY": 0.0299,
+     "shoulderL": 43.88,
+     "shoulderR": -43.88,
+     "trunk": 8.5
+    },
+    {
+     "elbowL": 92.93,
+     "elbowR": 87.07,
+     "hipL": 19.85,
+     "hipR": 34.38,
+     "kneeL": 116.03,
+     "kneeR": 17.5,
+     "pelvisY": 0.0,
+     "shoulderL": 7.58,
+     "shoulderR": -7.58,
+     "trunk": 8.5
+    },
+    {
+     "elbowL": 77.19,
+     "elbowR": 102.81,
+     "hipL": 47.08,
+     "hipR": 6.05,
+     "kneeL": 111.45,
+     "kneeR": 36.58,
+     "pelvisY": -0.0299,
+     "shoulderL": -33.16,
+     "shoulderR": 33.16,
+     "trunk": 8.5
+    },
+    {
+     "elbowL": 68.95,
+     "elbowR": 111.05,
+     "hipL": 62.09,
+     "hipR": -19.91,
+     "kneeL": 76.14,
+     "kneeR": 50.22,
+     "pelvisY": 0.0036,
+     "shoulderL": -54.48,
+     "shoulderR": 54.48,
+     "trunk": 8.5
+    },
+    {
+     "elbowL": 73.05,
+     "elbowR": 106.95,
+     "hipL": 50.47,
+     "hipR": -6.76,
+     "kneeL": 36.38,
+     "kneeR": 79.15,
+     "pelvisY": 0.0299,
+     "shoulderL": -43.88,
+     "shoulderR": 43.88,
+     "trunk": 8.5
+    }
+   ]
+  },
+  "walk": {
+   "front": [
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -1.39
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 2.04
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 4.28
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 4.01
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": 1.39
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -2.04
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -4.28
+    },
+    {
+     "abduction": 10.0,
+     "footWidth": 0.2,
+     "obliquity": -4.01
+    }
+   ],
+   "phases": [
+    0.0,
+    0.125,
+    0.25,
+    0.375,
+    0.5,
+    0.625,
+    0.75,
+    0.875
+   ],
+   "side": [
+    {
+     "elbowL": 2.69,
+     "elbowR": 37.31,
+     "hipL": 16.5,
+     "hipR": -7.25,
+     "kneeL": 5.0,
+     "kneeR": 31.79,
+     "pelvisY": -0.0162,
+     "shoulderL": -11.85,
+     "shoulderR": 11.85,
+     "trunk": 2.0
+    },
+    {
+     "elbowL": 19.25,
+     "elbowR": 20.75,
+     "hipL": 10.56,
+     "hipR": -11.06,
+     "kneeL": 14.49,
+     "kneeR": 36.77,
+     "pelvisY": -0.0118,
+     "shoulderL": -0.51,
+     "shoulderR": 0.51,
+     "trunk": 2.0
+    },
+    {
+     "elbowL": 36.26,
+     "elbowR": 3.74,
+     "hipL": 4.62,
+     "hipR": 11.25,
+     "kneeL": 18.04,
+     "kneeR": 61.7,
+     "pelvisY": 0.0162,
+     "shoulderL": 11.12,
+     "shoulderR": -11.12,
+     "trunk": 2.0
+    },
+    {
+     "elbowL": 43.74,
+     "elbowR": -3.74,
+     "hipL": -1.31,
+     "hipR": 29.96,
+     "kneeL": 23.38,
+     "kneeR": 35.28,
+     "pelvisY": 0.0118,
+     "shoulderL": 16.24,
+     "shoulderR": -16.24,
+     "trunk": 2.0
+    },
+    {
+     "elbowL": 37.31,
+     "elbowR": 2.69,
+     "hipL": -7.25,
+     "hipR": 16.5,
+     "kneeL": 31.79,
+     "kneeR": 5.0,
+     "pelvisY": -0.0162,
+     "shoulderL": 11.85,
+     "shoulderR": -11.85,
+     "trunk": 2.0
+    },
+    {
+     "elbowL": 20.75,
+     "elbowR": 19.25,
+     "hipL": -11.06,
+     "hipR": 10.56,
+     "kneeL": 36.77,
+     "kneeR": 14.49,
+     "pelvisY": -0.0118,
+     "shoulderL": 0.51,
+     "shoulderR": -0.51,
+     "trunk": 2.0
+    },
+    {
+     "elbowL": 3.74,
+     "elbowR": 36.26,
+     "hipL": 11.25,
+     "hipR": 4.62,
+     "kneeL": 61.7,
+     "kneeR": 18.04,
+     "pelvisY": 0.0162,
+     "shoulderL": -11.12,
+     "shoulderR": 11.12,
+     "trunk": 2.0
+    },
+    {
+     "elbowL": -3.74,
+     "elbowR": 43.74,
+     "hipL": 29.96,
+     "hipR": -1.31,
+     "kneeL": 35.28,
+     "kneeR": 23.38,
+     "pelvisY": 0.0118,
+     "shoulderL": -16.24,
+     "shoulderR": 16.24,
+     "trunk": 2.0
+    }
+   ]
+  }
+ },
+ "note": "연구 기준 스틱 피겨 관절각 — 기준 파일 범위 중앙값 + 표준 파형. 생성기 포즈와 독립(자기 비교 방지).",
+ "schemaVersion": 1,
+ "segments": {
+  "foot": 0.2,
+  "foreArm": 0.26,
+  "head": 0.22,
+  "neck": 0.1,
+  "pelvisHeight": 0.93,
+  "shin": 0.415,
+  "thigh": 0.43,
+  "trunk": 0.55,
+  "upperArm": 0.29
+ },
+ "spec": "specs/055-running-form FR-71"
+}

@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "id": "055-anim-perf",
+  "spec": "055",
+  "description": "055 선수 25명 하이라이트 애니메이션 성능 (AC-13) — 043-anim-perf와 같은 장면에 엔티티마다 달리기·킥 원형(PerfHighlight.Styles, 원형 run·sprint lo/hi 블렌드 포함). animCpuMs·animGcBytes는 Mono 개발 빌드라 기록만, 판정은 IL2CPP 벤치(farm.py bench --spec 055).",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "mac-m1-1600p"
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "perfEmpty"
+    },
+    {
+      "type": "perfBegin",
+      "name": "empty",
+      "warmupFrames": 60,
+      "minFrames": 300
+    },
+    {
+      "type": "perfEnd",
+      "name": "empty"
+    },
+    {
+      "type": "goto",
+      "screen": "perfPlayers"
+    },
+    {
+      "type": "perfBegin",
+      "name": "players",
+      "warmupFrames": 60,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "players"
+    },
+    {
+      "type": "goto",
+      "screen": "perfPlayersNoShadow"
+    },
+    {
+      "type": "perfBegin",
+      "name": "playersNoShadow",
+      "warmupFrames": 60,
+      "minFrames": 200
+    },
+    {
+      "type": "perfEnd",
+      "name": "playersNoShadow"
+    },
+    {
+      "type": "goto",
+      "screen": "perfFull"
+    },
+    {
+      "type": "perfBegin",
+      "name": "full",
+      "warmupFrames": 60,
+      "minFrames": 300
+    },
+    {
+      "type": "perfEnd",
+      "name": "full"
+    }
+  ],
+  "acs": [
+    "AC-13"
+  ],
+  "defaults": {
+    "timeoutSec": 90
+  },
+  "budgets": {
+    "players": {
+      "custom.animGcBytes.max": 0
+    }
+  },
+  "derived": {
+    "playersRender": {
+      "of": "players",
+      "minus": "empty",
+      "budget": {
+        "drawCalls.avg": 75,
+        "triangles.avg": 150000
+      }
+    },
+    "playersMainPass": {
+      "of": "playersNoShadow",
+      "minus": "empty",
+      "budget": {}
+    }
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

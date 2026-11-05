@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "spec": "specs/055-running-form FR-50·51·61",
+  "note": "달리기·킥 스타일 원형(이름 없음, 실명 금지 — 01-legal). styles = 표(spec FR-50) 범위 + 생성 파라미터(gen), kicks = FR-61, mapping = 선수 → 원형 점수표([제안], plan '데이터 · 스키마'). 생성기(Art/Blender/scripts/player/clips/styles.py)·Unity(RunStyleRules)·테스트가 같은 파일을 읽는다.",
+  "jitter": 0.05,
+  "styles": {
+    "r1": {
+      "label": "저중심 숏스텝 드리블러",
+      "topSpeed": [8.6, 9.0], "sprintStep": [1.8, 1.9], "sprintCadence": [4.6, 4.9], "trunkLean": [5.0, 10.0],
+      "shoulderRomScale": [0.75, 0.85], "armAbduction": [10.0, 20.0],
+      "gen": {"lean": 7.5, "romScale": 0.8, "abdAdd": 5.0, "drop": 0.04, "swHipAdd": -4.0}
+    },
+    "r2": {
+      "label": "장신 파워 스트라이드",
+      "topSpeed": [9.2, 9.4], "sprintStep": [2.2, 2.4], "sprintCadence": [4.0, 4.3], "trunkLean": [0.0, 5.0],
+      "gen": {"lean": 3.0, "romScale": 1.03, "abdAdd": 0.0, "drop": -0.01, "swHipAdd": 5.0}
+    },
+    "r3": {
+      "label": "컴팩트 팔 앞쏠림 가속형",
+      "topSpeed": [9.5, 9.7], "sprintStep": [2.0, 2.2], "sprintCadence": [4.5, 4.7], "trunkLean": [10.0, 15.0],
+      "shoulderRomScale": [0.6, 0.7],
+      "gen": {"lean": 12.5, "romScale": 0.65, "abdAdd": 0.0, "drop": 0.02, "swHipAdd": 0.0, "armC": 20.0}
+    },
+    "r4": {
+      "label": "양발 직선 역습 질주형",
+      "topSpeed": [9.75, 9.8], "sprintStep": [2.2, 2.3], "sprintCadence": [4.3, 4.4], "trunkLean": [0.0, 5.0],
+      "gen": {"lean": 3.0, "romScale": 1.0, "abdAdd": 0.0, "drop": 0.0, "swHipAdd": 2.0}
+    },
+    "r5": {
+      "label": "유연 스톱·스타트 윙어",
+      "topSpeed": [9.2, 9.7], "sprintStep": [2.0, 2.1], "sprintCadence": [4.5, 4.6], "trunkLean": [5.0, 12.0],
+      "armAbduction": [15.0, 25.0],
+      "gen": {"lean": 8.0, "romScale": 1.0, "abdAdd": 8.0, "drop": 0.02, "swHipAdd": 0.0}
+    },
+    "r6": {
+      "label": "장신 리커버리 수비 스프린터",
+      "topSpeed": [9.5, 9.8], "sprintStep": [2.3, 2.5], "sprintCadence": [4.0, 4.2], "trunkLean": [5.0, 12.0],
+      "gen": {"lean": 8.5, "romScale": 1.03, "abdAdd": -2.0, "drop": -0.01, "swHipAdd": 3.0}
+    },
+    "r7": {
+      "label": "경제형 타깃 스트라이커",
+      "topSpeed": [9.0, 9.1], "sprintStep": [2.1, 2.2], "sprintCadence": [4.1, 4.3], "trunkLean": [0.0, 5.0],
+      "shoulderRomScale": [0.8, 0.9],
+      "gen": {"lean": 2.5, "romScale": 0.85, "abdAdd": 0.0, "drop": -0.01, "swHipAdd": -3.0}
+    },
+    "r8": {
+      "label": "박스투박스 반복 질주",
+      "topSpeed": [8.6, 9.2], "sprintStep": [1.95, 2.05], "sprintCadence": [4.3, 4.5], "trunkLean": [5.0, 10.0],
+      "gen": {"lean": 7.0, "romScale": 1.0, "abdAdd": 0.0, "drop": 0.0, "swHipAdd": 0.0}
+    },
+    "gk": {
+      "label": "골키퍼 폭발 단거리",
+      "topSpeed": [7.0, 8.0], "trunkLean": [20.0, 30.0], "armAbduction": [5.0, 20.0],
+      "gen": {"speed": 7.5, "lean": 24.0, "romScale": 0.6, "abdAdd": 3.0, "drop": 0.08, "swHipAdd": -6.0, "armC": 25.0}
+    }
+  },
+  "kicks": {
+    "k1": {"label": "정면 무회전 파워 프리킥", "runupSteps": [4, 5], "approach": [0.0, 15.0], "backswing": "big", "follow": "short"},
+    "k2": {"label": "짧은 노백스윙 인사이드 마무리", "runupSteps": [1, 2], "approach": [0.0, 30.0], "backswing": "small", "follow": "short"},
+    "k3": {"label": "인사이드 감아차기", "runupSteps": [3, 5], "approach": [45.0, 60.0], "backswing": "medium", "follow": "long"},
+    "k4": {"label": "아웃프런트 감아 패스", "runupSteps": [1, 2], "approach": [0.0, 10.0], "backswing": "small", "follow": "short"},
+    "k5": {"label": "내려와서 차는 롱 전환 패스", "runupSteps": [2, 3], "approach": [30.0, 45.0], "backswing": "big", "follow": "long"},
+    "k6": {"label": "원터치 퍼스트타임", "runupSteps": [1, 1], "approach": [0.0, 30.0], "backswing": "small", "follow": "short"},
+    "k7": {"label": "수비수 클리어링·롱볼", "runupSteps": [1, 3], "approach": [30.0, 45.0], "backswing": "big", "follow": "long"},
+    "k8": {"label": "GK 펀트·골킥", "runupSteps": [1, 6], "approach": [0.0, 20.0], "backswing": "big", "follow": "long"}
+  },
+  "mapping": {
+    "note": "[제안] 정수 점수 합이 가장 큰 원형, 동점은 선수 id 시드. 조건이 모두 맞으면 points를 더한다. 성향은 0~100, 없으면(−1) 그 조건은 거짓.",
+    "forced": {"Goalkeeper": {"run": "gk", "kick": "k8"}},
+    "run": [
+      {"style": "r8", "points": 1, "if": {}},
+      {"style": "r1", "points": 3, "if": {"heightMax": 175.0}},
+      {"style": "r1", "points": 2, "if": {"dribbleMin": 65}},
+      {"style": "r1", "points": 2, "if": {"habit": "dribbleAddict"}},
+      {"style": "r1", "points": 1, "if": {"roles": ["trequartista", "enganche", "insideForward"]}},
+      {"style": "r2", "points": 3, "if": {"heightMin": 186.0}},
+      {"style": "r2", "points": 1, "if": {"bmiMin": 23.5}},
+      {"style": "r2", "points": 2, "if": {"roles": ["completeForward", "wingBack"]}},
+      {"style": "r2", "points": 1, "if": {"bodyRoles": ["Forward"]}},
+      {"style": "r3", "points": 1, "if": {"heightMin": 172.0, "heightMax": 182.0}},
+      {"style": "r3", "points": 2, "if": {"tempoMin": 65}},
+      {"style": "r3", "points": 2, "if": {"roles": ["shadowStriker", "poacher", "insideForward"]}},
+      {"style": "r4", "points": 2, "if": {"runsMin": 65}},
+      {"style": "r4", "points": 2, "if": {"roles": ["poacher", "raumdeuter", "pressingForward", "wingBack"]}},
+      {"style": "r4", "points": 1, "if": {"bodyRoles": ["Forward"]}},
+      {"style": "r5", "points": 3, "if": {"roles": ["traditionalWinger", "widePlaymaker"]}},
+      {"style": "r5", "points": 1, "if": {"dribbleMin": 55}},
+      {"style": "r5", "points": 1, "if": {"heightMax": 180.0}},
+      {"style": "r6", "points": 3, "if": {"bodyRoles": ["Defender"]}},
+      {"style": "r6", "points": 2, "if": {"heightMin": 183.0}},
+      {"style": "r6", "points": 2, "if": {"roles": ["stopper", "coverLibero", "fullBack"]}},
+      {"style": "r7", "points": 4, "if": {"roles": ["targetMan", "falseNine"]}},
+      {"style": "r7", "points": 1, "if": {"heightMin": 186.0}},
+      {"style": "r7", "points": 1, "if": {"tempoMax": 40}},
+      {"style": "r8", "points": 2, "if": {"bodyRoles": ["Midfielder"]}},
+      {"style": "r8", "points": 2, "if": {"roles": ["boxToBox", "carrilero", "ballWinningMidfielder", "anchor", "mezzala"]}}
+    ],
+    "kick": [
+      {"style": "k6", "points": 1, "if": {}},
+      {"style": "k7", "points": 3, "if": {"bodyRoles": ["Defender"]}},
+      {"style": "k7", "points": 1, "if": {"roles": ["stopper", "coverLibero"]}},
+      {"style": "k5", "points": 4, "if": {"roles": ["deepLyingPlaymaker", "regista", "ballPlayingDefender", "anchor"]}},
+      {"style": "k3", "points": 4, "if": {"roles": ["insideForward", "traditionalWinger", "widePlaymaker", "invertedFullBack"]}},
+      {"style": "k4", "points": 3, "if": {"roles": ["trequartista", "enganche", "mezzala"]}},
+      {"style": "k2", "points": 3, "if": {"roles": ["poacher", "shadowStriker", "falseNine"]}},
+      {"style": "k1", "points": 3, "if": {"longShotsMin": 70}},
+      {"style": "k1", "points": 2, "if": {"bodyRoles": ["Forward"], "heightMin": 182.0}},
+      {"style": "k5", "points": 2, "if": {"bodyRoles": ["Midfielder"]}}
+    ]
+  }
+}

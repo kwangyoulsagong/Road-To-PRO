@@ -62,6 +62,12 @@ namespace RoadToPro.Presentation.Players.Logic
         public const float Fps = 30f;
 
         public string Id, Group, Gait, Outcome, Kind;
+        /// <summary>055 달리기 원형("r1"…"r8", "gk")과 흔들기 극단("lo"·"hi"). 공유 클립은 null.</summary>
+        public string Style, Variant;
+        /// <summary>055 킥 원형 (FR-61). 원형 없는 킥은 None.</summary>
+        public KickArchetype KickStyle;
+        /// <summary>055 출발·감속 클립의 걸음별 평균 속도(m/s). 없으면 null.</summary>
+        public float[] SpeedCurve;
         public int Index, Frames;
         public bool Loop;
         public float Speed = float.NaN;
@@ -81,6 +87,24 @@ namespace RoadToPro.Presentation.Players.Logic
     }
 
     /// <summary>클립 태그 모음 (specs/043 FR-32). 인덱스 = 파일 순서 = 생성기 고정 순서.</summary>
+    /// <summary>엔티티의 정면 원형 로코모션 클립 (055). 값 타입 — 할당 없음.</summary>
+    public readonly struct LocoStyle
+    {
+        public readonly bool Valid;
+        public readonly int Run, SprintLo, SprintHi;
+        /// <summary>sprint 극단 hi 가중치 (0 = lo만).</summary>
+        public readonly float Jitter;
+
+        public LocoStyle(int run, int sprintLo, int sprintHi, float jitter)
+        {
+            Valid = true;
+            Run = run;
+            SprintLo = sprintLo;
+            SprintHi = sprintHi;
+            Jitter = jitter;
+        }
+    }
+
     public sealed class ClipLibrary
     {
         readonly List<ClipInfo> _clips = new List<ClipInfo>();
@@ -97,6 +121,21 @@ namespace RoadToPro.Presentation.Players.Logic
             int i = IndexOf(id);
             c = i >= 0 ? _clips[i] : null;
             return i >= 0;
+        }
+
+        /// <summary>
+        /// 선수 원형 → 정면 로코모션 원형 클립 (055 FR-50~52). 원형 run_f_&lt;s&gt;와 sprint_f_&lt;s&gt;_lo·_hi(GK는 sprint_f_gk 하나).
+        /// 원형이 없거나 클립이 없으면 Valid = false (공유 클립을 쓴다). 엔티티마다 한 번 — 매 프레임 문자열 연결 없음.
+        /// </summary>
+        public LocoStyle Style(in RunStyleChoice choice)
+        {
+            var key = choice.RunKey;
+            if (key == null) return default;
+            int run = IndexOf("run_f_" + key);
+            int lo = IndexOf("sprint_f_" + key + "_lo"), hi = IndexOf("sprint_f_" + key + "_hi");
+            if (lo < 0 && hi < 0) lo = hi = IndexOf("sprint_f_" + key);
+            if (run < 0 || lo < 0 || hi < 0) return default;
+            return new LocoStyle(run, lo, hi, Math.Max(0f, Math.Min(1f, choice.Jitter)));
         }
 
         /// <summary>보법·방향(0~7, 45° 간격, 0 정면·2 오른쪽)의 로코모션 클립. 없으면 −1.</summary>
@@ -122,6 +161,7 @@ namespace RoadToPro.Presentation.Players.Logic
                 var c = new ClipInfo
                 {
                     Id = S(o, "id"), Group = S(o, "group"), Gait = S(o, "gait"), Outcome = S(o, "outcome"), Kind = S(o, "kind"),
+                    Style = S(o, "style"), Variant = S(o, "variant"),
                     Index = lib._clips.Count,
                 };
                 o.TryGet("frames", out var fr);
@@ -130,6 +170,14 @@ namespace RoadToPro.Presentation.Players.Logic
                 if (o.TryGet("speed", out var sp)) c.Speed = F(sp);
                 if (o.TryGet("dir", out var dr)) c.Dir = (int)(double)dr;
                 if (o.TryGet("hitDir", out var hd)) c.HitDir = (int)(double)hd;
+                var ks = S(o, "kickStyle");
+                if (ks != null) c.KickStyle = (KickArchetype)int.Parse(ks.Substring(1), CultureInfo.InvariantCulture);
+                var sc = L(o, "speedCurve");
+                if (sc != null)
+                {
+                    c.SpeedCurve = new float[sc.Count];
+                    for (int i = 0; i < sc.Count; i++) c.SpeedCurve[i] = F(sc[i]);
+                }
                 if (o.TryGet("rootYaw", out var ry)) c.RootYaw = F(ry);
                 var rt = L(o, "root");
                 if (rt != null) c.Root = new Vec2(F(rt[0]), F(rt[1]));
@@ -162,7 +210,7 @@ namespace RoadToPro.Presentation.Players.Logic
                 lib._byId[c.Id] = c.Index;
                 lib._clips.Add(c);
                 if (c.Id == "idle") lib.IdleIndex = c.Index;
-                if (c.Group == "locomotion" && c.Loop && c.Gait != null && c.Dir >= 0 && c.Dir % 45 == 0)
+                if (c.Group == "locomotion" && c.Loop && c.Gait != null && c.Dir >= 0 && c.Dir % 45 == 0 && c.Style == null)
                 {
                     int g = c.Gait switch { "walk" => 1, "jog" => 2, "run" => 3, "sprint" => 4, _ => -1 };
                     if (g > 0) lib._loco[g, c.Dir / 45] = c.Index;

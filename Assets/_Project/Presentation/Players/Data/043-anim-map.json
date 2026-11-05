@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "_doc": "specs/043 FR-40 매핑 표. events: SimEventKind 이름 → {clips: 후보} 또는 {none: 이유}. who: player(PlayerId) | other(OtherId) | referee | scorer. outcome별 후보는 outcomes. 코드 수정 없이 바꿀 수 있다.",
+ "_doc": "specs/043 FR-40 매핑 표 (055: 킥 원형 클립 shot_power_r·shot_inside_r·gk_goalkick_r·gk_punt_r 추가 — 같은 상황 안에서 선수 킥 원형으로 고른다). events: SimEventKind 이름 → {clips: 후보} 또는 {none: 이유}. who: player(PlayerId) | other(OtherId) | referee | scorer. outcome별 후보는 outcomes. 코드 수정 없이 바꿀 수 있다.",
  "default": "idle",
  "motionHints": {
   "Idle": ["idle"], "Walk": ["walk_f"], "Jog": ["jog_f"], "Run": ["run_f"], "Sprint": ["sprint_f"],
@@ -9,7 +9,7 @@
  },
  "ballActions": {
   "Pass": ["pass_inside_r", "pass_inside_l", "pass_outside_r", "pass_lofted_r", "onetouch_pass_r"],
-  "Shot": ["shot_instep_r", "shot_instep_l", "shot_curl_r", "shot_volley_r", "onetouch_shot_r"],
+  "Shot": ["shot_instep_r", "shot_instep_l", "shot_curl_r", "shot_volley_r", "onetouch_shot_r", "shot_power_r", "shot_inside_r"],
   "Clearance": ["clearance_r", "header_jump", "header_stand"]
  },
  "events": {
@@ -22,7 +22,7 @@
   "MatchFailed": {"none": "진행 표시"},
   "Substitution": {"who": "player", "clips": ["enter_jog_on", "exit_walk_off"]},
   "SubstitutionRejected": {"none": "UI"},
-  "ShootoutKick": {"who": "player", "clips": ["shot_instep_r", "shot_instep_l", "shot_curl_r"]},
+  "ShootoutKick": {"who": "player", "clips": ["shot_instep_r", "shot_instep_l", "shot_curl_r", "shot_power_r", "shot_inside_r"]},
   "ShootoutEnd": {"none": "진행 표시"},
   "InputApplied": {"none": "입력"},
   "PossessionChange": {"none": "상태"},
@@ -33,7 +33,7 @@
   "Cross": {"who": "player", "clips": ["cross_r", "cross_l"]},
   "Dribble": {"who": "player", "clips": ["dribble_touch_r", "dribble_touch_l"]},
   "Carry": {"who": "player", "clips": ["dribble_touch_r", "dribble_touch_l"]},
-  "Shot": {"who": "player", "clips": ["shot_instep_r", "shot_instep_l", "shot_curl_r", "shot_volley_r", "onetouch_shot_r", "header_jump", "header_stand"]},
+  "Shot": {"who": "player", "clips": ["shot_instep_r", "shot_instep_l", "shot_curl_r", "shot_volley_r", "onetouch_shot_r", "shot_power_r", "shot_inside_r", "header_jump", "header_stand"]},
   "Block": {"who": "player", "clips": ["trap_chest", "tackle_stand_r"]},
   "Tackle": {"who": "player", "clips": ["tackle_stand_r", "tackle_slide_r"], "outcomes": {"win": ["tackle_win_r"]}},
   "Interception": {"who": "player", "clips": ["trap_foot_r", "trap_foot_l", "tackle_stand_r"]},
@@ -50,10 +50,10 @@
   "Card": {"who": "referee", "clips": ["ref_card"]},
   "Offside": {"who": "referee", "clips": ["ref_whistle"]},
   "ThrowIn": {"who": "player", "clips": ["throw_in"]},
-  "GoalKick": {"who": "player", "clips": ["gk_kick"]},
+  "GoalKick": {"who": "player", "clips": ["gk_kick", "gk_goalkick_r", "gk_punt_r"]},
   "Corner": {"who": "player", "clips": ["cross_r", "cross_l"]},
-  "FreeKick": {"who": "player", "clips": ["shot_curl_r", "shot_instep_r", "pass_lofted_r"]},
-  "Penalty": {"who": "player", "clips": ["shot_instep_r", "shot_instep_l", "shot_curl_r"]},
+  "FreeKick": {"who": "player", "clips": ["shot_curl_r", "shot_instep_r", "pass_lofted_r", "shot_power_r"]},
+  "Penalty": {"who": "player", "clips": ["shot_instep_r", "shot_instep_l", "shot_curl_r", "shot_power_r", "shot_inside_r"]},
   "VarCheck": {"none": "UI"},
   "VarOverturn": {"none": "UI"},
   "PlayersBelowMinimum": {"none": "진행 표시"},

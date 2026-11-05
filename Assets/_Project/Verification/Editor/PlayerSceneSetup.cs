@@ -54,6 +54,8 @@ namespace RoadToPro.Verification.Editor
                 bodyShader = Shader.Find("RoadToPro/PlayerBody"),
                 kitShader = Shader.Find("RoadToPro/PlayerKit"),
                 clips = PlayerAnimationSystem.Order(lib, AssetDatabase.LoadAllAssetsAtPath(Gen + "/player.glb").OfType<AnimationClip>()),
+                gaitReferenceJson = Load<TextAsset>(Gen + "/player.gait-reference.json"),
+                stickMaterial = StickMaterial(),
             };
             var structure = st.Structure.ToArray();
             var screen = new GameObject("PlayerScreen").AddComponent<PlayerScreen>();
@@ -62,6 +64,19 @@ namespace RoadToPro.Verification.Editor
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.SaveAssets();
             Debug.Log($"[farm] 선수 씬 생성: {ScenePath} (클립 {a.clips.Length}, 경기장 렌더러 {structure.Length})");
+        }
+
+        const string StickMatPath = "Assets/_Project/Verification/Samples/GaitStick.mat";
+
+        /// <summary>055 필름스트립 스틱 피겨 선 머티리얼(URP Unlit) — 에셋으로 두어 빌드에 셰이더가 들어가게.</summary>
+        static Material StickMaterial()
+        {
+            var m = AssetDatabase.LoadAssetAtPath<Material>(StickMatPath);
+            if (m != null) return m;
+            m = new Material(Shader.Find("Universal Render Pipeline/Unlit")) { name = "GaitStick" };
+            m.SetColor("_BaseColor", Color.white);
+            AssetDatabase.CreateAsset(m, StickMatPath);
+            return m;
         }
 
         static T Load<T>(string path) where T : Object

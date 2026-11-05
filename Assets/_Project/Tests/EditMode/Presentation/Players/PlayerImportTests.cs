@@ -57,6 +57,20 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             Assert.GreaterOrEqual(clips, 75);
         }
 
+        /// <summary>055 기준선(043·056 클립 82개) 클립 메모리 합(바이트, 에디터 측정, 2026-11-05 T04).</summary>
+        const long ClipMemoryBaseline055 = 23555936;
+
+        /// <summary>055 FR-52·AC-13: 클립 메모리 ≤ 043 대비 +50%.</summary>
+        [Test]
+        public void ClipMemory_Within150Percent()
+        {
+            var clips = AssetDatabase.LoadAllAssetsAtPath("Assets/_Project/Presentation/Players/Generated/player.glb")
+                .OfType<AnimationClip>().Where(c => !c.name.StartsWith("__preview")).ToArray();
+            long sum = clips.Sum(c => UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(c));
+            TestContext.WriteLine($"clips {clips.Length}, memory {sum} B, baseline {ClipMemoryBaseline055} B, ratio {(double)sum / ClipMemoryBaseline055:0.000}");
+            Assert.LessOrEqual(sum, ClipMemoryBaseline055 * 3 / 2, "클립 메모리 +50% 초과");
+        }
+
         [Test]
         public void SkinNormals_MipFadeToFlat()
         {
