@@ -808,7 +808,7 @@ namespace RoadToPro.Verification.Samples
             {
                 int i = Array.IndexOf(FacePlayers, e);
                 float o = (i - (FilmTiles - 1) * 0.5f) * FilmGap;
-                return (i >= 0 && i < FilmTiles, side ? 0f : o, side ? o : 0f, 0f);
+                return (i >= 0 && i < FilmTiles, side ? 0f : -o, side ? o : 0f, 0f); // 정면은 카메라가 −Z를 보므로 X를 뒤집어 위상이 왼쪽 → 오른쪽
             }, false, 0);
             for (int i = 0; i < FilmTiles; i++)
             {
@@ -824,7 +824,7 @@ namespace RoadToPro.Verification.Samples
                 for (int i = 0; i < FilmTiles; i++)
                 {
                     float o = (i - (FilmTiles - 1) * 0.5f) * FilmGap;
-                    var origin = side ? new Vector3(0f, StickRow, o) : new Vector3(o, StickRow, 0f);
+                    var origin = side ? new Vector3(0f, StickRow, o) : new Vector3(-o, StickRow, 0f);
                     DrawStick(g, i, origin, side);
                 }
             float halfW = (FilmTiles - 1) * FilmGap * 0.5f + 0.7f;
