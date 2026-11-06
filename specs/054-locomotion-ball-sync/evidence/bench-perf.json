@@ -1,0 +1,85 @@
+{
+  "judged": true,
+  "ok": true,
+  "note": "",
+  "backend": "il2cpp",
+  "profile": "mac-m1-1600p",
+  "budget": [
+    {
+      "ac": "AC-17",
+      "label": "054 처리 p95 (선수 22 + 심판 3)",
+      "metric": "motion_p95_ms",
+      "value": 0.0595,
+      "budget": 0.8,
+      "unit": "ms",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "054 처리 최대 프레임",
+      "metric": "motion_max_ms",
+      "value": 1.0336,
+      "budget": 1.5,
+      "unit": "ms",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "애니메이션 갱신 전체 p95 (043 예산)",
+      "metric": "anim_p95_ms",
+      "value": 0.32430000000000003,
+      "budget": 2.0,
+      "unit": "ms",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "관리 힙 할당 (1200프레임 합)",
+      "metric": "anim_gc_bytes",
+      "value": 0,
+      "budget": 0,
+      "unit": "B",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "진단 꺼짐 비용 (프레임당)",
+      "metric": "diag_off_ms",
+      "value": 6.591000000000001e-07,
+      "budget": 0.02,
+      "unit": "ms",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "진단 켬 추가 비용 (검증 모드, 25명, p95)",
+      "metric": "diag_on_ms",
+      "value": 0.0663,
+      "budget": 1.0,
+      "unit": "ms",
+      "ok": true
+    }
+  ],
+  "regression": [],
+  "stages": {},
+  "metrics": {
+    "anim_p50_ms": 0.1897,
+    "anim_p95_ms": 0.32430000000000003,
+    "anim_max_ms": 1.1695,
+    "anim_gc_bytes": 0,
+    "anim_frames": 1200,
+    "anim_players": 25,
+    "motion_p95_ms": 0.0595,
+    "motion_max_ms": 1.0336,
+    "diag_off_ms": 6.591000000000001e-07,
+    "diag_on_ms": 0.0663
+  },
+  "host": "mac-m1-1600p",
+  "power": "ac",
+  "buildCached": false,
+  "durationSec": 6.2,
+  "unity": "6000.3.27f2",
+  "cpu": "Apple M1 Pro",
+  "development": false,
+  "commit": "df4cbbfba55ff4c5d86a23c59e1b32f005cc50e3"
+}
