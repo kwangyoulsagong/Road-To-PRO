@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "054-motion-perf",
   "spec": "054",
-  "description": "054 처리를 포함한 25명 하이라이트 성능 (AC-17). 프레임 시간은 이 시나리오로, 054 CPU·GC는 IL2CPP 벤치(farm.py bench --spec 054)로 판정",
+  "description": "054 처리를 포함한 25명 하이라이트 성능 (AC-17). 프레임 시간은 빈 화면 대비 증가 p95 ≤ 1 ms로 판정(60 fps 제한기 흔들림이 절대값에 잡힌다, 2026-11-06 사용자 결정), 절대값은 기록. 054 CPU·GC는 IL2CPP 벤치(farm.py bench --spec 054)",
   "scene": "Player043",
   "fixture": {
     "save": null,
@@ -78,8 +78,7 @@
   },
   "budgets": {
     "players": {
-      "custom.animGcBytes.max": 0,
-      "frameMs.p95": 16.6
+      "custom.animGcBytes.max": 0
     }
   },
   "derived": {
@@ -88,7 +87,8 @@
       "minus": "empty",
       "budget": {
         "drawCalls.avg": 75,
-        "triangles.avg": 150000
+        "triangles.avg": 150000,
+        "frameMs.p95": 1.0
       }
     },
     "playersMainPass": {
