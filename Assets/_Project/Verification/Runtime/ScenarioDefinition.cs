@@ -46,6 +46,7 @@ namespace RoadToPro.Verification
             { "perfBegin", new[] { "name" } },
             { "perfEnd", new[] { "name" } },
             { "checkpoint", new[] { "name" } },
+            { "motionMeasure", new[] { "name" } },
             { "freeze", new string[0] },
             { "inject", new[] { "what" } },
         };

@@ -45,7 +45,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         public void Parses_055Tags_StyleVariantKickSpeedCurve()
         {
             var lib = AnimTestKit.Lib;
-            Assert.AreEqual(117, lib.Count);
+            Assert.AreEqual(121, lib.Count, "055 117 + 054 컷 4");
             Assert.IsTrue(lib.TryGet("sprint_f_r1_lo", out var lo));
             Assert.AreEqual("r1", lo.Style);
             Assert.AreEqual("lo", lo.Variant);
@@ -66,6 +66,37 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             Assert.AreEqual("run_f", lib.Get(lib.Locomotion(Gait.Run, 0)).Id);
             for (var r = RunArchetype.R1; r <= RunArchetype.GK; r++)
                 Assert.IsTrue(lib.Style(new RunStyleChoice(r, KickArchetype.None, 0f)).Valid, r.ToString());
+        }
+
+        [TestCase("cut_l45", -45f, false)]
+        [TestCase("cut_r45", 45f, true)]
+        [TestCase("cut_l90", -90f, false)]
+        [TestCase("cut_r90", 90f, true)]
+        public void CutClips_TagsAndPlantFoot(string id, float deg, bool plantLeft)
+        {
+            Assert.IsTrue(AnimTestKit.Lib.TryGet(id, out var c), id);
+            Assert.AreEqual(deg, c.Cut);
+            Assert.AreEqual(plantLeft, c.PlantLeft);
+            var spans = plantLeft ? c.StanceL : c.StanceR;
+            Assert.IsTrue(System.Array.Exists(spans, s => s.F0 <= c.PlantFrame && c.PlantFrame <= s.F1), $"{id}: 디딤 프레임이 접지 구간 안");
+        }
+
+        [Test]
+        public void StancePaths_LoopHasOneSpanPerFoot_MovesBackward()
+        {
+            Assert.IsTrue(AnimTestKit.Lib.TryGet("jog_f", out var c));
+            Assert.AreEqual(1, c.StanceL.Length);
+            Assert.AreEqual(1, c.StanceR.Length);
+            Assert.Less(c.StanceL[0].Z1, c.StanceL[0].Z0, "접지 발은 몸 기준 뒤로 간다");
+            float dist = c.StanceL[0].Z0 - c.StanceL[0].Z1, time = (c.StanceL[0].F1 - c.StanceL[0].F0) / 30f;
+            Assert.AreEqual(c.Speed, dist / time, c.Speed * 0.15f, "접지 동안 뒤로 가는 속도 ≈ 클립 속도");
+        }
+
+        [Test]
+        public void StancePaths_KickPlantFoot_CoversContact()
+        {
+            Assert.IsTrue(AnimTestKit.Lib.TryGet("pass_inside_r", out var c));
+            Assert.IsTrue(System.Array.Exists(c.StanceL, s => s.F0 <= c.ContactFrame && c.ContactFrame <= s.F1), "디딤발(왼발)은 접촉 때 땅에 있다");
         }
     }
 }

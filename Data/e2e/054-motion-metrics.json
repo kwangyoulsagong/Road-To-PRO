@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "spec": "054",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261106
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "id": "054-motion-metrics",
+  "description": "합성 장면 8종·경계 장면을 실제 리그로 재생해 움직임 지표를 잰다 (AC-01~11·13·16·18). 모든 배속 측정, 프로필 간 체크포인트 해시 비교로 AC-13. 판정 기준은 054-motion-standards.json",
+  "profiles": [
+    "mac-m1-1600p",
+    "low-igpu-1080p",
+    "desktop-1440p"
+  ],
+  "acs": [
+    "AC-01",
+    "AC-02",
+    "AC-03",
+    "AC-04",
+    "AC-05",
+    "AC-06",
+    "AC-07",
+    "AC-09",
+    "AC-10",
+    "AC-11",
+    "AC-13",
+    "AC-16",
+    "AC-18"
+  ],
+  "defaults": {
+    "timeoutSec": 300
+  },
+  "steps": [
+    {
+      "type": "motionMeasure",
+      "name": "all",
+      "set": "all",
+      "rates": [
+        1.5
+      ]
+    },
+    {
+      "type": "motionMeasure",
+      "name": "rates",
+      "set": "longPass",
+      "rates": [
+        1,
+        2,
+        3,
+        0.5
+      ]
+    },
+    {
+      "type": "motionMeasure",
+      "name": "rates2",
+      "set": "tackle",
+      "rates": [
+        1,
+        2,
+        3,
+        0.5
+      ]
+    }
+  ]
+}

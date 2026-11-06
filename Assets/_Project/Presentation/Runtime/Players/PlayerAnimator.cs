@@ -106,5 +106,13 @@ namespace RoadToPro.Presentation.Players
         public long Frame;
 
         public float SimTime => Start + (float)(Frame * (double)Rate / Fps);
+
+        /// <summary>배속을 바꿔도 지금 시각이 튀지 않게 기준을 옮긴다 (specs/054 FR-53).</summary>
+        public void SwitchRate(float rate)
+        {
+            Start = SimTime;
+            Frame = 0;
+            Rate = rate;
+        }
     }
 }

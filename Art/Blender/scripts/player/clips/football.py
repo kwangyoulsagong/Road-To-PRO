@@ -114,5 +114,32 @@ def dribble_clip(v):
                 gait="dribble", speed=round(v, 4), dir=0, stance=stance, cycle=frames, football="dribble")
 
 
+CUT_DEGS = (("cut_l45", -45.0), ("cut_r45", 45.0), ("cut_l90", -90.0), ("cut_r90", 90.0))
+CUT_FRAMES = 16
+CUT_PLANT_FRAME = 6
+
+
+def cut_clip(name, deg):
+    """컷 (specs/054 FR-23): 바깥발을 진행 방향 바깥으로 넓게 딛고(오른쪽 컷 = 왼발) 안쪽으로 몸을 기울이며 밀어 낸다. 루트는 제자리 — 궤적은 시뮬이 정한다.
+    태그: cut(°), plantFoot, plantFrame. 딛는 위치는 054 발 고정이 시뮬 방향 전환 지점에 맞춘다."""
+    s = 1.0 if deg > 0 else -1.0
+    a = abs(deg) / 90.0  # 45° = 0.5, 90° = 1
+    out, inn = ("L", "R") if s > 0 else ("R", "L")
+    arms = dict(armL=(25.0, 20.0, 70.0, P.ARM_DOWN_MAX), armR=(25.0, 20.0, 70.0, P.ARM_DOWN_MAX))
+    run = P.merged(P.READY, hips=(0.0, -0.08, 0.0), spine=(12.0, 0.0, 0.0), **arms,
+                   **{"ik" + out: (-s * 0.14, 0.32, 0.06, -s * 6.0), "ik" + inn: (s * 0.14, -0.22, 0.10, s * 6.0)})
+    # 디딤 위치는 방향 전환 지점 ±20 cm (FR-23) — 넓게 딛는 느낌은 발을 멀리 두는 대신 골반을 안쪽으로 옮겨 만든다
+    plant = P.merged(P.READY, hips=(s * (0.03 + 0.05 * a), -0.15 - 0.03 * a, -0.04), hrot=(0.0, s * 14.0 * a, s * (6.0 + 8.0 * a)),
+                     spine=(8.0, s * 18.0 * a, s * (5.0 + 5.0 * a)), head=(-6.0, s * 22.0 * a), **arms,
+                     **{"ik" + out: (-s * (0.14 + 0.03 * a), 0.06, 0.0, -s * 18.0 * a), "ik" + inn: (s * 0.10, 0.10, 0.20, s * 20.0 * a)})
+    push = P.merged(P.READY, hips=(s * 0.04 * a, -0.11, 0.06), hrot=(0.0, s * 24.0 * a, s * (4.0 + 5.0 * a)),
+                    spine=(14.0, s * 12.0 * a, s * 3.0), head=(-8.0, s * 16.0 * a), **arms,
+                    **{"ik" + out: (-s * (0.20 + 0.06 * a), -0.14, 0.02, -s * 10.0 * a), "ik" + inn: (s * 0.18, 0.28, 0.12, s * 25.0 * a)})
+    keys = [(0, run), (CUT_PLANT_FRAME, plant), (11, push), (CUT_FRAMES, run)]
+    tl = P.timeline(keys)
+    return Clip(name, "locomotion", CUT_FRAMES, lambda t: P.grounded(tl(t * 30.0)), loop=False, gait="cut", cut=deg,
+                plantFoot="Left" if s > 0 else "Right", plantFrame=CUT_PLANT_FRAME)
+
+
 def clips():
-    return [start_clip(), stop_clip()] + [dribble_clip(v) for v in DRIBBLE_SPEEDS]
+    return [start_clip(), stop_clip()] + [dribble_clip(v) for v in DRIBBLE_SPEEDS] + [cut_clip(n, d) for n, d in CUT_DEGS]

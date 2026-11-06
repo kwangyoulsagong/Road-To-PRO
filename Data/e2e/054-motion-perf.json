@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "054-motion-perf",
+  "spec": "054",
+  "description": "054 처리를 포함한 25명 하이라이트 성능 (AC-17). 프레임 시간은 이 시나리오로, 054 CPU·GC는 IL2CPP 벤치(farm.py bench --spec 054)로 판정",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261104
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "mac-m1-1600p"
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "perfEmpty"
+    },
+    {
+      "type": "perfBegin",
+      "name": "empty",
+      "warmupFrames": 60,
+      "minFrames": 300
+    },
+    {
+      "type": "perfEnd",
+      "name": "empty"
+    },
+    {
+      "type": "goto",
+      "screen": "perfPlayers"
+    },
+    {
+      "type": "perfBegin",
+      "name": "players",
+      "warmupFrames": 60,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "players"
+    },
+    {
+      "type": "goto",
+      "screen": "perfPlayersNoShadow"
+    },
+    {
+      "type": "perfBegin",
+      "name": "playersNoShadow",
+      "warmupFrames": 60,
+      "minFrames": 200
+    },
+    {
+      "type": "perfEnd",
+      "name": "playersNoShadow"
+    },
+    {
+      "type": "goto",
+      "screen": "perfFull"
+    },
+    {
+      "type": "perfBegin",
+      "name": "full",
+      "warmupFrames": 60,
+      "minFrames": 300
+    },
+    {
+      "type": "perfEnd",
+      "name": "full"
+    }
+  ],
+  "acs": [
+    "AC-17"
+  ],
+  "defaults": {
+    "timeoutSec": 90
+  },
+  "budgets": {
+    "players": {
+      "custom.animGcBytes.max": 0,
+      "frameMs.p95": 16.6
+    }
+  },
+  "derived": {
+    "playersRender": {
+      "of": "players",
+      "minus": "empty",
+      "budget": {
+        "drawCalls.avg": 75,
+        "triangles.avg": 150000
+      }
+    },
+    "playersMainPass": {
+      "of": "playersNoShadow",
+      "minus": "empty",
+      "budget": {}
+    }
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

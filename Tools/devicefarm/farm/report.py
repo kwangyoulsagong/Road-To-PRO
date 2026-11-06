@@ -10,6 +10,7 @@ import shutil
 
 from PIL import Image
 
+from . import motion
 from .htmlkit import e, page
 
 MAX_BYTES = 15 * 1024 * 1024
@@ -449,6 +450,7 @@ def write(ev, out_dir, max_bytes=MAX_BYTES):
             _editmode_perf(ev),
             _bench_perf(ev),
             "".join(_grid(sc, assets, i) for i, sc in enumerate(ev.get("scenarios", []))),
+            motion.section(ev.get("scenarios", []), assets),
             _image_checks(ev.get("scenarios", [])),
             _perf(ev.get("scenarios", [])),
             _determinism(ev.get("scenarios", [])),

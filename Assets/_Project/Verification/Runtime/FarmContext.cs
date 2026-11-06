@@ -43,6 +43,9 @@ namespace RoadToPro.Verification
         /// <summary>goto(screen) 단계가 부를 화면 전환 함수.</summary>
         public static readonly Dictionary<string, Action> Screens = new Dictionary<string, Action>();
 
+        /// <summary>motionMeasure 단계 측정기 (specs/054). 선수 씬이 등록한다.</summary>
+        public static IFarmMotionMeasure MotionMeasure { get; set; }
+
         /// <summary>checkpoint 단계가 읽는 결정론 프로브 (없으면 단계 실패).</summary>
         public static IDeterminismProbe DeterminismProbe { get; set; }
 

@@ -26,11 +26,14 @@ namespace RoadToPro.Presentation.Players.Logic
         public readonly BodyPart Part;
         /// <summary>선수 킥 원형 (055 FR-61). None이면 원형 점수 없음(043과 같은 선택).</summary>
         public readonly KickArchetype KickStyle;
+        /// <summary>선수 키 배율 (054 FR-87): 클립 접촉점도 같이 커진다.</summary>
+        public readonly float Scale;
 
         public ActionRequest(float now, float contactTime, Vec3 simPos, float yaw, Vec3 ball, Vec3 ballVelOut, float speed, BodyPart part,
-            KickArchetype kickStyle = KickArchetype.None)
+            KickArchetype kickStyle = KickArchetype.None, float scale = 1f)
         {
             KickStyle = kickStyle;
+            Scale = scale;
             Now = now;
             ContactTime = contactTime;
             SimPos = simPos;
@@ -67,6 +70,7 @@ namespace RoadToPro.Presentation.Players.Logic
         }
 
         public ActionChoice WithEnd(float end) => new ActionChoice(Clip, Start, Rate, ContactAt, end, StrideScale, RootOffset, Snap);
+        public ActionChoice WithRootOffset(Vec3 o) => new ActionChoice(Clip, Start, Rate, ContactAt, End, StrideScale, o, Snap);
 
         public bool Equals(ActionChoice o) => Clip == o.Clip && Start.Equals(o.Start) && Rate.Equals(o.Rate) && ContactAt.Equals(o.ContactAt) &&
                                               End.Equals(o.End) && StrideScale.Equals(o.StrideScale) && RootOffset == o.RootOffset && Snap == o.Snap;
@@ -126,7 +130,7 @@ namespace RoadToPro.Presentation.Players.Logic
                 bool fits = true;
                 if (c.HasContact)
                 {
-                    var cp = c.ContactPoint;
+                    var cp = c.ContactPoint * q.Scale;
                     var world = new Vec3(cp.X * cy + cp.Z * sy, 0, -cp.X * sy + cp.Z * cy);
                     var need = new Vec3(q.Ball.X - world.X, 0, q.Ball.Z - world.Z);
                     offset = new Vec3(need.X - q.SimPos.X, 0, need.Z - q.SimPos.Z);
@@ -167,7 +171,7 @@ namespace RoadToPro.Presentation.Players.Logic
             if (best >= 0) return bestC;
             if (bestAny >= 0) return bestAnyC;
             // 부위가 맞는 후보가 없으면 부위 제한 없이 다시
-            return Select(lib, candidates, new ActionRequest(q.Now, q.ContactTime, q.SimPos, q.Yaw, q.Ball, q.BallVelOut, q.Speed, BodyPart.None, q.KickStyle));
+            return Select(lib, candidates, new ActionRequest(q.Now, q.ContactTime, q.SimPos, q.Yaw, q.Ball, q.BallVelOut, q.Speed, BodyPart.None, q.KickStyle, q.Scale));
         }
 
         static float Outside(float v, float lo, float hi) => v < lo ? lo - v : v > hi ? v - hi : 0f;
@@ -208,6 +212,7 @@ namespace RoadToPro.Presentation.Players.Logic
         public int Count => _e.Count;
         public ActionChoice Get(int i) => _e[i].A;
         public bool IsHit(int i) => _e[i].Hit;
+        public long SeqOf(int i) => _e[i].Seq;
         public void Clear() => _e.Clear();
 
         /// <summary>t에 시작하려는 액션이 실제로 시작할 수 있는 가장 이른 시각.</summary>
@@ -226,6 +231,30 @@ namespace RoadToPro.Presentation.Players.Logic
                 }
             }
             return s;
+        }
+
+        /// <summary>시각 t 이전(이하)의 마지막 접촉 시각. 없으면 음의 무한대.</summary>
+        public float LastContactBefore(float t)
+        {
+            float best = float.NegativeInfinity;
+            for (int i = 0; i < _e.Count; i++)
+            {
+                float c = _e[i].A.ContactAt;
+                if (!_e[i].Hit && c <= t && c > best) best = c;
+            }
+            return best;
+        }
+
+        /// <summary>새 접촉이 앞 액션이 끝나기 전에 오면 앞 액션을 접촉 전에 끝낸다 (specs/054 FR-82: 끝내지 않고 다음 접촉으로 잇는다).</summary>
+        public void EndBefore(float newStart, float newContact)
+        {
+            for (int i = 0; i < _e.Count; i++)
+            {
+                var e = _e[i];
+                if (e.A.End <= newStart || e.A.Start >= newStart) continue;
+                float end = Math.Max(e.A.ContactAt + 1e-3f, Math.Min(newStart + AnimPlan.ActionFadeOut, newContact));
+                if (end < e.A.End) _e[i] = new Entry(e.A.WithEnd(end), e.Hit, e.Seq);
+            }
         }
 
         public void Add(ActionChoice a, bool hit, long seq)

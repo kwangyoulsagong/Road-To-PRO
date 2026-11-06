@@ -29,6 +29,7 @@ REQUIRED = {
     "perfBegin": ["name"],
     "perfEnd": ["name"],
     "checkpoint": ["name"],
+    "motionMeasure": ["name"],
     "freeze": [],
     "inject": ["what"],
 }

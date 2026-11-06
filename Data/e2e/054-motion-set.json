@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 1,
+  "spec": "054",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261106
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "id": "054-motion-set",
+  "description": "장면 8종 핵심 순간 프레임 고정 캡처 (AC-14·19): 출발·감속·디딤·접촉·접촉 후. 1.5x 재생 시계. 접촉 프레임은 직접 열어 발·공 틈을 확인한다",
+  "profiles": "smoke",
+  "acs": [
+    "AC-14"
+  ],
+  "defaults": {
+    "timeoutSec": 40
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "motion.straight50.start"
+    },
+    {
+      "type": "capture",
+      "name": "straight50_start",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.straight50.accel"
+    },
+    {
+      "type": "capture",
+      "name": "straight50_accel",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.straight50.top"
+    },
+    {
+      "type": "capture",
+      "name": "straight50_top",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.stopCut.decel"
+    },
+    {
+      "type": "capture",
+      "name": "stopCut_decel",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.stopCut.plant"
+    },
+    {
+      "type": "capture",
+      "name": "stopCut_plant",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.stopCut.exit"
+    },
+    {
+      "type": "capture",
+      "name": "stopCut_exit",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.turnBackSide.turn"
+    },
+    {
+      "type": "capture",
+      "name": "turnBackSide_turn",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.turnBackSide.backpedal"
+    },
+    {
+      "type": "capture",
+      "name": "turnBackSide_backpedal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.turnBackSide.sidestep"
+    },
+    {
+      "type": "capture",
+      "name": "turnBackSide_sidestep",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.longPass.plant"
+    },
+    {
+      "type": "capture",
+      "name": "longPass_plant",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.longPass.contact"
+    },
+    {
+      "type": "capture",
+      "name": "longPass_contact",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.longPass.after"
+    },
+    {
+      "type": "capture",
+      "name": "longPass_after",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.volley.plant"
+    },
+    {
+      "type": "capture",
+      "name": "volley_plant",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.volley.contact"
+    },
+    {
+      "type": "capture",
+      "name": "volley_contact",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.volley.after"
+    },
+    {
+      "type": "capture",
+      "name": "volley_after",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.tackle.tackleWin"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_tackleWin",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.tackle.tackleWinAfter"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_tackleWinAfter",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.tackle.tackleFoul"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_tackleFoul",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.tackle.fall"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_fall",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.header.jump"
+    },
+    {
+      "type": "capture",
+      "name": "header_jump",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.header.contact"
+    },
+    {
+      "type": "capture",
+      "name": "header_contact",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.header.after"
+    },
+    {
+      "type": "capture",
+      "name": "header_after",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.keeper.save"
+    },
+    {
+      "type": "capture",
+      "name": "keeper_save",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.keeper.saveAfter"
+    },
+    {
+      "type": "capture",
+      "name": "keeper_saveAfter",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motion.keeper.beaten"
+    },
+    {
+      "type": "capture",
+      "name": "keeper_beaten",
+      "kind": "3d"
+    }
+  ]
+}
