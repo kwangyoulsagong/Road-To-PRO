@@ -2,7 +2,7 @@
 import os
 import subprocess
 
-from . import baseline, compare, determinism, imagechecks, logs, paths, perf
+from . import baseline, compare, determinism, imagechecks, logs, motion, paths, perf
 from .htmlkit import e  # noqa: F401  (리포트와 같은 이스케이프 규칙 공유)
 
 
@@ -133,6 +133,7 @@ def evaluate_combo(result, scenario, profile_set, baseline_root=None, ignore=Non
         "imageChecks": img_rows,
         "logs": log_summary,
         "checkpoints": cps,
+        "motion": motion.load(out),
         "verdict": verdict,
     }
 

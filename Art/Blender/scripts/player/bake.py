@@ -52,8 +52,61 @@ def _fcurves(act):
     return out
 
 
+STANCE_TOE = 0.03      # 발끝 또는
+STANCE_ANKLE = 0.075   # 발목이 이 높이 이하면 땅에 있다 (specs/054 FR-10, 043 GROUND_MIN 0.035 + 뒤꿈치 여유)
+STANCE_MIN_FRAMES = 3
+STANCE_PIECE = 6
+
+
+def _foot_xz(pose, foot):
+    _, head, _ = PO.fk(pose)
+    p = head[foot + "Toes"]
+    return p.x, p.z
+
+
+def stance_paths(c):
+    """발끝 경로 (specs/054 발 고정 입력): 발마다 [[프레임0, 프레임1, x0, z0, x1, z1], ...] — 선수 좌표. 루프는 stance 태그, 나머지는 높이로 찾는다."""
+    out = {"Left": [], "Right": []}
+    if c.loop and c.tags.get("stance"):
+        for n in out:
+            s0, s1 = c.tags["stance"][n]
+            span = (s1 - s0) % 1.0
+            if span <= 0.0 and s1 > s0:
+                span = 1.0  # 서 있는 클립: 주기 내내 접지
+            f0, f1 = s0 * c.frames, (s0 + span) * c.frames
+            a, b = _foot_xz(c.sample(f0 / CB.FPS), n), _foot_xz(c.sample((f1 % c.frames) / CB.FPS), n)
+            out[n].append([round(f0, 3), round(f1, 3), round(a[0], 4), round(a[1], 4), round(b[0], 4), round(b[1], 4)])
+        return out
+    low = {n: [] for n in out}
+    xz = {n: [] for n in out}
+    for f in range(c.frames + 1):
+        _, head, _ = PO.fk(c.sample(f / CB.FPS))
+        for n in out:
+            low[n].append(head[n + "Toes"].y <= STANCE_TOE or head[n + "Foot"].y <= STANCE_ANKLE)
+            xz[n].append((head[n + "Toes"].x, head[n + "Toes"].z))
+    for n in out:
+        f = 0
+        while f <= c.frames:
+            if not low[n][f]:
+                f += 1
+                continue
+            g = f
+            while g + 1 <= c.frames and low[n][g + 1]:
+                g += 1
+            if g - f + 1 >= STANCE_MIN_FRAMES:
+                # 비루프 발끝 경로는 직선이 아니다 (디딤 → 준비 자세): 6프레임 이하 조각으로 나눠 선형 보간 오차를 줄인다
+                h = f
+                while h < g:
+                    m = min(g, h + STANCE_PIECE)
+                    a, b = xz[n][h], xz[n][m]
+                    out[n].append([h, m, round(a[0], 4), round(a[1], 4), round(b[0], 4), round(b[1], 4)])
+                    h = m
+            f = g + 1
+    return out
+
+
 def clip_tags(c):
-    t = {"id": c.id, "group": c.group, "frames": c.frames, "loop": c.loop}
+    t = {"id": c.id, "group": c.group, "frames": c.frames, "loop": c.loop, "stancePaths": stance_paths(c)}
     for k, v in sorted(c.tags.items()):
         if k == "contact" and v is not None:
             frame = v["frame"]

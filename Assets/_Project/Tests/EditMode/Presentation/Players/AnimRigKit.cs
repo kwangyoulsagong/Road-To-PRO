@@ -22,13 +22,20 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             AssetDatabase.LoadAllAssetsAtPath(PlayerRigTests.Gen + "/player.glb").OfType<AnimationClip>());
 
         /// <param name="entities">리그를 만들 엔티티(나머지는 계획만).</param>
-        public AnimRigKit(HighlightData d, params int[] entities)
+        public AnimRigKit(HighlightData d, params int[] entities) : this(d, null, entities) { }
+
+        /// <param name="scale">엔티티별 키 배율 (054 FR-87). null이면 전부 1.</param>
+        public AnimRigKit(HighlightData d, float[] scale, int[] entities)
         {
-            Plan = AnimPlan.Build(AnimTestKit.Lib, AnimTestKit.Map, d, NullLogger.Instance);
+            Plan = AnimPlan.Build(AnimTestKit.Lib, AnimTestKit.Map, d, NullLogger.Instance, null, scale);
             _host = new GameObject("AnimRigKit");
             System = _host.AddComponent<PlayerAnimationSystem>();
             Rigs = new PlayerRig[HighlightData.Entities];
-            foreach (var e in entities) Rigs[e] = PlayerRigTests.NewRig();
+            foreach (var e in entities)
+            {
+                Rigs[e] = PlayerRigTests.NewRig();
+                if (scale != null && scale[e] > 0f) Rigs[e].transform.localScale = Vector3.one * scale[e];
+            }
             System.Init(Plan, Rigs, Clips, null);
         }
 

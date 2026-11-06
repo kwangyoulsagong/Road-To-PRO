@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "spec": "054",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261106
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "id": "054-motion-film",
+  "description": "1.5x 연속 프레임 (시뮬 0.15 s 간격 8장, AC-19 육안 승인 자료): 급정지 후 컷, 롱패스",
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [],
+  "defaults": {
+    "timeoutSec": 40
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "motionFilm.stopCut.0"
+    },
+    {
+      "type": "capture",
+      "name": "film_stopCut_0",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.stopCut.1"
+    },
+    {
+      "type": "capture",
+      "name": "film_stopCut_1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.stopCut.2"
+    },
+    {
+      "type": "capture",
+      "name": "film_stopCut_2",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.stopCut.3"
+    },
+    {
+      "type": "capture",
+      "name": "film_stopCut_3",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.stopCut.4"
+    },
+    {
+      "type": "capture",
+      "name": "film_stopCut_4",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.stopCut.5"
+    },
+    {
+      "type": "capture",
+      "name": "film_stopCut_5",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.stopCut.6"
+    },
+    {
+      "type": "capture",
+      "name": "film_stopCut_6",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.stopCut.7"
+    },
+    {
+      "type": "capture",
+      "name": "film_stopCut_7",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.longPass.0"
+    },
+    {
+      "type": "capture",
+      "name": "film_longPass_0",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.longPass.1"
+    },
+    {
+      "type": "capture",
+      "name": "film_longPass_1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.longPass.2"
+    },
+    {
+      "type": "capture",
+      "name": "film_longPass_2",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.longPass.3"
+    },
+    {
+      "type": "capture",
+      "name": "film_longPass_3",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.longPass.4"
+    },
+    {
+      "type": "capture",
+      "name": "film_longPass_4",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.longPass.5"
+    },
+    {
+      "type": "capture",
+      "name": "film_longPass_5",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.longPass.6"
+    },
+    {
+      "type": "capture",
+      "name": "film_longPass_6",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionFilm.longPass.7"
+    },
+    {
+      "type": "capture",
+      "name": "film_longPass_7",
+      "kind": "3d"
+    }
+  ]
+}

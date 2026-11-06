@@ -39,7 +39,7 @@ namespace RoadToPro.Presentation.Players.Logic
         }
 
         /// <summary>본 머리 위치로 접촉점 계산. hipL·hipR = LeftUpperLeg·RightUpperLeg 머리(골반 정면 계산용).</summary>
-        public Vec3 Evaluate(Vec3 bone, Vec3 toward, Vec3 hipL, Vec3 hipR)
+        public Vec3 Evaluate(Vec3 bone, Vec3 toward, Vec3 hipL, Vec3 hipR, float scale = 1f)
         {
             var p = bone + (toward - bone) * T;
             Vec3 f;
@@ -52,7 +52,23 @@ namespace RoadToPro.Presentation.Players.Logic
                 f = new Vec3(-r.Z, 0, r.X).Normalized(); // cross(r, up)
             }
             var side = new Vec3(f.Z, 0, -f.X);            // cross(up, f) = 오른쪽
-            return p + new Vec3(0, Up, 0) + f * Fwd + side * Side;
+            return p + new Vec3(0, Up * scale, 0) + f * (Fwd * scale) + side * (Side * scale);
+        }
+    }
+
+    /// <summary>한 발의 접지 구간 (specs/054 발 고정). 프레임(30 fps), 발끝(Toes) 선수 좌표 X·Z. 루프 클립은 F1 > Frames로 감길 수 있다.</summary>
+    public readonly struct StanceSpan
+    {
+        public readonly float F0, F1, X0, Z0, X1, Z1;
+
+        public StanceSpan(float f0, float f1, float x0, float z0, float x1, float z1)
+        {
+            F0 = f0;
+            F1 = f1;
+            X0 = x0;
+            Z0 = z0;
+            X1 = x1;
+            Z1 = z1;
         }
     }
 
@@ -68,6 +84,13 @@ namespace RoadToPro.Presentation.Players.Logic
         public KickArchetype KickStyle;
         /// <summary>055 출발·감속 클립의 걸음별 평균 속도(m/s). 없으면 null.</summary>
         public float[] SpeedCurve;
+        /// <summary>054 FR-23 컷 각(°, + 오른쪽). 컷이 아니면 0.</summary>
+        public float Cut;
+        /// <summary>054 FR-23 디딤 발·프레임 (컷 클립). 왼발 true.</summary>
+        public bool PlantLeft;
+        public int PlantFrame;
+        /// <summary>054 발 고정: 발별 접지 구간. 왼발 = StanceL, 오른발 = StanceR.</summary>
+        public StanceSpan[] StanceL = Array.Empty<StanceSpan>(), StanceR = Array.Empty<StanceSpan>();
         public int Index, Frames;
         public bool Loop;
         public float Speed = float.NaN;
@@ -146,6 +169,18 @@ namespace RoadToPro.Presentation.Players.Logic
 
         static string S(JsonObject o, string k) => o.TryGet(k, out var v) ? v as string : null;
 
+        static StanceSpan[] Spans(List<object> arr)
+        {
+            if (arr == null || arr.Count == 0) return Array.Empty<StanceSpan>();
+            var o = new StanceSpan[arr.Count];
+            for (int i = 0; i < o.Length; i++)
+            {
+                var r = (List<object>)arr[i];
+                o[i] = new StanceSpan(F(r[0]), F(r[1]), F(r[2]), F(r[3]), F(r[4]), F(r[5]));
+            }
+            return o;
+        }
+
         public static ClipLibrary Parse(string json)
         {
             var root = (JsonObject)JsonReader.Parse(json);
@@ -206,6 +241,14 @@ namespace RoadToPro.Presentation.Players.Logic
                     var rr = (JsonObject)ru;
                     float G(string k) => rr.TryGet(k, out var v) ? F(v) : 0f;
                     c.Rule = new ContactRule(S(rr, "bone"), S(rr, "toward"), G("t"), G("up"), G("fwd"), G("side"), S(rr, "basis") == "foot");
+                }
+                if (o.TryGet("cut", out var cu)) c.Cut = F(cu);
+                if (o.TryGet("plantFrame", out var pf)) c.PlantFrame = (int)(double)pf;
+                c.PlantLeft = S(o, "plantFoot") == "Left";
+                if (o.TryGet("stancePaths", out var sp2) && sp2 is JsonObject spo)
+                {
+                    c.StanceL = Spans(L(spo, "Left"));
+                    c.StanceR = Spans(L(spo, "Right"));
                 }
                 lib._byId[c.Id] = c.Index;
                 lib._clips.Add(c);

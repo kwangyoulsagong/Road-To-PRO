@@ -19,7 +19,7 @@ namespace RoadToPro.Verification.Samples
     /// - 057: collar1Front … collar8Back(칼라·머리카락 클로즈업, AC-07), hair1Front … hair6Far(헤어 30종 일람 5명씩, AC-08),
     ///   flickerNormal / flickerFlat(방송 원거리 얼굴 깜빡임 — 노멀맵 켬/끔, 카운터 faceFlicker, FR-22).
     /// </summary>
-    public sealed class PlayerScreen : MonoBehaviour
+    public sealed partial class PlayerScreen : MonoBehaviour
     {
         [Serializable]
         public struct PlayerAssets
@@ -99,6 +99,7 @@ namespace RoadToPro.Verification.Samples
                 FarmContext.Screens[$"row{r + 1}Back"] = () => ShowRow(row, true);
                 FarmContext.Screens[$"row{r + 1}BackKey"] = () => ShowRow(row, true, true);
             }
+            RegisterMotionScreens();
             FarmContext.Screens["perfEmpty"] = () => ShowPerf(0);
             FarmContext.Screens["perfPlayers"] = () => ShowPerf(1);
             FarmContext.Screens["perfFull"] = () => ShowPerf(2);
@@ -570,7 +571,7 @@ namespace RoadToPro.Verification.Samples
             foreach (var r in stadium) r.enabled = show == 2;
             pitch.enabled = show == 2;
             var d = PerfHighlight.Build();
-            var plan = AnimPlan.Build(_lib, _map, d, _log, PerfHighlight.Styles()); // 055: 원형 블렌드 포함 비용
+            var plan = AnimPlan.Build(_lib, _map, d, _log, PerfHighlight.Styles(), RigScales()); // 055: 원형 블렌드 포함 비용
             _clock.Start = d.StartTime;
             _clock.Rate = 1.5f;
             _clock.Fps = 60f;
@@ -641,7 +642,9 @@ namespace RoadToPro.Verification.Samples
             var d = _sys.Plan.Data;
             float len = d.EndTime - d.StartTime - 0.05f;
             var ms = new double[frames];
+            var motion = new double[frames];
             long gc = 0;
+            _sys.TimeMotion = true;
             for (int i = -warmup; i < frames; i++)
             {
                 _clock.Frame++;
@@ -653,10 +656,43 @@ namespace RoadToPro.Verification.Samples
                 long g = GC.GetAllocatedBytesForCurrentThread() - g0;
                 if (i < 0) continue;
                 ms[i] = sw.Elapsed.TotalMilliseconds;
+                motion[i] = _sys.LastMotionMs;
                 gc += g;
             }
+            _sys.TimeMotion = false;
             Array.Sort(ms);
+            Array.Sort(motion);
             double P(double q) => ms[Math.Min(frames - 1, Math.Max(0, (int)Math.Ceiling(q * frames) - 1))];
+            double MotionP(double q) => motion[Math.Min(frames - 1, Math.Max(0, (int)Math.Ceiling(q * frames) - 1))];
+            // 진단 켬 추가 비용 (054 성능 예산, 검증 모드 전용): 측정기 호출 시간만 잰다 (같은 포즈에서 프레임당)
+            double DiagOnCost(float span)
+            {
+                var std = RoadToPro.Presentation.Players.Logic.Motion.MotionStandards.Parse(
+                    "{\"schemaVersion\":1,\"thresholds\":{\"stanceHeight\":{\"max\":0.03},\"stanceFootSpeed\":{\"max\":1.0}}}");
+                var actors = new int[HighlightData.Entities];
+                for (int k = 0; k < actors.Length; k++) actors[k] = k;
+                var meter = new RoadToPro.Presentation.Players.Motion.MotionMeter(_sys.Plan, _rigs, actors, std, "bench", 1.5f);
+                var on = new double[120];
+                for (int k = 0; k < on.Length; k++)
+                {
+                    float tk = d.StartTime + Mathf.Repeat(k * 0.025f, span);
+                    _sys.ApplyAt(tk);
+                    var s3 = Stopwatch.StartNew();
+                    meter.OnApplied(tk);
+                    s3.Stop();
+                    on[k] = s3.Elapsed.TotalMilliseconds;
+                }
+                Array.Sort(on);
+                return on[(int)(on.Length * 0.95)];
+            }
+            // 진단 꺼짐 비용 (054 FR-70): null 분기를 프레임마다 한 번 도는 비용을 100만 회로 잰다
+            double DiagOffCost()
+            {
+                var s2 = Stopwatch.StartNew();
+                for (int k = 0; k < 1000000; k++) _sys.Diagnostics?.OnApplied(0f);
+                s2.Stop();
+                return s2.Elapsed.TotalMilliseconds / 1000000.0;
+            }
             return new Dictionary<string, double>
             {
                 { "anim_p50_ms", P(0.50) },
@@ -665,6 +701,10 @@ namespace RoadToPro.Verification.Samples
                 { "anim_gc_bytes", gc },
                 { "anim_frames", frames },
                 { "anim_players", HighlightData.Entities },
+                { "motion_p95_ms", MotionP(0.95) },
+                { "motion_max_ms", MotionP(1.0) },
+                { "diag_off_ms", DiagOffCost() },
+                { "diag_on_ms", DiagOnCost(len) },
             };
         }
 
@@ -733,7 +773,7 @@ namespace RoadToPro.Verification.Samples
             KitCompositor.PlaybackActive = false;
             foreach (var r in stadium) r.enabled = false;
             pitch.enabled = true;
-            var plan = AnimPlan.Build(_lib, _map, d, _log, styles);
+            var plan = AnimPlan.Build(_lib, _map, d, _log, styles, RigScales());
             _clock.Start = d.StartTime;
             _clock.Fps = 60f;
             _clock.Rate = rate;

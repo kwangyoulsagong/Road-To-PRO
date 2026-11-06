@@ -66,7 +66,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             var d = SyntheticScenes.Kick(7, SimEventKind.Shot, out var contact);
             var plan = AnimPlan.Build(AnimTestKit.Lib, AnimTestKit.Map, d, NullLogger.Instance);
             for (float t = contact; t < d.EndTime; t += 1f / 60f)
-                Assert.That((plan.BallVisual(t) - d.BallAt(t)).Length(), Is.LessThanOrEqualTo(1e-5f));
+                Assert.That((plan.BallVisual(t) - plan.BallKeyed(t)).Length(), Is.LessThanOrEqualTo(1e-5f));
             var off = BallVisualCorrection.Offset(new Vec3(0.5f, 0, 0), 1f, 0.99f);
             Assert.That(off.Length(), Is.LessThanOrEqualTo(BallVisualCorrection.BallPullMax + 1e-6f));
         }

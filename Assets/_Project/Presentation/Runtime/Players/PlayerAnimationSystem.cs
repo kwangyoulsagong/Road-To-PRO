@@ -14,9 +14,13 @@ namespace RoadToPro.Presentation.Players
     public sealed class PlayerAnimationSystem : MonoBehaviour
     {
         public static readonly ProfilerMarker Marker = new ProfilerMarker("Players.Anim");
+        /// <summary>054 처리(자세·발 고정·지면 보정) 몫 — 043 예산 안 (specs/054 성능 예산).</summary>
+        public static readonly ProfilerMarker MotionMarker = new ProfilerMarker("Players.Motion");
 
         AnimPlan _plan;
         PlayerAnimator[] _anim;
+        FootLock[] _lock;
+        PoseSample[] _poses;
         UnityEngine.Playables.PlayableGraph _graph;   // 25명이 공유 — 한 번에 평가
         IPlaybackClock _clock;
         Transform _ball;
@@ -26,6 +30,11 @@ namespace RoadToPro.Presentation.Players
         public AnimPlan Plan => _plan;
         public float LastTime { get; private set; } = float.NaN;
         public float MaxGroundLift { get; private set; }
+        /// <summary>054 처리 시간 측정 (IL2CPP 벤치). 꺼져 있으면 타이머 호출 없음.</summary>
+        public bool TimeMotion;
+        public double LastMotionMs { get; private set; }
+        /// <summary>검증 모드 진단 (specs/054 FR-70). null이면 호출 0.</summary>
+        public Motion.IMotionDiagnostics Diagnostics { get; set; }
 
         /// <summary>rigs[e]가 null이면 그 엔티티는 그리지 않는다.</summary>
         public void Init(AnimPlan plan, PlayerRig[] rigs, AnimationClip[] clips, IPlaybackClock clock, Transform ball = null, Camera lodCamera = null)
@@ -36,10 +45,16 @@ namespace RoadToPro.Presentation.Players
             _ball = ball;
             _cam = lodCamera;
             _anim = new PlayerAnimator[rigs.Length];
+            _lock = new FootLock[rigs.Length];
+            _poses = new PoseSample[rigs.Length];
             _graph = UnityEngine.Playables.PlayableGraph.Create("Players");
             _graph.SetTimeUpdateMode(UnityEngine.Playables.DirectorUpdateMode.Manual);
             for (int e = 0; e < rigs.Length; e++)
-                if (rigs[e] != null) _anim[e] = new PlayerAnimator(rigs[e], clips, _graph);
+                if (rigs[e] != null)
+                {
+                    _anim[e] = new PlayerAnimator(rigs[e], clips, _graph);
+                    _lock[e] = new FootLock(rigs[e]);
+                }
         }
 
         /// <summary>ClipLibrary 인덱스 순서로 AnimationClip을 고른다. 없는 클립이 있으면 예외.</summary>
@@ -69,15 +84,21 @@ namespace RoadToPro.Presentation.Players
                     if (go.activeSelf != _s.Present) go.SetActive(_s.Present);
                     if (!_s.Present) continue;
                     a.Prepare(_s);
+                    _poses[e] = _s;
                     if (_cam != null) a.Rig.UpdateLod(_cam);
                 }
                 _graph.Evaluate(0f);
-                for (int e = 0; e < _anim.Length; e++)
-                {
-                    var a = _anim[e];
-                    if (a == null || !a.Rig.gameObject.activeSelf) continue;
-                    lift = Mathf.Max(lift, FootGrounding.Apply(a.Rig));
-                }
+                long t0 = TimeMotion ? System.Diagnostics.Stopwatch.GetTimestamp() : 0L;
+                using (MotionMarker.Auto())
+                    for (int e = 0; e < _anim.Length; e++)
+                    {
+                        var a = _anim[e];
+                        if (a == null || !a.Rig.gameObject.activeSelf) continue;
+                        _lock[e].ApplyPosture(_poses[e].Roll, _poses[e].Pitch, _poses[e].Twist);
+                        _lock[e].ApplyFeet(_plan.Plants, e, t);
+                        lift = Mathf.Max(lift, FootGrounding.Apply(a.Rig));
+                    }
+                if (TimeMotion) LastMotionMs = (System.Diagnostics.Stopwatch.GetTimestamp() - t0) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
                 MaxGroundLift = lift;
                 if (_ball != null)
                 {
@@ -86,6 +107,7 @@ namespace RoadToPro.Presentation.Players
                 }
                 LastTime = t;
             }
+            Diagnostics?.OnApplied(t);
         }
 
         void LateUpdate()

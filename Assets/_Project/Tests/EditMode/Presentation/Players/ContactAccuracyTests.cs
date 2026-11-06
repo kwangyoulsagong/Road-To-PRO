@@ -38,13 +38,13 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
 
                 kit.System.ApplyAt(contact);
                 var ballVis = kit.Plan.BallVisual(contact);
-                var ballSim = d.BallAt(contact);
+                var ballSim = kit.Plan.BallKeyed(contact);   // 054 FR-52: 접촉 시각은 공 보간의 키
                 float bErr = (ballVis - ballSim).Length();
                 worstBall = Math.Max(worstBall, bErr);
                 Assert.LessOrEqual(bErr, 0.05f, $"장면 {i}: 화면 공 − 시뮬 공");
 
                 var foot = kit.ContactPoint(0, clip.Rule);
-                var evBall = d.Events[0].BallPos;
+                var evBall = kit.Plan.BallVisual(contact - 1e-3f);   // 054 FR-02·31: 루트 오차 ≤ 10 cm, 남는 차이는 화면 공 보정 — 접촉 부위는 화면 공에 닿는다
                 float fErr = (foot - evBall).Length();
                 worstFoot = Math.Max(worstFoot, fErr);
                 Assert.LessOrEqual(fErr, 0.10f, $"장면 {i} {clip.Id}: 접촉점 {foot} vs 공 {evBall} ({fErr * 100:0.0} cm), 루트 보정 {a.RootOffset}");

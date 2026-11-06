@@ -1,7 +1,7 @@
 {
  "generator": {
   "blender": "5.1.1",
-  "command": "gen_player.py --out <out>",
+  "command": "gen_player.py --out <out> --no-preview",
   "mpfb": {
    "files": [
     {
@@ -1744,7 +1744,7 @@
   },
   "clips": {
    "bad": [],
-   "count": 117,
+   "count": 121,
    "missing": [],
    "ok": true
   },
@@ -2161,14 +2161,14 @@
    "ok": true
   },
   "penetration": {
-   "creaseFolds": 17676,
+   "creaseFolds": 18024,
    "flipped": 0,
    "hairBody": 0,
-   "hairPoses": 13572,
+   "hairPoses": 14036,
    "hairStyles": 29,
    "hairWorst": {},
    "ok": true,
-   "poses": 1872,
+   "poses": 1936,
    "skinKit": 0,
    "worst": []
   },

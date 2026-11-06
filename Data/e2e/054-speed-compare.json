@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "spec": "054",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261106
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "id": "054-speed-compare",
+  "description": "같은 접촉 장면을 1x·1.5x·3x·0.5x로 같은 시뮬 시각에 멈춰 비교 (AC-15). 재생 속도가 포즈를 바꾸지 않으면 같은 그림",
+  "profiles": [
+    "low-igpu-1080p",
+    "mac-m1-1600p",
+    "phone-landscape"
+  ],
+  "acs": [
+    "AC-15"
+  ],
+  "defaults": {
+    "timeoutSec": 40
+  },
+  "imageChecks": [
+    {
+      "type": "sameImage",
+      "capture": "speed1_0",
+      "other": "speed1_5",
+      "ac": "AC-15",
+      "maxDiffRatio": 0.005
+    },
+    {
+      "type": "sameImage",
+      "capture": "speed1_0",
+      "other": "speed3_0",
+      "ac": "AC-15",
+      "maxDiffRatio": 0.005
+    },
+    {
+      "type": "sameImage",
+      "capture": "speed1_0",
+      "other": "speed0_5",
+      "ac": "AC-15",
+      "maxDiffRatio": 0.005
+    }
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "motionSpeed.1.0"
+    },
+    {
+      "type": "capture",
+      "name": "speed1_0",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionSpeed.1.5"
+    },
+    {
+      "type": "capture",
+      "name": "speed1_5",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionSpeed.3.0"
+    },
+    {
+      "type": "capture",
+      "name": "speed3_0",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "motionSpeed.0.5"
+    },
+    {
+      "type": "capture",
+      "name": "speed0_5",
+      "kind": "3d"
+    }
+  ]
+}

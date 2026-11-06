@@ -238,5 +238,10 @@
       "name": "collar8Back",
       "kind": "3d"
     }
-  ]
+  ],
+  "alsoSpecs": {
+    "054": [
+      "AC-14"
+    ]
+  }
 }

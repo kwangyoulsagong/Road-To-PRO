@@ -1,0 +1,61 @@
+{
+  "spec": "054",
+  "profile": "mac-m1-1600p",
+  "note": "specs/054 AC-17 성능 예산의 기계용 사본. 054 처리(자세·발 고정·지면 보정) CPU·GC·진단 꺼짐 비용은 IL2CPP 릴리스 플레이어(farm.py bench --spec 054), 프레임 시간은 E2E 054-motion-perf(low-igpu-1080p). AC-12는 002·003 후로 보류, AC-19 육안 승인은 evidence/approval.md.",
+  "tests": [
+    "RoadToPro.Tests.EditMode.Presentation.Players"
+  ],
+  "budgets": [],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-17",
+        "label": "054 처리 p95 (선수 22 + 심판 3)",
+        "metric": "motion_p95_ms",
+        "max": 0.8,
+        "unit": "ms"
+      },
+      {
+        "ac": "AC-17",
+        "label": "054 처리 최대 프레임",
+        "metric": "motion_max_ms",
+        "max": 1.5,
+        "unit": "ms"
+      },
+      {
+        "ac": "AC-17",
+        "label": "애니메이션 갱신 전체 p95 (043 예산)",
+        "metric": "anim_p95_ms",
+        "max": 2.0,
+        "unit": "ms"
+      },
+      {
+        "ac": "AC-17",
+        "label": "관리 힙 할당 (1200프레임 합)",
+        "metric": "anim_gc_bytes",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-17",
+        "label": "진단 꺼짐 비용 (프레임당)",
+        "metric": "diag_off_ms",
+        "max": 0.02,
+        "unit": "ms"
+      },
+      {
+        "ac": "AC-17",
+        "label": "진단 켬 추가 비용 (검증 모드, 25명, p95)",
+        "metric": "diag_on_ms",
+        "max": 1.0,
+        "unit": "ms"
+      }
+    ]
+  },
+  "manual": {
+    "AC-19": "evidence/approval.md"
+  },
+  "deferred": {
+    "AC-12": "체형·성향·버릇 표현은 002·003 후 (2026-11-06 사용자 결정)"
+  }
+}

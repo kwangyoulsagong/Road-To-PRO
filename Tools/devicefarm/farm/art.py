@@ -31,6 +31,8 @@ SPEC_ART = {
     "055": {"pattern": ("test_gait.py", "test_player.py", "test_face.py"), "sets": ("default",), "views": ("film", "poses", "lineup"),
             "stem": "player", "cols": 1,
             "title": "Blender 미리보기 (보법·축구 보법·원형·킥 원형 8위상 측면 필름스트립 · 대표 클립 접촉 프레임 · LOD/체형)"},
+    "054": {"pattern": ("test_gait.py", "test_player.py"), "sets": ("default",), "views": ("film", "poses", "lineup"), "stem": "player", "cols": 1,
+            "title": "Blender 미리보기 (컷 디딤 포함 보법 필름스트립 · 대표 클립 접촉 프레임 · LOD/체형)"},
     "057": {"pattern": ("test_player.py", "test_face.py"), "sets": ("default",), "views": ("lineup", "heads", "poses"), "stem": "player",
             "cols": 1, "title": "Blender 미리보기 (칼라 경계 · 헤어 30종 × 얼굴 변주(가닥 카드 포함, 단색 표시라 알파 없음) · 대표 클립)"},
 }

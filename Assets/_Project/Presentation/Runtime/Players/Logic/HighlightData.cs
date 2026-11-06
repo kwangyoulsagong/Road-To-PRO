@@ -47,6 +47,8 @@ namespace RoadToPro.Presentation.Players.Logic
         public readonly float[] X, Z, Yaw;
         public readonly bool[] Present;
         public readonly Vec3[] Ball;
+        /// <summary>프레임별 공 소유 엔티티, 없으면 −1 (054 FR-37 드리블 런). ReplayFrame.BallOwnerSlot에서 041이 옮긴다.</summary>
+        public readonly short[] BallOwner;
         public readonly List<AnimEvent> Events = new List<AnimEvent>();
 
         public HighlightData(float startTime, int frames)
@@ -59,6 +61,8 @@ namespace RoadToPro.Presentation.Players.Logic
             Yaw = new float[frames * Entities];
             Present = new bool[frames * Entities];
             Ball = new Vec3[frames];
+            BallOwner = new short[frames];
+            for (int f = 0; f < frames; f++) BallOwner[f] = -1;
         }
 
         public float EndTime => StartTime + (Frames - 1) / FrameRate;
@@ -117,7 +121,7 @@ namespace RoadToPro.Presentation.Players.Logic
             var h = Core.Hashing.StableHasher.Create();
             h.Add(Frames);
             for (int i = 0; i < X.Length; i++) { h.Add(X[i]); h.Add(Z[i]); h.Add(Yaw[i]); h.Add(Present[i]); }
-            for (int i = 0; i < Ball.Length; i++) { h.Add(Ball[i].X); h.Add(Ball[i].Y); h.Add(Ball[i].Z); }
+            for (int i = 0; i < Ball.Length; i++) { h.Add(Ball[i].X); h.Add(Ball[i].Y); h.Add(Ball[i].Z); h.Add((int)BallOwner[i]); }
             foreach (var e in Events)
             {
                 h.Add(e.Time); h.Add(e.Seq); h.Add((int)e.Kind); h.Add(e.Entity); h.Add(e.Other); h.Add((int)e.Part); h.Add((int)e.Outcome);

@@ -185,5 +185,10 @@
       "name": "gaitSprint4",
       "kind": "3d"
     }
-  ]
+  ],
+  "alsoSpecs": {
+    "054": [
+      "AC-14"
+    ]
+  }
 }

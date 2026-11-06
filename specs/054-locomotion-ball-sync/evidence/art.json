@@ -1,0 +1,436 @@
+{
+  "result": {
+    "ok": true,
+    "total": 45,
+    "passed": 45,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 492.22732305526733,
+    "compileErrors": [],
+    "failures": []
+  },
+  "meta": {
+    "commit": "df4cbbfba55ff4c5d86a23c59e1b32f005cc50e3",
+    "branch": "feat/054-locomotion-ball-sync",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-06 10:31:55 +0900",
+    "blender": "Blender 5.1.1",
+    "durationSec": 492.9649987220764,
+    "command": "python3 Tools/devicefarm/farm.py art --spec 054"
+  },
+  "png": "art.png",
+  "previews": {
+    "default": {
+      "film": "blender/default/preview-film.png",
+      "poses": "blender/default/preview-poses.png",
+      "lineup": "blender/default/preview-lineup.png"
+    }
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "Blender 생성 테스트 8/8 통과",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "Blender 생성 테스트 7/7 통과",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "Blender 생성 테스트 9/9 통과",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "Blender 생성 테스트 4/4 통과",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "Blender 생성 테스트 3/3 통과",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "Blender 생성 테스트 2/2 통과",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "Blender 생성 테스트 3/3 통과",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "TestArms.test_arms",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-05"
+      ]
+    },
+    {
+      "name": "TestArms.test_no_fixed_elbow",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-05"
+      ]
+    },
+    {
+      "name": "TestDirections.test_directions",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-07"
+      ]
+    },
+    {
+      "name": "TestFootballGaits.test_dribble",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-06"
+      ]
+    },
+    {
+      "name": "TestFootballGaits.test_start",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-06"
+      ]
+    },
+    {
+      "name": "TestFootballGaits.test_stop",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-06"
+      ]
+    },
+    {
+      "name": "TestKicks.test_kicks",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-09"
+      ]
+    },
+    {
+      "name": "TestLegAngles.test_leg_angles",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-03"
+      ]
+    },
+    {
+      "name": "TestLegAngles.test_swing_continuity",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-03"
+      ]
+    },
+    {
+      "name": "TestMetricsUnit.test_metrics_unit",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "TestPelvisPhase.test_pelvis_phase",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02"
+      ]
+    },
+    {
+      "name": "TestRunStyles.test_run_styles",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-08"
+      ]
+    },
+    {
+      "name": "TestRunStyles.test_styles_distinct",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-08"
+      ]
+    },
+    {
+      "name": "TestTimeStructure.test_time_structure",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "TestTouchdownEntry.test_touchdown_entry",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-09",
+        "AC-10"
+      ]
+    },
+    {
+      "name": "TestTrunkHead.test_trunk_head",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-04"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_glb",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02",
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_hair_style_order_and_family",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02",
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_hair_styles_budget_and_cards",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02",
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_layout_summary",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02",
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_textures",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02",
+        "AC-03"
+      ]
+    },
+    {
+      "name": "ClipList_CoversFr31.test_clip_length_matches_tags",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ClipList_CoversFr31.test_list",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ClipTags_Complete.test_ground_ball_contacts_at_ball_center",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ClipTags_Complete.test_tags",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ExtremeBodies_FootGround_NoSelfIntersect.test_extremes",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02"
+      ]
+    },
+    {
+      "name": "Gait_StanceFootFixed.test_slide",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-09"
+      ]
+    },
+    {
+      "name": "GenerationTime.test_time",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "InvalidArgs.test_bad_lod",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "InvalidArgs.test_bad_seed",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "InvalidArgs.test_unknown_clip",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "KitBoundary_Smooth.test_kit_rim_uv_region",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "KitBoundary_Smooth.test_lod0_loops",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "KitBoundary_Smooth.test_lod1_closed",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "KitUv_SameAs043.test_kit_uv_areas_same_as_043",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "Mpfb_Reference_Licenses.test_assets_all_cc0_in_licenses",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "Mpfb_Reference_Licenses.test_missing_mpfb_exit4",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "Mpfb_Reference_Licenses.test_proportions_200_samples",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "Mpfb_Reference_Licenses.test_reference_height_180",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "Penetration_ClipsExtremes.test_all_hair_styles_with_cards",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Penetration_ClipsExtremes.test_no_penetration_extremes",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-03"
+      ]
+    },
+    {
+      "name": "SameArgs_SameBytes.test_two_runs",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "SeedChange_ChangesTextures_KeepsMesh.test_seed",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "SkinDetail_Closeup.test_beard",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-05"
+      ]
+    },
+    {
+      "name": "SkinDetail_Closeup.test_detail",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-05"
+      ]
+    }
+  ]
+}

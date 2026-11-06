@@ -171,6 +171,7 @@ namespace RoadToPro.Verification
                 case "perfBegin": return PerfBegin(s, o);
                 case "perfEnd": return PerfEnd(s, o);
                 case "checkpoint": return Checkpoint(s, o);
+                case "motionMeasure": return MotionMeasure(s, o);
                 case "freeze": return Freeze(s, o);
                 case "inject": return Inject(s, o);
                 default: return FailNow(o, $"알 수 없는 단계 '{s.Type}'");
