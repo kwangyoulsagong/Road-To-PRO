@@ -1,5 +1,10 @@
 {
   "schemaVersion": 1,
   "comment": "specs/000 FR-60. 항목마다 reason(사유) 필수. 리포트에 무시 항목으로 항상 표시된다.",
-  "ignore": []
+  "ignore": [
+    {
+      "pattern": "^Default audio device was changed, but the audio system failed to initialize it\\.",
+      "reason": "macOS 오디오 출력 장치 변경 시 Unity가 내는 경고. 코드와 무관하고 현장 사운드(046) 전까지 플레이어가 소리를 내지 않는다. 2026-11-06 사용자 승인 (054 검증 중 기본 출력 모니터에서 2회 발생)"
+    }
+  ]
 }
