@@ -12,6 +12,9 @@
   "acs": [
     "AC-11"
   ],
+  "defaults": {
+    "timeoutSec": 30
+  },
   "steps": [
     {
       "type": "goto",

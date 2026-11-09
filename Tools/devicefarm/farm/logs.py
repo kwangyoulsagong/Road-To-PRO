@@ -92,7 +92,12 @@ def judge(entries, ignore):
         if e.get("stack"):
             item["stack"] = e["stack"]
         if hit:
-            s.ignored.append({**item, "reason": hit["reason"], "pattern": hit["pattern"]})
+            # 같은 항목이 수천 번 찍혀도 리포트가 커지지 않게 첫 메시지 + 횟수로 모은다 (specs/041: 시나리오 하나에 1,500건)
+            seen = next((x for x in s.ignored if x["pattern"] == hit["pattern"]), None)
+            if seen:
+                seen["count"] += 1
+            else:
+                s.ignored.append({**item, "reason": hit["reason"], "pattern": hit["pattern"], "count": 1})
         elif t in ERROR_TYPES:
             s.errors.append(item)
         else:

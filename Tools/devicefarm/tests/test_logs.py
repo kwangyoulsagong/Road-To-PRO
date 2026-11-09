@@ -65,6 +65,14 @@ class JudgeTests(unittest.TestCase):
         self.assertFalse(s.ok)
         self.assertEqual(sorted(e["type"] for e in s.errors), ["Assert", "Error", "Exception"])
 
+    def test_ignored_repeats_collapse_with_count(self):
+        ig = logs.compile_ignore([{"pattern": "^소음", "reason": "사유", "regex": None}])
+        s = logs.judge([{"type": "Warning", "message": "소음 1"}, {"type": "Warning", "message": "소음 2"}], ig)
+        self.assertEqual(len(s.ignored), 1)
+        self.assertEqual(s.ignored[0]["message"], "소음 1")
+        self.assertEqual(s.ignored[0]["count"], 2)
+        self.assertTrue(s.ok)
+
     def test_ignored_listed_with_reason(self):
         ignore = [{"pattern": "^알려진 경고", "reason": "Unity 6.3 내부 경고 (이슈 링크)", "regex": None}]
         ignore = logs.compile_ignore(ignore)

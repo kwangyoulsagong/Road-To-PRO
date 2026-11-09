@@ -13,6 +13,9 @@
     "AC-10",
     "AC-19"
   ],
+  "defaults": {
+    "timeoutSec": 30
+  },
   "steps": [
     {
       "type": "goto",
