@@ -27,7 +27,7 @@
 - [x] T10 단계 실행·런타임·집계·진단 — 파일: `Scenarios/{StepExecutor,ScenarioRuntime,ScenarioAggregator,IScenarioDiagnostics}.cs` — 검증: T12 — 결과: 통과. 필수 상대 배역을 자기 팀이 뺏으면 상대 시나리오를 끝내도록 수정(테스트로 발견)
 - [x] T11 파이프라인 연결 — 파일: `Match/Stages/{ScenarioStage,ScenarioShapeStage}.cs`, `Match/Stages/StandIn/SimpleDecisionStage.cs`, `Match/{MatchSim,MatchParams}.cs`, `Match/Result/MatchResult.cs`, `Match/Events/SimEventKind.cs` — 검증: T12, 기존 `Match`·`Tactics` 테스트 회귀 — 결과: 통과
 - [x] T12 실행 테스트 — 파일: `Tests/.../Scenarios/{ScenarioRuntimeTests,ScenarioMirrorTests,ScenarioSetPieceTests,ScenarioForceTests,FallbackOverrideTests,SetupWiringTests,ScenarioMassTests}.cs` — 검증: AC-08~14·17·20·21 (20경기), AC-07·10 — 결과: `ScenarioRuntimeTests.cs`에 묶음. 합계 71개 통과. 교체는 데드볼에만 실행되어 AC-11 선택 배역은 세트피스로 검증
-- [x] T13 결정론 테스트 — 파일: `Tests/.../Scenarios/ScenarioDeterminismTests.cs` — 검증: AC-15·19, 스냅샷 왕복 — 결과: 통과 (스냅샷 왕복·파일 순서·진단 on/off)
+- [x] T13 결정론 테스트 — 파일: `Tests/.../Scenarios/ScenarioDeterminismTests.cs` — 검증: AC-15·19, 스냅샷 왕복 — 결과: 통과 (스냅샷 왕복·파일 순서·진단 on/off). 하네스가 메서드 단위 카테고리만 읽어 `[Category("Determinism")]`를 메서드에 붙임
 - [x] T14 결정론 리뷰 — `determinism-reviewer`로 `Scenarios/**`, 변경된 `Match/**` 리뷰, 지적 반영 — 검증: 차단 0 — 결과: 차단 1건 반영(B1: 배역 중 역할 캐시가 스냅샷에 없어 복원 뒤 이벤트 로그가 갈림, 스냅샷 4000에서 재현 후 수정). 권고 반영: 라이브러리 해시에 카탈로그·종류 구분(R1), Fork 진단 끔(R2), 상황 분기 next 로딩 오류(R3), 다른 배역 점프 재발화(R4), 순환 판정 방문 순서 무관(R5), 배역 해제 이벤트 608(R6), 진단 배열 복사(R7), 시각 정수 비교(R8), 입력 순수성 계약 명시(R9), 결과 id 표 복사(R10), `CT_opp`는 `PossessionLost`. R11(대체 구현 상수)은 007·008 연결 때 제거로 플랜에 기록. 합계 77개 통과
 
 ## D. 성능

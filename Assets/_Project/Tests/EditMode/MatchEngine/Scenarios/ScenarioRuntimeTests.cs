@@ -600,7 +600,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             public void OnEnded(int team, long tick, string id, bool forced, ScenarioEndReason reason) => Ended++;
         }
 
-        [Test]
+        [Test, Category("Determinism")]
         public void SameSeed_SameLogHash()
         {
             var d = DataOf(L(false));
@@ -613,7 +613,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             Assert.That(a.StateHash(), Is.EqualTo(b.StateHash()));
         }
 
-        [Test]
+        [Test, Category("Determinism")]
         public void FileOrderShuffled_SameHash()
         {
             var a = Sim(DataOf(L(false)));
@@ -623,7 +623,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             Assert.That(a.Log.Hash, Is.EqualTo(b.Log.Hash));
         }
 
-        [Test]
+        [Test, Category("Determinism")]
         public void Snapshot_RoundTrip()
         {
             var o = new MatchSimOptions { Checkpoints = CheckpointMode.All };
@@ -639,7 +639,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         }
 
         /// <summary>리뷰 B1: 배역 중인 선수의 역할 캐시가 복원 뒤에도 같아야 한다.</summary>
-        [Test]
+        [Test, Category("Determinism")]
         public void Snapshot_RoundTrip_WhileScenarioRunning()
         {
             var s = SampleSources();
@@ -660,7 +660,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             }
         }
 
-        [Test]
+        [Test, Category("Determinism")]
         public void DiagnosticsOnOff_SameHashes()
         {
             var d = DataOf(L(false));
