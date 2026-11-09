@@ -33,7 +33,7 @@ SDD 규칙: `.claude/rules/05-sdd.md`. 템플릿: `_templates/`. 완료 판정�
 | 010 | [Utility AI 의사결정](010-utility-ai/spec.md) | M0 | 003, 007, 008, 009 | 초안 |
 | 011 | [골키퍼](011-goalkeeper/spec.md) | M0 | 008, 010 | 초안 |
 | 012 | [심판 · 규칙 판정 · 재시작](012-referee-rules/spec.md) | M0 | 006, 008 | 초안 |
-| 013 | [시나리오 런타임](013-scenario-runtime/spec.md) | M0 | 010 | 초안 |
+| 013 | [시나리오 런타임](013-scenario-runtime/spec.md) | M0 | 010 (003·007·008·010·011·012·014는 대체 입력, 연결 때 재확인) | 구현 완료 · 4만 개 메모리 보류(014) |
 | 014 | [시나리오 라이브러리 · 조합 생성기](014-scenario-library/spec.md) | M0~M5 | 013, 017 | 초안 |
 | 015 | [경기 스탯 · xG · 평점](015-match-stats-ratings/spec.md) | M0 | 006, 008 | 초안 |
 | 016 | [비관전 경기 저정밀 시뮬](016-low-fidelity-sim/spec.md) | M2 | 015, 017 | 초안 |

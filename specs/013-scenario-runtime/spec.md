@@ -1,6 +1,6 @@
 # 013 — 시나리오 런타임
 
-상태: 승인됨
+상태: 구현 완료 · 4만 개 메모리 보류(014) (2026-11-09)
 브랜치: feat/013-scenario-runtime
 기획 출처: docs/index.html § 기획서 5.1.1(시나리오 레이어, YAML 예시, 선택 방식, 주의), § 5.2(Utility 폴백), § 아키텍처 3(틱 파이프라인: 시나리오 선택 → 실행 → 폴백 → Steering) / docs/scenarios.html § 구조 1~3, research[0] § 0·4(표기 규약·YAML), research[1] § 0·5·6(공통 트리거 스키마·선택 빈도·YAML), research[2] § 0·8(공통 구조·희소성 게이트·구현 메모)
 

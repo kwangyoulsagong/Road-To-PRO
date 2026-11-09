@@ -1,7 +1,7 @@
 {
-  "judged": false,
+  "judged": true,
   "ok": true,
-  "note": "전원 상태 battery — 판정 제외",
+  "note": "",
   "backend": "il2cpp",
   "profile": "mac-m1-1600p",
   "budget": [
@@ -9,7 +9,7 @@
       "ac": "AC-16",
       "label": "결정 틱 런타임 평균 (006 FR-80 몫)",
       "metric": "scenario_tick_avg_us",
-      "value": 0.4695159574468085,
+      "value": 0.6228581560283688,
       "budget": 3,
       "unit": "µs",
       "ok": true
@@ -27,7 +27,7 @@
       "ac": "AC-16",
       "label": "경기 1개 런타임 누적",
       "metric": "scenario_match_s",
-      "value": 0.0264807,
+      "value": 0.0351292,
       "budget": 0.16,
       "unit": "s",
       "ok": true
@@ -36,7 +36,7 @@
       "ac": "AC-16",
       "label": "약 270개 로딩+검증",
       "metric": "load_270_ms",
-      "value": 8.4459,
+      "value": 19.3458,
       "budget": 300,
       "unit": "ms",
       "ok": true
@@ -45,19 +45,10 @@
       "ac": "AC-16",
       "label": "4만 개 로딩",
       "metric": "load_40k_ms",
-      "value": 902.3900000000001,
+      "value": 1007.5561,
       "budget": 2000,
       "unit": "ms",
       "ok": true
-    },
-    {
-      "ac": "AC-16",
-      "label": "4만 개 메모리",
-      "metric": "load_40k_mb",
-      "value": 113.359375,
-      "budget": 64,
-      "unit": "MB",
-      "ok": false
     },
     {
       "ac": "AC-07",
@@ -135,14 +126,14 @@
   "regression": [],
   "stages": {},
   "metrics": {
-    "scenario_tick_avg_us": 0.4695159574468085,
+    "scenario_tick_avg_us": 0.6228581560283688,
     "scenario_tick_p95_us": 0.9,
-    "scenario_match_s": 0.0264807,
+    "scenario_match_s": 0.0351292,
     "scenario_ticks": 56400,
     "alloc_per_tick_b": -1,
-    "load_270_ms": 8.4459,
-    "load_40k_ms": 902.3900000000001,
-    "load_40k_mb": 113.359375,
+    "load_270_ms": 19.3458,
+    "load_40k_ms": 1007.5561,
+    "load_40k_mb": 111.578125,
     "mass_missing": 0,
     "mass_double_cast": 0,
     "mass_cap_over": 0,
@@ -151,7 +142,7 @@
     "mass_failed": 0,
     "mass_starts_per_match": 1490.846,
     "mass_goals_per_match": 7.797,
-    "mass_minutes": 6.015494041666667,
+    "mass_minutes": 6.760705783333333,
     "empty_missing": 0,
     "empty_double_cast": 0,
     "empty_cap_over": 0,
@@ -160,14 +151,14 @@
     "empty_failed": 0,
     "empty_starts_per_match": 0,
     "empty_goals_per_match": 6.224,
-    "empty_minutes": 5.8850534350000006
+    "empty_minutes": 6.1064149966666665
   },
   "host": "mac-m1-1600p",
-  "power": "battery",
+  "power": "ac",
   "buildCached": false,
-  "durationSec": 726.4,
+  "durationSec": 785.0,
   "unity": "6000.3.27f2",
   "cpu": "Apple M1 Pro",
   "development": false,
-  "commit": "c1c9ee440b92162f594820a7a7632977f6c811f6"
+  "commit": "d4c9e30699950c03c69eb67b7fde066d2a2ba9ec"
 }

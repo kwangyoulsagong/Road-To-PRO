@@ -59,6 +59,16 @@
       "ShapePerfTests.Tick_us/shape_tick_p95_us/min": 14.0
     }
   },
+  "editmode/013/mac-m1-1600p": {
+    "commit": "423b13b2f9dc988fdf8c1ddfa290cf84bc9e27f4",
+    "measuredAt": "2026-11-09T14:46:24",
+    "metrics": {
+      "ScenarioPerfTests.Load_270/load_270_ms/min": 9.610800000000001,
+      "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff/gc_alloc_count/max": 0.0,
+      "ScenarioPerfTests.Tick_us/scenario_tick_avg_us/min": 0.9783372483221477,
+      "ScenarioPerfTests.Tick_us/scenario_tick_p95_us/min": 2.6
+    }
+  },
   "il2cpp/006/mac-m1-1600p": {
     "commit": "1d35d27af80412e9da1b575cc50e77d8444225c2",
     "measuredAt": "2026-11-03T13:33:52",
@@ -98,6 +108,38 @@
       "shape_tick_avg_us": 2.4319414893617024,
       "shape_tick_p95_us": 4.7,
       "shape_ticks": 56400
+    }
+  },
+  "il2cpp/013/mac-m1-1600p": {
+    "commit": "423b13b2f9dc988fdf8c1ddfa290cf84bc9e27f4",
+    "measuredAt": "2026-11-09T14:46:25",
+    "metrics": {
+      "alloc_per_tick_b": -1,
+      "empty_agg_mismatch": 0,
+      "empty_cap_over": 0,
+      "empty_double_cast": 0,
+      "empty_failed": 0,
+      "empty_goals_per_match": 6.224,
+      "empty_minutes": 6.1064149966666665,
+      "empty_missing": 0,
+      "empty_reason_mismatch": 0,
+      "empty_starts_per_match": 0,
+      "load_270_ms": 19.3458,
+      "load_40k_mb": 111.578125,
+      "load_40k_ms": 1007.5561,
+      "mass_agg_mismatch": 0,
+      "mass_cap_over": 0,
+      "mass_double_cast": 0,
+      "mass_failed": 0,
+      "mass_goals_per_match": 7.797,
+      "mass_minutes": 6.760705783333333,
+      "mass_missing": 0,
+      "mass_reason_mismatch": 0,
+      "mass_starts_per_match": 1490.846,
+      "scenario_match_s": 0.0351292,
+      "scenario_tick_avg_us": 0.6228581560283688,
+      "scenario_tick_p95_us": 0.9,
+      "scenario_ticks": 56400
     }
   }
 }

@@ -1,0 +1,503 @@
+{
+  "title": "013 로직 증거",
+  "spec": {
+    "id": "013",
+    "name": "013 — 시나리오 런타임",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "기획서 5.1.1 예시(`wing_solo_run_cutback`)와 research[0] § 4 FT01·PR04·CT02, research[1] § 6 D-PR-01·S-CK-01을 통일 스키마로 옮긴 6개 파일이 오류 없이 로드되고, 필드 값이 원문과 같다."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "중복 id, 없는 분기 대상, 없는 동사, 순환 체이닝, 음수 분기 가중치를 하나씩 넣은 파일 5개를 로드하면 각각 파일·필드가 포함된 오류가 나고, 정상 파일은 그대로 로드된다."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "트리거 조건(구역·국면·캐리어 역할·앞 공간 ≥ 25m)을 만족하는 고정 배치에서 해당 시나리오가 후보에 들고, 조건 하나씩만 어긋난 배치 4개에서는 후보에 들지 않는다."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "경기당 상한 1인 시나리오는 트리거를 100번 만족시켜도 한 경기에서 최대 1번 시작된다. 쿨다운 30초인 시나리오는 30초 안에 다시 시작되지 않는다."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "같은 고정 상황을 시드 1,000개로 돌렸을 때, 드리블 중독 캐리어의 드리블 계열 선택 비율이 성향 중립 캐리어보다 높고, 크로스 머신은 크로스 계열 비율이 더 높다 (차이는 이항 검정 p < 0.01)."
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "같은 기본 패턴을 연속으로 쓴 직후에는 그 패턴의 선택 확률이 감쇠 없이 돌린 경우보다 낮고, 설정 기간이 지나면 원래로 돌아온다."
+      },
+      {
+        "id": "AC-07",
+        "kind": "로직",
+        "text": "배역 배정 결과 팀당 공격 배역 ≤ 5, 수비 배역 ≤ 4이고, 한 선수가 두 배역을 갖는 경우가 1,000경기 동안 0건이다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "로직",
+        "text": "배역이 끝난 선수의 이동 목표가 같은 틱에 형태 슬롯 목표와 같아진다. 시나리오가 깨진 틱에 순간 이동(한 틱 이동 거리가 최고 속도 × 틱 시간을 넘는 경우)이 0건이다."
+      },
+      {
+        "id": "AC-09",
+        "kind": "로직",
+        "text": "돌파 단계에서 태클로 소유를 잃는 고정 상황에서 시나리오는 그 결정 틱에 종료(사유: 소유 상실)되고, 다음 결정 틱 안에 상대 팀이 새 시나리오 또는 Utility 행동을 갖는다. 행동 없는 선수가 남는 틱이 0이다."
+      },
+      {
+        "id": "AC-10",
+        "kind": "로직",
+        "text": "시나리오 파일 0개로 1,000경기를 돌려도 크래시·예외·무한 루프 없이 끝나고, 모든 공 소유 구간이 Utility 폴백으로 처리된다."
+      },
+      {
+        "id": "AC-11",
+        "kind": "로직",
+        "text": "실행 중 필수 배역 선수가 퇴장하면 시나리오가 종료되고, 선택 배역 선수가 교체되면 시나리오는 계속된다."
+      },
+      {
+        "id": "AC-12",
+        "kind": "로직",
+        "text": "체이닝 상한에 닿는 인공 시나리오 묶음(A→B→A…)은 상한 횟수에서 폴백으로 끝난다."
+      },
+      {
+        "id": "AC-13",
+        "kind": "로직",
+        "text": "좌우 반전 변주를 실행하면 모든 배역 목표 좌표가 원본과 피치 세로축 대칭이다 (오차 0.01m 이내)."
+      },
+      {
+        "id": "AC-14",
+        "kind": "로직",
+        "text": "코너 선언 → 009 기본 배치 → 시나리오 배역 위치 덮어쓰기 → 재개 → 니어포스트 플릭 단계 순서가 로그에 그 순서로 남고, 배역 아닌 선수 위치는 009 기본 배치와 같다."
+      },
+      {
+        "id": "AC-18",
+        "kind": "로직",
+        "text": "수비 문서 표기(SET_DEF·PRESS·LOW_BLOCK·TRANS_D·TRANS_A·SET_PIECE)로 쓴 트리거 6종이 매핑표로 009 국면 값으로 바뀌어 로드되고, 매핑에 없는 국면 표기는 로딩 오류다."
+      },
+      {
+        "id": "AC-15",
+        "kind": "결정론",
+        "text": "같은 시드로 경기 2회 실행 시 시나리오 이벤트 로그(시작·단계·분기·종료) 해시가 같다. 시나리오 파일 로딩 순서(파일 이름 순서·디렉터리 순회 순서)를 바꿔도 같다."
+      },
+      {
+        "id": "AC-16",
+        "kind": "성능",
+        "text": "성능 예산 표의 항목이 기준 프로필에서 예산 안이고, 틱 경로 GC 할당이 0이다."
+      },
+      {
+        "id": "AC-17",
+        "kind": "로직",
+        "text": "1,000경기 집계에서 시나리오별 시작·완주·폴백 수가 SimEvent 로그 수와 정확히 같다 (집계 누락 0)."
+      },
+      {
+        "id": "AC-19",
+        "kind": "결정론",
+        "text": "FR-52 진단 출력을 켠 실행과 끈 실행(같은 시드)의 이벤트 로그 해시와 체크포인트 해시가 모두 같다. 끈 실행에서 진단용 할당은 0 B다."
+      },
+      {
+        "id": "AC-20",
+        "kind": "로직",
+        "text": "FR-53: 강제 선택 모드로 실행한 로그에는 모두 \"강제\" 표시가 있고, 출시 설정에서 강제 선택을 요청하면 거부된다. 배역 미충족 픽스처에서는 실행하지 않고 사유를 남긴다."
+      },
+      {
+        "id": "AC-21",
+        "kind": "로직",
+        "text": "FR-54: 1,000경기 집계에 폴백 종료 사유 분포와 역습 허용률이 시나리오별로 있고, 사유 분포 합이 폴백 횟수와 같다."
+      },
+      {
+        "id": "AC-22",
+        "kind": "로직",
+        "text": "FR-55: `상태: 후보` 파일 3개와 정상 파일 5개를 넣고 로드하면 정상 라이브러리에는 5개만 있고, 로딩 리포트에 후보 3개가 제외로 표시된다."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/013-scenario-runtime"
+  },
+  "meta": {
+    "commit": "423b13b2f9dc988fdf8c1ddfa290cf84bc9e27f4",
+    "branch": "feat/013-scenario-runtime",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-09 14:40:12 +0900",
+    "durationSec": 90.64799284934998,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 013",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 80,
+    "passed": 80,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 60.5575222,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-144012-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-144012-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "ScenarioPerfTests.Tick_us/scenario_tick_avg_us/min": 0.9783372483221477,
+      "ScenarioPerfTests.Tick_us/scenario_tick_p95_us/min": 2.6,
+      "ScenarioPerfTests.Load_270/load_270_ms/min": 9.610800000000001,
+      "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff/gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-16",
+        "label": "결정 틱 런타임 평균 (Mono 회귀)",
+        "metric": "ScenarioPerfTests.Tick_us/scenario_tick_avg_us/min",
+        "value": 0.9783372483221477,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-16",
+        "label": "결정 틱 런타임 p95 (Mono 회귀)",
+        "metric": "ScenarioPerfTests.Tick_us/scenario_tick_p95_us/min",
+        "value": 2.6,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-16",
+        "label": "약 270개 로딩 (Mono 회귀)",
+        "metric": "ScenarioPerfTests.Load_270/load_270_ms/min",
+        "value": 9.610800000000001,
+        "budget": "—",
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-16",
+        "label": "틱당 GC 할당 (워밍업 후 6,000틱, 횟수)",
+        "metric": "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff/gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-16",
+        "label": "결정 틱 런타임 평균 (006 FR-80 몫)",
+        "metric": "scenario_tick_avg_us",
+        "value": 0.6228581560283688,
+        "budget": 3,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-16",
+        "label": "결정 틱 런타임 p95",
+        "metric": "scenario_tick_p95_us",
+        "value": 0.9,
+        "budget": 300,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-16",
+        "label": "경기 1개 런타임 누적",
+        "metric": "scenario_match_s",
+        "value": 0.0351292,
+        "budget": 0.16,
+        "unit": "s",
+        "ok": true
+      },
+      {
+        "ac": "AC-16",
+        "label": "약 270개 로딩+검증",
+        "metric": "load_270_ms",
+        "value": 19.3458,
+        "budget": 300,
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-16",
+        "label": "4만 개 로딩",
+        "metric": "load_40k_ms",
+        "value": 1007.5561,
+        "budget": 2000,
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "1,000경기 이중 배역",
+        "metric": "mass_double_cast",
+        "value": 0,
+        "budget": 0,
+        "unit": "건",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "1,000경기 배역 상한 초과",
+        "metric": "mass_cap_over",
+        "value": 0,
+        "budget": 0,
+        "unit": "건",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "1,000경기 미완료",
+        "metric": "mass_missing",
+        "value": 0,
+        "budget": 0,
+        "unit": "경기",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "집계 ↔ 로그 불일치",
+        "metric": "mass_agg_mismatch",
+        "value": 0,
+        "budget": 0,
+        "unit": "경기",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "폴백 사유 합 불일치",
+        "metric": "mass_reason_mismatch",
+        "value": 0,
+        "budget": 0,
+        "unit": "경기",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "1,000경기 실패 종료",
+        "metric": "mass_failed",
+        "value": 0,
+        "budget": 0,
+        "unit": "경기",
+        "ok": true
+      },
+      {
+        "ac": "AC-10",
+        "label": "빈 라이브러리 1,000경기 미완료",
+        "metric": "empty_missing",
+        "value": 0,
+        "budget": 0,
+        "unit": "경기",
+        "ok": true
+      },
+      {
+        "ac": "AC-10",
+        "label": "빈 라이브러리 실패 종료",
+        "metric": "empty_failed",
+        "value": 0,
+        "budget": 0,
+        "unit": "경기",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "scenario_tick_avg_us": 0.6228581560283688,
+      "scenario_tick_p95_us": 0.9,
+      "scenario_match_s": 0.0351292,
+      "scenario_ticks": 56400,
+      "alloc_per_tick_b": -1,
+      "load_270_ms": 19.3458,
+      "load_40k_ms": 1007.5561,
+      "load_40k_mb": 111.578125,
+      "mass_missing": 0,
+      "mass_double_cast": 0,
+      "mass_cap_over": 0,
+      "mass_agg_mismatch": 0,
+      "mass_reason_mismatch": 0,
+      "mass_failed": 0,
+      "mass_starts_per_match": 1490.846,
+      "mass_goals_per_match": 7.797,
+      "mass_minutes": 6.760705783333333,
+      "empty_missing": 0,
+      "empty_double_cast": 0,
+      "empty_cap_over": 0,
+      "empty_agg_mismatch": 0,
+      "empty_reason_mismatch": 0,
+      "empty_failed": 0,
+      "empty_starts_per_match": 0,
+      "empty_goals_per_match": 6.224,
+      "empty_minutes": 6.1064149966666665
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": false,
+    "durationSec": 785.0,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M1 Pro",
+    "development": false,
+    "commit": "d4c9e30699950c03c69eb67b7fde066d2a2ba9ec"
+  },
+  "requireAllAcs": true,
+  "deferred": {},
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-11": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-12": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-13": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-14": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-18": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-15": [
+      {
+        "label": "결정론 테스트 5/5 통과",
+        "ok": true
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "EditMode 성능 4/4 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 5/5 통과",
+        "ok": true
+      }
+    ],
+    "AC-17": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-19": [
+      {
+        "label": "결정론 테스트 5/5 통과",
+        "ok": true
+      }
+    ],
+    "AC-20": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-21": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-22": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "pass"
+}
