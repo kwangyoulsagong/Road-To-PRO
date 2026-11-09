@@ -34,11 +34,14 @@ namespace RoadToPro.MatchEngine.Match
         public Vec2[] Formation { get; set; } = Array.Empty<Vec2>();
         /// <summary>승부차기 키커 순서 (선택, FR-15). 없으면 출전 선수 id 순.</summary>
         public int[] PenaltyOrder { get; set; }
+        /// <summary>팀 전술 (specs/009). 두 팀 모두 있으면 009 단계를 쓰고, 없으면 006 대체 단계를 쓴다.</summary>
+        public Tactics.TeamTactics Tactics { get; set; }
 
         public TeamSetup Clone() => new TeamSetup
         {
             TeamId = TeamId, Players = (MatchPlayer[])Players?.Clone(), Starters = (int[])Starters?.Clone(), Bench = (int[])Bench?.Clone(),
             CaptainId = CaptainId, SetPieceTakerId = SetPieceTakerId, Formation = (Vec2[])Formation?.Clone(), PenaltyOrder = (int[])PenaltyOrder?.Clone(),
+            Tactics = Tactics?.Clone(),
         };
 
         public bool TryGetPlayer(int id, out MatchPlayer p)
@@ -125,6 +128,13 @@ namespace RoadToPro.MatchEngine.Match
                 if (ts.Formation == null || ts.Formation.Length != 11) throw new MatchSetupException($"팀 {t} 대형 슬롯은 11개");
                 foreach (var f in ts.Formation)
                     if (!(f.X >= 0f && f.X <= 1f && f.Y >= 0f && f.Y <= 1f)) throw new MatchSetupException($"팀 {t} 대형 좌표는 0~1");
+                var marks = ts.Tactics?.ManMarkTargets;
+                if (marks != null)
+                {
+                    if (marks.Length != 11) throw new MatchSetupException($"팀 {t} 맨투맨 목록은 슬롯 11개");
+                    foreach (var m in marks) if (m < -1 || m > 10) throw new MatchSetupException($"팀 {t} 맨투맨 대상 {m}은 −1~10이어야 한다");
+                }
+                if ((ts.Tactics != null) != (Team(1 - t).Tactics != null)) throw new MatchSetupException("전술은 두 팀 모두 있거나 모두 없어야 한다");
                 if (ts.PenaltyOrder != null)
                     foreach (var id in ts.PenaltyOrder)
                         if (!lineup.Contains(id)) throw new MatchSetupException($"팀 {t} 승부차기 키커 {id}가 명단에 없다");

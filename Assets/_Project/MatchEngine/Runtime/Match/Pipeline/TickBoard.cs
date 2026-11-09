@@ -1,6 +1,7 @@
 using System;
 using RoadToPro.Core.Math;
 using RoadToPro.MatchEngine.Kinematics;
+using RoadToPro.MatchEngine.Tactics;
 
 namespace RoadToPro.MatchEngine.Match.Pipeline
 {
@@ -117,6 +118,13 @@ namespace RoadToPro.MatchEngine.Match.Pipeline
         };
 
         readonly Vec2[] _shape = new Vec2[MaxSlots];
+        readonly bool[] _shapeSkipped = new bool[MaxSlots];
+        readonly TeamInstructions[] _tactics = new TeamInstructions[2];
+        readonly TeamPhase[] _phase = new TeamPhase[2], _block = new TeamPhase[2];
+        readonly long[] _transitionTicks = new long[2];
+        readonly int[] _formation = new int[2];
+        readonly TeamShapeOutput[] _shapeOutput = new TeamShapeOutput[2];
+        readonly float[] _defLineM = new float[2], _offsideLineM = new float[2];
         readonly Decision[] _decisions = new Decision[MaxSlots];
         readonly SteeringCommand[] _steering = new SteeringCommand[MaxSlots];
         readonly bool[] _hasSteering = new bool[MaxSlots];
@@ -141,6 +149,7 @@ namespace RoadToPro.MatchEngine.Match.Pipeline
         public void Clear()
         {
             Array.Clear(_shape, 0, _shape.Length);
+            Array.Clear(_shapeSkipped, 0, _shapeSkipped.Length);
             Array.Clear(_decisions, 0, _decisions.Length);
             Array.Clear(_hasSteering, 0, _hasSteering.Length);
             _ballAction = default;
@@ -162,6 +171,34 @@ namespace RoadToPro.MatchEngine.Match.Pipeline
         // 대형 목표 (단계 2)
         public Vec2[] ShapeTargetsForWrite() { CheckWrite(BoardSlot.ShapeTargets); return _shape; }
         public Vec2 ShapeTarget(int slot) { CheckRead(BoardSlot.ShapeTargets); return _shape[slot]; }
+
+        /// <summary>시나리오 배역 중이라 형태 목표가 없는 슬롯 (009 FR-90). 대체 조향은 건너뛴다.</summary>
+        public void MarkNoShapeTarget(int slot) { CheckWrite(BoardSlot.ShapeTargets); _shapeSkipped[slot] = true; }
+        public bool HasShapeTarget(int slot) { CheckRead(BoardSlot.ShapeTargets); return !_shapeSkipped[slot]; }
+
+        // 팀 지시 (단계 0), 국면 (단계 1), 형태 결과 (단계 2) — 009
+        public void SetInstructions(int team, in TeamInstructions i) { CheckWrite(BoardSlot.Tactics); _tactics[team] = i; }
+        public ref readonly TeamInstructions Instructions(int team) { CheckRead(BoardSlot.Tactics); return ref _tactics[team]; }
+        public void SetFormationIndex(int team, int index) { CheckWrite(BoardSlot.Tactics); _formation[team] = index; }
+        public int FormationIndex(int team) { CheckRead(BoardSlot.Tactics); return _formation[team]; }
+        public void SetPhase(int team, TeamPhase p, TeamPhase block, long transitionTicks) { CheckWrite(BoardSlot.Phase); _phase[team] = p; _block[team] = block; _transitionTicks[team] = transitionTicks; }
+        public TeamPhase Block(int team) { CheckRead(BoardSlot.Phase); return _block[team]; }
+        public long TransitionTicks(int team) { CheckRead(BoardSlot.Phase); return _transitionTicks[team]; }
+        public TeamPhase Phase(int team) { CheckRead(BoardSlot.Phase); return _phase[team]; }
+
+        public void SetShapeOutput(int team, in TeamShapeOutput o, float defLineM, float offsideLineM)
+        {
+            CheckWrite(BoardSlot.ShapeTargets);
+            _shapeOutput[team] = o;
+            _defLineM[team] = defLineM;
+            _offsideLineM[team] = offsideLineM;
+        }
+
+        public ref readonly TeamShapeOutput ShapeOutput(int team) { CheckRead(BoardSlot.ShapeTargets); return ref _shapeOutput[team]; }
+        /// <summary>팀 수비 라인 x (기준 미터 좌표, FR-03).</summary>
+        public float DefLineM(int team) { CheckRead(BoardSlot.ShapeTargets); return _defLineM[team]; }
+        /// <summary>팀 오프사이드 라인 x (기준 미터 좌표, FR-45).</summary>
+        public float OffsideLineM(int team) { CheckRead(BoardSlot.ShapeTargets); return _offsideLineM[team]; }
 
         // 결정 (단계 5)
         public void SetDecision(int slot, in Decision d)

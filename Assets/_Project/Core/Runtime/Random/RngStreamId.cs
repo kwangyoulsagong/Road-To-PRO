@@ -15,6 +15,8 @@ namespace RoadToPro.Core.Random
         MatchForm = 7,
         /// <summary>경기 진행: 동전 던지기, 대체 단계 무작위 (specs/006).</summary>
         MatchFlow = 8,
+        /// <summary>팀 형태: 슬롯 추종·라인 일체성 오차 (specs/009).</summary>
+        TeamShape = 9,
 
         CareerWeek = 101,
         CareerEvents = 102,

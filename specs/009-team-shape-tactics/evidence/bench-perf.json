@@ -1,0 +1,63 @@
+{
+  "judged": true,
+  "ok": true,
+  "note": "",
+  "backend": "il2cpp",
+  "profile": "mac-m1-1600p",
+  "budget": [
+    {
+      "ac": "AC-17",
+      "label": "결정 틱 형태 계산 평균 (006 FR-80 몫)",
+      "metric": "shape_tick_avg_us",
+      "value": 2.4319414893617024,
+      "budget": 3,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "결정 틱 형태 계산 p95 (재매칭 틱)",
+      "metric": "shape_tick_p95_us",
+      "value": 4.7,
+      "budget": 30,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "슬롯 재매칭 1회 p95",
+      "metric": "rematch_p95_us",
+      "value": 3.7,
+      "budget": 20,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "경기 1개 형태 계산 누적",
+      "metric": "shape_match_s",
+      "value": 0.1371615,
+      "budget": 0.16,
+      "unit": "s",
+      "ok": true
+    }
+  ],
+  "regression": [],
+  "stages": {},
+  "metrics": {
+    "shape_tick_avg_us": 2.4319414893617024,
+    "shape_tick_p95_us": 4.7,
+    "shape_match_s": 0.1371615,
+    "shape_ticks": 56400,
+    "rematch_p95_us": 3.7,
+    "alloc_per_tick_b": -1
+  },
+  "host": "mac-m1-1600p",
+  "power": "ac",
+  "buildCached": false,
+  "durationSec": 11.0,
+  "unity": "6000.3.27f2",
+  "cpu": "Apple M1 Pro",
+  "development": false,
+  "commit": "58fda981c4d904f4ffb2201a5748bd60a11045c0"
+}

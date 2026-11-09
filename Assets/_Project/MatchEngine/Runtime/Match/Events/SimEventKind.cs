@@ -25,6 +25,12 @@ namespace RoadToPro.MatchEngine.Match.Events
         // 009 (100~): 점유 · 국면
         PossessionChange = 100,
         PhaseChange = 101,
+        /// <summary>전술 변경 적용 (FR-71). A = 지시 번호, 포메이션 변경은 −1. F0 = 새 값.</summary>
+        TacticsChanged = 102,
+        /// <summary>지시 값 보정 경고 (FR-70, AC-14). A = 지시 번호.</summary>
+        TacticsInputClamped = 103,
+        /// <summary>시나리오 배역 과다 경고 (형태 인원 6명 미만).</summary>
+        ShapeCastOverflow = 104,
 
         // 008 (200~): 액션 · 골
         Pass = 200,

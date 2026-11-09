@@ -31,11 +31,16 @@ namespace RoadToPro.MatchEngine.Match
         public bool KeepEventLog = true;
         /// <summary>승부차기·페널티 판정 (008·011 자리). null이면 대체 판정. 경기마다 새 인스턴스를 만든다.</summary>
         public Func<Flow.IPenaltyJudge> PenaltyJudge;
+        /// <summary>팀 형태 주입 입력 (specs/009). null이면 대체 구현.</summary>
+        public Tactics.ShapeInputProviders ShapeInputs;
+        public Tactics.ITeamShapeTelemetry ShapeTelemetry;
+        public Tactics.IShapeDiagnostics ShapeDiagnostics;
 
         public MatchSimOptions Clone() => new MatchSimOptions
         {
             Stages = Stages, Scheduler = Scheduler, Checkpoints = Checkpoints, Inputs = Inputs?.Clone(), Referee = Referee?.Clone(),
             LogCapacity = LogCapacity, KeepEventLog = KeepEventLog, PenaltyJudge = PenaltyJudge,
+            ShapeInputs = ShapeInputs, ShapeTelemetry = ShapeTelemetry, ShapeDiagnostics = ShapeDiagnostics,
         };
     }
 
@@ -83,7 +88,7 @@ namespace RoadToPro.MatchEngine.Match
             _ctx = new MatchContext(setup, tuning, _options.Inputs ?? new InputLog(), _options.Referee ?? new RefereeScript());
             _ctx.Log = _log;
             _ctx.View = new MatchView(_ctx);
-            _stages = _options.Stages != null ? _options.Stages() : DefaultStages();
+            _stages = _options.Stages != null ? _options.Stages() : DefaultStages(_setup, _tuning, _options);
             if (_stages == null || _stages.Length != Pipeline.Stages.Count) throw new ArgumentException($"단계는 {Pipeline.Stages.Count}개");
             for (int i = 0; i < _stages.Length; i++)
                 if (_stages[i] == null || (int)_stages[i].Id != i) throw new ArgumentException($"단계 {i} 자리에 {_stages[i]?.Id} — FR-01 순서와 다르다");
@@ -92,6 +97,25 @@ namespace RoadToPro.MatchEngine.Match
             _ctx.Flow.Start();
             _ctx.Recorder.EmitInitialFrame();
             if (_options.Checkpoints == CheckpointMode.All) _snapshots.Add(Capture());
+        }
+
+        /// <summary>설정에 맞는 기본 단계: 두 팀에 전술이 있으면 009 단계, 없으면 006 대체 단계.</summary>
+        public static IMatchStage[] DefaultStages(MatchSetup setup, MatchTuning tuning, MatchSimOptions options)
+        {
+            if (setup.Home.Tactics == null) return DefaultStages();
+            if (tuning.Shape == null) throw new MatchSetupException("전술을 쓰려면 MatchTuning.Shape가 필요하다");
+            var data = tuning.Shape;
+            var p = Tactics.ShapeParams.Create(data.Tuning, setup.Pitch);
+            var catalog = data.Formations;
+            var f0 = catalog.IndexOf(setup.Home.Tactics.FormationId);
+            var f1 = catalog.IndexOf(setup.Away.Tactics.FormationId);
+            if (f0 < 0 || f1 < 0) throw new MatchSetupException($"없는 포메이션: {setup.Home.Tactics.FormationId} / {setup.Away.Tactics.FormationId}");
+            var inputs = options?.ShapeInputs ?? new Tactics.ShapeInputProviders();
+            var stages = DefaultStages();
+            stages[(int)StageId.TeamTactics] = new TacticsStage(setup, catalog.Count, f0, f1);
+            stages[(int)StageId.Phase] = new PhaseStage(p);
+            stages[(int)StageId.Shape] = new ShapeStage(p, catalog, inputs, setup, f0, f1, options?.ShapeTelemetry, options?.ShapeDiagnostics);
+            return stages;
         }
 
         public static IMatchStage[] DefaultStages() => new IMatchStage[]
@@ -136,6 +160,14 @@ namespace RoadToPro.MatchEngine.Match
         /// </summary>
         public void RequestSubstitution(int team, int outId, int inId, bool concussion = false) =>
             AddInput(new ExternalInput(_nextTick, outId, concussion ? InputKind.SubstituteConcussion : InputKind.Substitute, inId));
+
+        /// <summary>팀 지시 변경 요청 (009 FR-71): 다음 결정 틱에 반영된다.</summary>
+        public void RequestInstruction(int team, Tactics.InstructionId id, float value) =>
+            AddInput(new ExternalInput(_nextTick, team * 100 + (int)id, InputKind.TeamInstruction, value));
+
+        /// <summary>포메이션 변경 요청 (009 FR-71). index는 카탈로그 번호.</summary>
+        public void RequestFormation(int team, int index) =>
+            AddInput(new ExternalInput(_nextTick, team, InputKind.TeamFormation, index));
 
         /// <summary>외부 입력 추가 (FR-62). 이미 지난 틱은 거부.</summary>
         public void AddInput(in ExternalInput input)
@@ -390,6 +422,8 @@ namespace RoadToPro.MatchEngine.Match
             var o = _options.Clone();
             o.Checkpoints = mode;
             o.Inputs = inputs ?? _ctx.Inputs.Clone(); // AddInput·교체 요청까지 넘긴다 (리뷰 B1)
+            o.ShapeTelemetry = null; // 재구성이 지나간 틱을 다시 보고하면 집계가 중복된다 (009 리뷰 R1)
+            o.ShapeDiagnostics = null;
             var sim = new MatchSim(_setup, _tuning, o);
             for (int i = 0; i < _stages.Length; i++)
                 if (ReferenceEquals(sim._stages[i], _stages[i])) throw new InvalidOperationException($"단계 팩토리가 같은 인스턴스를 돌려준다 (단계 {i}) — 경기마다 새로 만들어야 한다 (리뷰 R1)");
