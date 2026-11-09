@@ -1,6 +1,6 @@
 # 041 — 하이라이트 3D 플레이어 · 재생 속도 · 태스크
 
-상태: 승인됨 (2026-11-09)
+상태: 구현 완료 · AC-15 보류 (2026-11-09). 대체 입력 범위 — 연결 때 재확인 (spec "재확인")
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. Unity 배치 1회가 길어서 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 배치로 돌린다. 중간 검증은 `.claude/scripts/unity-test.sh EditMode <클래스 필터>`와 `farm.py smoke --scenario <id> --profile mac-m1-1600p`로 좁힌다. `smoke` 전체·`full`·`bench`·EditMode 전체·`/verify`는 마지막 태스크에서 각 1회.
@@ -33,4 +33,4 @@
 - [x] T15a 하니스 수정 (태스크 추가) — 파일: `Tools/devicefarm/farm/commands.py` — 검증: `041-battery` 목표 fps 30 — 결과: 시나리오 `batterySaver`가 플레이어 인자로 전달되지 않던 누락 수정
 - [x] T16 전체 테스트 — EditMode 전체 실패 0, 콘솔 에러·경고 0, 컴파일 경고 신규 0 (이 스펙의 1회) — 결과: EditMode 전체 1144개 중 통과 1141·실패 0·건너뜀 3(000 셀프테스트 전용), 컴파일 경고 0. 콘솔 경고는 E2E에서 속도 점프 1515건이 남아 사용자 결정 대기
 - [x] T17 054 재생 시계 재확인 — 041 시계로 `054-speed-compare` 재실행, 결과를 054 재확인 항목에 기록 — 검증: `smoke --scenario 054-speed-compare --profile mac-m1-1600p` — 결과: `054-speed-compare` mac-m1-1600p 통과 (기준 이미지 차이 0.000%)
-- [ ] T18 `/verify 041` — 커밋 후 `farm.py full --spec 041` + `bench --spec 041` 각 1회, 기준 이미지·성능 기준 채택은 사용자 승인, 리포트 아티팩트 발행, 상태·README 갱신
+- [x] T18 `/verify 041` — 커밋 후 `farm.py full --spec 041` + `bench --spec 041` 각 1회, 기준 이미지·성능 기준 채택은 사용자 승인, 리포트 아티팩트 발행, 상태·README 갱신 — 결과: full 전 프로필 통과, 기준 이미지 64장 승인 채택, IL2CPP 재생 p95 0.26 ms·GC 0 B, AC-15는 사용자 결정으로 보류(mac-m1 70 ms·low-igpu 31 ms, Mono 개발 빌드). 하니스 순서는 bench → logic → full
