@@ -118,12 +118,12 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/013-scenario-runtime"
   },
   "meta": {
-    "commit": "423b13b2f9dc988fdf8c1ddfa290cf84bc9e27f4",
+    "commit": "1392a4be38cf78b36af8e8d11c9e722da2ea4c8e",
     "branch": "feat/013-scenario-runtime",
-    "dirty": true,
+    "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-09 14:40:12 +0900",
-    "durationSec": 90.64799284934998,
+    "time": "2026-11-09 14:46:25 +0900",
+    "durationSec": 79.34406399726868,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 013",
     "profiles": [
       "mac-m1-1600p"
@@ -135,11 +135,11 @@
     "passed": 80,
     "failed": 0,
     "skipped": 0,
-    "duration": 60.5575222,
+    "duration": 60.3882872,
     "compileErrors": [],
     "failures": [],
-    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-144012-logic/logic.png",
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-144012-logic/logic.html"
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-144625-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-144625-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -148,9 +148,9 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "ScenarioPerfTests.Tick_us/scenario_tick_avg_us/min": 0.9783372483221477,
-      "ScenarioPerfTests.Tick_us/scenario_tick_p95_us/min": 2.6,
-      "ScenarioPerfTests.Load_270/load_270_ms/min": 9.610800000000001,
+      "ScenarioPerfTests.Tick_us/scenario_tick_avg_us/min": 1.168468120805369,
+      "ScenarioPerfTests.Tick_us/scenario_tick_p95_us/min": 2.8000000000000003,
+      "ScenarioPerfTests.Load_270/load_270_ms/min": 9.0664,
       "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff/gc_alloc_count/max": 0.0
     },
     "budget": [
@@ -158,7 +158,7 @@
         "ac": "AC-16",
         "label": "결정 틱 런타임 평균 (Mono 회귀)",
         "metric": "ScenarioPerfTests.Tick_us/scenario_tick_avg_us/min",
-        "value": 0.9783372483221477,
+        "value": 1.168468120805369,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -167,7 +167,7 @@
         "ac": "AC-16",
         "label": "결정 틱 런타임 p95 (Mono 회귀)",
         "metric": "ScenarioPerfTests.Tick_us/scenario_tick_p95_us/min",
-        "value": 2.6,
+        "value": 2.8000000000000003,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -176,7 +176,7 @@
         "ac": "AC-16",
         "label": "약 270개 로딩 (Mono 회귀)",
         "metric": "ScenarioPerfTests.Load_270/load_270_ms/min",
-        "value": 9.610800000000001,
+        "value": 9.0664,
         "budget": "—",
         "unit": "ms",
         "ok": true
@@ -191,7 +191,17 @@
         "ok": true
       }
     ],
-    "regression": [],
+    "regression": [
+      {
+        "ac": "AC-16",
+        "label": "틱당 GC 할당 (워밍업 후 6,000틱, 횟수)",
+        "metric": "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff/gc_alloc_count/max",
+        "value": 0.0,
+        "previous": 0.0,
+        "changePct": 0.0,
+        "ok": true
+      }
+    ],
     "host": "mac-m1-1600p",
     "power": "ac"
   },
@@ -460,7 +470,7 @@
     ],
     "AC-16": [
       {
-        "label": "EditMode 성능 4/4 통과 (mac-m1-1600p)",
+        "label": "EditMode 성능 5/5 통과 (mac-m1-1600p)",
         "ok": true
       },
       {
