@@ -1,0 +1,101 @@
+{
+  "note": "피니싱 공용 분기 표 형식 (specs/013 FR-05). 12개 전체는 014.",
+  "scenarios": [
+    {
+      "id": "FN01",
+      "name": {
+        "ko": "1대1 마무리",
+        "en": "One-on-One Finish"
+      },
+      "category": "FN",
+      "finishing": true,
+      "cast": [
+        {
+          "role": "finisher",
+          "carrier": true,
+          "positions": [
+            "any"
+          ],
+          "steps": [
+            {
+              "do": "shoot"
+            }
+          ]
+        }
+      ],
+      "branches": []
+    },
+    {
+      "id": "FN03",
+      "name": {
+        "ko": "니어 포스트 마무리",
+        "en": "Near-post Finish"
+      },
+      "category": "FN",
+      "finishing": true,
+      "cast": [
+        {
+          "role": "finisher",
+          "carrier": true,
+          "positions": [
+            "any"
+          ],
+          "steps": [
+            {
+              "do": "shoot"
+            }
+          ]
+        }
+      ],
+      "branches": []
+    },
+    {
+      "id": "FN04",
+      "name": {
+        "ko": "파 포스트 마무리",
+        "en": "Far-post Finish"
+      },
+      "category": "FN",
+      "finishing": true,
+      "cast": [
+        {
+          "role": "finisher",
+          "carrier": true,
+          "positions": [
+            "any"
+          ],
+          "steps": [
+            {
+              "do": "shoot"
+            }
+          ]
+        }
+      ],
+      "branches": []
+    },
+    {
+      "id": "FN05",
+      "name": {
+        "ko": "컷백 마무리",
+        "en": "Cutback Finish"
+      },
+      "category": "FN",
+      "finishing": true,
+      "cast": [
+        {
+          "role": "finisher",
+          "carrier": true,
+          "positions": [
+            "any"
+          ],
+          "steps": [
+            {
+              "do": "shoot"
+            }
+          ]
+        }
+      ],
+      "branches": []
+    }
+  ]
+}

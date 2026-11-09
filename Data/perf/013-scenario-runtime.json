@@ -1,0 +1,146 @@
+{
+  "spec": "013",
+  "profile": "mac-m1-1600p",
+  "note": "specs/013 성능 예산 표의 기계용 사본. 판정 런타임은 IL2CPP 릴리스 플레이어(`il2cpp` 항목, farm.py bench) — README D17. EditMode(Mono) 항목은 max가 null이면 회귀 기준선, 숫자면 판정(할당은 런타임 무관). 1,000경기 AC(07·10·17·21)도 벤치에서 판정한다. 4만 개 메모리(64 MB)는 014 저장 구조에서 판정한다 (2026-11-09 결정, 합성 측정 load_40k_mb는 기록만).",
+  "deferred": {},
+  "tests": [
+    "RoadToPro.Tests.EditMode.MatchEngine.Scenarios",
+    "RoadToPro.Tests.Performance.MatchEngine.ScenarioPerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-16",
+      "label": "결정 틱 런타임 평균 (Mono 회귀)",
+      "test": "ScenarioPerfTests.Tick_us",
+      "group": "scenario_tick_avg_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-16",
+      "label": "결정 틱 런타임 p95 (Mono 회귀)",
+      "test": "ScenarioPerfTests.Tick_us",
+      "group": "scenario_tick_p95_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-16",
+      "label": "약 270개 로딩 (Mono 회귀)",
+      "test": "ScenarioPerfTests.Load_270",
+      "group": "load_270_ms",
+      "stat": "min",
+      "max": null,
+      "unit": "ms",
+      "regression": false
+    },
+    {
+      "ac": "AC-16",
+      "label": "틱당 GC 할당 (워밍업 후 6,000틱, 횟수)",
+      "test": "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff",
+      "group": "gc_alloc_count",
+      "stat": "max",
+      "max": 0,
+      "unit": "회"
+    }
+  ],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-16",
+        "label": "결정 틱 런타임 평균 (006 FR-80 몫)",
+        "metric": "scenario_tick_avg_us",
+        "max": 3,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-16",
+        "label": "결정 틱 런타임 p95",
+        "metric": "scenario_tick_p95_us",
+        "max": 300,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-16",
+        "label": "경기 1개 런타임 누적",
+        "metric": "scenario_match_s",
+        "max": 0.16,
+        "unit": "s"
+      },
+      {
+        "ac": "AC-16",
+        "label": "약 270개 로딩+검증",
+        "metric": "load_270_ms",
+        "max": 300,
+        "unit": "ms"
+      },
+      {
+        "ac": "AC-16",
+        "label": "4만 개 로딩",
+        "metric": "load_40k_ms",
+        "max": 2000,
+        "unit": "ms"
+      },
+      {
+        "ac": "AC-07",
+        "label": "1,000경기 이중 배역",
+        "metric": "mass_double_cast",
+        "max": 0,
+        "unit": "건"
+      },
+      {
+        "ac": "AC-07",
+        "label": "1,000경기 배역 상한 초과",
+        "metric": "mass_cap_over",
+        "max": 0,
+        "unit": "건"
+      },
+      {
+        "ac": "AC-07",
+        "label": "1,000경기 미완료",
+        "metric": "mass_missing",
+        "max": 0,
+        "unit": "경기"
+      },
+      {
+        "ac": "AC-17",
+        "label": "집계 ↔ 로그 불일치",
+        "metric": "mass_agg_mismatch",
+        "max": 0,
+        "unit": "경기"
+      },
+      {
+        "ac": "AC-21",
+        "label": "폴백 사유 합 불일치",
+        "metric": "mass_reason_mismatch",
+        "max": 0,
+        "unit": "경기"
+      },
+      {
+        "ac": "AC-07",
+        "label": "1,000경기 실패 종료",
+        "metric": "mass_failed",
+        "max": 0,
+        "unit": "경기"
+      },
+      {
+        "ac": "AC-10",
+        "label": "빈 라이브러리 1,000경기 미완료",
+        "metric": "empty_missing",
+        "max": 0,
+        "unit": "경기"
+      },
+      {
+        "ac": "AC-10",
+        "label": "빈 라이브러리 실패 종료",
+        "metric": "empty_failed",
+        "max": 0,
+        "unit": "경기"
+      }
+    ]
+  }
+}

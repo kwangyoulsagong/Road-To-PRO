@@ -1,0 +1,103 @@
+{
+  "id": "S-CK-01",
+  "name": {
+    "ko": "니어포스트 플릭",
+    "en": "Near-post Flick-on"
+  },
+  "category": "SP",
+  "group": "CK",
+  "trigger": {
+    "phase": "SET_PIECE",
+    "event": "corner_award",
+    "oppMarking": [
+      "zonal",
+      "hybrid"
+    ]
+  },
+  "cast": [
+    {
+      "role": "TAKER",
+      "taker": true,
+      "positions": [
+        "any"
+      ],
+      "steps": [
+        {
+          "t": 0.0,
+          "action": "deliver",
+          "target": "near_post_6yd"
+        }
+      ]
+    },
+    {
+      "role": "FLICKER",
+      "positions": [
+        "ST",
+        "CB"
+      ],
+      "steps": [
+        {
+          "t": -1.0,
+          "action": "decoy_run",
+          "from": "penalty_spot"
+        },
+        {
+          "t": 0.0,
+          "action": "sprint_to",
+          "zone": "near_post"
+        },
+        {
+          "t": 1.1,
+          "action": "flick_header"
+        }
+      ]
+    },
+    {
+      "role": "FAR_RUNNER_1",
+      "positions": [
+        "CB",
+        "ST",
+        "CM"
+      ],
+      "steps": [
+        {
+          "t": 0.4,
+          "action": "attack_zone",
+          "zone": "far_post_6yd"
+        }
+      ]
+    },
+    {
+      "role": "GK_SCREEN",
+      "required": false,
+      "positions": [
+        "CM",
+        "ST"
+      ],
+      "steps": [
+        {
+          "t": 0.0,
+          "action": "stand_in_front",
+          "target": "opp_GK"
+        }
+      ]
+    }
+  ],
+  "branches": [
+    {
+      "when": "first_contact_lost",
+      "goto": "D-BX-05"
+    },
+    {
+      "when": "gk_punch",
+      "goto": "S-CK-02"
+    }
+  ],
+  "kpi": [
+    "first_contact_won"
+  ],
+  "variationAxes": [
+    "delivery",
+    "mirror"
+  ]
+}

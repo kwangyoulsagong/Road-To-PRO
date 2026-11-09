@@ -61,6 +61,9 @@ namespace RoadToPro.MatchEngine.Match.Result
     /// </summary>
     public sealed class MatchResult
     {
+        /// <summary>이벤트 ScenarioId 번호 → 시나리오 id 문자열 (specs/013). 시나리오를 쓰지 않은 경기는 null.</summary>
+        public string[] ScenarioIds;
+
         public const int EngineVersion = 1;
 
         public int[] RegularGoals = new int[2];

@@ -35,12 +35,18 @@ namespace RoadToPro.MatchEngine.Match
         public Tactics.ShapeInputProviders ShapeInputs;
         public Tactics.ITeamShapeTelemetry ShapeTelemetry;
         public Tactics.IShapeDiagnostics ShapeDiagnostics;
+        /// <summary>시나리오 주입 입력 (specs/013). null이면 대체 구현.</summary>
+        public Scenarios.ScenarioInputProviders ScenarioInputs;
+        public Scenarios.IScenarioDiagnostics ScenarioDiagnostics;
+        /// <summary>강제 선택 (FR-53, 검증·미리보기 전용).</summary>
+        public Scenarios.ScenarioForceRequest ScenarioForce;
 
         public MatchSimOptions Clone() => new MatchSimOptions
         {
             Stages = Stages, Scheduler = Scheduler, Checkpoints = Checkpoints, Inputs = Inputs?.Clone(), Referee = Referee?.Clone(),
             LogCapacity = LogCapacity, KeepEventLog = KeepEventLog, PenaltyJudge = PenaltyJudge,
             ShapeInputs = ShapeInputs, ShapeTelemetry = ShapeTelemetry, ShapeDiagnostics = ShapeDiagnostics,
+            ScenarioInputs = ScenarioInputs, ScenarioDiagnostics = ScenarioDiagnostics, ScenarioForce = ScenarioForce,
         };
     }
 
@@ -114,7 +120,19 @@ namespace RoadToPro.MatchEngine.Match
             var stages = DefaultStages();
             stages[(int)StageId.TeamTactics] = new TacticsStage(setup, catalog.Count, f0, f1);
             stages[(int)StageId.Phase] = new PhaseStage(p);
-            stages[(int)StageId.Shape] = new ShapeStage(p, catalog, inputs, setup, f0, f1, options?.ShapeTelemetry, options?.ShapeDiagnostics);
+            if (tuning.Scenario == null)
+            {
+                stages[(int)StageId.Shape] = new ShapeStage(p, catalog, inputs, setup, f0, f1, options?.ShapeTelemetry, options?.ShapeDiagnostics);
+                return stages;
+            }
+
+            // 013: 경기마다 런타임을 만들고 형태의 배역 입력으로 끼운다 (호출자의 입력 묶음은 고치지 않는다)
+            var runtime = new Scenarios.ScenarioRuntime(tuning.Scenario, setup, options?.ScenarioInputs, options?.ScenarioDiagnostics, options?.ScenarioForce);
+            var shapeInputs = new Tactics.ShapeInputProviders { Traits = inputs.Traits, Roles = inputs.Roles, PitchControl = inputs.PitchControl, Signals = inputs.Signals, Cast = runtime };
+            var shape = new ShapeStage(p, catalog, shapeInputs, setup, f0, f1, options?.ShapeTelemetry, options?.ShapeDiagnostics);
+            runtime.BindRoles(new Scenarios.FormationRoleSource(shape));
+            stages[(int)StageId.Shape] = new ScenarioShapeStage(shape, runtime);
+            stages[(int)StageId.ScenarioOrUtility] = new ScenarioStage(runtime);
             return stages;
         }
 
@@ -424,6 +442,7 @@ namespace RoadToPro.MatchEngine.Match
             o.Inputs = inputs ?? _ctx.Inputs.Clone(); // AddInput·교체 요청까지 넘긴다 (리뷰 B1)
             o.ShapeTelemetry = null; // 재구성이 지나간 틱을 다시 보고하면 집계가 중복된다 (009 리뷰 R1)
             o.ShapeDiagnostics = null;
+            o.ScenarioDiagnostics = null;
             var sim = new MatchSim(_setup, _tuning, o);
             for (int i = 0; i < _stages.Length; i++)
                 if (ReferenceEquals(sim._stages[i], _stages[i])) throw new InvalidOperationException($"단계 팩토리가 같은 인스턴스를 돌려준다 (단계 {i}) — 경기마다 새로 만들어야 한다 (리뷰 R1)");
@@ -501,6 +520,7 @@ namespace RoadToPro.MatchEngine.Match
                 FinalStateHash = StateHash(),
                 Inputs = _ctx.Inputs.ToArray(),
                 EventLog = _options.KeepEventLog ? _log.ToArray() : null,
+                ScenarioIds = (string[])_tuning.Scenario?.Library.Ids.Clone(),
             };
             for (int t = 0; t < 2; t++)
             {

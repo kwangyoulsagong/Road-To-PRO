@@ -72,7 +72,24 @@ namespace RoadToPro.MatchEngine.Match.Events
         Injury = 500,
 
         // 013 (600~), 003 (700~), 019 (800~)
+        /// <summary>A = 체이닝 깊이, B = 플래그(1 강제, 2 반전). ScenarioId = <c>MatchResult.ScenarioIds</c> 번호 (FR-50).</summary>
         ScenarioStart = 600,
+        /// <summary>배역 ↔ 선수. A = 배역 번호, B = 슬롯.</summary>
+        ScenarioCast = 601,
+        /// <summary>A = 배역 × 100 + 단계, B = StepOutcome.</summary>
+        ScenarioStepEnd = 602,
+        /// <summary>A = 배역 × 100 + 단계 (상황 분기는 −1), B = BranchTargetKind.</summary>
+        ScenarioBranch = 603,
+        /// <summary>A = 다음 시나리오 번호, B = 체이닝 깊이.</summary>
+        ScenarioChain = 604,
+        /// <summary>A = 체이닝 깊이, B = ScenarioEndReason.</summary>
+        ScenarioEnd = 605,
+        /// <summary>강제 선택 거부 (FR-53). B = 사유: 1 출시 설정, 2 없는 id, 3 배역 미충족.</summary>
+        ScenarioForceRejected = 606,
+        /// <summary>세트피스 재개 (FR-46).</summary>
+        ScenarioResume = 607,
+        /// <summary>실행 중 배역 해제 (이탈·회수, FR-50). A = 배역 번호, B = 슬롯.</summary>
+        ScenarioCastReleased = 608,
         InstructionBreach = 700,
         KeyMoment = 800,
     }

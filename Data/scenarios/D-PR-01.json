@@ -1,0 +1,122 @@
+{
+  "id": "D-PR-01",
+  "name": {
+    "ko": "터치라인 트랩",
+    "en": "Touchline Trap"
+  },
+  "category": "DEF",
+  "group": "PR",
+  "trigger": {
+    "phase": "PRESS",
+    "zones": {
+      "col": [
+        2,
+        3,
+        4
+      ],
+      "lane": [
+        "L",
+        "R"
+      ]
+    },
+    "event": "opp_receive",
+    "receiverRole": [
+      "FB"
+    ],
+    "receiverBody": "facing_sideline",
+    "space": {
+      "nearestPresserDistM": "<=8"
+    }
+  },
+  "cast": [
+    {
+      "role": "P1_W",
+      "positions": [
+        "W",
+        "IW"
+      ],
+      "steps": [
+        {
+          "t": 0.0,
+          "action": "curve_run",
+          "target": "receiver"
+        },
+        {
+          "t": 1.2,
+          "action": "engage",
+          "distanceM": 1.5
+        }
+      ]
+    },
+    {
+      "role": "P2_CM",
+      "positions": [
+        "CM",
+        "DM"
+      ],
+      "steps": [
+        {
+          "t": 0.3,
+          "action": "mark_lane",
+          "lane": "halfspace_return"
+        }
+      ]
+    },
+    {
+      "role": "P3_FB",
+      "positions": [
+        "FB",
+        "IFB",
+        "WB"
+      ],
+      "steps": [
+        {
+          "t": 0.3,
+          "action": "tight_mark",
+          "target": "opp_W"
+        }
+      ]
+    },
+    {
+      "role": "P4_ST",
+      "positions": [
+        "ST"
+      ],
+      "steps": [
+        {
+          "t": 0.0,
+          "action": "cover_shadow",
+          "target": "opp_CB_backpass"
+        }
+      ]
+    }
+  ],
+  "branches": [
+    {
+      "when": "opp_long_clear",
+      "goto": "D-DU-07"
+    },
+    {
+      "when": "opp_wall_pass_success",
+      "goto": "D-LN-05"
+    },
+    {
+      "when": "regain",
+      "goto": "T-CA-01"
+    },
+    {
+      "when": "foul",
+      "goto": "S-FK-02"
+    }
+  ],
+  "success": {
+    "metric": "regain_within_6s"
+  },
+  "variationAxes": [
+    "zone_height",
+    "approach_angle",
+    "presser_count:3|4",
+    "mirror",
+    "intensity"
+  ]
+}

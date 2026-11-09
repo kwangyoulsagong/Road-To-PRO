@@ -1,0 +1,120 @@
+{
+  "id": "CT02",
+  "name": {
+    "ko": "3v2 역습",
+    "en": "3v2 Counter"
+  },
+  "category": "CT",
+  "trigger": {
+    "zones": {
+      "regions": [
+        "T2"
+      ]
+    },
+    "carrierRole": [
+      "any"
+    ],
+    "space": {
+      "defendersAhead": 2,
+      "attackersAhead": 3
+    },
+    "oppBlock": [
+      "UNB"
+    ]
+  },
+  "cast": [
+    {
+      "role": "carrier",
+      "carrier": true,
+      "positions": [
+        "any"
+      ],
+      "steps": [
+        {
+          "do": "carry",
+          "lane": "C"
+        },
+        {
+          "do": "pass_through",
+          "alt": "shoot",
+          "to": "runner_L"
+        }
+      ]
+    },
+    {
+      "role": "runner_L",
+      "positions": [
+        "W",
+        "IW",
+        "ST",
+        "AM"
+      ],
+      "side": "L",
+      "steps": [
+        {
+          "do": "diagonal_run"
+        }
+      ]
+    },
+    {
+      "role": "runner_R",
+      "positions": [
+        "W",
+        "IW",
+        "ST",
+        "AM"
+      ],
+      "side": "R",
+      "steps": [
+        {
+          "do": "diagonal_run"
+        }
+      ]
+    }
+  ],
+  "branches": [
+    {
+      "at": "carrier.1",
+      "success": "next",
+      "fail": {
+        "goto": "CT_opp"
+      },
+      "alt": [
+        {
+          "if": "defender_drops",
+          "goto": "FN06"
+        }
+      ]
+    },
+    {
+      "at": "carrier.2",
+      "success": {
+        "goto": [
+          "FN01",
+          "FN12"
+        ]
+      },
+      "fail": {
+        "goto": "CT03"
+      }
+    }
+  ],
+  "kpi": [
+    "shot_within_10s"
+  ],
+  "favoredTraits": {
+    "carrier": [
+      "dribbling",
+      "decision"
+    ],
+    "runner_L": [
+      "pace",
+      "timing"
+    ]
+  },
+  "variationAxes": [
+    "regain_zone",
+    "runner_count",
+    "opp_recovery_speed"
+  ]
+}
