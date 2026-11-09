@@ -1,0 +1,129 @@
+{
+  "id": "wing_solo_run_cutback",
+  "name": {
+    "ko": "측면 50m 단독 드리블 → 컷백",
+    "en": "Wing Solo Run & Cutback"
+  },
+  "category": "FT",
+  "trigger": {
+    "zones": {
+      "regions": [
+        "own_half_wide",
+        "mid_wide"
+      ]
+    },
+    "carrierRole": [
+      "W",
+      "IF",
+      "WB"
+    ],
+    "space": {
+      "spaceAheadM": ">= 25"
+    }
+  },
+  "carrierTraitsBonus": [
+    "드리블 중독",
+    "컷인 장인"
+  ],
+  "cast": [
+    {
+      "role": "carrier",
+      "carrier": true,
+      "positions": [
+        "any"
+      ],
+      "steps": [
+        {
+          "do": "carry_line",
+          "distanceM": 50,
+          "lane": "wide"
+        },
+        {
+          "do": "take_on"
+        },
+        {
+          "do": "cutback_to",
+          "to": "am_or_cm"
+        }
+      ]
+    },
+    {
+      "role": "st",
+      "positions": [
+        "ST"
+      ],
+      "steps": [
+        {
+          "do": "near_post_run"
+        },
+        {
+          "do": "decoy_pull_cb"
+        }
+      ]
+    },
+    {
+      "role": "am_or_cm",
+      "positions": [
+        "AM",
+        "CM"
+      ],
+      "steps": [
+        {
+          "do": "arrive_late",
+          "target": "penalty_spot"
+        }
+      ]
+    },
+    {
+      "role": "fb_same",
+      "required": false,
+      "positions": [
+        "FB"
+      ],
+      "side": "ball",
+      "steps": [
+        {
+          "do": "underlap_support"
+        }
+      ]
+    },
+    {
+      "role": "opp_cb",
+      "opponent": true,
+      "positions": [
+        "CB"
+      ],
+      "steps": [
+        {
+          "do": "track_st",
+          "target": "st"
+        }
+      ]
+    }
+  ],
+  "branches": [
+    {
+      "at": "carrier.2",
+      "fail": "fallback"
+    },
+    {
+      "when": "cb_steps_up",
+      "do": {
+        "role": "carrier",
+        "do": "pass_through",
+        "to": "st"
+      }
+    },
+    {
+      "when": "shot_lane_open",
+      "do": {
+        "role": "carrier",
+        "do": "shoot"
+      }
+    }
+  ],
+  "kpi": [
+    "cutback_completed",
+    "xg_from_cutback"
+  ]
+}

@@ -22,6 +22,18 @@ namespace RoadToPro.Core.Serialization
     public sealed class JsonObject
     {
         public readonly List<KeyValuePair<string, object>> Members = new List<KeyValuePair<string, object>>();
+        /// <summary>멤버별 키의 줄 번호 (1부터, <see cref="Members"/>와 같은 순서). 데이터 오류 위치 보고용.</summary>
+        public readonly List<int> MemberLines = new List<int>();
+        /// <summary>객체가 시작하는 줄 (1부터).</summary>
+        public int Line;
+
+        /// <summary>키의 줄 번호. 없으면 객체 시작 줄.</summary>
+        public int LineOf(string key)
+        {
+            for (int i = 0; i < Members.Count && i < MemberLines.Count; i++)
+                if (string.Equals(Members[i].Key, key, StringComparison.Ordinal)) return MemberLines[i];
+            return Line;
+        }
 
         public bool TryGet(string key, out object value)
         {
@@ -61,6 +73,15 @@ namespace RoadToPro.Core.Serialization
             readonly string _s;
             int _i;
             int _depth;
+            int _lineAt, _line = 1;
+
+            /// <summary>현재 위치의 줄 번호. 앞으로만 훑어 전체 O(n).</summary>
+            int CurrentLine()
+            {
+                for (; _lineAt < _i && _lineAt < _s.Length; _lineAt++)
+                    if (_s[_lineAt] == '\n') _line++;
+                return _line;
+            }
 
             public Parser(string s)
             {
@@ -121,7 +142,7 @@ namespace RoadToPro.Core.Serialization
             JsonObject ReadObject()
             {
                 Enter();
-                var o = new JsonObject();
+                var o = new JsonObject { Line = CurrentLine() };
                 _i++;
                 SkipWs();
                 if (!End && _s[_i] == '}')
@@ -134,6 +155,7 @@ namespace RoadToPro.Core.Serialization
                 {
                     SkipWs();
                     if (End || _s[_i] != '"') throw Error("객체 키(문자열) 기대");
+                    var keyLine = CurrentLine();
                     var key = ReadString();
                     SkipWs();
                     if (End || _s[_i] != ':') throw Error("':' 기대");
@@ -141,6 +163,7 @@ namespace RoadToPro.Core.Serialization
                     SkipWs();
                     var v = ReadValue();
                     o.Members.Add(new KeyValuePair<string, object>(key, v));
+                    o.MemberLines.Add(keyLine);
                     SkipWs();
                     if (End) throw Error("객체가 닫히지 않았다");
                     if (_s[_i] == ',')

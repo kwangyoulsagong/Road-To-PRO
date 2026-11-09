@@ -63,6 +63,14 @@
   "Stoppage": {"who": "referee", "clips": ["ref_whistle", "ref_advantage"]},
   "Injury": {"who": "player", "clips": ["fall_n", "fall_ne", "fall_e", "fall_se", "fall_s", "fall_sw", "fall_w", "fall_nw"]},
   "ScenarioStart": {"none": "디버그"},
+  "ScenarioCast": {"none": "디버그"},
+  "ScenarioStepEnd": {"none": "디버그"},
+  "ScenarioBranch": {"none": "디버그"},
+  "ScenarioChain": {"none": "디버그"},
+  "ScenarioEnd": {"none": "디버그"},
+  "ScenarioForceRejected": {"none": "디버그"},
+  "ScenarioResume": {"none": "디버그"},
+  "ScenarioCastReleased": {"none": "디버그"},
   "InstructionBreach": {"none": "디버그"},
   "KeyMoment": {"none": "하이라이트 선택(018)"}
  }

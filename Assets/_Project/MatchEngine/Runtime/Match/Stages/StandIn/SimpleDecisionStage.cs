@@ -9,6 +9,13 @@ using RoadToPro.MatchEngine.Match.Pipeline;
 
 namespace RoadToPro.MatchEngine.Match.Stages.StandIn
 {
+    /// <summary>시나리오 배역 선수의 결정을 대신 낸다 (specs/013). 없으면 폴백 판단 그대로다.</summary>
+    public interface IDecisionOverride
+    {
+        bool IsCast(int slot);
+        bool TryDecide(MatchContext ctx, int slot, ref bool hasAction, out Decision decision);
+    }
+
     /// <summary>
     /// 단계 5 대체 (013 시나리오 · 010 Utility 자리, FR-04): "22명 위치 + 공 + 단순 패스/슈팅"(기획서 § 9 M0).
     /// 결정 대상(<see cref="MatchContext.DecisionList"/>, 오름차순)만 새로 정하고 나머지는 직전 의도를 유지한다 (FR-05).
@@ -19,6 +26,10 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
     public sealed class SimpleDecisionStage : IMatchStage
     {
         public StageId Id => StageId.ScenarioOrUtility;
+
+        readonly IDecisionOverride _override;
+
+        public SimpleDecisionStage(IDecisionOverride decisionOverride = null) => _override = decisionOverride;
 
         readonly Decision[] _intent = new Decision[Squad.Slots];
         readonly int[] _list = new int[Squad.Slots];
@@ -39,7 +50,9 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             {
                 var s = _list[i];
                 if (!ctx.IsSlotActive(s)) continue;
-                var d = Decide(ctx, s, ref hasAction);
+                Decision d;
+                if (_override == null || _input[s] != default || !_override.TryDecide(ctx, s, ref hasAction, out d))
+                    d = Decide(ctx, s, ref hasAction);
                 _intent[s] = d;
                 board.MarkDecided(s);
             }
@@ -88,6 +101,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                 for (int s = t * Squad.SlotsPerTeam; s < (t + 1) * Squad.SlotsPerTeam; s++)
                 {
                     if (!ctx.IsSlotActive(s)) continue;
+                    if (_override != null && _override.IsCast(s)) continue;
                     if (Squad.IsKeeperSlot(s) && !nearOwnGoal) continue;
                     var d = (ctx.SlotState(s).Position - target).LengthSq();
                     if (d < bd) { bd = d; _chaser[t] = s; }

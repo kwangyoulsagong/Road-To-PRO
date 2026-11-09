@@ -1,0 +1,165 @@
+{
+  "id": "FT01",
+  "name": {
+    "ko": "오버랩→크로스",
+    "en": "Overlap & Cross"
+  },
+  "category": "FT",
+  "trigger": {
+    "zones": {
+      "regions": [
+        "T3"
+      ],
+      "lanes5": [
+        "W-L",
+        "W-R"
+      ]
+    },
+    "carrierRole": [
+      "W",
+      "IW"
+    ],
+    "space": {
+      "fbFrontSpaceM": ">=8"
+    },
+    "oppBlock": [
+      "MB",
+      "LB"
+    ]
+  },
+  "cast": [
+    {
+      "role": "W",
+      "carrier": true,
+      "positions": [
+        "W",
+        "IW"
+      ],
+      "steps": [
+        {
+          "do": "carry",
+          "dir": "inside"
+        },
+        {
+          "do": "pass_short",
+          "to": "FB"
+        }
+      ]
+    },
+    {
+      "role": "FB",
+      "positions": [
+        "FB",
+        "IFB",
+        "WB"
+      ],
+      "side": "ball",
+      "steps": [
+        {
+          "do": "overlap"
+        },
+        {
+          "do": "receive"
+        },
+        {
+          "do": "cross_driven_low",
+          "alt": "cross_lofted",
+          "target": "near_post_6yd"
+        }
+      ]
+    },
+    {
+      "role": "ST",
+      "positions": [
+        "ST"
+      ],
+      "steps": [
+        {
+          "do": "near_post_run"
+        }
+      ]
+    },
+    {
+      "role": "IW_far",
+      "required": false,
+      "positions": [
+        "W",
+        "IW"
+      ],
+      "side": "far",
+      "steps": [
+        {
+          "do": "far_post_run"
+        }
+      ]
+    },
+    {
+      "role": "CM",
+      "positions": [
+        "CM",
+        "AM"
+      ],
+      "steps": [
+        {
+          "do": "arrive_late",
+          "target": "cutback_zone"
+        }
+      ]
+    }
+  ],
+  "branches": [
+    {
+      "at": "W.1",
+      "success": "next",
+      "fail": {
+        "goto": "CT_opp"
+      },
+      "alt": [
+        {
+          "if": "fb_marker_follows_overlap",
+          "goto": "FT02"
+        }
+      ]
+    },
+    {
+      "at": "FB.3",
+      "success": {
+        "goto": [
+          "FN03",
+          "FN04",
+          "FN05"
+        ],
+        "weights": [
+          0.4,
+          0.35,
+          0.25
+        ]
+      },
+      "fail": {
+        "goto": "FT15"
+      }
+    }
+  ],
+  "kpi": [
+    "cross_into_box",
+    "xg_from_cross"
+  ],
+  "favoredTraits": {
+    "FB": [
+      "crossing",
+      "stamina",
+      "pace"
+    ],
+    "W": [
+      "dribbling",
+      "hold_width"
+    ]
+  },
+  "variationAxes": [
+    "side",
+    "cross_type",
+    "box_runners_count",
+    "opp_formation",
+    "finishing_branch"
+  ]
+}

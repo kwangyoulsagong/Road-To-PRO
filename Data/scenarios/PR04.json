@@ -1,0 +1,128 @@
+{
+  "id": "PR04",
+  "name": {
+    "ko": "3자 침투",
+    "en": "Third-Man Run"
+  },
+  "category": "PR",
+  "trigger": {
+    "zones": {
+      "regions": [
+        "T2"
+      ],
+      "lanes5": [
+        "C",
+        "HS-L",
+        "HS-R"
+      ]
+    },
+    "carrierRole": [
+      "CB",
+      "DM",
+      "CM"
+    ],
+    "space": {
+      "p3UnmarkedInFront": true
+    },
+    "oppBlock": [
+      "MB",
+      "HP"
+    ]
+  },
+  "cast": [
+    {
+      "role": "P1",
+      "carrier": true,
+      "positions": [
+        "CB",
+        "DM",
+        "CM"
+      ],
+      "steps": [
+        {
+          "do": "pass_short",
+          "to": "P2"
+        }
+      ]
+    },
+    {
+      "role": "P2",
+      "positions": [
+        "CM",
+        "AM",
+        "DM"
+      ],
+      "steps": [
+        {
+          "do": "receive"
+        },
+        {
+          "do": "lay_off",
+          "to": "P3"
+        }
+      ]
+    },
+    {
+      "role": "P3",
+      "positions": [
+        "CM",
+        "AM",
+        "W",
+        "ST"
+      ],
+      "steps": [
+        {
+          "do": "third_man_run"
+        },
+        {
+          "do": "receive_facing_forward"
+        }
+      ]
+    }
+  ],
+  "branches": [
+    {
+      "at": "P2.2",
+      "success": "next",
+      "fail": {
+        "goto": "BU13"
+      },
+      "alt": [
+        {
+          "if": "P2_unpressed",
+          "goto": "PR01"
+        }
+      ]
+    },
+    {
+      "at": "P3.2",
+      "success": {
+        "goto": [
+          "PR02",
+          "FT19"
+        ]
+      },
+      "fail": {
+        "goto": "CT_opp"
+      }
+    }
+  ],
+  "kpi": [
+    "line_broken",
+    "receive_facing_forward"
+  ],
+  "favoredTraits": {
+    "P2": [
+      "first_touch",
+      "awareness"
+    ],
+    "P3": [
+      "off_ball_timing"
+    ]
+  },
+  "variationAxes": [
+    "start_lane",
+    "opp_formation",
+    "cast_variant"
+  ]
+}

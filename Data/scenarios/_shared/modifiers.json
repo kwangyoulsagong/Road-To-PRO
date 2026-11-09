@@ -1,0 +1,31 @@
+{
+  "note": "포지셔널 플레이 수식자 형식 (specs/013 FR-05). 11개 전체는 014.",
+  "modifiers": [
+    {
+      "id": "PP01",
+      "nameKo": "수적 우위",
+      "categories": [
+        "BU",
+        "PR"
+      ],
+      "phase": [
+        "BuildUp",
+        "Progression"
+      ],
+      "weight": 1.1
+    },
+    {
+      "id": "PP02",
+      "nameKo": "위치적 우위",
+      "categories": [
+        "PR",
+        "FT"
+      ],
+      "phase": [
+        "Progression",
+        "FinalThird"
+      ],
+      "weight": 1.1
+    }
+  ]
+}

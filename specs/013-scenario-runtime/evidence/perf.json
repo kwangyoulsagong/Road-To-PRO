@@ -1,0 +1,125 @@
+{
+  "results": [
+    {
+      "name": "ScenarioPerfTests.Load_270",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ScenarioPerfTests.Load_270",
+      "groups": {
+        "load_270_ms": {
+          "median": 9.262,
+          "min": 9.0664,
+          "max": 17.264200000000002,
+          "avg": 11.864200000000002,
+          "unit": "ms",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "ScenarioPerfTests.Tick_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ScenarioPerfTests.Tick_us",
+      "groups": {
+        "scenario_tick_avg_us": {
+          "median": 1.2028708053691277,
+          "min": 1.168468120805369,
+          "max": 1.237273489932886,
+          "avg": 1.2028708053691277,
+          "unit": "us",
+          "samples": 2
+        },
+        "scenario_tick_p95_us": {
+          "median": 2.850000000000001,
+          "min": 2.8000000000000003,
+          "max": 2.9000000000000004,
+          "avg": 2.850000000000001,
+          "unit": "us",
+          "samples": 2
+        },
+        "scenario_match_s": {
+          "median": 0.07169110000000001,
+          "min": 0.0696407,
+          "max": 0.0737415,
+          "avg": 0.07169110000000001,
+          "unit": "s",
+          "samples": 2
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "ScenarioPerfTests.Tick_us/scenario_tick_avg_us/min": 1.168468120805369,
+      "ScenarioPerfTests.Tick_us/scenario_tick_p95_us/min": 2.8000000000000003,
+      "ScenarioPerfTests.Load_270/load_270_ms/min": 9.0664,
+      "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff/gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-16",
+        "label": "결정 틱 런타임 평균 (Mono 회귀)",
+        "metric": "ScenarioPerfTests.Tick_us/scenario_tick_avg_us/min",
+        "value": 1.168468120805369,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-16",
+        "label": "결정 틱 런타임 p95 (Mono 회귀)",
+        "metric": "ScenarioPerfTests.Tick_us/scenario_tick_p95_us/min",
+        "value": 2.8000000000000003,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-16",
+        "label": "약 270개 로딩 (Mono 회귀)",
+        "metric": "ScenarioPerfTests.Load_270/load_270_ms/min",
+        "value": 9.0664,
+        "budget": "—",
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-16",
+        "label": "틱당 GC 할당 (워밍업 후 6,000틱, 횟수)",
+        "metric": "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff/gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [
+      {
+        "ac": "AC-16",
+        "label": "틱당 GC 할당 (워밍업 후 6,000틱, 횟수)",
+        "metric": "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff/gc_alloc_count/max",
+        "value": 0.0,
+        "previous": 0.0,
+        "changePct": 0.0,
+        "ok": true
+      }
+    ],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}

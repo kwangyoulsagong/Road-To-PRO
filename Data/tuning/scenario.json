@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "definitions": [
+    {
+      "id": "scenario.tauMax",
+      "default": 0.35,
+      "min": 0,
+      "max": 5,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "010 FR-20"
+    },
+    {
+      "id": "scenario.tauMin",
+      "default": 0.05,
+      "min": 0,
+      "max": 5,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "010 FR-20"
+    },
+    {
+      "id": "scenario.decayFactor",
+      "default": 0.5,
+      "min": 0,
+      "max": 1,
+      "unit": "",
+      "tag": "[제안]",
+      "source": "013 FR-22"
+    },
+    {
+      "id": "scenario.decayRecoverS",
+      "default": 600,
+      "min": 0,
+      "max": 5400,
+      "unit": "s",
+      "tag": "[제안]",
+      "source": "013 FR-22"
+    },
+    {
+      "id": "scenario.stepLimitS",
+      "default": 4,
+      "min": 0.5,
+      "max": 30,
+      "unit": "s",
+      "tag": "[제안]",
+      "source": "013 FR-41"
+    },
+    {
+      "id": "scenario.scenarioLimitS",
+      "default": 12,
+      "min": 1,
+      "max": 120,
+      "unit": "s",
+      "tag": "[제안]",
+      "source": "013 FR-41"
+    },
+    {
+      "id": "scenario.chainLimit",
+      "default": 6,
+      "min": 0,
+      "max": 64,
+      "unit": "회",
+      "tag": "[제안]",
+      "source": "013 FR-44"
+    },
+    {
+      "id": "scenario.counterWindowS",
+      "default": 10,
+      "min": 1,
+      "max": 60,
+      "unit": "s",
+      "tag": "[제안]",
+      "source": "013 FR-54"
+    },
+    {
+      "id": "scenario.priorOpenPlay",
+      "default": 0.6,
+      "min": 0,
+      "max": 1,
+      "unit": "",
+      "tag": "[검증]",
+      "source": "research[1] 5, FR-24"
+    },
+    {
+      "id": "scenario.priorSetPiece",
+      "default": 0.25,
+      "min": 0,
+      "max": 1,
+      "unit": "",
+      "tag": "[검증]",
+      "source": "research[1] 5, FR-24"
+    },
+    {
+      "id": "scenario.priorPenalty",
+      "default": 0.08,
+      "min": 0,
+      "max": 1,
+      "unit": "",
+      "tag": "[검증]",
+      "source": "research[1] 5, FR-24"
+    },
+    {
+      "id": "scenario.priorCounter",
+      "default": 0.07,
+      "min": 0,
+      "max": 1,
+      "unit": "",
+      "tag": "[검증]",
+      "source": "research[1] 5, FR-24"
+    },
+    {
+      "id": "scenario.defaultSuccessRate",
+      "default": 0.3,
+      "min": 0,
+      "max": 1,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "013 plan, 014 전 기본"
+    },
+    {
+      "id": "scenario.defaultXg",
+      "default": 0.05,
+      "min": 0,
+      "max": 1,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "013 plan, 014 전 기본"
+    },
+    {
+      "id": "scenario.tacticGain",
+      "default": 1,
+      "min": 0,
+      "max": 1,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "013 plan 전술 지시 배수 범위 0.5~1.5"
+    },
+    {
+      "id": "scenario.modifierMin",
+      "default": 0.5,
+      "min": 0,
+      "max": 1,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "013 plan"
+    },
+    {
+      "id": "scenario.modifierMax",
+      "default": 1.5,
+      "min": 1,
+      "max": 3,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "013 plan"
+    },
+    {
+      "id": "scenario.arriveM",
+      "default": 1.5,
+      "min": 0.1,
+      "max": 10,
+      "unit": "m",
+      "tag": "[설계]",
+      "source": "013 plan"
+    },
+    {
+      "id": "scenario.highLineX",
+      "default": 0.6,
+      "min": 0,
+      "max": 1,
+      "unit": "norm",
+      "tag": "[설계]",
+      "source": "013 plan HL"
+    },
+    {
+      "id": "scenario.reevalTicks",
+      "default": 5,
+      "min": 1,
+      "max": 100,
+      "unit": "틱",
+      "tag": "[설계]",
+      "source": "013 plan 재평가 주기"
+    },
+    {
+      "id": "scenario.aerialFlightSpeed",
+      "default": 18,
+      "min": 5,
+      "max": 40,
+      "unit": "m/s",
+      "tag": "[설계]",
+      "source": "013 대체 공중 킥 수평 속도"
+    },
+    {
+      "id": "scenario.moveAheadM",
+      "default": 12,
+      "min": 1,
+      "max": 40,
+      "unit": "m",
+      "tag": "[설계]",
+      "source": "013 대체 이동 전방 거리"
+    },
+    {
+      "id": "scenario.takeOnAheadM",
+      "default": 8,
+      "min": 1,
+      "max": 30,
+      "unit": "m",
+      "tag": "[설계]",
+      "source": "013 대체 돌파 거리"
+    },
+    {
+      "id": "scenario.laneOffsetM",
+      "default": 8,
+      "min": 1,
+      "max": 30,
+      "unit": "m",
+      "tag": "[설계]",
+      "source": "013 대체 오버랩·언더랩 폭"
+    }
+  ]
+}

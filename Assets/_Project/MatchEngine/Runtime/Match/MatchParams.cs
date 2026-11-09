@@ -65,10 +65,13 @@ namespace RoadToPro.MatchEngine.Match
         public readonly TuningBundle Match;
         /// <summary>팀 형태 데이터 (specs/009). 전술을 쓰는 경기에만 필요하다.</summary>
         public readonly Tactics.ShapeData Shape;
+        /// <summary>시나리오 데이터 (specs/013). 전술을 쓰는 경기에서만 쓰고, 없으면 대체 단계 그대로다.</summary>
+        public readonly Scenarios.ScenarioData Scenario;
 
-        public MatchTuning(TuningBundle ball, TuningBundle kinematics, TuningBundle match, Tactics.ShapeData shape = null)
+        public MatchTuning(TuningBundle ball, TuningBundle kinematics, TuningBundle match, Tactics.ShapeData shape = null, Scenarios.ScenarioData scenario = null)
         {
             Shape = shape;
+            Scenario = scenario;
             Ball = ball ?? throw new ArgumentNullException(nameof(ball));
             Kinematics = kinematics ?? throw new ArgumentNullException(nameof(kinematics));
             Match = match ?? throw new ArgumentNullException(nameof(match));
@@ -84,6 +87,7 @@ namespace RoadToPro.MatchEngine.Match
                 h.Add(Kinematics.Hash);
                 h.Add(Match.Hash);
                 if (Shape != null) { h.Add(Shape.Tuning.Hash); h.Add(Shape.Formations.Hash); }
+                if (Scenario != null) { h.Add(Scenario.Tuning.Hash); h.Add(Scenario.Library.Hash); }
                 return h.Value;
             }
         }
