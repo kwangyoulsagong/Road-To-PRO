@@ -55,6 +55,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             {
                 var inp = inputs[i];
                 if (inp.Kind == InputKind.Substitute || inp.Kind == InputKind.SubstituteConcussion) continue; // MatchSim이 틱 시작에 처리
+                if (inp.Kind == InputKind.TeamInstruction || inp.Kind == InputKind.TeamFormation) continue; // PlayerId가 선수가 아니다 (009 TacticsStage)
                 if (!ctx.Squad.Has(inp.PlayerId)) continue;
                 var slot = ctx.Squad.SlotOf(inp.PlayerId);
                 if (slot < 0 || !ctx.IsSlotActive(slot)) continue;

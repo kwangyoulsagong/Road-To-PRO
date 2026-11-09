@@ -1,0 +1,2213 @@
+{
+ "version": 1,
+ "formations": [
+  {
+   "id": "4-3-3",
+   "slots": [
+    {
+     "id": "GK",
+     "pos": "GK",
+     "line": false,
+     "zoneWeight": 1.0,
+     "role": "gk_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.0
+      ],
+      "Progression": [
+       0.0,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       0.0
+      ],
+      "DefHigh": [
+       0.0,
+       0.0
+      ],
+      "DefMid": [
+       0.0,
+       0.0
+      ],
+      "DefLow": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "LB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.1,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       -0.3088
+      ],
+      "Progression": [
+       0.0,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.0,
+       -0.1853
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "LCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.1019
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.1019
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.1019
+      ]
+     }
+    },
+    {
+     "id": "RCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       -0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.1019
+      ],
+      "DefMid": [
+       -0.1571,
+       0.1019
+      ],
+      "DefLow": [
+       -0.1571,
+       0.1019
+      ]
+     }
+    },
+    {
+     "id": "RB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.1,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.3088
+      ],
+      "Progression": [
+       0.0,
+       0.3088
+      ],
+      "FinalThird": [
+       0.0,
+       0.1853
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       0.3088
+      ]
+     }
+    },
+    {
+     "id": "DM",
+     "pos": "DM",
+     "line": false,
+     "zoneWeight": 1.1,
+     "role": "dm_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.0
+      ],
+      "Progression": [
+       -0.1571,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       0.0
+      ],
+      "DefHigh": [
+       0.0,
+       -0.1019
+      ],
+      "DefMid": [
+       0.0,
+       0.0
+      ],
+      "DefLow": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "LCM",
+     "pos": "CM",
+     "line": false,
+     "zoneWeight": 1.2,
+     "role": "cm_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       -0.139
+      ],
+      "Progression": [
+       0.1571,
+       -0.139
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.139
+      ],
+      "DefHigh": [
+       0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       0.0,
+       -0.1544
+      ],
+      "DefLow": [
+       0.0,
+       -0.1544
+      ]
+     }
+    },
+    {
+     "id": "RCM",
+     "pos": "CM",
+     "line": false,
+     "zoneWeight": 1.2,
+     "role": "cm_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.139
+      ],
+      "Progression": [
+       0.1571,
+       0.139
+      ],
+      "FinalThird": [
+       0.1571,
+       0.139
+      ],
+      "DefHigh": [
+       0.0,
+       0.1019
+      ],
+      "DefMid": [
+       0.0,
+       0.1544
+      ],
+      "DefLow": [
+       0.0,
+       0.1544
+      ]
+     }
+    },
+    {
+     "id": "LW",
+     "pos": "W",
+     "line": false,
+     "zoneWeight": 1,
+     "role": "w_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       -0.3088
+      ],
+      "DefMid": [
+       0.0,
+       -0.3088
+      ],
+      "DefLow": [
+       0.0,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "ST",
+     "pos": "ST",
+     "line": false,
+     "zoneWeight": 0.9,
+     "role": "st_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.0
+      ],
+      "Progression": [
+       0.1571,
+       0.0
+      ],
+      "FinalThird": [
+       0.1571,
+       0.0
+      ],
+      "DefHigh": [
+       0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       0.1571,
+       0.0
+      ],
+      "DefLow": [
+       0.1571,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "RW",
+     "pos": "W",
+     "line": false,
+     "zoneWeight": 1,
+     "role": "w_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.3088
+      ],
+      "Progression": [
+       0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       0.3088
+      ],
+      "DefMid": [
+       0.0,
+       0.3088
+      ],
+      "DefLow": [
+       0.0,
+       0.3088
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "4-2-3-1",
+   "slots": [
+    {
+     "id": "GK",
+     "pos": "GK",
+     "line": false,
+     "zoneWeight": 1.0,
+     "role": "gk_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.0
+      ],
+      "Progression": [
+       0.0,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       0.0
+      ],
+      "DefHigh": [
+       0.0,
+       0.0
+      ],
+      "DefMid": [
+       0.0,
+       0.0
+      ],
+      "DefLow": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "LB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.1,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.0524,
+       -0.3088
+      ],
+      "Progression": [
+       -0.0524,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.0,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "LCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.1019
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.1019
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.1019
+      ]
+     }
+    },
+    {
+     "id": "RCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       -0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.1019
+      ],
+      "DefMid": [
+       -0.1571,
+       0.1019
+      ],
+      "DefLow": [
+       -0.1571,
+       0.1019
+      ]
+     }
+    },
+    {
+     "id": "RB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.1,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       0.0524,
+       0.1235
+      ],
+      "Progression": [
+       0.0524,
+       0.1235
+      ],
+      "FinalThird": [
+       0.1571,
+       0.139
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       0.3088
+      ]
+     }
+    },
+    {
+     "id": "LDM",
+     "pos": "DM",
+     "line": false,
+     "zoneWeight": 1.1,
+     "role": "dm_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.0
+      ],
+      "Progression": [
+       -0.1571,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       0.0
+      ],
+      "DefHigh": [
+       0.0,
+       -0.1019
+      ],
+      "DefMid": [
+       0.0,
+       -0.1019
+      ],
+      "DefLow": [
+       0.0,
+       -0.1019
+      ]
+     }
+    },
+    {
+     "id": "RDM",
+     "pos": "DM",
+     "line": false,
+     "zoneWeight": 1.1,
+     "role": "dm_default",
+     "anchors": {
+      "BuildUp": [
+       -0.0524,
+       0.3088
+      ],
+      "Progression": [
+       -0.0524,
+       0.3088
+      ],
+      "FinalThird": [
+       0.0,
+       0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       0.1019
+      ],
+      "DefMid": [
+       0.0,
+       0.1019
+      ],
+      "DefLow": [
+       0.0,
+       0.1019
+      ]
+     }
+    },
+    {
+     "id": "LW",
+     "pos": "W",
+     "line": false,
+     "zoneWeight": 1,
+     "role": "w_default",
+     "anchors": {
+      "BuildUp": [
+       0.0524,
+       -0.3088
+      ],
+      "Progression": [
+       0.0524,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       -0.3088
+      ],
+      "DefMid": [
+       0.0,
+       -0.3088
+      ],
+      "DefLow": [
+       0.0,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "AM",
+     "pos": "AM",
+     "line": false,
+     "zoneWeight": 1,
+     "role": "am_default",
+     "anchors": {
+      "BuildUp": [
+       0.0524,
+       -0.0618
+      ],
+      "Progression": [
+       0.0524,
+       -0.0618
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.139
+      ],
+      "DefHigh": [
+       0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       0.1571,
+       -0.3088
+      ],
+      "DefLow": [
+       0.1571,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "RW",
+     "pos": "W",
+     "line": false,
+     "zoneWeight": 1,
+     "role": "w_default",
+     "anchors": {
+      "BuildUp": [
+       0.0524,
+       0.3088
+      ],
+      "Progression": [
+       0.0524,
+       0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       0.3088
+      ],
+      "DefMid": [
+       0.0,
+       0.3088
+      ],
+      "DefLow": [
+       0.0,
+       0.3088
+      ]
+     }
+    },
+    {
+     "id": "ST",
+     "pos": "ST",
+     "line": false,
+     "zoneWeight": 0.9,
+     "role": "st_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.0
+      ],
+      "Progression": [
+       0.1571,
+       0.0
+      ],
+      "FinalThird": [
+       0.1571,
+       0.0
+      ],
+      "DefHigh": [
+       0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       0.1571,
+       0.3088
+      ],
+      "DefLow": [
+       0.1571,
+       0.3088
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "4-4-2",
+   "slots": [
+    {
+     "id": "GK",
+     "pos": "GK",
+     "line": false,
+     "zoneWeight": 1.0,
+     "role": "gk_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.0
+      ],
+      "Progression": [
+       0.0,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       0.0
+      ],
+      "DefHigh": [
+       0.0,
+       0.0
+      ],
+      "DefMid": [
+       0.0,
+       0.0
+      ],
+      "DefLow": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "LB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.1,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.0,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "LCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       -0.1019
+      ],
+      "Progression": [
+       -0.1571,
+       -0.1019
+      ],
+      "FinalThird": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.1019
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.1019
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.1019
+      ]
+     }
+    },
+    {
+     "id": "RCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.1019
+      ],
+      "Progression": [
+       -0.1571,
+       0.1019
+      ],
+      "FinalThird": [
+       -0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.1019
+      ],
+      "DefMid": [
+       -0.1571,
+       0.1019
+      ],
+      "DefLow": [
+       -0.1571,
+       0.1019
+      ]
+     }
+    },
+    {
+     "id": "RB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.1,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       0.0,
+       0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       0.3088
+      ]
+     }
+    },
+    {
+     "id": "LM",
+     "pos": "W",
+     "line": false,
+     "zoneWeight": 1.1,
+     "role": "w_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       -0.3088
+      ],
+      "DefMid": [
+       0.0,
+       -0.3088
+      ],
+      "DefLow": [
+       0.0,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "LCM",
+     "pos": "CM",
+     "line": false,
+     "zoneWeight": 1.2,
+     "role": "cm_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       -0.3088
+      ],
+      "Progression": [
+       0.0,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.0,
+       -0.1019
+      ],
+      "DefHigh": [
+       0.0,
+       -0.1019
+      ],
+      "DefMid": [
+       0.0,
+       -0.1019
+      ],
+      "DefLow": [
+       0.0,
+       -0.1019
+      ]
+     }
+    },
+    {
+     "id": "RCM",
+     "pos": "CM",
+     "line": false,
+     "zoneWeight": 1.2,
+     "role": "cm_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.3088
+      ],
+      "Progression": [
+       0.0,
+       0.3088
+      ],
+      "FinalThird": [
+       0.0,
+       0.1019
+      ],
+      "DefHigh": [
+       0.0,
+       0.1019
+      ],
+      "DefMid": [
+       0.0,
+       0.1019
+      ],
+      "DefLow": [
+       0.0,
+       0.1019
+      ]
+     }
+    },
+    {
+     "id": "RM",
+     "pos": "W",
+     "line": false,
+     "zoneWeight": 1.1,
+     "role": "w_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.3088
+      ],
+      "Progression": [
+       0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       0.3088
+      ],
+      "DefMid": [
+       0.0,
+       0.3088
+      ],
+      "DefLow": [
+       0.0,
+       0.3088
+      ]
+     }
+    },
+    {
+     "id": "LST",
+     "pos": "ST",
+     "line": false,
+     "zoneWeight": 0.9,
+     "role": "st_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       -0.1019
+      ],
+      "Progression": [
+       0.1571,
+       -0.1019
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.1019
+      ],
+      "DefHigh": [
+       0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       0.1571,
+       -0.3088
+      ],
+      "DefLow": [
+       0.1571,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "RST",
+     "pos": "ST",
+     "line": false,
+     "zoneWeight": 0.9,
+     "role": "st_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.1019
+      ],
+      "Progression": [
+       0.1571,
+       0.1019
+      ],
+      "FinalThird": [
+       0.1571,
+       0.1019
+      ],
+      "DefHigh": [
+       0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       0.1571,
+       0.3088
+      ],
+      "DefLow": [
+       0.1571,
+       0.3088
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "3-5-2",
+   "slots": [
+    {
+     "id": "GK",
+     "pos": "GK",
+     "line": false,
+     "zoneWeight": 1.0,
+     "role": "gk_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.0
+      ],
+      "Progression": [
+       0.0,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       0.0
+      ],
+      "DefHigh": [
+       0.0,
+       0.0
+      ],
+      "DefMid": [
+       0.0,
+       0.0
+      ],
+      "DefLow": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "LCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.1544
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.1544
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.1544
+      ]
+     }
+    },
+    {
+     "id": "CB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.0
+      ],
+      "Progression": [
+       -0.1571,
+       0.0
+      ],
+      "FinalThird": [
+       -0.1571,
+       0.0
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.0
+      ],
+      "DefMid": [
+       -0.1571,
+       0.0
+      ],
+      "DefLow": [
+       -0.1571,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "RCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       -0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.1544
+      ],
+      "DefMid": [
+       -0.1571,
+       0.1544
+      ],
+      "DefLow": [
+       -0.1571,
+       0.1544
+      ]
+     }
+    },
+    {
+     "id": "LWB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.2,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       0.0524,
+       -0.3088
+      ],
+      "Progression": [
+       0.0524,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "LCM",
+     "pos": "CM",
+     "line": false,
+     "zoneWeight": 1.2,
+     "role": "cm_default",
+     "anchors": {
+      "BuildUp": [
+       0.0524,
+       -0.1019
+      ],
+      "Progression": [
+       0.0524,
+       -0.1019
+      ],
+      "FinalThird": [
+       0.1571,
+       0.0
+      ],
+      "DefHigh": [
+       0.0,
+       -0.3088
+      ],
+      "DefMid": [
+       0.0,
+       -0.3088
+      ],
+      "DefLow": [
+       0.0,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "DM",
+     "pos": "DM",
+     "line": false,
+     "zoneWeight": 1.1,
+     "role": "dm_default",
+     "anchors": {
+      "BuildUp": [
+       -0.0524,
+       0.0
+      ],
+      "Progression": [
+       -0.0524,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       -0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       0.0
+      ],
+      "DefMid": [
+       0.0,
+       0.0
+      ],
+      "DefLow": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "RCM",
+     "pos": "CM",
+     "line": false,
+     "zoneWeight": 1.2,
+     "role": "cm_default",
+     "anchors": {
+      "BuildUp": [
+       0.0524,
+       0.1019
+      ],
+      "Progression": [
+       0.0524,
+       0.1019
+      ],
+      "FinalThird": [
+       0.0,
+       0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       0.3088
+      ],
+      "DefMid": [
+       0.0,
+       0.3088
+      ],
+      "DefLow": [
+       0.0,
+       0.3088
+      ]
+     }
+    },
+    {
+     "id": "RWB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.2,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       0.0524,
+       0.3088
+      ],
+      "Progression": [
+       0.0524,
+       0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       0.3088
+      ]
+     }
+    },
+    {
+     "id": "LST",
+     "pos": "ST",
+     "line": false,
+     "zoneWeight": 0.9,
+     "role": "st_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.139
+      ],
+      "DefHigh": [
+       0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       0.1571,
+       -0.3088
+      ],
+      "DefLow": [
+       0.1571,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "RST",
+     "pos": "ST",
+     "line": false,
+     "zoneWeight": 0.9,
+     "role": "st_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.3088
+      ],
+      "Progression": [
+       0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       0.139
+      ],
+      "DefHigh": [
+       0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       0.1571,
+       0.3088
+      ],
+      "DefLow": [
+       0.1571,
+       0.3088
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "3-4-3",
+   "slots": [
+    {
+     "id": "GK",
+     "pos": "GK",
+     "line": false,
+     "zoneWeight": 1.0,
+     "role": "gk_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.0
+      ],
+      "Progression": [
+       0.0,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       0.0
+      ],
+      "DefHigh": [
+       0.0,
+       0.0
+      ],
+      "DefMid": [
+       0.0,
+       0.0
+      ],
+      "DefLow": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "LCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.1544
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.1544
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.1544
+      ]
+     }
+    },
+    {
+     "id": "CB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.0
+      ],
+      "Progression": [
+       -0.1571,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       0.0
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.0
+      ],
+      "DefMid": [
+       -0.1571,
+       0.0
+      ],
+      "DefLow": [
+       -0.1571,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "RCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       -0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.1544
+      ],
+      "DefMid": [
+       -0.1571,
+       0.1544
+      ],
+      "DefLow": [
+       -0.1571,
+       0.1544
+      ]
+     }
+    },
+    {
+     "id": "LWB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.2,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "LCM",
+     "pos": "CM",
+     "line": false,
+     "zoneWeight": 1.2,
+     "role": "cm_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       -0.3088
+      ],
+      "Progression": [
+       0.0,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.0,
+       -0.1853
+      ],
+      "DefHigh": [
+       0.0,
+       -0.1019
+      ],
+      "DefMid": [
+       0.0,
+       -0.1019
+      ],
+      "DefLow": [
+       0.0,
+       -0.1019
+      ]
+     }
+    },
+    {
+     "id": "RCM",
+     "pos": "CM",
+     "line": false,
+     "zoneWeight": 1.2,
+     "role": "cm_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.3088
+      ],
+      "Progression": [
+       0.0,
+       0.3088
+      ],
+      "FinalThird": [
+       0.0,
+       0.1853
+      ],
+      "DefHigh": [
+       0.0,
+       0.1019
+      ],
+      "DefMid": [
+       0.0,
+       0.1019
+      ],
+      "DefLow": [
+       0.0,
+       0.1019
+      ]
+     }
+    },
+    {
+     "id": "RWB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.2,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.3088
+      ],
+      "Progression": [
+       0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       0.3088
+      ]
+     }
+    },
+    {
+     "id": "LW",
+     "pos": "W",
+     "line": false,
+     "zoneWeight": 1,
+     "role": "w_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       -0.139
+      ],
+      "Progression": [
+       0.1571,
+       -0.139
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.139
+      ],
+      "DefHigh": [
+       0.0,
+       -0.3088
+      ],
+      "DefMid": [
+       0.0,
+       -0.3088
+      ],
+      "DefLow": [
+       0.0,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "ST",
+     "pos": "ST",
+     "line": false,
+     "zoneWeight": 0.9,
+     "role": "st_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.0
+      ],
+      "Progression": [
+       0.1571,
+       0.0
+      ],
+      "FinalThird": [
+       0.1571,
+       0.0
+      ],
+      "DefHigh": [
+       0.1571,
+       0.0
+      ],
+      "DefMid": [
+       0.1571,
+       0.0
+      ],
+      "DefLow": [
+       0.1571,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "RW",
+     "pos": "W",
+     "line": false,
+     "zoneWeight": 1,
+     "role": "w_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.139
+      ],
+      "Progression": [
+       0.1571,
+       0.139
+      ],
+      "FinalThird": [
+       0.1571,
+       0.139
+      ],
+      "DefHigh": [
+       0.0,
+       0.3088
+      ],
+      "DefMid": [
+       0.0,
+       0.3088
+      ],
+      "DefLow": [
+       0.0,
+       0.3088
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "id": "5-3-2",
+   "slots": [
+    {
+     "id": "GK",
+     "pos": "GK",
+     "line": false,
+     "zoneWeight": 1.0,
+     "role": "gk_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.0
+      ],
+      "Progression": [
+       0.0,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       0.0
+      ],
+      "DefHigh": [
+       0.0,
+       0.0
+      ],
+      "DefMid": [
+       0.0,
+       0.0
+      ],
+      "DefLow": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "LWB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.2,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       -0.3088
+      ],
+      "Progression": [
+       0.0,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "LCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       -0.1571,
+       -0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       -0.1544
+      ],
+      "DefMid": [
+       -0.1571,
+       -0.1544
+      ],
+      "DefLow": [
+       -0.1571,
+       -0.1544
+      ]
+     }
+    },
+    {
+     "id": "CB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.0
+      ],
+      "Progression": [
+       -0.1571,
+       0.0
+      ],
+      "FinalThird": [
+       -0.1571,
+       0.0
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.0
+      ],
+      "DefMid": [
+       -0.1571,
+       0.0
+      ],
+      "DefLow": [
+       -0.1571,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "RCB",
+     "pos": "CB",
+     "line": true,
+     "zoneWeight": 1,
+     "role": "cb_default",
+     "anchors": {
+      "BuildUp": [
+       -0.1571,
+       0.3088
+      ],
+      "Progression": [
+       -0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       -0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.1544
+      ],
+      "DefMid": [
+       -0.1571,
+       0.1544
+      ],
+      "DefLow": [
+       -0.1571,
+       0.1544
+      ]
+     }
+    },
+    {
+     "id": "RWB",
+     "pos": "FB",
+     "line": true,
+     "zoneWeight": 1.2,
+     "role": "fb_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.3088
+      ],
+      "Progression": [
+       0.0,
+       0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       0.3088
+      ],
+      "DefHigh": [
+       -0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       -0.1571,
+       0.3088
+      ],
+      "DefLow": [
+       -0.1571,
+       0.3088
+      ]
+     }
+    },
+    {
+     "id": "LCM",
+     "pos": "CM",
+     "line": false,
+     "zoneWeight": 1.2,
+     "role": "cm_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       -0.1544
+      ],
+      "Progression": [
+       0.0,
+       -0.1544
+      ],
+      "FinalThird": [
+       0.1571,
+       0.0
+      ],
+      "DefHigh": [
+       0.0,
+       -0.3088
+      ],
+      "DefMid": [
+       0.0,
+       -0.3088
+      ],
+      "DefLow": [
+       0.0,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "DM",
+     "pos": "DM",
+     "line": false,
+     "zoneWeight": 1.1,
+     "role": "dm_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.0
+      ],
+      "Progression": [
+       0.0,
+       0.0
+      ],
+      "FinalThird": [
+       0.0,
+       -0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       0.0
+      ],
+      "DefMid": [
+       0.0,
+       0.0
+      ],
+      "DefLow": [
+       0.0,
+       0.0
+      ]
+     }
+    },
+    {
+     "id": "RCM",
+     "pos": "CM",
+     "line": false,
+     "zoneWeight": 1.2,
+     "role": "cm_default",
+     "anchors": {
+      "BuildUp": [
+       0.0,
+       0.1544
+      ],
+      "Progression": [
+       0.0,
+       0.1544
+      ],
+      "FinalThird": [
+       0.0,
+       0.3088
+      ],
+      "DefHigh": [
+       0.0,
+       0.3088
+      ],
+      "DefMid": [
+       0.0,
+       0.3088
+      ],
+      "DefLow": [
+       0.0,
+       0.3088
+      ]
+     }
+    },
+    {
+     "id": "LST",
+     "pos": "ST",
+     "line": false,
+     "zoneWeight": 0.9,
+     "role": "st_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       -0.3088
+      ],
+      "Progression": [
+       0.1571,
+       -0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       -0.139
+      ],
+      "DefHigh": [
+       0.1571,
+       -0.3088
+      ],
+      "DefMid": [
+       0.1571,
+       -0.3088
+      ],
+      "DefLow": [
+       0.1571,
+       -0.3088
+      ]
+     }
+    },
+    {
+     "id": "RST",
+     "pos": "ST",
+     "line": false,
+     "zoneWeight": 0.9,
+     "role": "st_default",
+     "anchors": {
+      "BuildUp": [
+       0.1571,
+       0.3088
+      ],
+      "Progression": [
+       0.1571,
+       0.3088
+      ],
+      "FinalThird": [
+       0.1571,
+       0.139
+      ],
+      "DefHigh": [
+       0.1571,
+       0.3088
+      ],
+      "DefMid": [
+       0.1571,
+       0.3088
+      ],
+      "DefLow": [
+       0.1571,
+       0.3088
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}

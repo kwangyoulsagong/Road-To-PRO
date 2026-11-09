@@ -16,6 +16,10 @@ namespace RoadToPro.MatchEngine.Match.Input
         Substitute = 10,
         /// <summary>뇌진탕 교체 요청.</summary>
         SubstituteConcussion = 11,
+        /// <summary>팀 지시 변경 (009 FR-71). PlayerId = 팀 × 100 + 지시 번호, Value = 새 값.</summary>
+        TeamInstruction = 20,
+        /// <summary>포메이션 변경 (009 FR-71). PlayerId = 팀, Value = 카탈로그 번호.</summary>
+        TeamFormation = 21,
     }
 
     /// <summary>외부 입력 (specs/006 FR-62): (틱, 대상 선수, 내용). 결정 단계에서 그 틱에 적용된다.</summary>

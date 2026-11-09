@@ -29,7 +29,10 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                 switch (d.Kind)
                 {
                     case DecisionKind.Keep: continue;
-                    case DecisionKind.HoldShape: c = SteeringCommand.Formation(board.ShapeTarget(s)); break;
+                    case DecisionKind.HoldShape:
+                        if (!board.HasShapeTarget(s)) continue; // 009 FR-90: 시나리오 배역
+                        c = SteeringCommand.Formation(board.ShapeTarget(s));
+                        break;
                     case DecisionKind.MoveTo: c = SteeringCommand.Arrive(d.Point, d.MaxSpeed); break;
                     case DecisionKind.Chase: c = d.TargetSlot >= 0 ? SteeringCommand.Pursue(d.TargetSlot) : SteeringCommand.InterceptBall(d.Point); break;
                     case DecisionKind.Carry: c = SteeringCommand.Seek(d.Point, d.MaxSpeed); break;

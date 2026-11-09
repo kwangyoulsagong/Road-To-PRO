@@ -1,0 +1,115 @@
+{
+  "results": [
+    {
+      "name": "ShapePerfTests.Rematch_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ShapePerfTests.Rematch_us",
+      "groups": {
+        "rematch_p95_us": {
+          "median": 6.3,
+          "min": 6.3,
+          "max": 6.4,
+          "avg": 6.333333333333333,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "ShapePerfTests.Tick_NoAlloc_GcAllocCount",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ShapePerfTests.Tick_NoAlloc_GcAllocCount",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "ShapePerfTests.Tick_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ShapePerfTests.Tick_us",
+      "groups": {
+        "shape_tick_avg_us": {
+          "median": 9.07955809859155,
+          "min": 8.899698943661972,
+          "max": 9.259417253521129,
+          "avg": 9.07955809859155,
+          "unit": "us",
+          "samples": 2
+        },
+        "shape_tick_p95_us": {
+          "median": 14.4,
+          "min": 14.0,
+          "max": 14.8,
+          "avg": 14.4,
+          "unit": "us",
+          "samples": 2
+        },
+        "shape_match_s": {
+          "median": 0.5157189,
+          "min": 0.5055029,
+          "max": 0.5259349,
+          "avg": 0.5157189,
+          "unit": "s",
+          "samples": 2
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "ShapePerfTests.Tick_us/shape_tick_avg_us/min": 8.899698943661972,
+      "ShapePerfTests.Tick_us/shape_tick_p95_us/min": 14.0,
+      "ShapePerfTests.Rematch_us/rematch_p95_us/min": 6.3,
+      "ShapePerfTests.Tick_NoAlloc_GcAllocCount/gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 형태 계산 평균 (Mono 회귀)",
+        "metric": "ShapePerfTests.Tick_us/shape_tick_avg_us/min",
+        "value": 8.899698943661972,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 형태 계산 p95 (Mono 회귀)",
+        "metric": "ShapePerfTests.Tick_us/shape_tick_p95_us/min",
+        "value": 14.0,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "슬롯 재매칭 p95 (Mono 회귀)",
+        "metric": "ShapePerfTests.Rematch_us/rematch_p95_us/min",
+        "value": 6.3,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "틱당 GC 할당 (워밍업 후 6,000틱, 횟수)",
+        "metric": "ShapePerfTests.Tick_NoAlloc_GcAllocCount/gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}

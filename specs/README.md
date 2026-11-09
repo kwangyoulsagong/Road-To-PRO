@@ -29,7 +29,7 @@ SDD 규칙: `.claude/rules/05-sdd.md`. 템플릿: `_templates/`. 완료 판정�
 | 006 | [경기 루프 · 틱 파이프라인 · SimEvent](006-match-loop-simevent/spec.md) | M0 | 004, 005 | 구현 완료 · AC-20 보류(016) |
 | 007 | [피치 컨트롤 · xT](007-pitch-control-xt/spec.md) | M0 | 005, 006 | 초안 |
 | 008 | [액션 모델: 패스 · 크로스 · 드리블 · 태클/압박 · 슈팅](008-action-models/spec.md) | M0 | 001, 004, 005, 007 | 초안 |
-| 009 | [팀 형태 · 전술 · 국면 FSM](009-team-shape-tactics/spec.md) | M0 | 006 | 초안 |
+| 009 | [팀 형태 · 전술 · 국면 FSM](009-team-shape-tactics/spec.md) | M0 | 006 | 승인됨 |
 | 010 | [Utility AI 의사결정](010-utility-ai/spec.md) | M0 | 003, 007, 008, 009 | 초안 |
 | 011 | [골키퍼](011-goalkeeper/spec.md) | M0 | 008, 010 | 초안 |
 | 012 | [심판 · 규칙 판정 · 재시작](012-referee-rules/spec.md) | M0 | 006, 008 | 초안 |
