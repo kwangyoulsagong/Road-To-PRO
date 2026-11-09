@@ -9,7 +9,7 @@
       "ac": "AC-14",
       "label": "재생·장면 교체·포즈 적용 p95 (선수 25명, 렌더 제외)",
       "metric": "highlight_p95_ms",
-      "value": 0.2672,
+      "value": 0.26380000000000003,
       "budget": 3.0,
       "unit": "ms",
       "ok": true
@@ -27,18 +27,18 @@
   "regression": [],
   "stages": {},
   "metrics": {
-    "highlight_p50_ms": 0.18050000000000002,
-    "highlight_p95_ms": 0.2672,
-    "highlight_max_ms": 1.193,
+    "highlight_p50_ms": 0.1819,
+    "highlight_p95_ms": 0.26380000000000003,
+    "highlight_max_ms": 1.1102,
     "highlight_gc_bytes": 0,
     "highlight_swaps": 10
   },
   "host": "mac-m1-1600p",
   "power": "ac",
   "buildCached": false,
-  "durationSec": 8.1,
+  "durationSec": 5.2,
   "unity": "6000.3.27f2",
   "cpu": "Apple M1 Pro",
   "development": false,
-  "commit": "1720e33b02ff1706bc13dbc7e6bd2d7979cc644b"
+  "commit": "833671197e379bb83b2155e5f3f0d66398368f52"
 }
