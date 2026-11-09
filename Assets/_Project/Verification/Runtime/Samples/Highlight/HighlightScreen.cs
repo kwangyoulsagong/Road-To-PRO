@@ -203,7 +203,7 @@ namespace RoadToPro.Verification.Samples.Highlight
                 if (scenes[i].Data.Events.Exists(e => e.Kind == RoadToPro.MatchEngine.Match.Events.SimEventKind.Goal) && !scenes[i].Scene.IsReplay)
                 {
                     var goal = scenes[i].Data.Events.Find(e => e.Kind == RoadToPro.MatchEngine.Match.Events.SimEventKind.Goal);
-                    player.Sequencer.SeekAndPause(i, goal.Time);
+                    player.Sequencer.SeekAndPause(i, System.Math.Min(goal.Time, scenes[i].Scene.End));
                     return;
                 }
             Debug.LogError("[highlight] 골 장면이 없다");

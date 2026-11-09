@@ -16,8 +16,6 @@ namespace RoadToPro.Verification.Samples.Highlight
         const int MaxScenes = 12;
         const double Before = 8d, After = 3d;
         const double MinSceneSeconds = 1.5d;
-        /// <summary>재생 클립은 장면 끝보다 최대 0.2 s 더 담으므로, 그만큼 앞에서 끊어야 순간이동 프레임이 클립에 들어가지 않는다.</summary>
-        const double ClipMarginSeconds = 0.25d;
         /// <summary>프레임당 0.5 m = 15 m/s. 선수 최고 속도보다 충분히 크다.</summary>
         const float MaxStepSq = 0.25f;
 
@@ -70,8 +68,9 @@ namespace RoadToPro.Verification.Samples.Highlight
                     if (a.Hints[e] == MotionHint.Absent || b.Hints[e] == MotionHint.Absent) continue;
                     float dx = b.X(e) - a.X(e), dy = b.Y(e) - a.Y(e);
                     if (dx * dx + dy * dy <= MaxStepSq) continue;
-                    double t = a.Index / 30d;
-                    return s.WithRange(s.Start, Math.Max(s.Start, Math.Min(s.End, t - ClipMarginSeconds)));
+                    // 재생 클립은 틱 ⌈끝×10⌉ + 1 앞까지 담는다. 순간이동 틱이 클립에 들어가지 않는 가장 늦은 끝을 쓴다 (골 이벤트 틱은 남는다).
+                    double end = (b.Index / 3 - 1) * 0.1d - 1e-6d;
+                    return s.WithRange(s.Start, Math.Max(s.Start, Math.Min(s.End, end)));
                 }
             }
             return s;
