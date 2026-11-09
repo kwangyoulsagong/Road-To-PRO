@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "id": "041-speed-switch",
+  "spec": "041",
+  "description": "같은 시뮬 시각을 1x·1.5x·2x·3x로 캡처하면 같다 (AC-11). 속도 라벨은 숨겨서 비교",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-11"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightSpeed.1.0"
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.goal"
+    },
+    {
+      "type": "capture",
+      "name": "speed1.0",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightSpeed.1.5"
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.goal"
+    },
+    {
+      "type": "capture",
+      "name": "speed1.5",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightSpeed.2.0"
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.goal"
+    },
+    {
+      "type": "capture",
+      "name": "speed2.0",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightSpeed.3.0"
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.goal"
+    },
+    {
+      "type": "capture",
+      "name": "speed3.0",
+      "kind": "3d"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "imageChecks": [
+    {
+      "type": "sameImage",
+      "capture": "speed1.0",
+      "other": "speed1.5",
+      "ac": "AC-11"
+    },
+    {
+      "type": "sameImage",
+      "capture": "speed1.0",
+      "other": "speed2.0",
+      "ac": "AC-11"
+    },
+    {
+      "type": "sameImage",
+      "capture": "speed1.0",
+      "other": "speed3.0",
+      "ac": "AC-11"
+    }
+  ]
+}

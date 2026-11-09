@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "id": "041-battery",
+  "spec": "041",
+  "description": "배터리 절약 모드에서 목표 30 fps, p95 ≤ 33.3 ms (AC-18). 프레임 p95는 빈 화면 대비 증가로 판정(60 fps 제한기 흔들림이 절대값에 잡힌다, 2026-11-09 사용자 결정, 054 선례), 절대값은 기록",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "low-igpu-1080p"
+  ],
+  "acs": [
+    "AC-18"
+  ],
+  "defaults": {
+    "timeoutSec": 240
+  },
+  "batterySaver": true,
+  "budgets": {},
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightEmpty"
+    },
+    {
+      "type": "perfBegin",
+      "name": "empty",
+      "warmupFrames": 60,
+      "minFrames": 300
+    },
+    {
+      "type": "perfEnd",
+      "name": "empty"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "assertText",
+      "element": "fpsLabel",
+      "text": "30",
+      "ac": "AC-18"
+    },
+    {
+      "type": "perfBegin",
+      "name": "battery",
+      "warmupFrames": 30,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "battery"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "derived": {
+    "batteryRender": {
+      "of": "battery",
+      "minus": "empty",
+      "budget": {
+        "frameMs.p95": 1.0
+      }
+    }
+  }
+}

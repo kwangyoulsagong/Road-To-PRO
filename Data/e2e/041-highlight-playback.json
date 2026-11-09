@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "id": "041-highlight-playback",
+  "spec": "041",
+  "description": "고정 시드 경기의 첫 장면·골 순간·리플레이 중간·장면 전환 직후를 캡처 (AC-10). 공과 필드 선수 10명 화면 안, 속도 라벨 일치. 프로필 간 위치 시퀀스 해시 (AC-19)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": "all",
+  "acs": [
+    "AC-10",
+    "AC-19"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.first"
+    },
+    {
+      "type": "capture",
+      "name": "first",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-10"
+    },
+    {
+      "type": "assertText",
+      "element": "speedLabel",
+      "text": "1.5x",
+      "ac": "AC-10"
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.goal"
+    },
+    {
+      "type": "capture",
+      "name": "goal",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-10"
+    },
+    {
+      "type": "assertText",
+      "element": "speedLabel",
+      "text": "1.5x",
+      "ac": "AC-10"
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.replayMid"
+    },
+    {
+      "type": "capture",
+      "name": "replayMid",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-10"
+    },
+    {
+      "type": "assertText",
+      "element": "speedLabel",
+      "text": "1.5x",
+      "ac": "AC-10"
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.afterTransition"
+    },
+    {
+      "type": "capture",
+      "name": "afterTransition",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-10"
+    },
+    {
+      "type": "assertText",
+      "element": "speedLabel",
+      "text": "1.5x",
+      "ac": "AC-10"
+    },
+    {
+      "type": "checkpoint",
+      "name": "playback",
+      "ac": "AC-19"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "imageChecks": [
+    {
+      "type": "notBlank",
+      "capture": "first",
+      "ac": "AC-10"
+    },
+    {
+      "type": "notBlank",
+      "capture": "goal",
+      "ac": "AC-10"
+    },
+    {
+      "type": "notBlank",
+      "capture": "replayMid",
+      "ac": "AC-10"
+    },
+    {
+      "type": "notBlank",
+      "capture": "afterTransition",
+      "ac": "AC-10"
+    }
+  ]
+}

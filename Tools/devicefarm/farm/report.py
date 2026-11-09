@@ -366,7 +366,7 @@ def _logs(scs):
                     rows.append(f'<tr><td>{e(c["key"])}</td><td><span class="tag fail">{kind}</span></td><td class="wrap">{e(it["message"])}</td></tr>')
             for it in lg.get("ignored", []):
                 rows.append(f'<tr><td>{e(c["key"])}</td><td><span class="tag skip">무시</span></td>'
-                            f'<td class="wrap">{e(it["message"])}<br><span class="muted">사유: {e(it["reason"])}</span></td></tr>')
+                            f'<td class="wrap">{e(it["message"])}{" (외 " + str(it["count"] - 1) + "건)" if it.get("count", 1) > 1 else ""}<br><span class="muted">사유: {e(it["reason"])}</span></td></tr>')
     body = ("<div class=\"scroll\"><table><tr><th>조합</th><th>종류</th><th>내용</th></tr>" + "".join(rows) + "</table></div>") if rows else '<p class="muted">에러·경고 0</p>'
     return f'<div class="card"><h2>로그</h2>{body}</div>'
 

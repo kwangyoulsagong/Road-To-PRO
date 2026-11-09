@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "id": "041-keymoment-pause",
+  "spec": "041",
+  "description": "키 모먼트 정지 후 1초 간격 두 캡처의 차이가 0 (AC-12)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-12"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightKeyMoment"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "waitFor",
+      "element": "keyMomentLabel",
+      "timeoutSec": 60
+    },
+    {
+      "type": "capture",
+      "name": "km1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightWait"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 10
+    },
+    {
+      "type": "capture",
+      "name": "km2",
+      "kind": "3d"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "imageChecks": [
+    {
+      "type": "sameImage",
+      "capture": "km1",
+      "other": "km2",
+      "ac": "AC-12"
+    }
+  ]
+}

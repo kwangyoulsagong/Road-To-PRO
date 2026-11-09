@@ -16,16 +16,17 @@ namespace RoadToPro.Verification.Bench
     public sealed class AnimBench : MonoBehaviour
     {
         public const int Warmup = 120, Frames = 1200;
-        string _outDir;
+        string _outDir, _spec;
         Action<Dictionary<string, double>> _done;
         Action<Exception> _fail;
 
-        public static void Start(string outDir, Action<Dictionary<string, double>> done, Action<Exception> fail)
+        public static void Start(string outDir, string spec, Action<Dictionary<string, double>> done, Action<Exception> fail)
         {
             var go = new GameObject("AnimBench");
             DontDestroyOnLoad(go);
             var b = go.AddComponent<AnimBench>();
             b._outDir = outDir;
+            b._spec = spec;
             b._done = done;
             b._fail = fail;
         }
@@ -40,7 +41,7 @@ namespace RoadToPro.Verification.Bench
             {
                 var screen = FindFirstObjectByType<PlayerScreen>();
                 if (screen == null) throw new InvalidOperationException("Player043 씬에 PlayerScreen 없음");
-                m = screen.BenchAnim(Warmup, Frames);
+                m = _spec == "041" ? screen.BenchHighlight(Warmup, Frames) : screen.BenchAnim(Warmup, Frames);
             }
             catch (Exception e)
             {

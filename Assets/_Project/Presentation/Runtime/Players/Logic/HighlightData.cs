@@ -5,6 +5,12 @@ using RoadToPro.MatchEngine.Match.Events;
 
 namespace RoadToPro.Presentation.Players.Logic
 {
+    /// <summary>공의 표시 위치를 재생 쪽에서 보정한다 (specs/041 FR-04).</summary>
+    public interface IBallVisualFilter
+    {
+        Vec3 Filter(Vec3 visual, float time);
+    }
+
     /// <summary>애니메이션이 반응하는 시뮬 이벤트 한 건 (SimEvent에서 041/어댑터가 만든다). 좌표는 Unity 월드(X 길이, Y 위, Z 폭).</summary>
     public readonly struct AnimEvent
     {

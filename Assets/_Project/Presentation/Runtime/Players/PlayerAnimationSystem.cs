@@ -35,6 +35,8 @@ namespace RoadToPro.Presentation.Players
         public double LastMotionMs { get; private set; }
         /// <summary>검증 모드 진단 (specs/054 FR-70). null이면 호출 0.</summary>
         public Motion.IMotionDiagnostics Diagnostics { get; set; }
+        /// <summary>공 표시 위치 보정 (specs/041 FR-04). null이면 계획 값을 그대로 쓴다.</summary>
+        public IBallVisualFilter BallFilter { get; set; }
 
         /// <summary>rigs[e]가 null이면 그 엔티티는 그리지 않는다.</summary>
         public void Init(AnimPlan plan, PlayerRig[] rigs, AnimationClip[] clips, IPlaybackClock clock, Transform ball = null, Camera lodCamera = null)
@@ -57,6 +59,17 @@ namespace RoadToPro.Presentation.Players
                 }
         }
 
+        /// <summary>
+        /// 장면 전환 (specs/041 FR-31): 그래프·애니메이터를 재사용하고 계획만 바꾼다. 발 고정은 포즈 = f(t)라 넘길 상태가 없다.
+        /// Init 뒤에만 부를 수 있고, 할당이 없다.
+        /// </summary>
+        public void SwapPlan(AnimPlan plan)
+        {
+            if (_anim == null) throw new System.InvalidOperationException("Init 뒤에 호출한다");
+            _plan = plan ?? throw new System.ArgumentNullException(nameof(plan));
+            LastTime = float.NaN;
+        }
+
         /// <summary>ClipLibrary 인덱스 순서로 AnimationClip을 고른다. 없는 클립이 있으면 예외.</summary>
         public static AnimationClip[] Order(ClipLibrary lib, IEnumerable<AnimationClip> all)
         {
@@ -72,6 +85,8 @@ namespace RoadToPro.Presentation.Players
         /// <summary>시각 t의 포즈를 모든 선수에 적용 (테스트·E2E는 직접 부른다).</summary>
         public void ApplyAt(float t)
         {
+            // 같은 시각이면 그래프가 뼈를 다시 쓰지 않아 자세 오버레이만 누적된다 (specs/041 T08a, 일시정지 중 선수가 굴러감).
+            if (t == LastTime) return;
             using (Marker.Auto())
             {
                 float lift = 0f;
@@ -103,6 +118,7 @@ namespace RoadToPro.Presentation.Players
                 if (_ball != null)
                 {
                     var b = _plan.BallVisual(t);
+                    if (BallFilter != null) b = BallFilter.Filter(b, t);
                     _ball.position = new Vector3(b.X, b.Y, b.Z);
                 }
                 LastTime = t;

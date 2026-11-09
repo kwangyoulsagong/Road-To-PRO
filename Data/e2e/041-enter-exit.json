@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "041-enter-exit",
+  "spec": "041",
+  "description": "하이라이트 진입·언로드 10회 뒤 메모리 증가 ≤ 20 MB (AC-17)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-17"
+  ],
+  "defaults": {
+    "timeoutSec": 240
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightLoop"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 300
+    },
+    {
+      "type": "assertNumberRange",
+      "element": "memoryLabel",
+      "min": -1000,
+      "max": 20,
+      "ac": "AC-17"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}
