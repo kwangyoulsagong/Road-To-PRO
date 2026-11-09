@@ -108,12 +108,12 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/009-team-shape-tactics"
   },
   "meta": {
-    "commit": "58fda981c4d904f4ffb2201a5748bd60a11045c0",
+    "commit": "e0a59879bed6b76e9b1c29afe5034de147ea3adc",
     "branch": "feat/009-team-shape-tactics",
     "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-09 10:42:59 +0900",
-    "durationSec": 66.30867505073547,
+    "time": "2026-11-09 10:45:45 +0900",
+    "durationSec": 70.34895777702332,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 009",
     "profiles": [
       "mac-m1-1600p"
@@ -125,11 +125,11 @@
     "passed": 99,
     "failed": 0,
     "skipped": 0,
-    "duration": 48.373442,
+    "duration": 50.9337477,
     "compileErrors": [],
     "failures": [],
-    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-104259-logic/logic.png",
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-104259-logic/logic.html"
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-104545-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-104545-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -138,9 +138,9 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "ShapePerfTests.Tick_us/shape_tick_avg_us/min": 8.941475352112676,
-      "ShapePerfTests.Tick_us/shape_tick_p95_us/min": 14.0,
-      "ShapePerfTests.Rematch_us/rematch_p95_us/min": 6.3,
+      "ShapePerfTests.Tick_us/shape_tick_avg_us/min": 9.16625528169014,
+      "ShapePerfTests.Tick_us/shape_tick_p95_us/min": 14.7,
+      "ShapePerfTests.Rematch_us/rematch_p95_us/min": 6.1,
       "ShapePerfTests.Tick_NoAlloc_GcAllocCount/gc_alloc_count/max": 0.0
     },
     "budget": [
@@ -148,7 +148,7 @@
         "ac": "AC-17",
         "label": "결정 틱 형태 계산 평균 (Mono 회귀)",
         "metric": "ShapePerfTests.Tick_us/shape_tick_avg_us/min",
-        "value": 8.941475352112676,
+        "value": 9.16625528169014,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -157,7 +157,7 @@
         "ac": "AC-17",
         "label": "결정 틱 형태 계산 p95 (Mono 회귀)",
         "metric": "ShapePerfTests.Tick_us/shape_tick_p95_us/min",
-        "value": 14.0,
+        "value": 14.7,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -166,7 +166,7 @@
         "ac": "AC-17",
         "label": "슬롯 재매칭 p95 (Mono 회귀)",
         "metric": "ShapePerfTests.Rematch_us/rematch_p95_us/min",
-        "value": 6.3,
+        "value": 6.1,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -181,7 +181,17 @@
         "ok": true
       }
     ],
-    "regression": [],
+    "regression": [
+      {
+        "ac": "AC-17",
+        "label": "틱당 GC 할당 (워밍업 후 6,000틱, 횟수)",
+        "metric": "ShapePerfTests.Tick_NoAlloc_GcAllocCount/gc_alloc_count/max",
+        "value": 0.0,
+        "previous": 0.0,
+        "changePct": 0.0,
+        "ok": true
+      }
+    ],
     "host": "mac-m1-1600p",
     "power": "ac"
   },
@@ -196,7 +206,7 @@
         "ac": "AC-17",
         "label": "결정 틱 형태 계산 평균 (006 FR-80 몫)",
         "metric": "shape_tick_avg_us",
-        "value": 2.42856560283688,
+        "value": 2.4319414893617024,
         "budget": 3,
         "unit": "µs",
         "ok": true
@@ -223,7 +233,7 @@
         "ac": "AC-17",
         "label": "경기 1개 형태 계산 누적",
         "metric": "shape_match_s",
-        "value": 0.1369711,
+        "value": 0.1371615,
         "budget": 0.16,
         "unit": "s",
         "ok": true
@@ -232,9 +242,9 @@
     "regression": [],
     "stages": {},
     "metrics": {
-      "shape_tick_avg_us": 2.42856560283688,
+      "shape_tick_avg_us": 2.4319414893617024,
       "shape_tick_p95_us": 4.7,
-      "shape_match_s": 0.1369711,
+      "shape_match_s": 0.1371615,
       "shape_ticks": 56400,
       "rematch_p95_us": 3.7,
       "alloc_per_tick_b": -1
@@ -242,11 +252,11 @@
     "host": "mac-m1-1600p",
     "power": "ac",
     "buildCached": false,
-    "durationSec": 11.1,
+    "durationSec": 11.0,
     "unity": "6000.3.27f2",
     "cpu": "Apple M1 Pro",
     "development": false,
-    "commit": "51043b671a3adf84f0bc3f79dae52f3ec4e8adbd"
+    "commit": "58fda981c4d904f4ffb2201a5748bd60a11045c0"
   },
   "requireAllAcs": true,
   "deferred": {
@@ -352,7 +362,7 @@
     ],
     "AC-17": [
       {
-        "label": "EditMode 성능 4/4 통과 (mac-m1-1600p)",
+        "label": "EditMode 성능 5/5 통과 (mac-m1-1600p)",
         "ok": true
       },
       {
