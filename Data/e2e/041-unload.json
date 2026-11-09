@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "id": "041-unload",
+  "spec": "041",
+  "description": "하이라이트 → 결과 → 메뉴 복귀 뒤 화면이 재생 전 메뉴와 같고(3D 잔상 없음) 메뉴 목표 fps 30 (AC-13)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-13"
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightMenu"
+    },
+    {
+      "type": "capture",
+      "name": "menuBefore",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightSkipAll"
+    },
+    {
+      "type": "waitFor",
+      "element": "menuLabel",
+      "timeoutSec": 30
+    },
+    {
+      "type": "assertText",
+      "element": "fpsLabel",
+      "text": "30",
+      "ac": "AC-13"
+    },
+    {
+      "type": "assertText",
+      "element": "handlesLabel",
+      "text": "0",
+      "ac": "AC-13"
+    },
+    {
+      "type": "capture",
+      "name": "menu",
+      "kind": "3d"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ],
+  "imageChecks": [
+    {
+      "type": "sameImage",
+      "capture": "menuBefore",
+      "other": "menu",
+      "ac": "AC-13"
+    }
+  ]
+}

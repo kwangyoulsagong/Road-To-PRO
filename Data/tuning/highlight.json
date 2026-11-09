@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "definitions": [
+    {
+      "id": "highlight.timelineGapSeconds",
+      "default": 1.0,
+      "min": 0,
+      "max": 10,
+      "unit": "s",
+      "tag": "[설계]",
+      "source": "specs/041 FR-32, 2026-11-09 사용자 결정 (039 연결 때 조정)"
+    }
+  ]
+}

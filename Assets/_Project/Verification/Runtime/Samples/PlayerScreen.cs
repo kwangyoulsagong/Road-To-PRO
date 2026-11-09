@@ -45,8 +45,8 @@ namespace RoadToPro.Verification.Samples
         };
 
         // 가상 이름 (실존 인물 아님, 01-legal)
-        static readonly string[] HomeNames = { "도하람", "Varnel", "Oskarby", "서윤결", "Telmuro", "Quissan", "Brandvik", "한누리", "Haldeno", "Morrevan", "Sennick" };
-        static readonly string[] AwayNames = { "Talvorn", "Ulricco", "Peskara", "노을찬", "Wendrak", "Ivsoleno", "Garrimo", "Zelbach", "윤가람", "Crovanne", "Duskelli" };
+        internal static readonly string[] HomeNames = { "도하람", "Varnel", "Oskarby", "서윤결", "Telmuro", "Quissan", "Brandvik", "한누리", "Haldeno", "Morrevan", "Sennick" };
+        internal static readonly string[] AwayNames = { "Talvorn", "Ulricco", "Peskara", "노을찬", "Wendrak", "Ivsoleno", "Garrimo", "Zelbach", "윤가람", "Crovanne", "Duskelli" };
         const float Spacing = 0.9f;
 
         [SerializeField] Camera cam;
@@ -176,7 +176,7 @@ namespace RoadToPro.Verification.Samples
 
         // ---------------------------------------------------------------- 준비 (로딩 단계)
 
-        static TeamKits Team(uint home, uint second, uint third, uint gk, uint sec, uint acc) => new TeamKits(
+        internal static TeamKits Team(uint home, uint second, uint third, uint gk, uint sec, uint acc) => new TeamKits(
             new KitColors(Rgb.FromHex(home), Rgb.FromHex(sec), Rgb.FromHex(acc)),
             new KitColors(Rgb.FromHex(second), Rgb.FromHex(0x111111), Rgb.FromHex(0xFFFFFF)),
             new KitColors(Rgb.FromHex(third), Rgb.FromHex(0xFFFFFF), Rgb.FromHex(0x111111)),
@@ -226,14 +226,14 @@ namespace RoadToPro.Verification.Samples
         }
 
         /// <summary>엔티티 → 키 분포 역할: 0·11 GK, 필드 1~4 수비·5~7 미드·8~10 공격, 22~24 심판.</summary>
-        static BodyRole RoleOf(int e)
+        internal static BodyRole RoleOf(int e)
         {
             if (e >= 22) return BodyRole.Referee;
             int k = e % 11;
             return k == 0 ? BodyRole.Goalkeeper : k <= 4 ? BodyRole.Defender : k <= 7 ? BodyRole.Midfielder : BodyRole.Forward;
         }
 
-        static List<KitEntry> Squad(string[] names)
+        internal static List<KitEntry> Squad(string[] names)
         {
             var l = new List<KitEntry>();
             for (int i = 0; i < names.Length; i++) l.Add(new KitEntry(i == 0 ? 1 : i + 1, names[i]));

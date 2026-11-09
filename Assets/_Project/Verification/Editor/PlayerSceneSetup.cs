@@ -30,9 +30,22 @@ namespace RoadToPro.Verification.Editor
             var day = AssetDatabase.LoadAssetAtPath<RoadToPro.Presentation.Stadium.StadiumLightingPreset>(RoadToPro.Presentation.Editor.Stadium.StadiumAssets.DayPath);
             st.Camera.fieldOfView = 30f;
 
+            var a = BuildAssets();
+            var structure = st.Structure.ToArray();
+            var screen = new GameObject("PlayerScreen").AddComponent<PlayerScreen>();
+            screen.Configure(st.Camera, a, structure, st.Pitch, lighting, day, st.Binder);
+
+            EditorSceneManager.SaveScene(scene, ScenePath);
+            AssetDatabase.SaveAssets();
+            Debug.Log($"[farm] 선수 씬 생성: {ScenePath} (클립 {a.clips.Length}, 경기장 렌더러 {structure.Length})");
+        }
+
+        /// <summary>선수 에셋 묶음 (043 선수 씬과 041 하이라이트 씬이 공유).</summary>
+        internal static PlayerScreen.PlayerAssets BuildAssets()
+        {
             var clipsJson = Load<TextAsset>(Gen + "/player.clips.json");
             var lib = ClipLibrary.Parse(clipsJson.text);
-            var a = new PlayerScreen.PlayerAssets
+            return new PlayerScreen.PlayerAssets
             {
                 prefab = Load<GameObject>(Gen + "/player.glb"),
                 clipsJson = clipsJson,
@@ -57,13 +70,6 @@ namespace RoadToPro.Verification.Editor
                 gaitReferenceJson = Load<TextAsset>(Gen + "/player.gait-reference.json"),
                 stickMaterial = StickMaterial(),
             };
-            var structure = st.Structure.ToArray();
-            var screen = new GameObject("PlayerScreen").AddComponent<PlayerScreen>();
-            screen.Configure(st.Camera, a, structure, st.Pitch, lighting, day, st.Binder);
-
-            EditorSceneManager.SaveScene(scene, ScenePath);
-            AssetDatabase.SaveAssets();
-            Debug.Log($"[farm] 선수 씬 생성: {ScenePath} (클립 {a.clips.Length}, 경기장 렌더러 {structure.Length})");
         }
 
         const string StickMatPath = "Assets/_Project/Verification/Samples/GaitStick.mat";

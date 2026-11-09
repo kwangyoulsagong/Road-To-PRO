@@ -1,0 +1,27 @@
+{
+  "spec": "041",
+  "profile": "mac-m1-1600p",
+  "note": "specs/041 성능 예산의 기계용 사본. 재생·장면 교체·포즈 적용 CPU는 048 FR-22 몫 3 ms [제안]과 AC-16 GC 0 — IL2CPP 릴리스 플레이어(farm.py bench --spec 041). 프레임 시간·GPU·전환 스파이크는 E2E 041-perf, 메모리는 041-enter-exit, 배터리는 041-battery.",
+  "tests": [
+    "RoadToPro.Tests.EditMode.Presentation.Highlight"
+  ],
+  "budgets": [],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-14",
+        "label": "재생·장면 교체·포즈 적용 p95 (선수 25명, 렌더 제외)",
+        "metric": "highlight_p95_ms",
+        "max": 3.0,
+        "unit": "ms"
+      },
+      {
+        "ac": "AC-16",
+        "label": "재생 관리 힙 할당 (1200프레임 합, 장면 교체 포함)",
+        "metric": "highlight_gc_bytes",
+        "max": 0,
+        "unit": "B"
+      }
+    ]
+  }
+}
