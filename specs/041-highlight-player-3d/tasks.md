@@ -1,6 +1,6 @@
 # 041 — 하이라이트 3D 플레이어 · 재생 속도 · 태스크
 
-상태: 구현 완료 · AC-15 보류 (2026-11-09). 대체 입력 범위 — 연결 때 재확인 (spec "재확인")
+상태: 구현 완료 · AC-15 보류 (2026-11-09, 리포트 https://claude.ai/artifact/6ine73zr4qFE9toyAvu4c5). 대체 입력 범위 — 연결 때 재확인 (spec "재확인")
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. Unity 배치 1회가 길어서 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 배치로 돌린다. 중간 검증은 `.claude/scripts/unity-test.sh EditMode <클래스 필터>`와 `farm.py smoke --scenario <id> --profile mac-m1-1600p`로 좁힌다. `smoke` 전체·`full`·`bench`·EditMode 전체·`/verify`는 마지막 태스크에서 각 1회.
