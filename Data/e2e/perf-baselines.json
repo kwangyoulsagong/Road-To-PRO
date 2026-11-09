@@ -49,6 +49,16 @@
       "MatchPerfTests.SkeletonMatch_ms/ms/min": 273.6764
     }
   },
+  "editmode/009/mac-m1-1600p": {
+    "commit": "58fda981c4d904f4ffb2201a5748bd60a11045c0",
+    "measuredAt": "2026-11-09T10:45:44",
+    "metrics": {
+      "ShapePerfTests.Rematch_us/rematch_p95_us/min": 6.3,
+      "ShapePerfTests.Tick_NoAlloc_GcAllocCount/gc_alloc_count/max": 0.0,
+      "ShapePerfTests.Tick_us/shape_tick_avg_us/min": 8.941475352112676,
+      "ShapePerfTests.Tick_us/shape_tick_p95_us/min": 14.0
+    }
+  },
   "il2cpp/006/mac-m1-1600p": {
     "commit": "1d35d27af80412e9da1b575cc50e77d8444225c2",
     "measuredAt": "2026-11-03T13:33:52",
@@ -76,6 +86,18 @@
       "stage_us.Tendency": 0.01241875,
       "stages_sum_us": 24.59373125,
       "tick_avg_us": 25.0976984375
+    }
+  },
+  "il2cpp/009/mac-m1-1600p": {
+    "commit": "58fda981c4d904f4ffb2201a5748bd60a11045c0",
+    "measuredAt": "2026-11-09T10:45:45",
+    "metrics": {
+      "alloc_per_tick_b": -1,
+      "rematch_p95_us": 3.7,
+      "shape_match_s": 0.1371615,
+      "shape_tick_avg_us": 2.4319414893617024,
+      "shape_tick_p95_us": 4.7,
+      "shape_ticks": 56400
     }
   }
 }

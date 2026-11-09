@@ -33,26 +33,26 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.ShapePerfTests.Tick_us",
       "groups": {
         "shape_tick_avg_us": {
-          "median": 9.07955809859155,
-          "min": 8.899698943661972,
-          "max": 9.259417253521129,
-          "avg": 9.07955809859155,
+          "median": 9.052861795774648,
+          "min": 8.941475352112676,
+          "max": 9.16424823943662,
+          "avg": 9.052861795774648,
           "unit": "us",
           "samples": 2
         },
         "shape_tick_p95_us": {
-          "median": 14.4,
+          "median": 14.25,
           "min": 14.0,
-          "max": 14.8,
-          "avg": 14.4,
+          "max": 14.5,
+          "avg": 14.25,
           "unit": "us",
           "samples": 2
         },
         "shape_match_s": {
-          "median": 0.5157189,
-          "min": 0.5055029,
-          "max": 0.5259349,
-          "avg": 0.5157189,
+          "median": 0.51420255,
+          "min": 0.5078758,
+          "max": 0.5205293,
+          "avg": 0.51420255,
           "unit": "s",
           "samples": 2
         }
@@ -65,7 +65,7 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "ShapePerfTests.Tick_us/shape_tick_avg_us/min": 8.899698943661972,
+      "ShapePerfTests.Tick_us/shape_tick_avg_us/min": 8.941475352112676,
       "ShapePerfTests.Tick_us/shape_tick_p95_us/min": 14.0,
       "ShapePerfTests.Rematch_us/rematch_p95_us/min": 6.3,
       "ShapePerfTests.Tick_NoAlloc_GcAllocCount/gc_alloc_count/max": 0.0
@@ -75,7 +75,7 @@
         "ac": "AC-17",
         "label": "결정 틱 형태 계산 평균 (Mono 회귀)",
         "metric": "ShapePerfTests.Tick_us/shape_tick_avg_us/min",
-        "value": 8.899698943661972,
+        "value": 8.941475352112676,
         "budget": "—",
         "unit": "µs",
         "ok": true

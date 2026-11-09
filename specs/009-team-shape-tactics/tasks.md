@@ -1,6 +1,6 @@
 # 009 — 팀 형태 · 전술 · 국면 FSM · 태스크
 
-상태: 승인됨 (2026-11-09, 플랜 승인과 함께 바로 진행)
+상태: 구현 완료 · AC-18·AC-19 보류 (2026-11-09)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현 태스크보다 먼저 둔다. Unity 배치 1회가 길어서, 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 배치로 돌린다. 중간 검증은 `.claude/scripts/unity-test.sh EditMode <클래스 필터>`로 좁힌다. `bench`·EditMode 전체·`/verify`는 마지막 태스크에서 각 1회.
@@ -41,5 +41,5 @@
 - [x] T21 성능 테스트·예산 — 파일: `Tests/Performance/MatchEngine/ShapePerfTests.cs`, `Data/perf/009-team-shape-tactics.json`, `Verification/Runtime/Bench/` — 검증: Mono 측정·틱당 할당 0. 벤치 워크로드 스모크 — 결과: Mono: 틱 평균 10.3 µs·p95 16.8 µs·재매칭 p95 6.2 µs·할당 0회. IL2CPP 판정은 T23. `ShapeBenchWorkloads.cs`로 분리
 
 ## H. 마무리
-- [x] T22 전체 테스트 — EditMode 전체 실패 0, 콘솔 에러·경고 0, 컴파일 경고 신규 0 (이 스펙의 1회) — 결과: 전체 1003개 중 통과 997·실패 3·건너뜀 3(000 셀프테스트 전용), 컴파일 경고 0. 실패 3개 수정(코어 금지 API `MathF.Sqrt` → `DMath.Sqrt`, 새 이벤트 3종 `043-anim-map.json` 매핑 추가) 후 해당 클래스 + Tactics 112개 통과. 수정 범위가 맨투맨 경로 1줄·데이터 3줄이라 전체는 다시 돌리지 않음
-- [ ] T23 `/verify 009` — `farm.py logic --spec 009` + `farm.py bench --spec 009`(IL2CPP 판정) 리포트, 성능 기준 채택은 사용자 승인, 리포트 아티팩트 발행. 상태 "구현 완료 · AC-18·AC-19 보류", README 갱신 — 진행: `logic` 99개 통과, `bench`(IL2CPP) 4/4 통과(평균 2.43 µs·p95 4.7 µs·재매칭 3.7 µs·경기 0.137 s), 리포트 발행. 남은 것: 커밋 후 깨끗한 트리 재검증, 성능 기준 채택(사용자 승인), 상태·README 갱신
+- [x] T22 전체 테스트 — EditMode 전체 실패 0, 콘솔 에러·경고 0, 컴파일 경고 신규 0 (이 스펙의 1회) — 결과: 수정 전 1003개 중 실패 3개(코어 금지 API, 새 이벤트 3종 애니메이션 매핑) 수정. 커밋 58fda98 깨끗한 트리에서 통과 1000·실패 0·건너뜀 3(000 셀프테스트 전용), 컴파일 경고 0
+- [x] T23 `/verify 009` — `farm.py logic --spec 009` + `farm.py bench --spec 009`(IL2CPP 판정) 리포트, 성능 기준 채택은 사용자 승인, 리포트 아티팩트 발행. 상태 "구현 완료 · AC-18·AC-19 보류", README 갱신 — 결과: 깨끗한 트리 `logic` 99개 통과, IL2CPP 벤치 4/4(평균 2.43 µs·p95 4.7 µs·재매칭 3.7 µs·경기 0.137 s), 판정 보류 2건(AC-18·19). 성능 기준 채택(사용자 승인 2026-11-09). 리포트 https://claude.ai/artifact/14T18YAaEF1MDF2jGYiLbo

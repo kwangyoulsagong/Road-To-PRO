@@ -108,12 +108,12 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/009-team-shape-tactics"
   },
   "meta": {
-    "commit": "51043b671a3adf84f0bc3f79dae52f3ec4e8adbd",
+    "commit": "58fda981c4d904f4ffb2201a5748bd60a11045c0",
     "branch": "feat/009-team-shape-tactics",
-    "dirty": true,
+    "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-09 10:21:06 +0900",
-    "durationSec": 65.03159618377686,
+    "time": "2026-11-09 10:42:59 +0900",
+    "durationSec": 66.30867505073547,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 009",
     "profiles": [
       "mac-m1-1600p"
@@ -125,11 +125,11 @@
     "passed": 99,
     "failed": 0,
     "skipped": 0,
-    "duration": 47.7607518,
+    "duration": 48.373442,
     "compileErrors": [],
     "failures": [],
-    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-102106-logic/logic.png",
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-102106-logic/logic.html"
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-104259-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261109-104259-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -138,7 +138,7 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "ShapePerfTests.Tick_us/shape_tick_avg_us/min": 8.899698943661972,
+      "ShapePerfTests.Tick_us/shape_tick_avg_us/min": 8.941475352112676,
       "ShapePerfTests.Tick_us/shape_tick_p95_us/min": 14.0,
       "ShapePerfTests.Rematch_us/rematch_p95_us/min": 6.3,
       "ShapePerfTests.Tick_NoAlloc_GcAllocCount/gc_alloc_count/max": 0.0
@@ -148,7 +148,7 @@
         "ac": "AC-17",
         "label": "결정 틱 형태 계산 평균 (Mono 회귀)",
         "metric": "ShapePerfTests.Tick_us/shape_tick_avg_us/min",
-        "value": 8.899698943661972,
+        "value": 8.941475352112676,
         "budget": "—",
         "unit": "µs",
         "ok": true
