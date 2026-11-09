@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "041-perf",
   "spec": "041",
-  "description": "하이라이트 재생 구간 프레임 시간·GPU·장면 전환 스파이크 (AC-14·15). 전환 8회 이상이 들어가는 길이. CPU·GC 판정은 IL2CPP 벤치. 프레임 p95는 빈 화면 대비 증가로 판정(60 fps 제한기 흔들림이 절대값에 잡힌다, 2026-11-09 사용자 결정, 054 선례), 절대값은 기록",
+  "description": "하이라이트 재생 구간 프레임 시간·GPU·장면 전환 스파이크 (AC-14·15). 전환 8회 이상이 들어가는 길이. CPU·GC 판정은 IL2CPP 벤치. 프레임 p95는 빈 화면 대비 증가로 판정(60 fps 제한기 흔들림이 절대값에 잡힌다, 2026-11-09 사용자 결정, 054 선례), 절대값은 기록. 전환 프레임은 AC-15 보류로 기록만 (Data/perf/041-highlight-player.json)",
   "scene": "Highlight041",
   "fixture": {
     "save": null,
@@ -13,8 +13,7 @@
     "mac-m1-1600p"
   ],
   "acs": [
-    "AC-14",
-    "AC-15"
+    "AC-14"
   ],
   "defaults": {
     "timeoutSec": 240
@@ -22,7 +21,6 @@
   "budgets": {
     "playback": {
       "gpuMs.avg": 10,
-      "custom.transitionFrameMs.max": 25,
       "custom.shaderCompiles.max": 0,
       "custom.syncLoads.max": 0
     }
