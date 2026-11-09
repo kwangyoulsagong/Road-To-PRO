@@ -286,7 +286,7 @@ def run_scenario(exe, sc, tier, ps, run_dir, only=None, langs=None, extra_args=N
                  ignore=None, label="", seed=None):
     combos = ps.expand(tier, selector=sc.profiles, only=only, langs=langs or sc.langs or None, themes=sc.themes or None)
     jobs = [runner.Job(c, paths.scenario_file(sc.id), seed if seed is not None else sc.fixture["seed"],
-                       extra_args=list(extra_args or []), label=label) for c in combos]
+                       extra_args=list(extra_args or []), env=build.hidden_window_env(), label=label) for c in combos]
     results = runner.run_matrix([exe], jobs, run_dir, ps, log=log)
     return evaluate.evaluate_run(results, sc, ps, baseline_root=baseline_root,
                                  ignore=logs.load_ignore() if ignore is None else ignore)
