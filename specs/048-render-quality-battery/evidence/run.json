@@ -1,0 +1,166 @@
+{
+  "title": "048 로직 증거",
+  "spec": {
+    "id": "048",
+    "name": "048 — 렌더 품질 프리셋 · 배터리 · 성능 예산",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "Low 프리셋 정의 데이터가 FR-01 표 Low 열과 항목별로 일치한다 (렌더 스케일 0.67, STP 업스케일, 블롭 섀도, 실시간 그림자·셸 잔디·SSAO·볼류메트릭·SSR 꺼짐, 후처리 톤맵+약한 블룸, 텍스처 최대 1K). Medium/High 열 검증은 후속."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "기기 정보 입력(내장 GPU / 보급형 외장 / 상위 외장)마다 추천 프리셋이 Low / Medium / High다. 사용자가 바꾼 값은 재시작 후에도 유지된다. (후속)"
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "손상된 설정 파일·범위 밖 렌더 스케일(0.1, 3.0)을 넣으면 기본값으로 복구되고 크래시·예외가 없다. (후속)"
+      },
+      {
+        "id": "AC-04",
+        "kind": "결정론",
+        "text": "같은 하이라이트를 Low/Medium/High(Medium·High는 대역 에셋), 30/60fps로 재생한 시뮬 해시와 장면별 재생 길이(시뮬 시각)가 모두 같다."
+      },
+      {
+        "id": "AC-05",
+        "kind": "E2E",
+        "text": "`e2e/048-presets` — 고정 장면 고정 시점을 Low/Medium/High(Medium·High는 기존 Mobile/PC 대역)로 캡처하면 프리셋 쌍 사이 픽셀 차이 비율이 각각 ≥ 2% [제안] (프리셋이 실제로 다르게 그린다: 블롭 섀도 vs 실시간 그림자, 셸 잔디 유무, 관중 표현)이고, 각 캡처는 자기 기준 이미지와 차이 임계값 이하. 프로필: low-igpu-1080p(Low), mac-m1-1600p(Medium), desktop-1440p(High)."
+      },
+      {
+        "id": "AC-06",
+        "kind": "E2E",
+        "text": "`e2e/048-upscale` — 빠른 슈팅 장면을 렌더 스케일 1.0 / 0.75 / 0.67로 캡처해 공 주변 잔상을 비교하고, UI 텍스트는 세 스케일에서 같은 선명도다 (UI 영역 차이 0). 프로필: low-igpu-1080p, uhd-4k-200."
+      },
+      {
+        "id": "AC-07",
+        "kind": "E2E",
+        "text": "`e2e/048-aspect` — 하이라이트 고정 시점을 16:9·16:10·21:9·4:3·세로 화면비에서 캡처해 검은 화면·잘린 HUD·늘어난 화면이 없다. 프로필: 전체. (후속)"
+      },
+      {
+        "id": "AC-08",
+        "kind": "성능",
+        "text": "`e2e/048-perf-highlight` — 대표 하이라이트 3장면(골·코너킥·역습, 나이트 경기 포함) 성능 구간에서 프로필별(Low 프로필은 새 Low 에셋, Medium/High 프로필은 대역 에셋 — 기준선 기록용) p95 프레임·GPU·CPU·드로우콜·삼각형·텍스처 메모리가 예산 안이다. 프로필: 성능 예산 표의 프로필 전체."
+      },
+      {
+        "id": "AC-09",
+        "kind": "성능",
+        "text": "하이라이트 재생 중 최대 프레임 시간 ≤ max(33 ms, 같은 실행에서 3D 없이 같은 목표 fps로 잰 빈 화면 구간의 최대), 장면 전환 프레임 포함 — 재생이 유발한 스파이크만 판정하고 맥 프레임 페이싱 소음은 빼낸다 (2026-11-10 사용자 결정, 041·054 '빈 화면 대비' 선례). GC 0 B/프레임. 프로필: low-igpu-1080p."
+      },
+      {
+        "id": "AC-10",
+        "kind": "성능",
+        "text": "`e2e/048-menu-idle` — 매니지먼트 화면에서 입력 없이 2초가 지나면 렌더가 ≤ 10프레임/초로 떨어지고(10초 관찰), 입력 후 다음 프레임에 정상 빈도로 돌아오며 첫 반응 프레임까지 ≤ 50 ms. 카운트업·시트 애니메이션 중에는 낮아지지 않는다. 메뉴 상태의 3D 리소스 메모리 0. 프로필: smoke. (후속)"
+      },
+      {
+        "id": "AC-11",
+        "kind": "성능",
+        "text": "배터리 절약 모드에서 하이라이트가 30 ± 1 fps, 끄면 1초 안에 60fps로 돌아온다. 프로필: low-igpu-1080p."
+      },
+      {
+        "id": "AC-12",
+        "kind": "성능",
+        "text": "하이라이트 진입 로딩 첫 진입 ≤ 4 s·재진입 ≤ 2 s (041 AC와 같은 측정), 첫 장면에서 셰이더 컴파일로 인한 스파이크 없음 (첫 장면 최대 프레임 ≤ 33 ms). 프로필: low-igpu-1080p."
+      },
+      {
+        "id": "AC-17",
+        "kind": "E2E",
+        "text": "`e2e/048-timeline-gap` — 장면 사이 텍스트 타임라인 구간에서 3D 렌더 프레임 수가 0(또는 메뉴 정책 빈도)이고, 다음 장면 첫 프레임이 지연 없이(재개 ≤ 1프레임 전) 그려진다. 로딩 중 탭 전환 입력이 무시되고 취소만 동작한다(이 입력 부분은 후속 — 메뉴 화면이 생긴 뒤). 프로필: smoke."
+      },
+      {
+        "id": "AC-13",
+        "kind": "성능",
+        "text": "하이라이트 ↔ 메뉴 50회 반복 후 메모리가 첫 회 대비 증가하지 않는다 (허용 오차 ≤ 2% [제안]). (후속)"
+      },
+      {
+        "id": "AC-14",
+        "kind": "E2E",
+        "text": "재생 중 프리셋 Low → High → Low, 창 크기 변경, 배터리 절약 모드 토글을 순서대로 해도 재생이 이어지고 에러·경고 로그 0. 1초 안에 목표 fps 회복. 프로필: mac-m1-1600p. (후속 — 재생 중 프리셋 변경이 후속이므로)"
+      },
+      {
+        "id": "AC-15",
+        "kind": "성능",
+        "text": "성능 회귀: 이전 통과 측정 대비 p95 프레임 시간·GPU 시간이 +10% 이상 나빠지면 실패 (000 FR-43). 이 스펙의 성능 시나리오는 이후 모든 프레젠테이션 스펙의 회귀 기준선이 된다."
+      },
+      {
+        "id": "AC-16",
+        "kind": "성능",
+        "text": "하위 시스템 몫(FR-21)을 프레임 통계 마커로 나눠 기록하고, 몫을 넘긴 시스템이 리포트에 표시된다."
+      },
+      {
+        "id": "AC-18",
+        "kind": "성능",
+        "text": "`e2e/048-transition-release`·`e2e/048-replay-release` — 릴리스 빌드(개발 빌드 아님)로 하이라이트를 재생해 모든 장면 전환(최소 8회)과 리플레이 진입 ±1초 구간 최대 프레임이 ≤ max(25 ms, 같은 구간의 전환 밖 프레임 최대)이고 (전환이 유발한 스파이크만 판정, 2026-11-10 사용자 결정 — 릴리스 측정에서 25 ms 초과 비율이 전환 안팎에서 같았다), 전환 순간 동기 로드·셰이더 컴파일 이벤트가 0건이다. 이 결과로 041 AC-15·042 AC-17을 판정한다. 프로필: low-igpu-1080p (mac-m1-1600p 참고 기록)."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/048-render-quality-battery"
+  },
+  "meta": {
+    "commit": "d43d98cb95d02a3ba617bb1fb35a9a8e79206e09",
+    "branch": "feat/048-render-quality-battery",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-10 13:31:08 +0900",
+    "durationSec": 31.84750008583069,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 048",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 24,
+    "passed": 24,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 8.1067082,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261110-133108-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261110-133108-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {},
+    "budget": [],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": null,
+  "requireAllAcs": true,
+  "deferred": {},
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "결정론 테스트 2/2 통과",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "fail"
+}
