@@ -5,7 +5,9 @@
     "RoadToPro.Core",
     "RoadToPro.Presentation",
     "glTFast",
-    "glTFast.Editor"
+    "glTFast.Editor",
+    "Unity.RenderPipelines.Core.Runtime",
+    "Unity.RenderPipelines.Universal.Runtime"
   ],
   "includePlatforms": [
     "Editor"

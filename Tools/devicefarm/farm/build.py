@@ -15,6 +15,11 @@ from .errors import RunnerError
 APP = os.path.join(paths.BUILD_DIR, "RoadToProFarm.app")
 STAMP = os.path.join(paths.FARM_DIR, "build", "stamp.txt")
 LOG = os.path.join(paths.FARM_DIR, "build", "build.log")
+# specs/048 T11: 릴리스(비개발) E2E 빌드 — IL2CPP, 렌더 카운터 없음. 전환 프레임 판정용 (041 AC-15·042 AC-17)
+RELEASE_APP = os.path.join(os.path.dirname(paths.BUILD_DIR), "FarmRelease", "RoadToProFarm.app")
+RELEASE_STAMP = os.path.join(paths.FARM_DIR, "build", "stamp-release.txt")
+RELEASE_LOG = os.path.join(paths.FARM_DIR, "build", "build-release.log")
+VARIANTS = ("development", "release")
 HIDE_WINDOW_SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), "hide_window.m")
 HIDE_WINDOW_LIB = os.path.join(paths.FARM_DIR, "build", "hide_window.dylib")
 SOURCE_DIRS = ("Assets", "Packages", "ProjectSettings")
@@ -87,36 +92,52 @@ def hidden_window_env(source=HIDE_WINDOW_SRC, lib=HIDE_WINDOW_LIB):
     return {"DYLD_INSERT_LIBRARIES": lib}
 
 
-def ensure_build(force=False, log=print):
-    """빌드가 최신이면 건너뛰고 (실행 파일, 캐시 적중 여부, 걸린 초)를 돌려준다."""
+def ensure_build(force=False, log=print, variant="development"):
+    """빌드가 최신이면 건너뛰고 (실행 파일, 캐시 적중 여부, 걸린 초)를 돌려준다.
+
+    variant="release"는 IL2CPP 릴리스 E2E 빌드 (specs/048). 스크립팅 백엔드는 빌드 동안만 바꾸고 ProjectSettings를 되돌린다.
+    """
+    if variant not in VARIANTS:
+        raise RunnerError(f"알 수 없는 빌드 종류: {variant}")
+    release = variant == "release"
+    app, stamp, logf = (RELEASE_APP, RELEASE_STAMP, RELEASE_LOG) if release else (APP, STAMP, LOG)
     key = cache_key()
-    if not force and is_cached(key):
-        log("[farm] 빌드 캐시 적중 — 건너뜀")
-        return executable(), True, 0.0
+    if not force and is_cached(key, app, stamp):
+        log(f"[farm] 빌드 캐시 적중 ({variant}) — 건너뜀")
+        return executable(app), True, 0.0
     preflight.check_editor_closed()
-    os.makedirs(os.path.dirname(LOG), exist_ok=True)
-    log("[farm] 플레이어 빌드 중 (macOS 개발 빌드)…")
+    os.makedirs(os.path.dirname(logf), exist_ok=True)
+    log("[farm] 플레이어 빌드 중 (macOS " + ("릴리스 IL2CPP" if release else "개발 빌드") + ")…")
     t0 = time.time()
+    method = "BuildMacRelease" if release else "BuildMac"
     cmd = [
         paths.UNITY_APP, "-batchmode", "-quit", "-projectPath", paths.REPO,
-        "-executeMethod", "RoadToPro.Verification.Editor.FarmBuild.BuildMac",
-        "-farmBuildOut", APP, "-logFile", LOG,
+        "-executeMethod", "RoadToPro.Verification.Editor.FarmBuild." + method,
+        "-farmBuildOut", app, "-logFile", logf,
     ]
+    settings_before = None
+    if release:
+        from . import bench  # 순환 참조 피하기 (bench가 build를 쓴다)
+        with open(bench.PROJECT_SETTINGS, "rb") as f:
+            settings_before = f.read()
     try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=3600)
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=5400 if release else 3600)
     except subprocess.TimeoutExpired as e:
-        raise RunnerError("빌드가 60분 안에 끝나지 않았다") from e
+        raise RunnerError(f"빌드가 {90 if release else 60}분 안에 끝나지 않았다") from e
+    finally:
+        if settings_before is not None:
+            bench.restore_settings(settings_before, log)
     took = time.time() - t0
-    if r.returncode != 0 or not executable():
+    if r.returncode != 0 or not executable(app):
         tail = ""
-        if os.path.exists(LOG):
-            with open(LOG, encoding="utf-8", errors="replace") as f:
+        if os.path.exists(logf):
+            with open(logf, encoding="utf-8", errors="replace") as f:
                 lines = [l.rstrip() for l in f if "error" in l.lower()]
             tail = "\n".join(lines[-15:])
-        raise RunnerError(f"빌드 실패 (exit {r.returncode}). 로그 {LOG}\n{tail}")
-    hide_from_dock()
+        raise RunnerError(f"빌드 실패 (exit {r.returncode}). 로그 {logf}\n{tail}")
+    hide_from_dock(app)
     # 빌드 중 Unity가 고친 파일(.meta 등)이 있을 수 있으니 빌드 뒤의 키를 기록
-    with open(STAMP, "w", encoding="utf-8") as f:
+    with open(stamp, "w", encoding="utf-8") as f:
         f.write(cache_key())
     log(f"[farm] 빌드 완료 {took:.0f}s")
-    return executable(), False, took
+    return executable(app), False, took

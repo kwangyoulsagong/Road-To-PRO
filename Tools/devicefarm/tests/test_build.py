@@ -106,3 +106,26 @@ class HiddenWindowEnvTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BuildVariantTests(unittest.TestCase):
+    """specs/048 T11: 릴리스 E2E 빌드는 개발 빌드와 앱·캐시 도장을 따로 쓴다."""
+
+    def test_release_paths_separate(self):
+        self.assertNotEqual(build.APP, build.RELEASE_APP)
+        self.assertNotEqual(build.STAMP, build.RELEASE_STAMP)
+
+    def test_unknown_variant_rejected(self):
+        with self.assertRaises(RunnerError):
+            build.ensure_build(variant="debug")
+
+    def test_scenario_build_default_and_release(self):
+        from farm import commands
+
+        class Sc:
+            def __init__(self, raw):
+                self.raw, self.id = raw, "x"
+        self.assertEqual(commands.scenario_build(Sc({})), "development")
+        self.assertEqual(commands.scenario_build(Sc({"build": "release"})), "release")
+        with self.assertRaises(RunnerError):
+            commands.scenario_build(Sc({"build": "fast"}))

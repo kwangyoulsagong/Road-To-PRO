@@ -42,7 +42,9 @@ class ProfileLoadTests(unittest.TestCase):
 
     def test_quality_map_resolves(self):
         ps = profiles.load()
-        self.assertEqual(ps.unity_quality_level("Low"), "Mobile")
+        # specs/048: Low는 새 Low 레벨, Medium/High는 후속 스펙까지 Mobile/PC 대역
+        self.assertEqual(ps.unity_quality_level("Low"), "Low")
+        self.assertEqual(ps.unity_quality_level("Medium"), "Mobile")
         self.assertEqual(ps.unity_quality_level("High"), "PC")
 
     def test_missing_field_rejected(self):

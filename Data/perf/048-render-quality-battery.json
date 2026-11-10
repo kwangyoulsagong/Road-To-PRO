@@ -1,0 +1,12 @@
+{
+  "spec": "048",
+  "profile": "mac-m1-1600p",
+  "note": "specs/048 성능 예산의 기계용 사본. 하이라이트 프레임·GPU·메인 스레드·드로우콜·삼각형·텍스처 메모리는 E2E 048-perf-highlight(제한 해제 구간), 최대 프레임·첫 장면 스파이크·로딩은 같은 시나리오, 하위 시스템 몫은 절제 측정(share.*), 전환 프레임은 릴리스 빌드 048-transition-release·048-replay-release, 배터리는 048-battery. FR-21·22 원본 값은 Presentation/Runtime/Rendering/Logic/FrameBudget.cs",
+  "tests": [
+    "RoadToPro.Tests.EditMode.Presentation.Rendering"
+  ],
+  "budgets": [],
+  "deferred": {
+    "최소 사양 60fps": "실제 내장 GPU(Windows) 기기 측정 전까지 잠정 — 흉내 낸 프로필(low-igpu-1080p 등)은 상대 비교 (000 FR-44, research 06 § 8.1). 상태 '구현 완료 · 실기기 보류'"
+  }
+}

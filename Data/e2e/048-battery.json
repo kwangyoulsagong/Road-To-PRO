@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "id": "048-battery",
+  "spec": "048",
+  "description": "재생 중 배터리 절약 모드 켜기 → 30 fps(평균 프레임 33.3 ms ± 1 fps), 끄기 → 1초(60프레임) 안에 60 fps (AC-11). 하한은 판정 키가 없어 avg·p50 기록으로 확인",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-11"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "budgets": {
+    "battery": {
+      "frameMs.avg": 34.5
+    },
+    "restored": {
+      "frameMs.avg": 17.2
+    }
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "battery.on"
+    },
+    {
+      "type": "assertText",
+      "element": "fpsLabel",
+      "text": "30",
+      "ac": "AC-11"
+    },
+    {
+      "type": "perfBegin",
+      "name": "battery",
+      "warmupFrames": 30,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "battery"
+    },
+    {
+      "type": "goto",
+      "screen": "battery.off"
+    },
+    {
+      "type": "assertText",
+      "element": "fpsLabel",
+      "text": "60",
+      "ac": "AC-11"
+    },
+    {
+      "type": "perfBegin",
+      "name": "restored",
+      "warmupFrames": 60,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "restored"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

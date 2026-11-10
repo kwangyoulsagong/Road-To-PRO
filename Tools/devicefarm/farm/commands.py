@@ -292,20 +292,35 @@ def run_scenario(exe, sc, tier, ps, run_dir, only=None, langs=None, extra_args=N
                                  ignore=logs.load_ignore() if ignore is None else ignore)
 
 
+def scenario_build(sc):
+    """시나리오의 빌드 종류 (development | release)."""
+    v = (sc.raw or {}).get("build", "development")
+    if v not in build.VARIANTS:
+        raise RunnerError(f"{sc.id}: 알 수 없는 build '{v}' (development|release)")
+    return v
+
+
 def cmd_matrix(tier, args, argv):
     preflight.run_all(need_chrome=True)
     t0 = time.time()
     with preflight.RunLock():
         ps = profiles.load()
         scs = scenarios_for(args)
-        exe, cached, _ = build.ensure_build(log=log)
+        # 시나리오가 빌드 종류를 정한다 ("build": "release" — specs/048 T11). 기본은 개발 빌드
+        variants = sorted({scenario_build(sc) for sc in scs}, key=build.VARIANTS.index)
+        exes, cached = {}, True
+        for v in variants:
+            exes[v], hit, _ = build.ensure_build(log=log, variant=v)
+            cached = cached and hit
         run_dir = new_run_dir(tier)
         # 시나리오가 여럿이면 시나리오별 하위 폴더 — 조합 폴더 이름이 같아 캡처가 덮어써지는 것 방지 (specs/044 T18b)
-        runs = [run_scenario(exe, sc, tier, ps, os.path.join(run_dir, sc.id) if len(scs) > 1 else run_dir, only=args.profile)
+        runs = [run_scenario(exes[scenario_build(sc)], sc, tier, ps, os.path.join(run_dir, sc.id) if len(scs) > 1 else run_dir, only=args.profile)
                 for sc in scs]
+        for sc, r in zip(scs, runs):
+            r["build"] = scenario_build(sc)
         meta = logic.metadata()
         keys = sorted({c["key"] for r in runs for c in r["combos"]})
-        meta.update(durationSec=time.time() - t0, command=command_line(argv), profiles=keys, buildCached=cached)
+        meta.update(durationSec=time.time() - t0, command=command_line(argv), profiles=keys, buildCached=cached, builds=variants)
         info = spec_info(args.spec or (scs[0].spec if len(scs) == 1 else None))
         ac_ev = {}
         for sc, r in zip(scs, runs):

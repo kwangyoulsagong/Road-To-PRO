@@ -152,6 +152,7 @@ namespace RoadToPro.Presentation.Highlight
                 _applied = _seq.SceneIndex;
                 _current = _scenes[_applied];
                 _system.SwapPlan(_current.Plan);
+                Rendering.RenderQualityApplier.ResetHistory(_camera);
             }
 
             if (!_unloading && !_loadRunning && !_seq.Wants3D && (_loaded || _seq.State == SequencerState.Cancelled))

@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using RoadToPro.Presentation.Players;
 using UnityEngine;
 
@@ -16,5 +17,12 @@ namespace RoadToPro.Presentation.Highlight
 
         /// <summary>리그를 만든다. 프레임을 나눌 수 있게 코루틴이다.</summary>
         public abstract IEnumerator Prepare(Camera broadcastCamera);
+
+        /// <summary>블롭 그림자 머티리얼 (specs/048 FR-01 Low). null이면 블롭을 그리지 않는다.</summary>
+        public virtual Material BlobMaterial => null;
+        /// <summary>낮 블롭 방향을 정하는 태양 방향광.</summary>
+        public virtual Light Sun => null;
+        /// <summary>나이트 경기면 광원 위치(4개 이상), 낮이면 null.</summary>
+        public virtual IReadOnlyList<Vector3> NightEmitters => null;
     }
 }

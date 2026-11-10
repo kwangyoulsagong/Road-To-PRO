@@ -79,16 +79,19 @@ def evaluate_combo(result, scenario, profile_set, baseline_root=None, ignore=Non
             sections = json.load(f).get("sections", [])
         budgets = (scenario.raw or {}).get("budgets", {})
         by_name = {}
+        summarized = []
         for sec in sections:
             try:
-                metrics = perf.summarize(sec)
+                summarized.append((sec, perf.summarize(sec)))
             except ValueError as err:
                 perf_rows.append({"section": sec.get("name"), "error": str(err), "ok": False})
-                continue
+        # 한도가 다른 구간 지표를 참조할 수 있어(orSection, specs/048) 먼저 모두 요약한 뒤 판정한다
+        all_metrics = {sec["name"]: m for sec, m in summarized}
+        for sec, metrics in summarized:
             key = f"{scenario.id}/{sec['name']}/{p.id}"
             base = perf.load_baseline(perf_baselines or paths.PERF_BASELINES_JSON, key)
             power = perf.power_state(sec.get("power"), power_text)
-            ev = perf.evaluate(metrics, budgets.get(sec["name"]), base, p.is_reference_device, power)
+            ev = perf.evaluate(metrics, budgets.get(sec["name"]), base, p.is_reference_device, power, all_metrics)
             perf_rows.append({"section": sec["name"], "key": key, "metrics": metrics, "power": power, **ev})
             by_name[sec["name"]] = (metrics, power)
         # 파생 구간 (specs/044): 두 구간 지표의 차 — 예) 피치만 − 빈 화면 = 피치 셰이더 몫

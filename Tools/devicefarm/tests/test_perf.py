@@ -229,3 +229,30 @@ class RenderPairsNear(unittest.TestCase):
     def test_non_adjacent(self):
         from farm import perf as P
         self.assertEqual(P.fold_render_pairs([61, 0, 61, 61, 122, 61]), [61, 61.0, 61, 61, 61.0, 61])
+
+
+class RelativeBudgetTests(unittest.TestCase):
+    """specs/048: 한도 = max(기준값, 비교 지표) — 기능이 유발한 몫만 판정."""
+
+    def test_or_metric_same_section(self):
+        m = {"custom": {"transitionFrameMs": {"max": 28.0}}, "outsideTransitionFrameMs": {"max": 31.0}}
+        rows = perf.judge_budget(m, {"custom.transitionFrameMs.max": {"max": 25, "orMetric": "outsideTransitionFrameMs.max"}})
+        self.assertTrue(rows[0]["ok"])
+        self.assertEqual(rows[0]["budget"], 31.0)
+        m["custom"]["transitionFrameMs"]["max"] = 32.0
+        self.assertFalse(perf.judge_budget(m, {"custom.transitionFrameMs.max": {"max": 25, "orMetric": "outsideTransitionFrameMs.max"}})[0]["ok"])
+
+    def test_or_section_and_floor(self):
+        m = {"frameMs": {"max": 30.0}}
+        sections = {"empty": {"frameMs": {"max": 20.0}}}
+        rows = perf.judge_budget(m, {"frameMs.max": {"max": 33, "orSection": "empty", "orMetric": "frameMs.max"}}, sections)
+        self.assertTrue(rows[0]["ok"])
+        self.assertEqual(rows[0]["budget"], 33)
+        m["frameMs"]["max"] = 34.0
+        self.assertFalse(perf.judge_budget(m, {"frameMs.max": {"max": 33, "orSection": "empty", "orMetric": "frameMs.max"}}, sections)[0]["ok"])
+
+    def test_outside_transition_metric(self):
+        sec = {"name": "p", "warmupFrames": 1, "frameMs": [99, 16, 30, 17, 40],
+               "custom": {"transitionFrameMs": [None, None, 30, None, None]}}
+        m = perf.summarize(sec)
+        self.assertEqual(m["outsideTransitionFrameMs"]["max"], 40)

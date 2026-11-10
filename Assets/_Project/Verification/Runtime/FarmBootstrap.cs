@@ -4,6 +4,9 @@ using System.IO;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.SceneManagement;
+using RoadToPro.Presentation.Rendering;
+using RoadToPro.Presentation.Rendering.Logic;
 
 namespace RoadToPro.Verification
 {
@@ -44,31 +47,25 @@ namespace RoadToPro.Verification
 
         static void Apply(FarmArgs a)
         {
-            if (!string.IsNullOrEmpty(a.UnityQualityLevel))
+            // 048: 프리셋 적용기 경유 (품질 레벨 → 렌더 스케일). 이 플랫폼에 꺼진 레벨(Mobile)은 같은 이름의 URP 에셋으로.
+            var preset = RenderPresetTable.Find(a.Quality, m => Debug.LogWarning("[farm] " + m));
+            RenderQualityApplier.ApplyGlobal(preset, a.UnityQualityLevel, a.RenderScale,
+                name => Resources.Load<FarmRenderAssets>("FarmRenderAssets")?.Find(name),
+                m => Debug.LogError("[farm] " + m));
+            // 하이라이트 밖 E2E 화면(경기장·선수)도 같은 프리셋 카메라 설정으로 찍는다
+            SceneManager.sceneLoaded += (scene, _) =>
             {
-                int idx = Array.IndexOf(QualitySettings.names, a.UnityQualityLevel);
-                if (idx >= 0)
-                    QualitySettings.SetQualityLevel(idx, true);
-                else
-                {
-                    // 이 플랫폼에 그 품질 레벨이 꺼져 있으면 같은 이름의 URP 에셋으로 직접 바꾼다.
-                    var table = Resources.Load<FarmRenderAssets>("FarmRenderAssets");
-                    var rp = table != null ? table.Find(a.UnityQualityLevel) : null;
-                    if (rp == null)
-                        Debug.LogError($"[farm] 품질 '{a.UnityQualityLevel}': 품질 레벨도 렌더 에셋도 없음 (레벨: {string.Join(", ", QualitySettings.names)})");
-                    else
-                        QualitySettings.renderPipeline = rp;
-                }
-            }
-            if (GraphicsSettings.currentRenderPipeline is UniversalRenderPipelineAsset urp)
-                urp.renderScale = a.RenderScale;
+                foreach (var root in scene.GetRootGameObjects())
+                foreach (var cam in root.GetComponentsInChildren<Camera>(true))
+                    RenderQualityApplier.ApplyCamera(RenderQualityApplier.Current, cam);
+            };
             // 검증 중 창이 포커스를 잃어도 멈추지 않게 (기본값은 비포커스 시 일시정지 — 성능 구간이 멈춘다).
             Application.runInBackground = true;
             QualitySettings.vSyncCount = 0;
             Application.targetFrameRate = a.TargetFps;
 
-            Debug.Log($"[farm] 프로필 {a.ProfileId}: {a.Width}x{a.Height} 배율 {a.UiScale} 품질 {a.Quality}({GraphicsSettings.currentRenderPipeline?.name}) " +
-                      $"렌더스케일 {(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.renderScale} 목표fps {Application.targetFrameRate} " +
+            Debug.Log($"[farm] 프로필 {a.ProfileId}: {a.Width}x{a.Height} 배율 {a.UiScale} 품질 {a.Quality}({RenderQualityApplier.CurrentLevelName}/{GraphicsSettings.currentRenderPipeline?.name}) " +
+                      $"렌더스케일 {(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.renderScale} 업스케일 {(GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset)?.upscalingFilter} 목표fps {Application.targetFrameRate} " +
                       $"테마 {a.Theme} 언어 {a.Lang} 배터리절약 {a.BatterySaver} 시드 {a.Seed}");
         }
 

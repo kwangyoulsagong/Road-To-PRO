@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "id": "048-timeline-gap",
+  "spec": "048",
+  "description": "장면 사이 텍스트 타임라인 구간에서 방송 카메라 렌더 0프레임·마지막 프레임 고정 (AC-17). 구간 수·고정 표시는 카운터로 기록",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-17"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "budgets": {
+    "playback": {
+      "custom.timelineCameraFrames.max": 0
+    }
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "perfBegin",
+      "name": "playback",
+      "warmupFrames": 0,
+      "minFrames": 1800
+    },
+    {
+      "type": "perfEnd",
+      "name": "playback"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

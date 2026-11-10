@@ -48,6 +48,45 @@ namespace RoadToPro.Verification.Editor
         }
 
         /// <summary>
+        /// 릴리스 E2E 플레이어 (specs/048 T11): BuildMac과 같은 씬, 비개발 빌드 + IL2CPP(판정 런타임 D17).
+        /// 렌더 카운터(드로우콜·삼각형·GPU)는 없고 프레임 시간만 잰다 — 전환 프레임 판정용 (041 AC-15·042 AC-17).
+        /// 백엔드는 빌드 동안만 바꾸고 finally에서 되돌린다 (벤치 선례). farm.py가 ProjectSettings 바이트도 복구한다.
+        /// 배치: Unity -batchmode -quit -executeMethod RoadToPro.Verification.Editor.FarmBuild.BuildMacRelease -farmBuildOut Builds/FarmRelease/RoadToProFarm.app
+        /// </summary>
+        public static void BuildMacRelease()
+        {
+            var args = Environment.GetCommandLineArgs();
+            int i = Array.IndexOf(args, "-farmBuildOut");
+            string outPath = i >= 0 && i + 1 < args.Length ? args[i + 1] : "Builds/FarmRelease/RoadToProFarm.app";
+            var target = NamedBuildTarget.Standalone;
+            var before = PlayerSettings.GetScriptingBackend(target);
+            var ok = false;
+            try
+            {
+                if (before != ScriptingImplementation.IL2CPP) PlayerSettings.SetScriptingBackend(target, ScriptingImplementation.IL2CPP);
+                var scenes = FarmScenes
+                    .Concat(E2EScenes)
+                    .Concat(EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path))
+                    .Distinct()
+                    .ToArray();
+                var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+                {
+                    scenes = scenes,
+                    locationPathName = outPath,
+                    target = BuildTarget.StandaloneOSX,
+                    options = BuildOptions.None,
+                });
+                ok = report.summary.result == BuildResult.Succeeded;
+                Debug.Log($"[farm] 릴리스 빌드(IL2CPP) {report.summary.result}: {outPath} ({report.summary.totalTime.TotalSeconds:0}s, 오류 {report.summary.totalErrors})");
+            }
+            finally
+            {
+                if (PlayerSettings.GetScriptingBackend(target) != before) PlayerSettings.SetScriptingBackend(target, before);
+            }
+            if (Application.isBatchMode) EditorApplication.Exit(ok ? 0 : 1);
+        }
+
+        /// <summary>
         /// 시뮬 벤치 플레이어 (specs/006 T20): 릴리스 빌드, 스크립팅 백엔드는 -farmBackend il2cpp|mono.
         /// 백엔드는 빌드 동안만 바꾸고 finally에서 되돌린다 — ProjectSettings 커밋 변경 없음 (2026-11-03 플랜 승인).
         /// 배치: Unity -batchmode -quit -executeMethod RoadToPro.Verification.Editor.FarmBuild.BuildMacBench -farmBuildOut &lt;app&gt; -farmBackend il2cpp

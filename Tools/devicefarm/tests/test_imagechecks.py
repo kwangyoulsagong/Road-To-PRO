@@ -203,6 +203,24 @@ class ContactAndSame(unittest.TestCase):
         b[50:90, 50:90] = (200, 30, 30)
         self.assertFalse(ic.same_image(a, {}, b, {})["ok"])
 
+    def test_same_image_rect_ignores_outside(self):
+        """048 AC-06: 영역만 비교 — 영역 밖 변화는 무시, 영역 안 변화는 실패."""
+        a = grass()
+        b = a.copy()
+        b[50:90, 50:90] = (200, 30, 30)
+        self.assertTrue(ic.same_image(a, {}, b, {}, rect=[0, 0, 40, 40])["ok"])
+        self.assertFalse(ic.same_image(a, {}, b, {}, rect=[40, 40, 60, 60])["ok"])
+
+    def test_different_image(self):
+        """048 AC-05: 다른 픽셀 비율이 기준 이상이어야 통과."""
+        a = grass()
+        self.assertFalse(ic.different_image(a, {}, a.copy(), {})["ok"])
+        b = a.copy()
+        b[:, : b.shape[1] // 10] = (0, 0, 0)
+        r = ic.different_image(a, {}, b, {}, min_diff_ratio=0.05)
+        self.assertTrue(r["ok"], r["detail"])
+        self.assertFalse(ic.different_image(a, {}, b, {}, min_diff_ratio=0.5)["ok"])
+
 
 class GlyphBandMixedColors(unittest.TestCase):
     """specs/056 T19b: 번호 아래 띠가 검은 반바지에 걸쳐도 조명 배율을 셔츠 색조로만 추정해 글자를 놓치지 않는다."""

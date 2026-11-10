@@ -176,31 +176,6 @@ namespace RoadToPro.Verification.Samples.Highlight
         public void OnPlayback(double simTime) { }
     }
 
-    /// <summary>048 대체: 목표 fps와 타임라인 구간 렌더 빈도.</summary>
-    public sealed class StandInFramePolicy : IFramePolicy
-    {
-        const int MenuFps = 30, HighlightFps = 60, BatteryFps = 30, TimelineInterval = 6;
-
-        public int TargetFps { get; private set; } = MenuFps;
-        public void EnterHighlight()
-        {
-            TargetFps = FarmContext.BatterySaver ? BatteryFps : HighlightFps;
-            Application.targetFrameRate = TargetFps;
-            OnDemandRendering.renderFrameInterval = 1;
-        }
-
-        public void EnterTimeline() => OnDemandRendering.renderFrameInterval = TimelineInterval;
-        public void ExitTimeline() => OnDemandRendering.renderFrameInterval = 1;
-
-        public void EnterMenu()
-        {
-            TargetFps = MenuFps;
-            Application.targetFrameRate = MenuFps;
-            OnDemandRendering.renderFrameInterval = 1;
-            Debug.Log($"[highlight] 메뉴 목표 fps {MenuFps}");
-        }
-    }
-
     /// <summary>046 대체: 소리 없이 재생 상태만 받는다.</summary>
     public sealed class StandInAudio : IHighlightAudio
     {
