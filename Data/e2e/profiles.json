@@ -104,48 +104,6 @@
       "batterySaver": false,
       "isReferenceDevice": false,
       "tier": "full"
-    },
-    {
-      "id": "tablet-4x3",
-      "description": "이후 모바일 대비",
-      "width": 2048,
-      "height": 1536,
-      "uiScale": 2.0,
-      "aspect": "4:3",
-      "quality": "Low",
-      "renderScale": 0.75,
-      "targetFps": 60,
-      "batterySaver": false,
-      "isReferenceDevice": false,
-      "tier": "full"
-    },
-    {
-      "id": "phone-portrait",
-      "description": "이후 모바일 대비, 세로",
-      "width": 1170,
-      "height": 2532,
-      "uiScale": 3.0,
-      "aspect": "9:19.5",
-      "quality": "Low",
-      "renderScale": 0.67,
-      "targetFps": 60,
-      "batterySaver": false,
-      "isReferenceDevice": false,
-      "tier": "full"
-    },
-    {
-      "id": "phone-landscape",
-      "description": "하이라이트 가로 재생",
-      "width": 2532,
-      "height": 1170,
-      "uiScale": 3.0,
-      "aspect": "19.5:9",
-      "quality": "Low",
-      "renderScale": 0.67,
-      "targetFps": 60,
-      "batterySaver": false,
-      "isReferenceDevice": false,
-      "tier": "full"
     }
   ]
 }

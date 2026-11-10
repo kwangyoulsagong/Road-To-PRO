@@ -256,3 +256,36 @@ class RelativeBudgetTests(unittest.TestCase):
                "custom": {"transitionFrameMs": [None, None, 30, None, None]}}
         m = perf.summarize(sec)
         self.assertEqual(m["outsideTransitionFrameMs"]["max"], 40)
+
+
+class AdvisoryBudgetTests(unittest.TestCase):
+    """specs/048 AC-16: 하위 시스템 몫은 기록 전용 — 초과를 표시하되 판정은 통과."""
+
+    def test_over_budget_is_marked_but_passes(self):
+        ev = perf.evaluate({"gpuMs": {"avg": 1.7}}, {"gpuMs.avg": 1.0}, None, True, "ac")
+        self.assertFalse(ev["ok"])
+        adv = perf.advisory(ev)
+        self.assertTrue(adv["ok"])
+        self.assertTrue(adv["advisoryOver"])
+        self.assertFalse(adv["budget"][0]["ok"])
+
+    def test_within_budget_not_marked(self):
+        adv = perf.advisory(perf.evaluate({"gpuMs": {"avg": 0.5}}, {"gpuMs.avg": 1.0}, None, True, "ac"))
+        self.assertTrue(adv["ok"])
+        self.assertFalse(adv["advisoryOver"])
+
+
+class OrMarginTests(unittest.TestCase):
+    """specs/048 AC-18: 전환 최대 ≤ max(25, 전환 밖 최대 + 1 ms)."""
+
+    def test_margin_added_to_compared_metric(self):
+        b = {"t.max": {"max": 25, "orMetric": "o.max", "orMargin": 1}}
+        m = {"t": {"max": 30.135}, "o": {"max": 30.103}}
+        rows = perf.judge_budget(m, b)
+        self.assertTrue(rows[0]["ok"])
+        self.assertAlmostEqual(rows[0]["budget"], 31.103)
+        self.assertEqual(rows[0]["rule"], "max(25, o.max + 1)")
+
+    def test_margin_does_not_raise_floor(self):
+        rows = perf.judge_budget({"t": {"max": 25.5}, "o": {"max": 20}}, {"t.max": {"max": 25, "orMetric": "o.max", "orMargin": 1}})
+        self.assertFalse(rows[0]["ok"])

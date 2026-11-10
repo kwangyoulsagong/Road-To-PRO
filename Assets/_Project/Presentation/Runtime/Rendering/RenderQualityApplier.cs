@@ -94,6 +94,12 @@ namespace RoadToPro.Presentation.Rendering
             data.resetHistory = true;
         }
 
+        /// <summary>3D를 내릴 때 실제 프리셋이 켰던 카메라 후처리를 끈다 (메뉴 화면 = UI만, FR-12 메뉴 상태).</summary>
+        public static void RevertCamera(Camera camera)
+        {
+            if (camera != null && Modified.Remove(camera)) camera.GetUniversalAdditionalCameraData().renderPostProcessing = false;
+        }
+
         /// <summary>장면 컷마다 STP 히스토리를 버린다 — 이전 장면 잔상 방지 (plan 버그 방지).</summary>
         public static void ResetHistory(Camera camera)
         {

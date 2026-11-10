@@ -73,7 +73,7 @@ SDD 규칙: `.claude/rules/05-sdd.md`. 템플릿: `_templates/`. 완료 판정�
 | 045 | [관중](045-crowd/spec.md) | M5 | 044 | 초안 |
 | 046 | [현장 사운드](046-ambient-audio/spec.md) | M5 | 041 | 초안 |
 | 047 | [컷신 · 대화 연출](047-cutscenes-dialogue/spec.md) | M5 | 030, 037 | 초안 |
-| 048 | [렌더 품질 프리셋 · 배터리 · 성능 예산](048-render-quality-battery/spec.md) | M5 | 041 | 초안 |
+| 048 | [렌더 품질 프리셋 · 배터리 · 성능 예산](048-render-quality-battery/spec.md) | M5 | 041 | 구현 완료(P1 Low) · 실기기 보류(AC-09·18) |
 | **보완 (작성 중 발견된 공백)** | | | | |
 | 050 | [구단 운영 · 감독 교체 · AI 감독 경기 운영](050-club-operations/spec.md) | M2~M4 | 009, 012, 024, 025 | 초안 |
 | 051 | [가상 이름 · 브랜드 생성 · 이름 필터](051-name-brand-generation/spec.md) | M2 | 001 | 초안 |

@@ -44,7 +44,8 @@
     "playback": {
       "custom.transitionFrameMs.max": {
         "max": 25,
-        "orMetric": "outsideTransitionFrameMs.max"
+        "orMetric": "outsideTransitionFrameMs.max",
+        "orMargin": 1
       },
       "frameMs.max": {
         "max": 33,

@@ -55,6 +55,9 @@ namespace RoadToPro.Verification
             // 하이라이트 밖 E2E 화면(경기장·선수)도 같은 프리셋 카메라 설정으로 찍는다
             SceneManager.sceneLoaded += (scene, _) =>
             {
+                // 하이라이트 장면은 플레이어가 3D를 올릴 때 켜고 내릴 때 끈다 (메뉴 카메라에 후처리를 걸지 않게)
+                foreach (var root in scene.GetRootGameObjects())
+                    if (root.GetComponentInChildren<RoadToPro.Presentation.Highlight.HighlightPlayer>(true) != null) return;
                 foreach (var root in scene.GetRootGameObjects())
                 foreach (var cam in root.GetComponentsInChildren<Camera>(true))
                     RenderQualityApplier.ApplyCamera(RenderQualityApplier.Current, cam);

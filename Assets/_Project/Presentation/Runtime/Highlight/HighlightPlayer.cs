@@ -171,6 +171,8 @@ namespace RoadToPro.Presentation.Highlight
             _scenes.Clear();
             _builder = null;
             yield return _assets.Unload();
+            // 메뉴는 3D가 없으니 후처리(톤맵)도 끈다 — 켜 두면 UI 바탕색까지 톤맵된다 (048 T16)
+            Rendering.RenderQualityApplier.RevertCamera(_camera);
             IsUnloaded = true;
         }
 

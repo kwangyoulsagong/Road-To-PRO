@@ -272,7 +272,10 @@ def _perf(scs):
                     f'{x["metric"]} {_fmt(x["value"])}' + (f' > 예산 {x["budget"]}' if "budget" in x else f' (+{x.get("changePct")}%)')
                     for x in bad
                 )
-                verdict = _ok_tag(r["ok"]) if r.get("judged") else '<span class="tag skip">기록만</span>'
+                if r.get("advisoryOver"):
+                    verdict = '<span class="tag fail">몫 초과(기록)</span>'
+                else:
+                    verdict = _ok_tag(r["ok"]) if r.get("judged") else '<span class="tag skip">기록만</span>'
                 rows.append(
                     f'<tr><td>{e(sc["scenario"])}/{e(r["section"])}</td><td>{e(c["key"])}</td><td>{verdict}</td>'
                     f'<td>{_fmt(fm.get("avg"))}</td><td>{_fmt(fm.get("p95"))}</td><td>{_fmt(fm.get("p99"))}</td>'

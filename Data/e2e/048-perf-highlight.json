@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "048-perf-highlight",
   "spec": "048",
-  "description": "하이라이트 성능 예산 (AC-08·16; 최대 프레임·로딩은 Mono 개발 빌드라 기록만 — 판정은 릴리스 048-transition-release, 2026-11-10 사용자 결정). firstScene: 첫 장면 120프레임 최대 ≤ 33 ms(셰이더 스파이크 없음). empty: 3D 없이 같은 목표 fps(페이싱 소음 기준선). playback: 60 fps 제한 재생 — 최대 프레임 ≤ max(33 ms, empty 최대) (2026-11-10 사용자 결정: 재생이 유발한 스파이크만 판정). uncapped: 제한 해제 재생 — 프레임 p95 ≤ 16.6, GPU p95 ≤ 10, 메인 스레드 p95 ≤ 8 (제한 해제라 대기 시간이 빠진 실제 비용), 드로우콜·삼각형·텍스처 메모리. all/no*: 골 순간 고정 프레임 절제 측정 → share.* = 전체 − 그룹 끔 (FR-21 몫, 넘으면 표에 표시). night: 나이트(블롭 4장), 제한 해제 — 60 fps 제한기 흔들림이 p95에 잡히지 않게. 로딩: 첫 진입 ≤ 4 s, 재진입 ≤ 2 s. 관중(045)·실제 HUD(039) 없음. GC는 Mono 개발 빌드라 다른 시스템 할당이 섞여 기록만 (재생 GC 0은 041 IL2CPP 벤치). 000 FR-44: 판정은 기준 기기만, 흉내 낸 프로필은 잠정 기록",
+  "description": "하이라이트 성능 예산 (AC-08·16; 최대 프레임·로딩은 Mono 개발 빌드라 기록만 — 판정은 릴리스 048-transition-release, 2026-11-10 사용자 결정). firstScene: 첫 장면 120프레임 최대 ≤ 33 ms(셰이더 스파이크 없음). empty: 3D 없이 같은 목표 fps(페이싱 소음 기준선). playback: 60 fps 제한 재생 — 최대 프레임 ≤ max(33 ms, empty 최대) (2026-11-10 사용자 결정: 재생이 유발한 스파이크만 판정). uncapped: 제한 해제 재생 — 프레임 p95 ≤ 16.6, GPU p95 ≤ 10, 메인 스레드 p95 ≤ 8 (제한 해제라 대기 시간이 빠진 실제 비용), 드로우콜·삼각형·텍스처 메모리. all/no*: 골 순간 고정 프레임 절제 측정 → share.* = 전체 − 그룹 끔 (FR-21 몫, AC-16 기록 전용 — 넘으면 표에 \"몫 초과(기록)\"로 표시, 판정 제외). night: 나이트(블롭 4장), 제한 해제 — 60 fps 제한기 흔들림이 p95에 잡히지 않게. 로딩: 첫 진입 ≤ 4 s, 재진입 ≤ 2 s. 관중(045)·실제 HUD(039) 없음. GC는 Mono 개발 빌드라 다른 시스템 할당이 섞여 기록만 (재생 GC 0은 041 IL2CPP 벤치). 000 FR-44: 판정은 기준 기기만, 흉내 낸 프로필은 잠정 기록",
   "scene": "Highlight041",
   "fixture": {
     "save": null,
@@ -53,7 +53,8 @@
         "gpuMs.avg": 1.0,
         "drawCalls.avg": 10,
         "triangles.avg": 5000
-      }
+      },
+      "advisory": true
     },
     "share.structure": {
       "of": "all",
@@ -62,7 +63,8 @@
         "gpuMs.avg": 1.5,
         "drawCalls.avg": 50,
         "triangles.avg": 95000
-      }
+      },
+      "advisory": true
     },
     "share.players": {
       "of": "all",
@@ -71,7 +73,8 @@
         "gpuMs.avg": 2.0,
         "drawCalls.avg": 75,
         "triangles.avg": 150000
-      }
+      },
+      "advisory": true
     },
     "share.props": {
       "of": "all",
@@ -80,7 +83,8 @@
         "gpuMs.avg": 0.5,
         "drawCalls.avg": 30,
         "triangles.avg": 10000
-      }
+      },
+      "advisory": true
     },
     "share.post": {
       "of": "all",
@@ -88,7 +92,8 @@
       "budget": {
         "gpuMs.avg": 1.0,
         "drawCalls.avg": 5
-      }
+      },
+      "advisory": true
     },
     "share.hud": {
       "of": "all",
@@ -96,7 +101,8 @@
       "budget": {
         "gpuMs.avg": 0.5,
         "drawCalls.avg": 30
-      }
+      },
+      "advisory": true
     }
   },
   "steps": [

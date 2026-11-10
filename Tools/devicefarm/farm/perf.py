@@ -158,7 +158,8 @@ def resolve_budget(budget, metrics, sections=None):
         if isinstance(limit, dict):
             src = metrics if not limit.get("orSection") else (sections or {}).get(limit["orSection"])
             other = get_metric(src, limit["orMetric"]) if src is not None and limit.get("orMetric") else None
-            out[path] = max(limit["max"], other) if other is not None else limit["max"]
+            # orMargin: 비교 값에 더하는 측정 허용 오차 (specs/048 AC-18, 2026-11-10 사용자 결정 1 ms)
+            out[path] = max(limit["max"], other + limit.get("orMargin", 0)) if other is not None else limit["max"]
         else:
             out[path] = limit
     return out
@@ -173,7 +174,7 @@ def judge_budget(metrics, budget, sections=None):
         row = {"metric": path, "value": v, "budget": limit, "ok": ok}
         raw = (budget or {}).get(path)
         if isinstance(raw, dict):
-            row["rule"] = f"max({raw['max']}, {(raw.get('orSection') + '.') if raw.get('orSection') else ''}{raw['orMetric']})"
+            row["rule"] = f"max({raw['max']}, {(raw.get('orSection') + '.') if raw.get('orSection') else ''}{raw['orMetric']}{(' + ' + str(raw['orMargin'])) if raw.get('orMargin') else ''})"
         rows.append(row)
     return rows
 
@@ -355,3 +356,9 @@ def write_editmode_perf(out_dir, rows, judgement):
 
 def editmode_baseline_key(spec, profile):
     return f"editmode/{spec}/{profile}"
+
+
+def advisory(ev):
+    """기록 전용 예산 (specs/048 AC-16 하위 시스템 몫): 초과 항목은 그대로 남겨 표에 표시하되 판정은 통과로 둔다."""
+    over = any(not b.get("ok", True) for b in ev.get("budget", []))
+    return {**ev, "ok": True, "advisory": True, "advisoryOver": over}

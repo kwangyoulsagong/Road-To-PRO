@@ -57,7 +57,10 @@ namespace RoadToPro.Presentation.Editor.Rendering
             so.FindProperty("m_RenderScale").floatValue = preset.RenderScale;
             so.FindProperty("m_UpscalingFilter").intValue = (int)UpscalingFilterSelection.STP;
             so.FindProperty("m_MSAA").intValue = 1; // STP는 MSAA와 같이 못 쓴다
-            so.FindProperty("m_MainLightShadowsSupported").boolValue = false; // 블롭 섀도 (FR-01 Low)
+            // 블롭 섀도 (FR-01 Low): 방향광 그림자는 거리 0으로 끈다. '지원'을 끄면 셰이더 프리필터링이 0이 되고,
+            // 빌드 때 Mobile(캐스케이드 3)과 합쳐지며 Mobile의 캐스케이드 그림자 변형이 빠진다 (048 T16 회귀).
+            so.FindProperty("m_MainLightShadowsSupported").boolValue = true;
+            so.FindProperty("m_ShadowDistance").floatValue = 0f;
             so.FindProperty("m_AdditionalLightShadowsSupported").boolValue = false;
             so.FindProperty("m_SoftShadowsSupported").boolValue = false;
             so.FindProperty("m_VolumeProfile").objectReferenceValue = volume;

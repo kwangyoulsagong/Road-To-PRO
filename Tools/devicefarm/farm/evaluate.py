@@ -105,6 +105,8 @@ def evaluate_combo(result, scenario, profile_set, baseline_root=None, ignore=Non
                 va, vb = perf.get_metric(ma, path), perf.get_metric(mb, path)
                 perf.set_metric(metrics, path, None if va is None or vb is None else va - vb)
             ev = perf.evaluate(metrics, d.get("budget"), None, p.is_reference_device, pw)
+            if d.get("advisory"):
+                ev = perf.advisory(ev)
             perf_rows.append({"section": name, "key": f"{scenario.id}/{name}/{p.id}", "metrics": metrics, "power": pw, **ev})
 
     log_summary = logs.judge(logs.read_jsonl(os.path.join(out, "logs.jsonl")), ignore or []).to_dict()

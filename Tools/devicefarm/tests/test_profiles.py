@@ -25,11 +25,11 @@ def _write(tmp, data):
 
 
 class ProfileLoadTests(unittest.TestCase):
-    def test_default_set_has_ten_profiles(self):
+    def test_default_set_has_seven_pc_profiles(self):
         ps = profiles.load()
-        self.assertEqual(len(ps.profiles), 10)
+        self.assertEqual(len(ps.profiles), 7)  # PC 전용 (2026-11-10 모바일 제외)
         ids = [p.id for p in ps.profiles]
-        for pid in ["low-igpu-1080p", "mac-m1-1600p", "compact-1366", "phone-portrait"]:
+        for pid in ["low-igpu-1080p", "mac-m1-1600p", "compact-1366", "handheld-800p"]:
             self.assertIn(pid, ids)
         m1 = ps.get("mac-m1-1600p")
         self.assertEqual((m1.width, m1.height, m1.ui_scale), (2560, 1600, 2.0))
@@ -85,10 +85,10 @@ class ExpandTests(unittest.TestCase):
             [c.profile.id for c in combos], ["low-igpu-1080p", "mac-m1-1600p", "compact-1366"]
         )
 
-    def test_full_is_ten_by_four(self):
+    def test_full_is_seven_by_four(self):
         combos = self.ps.expand("full")
-        self.assertEqual(len(combos), 40)
-        self.assertEqual(len({c.key for c in combos}), 40)
+        self.assertEqual(len(combos), 28)
+        self.assertEqual(len({c.key for c in combos}), 28)
         self.assertEqual(
             {(c.theme, c.lang) for c in combos},
             {("light", "ko"), ("dark", "ko"), ("light", "en"), ("dark", "en")},
