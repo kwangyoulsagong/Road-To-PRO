@@ -1,6 +1,6 @@
 # 042 — 중계 카메라 · 리플레이 · 태스크
 
-상태: 승인됨 (2026-11-10, 플랜 승인 때 태스크까지 진행 선택)
+상태: 구현 완료 · AC-17 보류 (2026-11-10, 리포트 https://claude.ai/artifact/EiHkN5vSThSmKACbYWQkUq). 대체 입력 범위 — 018·039·045·012 연결 때 재확인 (spec "재확인")
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. Unity 배치 1회가 길어서 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 배치로 돌린다. 중간 검증은 `.claude/scripts/unity-test.sh EditMode <클래스 필터>`와 `farm.py smoke --scenario <id> --profile mac-m1-1600p`로 좁힌다. `smoke` 전체·`full`·`bench`·EditMode 전체·`/verify`는 마지막 태스크에서 각 1회.
@@ -36,4 +36,4 @@
 
 ## F. 마무리
 - [x] T18 결정론·리뷰 — 시뮬 불변 확인(Presentation → MatchEngine 읽기만), 필요 시 `determinism-reviewer` — 검증: AC-09·10 필터 — 결과: 변경은 Presentation·Verification·Tests·Data뿐이라 코어 결정론 리뷰 대상 아님 (`git diff`로 Core·MatchEngine 변경 0 확인), AC-09·10 통과
-- [ ] T19 `/verify 042` — 커밋 후 EditMode 전체, `bench --spec 042` → `logic` → `full --spec 042` 각 1회, 기준 이미지 채택은 사용자 승인, 리포트 아티팩트 발행, 상태·`specs/README.md` 갱신
+- [x] T19 `/verify 042` — 커밋 후 EditMode 전체, `bench --spec 042` → `logic` → `full --spec 042` 각 1회, 기준 이미지 채택은 사용자 승인, 리포트 아티팩트 발행, 상태·`specs/README.md` 갱신 — 결과: bench(IL2CPP) 3/3 통과(카메라 p95 0.0002 ms·GC 0 B·가림 0.02 ms), logic 56/56, full 전 프로필 통과, 기준 이미지 296장 사용자 승인 채택, AC-17 보류. 리포트 https://claude.ai/artifact/EiHkN5vSThSmKACbYWQkUq (리포트의 "커밋 안 된 변경" 표시는 full 직전 logic이 갱신한 증거 파일 때문, 코드는 cb1c92f 그대로)
