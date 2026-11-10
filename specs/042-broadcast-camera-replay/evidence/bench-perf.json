@@ -1,0 +1,54 @@
+{
+  "judged": true,
+  "ok": true,
+  "note": "",
+  "backend": "il2cpp",
+  "profile": "mac-m1-1600p",
+  "budget": [
+    {
+      "ac": "AC-14",
+      "label": "카메라 갱신 p95 (트랙 샘플 + Camera 적용)",
+      "metric": "camera_p95_ms",
+      "value": 0.0002,
+      "budget": 0.3,
+      "unit": "ms",
+      "ok": true
+    },
+    {
+      "ac": "AC-14",
+      "label": "카메라 갱신 관리 힙 할당 (1200프레임 합)",
+      "metric": "camera_gc_bytes",
+      "value": 0,
+      "budget": 0,
+      "unit": "B",
+      "ok": true
+    },
+    {
+      "ac": "AC-14",
+      "label": "가림 검사 (리플레이 시작당, 앵글 3개)",
+      "metric": "occlusion_replay_start_ms",
+      "value": 0.0206,
+      "budget": 2.0,
+      "unit": "ms",
+      "ok": true
+    }
+  ],
+  "regression": [],
+  "stages": {},
+  "metrics": {
+    "camera_p50_ms": 0.0001,
+    "camera_p95_ms": 0.0002,
+    "camera_max_ms": 0.00030000000000000003,
+    "camera_gc_bytes": 0,
+    "occlusion_replay_start_ms": 0.0206,
+    "camera_track_build_ms": 0.8871
+  },
+  "host": "mac-m1-1600p",
+  "power": "ac",
+  "buildCached": false,
+  "durationSec": 5.5,
+  "unity": "6000.3.27f2",
+  "cpu": "Apple M1 Pro",
+  "development": false,
+  "commit": "91998bdb55188ca6542af5f9a6a5e45f0d45e0b4"
+}

@@ -50,6 +50,8 @@ namespace RoadToPro.Presentation.Highlight.Logic
     {
         bool IsReverseAngle { get; }
         void OnSceneBegin(in HighlightScene scene);
+        /// <summary>재생 중 매 프레임 현재 시뮬 시각을 받는다 (specs/042).</summary>
+        void OnPlayback(double simTime);
     }
 
     /// <summary>프레임·렌더 정책 (048이 구현, FR-32·33·34).</summary>

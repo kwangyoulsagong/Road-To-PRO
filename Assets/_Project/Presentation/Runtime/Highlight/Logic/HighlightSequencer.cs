@@ -276,8 +276,17 @@ namespace RoadToPro.Presentation.Highlight.Logic
                 return true;
             }
             _sceneFinished = false;
+            SkipToGroupEnd();
             FinishScene();
             return true;
+        }
+
+        /// <summary>specs/042 FR-53: 묶음 도중 건너뛰면 묶음을 통째로 끝낸다.</summary>
+        void SkipToGroupEnd()
+        {
+            int group = _scenes[_index].GroupId;
+            if (group == 0) return;
+            while (_index + 1 < _scenes.Length && _scenes[_index + 1].GroupId == group) _index++;
         }
 
         void BeginSkipAll()
@@ -316,9 +325,10 @@ namespace RoadToPro.Presentation.Highlight.Logic
                 EnterResults();
                 return;
             }
+            bool sameGroup = _scenes[_index].GroupId != 0 && _scenes[next].GroupId == _scenes[_index].GroupId;
             _index = next;
             _keyMomentDone = false;
-            if (_scenes[next].IsReplay || _timelineGap <= 0d)
+            if (sameGroup || _scenes[next].IsReplay || _timelineGap <= 0d)
             {
                 BeginCurrentScene();
                 return;
@@ -403,6 +413,7 @@ namespace RoadToPro.Presentation.Highlight.Logic
         {
             if (State != SequencerState.Playing && State != SequencerState.Timeline) { PublishAudio(); return; }
             if (_index < 0 || _index >= _scenes.Length) return;
+            if (State == SequencerState.Playing) _camera.OnPlayback(Clock.Position);
             _hud.OnStatus(new PlaybackStatus(_index, _scenes.Length, Clock.IsReplay, _camera.IsReverseAngle, _paused,
                 _settings.Rate, Clock.EffectiveRate, Clock.Position));
             PublishAudio();

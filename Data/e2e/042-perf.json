@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "042-perf",
+  "spec": "042",
+  "description": "중계 카메라 재생 구간 프레임·GPU 기록과 리플레이 진입 전환 프레임 기록 (AC-14). CPU·GC·가림 검사 판정은 IL2CPP 벤치, 전환 프레임 판정은 048 릴리스 빌드 (Data/perf/042-broadcast-camera.json)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261110
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-14"
+  ],
+  "defaults": {
+    "timeoutSec": 240
+  },
+  "budgets": {
+    "playback": {
+      "custom.shaderCompiles.max": 0,
+      "custom.syncLoads.max": 0
+    }
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "broadcastPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "perfBegin",
+      "name": "playback",
+      "warmupFrames": 60,
+      "minFrames": 2000
+    },
+    {
+      "type": "perfEnd",
+      "name": "playback"
+    }
+  ]
+}

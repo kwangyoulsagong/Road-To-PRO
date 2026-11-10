@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "id": "042-goal-sequence",
+  "spec": "042",
+  "description": "합성 골 장면의 득점자 클로즈업, 리플레이 ①②③, 킥오프 와이드 (AC-11). 공 또는 득점자가 화면 안(여백 5%), 리버스 앵글 라벨은 041 대체 HUD로 확인",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261110
+  },
+  "profiles": "all",
+  "acs": [
+    "AC-11"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "broadcastPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.freeze.closeup"
+    },
+    {
+      "type": "capture",
+      "name": "closeup",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-11"
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.freeze.replay1"
+    },
+    {
+      "type": "capture",
+      "name": "replay1",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-11"
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.freeze.replay2"
+    },
+    {
+      "type": "capture",
+      "name": "replay2",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-11"
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.freeze.replay3"
+    },
+    {
+      "type": "capture",
+      "name": "replay3",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-11"
+    },
+    {
+      "type": "assertText",
+      "element": "reverseLabel",
+      "text": "REVERSE ANGLE",
+      "ac": "AC-11"
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.freeze.kickoff"
+    },
+    {
+      "type": "capture",
+      "name": "kickoff",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-11"
+    }
+  ]
+}

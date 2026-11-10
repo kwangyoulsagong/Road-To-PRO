@@ -21,6 +21,8 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
         public readonly List<int> Begun = new List<int>();
         public bool IsReverseAngle => false;
         public void OnSceneBegin(in HighlightScene scene) => Begun.Add(scene.Id);
+        public void OnPlayback(double simTime) => LastPlayback = simTime;
+        public double LastPlayback = double.NaN;
     }
 
     sealed class FakeFrames : IFramePolicy

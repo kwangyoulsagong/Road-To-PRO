@@ -38,6 +38,7 @@ namespace RoadToPro.Verification.Samples.Highlight
         public ClipLibrary Library => _lib;
         public AnimationMap Map => _map;
         public float[] Scales => _scales;
+        public StadiumLayout Layout => binder != null ? binder.Layout : null;
 
         public void Configure(in PlayerScreen.PlayerAssets a, Light s, Material e, StadiumLighting l, StadiumLightingPreset d, PitchMaterialBinder b)
         {

@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "definitions": [
+    { "id": "camera.fovMinDeg", "default": 8, "min": 1, "max": 60, "unit": "deg", "tag": "[기획]", "source": "specs/042 FR-02, research 07 § 2.2" },
+    { "id": "camera.fovMaxDeg", "default": 30, "min": 8, "max": 60, "unit": "deg", "tag": "[기획]", "source": "specs/042 FR-02, research 07 § 2.2" },
+    { "id": "camera.panLimitDeg", "default": 75, "min": 30, "max": 90, "unit": "deg", "tag": "[설계]", "source": "specs/042 FR-50, 2026-11-10 사용자 결정" },
+    { "id": "camera.tiltMaxDeg", "default": 50, "min": 20, "max": 80, "unit": "deg", "tag": "[설계]", "source": "specs/042 FR-51" },
+    { "id": "camera.lookDampSeconds", "default": 0.7, "min": 0.05, "max": 2, "unit": "s", "tag": "[기획]", "source": "specs/042 FR-03 감쇠 0.6~1.0" },
+    { "id": "camera.zoomDampSeconds", "default": 1, "min": 0.05, "max": 3, "unit": "s", "tag": "[기획]", "source": "specs/042 FR-03 감쇠 0.6~1.0" },
+    { "id": "camera.framingMargin", "default": 1.15, "min": 1, "max": 2, "unit": "", "tag": "[설계]", "source": "specs/042 T15 튜닝" },
+    { "id": "camera.wideFovDeg", "default": 24, "min": 8, "max": 30, "unit": "deg", "tag": "[설계]", "source": "specs/042 FR-04, T15 튜닝" },
+    { "id": "camera.boxFovDeg", "default": 14, "min": 8, "max": 30, "unit": "deg", "tag": "[설계]", "source": "specs/042 FR-04, T15 튜닝" },
+    { "id": "camera.boxZoomStartX", "default": 20, "min": 0, "max": 52, "unit": "m", "tag": "[설계]", "source": "specs/042 FR-04" },
+    { "id": "camera.boxZoomEndX", "default": 36, "min": 1, "max": 52.5, "unit": "m", "tag": "[설계]", "source": "specs/042 FR-04" },
+    { "id": "camera.minShotSeconds", "default": 2.5, "min": 0.5, "max": 10, "unit": "s", "tag": "[기획]", "source": "specs/042 FR-12, research 07 § 2.2" },
+    { "id": "camera.goalCloseupSeconds", "default": 2.5, "min": 0.5, "max": 10, "unit": "s", "tag": "[설계]", "source": "specs/042 FR-20, 2026-11-10 사용자 결정" },
+    { "id": "camera.reactionSeconds", "default": 2.5, "min": 0.5, "max": 10, "unit": "s", "tag": "[설계]", "source": "specs/042 FR-20, 2026-11-10 사용자 결정" },
+    { "id": "camera.replayBlendSeconds", "default": 0.3, "min": 0, "max": 2, "unit": "s", "tag": "[기획]", "source": "specs/042 FR-14, research 07 § 2.2" },
+    { "id": "camera.hardShotSpeed", "default": 30, "min": 10, "max": 60, "unit": "m/s", "tag": "[설계]", "source": "specs/042 FR-40, 2026-11-10 사용자 결정" },
+    { "id": "camera.mainBehindMin", "default": 30, "min": 0, "max": 120, "unit": "m", "tag": "[기획]", "source": "specs/042 FR-01, research 07 § 2.1" },
+    { "id": "camera.mainBehindMax", "default": 45, "min": 0, "max": 120, "unit": "m", "tag": "[기획]", "source": "specs/042 FR-01, research 07 § 2.1" },
+    { "id": "camera.mainHeightMin", "default": 15, "min": 0, "max": 80, "unit": "m", "tag": "[기획]", "source": "specs/042 FR-01, research 07 § 2.1 (추정치)" },
+    { "id": "camera.mainHeightMax", "default": 25, "min": 0, "max": 80, "unit": "m", "tag": "[기획]", "source": "specs/042 FR-01, research 07 § 2.1 (추정치)" }
+  ]
+}

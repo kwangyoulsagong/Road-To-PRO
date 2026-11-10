@@ -17,6 +17,7 @@ namespace RoadToPro.Verification.Samples
             public void OnLoadingProgress(float progress) { }
             public bool IsReverseAngle => false;
             public void OnSceneBegin(in HighlightScene scene) { }
+            public void OnPlayback(double simTime) { }
             public void EnterHighlight() { }
             public void EnterTimeline() { }
             public void ExitTimeline() { }

@@ -19,7 +19,7 @@ namespace RoadToPro.Verification.Bench
             if (spec == null) return;
             var outDir = Arg(argv, "-simBenchOut") ?? "bench-out";
             var data = Arg(argv, "-simBenchData");
-            if (spec == "043" || spec == "056" || spec == "057" || spec == "055" || spec == "054" || spec == "041") // 056·057은 같은 워크로드를 바뀐 모델로 (specs/056·057 AC-10), 055는 원형 블렌드 포함 (AC-13)
+            if (spec == "043" || spec == "056" || spec == "057" || spec == "055" || spec == "054" || spec == "041" || spec == "042") // 056·057은 같은 워크로드를 바뀐 모델로 (specs/056·057 AC-10), 055는 원형 블렌드 포함 (AC-13)
             {
                 // 애니메이션 벤치: 씬을 열어야 해서 다음 프레임들에 걸쳐 돈다 (specs/043 T27)
                 Directory.CreateDirectory(outDir);

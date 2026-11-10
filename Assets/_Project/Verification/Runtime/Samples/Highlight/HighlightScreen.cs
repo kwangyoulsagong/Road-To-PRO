@@ -8,6 +8,8 @@ using RoadToPro.MatchEngine.Ball;
 using RoadToPro.MatchEngine.Match;
 using RoadToPro.MatchEngine.Match.Replay;
 using RoadToPro.Presentation.Highlight;
+using RoadToPro.Presentation.Highlight.Broadcast;
+using RoadToPro.Presentation.Highlight.Broadcast.Logic;
 using RoadToPro.Presentation.Highlight.Logic;
 using RoadToPro.Presentation.Logging;
 using RoadToPro.Presentation.Players.Logic;
@@ -47,6 +49,8 @@ namespace RoadToPro.Verification.Samples.Highlight
         readonly StandInFramePolicy _frames = new StandInFramePolicy();
         readonly StandInAudio _audio = new StandInAudio();
         StandInKeyMoments _moments;
+        readonly CameraSettings _cameraSettings = new CameraSettings();
+        BroadcastCamera _broadcast;
         Label _menu, _fps, _framing, _keyLabel, _waitLabel, _memory, _handles;
         readonly List<Vector3> _targets = new List<Vector3>();
         int _waitLeft = -1;
@@ -90,6 +94,21 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["highlightEmpty"] = () => _frames.EnterHighlight(); // 프레임 판정 기준: 3D 없이 재생과 같은 목표 fps
             FarmContext.Screens["highlightPlay"] = () => Play(false);
             FarmContext.Screens["highlightKeyMoment"] = () => Play(true);
+            FarmContext.Screens["broadcastPlay"] = PlayBroadcast;
+            FarmContext.Screens["broadcast.freeze.closeup"] = () => player.Sequencer.SeekAndPause(0, BroadcastScenes.GoalTime + 1.2d);
+            for (int i = 0; i < 3; i++)
+            {
+                int angle = i;
+                FarmContext.Screens["broadcast.freeze.replay" + (angle + 1)] =
+                    () => player.Sequencer.SeekAndPause(BroadcastScenes.FirstReplayIndex + angle, BroadcastScenes.ShotTime - 0.3d);
+            }
+            FarmContext.Screens["broadcast.freeze.kickoff"] = () => player.Sequencer.SeekAndPause(BroadcastScenes.TailIndex, BroadcastScenes.GoalTime + 9.5d);
+            FarmContext.Screens["broadcast.mode.broadcast"] = () => SetCameraMode(CameraMode.Broadcast);
+            FarmContext.Screens["broadcast.mode.top"] = () => SetCameraMode(CameraMode.TopView);
+            FarmContext.Screens["broadcast.mode.mine"] = () => SetCameraMode(CameraMode.MyPlayer);
+            FarmContext.Screens["broadcast.freeze.corner"] = () => player.Sequencer.SeekAndPause(BroadcastScenes.EdgeIndex, BroadcastScenes.EdgeCorner);
+            FarmContext.Screens["broadcast.freeze.touchline"] = () => player.Sequencer.SeekAndPause(BroadcastScenes.EdgeIndex, BroadcastScenes.EdgeTouchline);
+            FarmContext.Screens["broadcast.freeze.stands"] = () => player.Sequencer.SeekAndPause(BroadcastScenes.EdgeIndex, BroadcastScenes.EdgeStands);
             FarmContext.Screens["freeze.first"] = () => FreezeScene(0, 0.5d);
             FarmContext.Screens["freeze.goal"] = FreezeGoal;
             FarmContext.Screens["freeze.replayMid"] = FreezeReplay;
@@ -155,23 +174,45 @@ namespace RoadToPro.Verification.Samples.Highlight
             _hud.SetVisible(true);
             var sim = Match();
             var scenes = StandInSceneSelector.Select(sim, keyMoment);
-            Begin(scenes);
+            _broadcast = null;
+            Begin(scenes, sim.ExtractClip, _camera, null);
         }
 
-        void Begin(HighlightScene[] scenes)
+        /// <summary>specs/042: 합성 골 장면을 실제 중계 카메라로 재생한다.</summary>
+        void PlayBroadcast()
         {
-            var sim = Match();
+            _menu.style.display = DisplayStyle.None;
+            _keyLabel.style.display = DisplayStyle.None;
+            _hud.SetVisible(true);
+            Match(); // 튜닝과 공 파라미터
+            var registry = RoadToPro.Core.Tuning.TuningLoader.LoadDefinitionsFile(Path.Combine(DataDir, "tuning", "camera.json"));
+            var tuning = CameraTuning.From(RoadToPro.Core.Tuning.TuningBundle.Defaults(registry));
+            CameraRigData Rig() => CameraRigData.From(((HighlightCastStage)player.Assets.Stage).Layout, m => Debug.LogWarning("[broadcast] " + m));
+            _broadcast = new BroadcastCamera(cam, BroadcastScenes.Brief, Rig, tuning, _cameraSettings);
+            Begin(BroadcastScenes.Scenes(), BroadcastScenes.Extract, _broadcast, _broadcast.OnSceneBuilt);
+        }
+
+        void SetCameraMode(CameraMode mode)
+        {
+            _cameraSettings.Mode = mode;
+            _broadcast.Rebuild(player.Scenes);
+            player.Sequencer.SeekAndPause(0, BroadcastScenes.GoalTime - 3d);
+        }
+
+        void Begin(HighlightScene[] scenes, System.Func<long, long, RoadToPro.MatchEngine.Match.Replay.ReplayClip> extract, IHighlightCamera camera,
+            System.Action<BuiltScene> onBuilt)
+        {
             var stageHolder = new StageBinding();
             AnimPlan BuildPlan(HighlightData d)
             {
                 stageHolder.Resolve(player);
                 return AnimPlan.Build(stageHolder.Stage.Library, stageHolder.Stage.Map, d, new UnityLogger(RoadToPro.Core.Logging.LogLevel.Warning), null, stageHolder.Stage.Scales);
             }
-            var builder = new SceneClipBuilder(scenes, sim.ExtractClip, BuildPlan, PitchSpec.Default, new StandInDiagnostics());
+            var builder = new SceneClipBuilder(scenes, extract, BuildPlan, PitchSpec.Default, new StandInDiagnostics(), onBuilt);
             _moments = new StandInKeyMoments();
             var ball = BallParams.Create(_tuning.Ball, SurfaceCondition.Dry, PitchSpec.Default);
             var goal = new GoalBox(PitchSpec.Default, BallParams.GoalWidth, BallParams.GoalHeight, ball.NetDepth, ball.Radius);
-            var ports = new HighlightPlayer.Ports { KeyMoments = _moments, Hud = _hud, Camera = _camera, Frames = _frames, Audio = _audio };
+            var ports = new HighlightPlayer.Ports { KeyMoments = _moments, Hud = _hud, Camera = camera, Frames = _frames, Audio = _audio };
             player.Begin(scenes, builder, new HighlightAssets(StageScene), cam, goal, _settings, TimelineGap(), ports);
         }
 
@@ -331,7 +372,33 @@ namespace RoadToPro.Verification.Samples.Highlight
                 cam.backgroundColor = MenuBackground; // 경기장 조명이 바꾼 배경을 되돌린다
                 return;
             }
+            if (_broadcast != null)
+            {
+                CheckBroadcastFraming();
+                return;
+            }
             FrameTargets();
+        }
+
+        /// <summary>AC-11·12·13: 공 또는 득점자가 화면 안(여백 5%)이면 ok.</summary>
+        void CheckBroadcastFraming()
+        {
+            cam.clearFlags = CameraClearFlags.Skybox;
+            var stage = (HighlightCastStage)player.Assets.Stage;
+            var rig = stage.Rigs[BroadcastScenes.Scorer];
+            bool framed = InsideBroadcast(stage.Ball.position) || (rig != null && InsideBroadcast(rig.transform.position + Vector3.up));
+            if (framed != _shownFramed || _framing.text.Length == 0)
+            {
+                _shownFramed = framed;
+                _framing.text = framed ? "ok" : "bad";
+            }
+        }
+
+        bool InsideBroadcast(Vector3 p)
+        {
+            const float margin = 0.05f;
+            var v = cam.WorldToViewportPoint(p);
+            return v.z > 0f && v.x >= margin && v.x <= 1f - margin && v.y >= margin && v.y <= 1f - margin;
         }
 
         /// <summary>042 대체: 공과 가장 가까운 필드 선수를 화면에 넣는 화각. 이 프레임의 포즈 뒤에 돈다.</summary>
