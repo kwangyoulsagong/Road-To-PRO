@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "id": "042-edge-ball",
+  "spec": "042",
+  "description": "공이 코너 플래그·카메라 쪽 터치라인·관중석 쪽으로 간 순간 (AC-13). 공이 화면 안",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261110
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-13"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "broadcastPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.freeze.corner"
+    },
+    {
+      "type": "capture",
+      "name": "corner",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-13"
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.freeze.touchline"
+    },
+    {
+      "type": "capture",
+      "name": "touchline",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-13"
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.freeze.stands"
+    },
+    {
+      "type": "capture",
+      "name": "stands",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-13"
+    }
+  ]
+}

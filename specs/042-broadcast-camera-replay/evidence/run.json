@@ -1,0 +1,270 @@
+{
+  "title": "042 로직 증거",
+  "spec": {
+    "id": "042",
+    "name": "042 — 중계 카메라 · 리플레이",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "인플레이 구간 10초 동안 메인 카메라 위치 변화가 0이고 회전·FOV만 바뀐다. FOV는 항상 8°~30° 안."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "인플레이 중 컷 요청은 거부되고, 데드볼 후 첫 컷 요청만 반영된다. 직전 컷 2.5초 이내 요청은 거부된다."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "라이브 컷에 반대편(180° 바깥) 카메라가 선택되는 경우가 0건. 리플레이에서 반대편 카메라가 쓰이면 리버스 앵글 표시 플래그가 켜진다."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "골 장면은 득점자 클로즈업 → 세리머니 → 리플레이 3개 → 반응 → 킥오프 와이드 순서로 카메라 이벤트가 나온다."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "왼쪽 골대 골과 좌우 반전한 오른쪽 골대 골의 리플레이 앵글 위치가 피치 중심 기준 대칭이다(오차 ≤ 0.1 m)."
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "사건 지점과 카메라 사이에 골대 기둥이 오도록 만든 테스트 배치에서 앵글이 다음 후보로 옮겨지고, 최종 앵글에서 사건 지점이 보인다."
+      },
+      {
+        "id": "AC-07",
+        "kind": "로직",
+        "text": "공이 관중석 쪽 20 m 밖으로 나가는 장면에서 팬 각도가 한계를 넘지 않는다. 공이 카메라 쪽 터치라인에 붙어도 공이 화면 안(하단 여백 ≥ 5%)에 있다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "로직",
+        "text": "내 선수 추적 모드에서 내 선수 관여 장면의 모든 샘플 프레임에서 내 선수가 화면 중앙 1/3 안에 있고 공이 화면 안에 있다."
+      },
+      {
+        "id": "AC-09",
+        "kind": "결정론",
+        "text": "같은 장면을 2회 재생해 기록한 카메라 위치·회전·FOV 시퀀스 해시가 같다. 흔들림 포함."
+      },
+      {
+        "id": "AC-10",
+        "kind": "결정론",
+        "text": "30fps와 60fps로 재생했을 때 같은 재생 시각의 카메라 상태가 같다(오차 ≤ 1e-3)."
+      },
+      {
+        "id": "AC-11",
+        "kind": "E2E",
+        "text": "`e2e/042-goal-sequence` — 고정 시드 골 장면에서 득점자 클로즈업, 리플레이 ①②③, 킥오프 와이드 각 1장 캡처. 전체 프로필에서 공 또는 득점자의 화면 투영 위치가 뷰포트 안(가장자리 여백 ≥ 5%)이고, 리버스 앵글 캡처에 039의 '리버스 앵글' 라벨이 보인다."
+      },
+      {
+        "id": "AC-16",
+        "kind": "로직",
+        "text": "044 경기장 데이터 3종(최소·기본·최대 인자)에서 메인 카메라 위치가 거치 가능 범위 안이고, 모든 리플레이 앵글이 금지 영역 밖이다. 경기장 데이터가 없으면 기본값 + 진단 로그 1건."
+      },
+      {
+        "id": "AC-12",
+        "kind": "E2E",
+        "text": "`e2e/042-camera-modes` — 같은 장면 같은 시각을 방송·탑뷰·내 선수 추적으로 캡처. 프로필: smoke + `ultrawide-1080`, `phone-landscape`. 프레이밍 대상이 잘리지 않는다."
+      },
+      {
+        "id": "AC-13",
+        "kind": "E2E",
+        "text": "`e2e/042-edge-ball` — 공이 코너 플래그·카메라 쪽 터치라인·관중석 쪽으로 간 순간 캡처. 프로필: smoke. 빈 하늘·관중석만 보이는 화면이 없다(공이 화면 안)."
+      },
+      {
+        "id": "AC-14",
+        "kind": "성능",
+        "text": "IL2CPP 벤치에서 카메라 갱신 CPU p95 ≤ 0.3 ms, 가림 검사 ≤ 2 ms/리플레이 시작. `mac-m1-1600p`에서 GC 0 B/프레임."
+      },
+      {
+        "id": "AC-17",
+        "kind": "성능",
+        "text": "(보류: 042에서는 측정·기록만, 041 AC-15와 함께 048 릴리스 빌드에서 판정, 2026-11-10 사용자 결정) `low-igpu-1080p`의 리플레이 진입 전환 최대 프레임 ≤ 25 ms."
+      },
+      {
+        "id": "AC-15",
+        "kind": "로직",
+        "text": "흔들림 끄기 설정이면 모든 카메라의 흔들림 오프셋이 0이다."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/042-broadcast-camera-replay"
+  },
+  "meta": {
+    "commit": "91998bdb55188ca6542af5f9a6a5e45f0d45e0b4",
+    "branch": "feat/042-broadcast-camera-replay",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-10 09:54:28 +0900",
+    "durationSec": 22.774146795272827,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 042",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 56,
+    "passed": 56,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 0.1800278,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261110-095428-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261110-095428-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {},
+    "budget": [],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-14",
+        "label": "카메라 갱신 p95 (트랙 샘플 + Camera 적용)",
+        "metric": "camera_p95_ms",
+        "value": 0.0002,
+        "budget": 0.3,
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "카메라 갱신 관리 힙 할당 (1200프레임 합)",
+        "metric": "camera_gc_bytes",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "가림 검사 (리플레이 시작당, 앵글 3개)",
+        "metric": "occlusion_replay_start_ms",
+        "value": 0.0206,
+        "budget": 2.0,
+        "unit": "ms",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "camera_p50_ms": 0.0001,
+      "camera_p95_ms": 0.0002,
+      "camera_max_ms": 0.00030000000000000003,
+      "camera_gc_bytes": 0,
+      "occlusion_replay_start_ms": 0.0206,
+      "camera_track_build_ms": 0.8871
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": false,
+    "durationSec": 5.5,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M1 Pro",
+    "development": false,
+    "commit": "91998bdb55188ca6542af5f9a6a5e45f0d45e0b4"
+  },
+  "requireAllAcs": true,
+  "deferred": {
+    "AC-17": "리플레이 진입 전환 최대 프레임 ≤ 25 ms는 041 AC-15와 같은 측정이다. 042에서는 기록만 하고 048 릴리스 빌드 재생에서 판정한다 (2026-11-10 사용자 결정)"
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "결정론 테스트 없음",
+        "ok": false
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "결정론 테스트 없음",
+        "ok": false
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-14": [
+      {
+        "label": "IL2CPP 벤치 3/3 통과",
+        "ok": true
+      }
+    ],
+    "AC-15": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "fail"
+}

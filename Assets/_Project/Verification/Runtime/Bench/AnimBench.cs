@@ -41,7 +41,7 @@ namespace RoadToPro.Verification.Bench
             {
                 var screen = FindFirstObjectByType<PlayerScreen>();
                 if (screen == null) throw new InvalidOperationException("Player043 씬에 PlayerScreen 없음");
-                m = _spec == "041" ? screen.BenchHighlight(Warmup, Frames) : screen.BenchAnim(Warmup, Frames);
+                m = _spec == "042" ? BroadcastCameraBench.Run(Warmup, Frames) : _spec == "041" ? screen.BenchHighlight(Warmup, Frames) : screen.BenchAnim(Warmup, Frames);
             }
             catch (Exception e)
             {

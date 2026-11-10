@@ -87,11 +87,11 @@ namespace RoadToPro.Verification.Samples.Highlight
     /// <summary>039 대체: 재생 상태를 라벨로 보여 시나리오가 읽게 한다.</summary>
     public sealed class StandInHud : IHighlightHud
     {
-        readonly Label _speed, _scene, _loading, _replay;
+        readonly Label _speed, _scene, _loading, _replay, _reverse;
         readonly VisualElement _overlay;
         float _shownRate = float.NaN;
         int _shownScene = -1, _shownCount = -1;
-        bool _shownReplay;
+        bool _shownReplay, _shownReverse;
 
         public StandInHud(VisualElement root)
         {
@@ -109,6 +109,9 @@ namespace RoadToPro.Verification.Samples.Highlight
             _speed = Add(root, "speedLabel", 16f, 16f);
             _scene = Add(root, "sceneLabel", 16f, 44f);
             _replay = Add(root, "replayLabel", 16f, 72f);
+            _reverse = Add(root, "reverseLabel", 120f, 72f);
+            _reverse.text = "REVERSE ANGLE";
+            _reverse.style.display = DisplayStyle.None;
         }
 
         internal static Label Add(VisualElement parent, string name, float left, float top)
@@ -157,6 +160,11 @@ namespace RoadToPro.Verification.Samples.Highlight
                 _shownReplay = s.IsReplay;
                 _replay.text = s.IsReplay ? "REPLAY" : "";
             }
+            if (s.IsReverseAngle != _shownReverse)
+            {
+                _shownReverse = s.IsReverseAngle;
+                _reverse.style.display = s.IsReverseAngle ? DisplayStyle.Flex : DisplayStyle.None;
+            }
         }
     }
 
@@ -165,6 +173,7 @@ namespace RoadToPro.Verification.Samples.Highlight
     {
         public bool IsReverseAngle => false;
         public void OnSceneBegin(in HighlightScene scene) { }
+        public void OnPlayback(double simTime) { }
     }
 
     /// <summary>048 대체: 목표 fps와 타임라인 구간 렌더 빈도.</summary>

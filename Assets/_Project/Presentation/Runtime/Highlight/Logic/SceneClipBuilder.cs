@@ -35,10 +35,11 @@ namespace RoadToPro.Presentation.Highlight.Logic
         readonly IHighlightDiagnostics _diagnostics;
         readonly HighlightScene[] _scenes;
         readonly List<BuiltScene> _built;
+        readonly Action<BuiltScene> _onBuilt;
         int _next;
 
         public SceneClipBuilder(HighlightScene[] scenes, Func<long, long, ReplayClip> extract, Func<HighlightData, AnimPlan> plan,
-            PitchSpec pitch, IHighlightDiagnostics diagnostics)
+            PitchSpec pitch, IHighlightDiagnostics diagnostics, Action<BuiltScene> onBuilt = null)
         {
             _scenes = scenes ?? throw new ArgumentNullException(nameof(scenes));
             _extract = extract ?? throw new ArgumentNullException(nameof(extract));
@@ -46,6 +47,7 @@ namespace RoadToPro.Presentation.Highlight.Logic
             _pitch = pitch;
             _diagnostics = diagnostics ?? throw new ArgumentNullException(nameof(diagnostics));
             _built = new List<BuiltScene>(scenes.Length);
+            _onBuilt = onBuilt;
         }
 
         public bool IsDone => _next >= _scenes.Length;
@@ -57,16 +59,19 @@ namespace RoadToPro.Presentation.Highlight.Logic
         {
             if (IsDone) return false;
             var scene = _scenes[_next++];
+            BuiltScene built = null;
             try
             {
                 var clip = _extract(TickFloor(scene.Start), TickCeil(scene.End));
                 var data = ClipConverter.ToHighlight(clip, _pitch);
-                _built.Add(new BuiltScene(scene, data, _plan(data), ClipConverter.ToCues(clip)));
+                built = new BuiltScene(scene, data, _plan(data), ClipConverter.ToCues(clip));
+                _built.Add(built);
             }
             catch (ArgumentException)
             {
                 _diagnostics.OnSceneUnavailable(scene.Id);
             }
+            if (built != null) _onBuilt?.Invoke(built);
             return true;
         }
 

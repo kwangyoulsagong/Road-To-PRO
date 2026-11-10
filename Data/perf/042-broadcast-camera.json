@@ -1,0 +1,37 @@
+{
+  "spec": "042",
+  "profile": "mac-m1-1600p",
+  "note": "specs/042 성능 예산의 기계용 사본. 카메라 갱신 CPU·GC·가림 검사는 IL2CPP 릴리스 플레이어(farm.py bench --spec 042, 006 D17). 전환 프레임은 E2E 042-perf에서 기록만.",
+  "tests": [
+    "RoadToPro.Tests.EditMode.Presentation.Highlight.Broadcast"
+  ],
+  "budgets": [],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-14",
+        "label": "카메라 갱신 p95 (트랙 샘플 + Camera 적용)",
+        "metric": "camera_p95_ms",
+        "max": 0.3,
+        "unit": "ms"
+      },
+      {
+        "ac": "AC-14",
+        "label": "카메라 갱신 관리 힙 할당 (1200프레임 합)",
+        "metric": "camera_gc_bytes",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-14",
+        "label": "가림 검사 (리플레이 시작당, 앵글 3개)",
+        "metric": "occlusion_replay_start_ms",
+        "max": 2.0,
+        "unit": "ms"
+      }
+    ]
+  },
+  "deferred": {
+    "AC-17": "리플레이 진입 전환 최대 프레임 ≤ 25 ms는 041 AC-15와 같은 측정이다. 042에서는 기록만 하고 048 릴리스 빌드 재생에서 판정한다 (2026-11-10 사용자 결정)"
+  }
+}

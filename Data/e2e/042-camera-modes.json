@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "id": "042-camera-modes",
+  "spec": "042",
+  "description": "같은 장면 같은 시각을 방송·탑뷰·내 선수 추적으로 캡처 (AC-12). 프레이밍 대상이 화면 안",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261110
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "mac-m1-1600p",
+    "compact-1366",
+    "ultrawide-1080",
+    "phone-landscape"
+  ],
+  "acs": [
+    "AC-12"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "broadcastPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.mode.broadcast"
+    },
+    {
+      "type": "capture",
+      "name": "broadcast",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-12"
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.mode.top"
+    },
+    {
+      "type": "capture",
+      "name": "top",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-12"
+    },
+    {
+      "type": "goto",
+      "screen": "broadcast.mode.mine"
+    },
+    {
+      "type": "capture",
+      "name": "mine",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-12"
+    }
+  ]
+}
