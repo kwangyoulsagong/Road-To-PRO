@@ -11,7 +11,9 @@
     "mac-m1-1600p"
   ],
   "acs": [
-    "AC-18"
+    "AC-18",
+    "AC-09",
+    "AC-12"
   ],
   "defaults": {
     "timeoutSec": 300
@@ -23,7 +25,7 @@
     "light"
   ],
   "id": "048-transition-release",
-  "description": "릴리스(IL2CPP·비개발) 빌드로 041 하이라이트 전체 재생 — 장면 전환 ±1초 최대 프레임 ≤ max(25 ms, 같은 구간의 전환 밖 최대) — 전환이 유발한 스파이크만 판정 (2026-11-10 사용자 결정), 동기 로드·셰이더 컴파일 0 (048 AC-18 → 041 AC-15 판정). 렌더 카운터 없음(프레임 시간만). low-igpu-1080p 판정, mac-m1-1600p 기록",
+  "description": "릴리스(IL2CPP·비개발) 빌드 = 출시 구성에서 판정 (2026-11-10 사용자 결정). 041 하이라이트 전체 재생: 장면 전환 ±1초 최대 ≤ max(25 ms, 같은 구간 전환 밖 최대)·동기 로드·셰이더 컴파일 0 (AC-18 → 041 AC-15), 재생·첫 장면 최대 프레임 ≤ max(33 ms, 빈 화면 구간 최대) (AC-09·AC-12 스파이크), 진입 로딩 첫 진입 ≤ 4 s·재진입 ≤ 2 s (AC-12). 렌더 카운터 없음. 000 FR-44: 판정은 mac-m1-1600p, low-igpu-1080p는 잠정 기록",
   "scene": "Highlight041",
   "alsoSpecs": {
     "041": [
@@ -31,16 +33,43 @@
     ]
   },
   "budgets": {
+    "firstScene": {
+      "frameMs.max": {
+        "max": 33,
+        "orSection": "empty",
+        "orMetric": "frameMs.max"
+      },
+      "custom.shaderCompiles.max": 0
+    },
     "playback": {
       "custom.transitionFrameMs.max": {
         "max": 25,
         "orMetric": "outsideTransitionFrameMs.max"
+      },
+      "frameMs.max": {
+        "max": 33,
+        "orSection": "empty",
+        "orMetric": "frameMs.max"
       },
       "custom.shaderCompiles.max": 0,
       "custom.syncLoads.max": 0
     }
   },
   "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightEmpty"
+    },
+    {
+      "type": "perfBegin",
+      "name": "empty",
+      "warmupFrames": 60,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "empty"
+    },
     {
       "type": "goto",
       "screen": "highlightPlay"
@@ -51,6 +80,23 @@
       "timeoutSec": 120
     },
     {
+      "type": "assertNumberRange",
+      "element": "loadLabel",
+      "min": 0,
+      "max": 4,
+      "ac": "AC-12"
+    },
+    {
+      "type": "perfBegin",
+      "name": "firstScene",
+      "warmupFrames": 0,
+      "minFrames": 120
+    },
+    {
+      "type": "perfEnd",
+      "name": "firstScene"
+    },
+    {
       "type": "perfBegin",
       "name": "playback",
       "warmupFrames": 60,
@@ -59,6 +105,31 @@
     {
       "type": "perfEnd",
       "name": "playback"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "assertNumberRange",
+      "element": "loadLabel",
+      "min": 0,
+      "max": 2,
+      "ac": "AC-12"
     }
   ]
 }

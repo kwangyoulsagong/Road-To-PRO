@@ -23,7 +23,7 @@
     "light"
   ],
   "id": "048-replay-release",
-  "description": "릴리스(IL2CPP·비개발) 빌드로 042 합성 골 시퀀스 재생 — 리플레이 진입 ±1초 최대 프레임 ≤ max(25 ms, 같은 구간의 전환 밖 최대) — 전환이 유발한 스파이크만 판정 (2026-11-10 사용자 결정) (048 AC-18 → 042 AC-17 판정). low-igpu-1080p 판정, mac-m1-1600p 기록",
+  "description": "릴리스(IL2CPP·비개발) 빌드로 042 합성 골 시퀀스 재생 — 리플레이 진입 ±1초 최대 프레임 ≤ max(25 ms, 같은 구간의 전환 밖 최대) — 전환이 유발한 스파이크만 판정 (2026-11-10 사용자 결정) (048 AC-18 → 042 AC-17 판정). low-igpu-1080p 판정, mac-m1-1600p 기록. 측정 3600프레임(전환 밖 표본을 늘림, 2026-11-10 사용자 결정)",
   "scene": "Highlight041",
   "alsoSpecs": {
     "042": [
@@ -54,7 +54,7 @@
       "type": "perfBegin",
       "name": "playback",
       "warmupFrames": 60,
-      "minFrames": 2000
+      "minFrames": 3600
     },
     {
       "type": "perfEnd",

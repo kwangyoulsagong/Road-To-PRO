@@ -67,9 +67,9 @@
 | AC-05 | `e2e/048-presets` (각 프로필 자기 프리셋 기준 이미지 + mac-m1에서 3프리셋 캡처 쌍 차이 ≥ 2%) | E2E | low-igpu-1080p, mac-m1-1600p, desktop-1440p |
 | AC-06 | `e2e/048-upscale` (렌더 스케일 1.0/0.75/0.67 고정 슈팅 프레임, UI 영역 차이 0) | E2E | low-igpu-1080p, uhd-4k-200 |
 | AC-08 | `e2e/048-perf-highlight` (골·코너킥·역습 + 나이트) | 성능 | 성능 예산 표 프로필 전체 |
-| AC-09 | `e2e/048-perf-highlight` 최대 프레임 ≤ max(33 ms, 빈 화면 구간 최대)·GC 기록 | 성능 | low-igpu-1080p |
+| AC-09 | `e2e/048-transition-release`(릴리스) 최대 프레임 ≤ max(33 ms, 빈 화면 구간 최대), 개발 빌드 `048-perf-highlight`는 기록 | 성능 | low-igpu-1080p |
 | AC-11 | `e2e/048-battery` (30 ± 1 fps, 해제 후 1초 안 60), `FrameCap_BatteryToggle_Immediate` | 성능 | low-igpu-1080p |
-| AC-12 | `e2e/048-perf-highlight` 진입 로딩 시간·첫 장면 최대 프레임, 셰이더 컴파일 카운터 0 | 성능 | low-igpu-1080p |
+| AC-12 | `e2e/048-transition-release`(릴리스) 진입 로딩 첫 ≤ 4 s·재진입 ≤ 2 s·첫 장면 최대 프레임, 셰이더 컴파일 0 | 성능 | low-igpu-1080p |
 | AC-15 | `perf-baselines.json`에 048 기준선 등록, 회귀 +10% 판정(000 FR-43 기존 로직) | 성능 | 성능 예산 표 프로필 |
 | AC-16 | `FrameBudget_OverShare_Reported` + `e2e/048-perf-highlight`의 `perfBreakdown` 결과 리포트 | 성능 | low-igpu-1080p |
 | AC-17 | `e2e/048-timeline-gap` (구간 `render3DFrames` = 0, 재개 지연 ≤ 1프레임, 정지 중 창 크기 변경 후 재개 첫 프레임 새 크기), `FrameCap_Timeline_No3D` | E2E | smoke |
