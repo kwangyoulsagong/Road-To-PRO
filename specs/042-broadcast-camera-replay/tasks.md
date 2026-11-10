@@ -36,4 +36,4 @@
 
 ## F. 마무리
 - [x] T18 결정론·리뷰 — 시뮬 불변 확인(Presentation → MatchEngine 읽기만), 필요 시 `determinism-reviewer` — 검증: AC-09·10 필터 — 결과: 변경은 Presentation·Verification·Tests·Data뿐이라 코어 결정론 리뷰 대상 아님 (`git diff`로 Core·MatchEngine 변경 0 확인), AC-09·10 통과
-- [x] T19 `/verify 042` — 커밋 후 EditMode 전체, `bench --spec 042` → `logic` → `full --spec 042` 각 1회, 기준 이미지 채택은 사용자 승인, 리포트 아티팩트 발행, 상태·`specs/README.md` 갱신 — 결과: bench(IL2CPP) 3/3 통과(카메라 p95 0.0002 ms·GC 0 B·가림 0.02 ms), logic 56/56, full 전 프로필 통과, 기준 이미지 296장 사용자 승인 채택, AC-17 보류. 리포트 https://claude.ai/artifact/EiHkN5vSThSmKACbYWQkUq (리포트의 "커밋 안 된 변경" 표시는 full 직전 logic이 갱신한 증거 파일 때문, 코드는 cb1c92f 그대로)
+- [x] T19 `/verify 042` — 커밋 후 EditMode 전체, `bench --spec 042` → `logic` → `full --spec 042` 각 1회, 기준 이미지 채택은 사용자 승인, 리포트 아티팩트 발행, 상태·`specs/README.md` 갱신 — 결과: bench(IL2CPP) 3/3 통과(카메라 p95 0.0002 ms·GC 0 B·가림 0.02 ms), logic 56/56, full 전 프로필 통과, 기준 이미지 296장 사용자 승인 채택, AC-17 보류. 리포트 https://claude.ai/artifact/EiHkN5vSThSmKACbYWQkUq. 최종 full은 깨끗한 트리(890a3f6)에서 다시 1회 실행해 통과
