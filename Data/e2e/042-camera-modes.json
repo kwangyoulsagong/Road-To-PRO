@@ -12,8 +12,7 @@
     "low-igpu-1080p",
     "mac-m1-1600p",
     "compact-1366",
-    "ultrawide-1080",
-    "phone-landscape"
+    "ultrawide-1080"
   ],
   "acs": [
     "AC-12"

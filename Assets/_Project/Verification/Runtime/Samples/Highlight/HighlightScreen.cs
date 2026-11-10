@@ -13,6 +13,8 @@ using RoadToPro.Presentation.Highlight.Broadcast.Logic;
 using RoadToPro.Presentation.Highlight.Logic;
 using RoadToPro.Presentation.Logging;
 using RoadToPro.Presentation.Players.Logic;
+using RoadToPro.Presentation.Rendering;
+using RoadToPro.Presentation.Rendering.Logic;
 using RoadToPro.Verification.Bench;
 using Unity.Profiling;
 using UnityEngine;
@@ -46,7 +48,7 @@ namespace RoadToPro.Verification.Samples.Highlight
         readonly PlaybackSettings _settings = new PlaybackSettings();
         StandInHud _hud;
         readonly StandInCamera _camera = new StandInCamera();
-        readonly StandInFramePolicy _frames = new StandInFramePolicy();
+        HighlightFramePolicy _frames;
         readonly StandInAudio _audio = new StandInAudio();
         StandInKeyMoments _moments;
         readonly CameraSettings _cameraSettings = new CameraSettings();
@@ -78,6 +80,8 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Playback = this;
             FarmContext.DeterminismProbe = this;
             var root = doc.rootVisualElement;
+            _frames = new HighlightFramePolicy(new FrozenFrame(root), FarmContext.BatterySaver);
+            _frames.SetCamera(cam);
             _hud = new StandInHud(root);
             _menu = StandInHud.Add(root, "menuLabel", 16f, 100f);
             _fps = StandInHud.Add(root, "fpsLabel", 16f, 128f);
@@ -86,13 +90,16 @@ namespace RoadToPro.Verification.Samples.Highlight
             _waitLabel = StandInHud.Add(root, "waitLabel", 16f, 212f);
             _memory = StandInHud.Add(root, "memoryLabel", 16f, 240f);
             _handles = StandInHud.Add(root, "handlesLabel", 16f, 268f);
+            _load = StandInHud.Add(root, "loadLabel", 16f, 296f);
+            _load.style.opacity = 0f; // 048 AC-12 측정값일 뿐 캡처에 들어가지 않게
             foreach (var l in new[] { _keyLabel, _waitLabel, _menu }) l.style.display = DisplayStyle.None;
             _waitLabel.style.opacity = 0f; // 대기 신호일 뿐 캡처 비교에 들어가지 않게
 
             player.PauseOnBackground = false;
             FarmContext.Screens["highlightMenu"] = ShowMenu;
             FarmContext.Screens["highlightEmpty"] = () => _frames.EnterHighlight(); // 프레임 판정 기준: 3D 없이 재생과 같은 목표 fps
-            FarmContext.Screens["highlightPlay"] = () => Play(false);
+            FarmContext.Screens["highlightPlay"] = () => { HighlightCastStage.NightRequested = false; Play(false); };
+            FarmContext.Screens["highlightNight"] = () => { HighlightCastStage.NightRequested = true; Play(false); };
             FarmContext.Screens["highlightKeyMoment"] = () => Play(true);
             FarmContext.Screens["broadcastPlay"] = PlayBroadcast;
             FarmContext.Screens["broadcast.freeze.closeup"] = () => player.Sequencer.SeekAndPause(0, BroadcastScenes.GoalTime + 1.2d);
@@ -123,10 +130,15 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["highlightResume"] = () => player.Sequencer.RequestResume();
             FarmContext.Screens["highlightWait"] = () => { _waitLeft = WaitFrames; _waitLabel.style.display = DisplayStyle.None; };
             FarmContext.Screens["highlightLoop"] = () => StartCoroutine(EnterExitLoop());
+            RegisterRenderScreens();
             FarmContext.CaptureRegions = null;
             FarmContext.PerfCounters["transitionFrameMs"] = () => _inTransition ? _frameMs : (double?)null;
             FarmContext.PerfCounters["shaderCompiles"] = () => player.IsLoaded ? _shaderFrame : (double?)null;
             FarmContext.PerfCounters["syncLoads"] = () => player.IsLoaded ? 0d : (double?)null;
+            // 048 AC-17: 타임라인 구간 방송 카메라 프레임 수(0이어야 함)·구간 수·고정 이미지 표시
+            FarmContext.PerfCounters["timelineCameraFrames"] = () => _frames.TimelineCameraFrames;
+            FarmContext.PerfCounters["timelines"] = () => _frames.TimelineCount;
+            FarmContext.PerfCounters["frozen"] = () => _frames.Frozen ? 1d : 0d;
             _shaders = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Shader.CreateGPUProgram", 1);
             _lastFrame = Time.realtimeSinceStartupAsDouble;
             _byBallDistance = (a, b) => (a - _sortBall).sqrMagnitude.CompareTo((b - _sortBall).sqrMagnitude);
@@ -142,6 +154,10 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.PerfCounters.Remove("transitionFrameMs");
             FarmContext.PerfCounters.Remove("shaderCompiles");
             FarmContext.PerfCounters.Remove("syncLoads");
+            FarmContext.PerfCounters.Remove("timelineCameraFrames");
+            FarmContext.PerfCounters.Remove("timelines");
+            FarmContext.PerfCounters.Remove("frozen");
+            _frames?.Dispose();
             _shaders.Dispose();
         }
 
@@ -213,6 +229,8 @@ namespace RoadToPro.Verification.Samples.Highlight
             var ball = BallParams.Create(_tuning.Ball, SurfaceCondition.Dry, PitchSpec.Default);
             var goal = new GoalBox(PitchSpec.Default, BallParams.GoalWidth, BallParams.GoalHeight, ball.NetDepth, ball.Radius);
             var ports = new HighlightPlayer.Ports { KeyMoments = _moments, Hud = _hud, Camera = camera, Frames = _frames, Audio = _audio };
+            _groups = null;
+            _loadStart = Time.realtimeSinceStartupAsDouble;
             player.Begin(scenes, builder, new HighlightAssets(StageScene), cam, goal, _settings, TimelineGap(), ports);
         }
 
@@ -322,14 +340,98 @@ namespace RoadToPro.Verification.Samples.Highlight
             _waitLabel.style.display = DisplayStyle.Flex;
         }
 
+        // ── specs/048 렌더 검증 화면 ──────────────────────────────────────────────
+        // preset.*: 재생 시작 전에만 (P1은 재생 중 프리셋 변경 없음, FR-03 후속). renderScale.*: URP 렌더 스케일 직접 (AC-06).
+        // battery.on/off: 배터리 절약 토글 (AC-11). highlightExit: 모두 건너뛰고 언로드까지 (waitLabel "unloaded").
+        // hide.<시스템>/show.all: 절제 측정 (AC-16).
+        RenderGroups _groups;
+        Label _load;
+        double _loadStart = -1d;
+
+        void RegisterRenderScreens()
+        {
+            foreach (var id in new[] { "Low", "Medium", "High" })
+            {
+                string name = id;
+                FarmContext.Screens["preset." + name] = () => SetPreset(name);
+            }
+            foreach (var sc in new[] { 1.0f, 0.75f, 0.67f })
+            {
+                float scale = sc;
+                FarmContext.Screens["renderScale." + scale.ToString("0.00", CultureInfo.InvariantCulture)] = () => SetRenderScale(scale);
+            }
+            FarmContext.Screens["battery.on"] = () => _frames.SetBatterySaver(true);
+            FarmContext.Screens["battery.off"] = () => _frames.SetBatterySaver(false);
+            FarmContext.Screens["highlightExit"] = () => StartCoroutine(Exit());
+            foreach (var g in new[] { FrameBudget.Pitch, FrameBudget.Structure, FrameBudget.Players, FrameBudget.Props, FrameBudget.Post, FrameBudget.Hud })
+            {
+                string group = g;
+                FarmContext.Screens["hide." + group] = () => HideGroup(group);
+            }
+            FarmContext.Screens["show.all"] = () => HideGroup(null);
+            FarmContext.Screens["hide.scene"] = () =>
+            {
+                if (!player.IsLoaded) return;
+                if (_groups == null) _groups = RenderGroups.Collect(player.Assets.Stage, player.Assets.Blobs);
+                _groups.HideAll();
+            };
+        }
+
+        void SetPreset(string name)
+        {
+            if (player.IsLoaded) Debug.LogWarning("[048] 재생 중 프리셋 변경은 후속 스펙 — 다음 진입부터 적용");
+            var preset = RenderPresetTable.Find(name, m => Debug.LogWarning("[048] " + m));
+            RenderQualityApplier.ApplyGlobal(preset, null, null,
+                n => Resources.Load<FarmRenderAssets>("FarmRenderAssets")?.Find(n), m => Debug.LogError("[048] " + m));
+            RenderQualityApplier.ApplyCamera(preset, cam);
+            Debug.Log($"[048] 프리셋 {name}: 레벨 {RenderQualityApplier.CurrentLevelName}, 렌더 에셋 {UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline?.name}");
+        }
+
+        void SetRenderScale(float scale)
+        {
+            if (UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline is UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset urp)
+                urp.renderScale = scale;
+            RenderQualityApplier.ResetHistory(cam);
+        }
+
+        IEnumerator Exit()
+        {
+            _waitLabel.style.display = DisplayStyle.None;
+            if (player.Sequencer != null) player.Sequencer.RequestSkipAll();
+            yield return null;
+            while (player.Sequencer != null && !player.IsUnloaded) yield return null;
+            _groups = null;
+            _waitLabel.text = "unloaded";
+            _waitLabel.style.display = DisplayStyle.Flex;
+        }
+
+        void HideGroup(string group)
+        {
+            if (!player.IsLoaded) return;
+            if (_groups == null) _groups = RenderGroups.Collect(player.Assets.Stage, player.Assets.Blobs);
+            _groups.HideOnly(group == FrameBudget.Post || group == FrameBudget.Hud ? null : group);
+            if (RenderQualityApplier.Current != null && !RenderQualityApplier.Current.IsStandIn)
+                UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam).renderPostProcessing = group != FrameBudget.Post;
+            _hud.SetVisible(group != FrameBudget.Hud);
+            foreach (var l in new[] { _fps, _framing, _memory, _handles }) l.style.display = group == FrameBudget.Hud ? DisplayStyle.None : DisplayStyle.Flex;
+        }
+
         void Update()
         {
-            double now = Time.realtimeSinceStartupAsDouble;
-            _frameMs = (now - _lastFrame) * 1000d;
-            _lastFrame = now;
+            // 048 T11: 엔진 프레임 간격(성능 구간 frameMs와 같은 값). Update 안 실시간 차이는 스크립트 실행 시점 흔들림이 섞여
+            // 장면 교체 프레임에서 실제 프레임보다 크게 잡혔다 (릴리스: 실시간 27 ms vs 엔진 16.7 ms)
+            _frameMs = Time.unscaledDeltaTime * 1000d;
             _shaderFrame = _shaders.Valid && _shaders.LastValue > 0 ? 1 : 0;
 
             var seq = player.Sequencer;
+            // 048 AC-12: 진입 로딩 = 시작 요청 → 첫 장면 재생 시작 (초)
+            if (_loadStart >= 0d && seq != null && player.IsLoaded && seq.State == SequencerState.Playing)
+            {
+                double sec = Time.realtimeSinceStartupAsDouble - _loadStart;
+                _loadStart = -1d;
+                _load.text = sec.ToString("0.00", CultureInfo.InvariantCulture);
+                Debug.Log($"[048] 하이라이트 진입 로딩 {_load.text} s");
+            }
             ShowCounter(_fps, ref _shownFps, _frames.TargetFps);
             ShowCounter(_handles, ref _shownHandles, player.Assets?.OutstandingHandles ?? 0);
             if (_waitLeft >= 0 && --_waitLeft < 0)

@@ -110,6 +110,11 @@ def summarize(sec):
     }
     if custom:
         out["custom"] = custom  # specs/043: 화면이 넘긴 카운터 (예: custom.animCpuMs.p95)
+    # specs/048: 전환 카운터가 있으면 전환 구간 밖 프레임 시간도 — 전환이 유발한 스파이크만 가려낸다
+    tr = (sec.get("custom") or {}).get("transitionFrameMs")
+    if tr and len(tr) == len(sec["frameMs"]):
+        outside = [f for f, t in zip(sec["frameMs"][w:], tr[w:]) if t is None]
+        out["outsideTransitionFrameMs"] = _stats(outside) if outside else None
     return out
 
 
@@ -142,12 +147,35 @@ def set_metric(metrics, path, value):
     cur[parts[-1]] = value
 
 
-def judge_budget(metrics, budget):
+def resolve_budget(budget, metrics, sections=None):
+    """specs/048: 한도가 {"max", "orMetric", ["orSection"]}이면 max와 비교 지표 값 중 큰 값을 한도로.
+
+    전환·재생 최대 프레임처럼 맥 프레임 페이싱 소음이 섞이는 지표를 "기능이 유발한 몫"으로 판정할 때 쓴다
+    (예: 전환 구간 최대 ≤ max(25, 전환 밖 최대), 재생 최대 ≤ max(33, 빈 화면 구간 최대)). 비교 값이 없으면 max만.
+    """
+    out = {}
+    for path, limit in (budget or {}).items():
+        if isinstance(limit, dict):
+            src = metrics if not limit.get("orSection") else (sections or {}).get(limit["orSection"])
+            other = get_metric(src, limit["orMetric"]) if src is not None and limit.get("orMetric") else None
+            # orMargin: 비교 값에 더하는 측정 허용 오차 (specs/048 AC-18, 2026-11-10 사용자 결정 1 ms)
+            out[path] = max(limit["max"], other + limit.get("orMargin", 0)) if other is not None else limit["max"]
+        else:
+            out[path] = limit
+    return out
+
+
+def judge_budget(metrics, budget, sections=None):
     rows = []
-    for path, limit in sorted((budget or {}).items()):
+    resolved = resolve_budget(budget, metrics, sections)
+    for path, limit in sorted(resolved.items()):
         v = get_metric(metrics, path)
         ok = v is not None and v <= limit
-        rows.append({"metric": path, "value": v, "budget": limit, "ok": ok})
+        row = {"metric": path, "value": v, "budget": limit, "ok": ok}
+        raw = (budget or {}).get(path)
+        if isinstance(raw, dict):
+            row["rule"] = f"max({raw['max']}, {(raw.get('orSection') + '.') if raw.get('orSection') else ''}{raw['orMetric']}{(' + ' + str(raw['orMargin'])) if raw.get('orMargin') else ''})"
+        rows.append(row)
     return rows
 
 
@@ -179,9 +207,9 @@ def judge_regression(metrics, base):
     return rows
 
 
-def evaluate(metrics, budget, base, is_reference, power):
-    """FR-44: 기준 기기 + 전원 연결 측정만 통과/실패 판정. 나머지는 기록만."""
-    budget_rows = judge_budget(metrics, budget)
+def evaluate(metrics, budget, base, is_reference, power, sections=None):
+    """FR-44: 기준 기기 + 전원 연결 측정만 통과/실패 판정. 나머지는 기록만. sections = 같은 실행의 구간별 지표 (orSection용)."""
+    budget_rows = judge_budget(metrics, budget, sections)
     reg_rows = judge_regression(metrics, base)
     judged = bool(is_reference) and power == "ac"
     note = ""
@@ -328,3 +356,9 @@ def write_editmode_perf(out_dir, rows, judgement):
 
 def editmode_baseline_key(spec, profile):
     return f"editmode/{spec}/{profile}"
+
+
+def advisory(ev):
+    """기록 전용 예산 (specs/048 AC-16 하위 시스템 몫): 초과 항목은 그대로 남겨 표에 표시하되 판정은 통과로 둔다."""
+    over = any(not b.get("ok", True) for b in ev.get("budget", []))
+    return {**ev, "ok": True, "advisory": True, "advisoryOver": over}

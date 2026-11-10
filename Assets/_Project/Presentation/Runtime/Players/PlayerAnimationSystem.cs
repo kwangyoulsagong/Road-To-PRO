@@ -43,6 +43,8 @@ namespace RoadToPro.Presentation.Players
         {
             Dispose();
             _plan = plan;
+            // 새 선수·계획이면 같은 시각이라도 다시 적용해야 한다 (041 조기 반환이 043~057 정지 화면 재초기화를 막던 회귀, 048 T16)
+            LastTime = float.NaN;
             _clock = clock;
             _ball = ball;
             _cam = lodCamera;

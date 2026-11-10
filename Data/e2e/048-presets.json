@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "id": "048-presets",
+  "spec": "048",
+  "description": "같은 장면·시점(골 순간)을 Low/Medium/High(Medium·High는 Mobile/PC 대역)로 캡처 — 프리셋 쌍 차이 ≥ 2% (AC-05), Low 나이트(블롭 4장) 확인. 각 캡처는 기준 이미지 비교",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "mac-m1-1600p",
+    "desktop-1440p"
+  ],
+  "acs": [
+    "AC-05",
+    "AC-01"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "imageChecks": [
+    {
+      "type": "differentImage",
+      "capture": "low",
+      "other": "medium",
+      "minDiffRatio": 0.02,
+      "ac": "AC-05"
+    },
+    {
+      "type": "differentImage",
+      "capture": "medium",
+      "other": "high",
+      "minDiffRatio": 0.02,
+      "ac": "AC-05"
+    },
+    {
+      "type": "differentImage",
+      "capture": "low",
+      "other": "high",
+      "minDiffRatio": 0.02,
+      "ac": "AC-05"
+    },
+    {
+      "type": "notBlank",
+      "capture": "nightLow",
+      "ac": "AC-05"
+    }
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "preset.Low"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.goal"
+    },
+    {
+      "type": "capture",
+      "name": "low",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Medium"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.goal"
+    },
+    {
+      "type": "capture",
+      "name": "medium",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.High"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.goal"
+    },
+    {
+      "type": "capture",
+      "name": "high",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Low"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightNight"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.goal"
+    },
+    {
+      "type": "capture",
+      "name": "nightLow",
+      "kind": "3d"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

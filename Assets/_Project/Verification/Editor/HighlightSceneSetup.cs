@@ -36,7 +36,10 @@ namespace RoadToPro.Verification.Editor
             var day = AssetDatabase.LoadAssetAtPath<StadiumLightingPreset>(RoadToPro.Presentation.Editor.Stadium.StadiumAssets.DayPath);
             if (day == null) throw new System.InvalidOperationException("조명 프리셋 없음");
             var stage = new GameObject("HighlightStage").AddComponent<HighlightCastStage>();
-            stage.Configure(PlayerSceneSetup.BuildAssets(), st.Sun, st.Emissive, lighting, day, st.Binder);
+            var night = AssetDatabase.LoadAssetAtPath<StadiumLightingPreset>(RoadToPro.Presentation.Editor.Stadium.StadiumAssets.NightPath);
+            var blob = AssetDatabase.LoadAssetAtPath<Material>(RoadToPro.Presentation.Editor.Stadium.StadiumAssets.BlobMatPath);
+            if (night == null || blob == null) throw new System.InvalidOperationException("나이트 프리셋·블롭 머티리얼 없음");
+            stage.Configure(PlayerSceneSetup.BuildAssets(), st.Sun, st.Emissive, lighting, day, st.Binder, night, blob);
             EditorSceneManager.SaveScene(scene, StageScenePath);
         }
 

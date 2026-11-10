@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "id": "048-upscale",
+  "spec": "048",
+  "description": "Low(STP) 골 순간 고정 프레임을 렌더 스케일 1.0/0.75/0.67로 캡처(공·라인 비교, 기준 이미지). 3D를 모두 끈 화면에서 UI 영역은 세 스케일이 같다 (AC-06). 정지 캡처는 STP 히스토리를 리셋하므로 재생 중 잔상은 이 캡처로 보지 않는다. UI 영역 판정: 보이는 차이(채널 차 > 8) 픽셀 0%, 평균 차 ≤ 1.0 — 반투명 라벨 뒤 3D 배경의 STP 노이즈 디더가 평균 0.56 정도 섞인다",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "low-igpu-1080p",
+    "uhd-4k-200"
+  ],
+  "acs": [
+    "AC-06"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "imageChecks": [
+    {
+      "type": "sameImage",
+      "capture": "ui100",
+      "other": "ui075",
+      "rect": [
+        0,
+        0,
+        120,
+        320
+      ],
+      "maxMeanDiff": 1.0,
+      "maxDiffRatio": 0.0,
+      "ac": "AC-06"
+    },
+    {
+      "type": "sameImage",
+      "capture": "ui100",
+      "other": "ui067",
+      "rect": [
+        0,
+        0,
+        120,
+        320
+      ],
+      "maxMeanDiff": 1.0,
+      "maxDiffRatio": 0.0,
+      "ac": "AC-06"
+    }
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "preset.Low"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightPlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "freeze.goal"
+    },
+    {
+      "type": "goto",
+      "screen": "renderScale.1.00"
+    },
+    {
+      "type": "capture",
+      "name": "shot100",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "renderScale.0.75"
+    },
+    {
+      "type": "capture",
+      "name": "shot075",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "renderScale.0.67"
+    },
+    {
+      "type": "capture",
+      "name": "shot067",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hide.scene"
+    },
+    {
+      "type": "goto",
+      "screen": "renderScale.1.00"
+    },
+    {
+      "type": "capture",
+      "name": "ui100",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "renderScale.0.75"
+    },
+    {
+      "type": "capture",
+      "name": "ui075",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "renderScale.0.67"
+    },
+    {
+      "type": "capture",
+      "name": "ui067",
+      "kind": "3d"
+    }
+  ],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

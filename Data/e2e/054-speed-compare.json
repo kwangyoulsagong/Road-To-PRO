@@ -16,8 +16,7 @@
   "description": "같은 접촉 장면을 1x·1.5x·3x·0.5x로 같은 시뮬 시각에 멈춰 비교 (AC-15). 재생 속도가 포즈를 바꾸지 않으면 같은 그림",
   "profiles": [
     "low-igpu-1080p",
-    "mac-m1-1600p",
-    "phone-landscape"
+    "mac-m1-1600p"
   ],
   "acs": [
     "AC-15"

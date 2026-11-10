@@ -23,6 +23,12 @@ namespace RoadToPro.Verification.Samples.Highlight
         [SerializeField] StadiumLighting lighting;
         [SerializeField] StadiumLightingPreset day;
         [SerializeField] PitchMaterialBinder binder;
+        [SerializeField] StadiumLightingPreset night;
+        [SerializeField] Material blobMaterial;
+
+        /// <summary>다음 Prepare에서 나이트 조명을 쓴다 (화면 highlightNight, specs/048 AC-08). 검증 전용.</summary>
+        public static bool NightRequested;
+        bool _night;
 
         readonly PlayerRig[] _rigs = new PlayerRig[HighlightData.Entities];
         readonly float[] _scales = new float[HighlightData.Entities];
@@ -39,9 +45,15 @@ namespace RoadToPro.Verification.Samples.Highlight
         public AnimationMap Map => _map;
         public float[] Scales => _scales;
         public StadiumLayout Layout => binder != null ? binder.Layout : null;
+        public override Material BlobMaterial => blobMaterial;
+        public override Light Sun => sun;
+        public override System.Collections.Generic.IReadOnlyList<Vector3> NightEmitters => _night && Layout != null ? Layout.LightEmitters : null;
 
-        public void Configure(in PlayerScreen.PlayerAssets a, Light s, Material e, StadiumLighting l, StadiumLightingPreset d, PitchMaterialBinder b)
+        public void Configure(in PlayerScreen.PlayerAssets a, Light s, Material e, StadiumLighting l, StadiumLightingPreset d, PitchMaterialBinder b,
+            StadiumLightingPreset n, Material blob)
         {
+            night = n;
+            blobMaterial = blob;
             assets = a;
             sun = s;
             emissive = e;
@@ -54,7 +66,8 @@ namespace RoadToPro.Verification.Samples.Highlight
         {
             ILogger log = new UnityLogger(RoadToPro.Core.Logging.LogLevel.Warning);
             lighting.Configure(sun, emissive, new[] { broadcastCamera }, new BlobShadow4[0]);
-            lighting.Apply(day);
+            _night = NightRequested && night != null;
+            lighting.Apply(_night ? night : day);
             binder.Bind();
 
             _lib = ClipLibrary.Parse(assets.clipsJson.text);

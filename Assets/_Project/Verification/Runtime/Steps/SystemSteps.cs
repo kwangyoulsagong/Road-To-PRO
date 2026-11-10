@@ -16,9 +16,21 @@ namespace RoadToPro.Verification
             byte[] prev = null;
             string diff = "";
             bool stable = false;
-            for (int i = 0; i < MaxStabilityTries; i++)
+            var hold = new TemporalCaptureHold();
+            hold.Tick();
+            // STP: 지터 위상은 고정하지만 블루 노이즈는 frameCount로 32주기 → 같은 위상 프레임끼리 비교 (specs/048 T06)
+            bool phased = TemporalCaptureHold.UsesStp && TemporalCaptureHold.Supported;
+            int tries = phased ? 4 : MaxStabilityTries;
+            for (int i = 0; i < tries; i++)
             {
                 yield return new WaitForEndOfFrame();
+                hold.Tick();
+                while (phased && Time.frameCount % TemporalCaptureHold.NoisePeriod != 0)
+                {
+                    yield return null;
+                    yield return new WaitForEndOfFrame();
+                    hold.Tick();
+                }
                 var cur = _capture.ReadRaw();
                 if (OffscreenCapture.SameBytes(prev, cur))
                 {
@@ -28,7 +40,7 @@ namespace RoadToPro.Verification
                 if (prev != null)
                 {
                     diff = _capture.DiffSummary(prev, cur);
-                    if (i == MaxStabilityTries - 1)
+                    if (i == tries - 1)
                     {
                         // 진단: 마지막 두 프레임을 남긴다 (captures/_unstable_a.png, _b.png)
                         File.WriteAllBytes(Path.Combine(_args.OutDir, "captures/_unstable_a.png"), _capture.EncodeRaw(prev));
@@ -38,9 +50,10 @@ namespace RoadToPro.Verification
                 prev = (byte[])cur.Clone();
                 yield return null;
             }
+            hold.Release();
             if (!stable)
             {
-                o.Fail($"화면이 {MaxStabilityTries}프레임 안에 안정되지 않았다 (불안정) — 마지막 두 프레임: {diff}");
+                o.Fail($"화면이 {tries}{(phased ? "회(32프레임 간격, STP)" : "프레임")} 안에 안정되지 않았다 (불안정) — 마지막 두 프레임: {diff}");
                 yield break;
             }
             var name = s.GetString("name");

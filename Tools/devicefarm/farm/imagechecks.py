@@ -7,8 +7,9 @@ import re
 
 import numpy as np
 
-TYPES = ("notBlank", "bandFlip", "lineContinuity", "blobX", "deltaE", "glyphInside", "contactDistance", "sameImage")
-PAIRED = ("bandFlip", "sameImage")  # 캡처 두 장 (capture + other)
+TYPES = ("notBlank", "bandFlip", "lineContinuity", "blobX", "deltaE", "glyphInside", "contactDistance", "sameImage",
+         "differentImage")
+PAIRED = ("bandFlip", "sameImage", "differentImage")  # 캡처 두 장 (capture + other)
 
 
 def _lum(a):
@@ -279,15 +280,43 @@ def contact_distance(arr, regions, max_ratio=0.5):
     return {"ok": ok, "detail": f"{c.get('clip', '')}: 접촉점–공 {dist:.1f}px ≤ {max_ratio} × 공 지름 {dia:.1f}px ({max_ratio * dia:.1f})"}
 
 
-def same_image(arr_a, reg_a, arr_b, reg_b, max_mean_diff=0.5, max_diff_ratio=0.001):
-    """043 AC-15: 같은 시뮬 시각을 다른 배속으로 캡처한 두 장이 같은 포즈(픽셀 평균 차·다른 픽셀 비율)."""
-    if arr_a.shape != arr_b.shape:
+def _crop(arr, rect):
+    if rect is None:
+        return arr
+    x, y, w, h = (int(round(v)) for v in rect)
+    H, W = arr.shape[:2]
+    x0, y0, x1, y1 = max(0, x), max(0, y), min(W, x + w), min(H, y + h)
+    if x1 <= x0 or y1 <= y0:
+        raise ValueError(f"영역이 화면 밖 {rect}")
+    return arr[y0:y1, x0:x1]
+
+
+def _pixel_diff(arr_a, arr_b, rect=None):
+    a, b = _crop(arr_a, rect), _crop(arr_b, rect)
+    if a.shape != b.shape:
+        raise ValueError(f"크기 다름 {a.shape} vs {b.shape}")
+    return np.abs(a[..., :3].astype(np.int16) - b[..., :3].astype(np.int16)).max(axis=-1)
+
+
+def same_image(arr_a, reg_a, arr_b, reg_b, max_mean_diff=0.5, max_diff_ratio=0.001, rect=None):
+    """043 AC-15: 같은 시뮬 시각을 다른 배속으로 캡처한 두 장이 같은 포즈(픽셀 평균 차·다른 픽셀 비율).
+    rect [x, y, w, h]가 있으면 그 영역만 (048 AC-06: UI 영역은 렌더 스케일과 무관)."""
+    if rect is None and arr_a.shape != arr_b.shape:
         return {"ok": False, "detail": f"크기 다름 {arr_a.shape} vs {arr_b.shape}"}
-    d = np.abs(arr_a[..., :3].astype(np.int16) - arr_b[..., :3].astype(np.int16)).max(axis=-1)
+    d = _pixel_diff(arr_a, arr_b, rect)
     mean = float(d.mean())
     ratio = float((d > 8).mean())
     ok = mean <= max_mean_diff and ratio <= max_diff_ratio
-    return {"ok": ok, "detail": f"평균 차 {mean:.3f} (≤ {max_mean_diff}), 다른 픽셀(>8) {ratio * 100:.3f}% (≤ {max_diff_ratio * 100:.3f}%)"}
+    where = f" 영역 {rect}" if rect is not None else ""
+    return {"ok": ok, "detail": f"평균 차 {mean:.3f} (≤ {max_mean_diff}), 다른 픽셀(>8) {ratio * 100:.3f}% (≤ {max_diff_ratio * 100:.3f}%){where}"}
+
+
+def different_image(arr_a, reg_a, arr_b, reg_b, min_diff_ratio=0.02, threshold=8, rect=None):
+    """048 AC-05: 같은 장면을 다른 프리셋으로 캡처한 두 장이 실제로 다르게 그려졌다 (다른 픽셀 비율 ≥ 기준)."""
+    d = _pixel_diff(arr_a, arr_b, rect)
+    ratio = float((d > threshold).mean())
+    return {"ok": ratio >= min_diff_ratio, "ratio": ratio,
+            "detail": f"다른 픽셀(>{threshold}) {ratio * 100:.2f}% (≥ {min_diff_ratio * 100:.2f}%)"}
 
 
 def run(checks, captures):
@@ -324,6 +353,11 @@ def run(checks, captures):
                     raise KeyError(f"캡처 없음: {c['other']}")
                 arr2, reg2 = captures[c["other"]]
                 r = same_image(arr, reg, arr2, reg2, **params)
+            elif t == "differentImage":
+                if c["other"] not in captures:
+                    raise KeyError(f"캡처 없음: {c['other']}")
+                arr2, reg2 = captures[c["other"]]
+                r = different_image(arr, reg, arr2, reg2, **params)
             else:
                 raise KeyError(f"알 수 없는 검사 {t}")
             row.update(ok=bool(r["ok"]), detail=r["detail"])
