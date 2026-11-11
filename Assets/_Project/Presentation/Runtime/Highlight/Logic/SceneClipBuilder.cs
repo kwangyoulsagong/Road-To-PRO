@@ -64,7 +64,7 @@ namespace RoadToPro.Presentation.Highlight.Logic
             {
                 var clip = _extract(TickFloor(scene.Start), TickCeil(scene.End));
                 var data = ClipConverter.ToHighlight(clip, _pitch);
-                built = new BuiltScene(scene, data, _plan(data), ClipConverter.ToCues(clip));
+                built = new BuiltScene(scene, data, _plan(data), ClipConverter.ToCues(clip, data, _pitch.LengthM * 0.5f));
                 _built.Add(built);
             }
             catch (ArgumentException)

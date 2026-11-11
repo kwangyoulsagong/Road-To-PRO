@@ -239,11 +239,14 @@ namespace RoadToPro.Presentation.Players.Logic
         }
 
         /// <summary>블렌드 입력 속도 변화 제한 (FR-62). 큰 점프는 시뮬 오류로 진단 로그.</summary>
-        public static float LimitSpeed(float prev, float target, float dt, ILogger log)
+        public static float LimitSpeed(float prev, float target, float dt, ILogger log) => LimitSpeed(prev, target, dt, log, "판단");
+
+        /// <summary>원인 표시가 붙는 판(specs/058 FR-12): 로그 끝에 "원인=배치|기록|판단".</summary>
+        public static float LimitSpeed(float prev, float target, float dt, ILogger log, string cause)
         {
             float d = target - prev;
             if (Math.Abs(d) > SimErrorAccel * dt)
-                log.Warning("[anim] 속도 점프 {0:0.00} → {1:0.00} m/s ({2:0.000} s) — 시뮬 오류 의심, 블렌드 제한 적용", prev, target, dt);
+                log.Warning("[anim] 속도 점프 {0:0.00} → {1:0.00} m/s ({2:0.000} s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=" + cause, prev, target, dt);
             float max = MaxBlendAccel * dt;
             if (d > max) return prev + max;
             if (d < -max) return prev - max;

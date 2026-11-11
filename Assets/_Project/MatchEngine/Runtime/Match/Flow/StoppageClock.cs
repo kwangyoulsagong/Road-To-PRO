@@ -15,6 +15,8 @@ namespace RoadToPro.MatchEngine.Match.Flow
         readonly long[] _byKind = new long[EventCodes.StopKinds];
         readonly long[] _coef;
         long _total;
+        int _runKind = -1;
+        long _runStart;
 
         public StoppageClock(long[] coefTicks) => _coef = coefTicks;
 
@@ -29,8 +31,34 @@ namespace RoadToPro.MatchEngine.Match.Flow
             _total += add;
         }
 
+        /// <summary>진행 중 정지 (058 FR-05: 골 순간부터 킥오프까지). 끝날 때 실제 길이를 더한다.</summary>
+        public bool Running => _runKind >= 0;
+
+        public void BeginRunning(int kind, long tick)
+        {
+            if (_runKind >= 0) EndRunning(tick);
+            _runKind = kind;
+            _runStart = tick;
+        }
+
+        public void EndRunning(long tick)
+        {
+            if (_runKind < 0) return;
+            var kind = _runKind;
+            _runKind = -1;
+            Add(kind, tick - _runStart);
+        }
+
+        /// <summary>진행 중 정지를 지금 틱까지 포함한 누적 (계수는 끝날 때 더한다).</summary>
+        public long TotalTicksAt(long tick) => _runKind < 0 ? _total : _total + (tick - _runStart) + _coef[_runKind];
+
+        /// <summary>진행 중 정지를 포함한 발표 분 (올림).</summary>
+        public int AnnouncedMinutesAt(long tick) => (int)((TotalTicksAt(tick) + SimClock.TicksPerMinute - 1) / SimClock.TicksPerMinute);
+
         public void ResetPeriod()
         {
+            _runKind = -1;
+            _runStart = 0;
             System.Array.Clear(_byKind, 0, _byKind.Length);
             _total = 0;
         }
@@ -42,18 +70,24 @@ namespace RoadToPro.MatchEngine.Match.Flow
         {
             for (int i = 0; i < _byKind.Length; i++) w.Write(_byKind[i]);
             w.Write(_total);
+            w.Write(_runKind);
+            w.Write(_runStart);
         }
 
         public void Read(StateReader r)
         {
             for (int i = 0; i < _byKind.Length; i++) _byKind[i] = r.ReadLong();
             _total = r.ReadLong();
+            _runKind = r.ReadInt();
+            _runStart = r.ReadLong();
         }
 
         public void AddTo(ref StableHasher h)
         {
             for (int i = 0; i < _byKind.Length; i++) h.Add(_byKind[i]);
             h.Add(_total);
+            h.Add(_runKind);
+            h.Add(_runStart);
         }
     }
 }

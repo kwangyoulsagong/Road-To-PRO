@@ -67,6 +67,16 @@ namespace RoadToPro.MatchEngine.Match.Events
         VarOverturn = 409,
         PlayersBelowMinimum = 410,
         Stoppage = 411,
+        /// <summary>specs/058 FR-04·08: 데드볼 공 재배치 (골당·재시작당 최대 1회). A = 사유(<see cref="EventCodes"/>.Relocate*). 위치 = 새 지점.</summary>
+        BallRelocated = 412,
+        /// <summary>specs/058 FR-02·07: 데드볼 단계 전환. A = <c>DeadBallPhase</c>.</summary>
+        DeadBallPhase = 413,
+        /// <summary>specs/058 FR-03 진단: 상한에 도달했지만 킥오프 규칙 위반 선수가 남아 킥오프를 미룬다. PlayerId = 위반 선수 (첫 1건).</summary>
+        RestartHeld = 414,
+        /// <summary>specs/058 FR-61·65: 걸어 나간 선수가 피치를 벗어났다. A = 사유(<see cref="EventCodes"/>.Leave*).</summary>
+        PlayerLeftPitch = 415,
+        /// <summary>specs/058 FR-61: 교체 투입 선수가 터치라인에서 들어오기 시작했다. OtherId = 나간 선수.</summary>
+        PlayerEntered = 416,
 
         // 027 (500~): 부상
         Injury = 500,
@@ -134,5 +144,14 @@ namespace RoadToPro.MatchEngine.Match.Events
         public const int StopCard = 4;
         public const int StopDissent = 5;
         public const int StopKinds = 6;
+
+        // 공 재배치 사유 (SimEvent.A on BallRelocated, specs/058)
+        public const int RelocateGoal = 1;
+        public const int RelocateRestart = 2;
+
+        // 피치 이탈 사유 (SimEvent.A on PlayerLeftPitch, specs/058)
+        public const int LeaveSubstituted = 1;
+        public const int LeaveSentOff = 2;
+        public const int LeaveInjured = 3;
     }
 }

@@ -133,6 +133,8 @@ namespace RoadToPro.MatchEngine.Match
 
         public int PlayerAtSlot(int slot) => Squad.PlayerAt(slot);
         public bool IsSlotActive(int slot) => Squad.IsSlotFilled(slot) && Kinematics.IsActive(slot);
+        /// <summary>판단·공 잡기·배치 판정 대상: 경기장에 있고 걸어 나가거나 들어오는 중이 아니다 (specs/058 FR-61·65).</summary>
+        public bool IsSlotControllable(int slot) => IsSlotActive(slot) && !Flow.Walkers.IsWalking(slot);
         public ref readonly PlayerMotionState SlotState(int slot) => ref Kinematics.State(slot);
 
         // ── 상태 해시 · 직렬화 ──

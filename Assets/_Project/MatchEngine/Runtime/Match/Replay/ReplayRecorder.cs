@@ -129,7 +129,9 @@ namespace RoadToPro.MatchEngine.Match.Replay
             {
                 var o = s * ReplayFrame.Stride;
                 f.PlayerIds[s] = _ctx.Squad.PlayerAt(s);
-                if (!_ctx.IsSlotActive(s))
+                var leaving = _ctx.Flow.Walkers.LeavingIdAt(s); // 058 FR-65: 인원에서 빠졌지만 걸어 나가는 중
+                if (leaving >= 0 && k.IsActive(s)) f.PlayerIds[s] = leaving;
+                else if (!_ctx.IsSlotActive(s))
                 {
                     v[o] = 0f; v[o + 1] = 0f; v[o + 2] = 0f; v[o + 3] = 0f;
                     f.Hints[s] = MotionHint.Absent;

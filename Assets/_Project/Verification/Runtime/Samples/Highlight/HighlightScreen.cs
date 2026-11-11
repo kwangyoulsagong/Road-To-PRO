@@ -11,6 +11,7 @@ using RoadToPro.Presentation.Highlight;
 using RoadToPro.Presentation.Highlight.Broadcast;
 using RoadToPro.Presentation.Highlight.Broadcast.Logic;
 using RoadToPro.Presentation.Highlight.Logic;
+using RoadToPro.Presentation.Highlight.Selection;
 using RoadToPro.Presentation.Logging;
 using RoadToPro.Presentation.Players.Logic;
 using RoadToPro.Presentation.Rendering;
@@ -32,10 +33,8 @@ namespace RoadToPro.Verification.Samples.Highlight
     {
         const string StageScene = "Highlight3D";
         const ulong Seed = 20261109UL;
-        const int LoopCount = 10, WaitFrames = 60, FramingPlayers = 10;
-        const float FitMargin = 1.12f, ViewportMargin = 0.02f;
+        const int LoopCount = 10, WaitFrames = 60;
         const double TransitionWindow = 1d;
-        static readonly Vector3 CameraPosition = new Vector3(0f, 24f, -72f);
         static readonly Color MenuBackground = new Color(0.95f, 0.95f, 0.96f);
 
         [SerializeField] Camera cam;
@@ -47,14 +46,14 @@ namespace RoadToPro.Verification.Samples.Highlight
 
         readonly PlaybackSettings _settings = new PlaybackSettings();
         StandInHud _hud;
-        readonly StandInCamera _camera = new StandInCamera();
+        LiveSceneList _live;
+        LiveSceneBriefs _liveBriefs;
         HighlightFramePolicy _frames;
         readonly StandInAudio _audio = new StandInAudio();
         StandInKeyMoments _moments;
         readonly CameraSettings _cameraSettings = new CameraSettings();
         BroadcastCamera _broadcast;
-        Label _menu, _fps, _framing, _keyLabel, _waitLabel, _memory, _handles;
-        readonly List<Vector3> _targets = new List<Vector3>();
+        Label _menu, _fps, _framing, _keyLabel, _waitLabel, _memory, _handles, _sceneMatch;
         int _waitLeft = -1;
         ProfilerRecorder _shaders;
         double _lastFrame;
@@ -63,8 +62,6 @@ namespace RoadToPro.Verification.Samples.Highlight
         int _shaderFrame;
         int _shownFps = -1, _shownHandles = -1;
         bool _shownFramed;
-        Vector3 _sortBall;
-        System.Comparison<Vector3> _byBallDistance;
 
         public void Configure(Camera c, UIDocument d, HighlightPlayer p)
         {
@@ -92,6 +89,8 @@ namespace RoadToPro.Verification.Samples.Highlight
             _handles = StandInHud.Add(root, "handlesLabel", 16f, 268f);
             _load = StandInHud.Add(root, "loadLabel", 16f, 296f);
             _load.style.opacity = 0f; // 048 AC-12 측정값일 뿐 캡처에 들어가지 않게
+            _sceneMatch = StandInHud.Add(root, "sceneMatchLabel", 16f, 324f);
+            _sceneMatch.style.opacity = 0f; // 058 AC-12 확인 신호 (캡처 제외)
             foreach (var l in new[] { _keyLabel, _waitLabel, _menu }) l.style.display = DisplayStyle.None;
             _waitLabel.style.opacity = 0f; // 대기 신호일 뿐 캡처 비교에 들어가지 않게
 
@@ -102,6 +101,7 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["highlightNight"] = () => { HighlightCastStage.NightRequested = true; Play(false); };
             FarmContext.Screens["highlightKeyMoment"] = () => Play(true);
             FarmContext.Screens["broadcastPlay"] = PlayBroadcast;
+            RegisterLiveScreens();
             FarmContext.Screens["broadcast.freeze.closeup"] = () => player.Sequencer.SeekAndPause(0, BroadcastScenes.GoalTime + 1.2d);
             for (int i = 0; i < 3; i++)
             {
@@ -119,7 +119,7 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["freeze.first"] = () => FreezeScene(0, 0.5d);
             FarmContext.Screens["freeze.goal"] = FreezeGoal;
             FarmContext.Screens["freeze.replayMid"] = FreezeReplay;
-            FarmContext.Screens["freeze.afterTransition"] = () => FreezeScene(1, 0d);
+            FarmContext.Screens["freeze.afterTransition"] = () => FreezeScene(1, 0.2d); // 058: 리플레이 진입 블렌드(042 FR-14, 시뮬 0.15 s) 뒤
             foreach (var r in new[] { 1f, 1.5f, 2f, 3f })
             {
                 float rate = r;
@@ -141,7 +141,6 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.PerfCounters["frozen"] = () => _frames.Frozen ? 1d : 0d;
             _shaders = ProfilerRecorder.StartNew(ProfilerCategory.Render, "Shader.CreateGPUProgram", 1);
             _lastFrame = Time.realtimeSinceStartupAsDouble;
-            _byBallDistance = (a, b) => (a - _sortBall).sqrMagnitude.CompareTo((b - _sortBall).sqrMagnitude);
             ShowMenu();
         }
 
@@ -177,8 +176,9 @@ namespace RoadToPro.Verification.Samples.Highlight
         {
             if (_match != null) return _match;
             var work = new MatchBenchWorkloads(DataDir);
-            _tuning = work.Tuning;
-            _match = new MatchSim(MatchBenchWorkloads.Setup(Seed), _tuning, new MatchSimOptions { Checkpoints = CheckpointMode.All });
+            _tuning = LiveMatchFixture.Tuning(work.Tuning, DataDir); // 058: E2E 경기만 저득점
+            // specs/058: 실경기 하이라이트 고정 경기 (퇴장 주입 — 파울 장면 대체, 내 선수 지정)
+            _match = new MatchSim(LiveMatchFixture.Prepare(MatchBenchWorkloads.Setup(Seed)), _tuning, LiveMatchFixture.Options());
             _match.RunToEnd();
             return _match;
         }
@@ -189,9 +189,29 @@ namespace RoadToPro.Verification.Samples.Highlight
             _keyLabel.style.display = DisplayStyle.None;
             _hud.SetVisible(true);
             var sim = Match();
-            var scenes = StandInSceneSelector.Select(sim, keyMoment);
-            _broadcast = null;
-            Begin(scenes, sim.ExtractClip, _camera, null);
+            // specs/058 FR-20·40: 이벤트 기반 장면 선정 + 042 중계 카메라 (041 대체 카메라·순간이동 자르기 제거)
+            var hl = RoadToPro.Core.Tuning.TuningBundle.Defaults(RoadToPro.Core.Tuning.TuningLoader.LoadDefinitionsFile(Path.Combine(DataDir, "tuning", "highlight.json")));
+            _live = LiveSceneSelector.Select(sim.Result.EventLog, sim.Result.EndTick, PitchSpec.Default, LiveMatchFixture.MyPlayerId, SceneScoreTable.From(hl));
+            var scenes = _live.Scenes;
+            if (keyMoment && scenes.Length > 0)
+            {
+                var f = scenes[0];
+                var info = _live.Info[f.Id];
+                scenes[0] = new HighlightScene(f.Id, f.Start, f.End, f.IsReplay, true, System.Math.Max(f.Start, info.EventTime - 2d), f.Priority, f.GroupId);
+            }
+            _liveBriefs = new LiveSceneBriefs(_live, (t, id) => SlotAt(sim, t, id), LiveMatchFixture.MyPlayerId, PitchSpec.Default);
+            var registry = RoadToPro.Core.Tuning.TuningLoader.LoadDefinitionsFile(Path.Combine(DataDir, "tuning", "camera.json"));
+            var tuning = CameraTuning.From(RoadToPro.Core.Tuning.TuningBundle.Defaults(registry));
+            CameraRigData Rig() => CameraRigData.From(((HighlightCastStage)player.Assets.Stage).Layout, m => Debug.LogWarning("[broadcast] " + m));
+            _broadcast = new BroadcastCamera(cam, _liveBriefs.Brief, Rig, tuning, _cameraSettings);
+            Begin(scenes, sim.ExtractClip, _broadcast, _broadcast.OnSceneBuilt);
+        }
+
+        static int SlotAt(MatchSim sim, long tick, int playerId)
+        {
+            var f = sim.ExtractClip(tick, tick + 1).Frames[0];
+            for (int s = 0; s < Squad.Slots; s++) if (f.PlayerIds[s] == playerId) return s;
+            return -1;
         }
 
         /// <summary>specs/042: 합성 골 장면을 실제 중계 카메라로 재생한다.</summary>
@@ -204,8 +224,118 @@ namespace RoadToPro.Verification.Samples.Highlight
             var registry = RoadToPro.Core.Tuning.TuningLoader.LoadDefinitionsFile(Path.Combine(DataDir, "tuning", "camera.json"));
             var tuning = CameraTuning.From(RoadToPro.Core.Tuning.TuningBundle.Defaults(registry));
             CameraRigData Rig() => CameraRigData.From(((HighlightCastStage)player.Assets.Stage).Layout, m => Debug.LogWarning("[broadcast] " + m));
+            _live = null;
+            _liveBriefs = null;
             _broadcast = new BroadcastCamera(cam, BroadcastScenes.Brief, Rig, tuning, _cameraSettings);
             Begin(BroadcastScenes.Scenes(), BroadcastScenes.Extract, _broadcast, _broadcast.OnSceneBuilt);
+        }
+
+        // ── specs/058 실경기 장면 고정 화면 ──
+
+        Label _halves;
+
+        void RegisterLiveScreens()
+        {
+            FarmContext.Screens["livePlay"] = () => { HighlightCastStage.NightRequested = false; Play(false); };
+            FarmContext.Screens["live.freeze.net"] = () => FreezeGoal(0, b => double.IsNaN(b.NetContactTime) ? b.EventTime + 0.3d : b.NetContactTime + 0.1d);
+            FarmContext.Screens["live.freeze.closeup"] = () => FreezeGoal(0, b => CloseupStart(b) + 1.0d);
+            FarmContext.Screens["live.freeze.celebration"] = () => FreezeGoal(0, b => CloseupStart(b) + 2.5d + 1.5d);
+            FarmContext.Screens["live.freeze.replay1"] = () => FreezeGroup(SceneRole.ReplayAngle, s => (s.Start + s.End) * 0.5d);
+            FarmContext.Screens["live.freeze.kickoff"] = () => FreezeGroup(SceneRole.GoalTail, s => s.End - 0.8d);
+            FarmContext.Screens["live.freeze.conceded"] = () => FreezeGoal(1, b => b.EventTime - 0.5d);
+            FarmContext.Screens["live.freeze.woodwork"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Woodwork || i.Kind == LiveSceneKind.Save, i => i.Kind == LiveSceneKind.ShotInBox);
+            FarmContext.Screens["live.freeze.defensive"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Defensive, null);
+            FarmContext.Screens["live.freeze.foul"] = () => FreezeKind(i => i.Kind == LiveSceneKind.RedCard || i.Kind == LiveSceneKind.YellowCard || i.Kind == LiveSceneKind.Foul, null);
+            _halves = StandInHud.Add(doc.rootVisualElement, "halvesLabel", 16f, 352f);
+            _halves.style.opacity = 0f; // 058 AC-11 확인 신호 (캡처 제외)
+        }
+
+        static double CloseupStart(SceneBrief b)
+        {
+            var t = new CameraTuning();
+            double hold = double.IsNaN(b.NetContactTime) ? b.EventTime + t.NoNetHoldSeconds : b.NetContactTime + t.NetHoldSeconds;
+            return System.Math.Min(hold, b.EventTime + t.GoalHoldMaxSeconds);
+        }
+
+        /// <summary>which = 0: 첫 골 메인, 1: 첫 골과 다른 팀의 첫 골 메인(실점 장면).</summary>
+        void FreezeGoal(int which, System.Func<SceneBrief, double> at)
+        {
+            int firstTeam = -1;
+            var scenes = player.Scenes;
+            for (int i = 0; i < scenes.Count; i++)
+            {
+                var info = _liveBriefs?.InfoOf(scenes[i].Scene.Id);
+                if (info == null || info.Role != SceneRole.GoalMain) continue;
+                if (firstTeam < 0) firstTeam = info.Team;
+                if (which == 1 && info.Team == firstTeam) continue;
+                var b = _liveBriefs.Brief(scenes[i].Scene.Id);
+                player.Sequencer.SeekAndPause(i, System.Math.Min(System.Math.Max(at(b), scenes[i].Scene.Start), scenes[i].Scene.End));
+                return;
+            }
+            Debug.LogError($"[highlight] 058 골 장면 없음 ({which})");
+        }
+
+        /// <summary>첫 골 묶음 안에서 역할이 role인 첫 장면.</summary>
+        void FreezeGroup(SceneRole role, System.Func<HighlightScene, double> at)
+        {
+            var scenes = player.Scenes;
+            int group = -1;
+            for (int i = 0; i < scenes.Count; i++)
+            {
+                var info = _liveBriefs?.InfoOf(scenes[i].Scene.Id);
+                if (info == null) continue;
+                if (group < 0 && info.Role == SceneRole.GoalMain) group = scenes[i].Scene.Id;
+                if (group >= 0 && scenes[i].Scene.GroupId == group && info.Role == role && info.AngleIndex == 0)
+                {
+                    player.Sequencer.SeekAndPause(i, at(scenes[i].Scene));
+                    if (role == SceneRole.GoalTail) _checkHalvesAt = at(scenes[i].Scene);
+                    return;
+                }
+            }
+            Debug.LogError($"[highlight] 058 골 묶음에 {role} 없음");
+        }
+
+        void FreezeKind(System.Func<LiveSceneInfo, bool> want, System.Func<LiveSceneInfo, bool> fallback)
+        {
+            var scenes = player.Scenes;
+            for (int pass = 0; pass < 2; pass++)
+            {
+                var f = pass == 0 ? want : fallback;
+                if (f == null) break;
+                for (int i = 0; i < scenes.Count; i++)
+                {
+                    var info = _liveBriefs?.InfoOf(scenes[i].Scene.Id);
+                    if (info == null || info.Role != SceneRole.Live || !f(info)) continue;
+                    var s = scenes[i].Scene;
+                    player.Sequencer.SeekAndPause(i, System.Math.Min(System.Math.Max(info.EventTime, s.Start), s.End));
+                    return;
+                }
+            }
+            Debug.LogError("[highlight] 058 해당 종류 장면 없음");
+        }
+
+        double _checkHalvesAt = double.NaN;
+
+        /// <summary>058 AC-11: 킥오프 와이드에서 양 팀 필드 선수가 각자 진영(키커는 센터 1 m 허용).</summary>
+        void CheckHalves()
+        {
+            if (double.IsNaN(_checkHalvesAt) || player.Current == null) return;
+            var d = player.Current.Data;
+            float t = (float)_checkHalvesAt;
+            int[] side = { 0, 0 };
+            bool ok = true;
+            for (int team = 0; team < 2 && ok; team++)
+                for (int e = team * 11; e < team * 11 + 11; e++)
+                {
+                    var p = d.Pos(e, t);
+                    if (System.Math.Abs(p.X) < 1f) continue;
+                    int sgn = p.X > 0 ? 1 : -1;
+                    if (side[team] == 0) side[team] = sgn;
+                    else if (side[team] != sgn) { ok = false; break; }
+                }
+            ok &= side[0] != 0 && side[0] == -side[1];
+            var text = ok ? "ok" : "bad";
+            if (_halves.text != text) _halves.text = text;
         }
 
         void SetCameraMode(CameraMode mode)
@@ -474,12 +604,18 @@ namespace RoadToPro.Verification.Samples.Highlight
                 cam.backgroundColor = MenuBackground; // 경기장 조명이 바꾼 배경을 되돌린다
                 return;
             }
-            if (_broadcast != null)
-            {
-                CheckBroadcastFraming();
-                return;
-            }
-            FrameTargets();
+            if (_broadcast != null) CheckBroadcastFraming();
+            CheckSceneNumber();
+            CheckHalves();
+        }
+
+        /// <summary>058 AC-12: HUD 장면 번호가 선정 목록의 현재 장면 순번과 같으면 ok.</summary>
+        void CheckSceneNumber()
+        {
+            if (_live == null || player.Sequencer == null || !player.IsLoaded) return;
+            var expect = (player.Sequencer.SceneIndex + 1).ToString(CultureInfo.InvariantCulture) + "/" + player.Scenes.Count.ToString(CultureInfo.InvariantCulture);
+            var ok = _hud.SceneText == expect && player.Scenes.Count == _live.Scenes.Length ? "ok" : "bad";
+            if (_sceneMatch.text != ok) _sceneMatch.text = ok;
         }
 
         /// <summary>AC-11·12·13: 공 또는 득점자가 화면 안(여백 5%)이면 ok.</summary>
@@ -487,7 +623,13 @@ namespace RoadToPro.Verification.Samples.Highlight
         {
             cam.clearFlags = CameraClearFlags.Skybox;
             var stage = (HighlightCastStage)player.Assets.Stage;
-            var rig = stage.Rigs[BroadcastScenes.Scorer];
+            int scorer = BroadcastScenes.Scorer;
+            if (_liveBriefs != null)
+            {
+                var b = player.Current != null ? _liveBriefs.Brief(player.Current.Scene.Id) : null;
+                scorer = b != null ? b.Scorer : -1;
+            }
+            var rig = scorer >= 0 ? stage.Rigs[scorer] : null;
             bool framed = InsideBroadcast(stage.Ball.position) || (rig != null && InsideBroadcast(rig.transform.position + Vector3.up));
             if (framed != _shownFramed || _framing.text.Length == 0)
             {
@@ -501,67 +643,6 @@ namespace RoadToPro.Verification.Samples.Highlight
             const float margin = 0.05f;
             var v = cam.WorldToViewportPoint(p);
             return v.z > 0f && v.x >= margin && v.x <= 1f - margin && v.y >= margin && v.y <= 1f - margin;
-        }
-
-        /// <summary>042 대체: 공과 가장 가까운 필드 선수를 화면에 넣는 화각. 이 프레임의 포즈 뒤에 돈다.</summary>
-        void FrameTargets()
-        {
-            var stage = (HighlightCastStage)player.Assets.Stage;
-            var ball = stage.Ball.position;
-            _targets.Clear();
-            for (int e = 0; e < HighlightData.Players; e++)
-            {
-                if (e % 11 == 0) continue;
-                var rig = stage.Rigs[e];
-                if (rig != null && rig.gameObject.activeSelf) _targets.Add(rig.transform.position);
-            }
-            _sortBall = ball;
-            _targets.Sort(_byBallDistance);
-            int n = Mathf.Min(FramingPlayers, _targets.Count);
-
-            var center = ball;
-            for (int i = 0; i < n; i++) center += _targets[i];
-            center /= n + 1;
-            cam.clearFlags = CameraClearFlags.Skybox;
-            cam.transform.SetPositionAndRotation(CameraPosition, Quaternion.LookRotation(center - CameraPosition, Vector3.up));
-
-            float tanX = 0f, tanY = 0f;
-            Fit(ball, ref tanX, ref tanY);
-            for (int i = 0; i < n; i++)
-            {
-                Fit(_targets[i], ref tanX, ref tanY);
-                Fit(_targets[i] + Vector3.up * 1.9f, ref tanX, ref tanY);
-            }
-            float half = Mathf.Max(tanY, tanX / cam.aspect) * FitMargin;
-            cam.fieldOfView = Mathf.Clamp(2f * Mathf.Atan(half) * Mathf.Rad2Deg, 8f, 90f);
-            bool framed = InView(ball, n);
-            if (framed != _shownFramed || _framing.text.Length == 0)
-            {
-                _shownFramed = framed;
-                _framing.text = framed ? "ok" : "bad";
-            }
-        }
-
-        void Fit(Vector3 p, ref float tanX, ref float tanY)
-        {
-            var v = cam.transform.InverseTransformPoint(p);
-            if (v.z <= 0.01f) return;
-            tanX = Mathf.Max(tanX, Mathf.Abs(v.x / v.z));
-            tanY = Mathf.Max(tanY, Mathf.Abs(v.y / v.z));
-        }
-
-        bool InView(Vector3 ball, int n)
-        {
-            if (n < FramingPlayers || !Inside(ball)) return false;
-            for (int i = 0; i < n; i++)
-                if (!Inside(_targets[i])) return false;
-            return true;
-        }
-
-        bool Inside(Vector3 p)
-        {
-            var v = cam.WorldToViewportPoint(p);
-            return v.z > 0f && v.x >= ViewportMargin && v.x <= 1f - ViewportMargin && v.y >= ViewportMargin && v.y <= 1f - ViewportMargin;
         }
     }
 }

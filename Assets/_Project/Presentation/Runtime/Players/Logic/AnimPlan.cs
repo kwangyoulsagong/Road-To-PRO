@@ -239,7 +239,7 @@ namespace RoadToPro.Presentation.Players.Logic
                     float vx = f1 == f0 ? 0f : (_d.X[i1] - _d.X[i0]) / span, vz = f1 == f0 ? 0f : (_d.Z[i1] - _d.Z[i0]) / span;
                     float v = (float)Math.Sqrt(vx * vx + vz * vz);
                     if (!_d.Present[i]) v = 0;
-                    v = f == 0 ? v : LocomotionBlend.LimitSpeed(prev, v, dt, log);
+                    v = f == 0 ? v : LocomotionBlend.LimitSpeed(prev, v, dt, log, Highlight.Logic.JumpClassifier.Label(Highlight.Logic.JumpClassifier.Classify(_d, f, e)));
                     prev = v;
                     float dir = 0f;
                     if (v > 0.05f)
@@ -297,6 +297,10 @@ namespace RoadToPro.Presentation.Players.Logic
             }
         }
 
+        readonly List<int> _gateBuf = new List<int>();
+        /// <summary>태클 동작 허용 거리 (058 FR-50, highlight.tackleMaxDistance).</summary>
+        public const float TackleMaxDistance = TackleGate.DefaultMaxDistance;
+
         void BuildActions(AnimationMap map, ILogger log)
         {
             var evs = new List<AnimEvent>(_d.Events);
@@ -309,6 +313,12 @@ namespace RoadToPro.Presentation.Players.Logic
                 var who = map.Who(ev.Kind);
                 int e = EntityFor(ev, who);
                 if (e < 0 || e >= HighlightData.Entities) continue;
+                if (TackleGate.Applies(ev.Kind)) // 058 FR-50·51: 상대가 가까울 때만 태클 동작
+                {
+                    TackleGate.Filter(_lib, cands, _d, ev, e, TackleMaxDistance, _gateBuf, log);
+                    if (_gateBuf.Count == 0) continue;
+                    cands = _gateBuf;
+                }
                 bool hit = ev.Kind == SimEventKind.Foul || ev.Kind == SimEventKind.Injury;
                 float t = ev.Time + (ev.Kind == SimEventKind.Goal ? CelebrateDelay : 0f);
                 if (t > _d.EndTime) continue;

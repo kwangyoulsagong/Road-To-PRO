@@ -161,7 +161,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
             var k = ctx.Kinematics;
             for (int s = 0; s < Squad.Slots; s++)
             {
-                if (!ctx.IsSlotActive(s)) continue;
+                if (!ctx.IsSlotControllable(s)) continue;
                 if ((s == ctx.LastKickSlot || s == ctx.LastTackleVictim) && abs - ctx.LastKickSubstep < 25) continue;
                 var keeper = Squad.IsKeeperSlot(s);
                 if (keeper ? !keeperOk : !fieldOk) continue;

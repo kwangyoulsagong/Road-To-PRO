@@ -50,19 +50,24 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Match
         [Test]
         public void PenaltyDeclared_DelaysWhistleUntilKickResolved()
         {
-            // 44:59.5에 페널티 → 추가시간 0이라 원래 45:00 종료지만 킥이 끝날 때까지 기다린다
+            // 원래 전반 종료 틱 0.5초 전에 페널티 → 킥이 끝날 때까지 휘슬을 기다린다.
+            // 058 FR-05로 골 정지가 실제 길이라 추가시간이 0이 아니다 — 페널티 없는 같은 경기의 종료 틱을 기준으로 잡는다.
+            var tuning = TuningWith(Values(("standin.goalCelebration", 0f), ("standin.restartDelay", 3f)));
+            var baseline = new MatchSim(Setup(41UL), tuning);
+            baseline.RunUntilTick(40_000);
+            var baseEnd = Events(baseline, SimEventKind.PeriodEnd)[0].Tick;
+            var at = baseEnd - 4;
             var script = new RefereeScript();
-            script.Add(new RefereeAction(26_995, RefereeActionKind.AwardPenalty, 0));
-            var o = new MatchSimOptions { Referee = script };
-            var sim = new MatchSim(Setup(41UL), TuningWith(Values(("standin.goalCelebration", 0f), ("standin.restartDelay", 3f))), o);
-            sim.RunUntilTick(27_500);
+            script.Add(new RefereeAction(at, RefereeActionKind.AwardPenalty, 0));
+            var sim = new MatchSim(Setup(41UL), tuning, new MatchSimOptions { Referee = script });
+            sim.RunUntilTick(baseEnd + 1000);
             var end = Events(sim, SimEventKind.PeriodEnd)[0];
-            Assert.That(end.Tick, Is.GreaterThan(26_999L), "페널티 대기 중엔 휘슬 없음");
+            Assert.That(end.Tick, Is.GreaterThan(baseEnd), "페널티 대기 중엔 휘슬 없음");
             var pk = -1;
             for (int i = 0; i < sim.Log.Count; i++) if (sim.Log[i].Kind == SimEventKind.Shot && sim.Log[i].A == 1) { pk = i; break; }
             Assert.That(pk, Is.GreaterThanOrEqualTo(0), "페널티 킥");
             Assert.That(sim.Log[pk].Tick, Is.LessThan(end.Tick), "킥 뒤에 휘슬");
-            Assert.That(sim.Log[pk].Tick, Is.GreaterThanOrEqualTo(26_995L + 30));
+            Assert.That(sim.Log[pk].Tick, Is.GreaterThanOrEqualTo(at + 30));
         }
 
         [Test]
@@ -94,7 +99,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Match
                     ctx.LastTouchSlot = 9;
                 }
             });
-            sim.RunUntilTick(27_005);
+            sim.RunUntilTick(27_200); // 058: 세리머니(7 s) 뒤 휘슬까지
             return sim;
         }
 
@@ -107,7 +112,10 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Match
             Assert.That(goals[0].Tick, Is.EqualTo(26_999L));
             Assert.That(goals[0].Substep, Is.EqualTo((sbyte)9));
             Assert.That(goals[0].Team, Is.EqualTo(0));
-            Assert.That(Events(inTime, SimEventKind.PeriodEnd)[0].Tick, Is.EqualTo(26_999L));
+            // 058 FR-60: 세리머니 단계 중에는 기간을 끝내지 않는다 — 복귀 단계 첫 틱에 종료 (그 사이 정지는 골 정지 시간)
+            var ret = Events(inTime, SimEventKind.DeadBallPhase).Find(e => e.A == (int)RoadToPro.MatchEngine.Match.Flow.DeadBallPhase.Return);
+            Assert.That(ret.Kind, Is.EqualTo(SimEventKind.DeadBallPhase), "복귀 단계 없음");
+            Assert.That(Events(inTime, SimEventKind.PeriodEnd)[0].Tick, Is.EqualTo(ret.Tick));
             Assert.That(inTime.Context.Flow.Goals(0), Is.EqualTo(1));
 
             var late = LastTickShot(0.105f); // 다음 서브스텝 (다음 틱 0) — 시뮬되지 않는다

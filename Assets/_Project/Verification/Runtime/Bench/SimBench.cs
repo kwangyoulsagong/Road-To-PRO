@@ -28,10 +28,11 @@ namespace RoadToPro.Verification.Bench
             }
             try
             {
-                if (spec != "006" && spec != "009" && spec != "013") throw new ArgumentException($"벤치 없는 스펙: {spec}");
+                if (spec != "006" && spec != "009" && spec != "013" && spec != "058") throw new ArgumentException($"벤치 없는 스펙: {spec}");
                 if (string.IsNullOrEmpty(data) || !Directory.Exists(data)) throw new ArgumentException($"-simBenchData 폴더 없음: {data}");
                 Directory.CreateDirectory(outDir);
-                var metrics = spec == "013" ? new ScenarioBenchWorkloads(data).RunAll() : spec == "009" ? new ShapeBenchWorkloads(data).RunAll() : new MatchBenchWorkloads(data).RunAll();
+                var metrics = spec == "013" ? new ScenarioBenchWorkloads(data).RunAll() : spec == "009" ? new ShapeBenchWorkloads(data).RunAll()
+                    : spec == "058" ? new MatchBenchWorkloads(data).RunLiveHighlight() : new MatchBenchWorkloads(data).RunAll();
                 var doc = new Dictionary<string, object>
                 {
                     { "spec", spec },

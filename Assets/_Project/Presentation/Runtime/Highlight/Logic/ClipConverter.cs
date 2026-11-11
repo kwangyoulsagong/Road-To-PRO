@@ -52,7 +52,9 @@ namespace RoadToPro.Presentation.Highlight.Logic
                     src.Z(ReplayFrame.BallEntity),
                     src.Y(ReplayFrame.BallEntity) - halfW);
                 data.BallOwner[f] = (short)src.BallOwnerSlot;
+                if (f > 0) MarkBreaks(data, clip.Frames[f - 1], src, f);
             }
+            MarkPlacementEvents(data, clip);
 
             foreach (var ev in clip.Events)
             {
@@ -65,6 +67,55 @@ namespace RoadToPro.Presentation.Highlight.Logic
                     ActionOutcome.Success, EventBall(ev, data.Ball[frame], pitch), BallVelocityAfter(data, frame)));
             }
             return data;
+        }
+
+        /// <summary>058 FR-12: 프레임 번호 건너뜀 = 기록 원인, 슬롯 선수 id 변경(교대)·등장 = 배치 원인.</summary>
+        static void MarkBreaks(HighlightData data, ReplayFrame prev, ReplayFrame cur, int f)
+        {
+            const int E = HighlightData.Entities;
+            bool gap = cur.Index != prev.Index + 1;
+            for (int e = 0; e < E; e++)
+            {
+                int i = f * E + e;
+                if (gap) { data.Break[i] = (byte)JumpCause.Record; continue; }
+                if (e < HighlightData.Players && cur.PlayerIds[e] != prev.PlayerIds[e]) data.Break[i] = (byte)JumpCause.Placement;
+            }
+        }
+
+        /// <summary>058 FR-12: 기간 시작 배치(FR-10) 프레임은 선수 전원 배치 원인. 공 재배치는 선수를 옮기지 않으므로 선수에 표시하지 않는다.</summary>
+        static void MarkPlacementEvents(HighlightData data, ReplayClip clip)
+        {
+            const int E = HighlightData.Entities;
+            foreach (var ev in clip.Events)
+            {
+                if (ev.Kind != SimEventKind.PeriodStart) continue;
+                double t = ev.Tick * 0.1d;
+                int f = (int)Math.Ceiling(t * HighlightData.FrameRate - 1e-6) - (int)clip.Frames[0].Index;
+                if (f <= 0 || f >= data.Frames) continue;
+                for (int e = 0; e < E; e++)
+                    if (data.Break[f * E + e] == 0) data.Break[f * E + e] = (byte)JumpCause.Placement;
+            }
+        }
+
+        /// <summary>
+        /// 058 FR-22: 표현 큐 + 골마다 첫 그물 접촉 큐(<see cref="NetContact.CueKind"/>, 059 출렁임이 받는다). 접촉이 없으면 큐도 없다.
+        /// </summary>
+        public static PlaybackCue[] ToCues(ReplayClip clip, HighlightData data, float halfLength)
+        {
+            var baseCues = ToCues(clip);
+            var extra = new System.Collections.Generic.List<PlaybackCue>();
+            foreach (var ev in clip.Events)
+            {
+                if (ev.Kind != SimEventKind.Goal) continue;
+                var t = NetContact.Find(data, EventTime(ev), halfLength);
+                if (!double.IsNaN(t)) extra.Add(new PlaybackCue(t, ev.Seq, NetContact.CueKind, ev.PlayerId));
+            }
+            if (extra.Count == 0) return baseCues;
+            var all = new PlaybackCue[baseCues.Length + extra.Count];
+            Array.Copy(baseCues, all, baseCues.Length);
+            extra.CopyTo(all, baseCues.Length);
+            Array.Sort(all, (a, b) => a.Time != b.Time ? a.Time.CompareTo(b.Time) : a.Seq.CompareTo(b.Seq));
+            return all;
         }
 
         /// <summary>장면 구간의 표현 큐. 시각 순으로 정렬해 돌려준다.</summary>

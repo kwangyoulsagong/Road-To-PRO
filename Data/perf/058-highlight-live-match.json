@@ -1,0 +1,47 @@
+{
+  "spec": "058",
+  "profile": "mac-m1-1600p",
+  "note": "specs/058 성능 예산의 기계용 사본. 헤드리스 시뮬·장면 선정은 IL2CPP 릴리스 플레이어(farm.py bench --spec 058, 006 D17). 시뮬 시간 +5%는 006 IL2CPP 기준선(tick_avg_us 25.10 µs, 2026-11-03)의 틱 평균으로 본다 — 경기 길이가 데드볼 실제 길이로 바뀌어 경기 전체 시간은 기록만. 틱 GC 0 B는 EditMode DeadBallPerfTests. 하이라이트 재생 프레임은 E2E 058-perf에서 기록만(실기기 판정은 확보 후).",
+  "tests": [
+    "RoadToPro.Tests.EditMode.MatchEngine.Flow",
+    "RoadToPro.Tests.EditMode.MatchEngine.Replay.ClipAlignmentTests",
+    "RoadToPro.Tests.EditMode.Presentation.Highlight.Selection",
+    "RoadToPro.Tests.EditMode.Presentation.Highlight.Broadcast.LiveGoalSequenceTests",
+    "RoadToPro.Tests.EditMode.Presentation.Highlight.Broadcast.CameraContinuityTests",
+    "RoadToPro.Tests.EditMode.Presentation.Highlight.JumpClassifierTests",
+    "RoadToPro.Tests.EditMode.Presentation.Players.TackleGateTests",
+    "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-14",
+      "label": "골 데드볼 구간 GC 할당 횟수",
+      "test": "DeadBallPerfTests.TickGc_GoalDeadBall_Zero",
+      "group": "gc_alloc_count_deadball",
+      "stat": "max",
+      "max": 0,
+      "unit": "회"
+    }
+  ],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-14",
+        "label": "헤드리스 시뮬 틱 평균 (006 기준선 25.10 µs + 5%)",
+        "metric": "tick_avg_us",
+        "max": 26.36,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-14",
+        "label": "장면 선정 1단계 (경기 1개, 중앙값)",
+        "metric": "scene_select_ms",
+        "max": 5.0,
+        "unit": "ms"
+      }
+    ]
+  },
+  "deferred": {
+    "AC-15": "대체 판단의 평균 득점이 058 이전부터 약 24골이라 2.5~3.0 판정은 008·010·017 연결 때 (2026-11-11 사용자 결정). 200경기 측정값은 evidence/mass-sim.json"
+  }
+}

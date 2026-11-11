@@ -33,6 +33,8 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
         public readonly bool[] CutAt;
         /// <summary>긴 경로 리플레이의 슬로모 지점 (FR-25). 없으면 NaN.</summary>
         public double SlowMoMark = double.NaN;
+        /// <summary>058 FR-33: 상한 때문에 공이 [제안] 0.5 s 넘게 화면 밖이었던 횟수 (진단).</summary>
+        public int BallOffscreenDiagnostics;
 
         readonly float _mainMin, _mainMax;
 

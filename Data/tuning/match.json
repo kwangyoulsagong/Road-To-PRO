@@ -26,6 +26,16 @@
     {"id": "standin.shapeShiftX", "default": 0.35, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용: 대형이 공 쪽으로 이동하는 비율"},
     {"id": "standin.shapeShiftY", "default": 0.25, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용"},
     {"id": "standin.penaltyScoreProb", "default": 0.76, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용: 승부차기·페널티 득점 확률 — 008·011이 판정할 때까지"},
-    {"id": "standin.carrySpeedRatio", "default": 0.7, "min": 0.1, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용: 드리블 이동 속도 비율"}
+    {"id": "standin.carrySpeedRatio", "default": 0.7, "min": 0.1, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용: 드리블 이동 속도 비율"},
+    {"id": "standin.restartWaitMax", "default": 30, "min": 1, "max": 120, "unit": "s", "tag": "[대체]", "source": "specs/058 FR-09 재시작 대기 상한 [미정](012) — 058 플랜 대체 값, 넘으면 현재 위치로 재시작"},
+    {"id": "deadball.goalCelebration", "default": 7, "min": 0, "max": 20, "unit": "s", "tag": "[설계]", "source": "specs/058 FR-02 ① 세리머니 단계 = 018 골 연장 +7 s (059 Q5 (a)). 060이 같은 값을 읽는다"},
+    {"id": "deadball.arriveRadius", "default": 1.0, "min": 0.1, "max": 5, "unit": "m", "tag": "[제안]", "source": "specs/058 FR-02 ③ 킥오프 배치 도착 반경"},
+    {"id": "deadball.returnSpeedMin", "default": 0.4, "min": 0.1, "max": 1, "unit": "", "tag": "[제안]", "source": "specs/058 FR-03 복귀 속도 하한 (최고 속도 비)"},
+    {"id": "deadball.returnSpeedMax", "default": 0.6, "min": 0.1, "max": 1, "unit": "", "tag": "[제안]", "source": "specs/058 FR-03 복귀 속도 상한 (최고 속도 비)"},
+    {"id": "deadball.restartArriveRadius", "default": 3, "min": 0.5, "max": 10, "unit": "m", "tag": "[제안]", "source": "specs/058 FR-09 재시작 배치 도착 반경"},
+    {"id": "deadball.restartArriveShare", "default": 0.8, "min": 0, "max": 1, "unit": "", "tag": "[제안]", "source": "specs/058 FR-09 배치 도착 비율"},
+    {"id": "deadball.ballOutRelocate", "default": 3, "min": 0, "max": 10, "unit": "m", "tag": "[제안]", "source": "specs/058 FR-08 공이 경기장 밖 이 거리 이상이면 그 구간 끝에서 재배치"},
+    {"id": "deadball.relocateMaxWait", "default": 2, "min": 0, "max": 10, "unit": "s", "tag": "[대체]", "source": "specs/058 FR-08 재배치 대기 상한 — 058 플랜 대체 값(012 전)"},
+    {"id": "deadball.walkOffMargin", "default": 1.5, "min": 0, "max": 2.5, "unit": "m", "tag": "[제안]", "source": "specs/058 FR-61·65 걸어 나가는 선수가 터치라인을 넘어 이 거리에 도착하면 퇴장 완료. 상한은 운동 경계 kin.bounds.margin(3 m) − 도착 반경 0.5 m (리뷰 L2)"}
   ]
 }

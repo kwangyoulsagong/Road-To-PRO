@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "id": "058-perf",
+  "spec": "058",
+  "description": "실경기 하이라이트(중계 카메라) 재생 구간 프레임 기록 (AC-14, 041 AC-14·042 AC-14 예산). CPU 판정은 IL2CPP 벤치",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-14"
+  ],
+  "defaults": {
+    "timeoutSec": 300
+  },
+  "budgets": {
+    "playback": {
+      "custom.shaderCompiles.max": 0,
+      "custom.syncLoads.max": 0
+    }
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "perfBegin",
+      "name": "playback",
+      "warmupFrames": 60,
+      "minFrames": 2000
+    },
+    {
+      "type": "perfEnd",
+      "name": "playback"
+    }
+  ]
+}

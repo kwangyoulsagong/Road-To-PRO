@@ -9,6 +9,231 @@
       "unit": "s",
       "tag": "[설계]",
       "source": "specs/041 FR-32, 2026-11-09 사용자 결정 (039 연결 때 조정)"
+    },
+    {
+      "id": "highlight.score.goal",
+      "default": 100,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "018 FR-01 / 058 FR-40"
+    },
+    {
+      "id": "highlight.score.redCard",
+      "default": 80,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "018 FR-01 / 058 FR-40"
+    },
+    {
+      "id": "highlight.score.penalty",
+      "default": 75,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "018 FR-01 / 058 FR-40"
+    },
+    {
+      "id": "highlight.score.varOverturn",
+      "default": 70,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "018 FR-01 VAR 판정 번복 / 058 FR-40 (필수 포함 018 FR-22, 취소된 골은 골 장면이 아니다 018 경계)"
+    },
+    {
+      "id": "highlight.score.woodwork",
+      "default": 45,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "018 FR-01 / 058 FR-40"
+    },
+    {
+      "id": "highlight.score.save",
+      "default": 40,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[제안]",
+      "source": "specs/058 FR-40 대체 점수 (018 연결 때 교체)"
+    },
+    {
+      "id": "highlight.score.shotInBox",
+      "default": 35,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[제안]",
+      "source": "specs/058 FR-40 대체 점수 (018 연결 때 교체)"
+    },
+    {
+      "id": "highlight.score.shotOutBox",
+      "default": 20,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[제안]",
+      "source": "specs/058 FR-40 대체 점수 (018 연결 때 교체)"
+    },
+    {
+      "id": "highlight.score.defensive",
+      "default": 25,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[제안]",
+      "source": "specs/058 FR-40 대체 점수 (018 연결 때 교체) — 자기 진영 1/3 안 태클·블록·인터셉트"
+    },
+    {
+      "id": "highlight.score.yellowCard",
+      "default": 15,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[제안]",
+      "source": "specs/058 FR-40 대체 점수 (018 연결 때 교체)"
+    },
+    {
+      "id": "highlight.score.foul",
+      "default": 15,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[제안]",
+      "source": "specs/058 FR-40 대체 점수 (018 연결 때 교체) — 박스 앞 프리킥 지역"
+    },
+    {
+      "id": "highlight.mult.late",
+      "default": 1.3,
+      "min": 1,
+      "max": 3,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "018 FR-03 80분 이후"
+    },
+    {
+      "id": "highlight.mult.close",
+      "default": 1.2,
+      "min": 1,
+      "max": 3,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "018 FR-03 동점·1점차"
+    },
+    {
+      "id": "highlight.mult.myPlayer",
+      "default": 1.5,
+      "min": 1,
+      "max": 3,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "018 FR-03 내 선수 관여"
+    },
+    {
+      "id": "highlight.sceneMin",
+      "default": 8,
+      "min": 1,
+      "max": 30,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "아키텍처 4 장면 8~15개 / 058 FR-42"
+    },
+    {
+      "id": "highlight.sceneMax",
+      "default": 15,
+      "min": 1,
+      "max": 30,
+      "unit": "",
+      "tag": "[설계]",
+      "source": "아키텍처 4 / 058 FR-42"
+    },
+    {
+      "id": "highlight.before",
+      "default": 8,
+      "min": 0,
+      "max": 30,
+      "unit": "s",
+      "tag": "[설계]",
+      "source": "아키텍처 4 이벤트 −8 s / 058 FR-43"
+    },
+    {
+      "id": "highlight.after",
+      "default": 3,
+      "min": 0,
+      "max": 30,
+      "unit": "s",
+      "tag": "[설계]",
+      "source": "아키텍처 4 +3 s / 058 FR-43"
+    },
+    {
+      "id": "highlight.goalAfter",
+      "default": 7,
+      "min": 0,
+      "max": 30,
+      "unit": "s",
+      "tag": "[설계]",
+      "source": "018 FR-15 +7 s (059 Q5 (a)) / 058 FR-21"
+    },
+    {
+      "id": "highlight.minShot",
+      "default": 2.5,
+      "min": 0,
+      "max": 10,
+      "unit": "s",
+      "tag": "[설계]",
+      "source": "042 FR-12 컷 사이 최소 / 058 FR-32"
+    },
+    {
+      "id": "highlight.subSceneSeconds",
+      "default": 6,
+      "min": 1,
+      "max": 20,
+      "unit": "s",
+      "tag": "[제안]",
+      "source": "058 FR-48 교체 투입·아웃 장면 길이"
+    },
+    {
+      "id": "highlight.consecutiveGoalSeconds",
+      "default": 60,
+      "min": 0,
+      "max": 300,
+      "unit": "s",
+      "tag": "[제안]",
+      "source": "058 FR-62 연속 골 기준"
+    },
+    {
+      "id": "highlight.freeKickZone",
+      "default": 25,
+      "min": 0,
+      "max": 50,
+      "unit": "m",
+      "tag": "[제안]",
+      "source": "058 FR-40 페널티 박스 끝에서 파울 거리"
+    },
+    {
+      "id": "highlight.tackleMaxDistance",
+      "default": 2.0,
+      "min": 0.1,
+      "max": 10,
+      "unit": "m",
+      "tag": "[제안]",
+      "source": "058 FR-50·51"
+    },
+    {
+      "id": "highlight.score.filler",
+      "default": 5,
+      "min": 0,
+      "max": 200,
+      "unit": "",
+      "tag": "[제안]",
+      "source": "058 플랜: FR-42 하한(8개)을 채우는 후보(공격 3분의 1 패스 받기·걷어내기) — 018 연결 때 교체"
     }
   ]
 }
