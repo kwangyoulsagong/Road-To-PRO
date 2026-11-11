@@ -34,10 +34,8 @@ def _default_handlers():
 
     return {
         "logic": lambda a: commands.cmd_logic(a, a._argv),
-        "smoke": lambda a: commands.cmd_matrix("smoke", a, a._argv),
-        "full": lambda a: commands.cmd_matrix("full", a, a._argv),
+        "shot": lambda a: commands.cmd_shot(a, a._argv),
         "build": lambda a: commands.cmd_build(a, a._argv),
-        "approve-baseline": lambda a: commands.cmd_approve_baseline(a, a._argv),
         "approve-perf": lambda a: commands.cmd_approve_perf(a, a._argv),
         "bench": lambda a: commands.cmd_bench(a, a._argv),
         "art": lambda a: art.cmd_art(a, a._argv),
@@ -67,18 +65,12 @@ def build_parser():
     _add_target_options(lg)
     lg.add_argument("--filter", help="테스트 이름 필터 (Unity -testFilter, 세미콜론 구분)")
     lg.add_argument("--category", default="!Slow", help="테스트 카테고리 (기본 !Slow)")
-    for name, help_text in [
-        ("smoke", "smoke 등급 프로필 매트릭스"),
-        ("full", "full 등급 프로필 매트릭스"),
-    ]:
-        _add_target_options(sub.add_parser(name, help=help_text))
+    # 프로필 매트릭스(smoke·full)·기준 이미지 비교는 2026-11-11 폐지 (2026-11-11 사용자 결정). 장면 스크린샷 1프로필 + 육안 승인
+    _add_target_options(sub.add_parser("shot", help="E2E 장면 스크린샷 (기본 mac-m1-1600p 1프로필, 기준 비교 없음 — 육안 승인)"))
 
     b = sub.add_parser("build", help="검증용 플레이어 빌드 (캐시 적중 시 건너뜀)")
     b.add_argument("--force", action="store_true", help="캐시를 무시하고 다시 빌드")
 
-    ab = sub.add_parser("approve-baseline", help="기준 후보 이미지를 기준으로 채택")
-    _add_target_options(ab)
-    ab.add_argument("--include-failed", action="store_true", help="차이 실패 이미지도 새 기준으로 (의도한 화면 변경)")
     ap = sub.add_parser("approve-perf", help="이번 성능 측정을 기준 측정으로 채택")
     _add_target_options(ap)
     ap.add_argument("--bench", action="store_true", help="최근 시뮬 벤치(farm.py bench) 측정을 기준으로")

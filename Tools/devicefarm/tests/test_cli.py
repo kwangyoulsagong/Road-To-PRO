@@ -21,13 +21,13 @@ from farm.errors import (  # noqa: E402
 class SubcommandParseTests(unittest.TestCase):
     def test_subcommands_parse(self):
         p = cli.build_parser()
-        for cmd in ["logic", "smoke", "full", "build", "approve-baseline", "approve-perf"]:
+        for cmd in ["logic", "shot", "build", "approve-perf"]:
             self.assertEqual(p.parse_args([cmd]).command, cmd)
 
-        a = p.parse_args(["smoke", "--spec", "012", "--scenario", "000-sample-cards"])
+        a = p.parse_args(["shot", "--spec", "012", "--scenario", "000-sample-cards"])
         self.assertEqual((a.spec, a.scenario), ("012", "000-sample-cards"))
 
-        a = p.parse_args(["full", "--profile", "mac-m1-1600p", "--profile", "compact-1366"])
+        a = p.parse_args(["shot", "--profile", "mac-m1-1600p", "--profile", "compact-1366"])
         self.assertEqual(a.profile, ["mac-m1-1600p", "compact-1366"])
 
         a = p.parse_args(["self-test", "diff"])
@@ -71,7 +71,7 @@ class ExitCodeTests(unittest.TestCase):
 
     def test_unimplemented_command_is_runner_error(self):
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
-            self.assertEqual(cli.main(["full"], handlers={}), EXIT_RUNNER_ERROR)
+            self.assertEqual(cli.main(["shot"], handlers={}), EXIT_RUNNER_ERROR)
 
 
 if __name__ == "__main__":
