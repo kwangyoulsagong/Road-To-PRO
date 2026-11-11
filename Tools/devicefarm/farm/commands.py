@@ -1,4 +1,7 @@
-"""farm 명령 처리 (specs/000 FR-80): logic / smoke / full / build / approve-baseline / approve-perf."""
+"""farm 명령 처리 (specs/000 FR-80): logic / shot / build / approve-perf / bench.
+
+2026-11-11: 프로필 매트릭스(smoke·full)와 기준 이미지 비교·승인(approve-baseline) 폐지 (2026-11-11 사용자 결정).
+"""
 import datetime as _dt
 import glob
 import json
@@ -6,7 +9,7 @@ import os
 import re
 import time
 
-from . import baseline, bench, build, chrome, evaluate, logic, logs, paths, perf, preflight, profiles, report, runner, scenario
+from . import bench, build, chrome, evaluate, logic, logs, paths, perf, preflight, profiles, report, runner, scenario
 from .errors import RunnerError, VerificationFailed
 
 LATEST = os.path.join(paths.RUNS_DIR, "latest.json")
@@ -182,7 +185,7 @@ def merge_previous(ev, ev_dir, spec):
             del acev[ac]
 
 
-_SCENARIO_LABEL = re.compile(r" \((smoke|full)\) (pass|fail|candidate|deferred)$")
+_SCENARIO_LABEL = re.compile(r" \((smoke|full|shot)\) (pass|fail|candidate|review|deferred)$")
 
 
 def cmd_logic(args, argv):
@@ -283,8 +286,9 @@ def scenarios_for(args):
 
 
 def run_scenario(exe, sc, tier, ps, run_dir, only=None, langs=None, extra_args=None, baseline_root=None,
-                 ignore=None, label="", seed=None):
-    combos = ps.expand(tier, selector=sc.profiles, only=only, langs=langs or sc.langs or None, themes=sc.themes or None)
+                 ignore=None, label="", seed=None, selector=None, themes=None):
+    combos = ps.expand(tier, selector=selector if selector is not None else sc.profiles, only=only,
+                       langs=langs or sc.langs or None, themes=themes or sc.themes or None)
     jobs = [runner.Job(c, paths.scenario_file(sc.id), seed if seed is not None else sc.fixture["seed"],
                        extra_args=list(extra_args or []) + (["-farmBatterySaver"] if sc.battery_saver else []), env=build.hidden_window_env(), label=label) for c in combos]
     results = runner.run_matrix([exe], jobs, run_dir, ps, log=log)
@@ -300,7 +304,13 @@ def scenario_build(sc):
     return v
 
 
-def cmd_matrix(tier, args, argv):
+SHOT_PROFILE = "mac-m1-1600p"
+# 기준 이미지를 두지 않는다 — 모든 캡처는 육안 확인 대상(review)이다 (2026-11-11 사용자 결정)
+NO_BASELINES = os.path.join(paths.FARM_DIR, "no-baselines")
+
+
+def cmd_shot(args, argv):
+    tier = "shot"
     preflight.run_all(need_chrome=True)
     t0 = time.time()
     with preflight.RunLock():
@@ -314,7 +324,9 @@ def cmd_matrix(tier, args, argv):
             cached = cached and hit
         run_dir = new_run_dir(tier)
         # 시나리오가 여럿이면 시나리오별 하위 폴더 — 조합 폴더 이름이 같아 캡처가 덮어써지는 것 방지 (specs/044 T18b)
-        runs = [run_scenario(exes[scenario_build(sc)], sc, tier, ps, os.path.join(run_dir, sc.id) if len(scs) > 1 else run_dir, only=args.profile)
+        only = args.profile or [SHOT_PROFILE]
+        runs = [run_scenario(exes[scenario_build(sc)], sc, "full", ps, os.path.join(run_dir, sc.id) if len(scs) > 1 else run_dir,
+                             only=only, langs=["ko"], themes=["light"], selector="all", baseline_root=NO_BASELINES)
                 for sc in scs]
         for sc, r in zip(scs, runs):
             r["build"] = scenario_build(sc)
@@ -327,9 +339,10 @@ def cmd_matrix(tier, args, argv):
             acs = (sc.raw or {}).get("acs", []) if not args.spec or sc.spec == args.spec \
                 else ((sc.raw or {}).get("alsoSpecs") or {}).get(args.spec, [])
             for ac in acs:
-                # 기준 후보는 실패가 아니라 승인 대기 — 전체 판정이 'candidate'로 남는다
-                ac_ev.setdefault(ac, []).append({"label": f"{sc.id} ({tier}) {r['verdict']}", "ok": r["verdict"] != "fail"})
-        ev = {"title": f"{info['id']} 디바이스팜 증거 ({tier})", "spec": info, "meta": meta, "scenarios": runs,
+                # 기준 이미지가 없으므로 캡처는 실패가 아니라 육안 확인 대기(review)
+                v = "review" if r["verdict"] == "candidate" else r["verdict"]
+                ac_ev.setdefault(ac, []).append({"label": f"{sc.id} ({tier}) {v}", "ok": v != "fail"})
+        ev = {"title": f"{info['id']} 장면 스크린샷 ({tier})", "spec": info, "meta": meta, "scenarios": runs,
               "acEvidence": ac_ev}
         if args.spec:
             merge_previous(ev, evidence_dir(args.spec, run_dir), args.spec)
@@ -341,27 +354,20 @@ def cmd_matrix(tier, args, argv):
     verdict = report.verdict_of(ev)
     log(f"[farm] 판정: {verdict} — 리포트: {path}")
     if verdict == "candidate":
-        n = sum(1 for r in runs for c in r["combos"] for x in c["captures"] if x["status"] == "candidate")
-        raise VerificationFailed(f"기준 후보 {n}장 — 확인 후 `farm.py approve-baseline`으로 채택")
+        caps = [x["current"] for r in runs for c in r["combos"] for x in c["captures"] if x.get("current")]
+        log(f"[farm] 스크린샷 {len(caps)}장 — 직접 열어 확인하고 사용자 육안 승인을 받는다 (기준 비교 없음)")
+        for p in caps:
+            log(f"  {os.path.relpath(p, paths.REPO)}")
+        return
     if verdict != "pass":
         raise VerificationFailed("실패 항목이 있다 (리포트 참고)")
 
 
 def _latest():
     if not os.path.exists(LATEST):
-        raise RunnerError("최근 실행 기록이 없다 — smoke/full을 먼저 돌린다")
+        raise RunnerError("최근 실행 기록이 없다 — shot을 먼저 돌린다")
     with open(LATEST, encoding="utf-8") as f:
         return json.load(f)
-
-
-def cmd_approve_baseline(args, argv):
-    data = _latest()
-    items = [c for r in data["runs"] for combo in r["combos"] for c in combo["captures"]
-             if (not args.scenario or c["scenario"] == args.scenario)]
-    done = baseline.approve(items, include_failed=args.include_failed)
-    for d in done:
-        log(f"[farm] 기준 채택: {os.path.relpath(d, paths.REPO)}")
-    log(f"[farm] {len(done)}장 채택 (기준 후보{' + 차이 실패' if args.include_failed else ''})")
 
 
 LATEST_BENCH = os.path.join(paths.FARM_DIR, "latest-bench.json")
