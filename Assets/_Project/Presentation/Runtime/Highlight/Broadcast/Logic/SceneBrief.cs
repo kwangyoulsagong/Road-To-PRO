@@ -67,6 +67,10 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
         public bool LongPath;
         public int MyPlayer = -1;
         public bool MyPlayerInvolved;
+        /// <summary>골 꼬리가 킥오프 대신 기간 종료 와이드를 쓴다 (specs/058 FR-60).</summary>
+        public bool EndWide;
+        /// <summary>골 뒤 첫 그물 접촉 시각 (058 FR-22). 없으면 NaN. 트랙 빌더가 클립에서 채운다.</summary>
+        public double NetContactTime = double.NaN;
         public LiveCutRequest[] LiveCuts = Array.Empty<LiveCutRequest>();
         public DeadBallWindow[] DeadBalls = Array.Empty<DeadBallWindow>();
         public ShakeSource[] Shakes = Array.Empty<ShakeSource>();

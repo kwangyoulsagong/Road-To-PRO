@@ -49,9 +49,9 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             for (int i = 0; i < n; i++)
             {
                 var s = _list[i];
-                if (!ctx.IsSlotActive(s)) continue;
+                if (!ctx.IsSlotControllable(s)) continue; // 058: 걷는 선수는 흐름이 직접 조향
                 Decision d;
-                if (_override == null || _input[s] != default || !_override.TryDecide(ctx, s, ref hasAction, out d))
+                if (_override == null || _input[s] != default || ctx.Flow.DeadBall.Pending || !_override.TryDecide(ctx, s, ref hasAction, out d))
                     d = Decide(ctx, s, ref hasAction);
                 _intent[s] = d;
                 board.MarkDecided(s);
@@ -100,7 +100,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                 var nearOwnGoal = (target - ctx.OwnGoal(t)).LengthSq() < 18f * 18f;
                 for (int s = t * Squad.SlotsPerTeam; s < (t + 1) * Squad.SlotsPerTeam; s++)
                 {
-                    if (!ctx.IsSlotActive(s)) continue;
+                    if (!ctx.IsSlotControllable(s)) continue;
                     if (_override != null && _override.IsCast(s)) continue;
                     if (Squad.IsKeeperSlot(s) && !nearOwnGoal) continue;
                     var d = (ctx.SlotState(s).Position - target).LengthSq();
@@ -121,6 +121,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
 
             if (_input[s] == InputKind.HoldPosition) return new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
 
+            if (flow.State == FlowState.DeadBall && flow.DeadBall.IsGoal) return DecideGoalDeadBall(ctx, s, ref hasAction);
             if (flow.State == FlowState.DeadBall)
             {
                 if (s != flow.RestartTaker)
@@ -129,7 +130,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                         : new Decision { Kind = DecisionKind.HoldShape, TargetSlot = -1 };
                 if (!(ball.Phase == BallPhase.Controlled && ball.OwnerId == s))
                 {
-                    if ((me.Position - flow.RestartSpot).LengthSq() <= p.ClaimRadius * p.ClaimRadius)
+                    if (flow.DeadBall.Relocated && (me.Position - flow.RestartSpot).LengthSq() <= p.ClaimRadius * p.ClaimRadius) // 058 FR-08: 공이 지점에 놓인 뒤
                     {
                         BallCommands.TakeControl(ref ball, s, new Vec3(flow.RestartSpot.X, flow.RestartSpot.Y, ctx.BallParams.Radius), ctx.BallEvents);
                         ctx.PossessionStartTick = ctx.Tick;
@@ -206,6 +207,47 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             return new Decision { Kind = DecisionKind.HoldShape, TargetSlot = -1 };
         }
 
+        /// <summary>
+        /// 골 후 데드볼 (specs/058 FR-02): 세리머니 단계는 득점자만 코너 쪽 조깅, 나머지는 감속. 복귀·준비 단계는 킥오프 지점으로
+        /// 걷거나 조깅(복귀 속도). 키커는 공이 센터 스폿에 놓인 뒤(재배치) 잡고, 준비 지연이 지나면 킥오프한다.
+        /// </summary>
+        Decision DecideGoalDeadBall(MatchContext ctx, int s, ref bool hasAction)
+        {
+            var flow = ctx.Flow;
+            var db = flow.DeadBall;
+            ref var ball = ref ctx.Ball;
+            var me = ctx.SlotState(s);
+            if (db.Phase == DeadBallPhase.Celebration)
+            {
+                if (s != db.Scorer) return Stand();
+                var jog = ctx.Kinematics.Profile(s).MaxSpeed * ctx.Params.ReturnSpeedMax;
+                return new Decision { Kind = DecisionKind.MoveTo, Point = db.CelebrationTarget(s), TargetSlot = -1, MaxSpeed = jog };
+            }
+            if (s == flow.RestartTaker)
+            {
+                var p = ctx.Params;
+                if (ball.Phase == BallPhase.Controlled && ball.OwnerId == s)
+                {
+                    if (db.Phase == DeadBallPhase.Ready && ctx.Tick >= flow.ReadyTick && !hasAction && ctx.Tick - _restartKickTick >= RestartRetryTicks)
+                    {
+                        hasAction = true;
+                        _restartKickTick = ctx.Tick;
+                        if (!Pass(ctx, s, Squad.TeamOfSlot(s), true, true)) ClearForward(ctx, s, Squad.TeamOfSlot(s));
+                    }
+                    return Stand();
+                }
+                if (db.Relocated && ball.Phase != BallPhase.Controlled && (me.Position - flow.RestartSpot).LengthSq() <= p.ClaimRadius * p.ClaimRadius)
+                {
+                    BallCommands.TakeControl(ref ball, s, new Vec3(flow.RestartSpot.X, flow.RestartSpot.Y, ctx.BallParams.Radius), ctx.BallEvents);
+                    ctx.PossessionStartTick = ctx.Tick;
+                    ctx.LastTouchTeam = Squad.TeamOfSlot(s);
+                    ctx.LastTouchSlot = s;
+                    return Stand();
+                }
+            }
+            return new Decision { Kind = DecisionKind.MoveTo, Point = db.KickoffTarget(s), TargetSlot = -1, MaxSpeed = db.ReturnSpeed(s) };
+        }
+
         static Decision Stand() => new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
 
         static void Shoot(MatchContext ctx, int s, int team, bool restart, bool penalty)
@@ -235,7 +277,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             float bestScore = float.MinValue, bestDist = 0f;
             for (int o = team * Squad.SlotsPerTeam; o < (team + 1) * Squad.SlotsPerTeam; o++)
             {
-                if (o == s || !ctx.IsSlotActive(o)) continue;
+                if (o == s || !ctx.IsSlotControllable(o)) continue;
                 var op = ctx.SlotState(o).Position;
                 var dist = (op - me.Position).Length();
                 if (dist < 4f || dist > p.PassRange) continue;

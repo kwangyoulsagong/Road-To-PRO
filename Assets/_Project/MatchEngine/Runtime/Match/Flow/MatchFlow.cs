@@ -46,6 +46,10 @@ namespace RoadToPro.MatchEngine.Match.Flow
         readonly MatchContext _ctx;
         public readonly Substitutions Subs = new Substitutions();
         public readonly StoppageClock Stoppage;
+        /// <summary>데드볼 이동 진행 (specs/058).</summary>
+        public readonly DeadBallFlow DeadBall;
+        /// <summary>걸어 나감·들어옴 (specs/058 FR-61·65).</summary>
+        public readonly OffPitchWalkers Walkers;
         public IPenaltyJudge PenaltyJudge = new StandInPenaltyJudge();
 
         public FlowState State { get; private set; }
@@ -93,7 +97,8 @@ namespace RoadToPro.MatchEngine.Match.Flow
             {
                 if (!Announced) return 0;
                 var ann = AnnouncedMinutes * SimClock.TicksPerMinute;
-                return ann > Stoppage.TotalTicks ? ann : Stoppage.TotalTicks;
+                var total = Stoppage.TotalTicksAt(_ctx.Tick); // 058 FR-05: 진행 중 골 정지 포함
+                return ann > total ? ann : total;
             }
         }
 
@@ -101,6 +106,8 @@ namespace RoadToPro.MatchEngine.Match.Flow
         {
             _ctx = ctx;
             Stoppage = new StoppageClock(ctx.Params.StoppageCoefTicks);
+            DeadBall = new DeadBallFlow(ctx);
+            Walkers = new OffPitchWalkers(ctx);
         }
 
         /// <summary>경기 시작 (틱 0 전): 동전 던지기, 킥오프 배치.</summary>
@@ -125,20 +132,53 @@ namespace RoadToPro.MatchEngine.Match.Flow
 
         // ── 단계가 부르는 사건 ──
 
-        /// <summary>골 (심판 단계): 점수, 실점 팀 킥오프(자책골 포함, AC-05), 세리머니 정지 시간.</summary>
-        public void OnGoal(int scoringTeam)
+        /// <summary>
+        /// 골 (심판 단계): 점수, 실점 팀 킥오프(자책골 포함, 006 AC-05). 선수는 배치하지 않는다 — 골 후 데드볼(058 FR-01·02)이
+        /// 세리머니 → 복귀 → 준비를 진행하고, 골 정지 시간은 골 순간 ~ 킥오프 실제 길이다(FR-05).
+        /// </summary>
+        public void OnGoal(int scoringTeam, int scorerSlot = -1)
         {
             if (Period >= 2) _extra[scoringTeam]++; else _regular[scoringTeam]++;
             ClearPenalty();
             var conceding = 1 - scoringTeam;
-            var celebration = _ctx.Params.GoalCelebrationTicks;
-            Stoppage.Add(EventCodes.StopGoal, celebration);
-            BeginKickoff(conceding, _ctx.Tick + 1 + celebration);
+            Stoppage.BeginRunning(EventCodes.StopGoal, _ctx.Tick);
+            State = FlowState.DeadBall;
+            DeadBallId++;
+            Restart = RestartKind.Kickoff;
+            RestartTeam = conceding;
+            RestartSpot = KickoffLayout.Center(_ctx);
+            RestartTaker = KickoffLayout.Kicker(_ctx, conceding);
+            ReadyTick = long.MaxValue; // 준비 단계에서 정한다
+            _pendingDelay = 0;
+            DeadBall.BeginGoal(scorerSlot, scoringTeam);
         }
+
+        /// <summary>
+        /// 058 리뷰 H1·H2: 키커가 걸어 나가거나 빠졌으면 다시 고른다 (재시작은 지점에 가장 가까운 선수, 킥오프는 대형 맨 앞).
+        /// 키커가 공을 잡고 있었으면 공을 놓는다.
+        /// </summary>
+        internal void ReselectTakerIfLost()
+        {
+            if (State != FlowState.DeadBall || RestartTeam < 0) return;
+            if (RestartTaker >= 0 && _ctx.IsSlotControllable(RestartTaker)) return;
+            if (RestartTaker >= 0 && _ctx.Ball.Phase == BallPhase.Controlled && _ctx.Ball.OwnerId == RestartTaker)
+                _ctx.Ball = BallState.AtRest(_ctx.Ball.Position.XY, _ctx.BallParams.Radius);
+            RestartTaker = Restart == RestartKind.Kickoff ? KickoffLayout.Kicker(_ctx, RestartTeam) : NearestSlot(RestartTeam, RestartSpot, Restart == RestartKind.GoalKick);
+        }
+
+        /// <summary>골 데드볼 준비 단계 진입 (058 FR-02 ③).</summary>
+        internal void SetReady(long readyTick)
+        {
+            ReadyTick = readyTick + _pendingDelay;
+            _pendingDelay = 0;
+        }
+
+        long _pendingDelay;
 
         /// <summary>VAR 등으로 골 취소 (012): 점수만 되돌린다. 이미 발표한 추가시간은 줄지 않는다.</summary>
         public void DisallowGoal(int team)
         {
+            if (DeadBall.IsGoal) { Stoppage.EndRunning(_ctx.Tick); DeadBall.End(); } // 058 FR-06: 세리머니·복귀를 끊는다
             if (Period >= 2) { if (_extra[team] > 0) _extra[team]--; }
             else if (_regular[team] > 0) _regular[team]--;
         }
@@ -152,22 +192,30 @@ namespace RoadToPro.MatchEngine.Match.Flow
             RestartTeam = team;
             RestartSpot = spot;
             RestartTaker = NearestSlot(team, spot, kind == RestartKind.GoalKick);
-            ReadyTick = _ctx.Tick + 1 + _ctx.Params.RestartDelayTicks;
-            _ctx.Ball = BallState.AtRest(spot, _ctx.BallParams.Radius);
+            ReadyTick = long.MaxValue; // 058 FR-09: 접근이 끝나면 정한다
+            _pendingDelay = 0;
+            if (DeadBall.IsGoal) Stoppage.EndRunning(_ctx.Tick);
+            if (_ctx.Ball.Phase == BallPhase.Controlled) _ctx.Ball = BallState.AtRest(_ctx.Ball.Position.XY, _ctx.BallParams.Radius); // 소유 해제 (공은 그 자리)
+            DeadBall.BeginRestart(); // 058 FR-07·08: 공은 접근 단계에서 한 번 옮긴다
             if (kind == RestartKind.Penalty) PenaltyPending = true;
         }
 
         /// <summary>정지 시간 추가 (012 VAR·카드·항의, 027 부상 처치). 데드볼이면 재시작도 그만큼 늦춘다.</summary>
         public void AddStoppage(int kind, long ticks)
         {
-            Stoppage.Add(kind, ticks);
-            if (State == FlowState.DeadBall) ReadyTick += ticks;
+            // 058 FR-05: 골 데드볼 중이면 골 정지(골 ~ 킥오프 실제 길이)가 이 지연을 이미 담는다 — 시계에 또 더하지 않는다 (리뷰 M1)
+            if (!Stoppage.Running) Stoppage.Add(kind, ticks);
+            if (State != FlowState.DeadBall) return;
+            if (ReadyTick == long.MaxValue) _pendingDelay += ticks; // 준비 시각 전: 정해질 때 더한다
+            else ReadyTick += ticks;
         }
 
         /// <summary>재시작 킥이 나갔다 (물리 단계, 킥 적용 서브스텝).</summary>
         public void OnRestartTaken()
         {
             if (Restart == RestartKind.Penalty) PenaltyKickTick = _ctx.Tick;
+            if (DeadBall.IsGoal) Stoppage.EndRunning(_ctx.Tick); // 058 FR-05
+            DeadBall.End();
             State = FlowState.InPlay;
             Restart = RestartKind.None;
             RestartTaker = -1;
@@ -183,13 +231,13 @@ namespace RoadToPro.MatchEngine.Match.Flow
         /// <summary>7명 미만 (012 FR-91 이벤트): 이번 틱에 중단 결과로 끝낸다 (FR-14, AC-07).</summary>
         public void RequestAbandon() => _abandonPending = true;
 
-        /// <summary>교체 없이 빠짐 (퇴장·부상): 슬롯을 비우고 운동 시스템에서 빼서 피치 밖에 둔다.</summary>
+        /// <summary>교체 없이 빠짐 (퇴장·부상): 경기 인원에서 바로 빼고, 가까운 터치라인으로 걸어 나가게 한다 (058 FR-65 — 순간이동·즉시 삭제 없음).</summary>
         public void RemoveFromPitch(int slot, PlayerStatus why)
         {
             var k = _ctx.Kinematics;
+            var id = _ctx.Squad.PlayerAt(slot);
             _ctx.Squad.Remove(slot, why, _ctx.Tick, k.Stats(slot));
-            k.Place(slot, new Vec2(_ctx.Pitch.LengthM * 0.5f + (slot - 11) * 1.2f, -4f), new Vec2(0f, 1f));
-            k.SetActive(slot, false);
+            Walkers.BeginLeave(slot, id, why == PlayerStatus.SentOff ? WalkKind.SentOff : WalkKind.InjuredOff);
             if (_ctx.Ball.Phase == BallPhase.Controlled && _ctx.Ball.OwnerId == slot)
                 _ctx.Ball = BallState.AtRest(_ctx.Ball.Position.XY, _ctx.BallParams.Radius);
         }
@@ -213,19 +261,21 @@ namespace RoadToPro.MatchEngine.Match.Flow
                 return;
             }
             if (PenaltyKickTick >= 0 && tick - PenaltyKickTick >= 3 * SimClock.TicksPerSecond) ClearPenalty();
+            Walkers.EndTick();
+            if (State == FlowState.DeadBall) { ReselectTakerIfLost(); DeadBall.EndTick(); }
 
             var elapsed = Elapsed;
             if (!Announced && elapsed >= NominalTicks)
             {
                 Announced = true;
-                AnnouncedMinutes = Stoppage.AnnouncedMinutes;
+                AnnouncedMinutes = Stoppage.AnnouncedMinutesAt(tick);
                 var e = SimEvent.Make(SimEventKind.AddedTimeAnnounced);
                 e.Substep = SimEvent.TickEnd;
                 e.A = AnnouncedMinutes;
-                e.B = (int)Stoppage.TotalTicks;
+                e.B = (int)Stoppage.TotalTicksAt(tick);
                 _ctx.Emit(e);
             }
-            if (Announced && elapsed >= NominalTicks + ActualAddedTicks && !PenaltyPending)
+            if (Announced && elapsed >= NominalTicks + ActualAddedTicks && !PenaltyPending && DeadBall.Phase != DeadBallPhase.Celebration) // 058 FR-60
             {
                 EndPeriod();
                 return;
@@ -240,6 +290,8 @@ namespace RoadToPro.MatchEngine.Match.Flow
         void EndPeriod()
         {
             var tick = _ctx.Tick;
+            Stoppage.EndRunning(tick);
+            DeadBall.End(); // 058 FR-60: 복귀 단계를 끊는다
             _periodLength[Period] = tick - PeriodStartTick + 1;
             var e = SimEvent.Make(SimEventKind.PeriodEnd);
             e.Substep = SimEvent.TickEnd;
@@ -257,6 +309,7 @@ namespace RoadToPro.MatchEngine.Match.Flow
 
             if (next >= 0)
             {
+                Walkers.FlushAtBreak(); // 058: 기간 사이에는 걷던 선수를 끝낸다 (이어지는 킥오프 배치, FR-10)
                 if (next == 2) Subs.GrantExtraTime();
                 if (Subs.Queued > 0) Subs.Process(_ctx, true, DeadBallId, false); // 휴식 교체 (창 미소모)
                 Period = next;
@@ -294,6 +347,7 @@ namespace RoadToPro.MatchEngine.Match.Flow
             State = FlowState.Finished;
             EndReason = why;
             EndTickValue = _ctx.Tick;
+            Walkers.FlushAtBreak(); // 058 리뷰 M3: 걷던 교체를 마저 교대해 결과와 맞춘다
             Subs.Process(_ctx, true, DeadBallId, true); // 남은 요청은 경기 종료로 거부
         }
 
@@ -332,54 +386,22 @@ namespace RoadToPro.MatchEngine.Match.Flow
             DeadBallId++;
             Restart = RestartKind.Kickoff;
             RestartTeam = team;
-            var center = new Vec2(_ctx.Pitch.LengthM * 0.5f, _ctx.Pitch.WidthM * 0.5f);
+            DeadBall.End();
+            var center = KickoffLayout.Center(_ctx);
             RestartSpot = center;
             ReadyTick = readyFrom + _ctx.Params.KickoffDelayTicks;
             PlaceKickoff(team, center);
         }
 
-        /// <summary>킥오프 배치: 각 팀 대형을 자기 진영으로 압축, 상대는 센터서클 밖, 키커는 중앙. 공은 키커가 잡는다.</summary>
+        /// <summary>킥오프 배치 (경기·하프 시작, 058 FR-10): <see cref="KickoffLayout"/> 지점에 바로 놓는다. 공은 키커가 잡는다.</summary>
         void PlaceKickoff(int kickTeam, Vec2 center)
         {
             var k = _ctx.Kinematics;
-            var L = _ctx.Pitch.LengthM;
-            int kicker = -1;
-            float bestX = -1f;
-            var form = _ctx.Setup.Team(kickTeam).Formation;
-            for (int i = 1; i < Squad.SlotsPerTeam; i++)
-            {
-                var s = kickTeam * Squad.SlotsPerTeam + i;
-                if (!_ctx.IsSlotActive(s)) continue;
-                if (form[i].X > bestX) { bestX = form[i].X; kicker = s; }
-            }
-            if (kicker < 0)
-                for (int s = kickTeam * Squad.SlotsPerTeam; s < (kickTeam + 1) * Squad.SlotsPerTeam; s++)
-                    if (_ctx.IsSlotActive(s)) { kicker = s; break; }
-
+            var kicker = KickoffLayout.Kicker(_ctx, kickTeam);
             for (int s = 0; s < Squad.Slots; s++)
             {
                 if (!_ctx.IsSlotActive(s)) continue;
-                var team = Squad.TeamOfSlot(s);
-                var f = _ctx.Setup.Team(team).Formation[s % Squad.SlotsPerTeam];
-                var dir = _ctx.AttackDir(team);
-                Vec2 pos;
-                if (s == kicker) pos = new Vec2(center.X - dir * 0.3f, center.Y);
-                else
-                {
-                    pos = _ctx.FromTeamPerspective(team, new Vec2(Squad.IsKeeperSlot(s) ? f.X : f.X * 0.47f, f.Y)); // 골키퍼는 골문 앞 그대로
-                    if (team != kickTeam)
-                    {
-                        var d = pos - center;
-                        var l = d.Length();
-                        if (l < 9.6f)
-                        {
-                            var away = l < 1e-3f ? new Vec2(-dir, 0f) : d / l;
-                            pos = center + away * 9.6f;
-                            if ((pos.X - center.X) * dir > -0.5f) pos = new Vec2(center.X - dir * 9.6f, pos.Y);
-                        }
-                    }
-                }
-                k.Place(s, pos, new Vec2(dir, 0f));
+                k.Place(s, KickoffLayout.Target(_ctx, kickTeam, kicker, s), new Vec2(_ctx.AttackDir(Squad.TeamOfSlot(s)), 0f));
             }
             RestartTaker = kicker;
             if (kicker >= 0)
@@ -395,12 +417,12 @@ namespace RoadToPro.MatchEngine.Match.Flow
 
         int NearestSlot(int team, Vec2 spot, bool keeperFirst)
         {
-            if (keeperFirst && _ctx.IsSlotActive(team * Squad.SlotsPerTeam)) return team * Squad.SlotsPerTeam;
+            if (keeperFirst && _ctx.IsSlotControllable(team * Squad.SlotsPerTeam)) return team * Squad.SlotsPerTeam;
             int best = -1;
             float bd = float.MaxValue;
             for (int s = team * Squad.SlotsPerTeam; s < (team + 1) * Squad.SlotsPerTeam; s++)
             {
-                if (!_ctx.IsSlotActive(s)) continue;
+                if (!_ctx.IsSlotControllable(s)) continue;
                 if (s == team * Squad.SlotsPerTeam && !keeperFirst && _ctx.Squad.OnPitchCount(team) > 1) continue;
                 var d = (_ctx.Kinematics.State(s).Position - spot).LengthSq();
                 if (d < bd) { bd = d; best = s; }
@@ -420,6 +442,9 @@ namespace RoadToPro.MatchEngine.Match.Flow
             for (int p = 0; p < 4; p++) w.Write(_periodLength[p]);
             Stoppage.Write(w);
             Subs.Write(w);
+            DeadBall.Write(w);
+            Walkers.Write(w);
+            w.Write(_pendingDelay);
         }
 
         internal void Read(StateReader r)
@@ -432,6 +457,9 @@ namespace RoadToPro.MatchEngine.Match.Flow
             for (int p = 0; p < 4; p++) _periodLength[p] = r.ReadLong();
             Stoppage.Read(r);
             Subs.Read(r);
+            DeadBall.Read(r);
+            Walkers.Read(r);
+            _pendingDelay = r.ReadLong();
         }
 
         internal void AddTo(ref StableHasher h)
@@ -444,6 +472,9 @@ namespace RoadToPro.MatchEngine.Match.Flow
             for (int p = 0; p < 4; p++) h.Add(_periodLength[p]);
             Stoppage.AddTo(ref h);
             Subs.AddTo(ref h);
+            DeadBall.AddTo(ref h);
+            Walkers.AddTo(ref h);
+            h.Add(_pendingDelay);
         }
     }
 }

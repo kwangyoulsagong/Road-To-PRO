@@ -42,6 +42,14 @@ namespace RoadToPro.Presentation.Players.Logic
     /// 하이라이트 구간의 시뮬 기록 (읽기 전용 입력). 30 Hz 프레임 × 엔티티(선수 22 + 심판 3)의 루트 위치·정면 각, 공 위치, 이벤트.
     /// 006 ReplayFrame/SimEvent → 이 구조로 옮기는 일은 재생기(041)가 한다. 애니메이션은 이 값을 바꾸지 않는다(비기능: 시뮬 불변).
     /// </summary>
+    /// <summary>속도 점프 원인 (specs/058 FR-12). 판단 = 시뮬 행동(008·010 몫), 배치 = 교대·재배치·기간 시작, 기록 = 클립 프레임 누락·중복.</summary>
+    public enum JumpCause : byte
+    {
+        Decision = 0,
+        Placement = 1,
+        Record = 2,
+    }
+
     public sealed class HighlightData
     {
         public const float FrameRate = 30f;
@@ -56,6 +64,11 @@ namespace RoadToPro.Presentation.Players.Logic
         /// <summary>프레임별 공 소유 엔티티, 없으면 −1 (054 FR-37 드리블 런). ReplayFrame.BallOwnerSlot에서 041이 옮긴다.</summary>
         public readonly short[] BallOwner;
         public readonly List<AnimEvent> Events = new List<AnimEvent>();
+        /// <summary>
+        /// [frame * Entities + e] 앞 프레임과의 불연속 원인 (specs/058 FR-12): 0 없음, <see cref="JumpCause"/> 값.
+        /// 배치(선수 교대·공 재배치·기간 시작)·기록(프레임 번호 건너뜀) 원인을 표시한다. 판단 원인은 표시가 없는 쪽이다.
+        /// </summary>
+        public readonly byte[] Break;
 
         public HighlightData(float startTime, int frames)
         {
@@ -66,6 +79,7 @@ namespace RoadToPro.Presentation.Players.Logic
             Z = new float[frames * Entities];
             Yaw = new float[frames * Entities];
             Present = new bool[frames * Entities];
+            Break = new byte[frames * Entities];
             Ball = new Vec3[frames];
             BallOwner = new short[frames];
             for (int f = 0; f < frames; f++) BallOwner[f] = -1;
@@ -80,6 +94,13 @@ namespace RoadToPro.Presentation.Players.Logic
             Z[i] = z;
             Yaw[i] = yaw;
             Present[i] = present;
+        }
+
+        /// <summary>t에 가장 가까운 프레임 번호.</summary>
+        public int FrameIndex(float t)
+        {
+            FrameAt(t, out var f, out var a);
+            return a >= 0.5f ? f + 1 : f;
         }
 
         /// <summary>t의 프레임 위치(정수 프레임 + 비율), 범위로 자른다.</summary>

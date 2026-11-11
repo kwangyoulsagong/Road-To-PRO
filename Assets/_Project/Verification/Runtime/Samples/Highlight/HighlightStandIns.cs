@@ -10,80 +10,6 @@ using UnityEngine.UIElements;
 
 namespace RoadToPro.Verification.Samples.Highlight
 {
-    /// <summary>018 대체: 시뮬 이벤트에서 고정 규칙으로 장면을 고른다. 품질 선정은 018의 몫이다.</summary>
-    public static class StandInSceneSelector
-    {
-        const int MaxScenes = 12;
-        const double Before = 8d, After = 3d;
-        const double MinSceneSeconds = 1.5d;
-        /// <summary>프레임당 0.5 m = 15 m/s. 선수 최고 속도보다 충분히 크다.</summary>
-        const float MaxStepSq = 0.25f;
-
-        public static HighlightScene[] Select(MatchSim sim, bool withKeyMoment)
-        {
-            var picked = new List<(double t, bool goal)>();
-            foreach (var g in sim.Result.Goals) picked.Add((g.Tick * 0.1d, true));
-            foreach (var e in sim.Result.EventLog)
-                if (e.Kind == SimEventKind.Shot && picked.Count < MaxScenes && !Near(picked, e.Tick * 0.1d))
-                    picked.Add((e.Tick * 0.1d, false));
-            picked.Sort((a, b) => a.t.CompareTo(b.t));
-
-            var scenes = new List<HighlightScene>();
-            int id = 1;
-            for (int i = 0; i < picked.Count && scenes.Count < MaxScenes; i++)
-            {
-                var (t, goal) = picked[i];
-                bool key = withKeyMoment && i == 0;
-                scenes.Add(new HighlightScene(id++, t - Before, t + After, isKeyMoment: key, keyMomentTime: t - 2d));
-                if (goal && scenes.Count < MaxScenes) scenes.Add(new HighlightScene(id++, t - 3d, t + 1d, isReplay: true));
-            }
-
-            double end = sim.Result.EndTick * 0.1d;
-            var halves = new List<double>();
-            foreach (var e in sim.Result.EventLog)
-                if (e.Kind == SimEventKind.PeriodEnd && e.Tick * 0.1d < end) halves.Add(e.Tick * 0.1d);
-            var normalized = SceneListNormalizer.Normalize(scenes.ToArray(), end, halves.ToArray());
-            var usable = new List<HighlightScene>(normalized.Length);
-            foreach (var s in normalized)
-            {
-                var cut = CutAtTeleport(sim, s);
-                if (cut.End - cut.Start >= MinSceneSeconds) usable.Add(cut);
-            }
-            return usable.ToArray();
-        }
-
-        /// <summary>
-        /// 대체 심판(012 전)은 재시작 때 선수를 그 틱에 재시작 위치로 옮긴다. 그 프레임 앞에서 장면을 끝낸다.
-        /// 012·018이 연결되면 사라질 처리이고 재생기에는 없다.
-        /// </summary>
-        static HighlightScene CutAtTeleport(MatchSim sim, in HighlightScene s)
-        {
-            var clip = sim.ExtractClip((long)Math.Floor(s.Start * 10d), (long)Math.Ceiling(s.End * 10d) + 1L);
-            for (int f = 1; f < clip.Frames.Length; f++)
-            {
-                var a = clip.Frames[f - 1];
-                var b = clip.Frames[f];
-                for (int e = 0; e < Squad.Slots; e++)
-                {
-                    if (a.Hints[e] == MotionHint.Absent || b.Hints[e] == MotionHint.Absent) continue;
-                    float dx = b.X(e) - a.X(e), dy = b.Y(e) - a.Y(e);
-                    if (dx * dx + dy * dy <= MaxStepSq) continue;
-                    // 재생 클립은 틱 ⌈끝×10⌉ + 1 앞까지 담는다. 순간이동 틱이 클립에 들어가지 않는 가장 늦은 끝을 쓴다 (골 이벤트 틱은 남는다).
-                    double end = (b.Index / 3 - 1) * 0.1d - 1e-6d;
-                    return s.WithRange(s.Start, Math.Max(s.Start, Math.Min(s.End, end)));
-                }
-            }
-            return s;
-        }
-
-        static bool Near(List<(double t, bool goal)> picked, double t)
-        {
-            foreach (var p in picked)
-                if (Math.Abs(p.t - t) < Before + After) return true;
-            return false;
-        }
-    }
-
     /// <summary>039 대체: 재생 상태를 라벨로 보여 시나리오가 읽게 한다.</summary>
     public sealed class StandInHud : IHighlightHud
     {
@@ -127,6 +53,9 @@ namespace RoadToPro.Verification.Samples.Highlight
             return l;
         }
 
+        /// <summary>HUD 장면 번호 글자 ("i/n", specs/058 AC-12 확인용).</summary>
+        public string SceneText => _scene.text;
+
         public void SetVisible(bool visible)
         {
             var d = visible ? DisplayStyle.Flex : DisplayStyle.None;
@@ -166,14 +95,6 @@ namespace RoadToPro.Verification.Samples.Highlight
                 _reverse.style.display = s.IsReverseAngle ? DisplayStyle.Flex : DisplayStyle.None;
             }
         }
-    }
-
-    /// <summary>042 대체: 메인 스탠드 고정 위치에서 공과 주변 필드 선수를 화면비에 맞춰 담는다.</summary>
-    public sealed class StandInCamera : IHighlightCamera
-    {
-        public bool IsReverseAngle => false;
-        public void OnSceneBegin(in HighlightScene scene) { }
-        public void OnPlayback(double simTime) { }
     }
 
     /// <summary>046 대체: 소리 없이 재생 상태만 받는다.</summary>

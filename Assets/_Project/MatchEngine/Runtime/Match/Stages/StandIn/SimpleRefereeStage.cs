@@ -62,7 +62,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                     g.A = own ? 1 : 0;
                     ctx.SetPosition(ref g, c.Position);
                     ctx.Emit(g);
-                    flow.OnGoal(attacking);
+                    flow.OnGoal(attacking, c.LastTouchSlot);
                     return;
                 }
                 var inward = lineX == 0f ? 1f : -1f;

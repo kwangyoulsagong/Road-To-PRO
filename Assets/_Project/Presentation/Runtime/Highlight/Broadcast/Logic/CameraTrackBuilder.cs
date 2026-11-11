@@ -34,6 +34,8 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
         {
             var shots = new List<ShotPlan>();
             double start = d.StartTime, end = d.EndTime;
+            if (brief.Role == SceneRole.GoalMain && double.IsNaN(brief.NetContactTime))
+                brief.NetContactTime = Highlight.Logic.NetContact.Find(d, brief.EventTime, _rig.HalfLength); // 058 FR-22
             GoalSequenceDirector.Plan(brief, start, end, BaseKind(brief, portrait), _t, shots);
 
             var track = new CameraTrack(start, d.Frames, _t.FovMinDeg, _t.FovMaxDeg);
@@ -68,6 +70,7 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
                 hasLast = true;
             }
 
+            LimitWithinShots(track, d);
             ApplyEntryBlend(track, brief, blendFrom);
             return track;
         }
@@ -183,6 +186,61 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
                 n++;
             }
             return n == 0 ? new Vec3(ball.X, 0f, ball.Z) : sum / n;
+        }
+
+        static bool IsReplay(ShotKind k) => k == ShotKind.ReplayHigh || k == ShotKind.ReplayShooter || k == ShotKind.ReplayReverse || k == ShotKind.FallbackHigh;
+
+        /// <summary>
+        /// 058 FR-30·33: 한 샷 안 시선 회전 각속도·각가속도·화각 변화를 재생 1x 기준 상한 안으로 묶는다 (리플레이는 0.5x로 재생되므로 시뮬 시간 상한을 그만큼 넓힌다).
+        /// 남은 각도에 대한 제동 곡선(√(2·a·θ))으로 속도를 정해 멈출 때도 각가속도를 지킨다. 그 결과 공이 [제안] 0.5 s 넘게 화면 밖이면 진단 횟수를 센다.
+        /// </summary>
+        void LimitWithinShots(CameraTrack track, HighlightData d)
+        {
+            const float dt = 1f / HighlightData.FrameRate;
+            float prevSpeed = 0f;
+            int offscreen = 0, offscreenLimit = (int)Math.Ceiling(_t.BallOffscreenDiagSeconds * HighlightData.FrameRate);
+            for (int f = 1; f < track.Frames; f++)
+            {
+                if (track.CutAt[f]) { prevSpeed = 0f; offscreen = 0; continue; }
+                float rate = IsReplay(track.Shots[f]) ? PlaybackSettings.ReplayRate : 1f;
+                float maxSpeed = _t.MaxAngularSpeed / rate, maxAccel = _t.MaxAngularAccel / (rate * rate), maxFov = _t.MaxFovSpeed / rate;
+                var prev = track.Poses[f - 1];
+                var cur = track.Poses[f];
+                float dot = Vec3.Dot(prev.Forward, cur.Forward);
+                dot = dot > 1f ? 1f : dot < -1f ? -1f : dot;
+                float theta = MathF.Acos(dot) * CameraMath.Rad2Deg;
+                // 이산 제동 곡선: 마지막 한 걸음의 감속도 a·dt 안에 들게 (v = √(2aθ + (a·dt/2)²) − a·dt/2), 여유 10%
+                float a = maxAccel * 0.9f, half = a * dt * 0.5f;
+                float target = MathF.Min(maxSpeed, MathF.Sqrt(2f * a * theta + half * half) - half);
+                float speed = MathF.Max(prevSpeed - a * dt, MathF.Min(prevSpeed + a * dt, target));
+                if (speed < 0f) speed = 0f;
+                // 감속 한도를 지키려면 목표를 아주 조금(≤ a·dt²) 지나칠 수 있다 — 다음 프레임에 되돌아온다
+                float step = speed * dt;
+                var fwd = theta < 1e-4f ? cur.Forward : Slerp(prev.Forward, cur.Forward, theta, step);
+                prevSpeed = step / dt;
+                float fovPrev = 2f * MathF.Atan(prev.TanV) * CameraMath.Rad2Deg, fovCur = 2f * MathF.Atan(cur.TanV) * CameraMath.Rad2Deg;
+                float df = fovCur - fovPrev, maxDf = maxFov * dt;
+                float tanV = cur.TanV, tanH = cur.TanH;
+                if (MathF.Abs(df) > maxDf)
+                {
+                    float fov = fovPrev + MathF.Sign(df) * maxDf;
+                    tanV = MathF.Tan(fov * 0.5f / CameraMath.Rad2Deg);
+                    tanH = cur.TanV > 1e-6f ? cur.TanH * tanV / cur.TanV : cur.TanH;
+                }
+                track.Poses[f] = new CameraPose(cur.Position, fwd, tanV, tanH, cur.Shake);
+                var toBall = (d.Ball[f] - cur.Position).Normalized();
+                bool inView = Vec3.Dot(toBall, fwd) > MathF.Cos(MathF.Atan(MathF.Max(tanV, tanH)));
+                offscreen = inView ? 0 : offscreen + 1;
+                if (offscreen == offscreenLimit) track.BallOffscreenDiagnostics++;
+            }
+        }
+
+        static Vec3 Slerp(Vec3 a, Vec3 b, float thetaDeg, float stepDeg)
+        {
+            float th = thetaDeg / CameraMath.Rad2Deg, st = stepDeg / CameraMath.Rad2Deg;
+            float s = MathF.Sin(th);
+            if (s < 1e-5f) return b;
+            return (a * (MathF.Sin(th - st) / s) + b * (MathF.Sin(st) / s)).Normalized();
         }
 
         /// <summary>리플레이 진입 0.3 s(재생 시간) 전환 (FR-14). 첫 앵글만 이전 장면 포즈에서 이어받는다.</summary>

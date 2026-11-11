@@ -198,7 +198,7 @@ namespace RoadToPro.MatchEngine.Scenarios
                 }
                 return new Decision { Kind = DecisionKind.Chase, TargetSlot = owner };
             }
-            var pointM = track >= 0 && ctx.IsSlotActive(track)
+            var pointM = track >= 0 && ctx.IsSlotControllable(track)
                 ? ctx.SlotState(track).Position
                 : ctx.FromTeamPerspective(run.Team, run.Target[role]);
             return new Decision { Kind = DecisionKind.MoveTo, Point = pointM, TargetSlot = -1 };
@@ -233,7 +233,7 @@ namespace RoadToPro.MatchEngine.Scenarios
             var slot = run.Slot[role];
             var targetSlot = st.TargetKind == StepTargetKind.Role ? run.Slot[st.TargetRef] : -1;
             Vec2 aim;
-            if (targetSlot >= 0 && ctx.IsSlotActive(targetSlot)) aim = ctx.SlotState(targetSlot).Position;
+            if (targetSlot >= 0 && ctx.IsSlotControllable(targetSlot)) aim = ctx.SlotState(targetSlot).Position;
             else if (st.TargetKind == StepTargetKind.Region) aim = ctx.FromTeamPerspective(run.Team, run.Target[role]);
             else
             {

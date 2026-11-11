@@ -141,17 +141,20 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             var rt = Runtime(sim);
             sim.StepTicks(200);
             ctx.Flow.BeginRestart(RestartKind.Corner, 0, new Vec2(ctx.AttackDir(0) > 0 ? ctx.Pitch.LengthM - 0.5f : 0.5f, 0.5f));
-            for (int i = 0; i < 20 && !rt.Run(0).Active; i++) sim.StepTicks(1);
+            // 058: 세트피스 선택은 재시작 접근(공 재배치·배치 도착)이 끝난 준비 단계에서 — 최대 상한(30 s)까지 기다린다
+            for (int i = 0; i < 400 && !rt.Run(0).Active; i++) sim.StepTicks(1);
             var run = rt.Run(0);
             Assert.That(run.Active, Is.True);
             var slot = run.Slot[1];
             var id = ctx.PlayerAtSlot(slot);
             sim.RequestSubstitution(0, id, 12);
             sim.StepTicks(3);
-            Assert.That(ctx.PlayerAtSlot(slot), Is.Not.EqualTo(id), "교체 실행");
+            // 058 FR-61: 나가는 선수는 터치라인으로 걸어가고, 걷기 시작하면 배역에서 풀린다
             Assert.That(run.Active, Is.True, "선택 배역이 나가도 시나리오는 계속된다");
             Assert.That(run.Slot[1], Is.EqualTo(-1));
             Assert.That(rt.IsCast(slot), Is.False);
+            for (int i = 0; i < 600 && ctx.PlayerAtSlot(slot) == id; i++) sim.StepTicks(1);
+            Assert.That(ctx.PlayerAtSlot(slot), Is.Not.EqualTo(id), "교체 실행 (터치라인 교대)");
         }
 
         [Test]
@@ -292,7 +295,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             sim.StepTicks(200);
             var spot = new Vec2(ctx.AttackDir(0) > 0 ? ctx.Pitch.LengthM - 0.5f : 0.5f, 0.5f);
             ctx.Flow.BeginRestart(RestartKind.Corner, 0, spot);
-            for (int i = 0; i < 20 && !rt.Run(0).Active; i++) sim.StepTicks(1);
+            // 058: 세트피스 선택은 재시작 접근(공 재배치·배치 도착)이 끝난 준비 단계에서 — 최대 상한(30 s)까지 기다린다
+            for (int i = 0; i < 400 && !rt.Run(0).Active; i++) sim.StepTicks(1);
             Assert.That(rt.Run(0).Active, Is.True);
 
             sim.StepTicks(1);

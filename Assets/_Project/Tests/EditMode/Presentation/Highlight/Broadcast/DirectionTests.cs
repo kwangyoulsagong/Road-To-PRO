@@ -138,9 +138,15 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight.Broadcast
         [Test]
         public void GoalSequence_Durations()
         {
-            var shots = Plan(new SceneBrief { Role = SceneRole.GoalMain, EventTime = 100d, Scorer = 9 }, 92d, 106d);
+            // 058 FR-21·22 (059 Q5 (a)): 골 +7 s = 메인 유지 1.0 s(첫 그물 접촉 기준) + 클로즈업 2.5 s + 세리머니 3.5 s
+            var shots = Plan(new SceneBrief { Role = SceneRole.GoalMain, EventTime = 100d, Scorer = 9, NetContactTime = 100d }, 92d, 107d);
+            Assert.AreEqual(101d, shots[0].End, 1e-6d, "그물 접촉 + 1.0 s까지 메인 샷");
             Assert.AreEqual(2.5d, shots[1].End - shots[1].Start, 1e-6d);
             Assert.AreEqual(3.5d, shots[2].End - shots[2].Start, 1e-6d);
+            var noNet = Plan(new SceneBrief { Role = SceneRole.GoalMain, EventTime = 100d, Scorer = 9 }, 92d, 107d);
+            Assert.AreEqual(100.5d, noNet[0].End, 1e-6d, "그물에 안 닿은 골은 0.5 s");
+            var late = Plan(new SceneBrief { Role = SceneRole.GoalMain, EventTime = 100d, Scorer = 9, NetContactTime = 100.9d }, 92d, 107d);
+            Assert.AreEqual(101.5d, late[0].End, 1e-6d, "골 기준 상한 1.5 s");
             var tail = Plan(new SceneBrief { Role = SceneRole.GoalTail, Scorer = 9 }, 106d, 111d);
             Assert.AreEqual(2.5d, tail[0].End - tail[0].Start, 1e-6d);
             Assert.AreEqual(2.5d, tail[1].End - tail[1].Start, 1e-6d);

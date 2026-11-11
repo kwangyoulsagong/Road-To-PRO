@@ -291,7 +291,7 @@ namespace RoadToPro.MatchEngine.Scenarios
             {
                 var s = run.Slot[r];
                 if (s < 0) continue;
-                if (ctx.IsSlotActive(s) && ctx.PlayerAtSlot(s) == run.Player[r]) continue;
+                if (ctx.IsSlotControllable(s) && ctx.PlayerAtSlot(s) == run.Player[r]) continue; // 058: 걸어 나가면 배역 해제
                 if (cast[r].Required)
                 {
                     End(ctx, run, ScenarioEndReason.CastLost);
@@ -598,7 +598,9 @@ namespace RoadToPro.MatchEngine.Scenarios
             ref readonly var ball = ref ctx.Ball;
             var owner = ball.Phase == BallPhase.Controlled ? ball.OwnerId : -1;
             var ownerChanged = owner != _prevOwner;
-            var deadBallEvent = flow.State == FlowState.DeadBall && flow.DeadBallId != _prevDeadBallId;
+            // 058: 골 데드볼은 킥오프 준비 단계에 들어갈 때 세트피스 사건으로 본다 (세리머니·복귀 중에는 준비 시각이 없다)
+            var goalPending = flow.State == FlowState.DeadBall && flow.DeadBall.Pending;
+            var deadBallEvent = flow.State == FlowState.DeadBall && !goalPending && flow.DeadBallId != _prevDeadBallId;
 
             for (int t = 0; t < 2; t++)
             {
@@ -612,7 +614,7 @@ namespace RoadToPro.MatchEngine.Scenarios
             }
 
             _prevOwner = owner;
-            if (flow.State == FlowState.DeadBall) _prevDeadBallId = flow.DeadBallId;
+            if (flow.State == FlowState.DeadBall && !goalPending) _prevDeadBallId = flow.DeadBallId;
         }
 
         bool TryForce(MatchContext ctx, int team, int owner)
@@ -628,7 +630,7 @@ namespace RoadToPro.MatchEngine.Scenarios
             var def = _lib[ordinal];
             var flow = ctx.Flow;
             var ready = def.IsSetPiece
-                ? flow.State == FlowState.DeadBall
+                ? flow.State == FlowState.DeadBall && !flow.DeadBall.Pending // 058 리뷰 M2: 준비 시각이 정해진 뒤
                 : flow.State == FlowState.InPlay && (def.Side == ScenarioSide.Defense ? owner >= 0 && Squad.TeamOfSlot(owner) != team : owner >= 0 && Squad.TeamOfSlot(owner) == team);
             if (!ready) return false;
             _forceDone = true;
@@ -807,7 +809,7 @@ namespace RoadToPro.MatchEngine.Scenarios
             f.CastCount[0] = f.CastCount[1] = 0;
             for (int s = 0; s < Squad.Slots; s++)
             {
-                f.Active[s] = ctx.IsSlotActive(s);
+                f.Active[s] = ctx.IsSlotControllable(s); // 058: 걷는 선수는 배역 후보가 아니다
                 if (!f.Active[s]) { f.Busy[s] = CastBusy.Free; continue; }
                 f.Position[s] = StepExecutor.Perspective(ctx, team, ctx.SlotState(s).Position);
                 f.Role[s] = RoleOf(ctx, s);
@@ -835,7 +837,17 @@ namespace RoadToPro.MatchEngine.Scenarios
             run.KickTick = -1;
             run.LastKickTick = long.MinValue / 2;
 
-            for (int r = 0; r < ScenarioRun.MaxRoles; r++) run.Slot[r] = -1;
+            // 쓰지 않는 배역 칸도 비운다: 이전 런 값이 남으면 스냅샷 복원본(빈 칸)과 상태 해시가 달라진다 (058 T05a, 013 잠복 버그)
+            for (int r = 0; r < ScenarioRun.MaxRoles; r++)
+            {
+                run.Slot[r] = -1;
+                run.Player[r] = 0;
+                run.Step[r] = 0;
+                run.TrackSlot[r] = 0;
+                run.StepStart[r] = 0;
+                run.State[r] = 0;
+                run.Target[r] = default;
+            }
             for (int r = 0; r < def.Cast.Length; r++)
             {
                 var s = slots[r];

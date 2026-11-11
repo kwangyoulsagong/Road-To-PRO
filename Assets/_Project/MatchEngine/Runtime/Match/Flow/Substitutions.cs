@@ -86,6 +86,14 @@ namespace RoadToPro.MatchEngine.Match.Flow
                     }
                 }
                 var slot = ctx.Squad.SlotOf(q.OutId);
+                var code = q.Concussion ? EventCodes.SubConcussion : EventCodes.SubNormal;
+                if (!isBreak && !matchOver)
+                {
+                    // 058 FR-61: 나가는 선수가 가까운 터치라인으로 걸어 나간 뒤 그 자리에서 교대한다 (이벤트는 교대 순간)
+                    ctx.Flow.Walkers.BeginSubstitution(slot, q.OutId, q.InId, _windows[q.Team], code);
+                    done++;
+                    continue;
+                }
                 var st = ctx.Kinematics.State(slot);
                 ctx.Squad.Substitute(slot, q.InId, ctx.Tick, ctx.Kinematics.Stats(slot));
                 var facing = st.Facing;
@@ -93,7 +101,7 @@ namespace RoadToPro.MatchEngine.Match.Flow
                 var ev = SimEvent.Make(SimEventKind.Substitution, q.Team, q.InId, q.OutId);
                 ev.Substep = SimEvent.TickEnd;
                 ev.A = _windows[q.Team];
-                ev.B = q.Concussion ? EventCodes.SubConcussion : EventCodes.SubNormal;
+                ev.B = code;
                 ctx.SetPosition(ref ev, st.Position);
                 ctx.Emit(ev);
                 done++;
@@ -107,10 +115,12 @@ namespace RoadToPro.MatchEngine.Match.Flow
             if (matchOver) return EventCodes.RejectMatchOver;
             var sq = ctx.Squad;
             if (!sq.Has(q.OutId) || sq.TeamOf(q.OutId) != q.Team || sq.StatusOf(q.OutId) != PlayerStatus.OnPitch) return EventCodes.RejectNotOnPitch;
+            if (ctx.Flow.Walkers.IsWalking(sq.SlotOf(q.OutId)) && ctx.Flow.Walkers.KindOf(sq.SlotOf(q.OutId)) == WalkKind.SubOut) return EventCodes.RejectNotOnPitch; // 058: 이미 나가는 중
             if (!sq.Has(q.InId) || sq.TeamOf(q.InId) != q.Team) return EventCodes.RejectNotOnBench;
             var st = sq.StatusOf(q.InId);
             if (st == PlayerStatus.SubbedOff || st == PlayerStatus.SentOff || st == PlayerStatus.InjuredOff) return EventCodes.RejectReentry;
             if (st != PlayerStatus.Bench) return EventCodes.RejectNotOnBench;
+            if (ctx.Flow.Walkers.IsPendingIn(q.InId)) return EventCodes.RejectNotOnBench; // 058: 이미 들어갈 차례
             if (q.Concussion)
                 return _concussion[q.Team] >= rules.ConcussionSubstitutions ? EventCodes.RejectConcussionUsed : 0;
             if (_used[q.Team] >= Limit(rules)) return EventCodes.RejectLimit;

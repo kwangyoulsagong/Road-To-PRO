@@ -103,8 +103,11 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Match
             script.Add(new RoadToPro.MatchEngine.Match.Input.RefereeAction(100, RoadToPro.MatchEngine.Match.Input.RefereeActionKind.Injury, 9, 300, 1));
             var sim = Scripted(null, options: new MatchSimOptions { Referee = script });
             sim.StepTicks(120);
+            Assert.That(sim.Context.Squad.OnPitchCount(0), Is.EqualTo(11), "걸어 나가는 동안도 인원 유지 (058 FR-61)");
+            sim.StepTicks(1500); // 058 FR-61: 터치라인까지 걸어 나간 뒤 교대
             var subs = Events(sim, SimEventKind.Substitution);
             Assert.That(subs.Count, Is.EqualTo(1));
+            Assert.That(subs[0].Tick, Is.GreaterThan(100L), "부상 순간 즉시 교대 (순간 교체)");
             Assert.That(subs[0].OtherId, Is.EqualTo(9));
             Assert.That(subs[0].B, Is.EqualTo(EventCodes.SubConcussion));
             Assert.That(sim.Context.Squad.OnPitchCount(0), Is.EqualTo(11));

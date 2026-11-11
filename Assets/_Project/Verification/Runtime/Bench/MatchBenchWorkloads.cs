@@ -188,6 +188,30 @@ namespace RoadToPro.Verification.Bench
         }
 
         /// <summary>전체 측정 (벤치 플레이어용).</summary>
+        /// <summary>
+        /// specs/058 AC-14: 헤드리스 시뮬(데드볼 흐름 포함) + 장면 선정 1단계 시간. 장면 선정은 경기 끝 1회라 같은 이벤트 로그로 20회 중앙값.
+        /// </summary>
+        public Dictionary<string, double> RunLiveHighlight()
+        {
+            var d = RunAll();
+            var sim = NewMatch();
+            var r = sim.RunToEnd();
+            var t = new RoadToPro.Presentation.Highlight.Selection.SceneScoreTable();
+            for (int i = 0; i < 3; i++) RoadToPro.Presentation.Highlight.Selection.LiveSceneSelector.Select(r.EventLog, r.EndTick, RoadToPro.Core.Pitch.PitchSpec.Default, -1, t);
+            var samples = new double[20];
+            for (int i = 0; i < samples.Length; i++)
+            {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
+                RoadToPro.Presentation.Highlight.Selection.LiveSceneSelector.Select(r.EventLog, r.EndTick, RoadToPro.Core.Pitch.PitchSpec.Default, -1, t);
+                sw.Stop();
+                samples[i] = sw.Elapsed.TotalMilliseconds;
+            }
+            Array.Sort(samples);
+            d["scene_select_ms"] = samples[samples.Length / 2];
+            d["scene_select_events"] = r.EventLog.Length;
+            return d;
+        }
+
         public Dictionary<string, double> RunAll()
         {
             var d = new Dictionary<string, double>();

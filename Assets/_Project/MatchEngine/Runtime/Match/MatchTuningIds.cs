@@ -29,5 +29,17 @@ namespace RoadToPro.MatchEngine.Match
         public const string ShapeShiftY = "standin.shapeShiftY";
         public const string PenaltyScoreProb = "standin.penaltyScoreProb";
         public const string CarrySpeedRatio = "standin.carrySpeedRatio";
+        public const string RestartWaitMax = "standin.restartWaitMax";
+
+        // specs/058 데드볼 이동
+        public const string DbGoalCelebration = "deadball.goalCelebration";
+        public const string DbArriveRadius = "deadball.arriveRadius";
+        public const string DbReturnSpeedMin = "deadball.returnSpeedMin";
+        public const string DbReturnSpeedMax = "deadball.returnSpeedMax";
+        public const string DbRestartArriveRadius = "deadball.restartArriveRadius";
+        public const string DbRestartArriveShare = "deadball.restartArriveShare";
+        public const string DbBallOutRelocate = "deadball.ballOutRelocate";
+        public const string DbRelocateMaxWait = "deadball.relocateMaxWait";
+        public const string DbWalkOffMargin = "deadball.walkOffMargin";
     }
 }

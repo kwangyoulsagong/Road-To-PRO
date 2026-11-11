@@ -22,7 +22,8 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
                 case SceneRole.GoalTail:
                     double split = Math.Min(start + t.ReactionSeconds, end);
                     into.Add(new ShotPlan(start, split, ShotKind.ReactionWide, brief.Scorer));
-                    if (split < end) into.Add(new ShotPlan(split, end, ShotKind.KickoffWide));
+                    // 058 FR-60: 기간이 먼저 끝났으면 킥오프 대신 종료 와이드(득점 팀 와이드)
+                    if (split < end) into.Add(brief.EndWide ? new ShotPlan(split, end, ShotKind.ReactionWide, brief.Scorer) : new ShotPlan(split, end, ShotKind.KickoffWide));
                     break;
                 default:
                     PlanLive(brief, start, end, baseKind, t, into);
@@ -45,10 +46,14 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
         static void PlanGoalMain(SceneBrief b, double start, double end, ShotKind baseKind, CameraTuning t, List<ShotPlan> into)
         {
             double goal = Math.Min(Math.Max(b.EventTime, start), end);
-            if (goal > start) into.Add(new ShotPlan(start, goal, baseKind));
-            if (goal >= end) return;
-            double split = Math.Min(goal + t.GoalCloseupSeconds, end);
-            into.Add(new ShotPlan(goal, split, ShotKind.Closeup, b.Scorer));
+            // 058 FR-22 · 059 FR-30·31: 그물 출렁임을 먼저 보여준다 — 첫 그물 접촉 + 1.0 s(접촉 없음 0.5 s), 골 기준 상한 1.5 s 동안 메인 샷 유지
+            double hold = double.IsNaN(b.NetContactTime) ? b.EventTime + t.NoNetHoldSeconds : b.NetContactTime + t.NetHoldSeconds;
+            hold = Math.Min(hold, b.EventTime + t.GoalHoldMaxSeconds);
+            double cut = Math.Min(Math.Max(hold, goal), end);
+            if (cut > start) into.Add(new ShotPlan(start, cut, baseKind));
+            if (cut >= end) return;
+            double split = Math.Min(cut + t.GoalCloseupSeconds, end);
+            into.Add(new ShotPlan(cut, split, ShotKind.Closeup, b.Scorer));
             if (split < end) into.Add(new ShotPlan(split, end, ShotKind.Celebration, b.Scorer));
         }
 

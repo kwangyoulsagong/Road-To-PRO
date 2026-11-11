@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "id": "058-live-variety",
+  "spec": "058",
+  "description": "같은 경기의 실점 장면·골대(또는 박스 안 슈팅)·수비 액션·파울(주입 퇴장) 장면 캡처, HUD 장면 번호 = 선정 목록 (AC-12). 전체 재생 로그의 속도 점프 원인 집계 (AC-13)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-12",
+    "AC-13"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.conceded"
+    },
+    {
+      "type": "capture",
+      "name": "conceded",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "sceneMatchLabel",
+      "text": "ok",
+      "ac": "AC-12"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.woodwork"
+    },
+    {
+      "type": "capture",
+      "name": "woodwork",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "sceneMatchLabel",
+      "text": "ok",
+      "ac": "AC-12"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.defensive"
+    },
+    {
+      "type": "capture",
+      "name": "defensive",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "sceneMatchLabel",
+      "text": "ok",
+      "ac": "AC-12"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.foul"
+    },
+    {
+      "type": "capture",
+      "name": "foul",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "sceneMatchLabel",
+      "text": "ok",
+      "ac": "AC-12"
+    }
+  ]
+}

@@ -19,6 +19,9 @@ namespace RoadToPro.MatchEngine.Match
         public readonly float ShotRange, ShotProb, ShotSpeed, PassRange, PassExtraSpeed;
         public readonly float ClaimRadius, ClaimMaxZ, ClaimMaxSpeed, TackleRange, TackleProb;
         public readonly float ShapeShiftX, ShapeShiftY, PenaltyScoreProb, CarrySpeedRatio;
+        /// <summary>specs/058 데드볼 이동: 세리머니 단계·재시작 대기 상한·재배치 대기 상한 (틱).</summary>
+        public readonly long CelebrationTicks, RestartWaitMaxTicks, RelocateMaxWaitTicks;
+        public readonly float ArriveRadius, ReturnSpeedMin, ReturnSpeedMax, RestartArriveRadius, RestartArriveShare, BallOutRelocate, WalkOffMargin;
         public readonly ulong Hash;
 
         MatchParams(TuningBundle t)
@@ -49,6 +52,16 @@ namespace RoadToPro.MatchEngine.Match
             ShapeShiftY = t.Get(T.ShapeShiftY);
             PenaltyScoreProb = t.Get(T.PenaltyScoreProb);
             CarrySpeedRatio = t.Get(T.CarrySpeedRatio);
+            RestartWaitMaxTicks = Ticks(t.Get(T.RestartWaitMax));
+            CelebrationTicks = Ticks(t.Get(T.DbGoalCelebration));
+            ArriveRadius = t.Get(T.DbArriveRadius);
+            ReturnSpeedMin = t.Get(T.DbReturnSpeedMin);
+            ReturnSpeedMax = t.Get(T.DbReturnSpeedMax);
+            RestartArriveRadius = t.Get(T.DbRestartArriveRadius);
+            RestartArriveShare = t.Get(T.DbRestartArriveShare);
+            BallOutRelocate = t.Get(T.DbBallOutRelocate);
+            RelocateMaxWaitTicks = Ticks(t.Get(T.DbRelocateMaxWait));
+            WalkOffMargin = t.Get(T.DbWalkOffMargin);
             Hash = t.Hash;
         }
 

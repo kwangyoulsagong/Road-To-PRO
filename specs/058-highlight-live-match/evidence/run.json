@@ -1,0 +1,1189 @@
+{
+  "title": "058 장면 스크린샷 (shot)",
+  "spec": {
+    "id": "058",
+    "name": "058 — 하이라이트 실경기 연결 (골 후 흐름 · 중계 카메라 · 이벤트 기반 장면 선정)",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "고정 시드 경기 [제안] 20개에서 모든 틱의 모든 선수 위치 변화가 운동학 최고 속도 × 틱 길이 + 허용오차 이하다(순간이동 0건). 경기 시작·하프 시작 배치(FR-10)만 예외."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "골이 난 틱 이후 공은 공 물리로만 움직이고, 공 위치를 옮기는 순간은 골당 1회이며 그 시각이 장면 구간 표시에 들어 있다. 그 시각이 어떤 라이브 장면 구간 안에도 들지 않는다."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "골 후 데드볼에서 세리머니 단계 길이가 018 골 연장 값(±1틱)이고, 킥오프는 전원이 배치 지점 1.0 m 안에 들어온 뒤(또는 상한 도달 + 킥오프 규칙 위반 0명) 준비 지연 뒤에 일어난다. 골 정지 추가시간 = 골 순간 ~ 킥오프 실제 길이."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "스로인·골킥·코너·프리킥·페널티·드롭볼 각각에서 재시작 전 이동 구간에 순간이동 0건, 키커가 공 위치에 있고, FR-09 조건을 만족한 뒤에 재시작된다."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "고정 시드 경기의 골 장면마다 카메라 이벤트가 그물 큐 → (059 메인 샷 유지 뒤) 득점자 클로즈업 → 세리머니 → 리플레이 3개 → 반응 → 킥오프 와이드 순으로 나온다. 실점 장면도 같다."
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "같은 경기 전 장면 재생에서 카메라 샷 안 회전 각속도·각가속도·화각 변화가 FR-30 상한을 넘는 프레임이 0이고, 불연속은 FR-31의 세 경우에서만 나온다."
+      },
+      {
+        "id": "AC-07",
+        "kind": "로직",
+        "text": "장면 선정: 양 팀 골 전부 포함, 장면 수 8~15(골이 15 초과인 경기 제외), 0:0 고정 시드 경기에서도 장면 ≥ 8개이고 선방·빗나간 슈팅·수비 액션·파울 중 2종류 이상이 들어간다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "로직",
+        "text": "같은 공격 흐름의 슈팅 → 선방 → 리바운드 슈팅이 한 장면으로 병합되고, 즉시 리플레이 표시가 FR-44대로(골 3, 골대·레드·PK·박스 안 선방 2) 붙는다."
+      },
+      {
+        "id": "AC-09",
+        "kind": "로직",
+        "text": "상대가 2.0 m 밖인 Interception·Block·BallRecovered 이벤트에 태클 동작이 선택되는 경우가 0건. Tackle 이벤트는 상대가 2.0 m 안일 때만 태클 동작."
+      },
+      {
+        "id": "AC-10",
+        "kind": "결정론",
+        "text": "같은 시드로 2회 시뮬해 골 후 흐름·재시작 이동 포함 상태 해시가 같고, 장면 목록·카메라 시퀀스 해시가 같다. 체크포인트에서 재구성한 골 후 구간 클립이 원래 실행과 같다."
+      },
+      {
+        "id": "AC-11",
+        "kind": "E2E",
+        "text": "`e2e/058-live-goal-sequence` — 고정 시드 실제 경기의 첫 골에서 그물 큐 직후, 득점자 클로즈업, 세리머니 중간, 리플레이 ①, 킥오프 와이드를 캡처. 득점자·공이 화면 안(여백 ≥ 5%), 킥오프 와이드에서 양 팀 선수가 각자 진영에 있다. 프로필: 전체."
+      },
+      {
+        "id": "AC-12",
+        "kind": "E2E",
+        "text": "`e2e/058-live-variety` — 같은 경기에서 실점 장면, 골대 맞은 장면(또는 선방), 수비 액션 장면, 파울 장면을 하나씩 캡처. 빈·단색 화면 없음, HUD 장면 번호가 장면 목록과 같다. 프로필: smoke."
+      },
+      {
+        "id": "AC-13",
+        "kind": "E2E",
+        "text": "실제 경기 전체 하이라이트 재생 로그에 `[anim] 속도 점프` 중 배치·기록 원인(FR-12 분류) 경고가 0건이다. 판단·액션 원인 경고(008·010 몫)는 별도 집계해 리포트에 숫자로 남긴다. 프로필: smoke."
+      },
+      {
+        "id": "AC-14",
+        "kind": "성능",
+        "text": "헤드리스 시뮬 시간 증가 +5% 이하, 틱 GC 0 B, 장면 선정 ≤ 5 ms. 하이라이트 재생은 041 AC-14·042 AC-14 예산 안."
+      },
+      {
+        "id": "AC-17",
+        "kind": "로직",
+        "text": "고정 시드 경기에서 내 선수가 60분에 교체 투입되면 투입 장면이 장면 목록에 1개 있고 내 선수 관여 장면이 투입 이후에만 우선되며, 75분에 교체 아웃되면 아웃 장면이 1개 있고 그 구간에 순간이동이 0건이다. 출전하지 않은 경기에서는 내 선수 추적 모드가 방송 모드로 대체된다."
+      },
+      {
+        "id": "AC-16",
+        "kind": "로직",
+        "text": "고정 시드 경기 전 장면의 하이라이트 클립에서 연속 프레임 시각 차가 모두 1/30 s(중복·누락 0)이고, 클립 위치와 원시 궤적의 같은 시각 위치 차가 ≤ 1 mm다. 클립 프레임 차분으로 구한 선수 가속도가 005 상한 × [제안] 1.2를 넘는 경우가 배치·기록 원인으로는 0건이다."
+      },
+      {
+        "id": "AC-15",
+        "kind": "로직",
+        "text": "대량 시뮬 묶음([제안] 200경기)에서 평균 득점이 2.5~3.0이고, 골 후 데드볼 평균 길이와 재시작 평균 대기 시간을 리포트에 기록한다."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/058-highlight-live-match"
+  },
+  "meta": {
+    "commit": "ec65826083249dadbecb1a494d69bae1fe11a35d",
+    "branch": "feat/058-highlight-live-match-impl",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-11 14:35:25 +0900",
+    "durationSec": 137.4158718585968,
+    "command": "python3 Tools/devicefarm/farm.py shot --spec 058",
+    "profiles": [
+      "mac-m1-1600p-light-ko"
+    ],
+    "buildCached": false,
+    "builds": [
+      "development"
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario": "058-live-goal-sequence",
+      "description": "실제 경기 첫 골의 그물 큐 직후·득점자 클로즈업·세리머니 중간·리플레이 ①·킥오프 와이드 (AC-11). 득점자 또는 공이 화면 안(여백 5%), 킥오프 와이드에서 양 팀이 각자 진영",
+      "combos": [
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 22.0,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-goal-sequence/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-goal-sequence/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/058-live-goal-sequence.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-goal-sequence/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261109",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 7533.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 5839.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 43.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "net",
+              "status": "passed",
+              "ms": 306.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/net.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 4,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 10.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 6,
+              "type": "capture",
+              "name": "closeup",
+              "status": "passed",
+              "ms": 287.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/closeup.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 7,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 12.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 8,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 32.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 9,
+              "type": "capture",
+              "name": "celebration",
+              "status": "passed",
+              "ms": 299.9,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/celebration.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 10,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 16.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.4,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 12,
+              "type": "capture",
+              "name": "replay1",
+              "status": "passed",
+              "ms": 379.8,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/replay1.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 13,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 2.8,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 14,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 15,
+              "type": "capture",
+              "name": "kickoff",
+              "status": "passed",
+              "ms": 284.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/kickoff.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 16,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 15.6,
+              "message": "",
+              "timedOut": false
+            }
+          ],
+          "captures": [
+            {
+              "step": "net",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-goal-sequence/mac-m1-1600p-light-ko/captures/net.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "058-live-goal-sequence",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "closeup",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-goal-sequence/mac-m1-1600p-light-ko/captures/closeup.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "058-live-goal-sequence",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "celebration",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-goal-sequence/mac-m1-1600p-light-ko/captures/celebration.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "058-live-goal-sequence",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "replay1",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-goal-sequence/mac-m1-1600p-light-ko/captures/replay1.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "058-live-goal-sequence",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "kickoff",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-goal-sequence/mac-m1-1600p-light-ko/captures/kickoff.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "058-live-goal-sequence",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": [
+              {
+                "type": "Warning",
+                "message": "[RoadToPro] [anim] 속도 점프 2.12 → 0.59 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=판단",
+                "reason": "판단 원인(008·010 대체 행동 모델)의 목표 속도 15 m/s 미만 순간 가감속만 임시 무시. 058에서 경고에 원인 표시(FR-12)를 붙였고 배치·기록 원인(순간이동·클립 프레임 누락)은 무시하지 않는다 — AC-13. 008·010 연결 때 항목을 지우고 재확인. 2026-11-09 사용자 승인 (041), 2026-11-11 058 범위 축소",
+                "pattern": "^\\[RoadToPro\\] \\[anim\\] 속도 점프 \\d+\\.\\d+ → (\\d|1[0-4])\\.\\d+ m/s .*원인=판단$",
+                "count": 8505
+              }
+            ]
+          },
+          "checkpoints": [],
+          "motion": null,
+          "verdict": "candidate"
+        }
+      ],
+      "determinism": null,
+      "verdict": "candidate",
+      "build": "development"
+    },
+    {
+      "scenario": "058-live-variety",
+      "description": "같은 경기의 실점 장면·골대(또는 박스 안 슈팅)·수비 액션·파울(주입 퇴장) 장면 캡처, HUD 장면 번호 = 선정 목록 (AC-12). 전체 재생 로그의 속도 점프 원인 집계 (AC-13)",
+      "combos": [
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 18.9,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-variety/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-variety/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/058-live-variety.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-variety/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261109",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 7483,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 5756.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 43,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "conceded",
+              "status": "passed",
+              "ms": 331.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/conceded.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 4,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.4,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 6,
+              "type": "capture",
+              "name": "woodwork",
+              "status": "passed",
+              "ms": 315.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/woodwork.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 7,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 1.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 8,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 34,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 9,
+              "type": "capture",
+              "name": "defensive",
+              "status": "passed",
+              "ms": 309.5,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/defensive.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 10,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 6.8,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 33.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 12,
+              "type": "capture",
+              "name": "foul",
+              "status": "passed",
+              "ms": 309.1,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/foul.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 13,
+              "type": "assertText",
+              "name": null,
+              "status": "passed",
+              "ms": 7.2,
+              "message": "",
+              "timedOut": false
+            }
+          ],
+          "captures": [
+            {
+              "step": "conceded",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-variety/mac-m1-1600p-light-ko/captures/conceded.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "058-live-variety",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "woodwork",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-variety/mac-m1-1600p-light-ko/captures/woodwork.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "058-live-variety",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "defensive",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-variety/mac-m1-1600p-light-ko/captures/defensive.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "058-live-variety",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "foul",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-live-variety/mac-m1-1600p-light-ko/captures/foul.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "058-live-variety",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": [
+              {
+                "type": "Warning",
+                "message": "[RoadToPro] [anim] 속도 점프 2.12 → 0.59 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=판단",
+                "reason": "판단 원인(008·010 대체 행동 모델)의 목표 속도 15 m/s 미만 순간 가감속만 임시 무시. 058에서 경고에 원인 표시(FR-12)를 붙였고 배치·기록 원인(순간이동·클립 프레임 누락)은 무시하지 않는다 — AC-13. 008·010 연결 때 항목을 지우고 재확인. 2026-11-09 사용자 승인 (041), 2026-11-11 058 범위 축소",
+                "pattern": "^\\[RoadToPro\\] \\[anim\\] 속도 점프 \\d+\\.\\d+ → (\\d|1[0-4])\\.\\d+ m/s .*원인=판단$",
+                "count": 8505
+              }
+            ]
+          },
+          "checkpoints": [],
+          "motion": null,
+          "verdict": "candidate"
+        }
+      ],
+      "determinism": null,
+      "verdict": "candidate",
+      "build": "development"
+    },
+    {
+      "scenario": "058-perf",
+      "description": "실경기 하이라이트(중계 카메라) 재생 구간 프레임 기록 (AC-14, 041 AC-14·042 AC-14 예산). CPU 판정은 IL2CPP 벤치",
+      "combos": [
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 52.4,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-perf/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-perf/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/058-perf.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-143349-shot/058-perf/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261109",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 7483.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 5723.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "perfBegin",
+              "name": "playback",
+              "status": "passed",
+              "ms": 28.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "perfEnd",
+              "name": "playback",
+              "status": "passed",
+              "ms": 34908.3,
+              "message": "",
+              "timedOut": false,
+              "frames": 2060
+            }
+          ],
+          "captures": [],
+          "failCaptures": [],
+          "perf": [
+            {
+              "section": "playback",
+              "key": "058-perf/playback/mac-m1-1600p",
+              "metrics": {
+                "frames": 2000,
+                "frameMs": {
+                  "avg": 16.945547652430832,
+                  "p50": 16.675332561135292,
+                  "p95": 17.58900284767151,
+                  "p99": 21.650375798344612,
+                  "max": 30.31708486378193
+                },
+                "mainThreadMs": {
+                  "avg": 16.929005466000017,
+                  "p50": 16.678375,
+                  "p95": 17.635708,
+                  "p99": 21.588625,
+                  "max": 30.125333
+                },
+                "gpuMs": {
+                  "avg": 3.977871791466896,
+                  "p50": 4.180125004495494,
+                  "p95": 4.571416662656702,
+                  "p99": 4.6575416781706735,
+                  "max": 9.61516666575335
+                },
+                "gcAllocPerFrameBytes": {
+                  "avg": 3100.1875,
+                  "max": 166912
+                },
+                "gcAllocTotalBytes": 6200375,
+                "drawCalls": {
+                  "avg": 62.94,
+                  "max": 144
+                },
+                "triangles": {
+                  "avg": 23592.467,
+                  "max": 92962
+                },
+                "textureMemoryBytes": 202012191,
+                "totalMemoryBytes": 560130743,
+                "custom": {
+                  "frozen": {
+                    "avg": 0.058,
+                    "p50": 0,
+                    "p95": 1,
+                    "p99": 1,
+                    "max": 1
+                  },
+                  "shaderCompiles": {
+                    "avg": 0.0,
+                    "p50": 0,
+                    "p95": 0,
+                    "p99": 0,
+                    "max": 0
+                  },
+                  "syncLoads": {
+                    "avg": 0.0,
+                    "p50": 0,
+                    "p95": 0,
+                    "p99": 0,
+                    "max": 0
+                  },
+                  "timelineCameraFrames": {
+                    "avg": 0.0,
+                    "p50": 0,
+                    "p95": 0,
+                    "p99": 0,
+                    "max": 0
+                  },
+                  "timelines": {
+                    "avg": 1.288,
+                    "p50": 1,
+                    "p95": 2,
+                    "p99": 2,
+                    "max": 2
+                  },
+                  "transitionFrameMs": {
+                    "avg": 16.990615336709663,
+                    "p50": 16.69362187385559,
+                    "p95": 17.626963555812836,
+                    "p99": 21.741999313235283,
+                    "max": 30.31708486378193
+                  }
+                },
+                "outsideTransitionFrameMs": {
+                  "avg": 16.935779878045462,
+                  "p50": 16.67453907430172,
+                  "p95": 17.58813112974167,
+                  "p99": 21.63837105035782,
+                  "max": 29.750162735581398
+                }
+              },
+              "power": "ac",
+              "judged": true,
+              "ok": true,
+              "note": "",
+              "budget": [
+                {
+                  "metric": "custom.shaderCompiles.max",
+                  "value": 0,
+                  "budget": 0,
+                  "ok": true
+                },
+                {
+                  "metric": "custom.syncLoads.max",
+                  "value": 0,
+                  "budget": 0,
+                  "ok": true
+                }
+              ],
+              "regression": []
+            }
+          ],
+          "imageChecks": [],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": [
+              {
+                "type": "Warning",
+                "message": "[RoadToPro] [anim] 속도 점프 2.12 → 0.59 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=판단",
+                "reason": "판단 원인(008·010 대체 행동 모델)의 목표 속도 15 m/s 미만 순간 가감속만 임시 무시. 058에서 경고에 원인 표시(FR-12)를 붙였고 배치·기록 원인(순간이동·클립 프레임 누락)은 무시하지 않는다 — AC-13. 008·010 연결 때 항목을 지우고 재확인. 2026-11-09 사용자 승인 (041), 2026-11-11 058 범위 축소",
+                "pattern": "^\\[RoadToPro\\] \\[anim\\] 속도 점프 \\d+\\.\\d+ → (\\d|1[0-4])\\.\\d+ m/s .*원인=판단$",
+                "count": 8505
+              }
+            ]
+          },
+          "checkpoints": [],
+          "motion": null,
+          "verdict": "pass"
+        }
+      ],
+      "determinism": null,
+      "verdict": "pass",
+      "build": "development"
+    }
+  ],
+  "acEvidence": {
+    "AC-11": [
+      {
+        "label": "058-live-goal-sequence (shot) review",
+        "ok": true
+      }
+    ],
+    "AC-12": [
+      {
+        "label": "058-live-variety (shot) review",
+        "ok": true
+      }
+    ],
+    "AC-13": [
+      {
+        "label": "058-live-variety (shot) review",
+        "ok": true
+      }
+    ],
+    "AC-14": [
+      {
+        "label": "EditMode 성능 1/1 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 2/2 통과",
+        "ok": true
+      },
+      {
+        "label": "058-perf (shot) pass",
+        "ok": true
+      }
+    ],
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "결정론 테스트 6/6 통과",
+        "ok": true
+      }
+    ],
+    "AC-17": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 59,
+    "passed": 59,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 149.3999098,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-142925-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261111-142925-logic/logic.html"
+  },
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "DeadBallPerfTests.TickGc_GoalDeadBall_Zero/gc_alloc_count_deadball/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-14",
+        "label": "골 데드볼 구간 GC 할당 횟수",
+        "metric": "DeadBallPerfTests.TickGc_GoalDeadBall_Zero/gc_alloc_count_deadball/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-14",
+        "label": "헤드리스 시뮬 틱 평균 (006 기준선 25.10 µs + 5%)",
+        "metric": "tick_avg_us",
+        "value": 26.02219113605319,
+        "budget": 26.36,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "장면 선정 1단계 (경기 1개, 중앙값)",
+        "metric": "scene_select_ms",
+        "value": 0.5321,
+        "budget": 5.0,
+        "unit": "ms",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {
+      "TeamTactics": 0.012573441074338002,
+      "Phase": 0.01191679146849234,
+      "Shape": 0.14702697365172884,
+      "RoleAdjust": 0.011791715353093165,
+      "Tendency": 0.011688033836380693,
+      "ScenarioOrUtility": 0.4543653210012672,
+      "SteeringTargets": 1.1250843440909764,
+      "Physics": 23.659562562743776,
+      "Referee": 0.02958543850698616,
+      "Publish": 0.035547948587133615
+    },
+    "metrics": {
+      "skeleton_match_ms": 71.2731,
+      "full_match_ms": 1581.1864,
+      "full_match_ticks": 60763,
+      "tick_avg_us": 26.02219113605319,
+      "stage_us.TeamTactics": 0.012573441074338002,
+      "stage_us.Phase": 0.01191679146849234,
+      "stage_us.Shape": 0.14702697365172884,
+      "stage_us.RoleAdjust": 0.011791715353093165,
+      "stage_us.Tendency": 0.011688033836380693,
+      "stage_us.ScenarioOrUtility": 0.4543653210012672,
+      "stage_us.SteeringTargets": 1.1250843440909764,
+      "stage_us.Physics": 23.659562562743776,
+      "stage_us.Referee": 0.02958543850698616,
+      "stage_us.Publish": 0.035547948587133615,
+      "stages_sum_us": 25.49914257031417,
+      "physics_us_per_tick": 23.659562562743776,
+      "checkpoint_max_kb": 9.6669921875,
+      "restore_avg_ms": 0.21752500000000002,
+      "clip_11s_ms": 5.365116666666666,
+      "event_log_mb": 1.375,
+      "ring_buffer_mb": 0.9321212768554688,
+      "event_count": 4953,
+      "alloc_per_tick_b": -1,
+      "scene_select_ms": 0.5321,
+      "scene_select_events": 4953
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": false,
+    "durationSec": 15.3,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M1 Pro",
+    "development": false,
+    "commit": "9f70f99fa7b71017968f63e297f648a3f8492008"
+  },
+  "deferred": {
+    "AC-15": "대체 판단의 평균 득점이 058 이전부터 약 24골이라 2.5~3.0 판정은 008·010·017 연결 때 (2026-11-11 사용자 결정). 200경기 측정값은 evidence/mass-sim.json"
+  },
+  "requireAllAcs": true,
+  "verdict": "candidate"
+}

@@ -1,0 +1,55 @@
+{
+  "results": [
+    {
+      "name": "DeadBallPerfTests.LiveSceneSelector_ms",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.LiveSceneSelector_ms",
+      "groups": {
+        "scene_select_ms": {
+          "median": 0.7969499999999998,
+          "min": 0.7355999999999998,
+          "max": 1.6198000000000006,
+          "avg": 0.9000400000000001,
+          "unit": "ms",
+          "samples": 10
+        }
+      }
+    },
+    {
+      "name": "DeadBallPerfTests.TickGc_GoalDeadBall_Zero",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.TickGc_GoalDeadBall_Zero",
+      "groups": {
+        "gc_alloc_count_deadball": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "DeadBallPerfTests.TickGc_GoalDeadBall_Zero/gc_alloc_count_deadball/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-14",
+        "label": "골 데드볼 구간 GC 할당 횟수",
+        "metric": "DeadBallPerfTests.TickGc_GoalDeadBall_Zero/gc_alloc_count_deadball/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "회",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}

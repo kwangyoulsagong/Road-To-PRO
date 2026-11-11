@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "id": "058-live-goal-sequence",
+  "spec": "058",
+  "description": "실제 경기 첫 골의 그물 큐 직후·득점자 클로즈업·세리머니 중간·리플레이 ①·킥오프 와이드 (AC-11). 득점자 또는 공이 화면 안(여백 5%), 킥오프 와이드에서 양 팀이 각자 진영",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-11"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.net"
+    },
+    {
+      "type": "capture",
+      "name": "net",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-11"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.closeup"
+    },
+    {
+      "type": "capture",
+      "name": "closeup",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-11"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.celebration"
+    },
+    {
+      "type": "capture",
+      "name": "celebration",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-11"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.replay1"
+    },
+    {
+      "type": "capture",
+      "name": "replay1",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "framingLabel",
+      "text": "ok",
+      "ac": "AC-11"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.kickoff"
+    },
+    {
+      "type": "capture",
+      "name": "kickoff",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "halvesLabel",
+      "text": "ok",
+      "ac": "AC-11"
+    }
+  ]
+}

@@ -19,7 +19,8 @@ namespace RoadToPro.MatchEngine.Match.Replay
     /// </summary>
     public sealed class MatchSnapshot
     {
-        public const byte FormatVersion = 1;
+        /// <summary>2: specs/058 데드볼 진행기·진행 중 정지 시간 추가.</summary>
+        public const byte FormatVersion = 2;
 
         public readonly long Tick;
         public readonly long Seq;
