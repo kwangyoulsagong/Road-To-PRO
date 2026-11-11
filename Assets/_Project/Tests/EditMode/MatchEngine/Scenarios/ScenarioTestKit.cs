@@ -57,7 +57,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         public static MatchTuning MatchTuningOf(ScenarioData d)
         {
             var t = ShapeTestKit.TuningWithShape();
-            return new MatchTuning(t.Ball, t.Kinematics, t.Match, t.Shape, d);
+            return new MatchTuning(t.Ball, t.Kinematics, t.Match, t.Shape, d, t.Goalkeeper);
         }
 
         public static MatchSim Sim(ScenarioData d, MatchSimOptions o = null, ulong seed = 20261109UL) =>

@@ -14,6 +14,8 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
     {
         bool IsCast(int slot);
         bool TryDecide(MatchContext ctx, int slot, ref bool hasAction, out Decision decision);
+        /// <summary>배역 선수의 의도 지점만 읽는다 — RNG·공 동작·런 상태 등 부수효과 없음 (specs/011 FR-94, GK 의도).</summary>
+        bool TryReadIntent(MatchContext ctx, int slot, out Vec2 point);
     }
 
     /// <summary>
@@ -50,8 +52,15 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             {
                 var s = _list[i];
                 if (!ctx.IsSlotControllable(s)) continue; // 058: 걷는 선수는 흐름이 직접 조향
+                if (ctx.Keepers.IsBusySlot(s)) // 011 FR-17: 다이빙·일어나기 중 행동 불가
+                {
+                    _intent[s] = new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
+                    board.MarkDecided(s);
+                    continue;
+                }
                 Decision d;
-                if (_override == null || _input[s] != default || ctx.Flow.DeadBall.Pending || !_override.TryDecide(ctx, s, ref hasAction, out d))
+                if (KeeperDecides(ctx, s)) d = DecideKeeper(ctx, s, ref hasAction);
+                else if (_override == null || _input[s] != default || ctx.Flow.DeadBall.Pending || !_override.TryDecide(ctx, s, ref hasAction, out d))
                     d = Decide(ctx, s, ref hasAction);
                 _intent[s] = d;
                 board.MarkDecided(s);
@@ -97,12 +106,11 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             {
                 _chaser[t] = -1;
                 float bd = float.MaxValue;
-                var nearOwnGoal = (target - ctx.OwnGoal(t)).LengthSq() < 18f * 18f;
                 for (int s = t * Squad.SlotsPerTeam; s < (t + 1) * Squad.SlotsPerTeam; s++)
                 {
                     if (!ctx.IsSlotControllable(s)) continue;
                     if (_override != null && _override.IsCast(s)) continue;
-                    if (Squad.IsKeeperSlot(s) && !nearOwnGoal) continue;
+                    if (Squad.IsKeeperSlot(s)) continue; // 011 FR-16: GK 경합은 GK 결정(KeeperChooser)이 정한다
                     var d = (ctx.SlotState(s).Position - target).LengthSq();
                     if (d < bd) { bd = d; _chaser[t] = s; }
                 }
@@ -249,6 +257,32 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
         }
 
         static Decision Stand() => new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
+
+        /// <summary>인플레이·공을 안 가진 GK·외부 입력 없음 → GK 고유 결정 (011 FR-16·94).</summary>
+        bool KeeperDecides(MatchContext ctx, int s)
+        {
+            if (!Squad.IsKeeperSlot(s) || _input[s] != default || ctx.Flow.State != FlowState.InPlay) return false;
+            ref readonly var ball = ref ctx.Ball;
+            return !(ball.Phase == BallPhase.Controlled && ball.OwnerId == s);
+        }
+
+        /// <summary>
+        /// GK 결정 (011 FR-94): 시나리오 배역이면 시나리오 결정을 의도(지점 이동)로만 넘기고, 최종 선택은 GK 기대효용 + 010 선택 규칙.
+        /// </summary>
+        Decision DecideKeeper(MatchContext ctx, int s, ref bool hasAction)
+        {
+            var intent = default(Goalkeeper.KeeperIntent);
+            // 의도 지점만 부수효과 없이 읽는다 — 시나리오가 GK 공 동작·RNG를 건드리지 못하게 (결정론 리뷰 M1)
+            if (_override != null && _override.IsCast(s) && _override.TryReadIntent(ctx, s, out var ip))
+                intent = new Goalkeeper.KeeperIntent { Has = true, Kind = Goalkeeper.KeeperActionKind.MoveTo, Point = ip, InWindow = true };
+            var kind = ctx.Keepers.Decide(ctx, Squad.TeamOfSlot(s), in intent, out var point);
+            switch (kind)
+            {
+                case Goalkeeper.KeeperActionKind.Contest: return new Decision { Kind = DecisionKind.Chase, Point = point, TargetSlot = -1 };
+                case Goalkeeper.KeeperActionKind.MoveTo: return new Decision { Kind = DecisionKind.MoveTo, Point = point, TargetSlot = -1 };
+                default: return new Decision { Kind = DecisionKind.HoldShape, TargetSlot = -1 };
+            }
+        }
 
         static void Shoot(MatchContext ctx, int s, int team, bool restart, bool penalty)
         {

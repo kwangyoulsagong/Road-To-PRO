@@ -117,6 +117,17 @@ namespace RoadToPro.MatchEngine.Match
             _slot[slot] = inIdx;
         }
 
+        /// <summary>선수를 빈 슬롯으로 옮긴다 (specs/011: 필드 선수가 GK 슬롯을 맡음).</summary>
+        public void MoveSlot(int from, int to)
+        {
+            var idx = _slot[from];
+            if (idx < 0) throw new InvalidOperationException($"빈 슬롯 {from}");
+            if (_slot[to] >= 0) throw new InvalidOperationException($"슬롯 {to}가 차 있다");
+            _slot[to] = idx;
+            _p[idx].Slot = to;
+            _slot[from] = -1;
+        }
+
         /// <summary>퇴장·교체 없는 부상: 슬롯을 비운다.</summary>
         public void Remove(int slot, PlayerStatus why, long tick, in MotionStats stats)
         {

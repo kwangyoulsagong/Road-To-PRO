@@ -59,6 +59,18 @@ namespace RoadToPro.Presentation.Highlight.Logic
             foreach (var ev in clip.Events)
             {
                 if ((int)ev.Kind < FirstActionKind || (int)ev.Kind >= EndActionKind) continue;
+                if (ev.Kind == SimEventKind.DiveStart)
+                {
+                    // 011 FR-91: 접촉 이벤트가 있는 다이빙은 접촉 이벤트가 동작을 정한다. 없으면(실점) 예정 접촉 시각·지점에 닿지 않는 다이빙
+                    if (HasKeeperContact(clip, ev)) continue;
+                    double dt = EventTime(ev) + ev.F0;
+                    int df = FrameIndex(clip, dt);
+                    int de = SlotOf(clip.Frames[df], ev.PlayerId);
+                    if (de < 0) continue;
+                    data.Events.Add(new AnimEvent((float)dt, ev.Seq, ev.Kind, de, -1, BodyPart.Hand, ActionOutcome.Fail,
+                        EventBall(ev, data.Ball[df], pitch), BallVelocityAfter(data, df)));
+                    continue;
+                }
                 double time = EventTime(ev);
                 int frame = FrameIndex(clip, time);
                 int entity = SlotOf(clip.Frames[frame], ev.PlayerId);
@@ -67,6 +79,21 @@ namespace RoadToPro.Presentation.Highlight.Logic
                     ActionOutcome.Success, EventBall(ev, data.Ball[frame], pitch), BallVelocityAfter(data, frame)));
             }
             return data;
+        }
+
+        /// <summary>다이빙 시작 뒤 예정 접촉 시각(+2 서브스텝)까지 같은 GK의 접촉 이벤트(잡기·쳐내기·펀칭)가 있는가.</summary>
+        static bool HasKeeperContact(ReplayClip clip, in SimEvent dive)
+        {
+            long start = dive.Tick * 10 + Math.Max((int)dive.Substep, 0);
+            long end = start + (long)Math.Round(dive.F0 * 100d) + 2;
+            foreach (var e in clip.Events)
+            {
+                if (e.PlayerId != dive.PlayerId) continue;
+                if (e.Kind != SimEventKind.Catch && e.Kind != SimEventKind.Parry && e.Kind != SimEventKind.Punch) continue;
+                long t = e.Tick * 10 + Math.Max((int)e.Substep, 0);
+                if (t >= start && t <= end) return true;
+            }
+            return false;
         }
 
         /// <summary>058 FR-12: 프레임 번호 건너뜀 = 기록 원인, 슬롯 선수 id 변경(교대)·등장 = 배치 원인.</summary>

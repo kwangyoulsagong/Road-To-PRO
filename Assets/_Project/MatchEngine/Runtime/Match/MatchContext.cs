@@ -39,6 +39,8 @@ namespace RoadToPro.MatchEngine.Match
         public readonly InputLog Inputs;
         public readonly RefereeScript RefereeScript;
         public readonly ReplayRecorder Recorder;
+        /// <summary>골키퍼 (specs/011): 위치·선방·다이빙.</summary>
+        public readonly Goalkeeper.GoalkeeperSystem Keepers;
         public IRawTrajectorySink RawSink;
         /// <summary>이 경기 이벤트 로그 (발행 단계가 쓴다).</summary>
         public SimEventLog Log { get; internal set; }
@@ -88,6 +90,7 @@ namespace RoadToPro.MatchEngine.Match
             Inputs = inputs;
             RefereeScript = referee;
             Recorder = new ReplayRecorder(this);
+            Keepers = new Goalkeeper.GoalkeeperSystem(Goalkeeper.GoalkeeperParams.Create(tuning.Goalkeeper), BallParams, setup.Seed);
             _ball = BallState.AtRest(new Vec2(Pitch.LengthM * 0.5f, Pitch.WidthM * 0.5f), BallParams.Radius);
             Flow = new MatchFlow(this);
         }

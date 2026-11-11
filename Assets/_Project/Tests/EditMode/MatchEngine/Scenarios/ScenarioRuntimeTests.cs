@@ -376,6 +376,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         sealed class Swallow : IDecisionOverride
         {
             public bool IsCast(int slot) => false;
+            public bool TryReadIntent(MatchContext ctx, int slot, out RoadToPro.Core.Math.Vec2 point) { point = default; return false; }
             public bool TryDecide(MatchContext ctx, int slot, ref bool hasAction, out Decision d)
             {
                 hasAction = true;

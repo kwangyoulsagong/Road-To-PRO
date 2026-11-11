@@ -375,6 +375,8 @@ namespace RoadToPro.Presentation.Players.Logic
                 case SimEventKind.Save:
                 case SimEventKind.Catch:
                 case SimEventKind.Punch:
+                case SimEventKind.Parry:
+                case SimEventKind.DiveStart: // 011: 접촉 없는 다이빙(실점)
                 case SimEventKind.Block:
                 case SimEventKind.Interception:
                 case SimEventKind.Clearance:

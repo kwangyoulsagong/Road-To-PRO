@@ -25,6 +25,9 @@ namespace RoadToPro.MatchEngine.Kinematics
         readonly KinematicAttributes[] _attrs;
         readonly bool[] _active;
         int _inactive;
+        readonly bool[] _ext;
+        readonly Vec2[] _extVel;
+        int _external;
         readonly MotionStats[] _stats;
         readonly CommandQueue _queue;
         readonly bool[] _contact;
@@ -59,6 +62,8 @@ namespace RoadToPro.MatchEngine.Kinematics
             _stats = new MotionStats[_n];
             _attrs = new KinematicAttributes[_n];
             _active = new bool[_n];
+            _ext = new bool[_n];
+            _extVel = new Vec2[_n];
             for (int i = 0; i < _n; i++)
             {
                 if (i > 0 && sorted[i].Id == sorted[i - 1].Id) throw new ArgumentException($"선수 id 중복: {sorted[i].Id}", nameof(players));
@@ -108,6 +113,8 @@ namespace RoadToPro.MatchEngine.Kinematics
         public ref readonly MotionStats Stats(int index) => ref _stats[index];
         public int PendingCommands(int index) => _queue.Pending(index);
         public bool IsActive(int index) => _active[index];
+        /// <summary>외부 구동 중인가 (specs/011 FR-17 GK 다이빙).</summary>
+        public bool IsExternal(int index) => _ext[index];
         public ref readonly KinematicAttributes Attributes(int index) => ref _attrs[index];
 
         /// <summary>
@@ -120,7 +127,11 @@ namespace RoadToPro.MatchEngine.Kinematics
             if (_active[i] == active) return;
             _active[i] = active;
             _inactive += active ? -1 : 1;
-            if (!active) Freeze(i);
+            if (!active)
+            {
+                if (_ext[i]) { _ext[i] = false; _external--; _extVel[i] = Vec2.Zero; }
+                Freeze(i);
+            }
         }
 
         /// <summary>
@@ -141,7 +152,71 @@ namespace RoadToPro.MatchEngine.Kinematics
             _contact[i] = false;
             _fault[i] = false;
             _targetIdx[i] = -1;
+            if (_ext[i]) { _ext[i] = false; _external--; _extVel[i] = Vec2.Zero; }
             if (!_active[i]) { _active[i] = true; _inactive--; }
+        }
+
+        /// <summary>
+        /// 외부 구동 시작 (specs/011 FR-17: GK 다이빙은 005 달리기 모델 밖). 이 선수는 서브스텝마다 <see cref="DriveExternal"/> 속도로만
+        /// 움직이고, 조향·한계 풀이·운동 한계 모니터(FR-52)에서 빠진다. 겹침 위치 투영(Separation ⑥)·피치 경계·피로·기록은 그대로 —
+        /// 투영을 빼면 다이빙 중 쌓인 겹침이 해제 순간 한 번에 풀려 순간이동처럼 보인다(058 감사기). 대기 명령은 비운다.
+        /// </summary>
+        public void BeginExternal(int id, Vec2 velocity)
+        {
+            var i = Require(id);
+            if (!Finite(velocity)) throw new ArgumentException("속도에 NaN/무한대", nameof(velocity));
+            if (!_ext[i]) { _ext[i] = true; _external++; }
+            _extVel[i] = velocity;
+            _queue.Clear(i);
+            _s[i].Active = SteeringCommand.Idle();
+            _targetIdx[i] = -1;
+        }
+
+        /// <summary>외부 구동 속도 바꾸기 (착지 뒤 0 등).</summary>
+        public void DriveExternal(int id, Vec2 velocity)
+        {
+            var i = Require(id);
+            if (!_ext[i]) throw new InvalidOperationException($"외부 구동 중이 아님: {id}");
+            if (!Finite(velocity)) throw new ArgumentException("속도에 NaN/무한대", nameof(velocity));
+            _extVel[i] = velocity;
+        }
+
+        /// <summary>외부 구동 끝: 정지·Idle·대기 명령 비움으로 005에 돌려준다(일어나기 끝).</summary>
+        public void EndExternal(int id)
+        {
+            var i = Require(id);
+            if (!_ext[i]) return;
+            _ext[i] = false;
+            _external--;
+            _extVel[i] = Vec2.Zero;
+            Freeze(i);
+        }
+
+        /// <summary>
+        /// 선수를 다른 슬롯으로 옮긴다 (specs/011: GK 퇴장 뒤 필드 선수가 GK 슬롯을 맡음). 능력치·상태·피로·기록을 그대로 옮기고
+        /// 원래 슬롯은 비활성. 대상 슬롯은 비활성이어야 한다. 대기 명령은 비운다(다음 결정에서 다시).
+        /// </summary>
+        public void MoveSlot(int fromId, int toId)
+        {
+            var f = Require(fromId);
+            var t = Require(toId);
+            if (_active[t]) throw new InvalidOperationException($"대상 슬롯 {toId}가 활성");
+            if (!_active[f]) throw new InvalidOperationException($"원래 슬롯 {fromId}가 비활성");
+            _attrs[t] = _attrs[f];
+            _prof[t] = _prof[f];
+            var s = _s[f];
+            s.Id = toId;
+            s.Active = SteeringCommand.Idle();
+            _s[t] = s;
+            _stats[t] = _stats[f];
+            _queue.Clear(t);
+            _contact[t] = false;
+            _fault[t] = false;
+            _targetIdx[t] = -1;
+            if (_ext[t]) { _ext[t] = false; _external--; _extVel[t] = Vec2.Zero; }
+            _active[t] = true;
+            _inactive--;
+            SetActive(fromId, false);
         }
 
         /// <summary>즉시 배치 (킥오프·재시작·하프타임): 위치·방향을 놓고 정지·Idle. 피로·기록은 유지.</summary>
@@ -153,6 +228,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             if (f == Vec2.Zero) f = _s[i].Facing;
             _s[i].Position = position;
             _s[i].Facing = f;
+            if (_ext[i]) { _ext[i] = false; _external--; _extVel[i] = Vec2.Zero; }
             Freeze(i);
         }
 
@@ -179,6 +255,8 @@ namespace RoadToPro.MatchEngine.Kinematics
                 w.Write(a.Pace); w.Write(a.Acceleration); w.Write(a.Agility); w.Write(a.Balance);
                 w.Write(a.Stamina); w.Write(a.Anticipation); w.Write(a.Concentration);
                 w.Write(_active[i]);
+                w.Write(_ext[i]);
+                w.Write(_extVel[i]);
                 ref readonly var s = ref _s[i];
                 w.Write(s.Position); w.Write(s.Velocity); w.Write(s.Facing);
                 w.Write(s.Pivoting); w.Write(s.W); w.Write(s.C);
@@ -197,6 +275,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             var n = r.ReadInt();
             if (n != _n) throw new FormatException($"선수 수 불일치: 스냅샷 {n}, 시스템 {_n}");
             var inactive = 0;
+            var external = 0;
             for (int i = 0; i < _n; i++)
             {
                 var id = r.ReadInt();
@@ -206,6 +285,9 @@ namespace RoadToPro.MatchEngine.Kinematics
                 _prof[i] = PlayerMotionProfile.Create(in a, _p); // 같은 능력치 → 같은 프로필 (순수 함수)
                 _active[i] = r.ReadBool();
                 if (!_active[i]) inactive++;
+                _ext[i] = r.ReadBool();
+                _extVel[i] = r.ReadVec2();
+                if (_ext[i]) external++;
                 var s = new PlayerMotionState { Id = id };
                 s.Position = r.ReadVec2(); s.Velocity = r.ReadVec2(); s.Facing = r.ReadVec2();
                 s.Pivoting = r.ReadBool(); s.W = r.ReadFloat(); s.C = r.ReadFloat();
@@ -219,6 +301,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             }
             for (int i = 0; i < _n; i++) _targetIdx[i] = IndexOf(_s[i].Active.TargetId);
             _inactive = inactive;
+            _external = external;
             Substep = substep;
         }
 
@@ -290,6 +373,16 @@ namespace RoadToPro.MatchEngine.Kinematics
             {
                 if (anyInactive && !_active[i]) continue;
                 ref var s = ref _s[i];
+                if (_external > 0 && _ext[i])
+                {
+                    // 011 FR-17: 외부 구동 — 조향·한계 풀이·모니터 없이 정해진 속도로 적분
+                    s.Velocity = _extVel[i];
+                    s.Position += s.Velocity * p.Dt;
+                    _desired[i] = s.Velocity;
+                    _info[i] = default;
+                    _contact[i] = false;
+                    continue;
+                }
                 ref readonly var prof = ref _prof[i];
                 var fatigueW = 1f - s.W;
                 var vmaxEff = prof.MaxSpeed * (1f - vA * fatigueW - vC * s.C);   // Fatigue.EffectiveMaxSpeed 인라인 (핫패스)
@@ -474,6 +567,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             for (int i = 0; i < _n; i++)
             {
                 if (!_active[i]) h.Add((byte)0xA5); // 비활성 표시 (전원 활성이면 005 해시 그대로)
+                if (_ext[i]) { h.Add((byte)0xE7); h.Add(_extVel[i].X); h.Add(_extVel[i].Y); } // 외부 구동 표시 (안 쓰면 해시 그대로)
                 _s[i].AddTo(ref h);
                 h.Add(_contact[i]); // 다음 서브스텝 a_cap 배율에 영향 (리뷰 R1)
                 h.Add(_fault[i]);

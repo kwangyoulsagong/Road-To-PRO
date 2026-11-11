@@ -87,6 +87,13 @@ namespace RoadToPro.MatchEngine.Match.Stages
             f.TransitionTicks = board.TransitionTicks(team);
             f.LineSyncAdvance = _in.Cast.IsLineSyncAdvance(team);
 
+            // 011 FR-05·93: GK 목표 — 라인 높이는 직전 틱 수비 라인 상태(직렬화되는 값, 팀 관점 정규화 × 길이), DefHigh면 스위퍼 전진
+            var prevLine = _engine[team].LineX;
+            var lineM = prevLine > 0f ? prevLine * pitch.LengthM : -1f;
+            var gk = ctx.Keepers.UpdateTarget(ctx, team, lineM, f.Block == TeamPhase.DefHigh || f.Phase == TeamPhase.DefHigh);
+            f.HasKeeperTarget = ctx.Keepers.HasTarget(team);
+            f.KeeperTarget = Persp(gk, pitch, side, period);
+
             var flow = ctx.Flow;
             f.Restart = flow.Restart;
             f.RestartAttacking = flow.RestartTeam == team;

@@ -23,6 +23,9 @@ namespace RoadToPro.MatchEngine.Tactics
         public Vec2 RestartSpot;
         public int RestartTaker = -1;
         public bool LineSyncAdvance;
+        /// <summary>GK 목표 (specs/011 FR-93, 팀 관점 정규화). 없으면 009 대체식.</summary>
+        public bool HasKeeperTarget;
+        public Vec2 KeeperTarget;
 
         public readonly Vec2[] Own = new Vec2[N], OwnVel = new Vec2[N], Opp = new Vec2[N], OppVel = new Vec2[N];
         public readonly bool[] OwnActive = new bool[N], OppActive = new bool[N], Cast = new bool[N];
@@ -404,9 +407,10 @@ namespace RoadToPro.MatchEngine.Tactics
                 _targets[i] = ClampPitch(t);
             }
 
-            // GK (011 전 대체)
+            // GK: 011 포지셔너 결과 (FR-93). 없으면(형태 엔진 단독 테스트) 009 대체식
             _hasTarget[0] = f.OwnActive[0] && !f.Cast[0];
-            if (_hasTarget[0])
+            if (_hasTarget[0] && f.HasKeeperTarget) _targets[0] = f.KeeperTarget;
+            else if (_hasTarget[0])
                 _targets[0] = new Vec2(
                     Interp.Clamp(_p.GkBaseX + _p.GkBallX * (f.Ball.X - 0.5f), _p.GkMinX, _p.GkMaxX),
                     Interp.Clamp(0.5f + _p.GkBallY * (f.Ball.Y - 0.5f), _p.GkMinY, _p.GkMaxY));
