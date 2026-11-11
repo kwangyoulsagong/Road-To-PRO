@@ -1,0 +1,592 @@
+{
+  "title": "011 장면 스크린샷 (shot)",
+  "spec": {
+    "id": "011",
+    "name": "011 — 골키퍼: 위치 · 선방 · 3D 접점",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "공이 페널티 스폿 정면 11 m, 정지 상태일 때 GK 목표 위치가 이등분선 위(좌우 오차 ≤ 0.05 m, Positioning 노이즈 끈 상태)이고 깊이가 0.5~6 m 안이다."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "공을 측면 골라인 근처로 옮기면 GK 위치가 니어포스트 쪽으로 이동하고 골문 안·피치 밖 좌표가 나오지 않는다 (공 위치 1,000 무작위 표본, NaN 0)."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "같은 슈팅 위치에서 GK를 최적 위치 P*와 골라인 중앙에 각각 두고 1,000회 슈팅하면 P*의 선방률이 더 높다 (이항 검정 p < 0.01). 칩슛 1,000회에서는 깊이 6 m GK가 깊이 2 m GK보다 실점이 많다 (p < 0.01)."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "중앙 슛(골문 중앙 1 m 안)의 선방률은 볼 속도 20 m/s와 30 m/s에서 차이가 5%p [제안] 이하이고, 높은 구석(7×3 격자 상단 모서리 셀) 선방률은 15% [제안] 이하, 낮은 구석 > 높은 구석이다."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "가림이 있는 슛은 없는 슛보다 t_react_eff가 0.1~0.2 s 크고, 굴절 직후 반응 타이머가 0에서 다시 시작한다."
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "Handling s = 1 GK와 s = 0 GK가 같은 슛 1,000회를 처리하면 잡기 비율은 s = 1이 높다 (p < 0.01). 위험한 쳐내기 리바운드 평균 거리가 FR-12 식 6 − 3n m와 ±0.3 m 이내다 (s = 0 → 6.0 m, s = 1 → 3.0 m). 모든 리바운드 위치가 골라인 밖으로 나가지 않는다(골문 안 제외)."
+      },
+      {
+        "id": "AC-13",
+        "kind": "로직",
+        "text": "리그 평균 GK 대비 PSxG 텔레메트리: 리그 평균 GK끼리 1,000경기(017)에서 PSxG+/-/90 평균이 0 ± 0.03, 선방률이 017 FR-20 목표(70% ± 3%p) 안. 능력치 20 GK와 5 GK의 PSxG+/-/90 차가 0.4~0.6. (071·072·010 연결 뒤, 그 전 \"보류\")"
+      },
+      {
+        "id": "AC-15",
+        "kind": "로직",
+        "text": "GK 퇴장 후 필드 선수가 GK를 맡으면 위치 탐색·선방 판정이 정상 동작하고 선방률이 정규 GK보다 낮다."
+      },
+      {
+        "id": "AC-16",
+        "kind": "결정론",
+        "text": "같은 시드로 슈팅 픽스처 100개를 2회 처리하면 위치·도달 확률·처리 결과·리바운드 궤적 해시가 같다. 90분 경기 2회 실행 GK 이벤트 해시도 같다."
+      },
+      {
+        "id": "AC-17",
+        "kind": "성능",
+        "text": "위치 탐색 1회, 선방 판정 1회, 결정 틱당 GK 전체 p95와 GC 0 B가 예산 안이다."
+      },
+      {
+        "id": "AC-18",
+        "kind": "E2E",
+        "text": "(040 구현 후) 2D 탑뷰 디버그 오버레이에서 고정 시드 3장면(정면 슛 각 좁히기, 측면 니어포스트 커버, 30 m 중거리 반응)의 GK 위치·이등분선·위험도 후보 점이 캡처되고 기준 이미지와 일치한다. 시나리오 `e2e/011-gk-positioning`, 프로필: smoke. 040 전 \"보류\". (스위퍼 돌진 장면은 073 AC-07)"
+      },
+      {
+        "id": "AC-19",
+        "kind": "로직",
+        "text": "FR-14 슛 평가 함수의 P_beatGK가 같은 상태·같은 목표 셀에서 실제 판정(FR-10) 10만 회 실점률과 ±1%p 이내이고, 평가 호출 전후 RNG 상태가 같다."
+      },
+      {
+        "id": "AC-20",
+        "kind": "결정론",
+        "text": "FR-82 진단 출력을 켠 실행과 끈 실행(같은 시드)의 이벤트 로그 해시와 체크포인트 해시가 모두 같다. 끈 실행에서 진단용 할당은 0 B다."
+      },
+      {
+        "id": "AC-21",
+        "kind": "로직",
+        "text": "검증 경기 1,000경기 [제안] (이 스펙 검증은 100경기, 1,000경기는 017 대량 시뮬에서 — 2026-11-11 사용자 결정)에서 다이빙 상태 밖 GK의 005 FR-52 운동 한계 초과 진단이 0건이고, 30 Hz 기록 프레임 사이 GK 목표점 점프(FR-07 상한 초과)가 0건이다."
+      },
+      {
+        "id": "AC-22",
+        "kind": "로직",
+        "text": "공을 슈팅 가능 거리 경계 너머로 0.1 m씩 옮기면 GK 목표 위치의 최대 변화가 ≤ 0.2 m [제안]이고, 공을 좌우로 쓸면 목표점 좌우 값이 이등분선 오차 ≤ 0.05 m 안에서 단조로 바뀐다."
+      },
+      {
+        "id": "AC-23",
+        "kind": "로직",
+        "text": "30 m 중거리 유효 슛 1,000회에서 GK 판정 미실행이 0건이고, 반응 시작 시각 − 슈팅 서브스텝 시각 = t_react_eff ± 1 서브스텝이다."
+      },
+      {
+        "id": "AC-24",
+        "kind": "로직",
+        "text": "모든 GK 접촉 이벤트에 동작 종류·부위·서브스텝 시각이 있다. 같은 픽스처를 054 AC-04·AC-08 측정기에 넣으면 GK 손–공 거리 ≤ 10 cm, 시각 차 ±33 ms, 결과와 동작이 모순되는 경우 0건이다. (2026-11-11 사용자 결정: 손–공 거리만 보류 — 지금 GK 클립(중간 높이 다이빙·가슴 잡기)으로는 103~165 cm. GK 클립·손 IK 후속 스펙에서 판정. 이벤트 필드·시각 차·모순 0은 이 스펙에서 판정)"
+      },
+      {
+        "id": "AC-25",
+        "kind": "E2E",
+        "text": "`e2e/011-gk-highlight` — 041 하이라이트(실제 경기, 058 경로)에서 고정 시드 3장면(다이빙 선방, 혼잡 속 빠른 공 펀칭, 실점)을 캡처해 기준 이미지와 비교한다. GK 손이 공 근처(화면 투영 ≤ 공 지름 2배 [제안])에 있다. 프로필: smoke. (2026-11-11 사용자 결정: 손–공 화면 거리는 AC-24와 같은 이유로 보류, 장면 캡처·다이빙·선방이 보이는지는 육안 승인으로 판정) 040이 없어도 검증할 수 있어 AC-18보다 먼저 증상을 확인한다."
+      },
+      {
+        "id": "AC-26",
+        "kind": "로직",
+        "text": "FR-09: 슈팅 순간 GK 속도 2 m/s 픽스처는 정지(0 m/s) 픽스처보다 reach가 073 FR-20 패널티만큼 작고(1e-6), 속도 ≤ 1 m/s면 패널티 0이다."
+      },
+      {
+        "id": "AC-27",
+        "kind": "로직",
+        "text": "GKP 시나리오 의도를 받은 GK 고정 장면에서 011 기대효용이 음수인 행동은 의도 보너스가 있어도 θ_opp 규칙(010 FR-94) 밖에서 선택되지 않고, 의도는 효용 보너스로만 작동한다(보너스 0으로 바꾸면 결정이 일반 판단과 같음) (FR-94)."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/011-goalkeeper"
+  },
+  "meta": {
+    "commit": "6cd49b93810f8fcc24a6023a7af001dbc0d102a7",
+    "branch": "feat/011-goalkeeper",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-12 08:52:19 +0900",
+    "durationSec": 63.03032612800598,
+    "command": "python3 Tools/devicefarm/farm.py shot --spec 011",
+    "profiles": [
+      "mac-m1-1600p-light-ko"
+    ],
+    "buildCached": false,
+    "builds": [
+      "development"
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario": "011-gk-highlight",
+      "description": "실제 경기(058 경로, 011 선방 모델) GK 3장면: 다이빙 선방(접촉 0.1 s 전)·펀칭(고정 경기에 없으면 쳐내기로 대체, 로그에 표시)·실점(공이 골라인을 넘기 직전). 손–공 화면 거리는 보류(2026-11-11 사용자 결정, GK 클립 후속 스펙) — 다이빙·선방이 보이는지 육안 승인 (AC-25)",
+      "combos": [
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 21.6,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085157-shot/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085157-shot/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/011-gk-highlight.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085157-shot/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261109",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 8049.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 5139.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 43.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "gkdive",
+              "status": "passed",
+              "ms": 321.8,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/gkdive.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 27.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "gkpunch",
+              "status": "passed",
+              "ms": 335.5,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/gkpunch.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 31.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "gkconceded",
+              "status": "passed",
+              "ms": 291.4,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/gkconceded.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "gkdive",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085157-shot/mac-m1-1600p-light-ko/captures/gkdive.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "011-gk-highlight",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "gkpunch",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085157-shot/mac-m1-1600p-light-ko/captures/gkpunch.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "011-gk-highlight",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "gkconceded",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085157-shot/mac-m1-1600p-light-ko/captures/gkconceded.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "011-gk-highlight",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": [
+              {
+                "type": "Warning",
+                "message": "[RoadToPro] [anim] 속도 점프 5.63 → 4.76 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=판단",
+                "reason": "판단 원인(008·010 대체 행동 모델)의 목표 속도 15 m/s 미만 순간 가감속만 임시 무시. 058에서 경고에 원인 표시(FR-12)를 붙였고 배치·기록 원인(순간이동·클립 프레임 누락)은 무시하지 않는다 — AC-13. 008·010 연결 때 항목을 지우고 재확인. 2026-11-09 사용자 승인 (041), 2026-11-11 058 범위 축소",
+                "pattern": "^\\[RoadToPro\\] \\[anim\\] 속도 점프 \\d+\\.\\d+ → (\\d|1[0-4])\\.\\d+ m/s .*원인=판단$",
+                "count": 9178
+              }
+            ]
+          },
+          "checkpoints": [],
+          "motion": null,
+          "verdict": "candidate"
+        }
+      ],
+      "determinism": null,
+      "verdict": "candidate",
+      "build": "development"
+    }
+  ],
+  "acEvidence": {
+    "AC-25": [
+      {
+        "label": "011-gk-highlight (shot) review",
+        "ok": true
+      }
+    ],
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-15": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "결정론 테스트 4/4 통과",
+        "ok": true
+      }
+    ],
+    "AC-17": [
+      {
+        "label": "EditMode 성능 4/4 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 4/4 통과",
+        "ok": true
+      }
+    ],
+    "AC-19": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-20": [
+      {
+        "label": "결정론 테스트 4/4 통과",
+        "ok": true
+      }
+    ],
+    "AC-21": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-22": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-23": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-24": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-26": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-27": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 59,
+    "passed": 58,
+    "failed": 0,
+    "skipped": 1,
+    "duration": 33.5073946,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085024-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085024-logic/logic.html"
+  },
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "GoalkeeperPerfTests.Position_Once_us/gk_position_p95_us/min": 12.3,
+      "GoalkeeperPerfTests.Save_Once_us/gk_save_p95_us/min": 8.0,
+      "GoalkeeperPerfTests.PerTick_TwoKeepers_us/gk_tick_avg_us/min": 4.651216494845361,
+      "GoalkeeperPerfTests.Gc_Zero/gk_gc_bytes/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-17",
+        "label": "위치 탐색 1회 p95 (Mono 회귀)",
+        "metric": "GoalkeeperPerfTests.Position_Once_us/gk_position_p95_us/min",
+        "value": 12.3,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "선방 판정 1회 p95 (Mono 회귀)",
+        "metric": "GoalkeeperPerfTests.Save_Once_us/gk_save_p95_us/min",
+        "value": 8.0,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱당 GK 2명 평균 (Mono 회귀)",
+        "metric": "GoalkeeperPerfTests.PerTick_TwoKeepers_us/gk_tick_avg_us/min",
+        "value": 4.651216494845361,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "위치 탐색 경로 GC 할당",
+        "metric": "GoalkeeperPerfTests.Gc_Zero/gk_gc_bytes/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-17",
+        "label": "위치 탐색 1회 p95",
+        "metric": "gk_position_p95_us",
+        "value": 2.3,
+        "budget": 10,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "선방 판정 1회 p95",
+        "metric": "gk_save_p95_us",
+        "value": 0.5,
+        "budget": 5,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱당 GK 2명 평균 (006 FR-80 몫)",
+        "metric": "gk_tick_avg_us",
+        "value": 0.8460930964093297,
+        "budget": 1.5,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱당 GK 2명 p95",
+        "metric": "gk_tick_p95_us",
+        "value": 1.8,
+        "budget": 30,
+        "unit": "µs",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "gk_position_p95_us": 2.3,
+      "gk_position_avg_us": 2.102795,
+      "gk_save_p95_us": 0.5,
+      "gk_save_avg_us": 0.34242803504380476,
+      "gk_predict_p95_us": 9,
+      "gk_tick_avg_us": 0.8460930964093297,
+      "gk_tick_p95_us": 1.8,
+      "gk_ticks": 59766
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": true,
+    "durationSec": 4.6,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M1 Pro",
+    "development": false,
+    "commit": "a338ddb55b736ba45c312d96f0bfc9b4e3ac18b4"
+  },
+  "deferred": {
+    "AC-13": "071·072·010 연결 뒤 017 대량 시뮬 1,000경기 집계",
+    "AC-18": "2D 탑뷰 디버그 오버레이(040) 구현 후 E2E"
+  },
+  "requireAllAcs": true,
+  "verdict": "candidate"
+}

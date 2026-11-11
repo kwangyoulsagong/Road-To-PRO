@@ -1,0 +1,137 @@
+{
+  "results": [
+    {
+      "name": "GoalkeeperPerfTests.Gc_Zero",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.Gc_Zero",
+      "groups": {
+        "gk_gc_bytes": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "bytes",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "GoalkeeperPerfTests.PerTick_TwoKeepers_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.PerTick_TwoKeepers_us",
+      "groups": {
+        "gk_tick_avg_us": {
+          "median": 4.651216494845361,
+          "min": 4.651216494845361,
+          "max": 4.651216494845361,
+          "avg": 4.651216494845361,
+          "unit": "us",
+          "samples": 1
+        },
+        "gk_tick_p95_us": {
+          "median": 9.6,
+          "min": 9.6,
+          "max": 9.6,
+          "avg": 9.6,
+          "unit": "us",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "GoalkeeperPerfTests.Position_Once_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.Position_Once_us",
+      "groups": {
+        "gk_position_p95_us": {
+          "median": 12.3,
+          "min": 12.3,
+          "max": 12.5,
+          "avg": 12.366666666666667,
+          "unit": "us",
+          "samples": 3
+        },
+        "gk_position_avg_us": {
+          "median": 11.3753,
+          "min": 11.31995,
+          "max": 11.455025,
+          "avg": 11.383424999999997,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "GoalkeeperPerfTests.Save_Once_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.Save_Once_us",
+      "groups": {
+        "gk_save_p95_us": {
+          "median": 8.1,
+          "min": 8.0,
+          "max": 8.2,
+          "avg": 8.1,
+          "unit": "us",
+          "samples": 3
+        },
+        "gk_predict_p95_us": {
+          "median": 45.5,
+          "min": 45.2,
+          "max": 46.3,
+          "avg": 45.666666666666664,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "GoalkeeperPerfTests.Position_Once_us/gk_position_p95_us/min": 12.3,
+      "GoalkeeperPerfTests.Save_Once_us/gk_save_p95_us/min": 8.0,
+      "GoalkeeperPerfTests.PerTick_TwoKeepers_us/gk_tick_avg_us/min": 4.651216494845361,
+      "GoalkeeperPerfTests.Gc_Zero/gk_gc_bytes/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-17",
+        "label": "위치 탐색 1회 p95 (Mono 회귀)",
+        "metric": "GoalkeeperPerfTests.Position_Once_us/gk_position_p95_us/min",
+        "value": 12.3,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "선방 판정 1회 p95 (Mono 회귀)",
+        "metric": "GoalkeeperPerfTests.Save_Once_us/gk_save_p95_us/min",
+        "value": 8.0,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱당 GK 2명 평균 (Mono 회귀)",
+        "metric": "GoalkeeperPerfTests.PerTick_TwoKeepers_us/gk_tick_avg_us/min",
+        "value": 4.651216494845361,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "위치 탐색 경로 GC 할당",
+        "metric": "GoalkeeperPerfTests.Gc_Zero/gk_gc_bytes/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}

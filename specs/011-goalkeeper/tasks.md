@@ -1,6 +1,6 @@
 # 011 — 골키퍼: 위치 · 선방 · 3D 접점 · 태스크
 
-상태: 승인됨 (2026-11-11)
+상태: 구현 완료 · AC-13·18 보류, AC-24·25 손–공 거리 보류(080) (2026-11-12)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. Unity 배치 1회가 길어서 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 배치로 돌린다(실패 확인 → 구현 → 통과).
@@ -40,4 +40,4 @@
 - [x] T18 성능 — 파일: `Tests/Performance/MatchEngine/GoalkeeperPerfTests.cs` — 검증: AC-17 예산(에디터 Performance 1회), IL2CPP 벤치는 T20 — 결과: Mono 위치 탐색 p95 12.2 µs·선방 판정 p95 8.8 µs·틱당 GK 2명 평균 4.6 µs / p95 9.5 µs·할당 0 B(처음 31·18.7·12.3 µs에서 최적화: 셀별 거리 캐시, 위험도 시그모이드 → 지수 없는 SoftStep(단조·대칭, 위치 탐색 전용), 도달 계산 인라인, 선방 경로 가지치기 + 골 쪽부터 역순(결과 동일·동률은 이른 샘플)). 추가: `Verification/Runtime/Bench/GoalkeeperBenchWorkloads.cs`, `SimBench` 011 등록, `Data/perf/011-goalkeeper.json`(IL2CPP 예산 = 스펙 표, 경로 예측은 슛당 1회라 기록만)
 - [x] T19 회귀: 058 장면 — 검증: `058-live-goal-sequence`·`058-live-variety` 스크린샷 1회씩(골 수 변화로 장면이 바뀌었는지), `DeadBallFlowTests`·`TeleportAuditTests` 필터. 평균 득점 측정값 기록 — 결과: `058-live-variety` 실패(실점 장면 없음) → 원인: 011로 선방이 늘어 플레이어 빌드 고정 경기가 2:0(에디터 경기와 부동소수점 결과가 달라 에디터로는 재현 안 됨, 장면 목록 로그로 확인). `LiveMatchFixture.ShotProb` 0.05 → 0.08(양 팀 득점). 다시 찍은 058 2개·011 1개 모두 통과, 12장 확인. `DeadBallFlowTests`·`TeleportAuditTests`는 T09 회귀에서 통과. 평균 득점은 T17 100경기에서 기록. 추가: 실패 경로 장면 목록 로그(`HighlightScreen.FreezeGoal`), 고정 경기 튜닝에 GK 묶음 전달
 - [x] T20a 하네스: 클래스 단위 `[Category]` 상속 — 파일: `Tools/devicefarm/farm/logic.py`, `Tools/devicefarm/tests/test_logic_spec.py`, `tests/fixtures/nunit-suite-categories.xml` — 검증: 파이썬 테스트 전체 — 결과: `logic --spec 011`이 클래스에 `[Category("Determinism")]`을 단 `GoalkeeperDeterminismTests`를 못 보고 AC-16·20을 "결정론 테스트 없음"으로 실패 처리 → 결과 XML 파서가 조상 test-suite 카테고리를 물려받게 수정(2026-11-12, 발견 버그 수정)
-- [ ] T20 커밋 후 EditMode 전체·IL2CPP 벤치 각 1회 → `/verify 011` — 리포트 발행, AC-25 스크린샷 육안 승인, AC-13·18 보류 표기 — 진행(2026-11-11 저녁): EditMode 전체 1회 1,358개 중 통과 1,348·실패 3·건너뜀 7 → 실패 3(054 합성 GK 장면이 Save를 접촉으로 씀)은 `MotionScenes.cs` Parry·DiveStart로 고치고 고친 테스트만 재실행 126/126. 남음: T17 재실행 결과 확인 → `farm.py bench --spec 011`(+006·058 회귀) → `/verify 011` 리포트 발행 → AC-25 스크린샷 육안 승인 → 커밋(사용자 요청 시). 후속 스펙 080(GK 클립·손 IK) 초안 작성, README 등록
+- [x] T20 커밋 후 EditMode 전체·IL2CPP 벤치 각 1회 → `/verify 011` — 리포트 발행, AC-25 스크린샷 육안 승인, AC-13·18 보류 표기 — 결과: EditMode 전체 1,358개(실패 3은 `MotionScenes.cs` 수정 후 재실행 126/126). IL2CPP 벤치(전원 연결) 011 4/4(GK 2명 틱 평균 0.83 µs), 058 틱 평균 27.03 µs — 사용자 결정으로 058 예산에 011 몫 1.5 µs를 더해 27.86 µs, 006 뼈대 회귀 기준선 74.8 ms로 갱신. `logic --spec 011` 58/58(Explicit 보류 1)·결정론 4/4. `shot` 3장 + 058 9장 육안 승인 2026-11-12(`evidence/approval.md`). 리포트 https://claude.ai/artifact/Sp5r8CjPsSYboEqXEXRfzq. 보류: AC-13(017)·AC-18(040)·AC-24·25 손–공 거리(080)
