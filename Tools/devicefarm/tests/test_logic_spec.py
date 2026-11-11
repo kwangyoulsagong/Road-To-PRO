@@ -40,6 +40,13 @@ class LogicSpecTests(unittest.TestCase):
         self.assertEqual(cats["SeedRngTests.SameSeed"], ["Determinism"])
         self.assertEqual(cats["PitchCoordsTests.Center"], [])
 
+    def test_suite_categories_inherited(self):
+        # 클래스 단위 [Category("Determinism")]는 test-suite 속성 — 케이스가 물려받고 중복은 하나로 (specs/011 T20a)
+        r = logic.parse_results(os.path.join(FIX, "nunit-suite-categories.xml"))
+        cats = {c["name"]: c["categories"] for c in r.cases}
+        self.assertEqual(cats["KeeperDetTests.SameHash"], ["Determinism"])
+        self.assertEqual(cats["KeeperPosTests.Center"], [])
+
     def test_determinism_ac_linked(self):
         r = logic.parse_results(os.path.join(FIX, "nunit-categories.xml"))
         j = perf.judge_editmode(rows(), CONFIG, base=None, is_reference=True, power="ac")

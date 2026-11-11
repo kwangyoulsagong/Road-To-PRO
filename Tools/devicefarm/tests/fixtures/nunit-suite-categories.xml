@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" duration="1.0">
+  <test-suite type="Assembly" name="RoadToPro.Tests.EditMode.dll" total="2" passed="2" failed="0" skipped="0">
+    <test-suite type="TestFixture" name="KeeperDetTests" fullname="RoadToPro.Tests.EditMode.MatchEngine.KeeperDetTests" total="1" passed="1" failed="0" skipped="0">
+      <properties>
+        <property name="Category" value="Determinism" />
+      </properties>
+      <test-case id="1" name="SameHash" fullname="RoadToPro.Tests.EditMode.MatchEngine.KeeperDetTests.SameHash" classname="RoadToPro.Tests.EditMode.MatchEngine.KeeperDetTests" result="Passed" duration="0.1">
+        <properties><property name="Category" value="Determinism" /></properties>
+      </test-case>
+    </test-suite>
+    <test-suite type="TestFixture" name="KeeperPosTests" fullname="RoadToPro.Tests.EditMode.MatchEngine.KeeperPosTests" total="1" passed="1" failed="0" skipped="0">
+      <test-case id="2" name="Center" fullname="RoadToPro.Tests.EditMode.MatchEngine.KeeperPosTests.Center" classname="RoadToPro.Tests.EditMode.MatchEngine.KeeperPosTests" result="Passed" duration="0.1" />
+    </test-suite>
+  </test-suite>
+</test-run>

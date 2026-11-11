@@ -62,7 +62,19 @@ def parse_results(xml_path):
     except (OSError, ET.ParseError) as err:
         raise RunnerError(f"테스트 결과 XML을 읽을 수 없다: {xml_path}: {err}") from err
     cases = []
-    for tc in root.iter("test-case"):
+
+    def _cats(el):
+        return [pr.get("value") for pr in el.findall("properties/property") if pr.get("name") == "Category"]
+
+    # 클래스·네임스페이스 단위 [Category]는 test-suite 속성에 있다 — 조상 스위트 카테고리를 물려받는다 (specs/011 T20a)
+    def _walk(el, inherited):
+        for child in el:
+            if child.tag == "test-suite":
+                yield from _walk(child, inherited + _cats(child))
+            elif child.tag == "test-case":
+                yield child, inherited
+
+    for tc, suite_cats in _walk(root, []):
         res = tc.get("result", "")
         if res not in ("Passed", "Failed"):
             res = "Skipped" if res in ("Skipped", "Ignored") else res
@@ -74,7 +86,7 @@ def parse_results(xml_path):
                 "duration": float(tc.get("duration", 0) or 0),
                 "message": (tc.findtext("failure/message") or tc.findtext("reason/message") or "").strip(),
                 "stack": (tc.findtext("failure/stack-trace") or "").strip(),
-                "categories": [pr.get("value") for pr in tc.findall("properties/property") if pr.get("name") == "Category"],
+                "categories": list(dict.fromkeys(suite_cats + _cats(tc))),
             }
         )
     return LogicResult(
