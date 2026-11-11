@@ -9,7 +9,7 @@ import os
 import subprocess
 import time
 
-from . import build, paths, preflight
+from . import build, paths, perf, preflight
 from .errors import RunnerError
 
 PROJECT_SETTINGS = os.path.join(paths.REPO, "ProjectSettings", "ProjectSettings.asset")
@@ -115,14 +115,14 @@ def judge(metrics, cfg, backend, base, is_reference, power):
         reg_rows.append({"ac": b.get("ac"), "label": b["label"], "metric": b["metric"], "value": v, "previous": prev,
                          "changePct": round(change * 100, 4) if math.isfinite(change) else None,
                          "ok": change < REGRESSION_LIMIT - 1e-9})
-    judged = backend == "il2cpp" and bool(is_reference) and power == "ac"
+    judged = backend == "il2cpp" and bool(is_reference) and perf.power_judged(power)
     note = ""
     if backend != "il2cpp":
         note = f"백엔드 {backend} — 판정은 IL2CPP만 (D17), 기록만"
     elif not is_reference:
         note = f"기준 기기({(cfg or {}).get('profile')}) 아님 — 기록만"
-    elif power != "ac":
-        note = f"전원 상태 {power} — 판정 제외"
+    elif not perf.power_judged(power):
+        note = perf.power_note(power)
     ok = True
     if judged:
         ok = all(r["ok"] for r in budget_rows) and all(r["ok"] for r in reg_rows)

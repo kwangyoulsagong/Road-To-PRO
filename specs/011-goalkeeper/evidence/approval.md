@@ -1,5 +1,7 @@
 # 011 육안 승인 기록
 
+- AC: AC-25 (장면 캡처·다이빙·선방이 보이는지, 손–공 화면 거리는 080 보류)
+
 - 날짜: 2026-11-12
 - 프로필: mac-m1-1600p-light-ko (1프로필, 2026-11-11 결정)
 - 장면: `011-gk-highlight` 3장(gkdive 다이빙 선방·gkpunch 쳐내기 — 고정 경기에 펀칭이 없어 대체·gkconceded 실점), 회귀 `058-live-variety` 4장(conceded·defensive·foul·woodwork)·`058-live-goal-sequence` 5장(net·closeup·celebration·replay1·kickoff, 2026-11-11 T19 재촬영)

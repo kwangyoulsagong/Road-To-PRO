@@ -110,7 +110,7 @@ class LogicSpecTests(unittest.TestCase):
         j = perf.judge_editmode(rows(), cfg, base=None, is_reference=False, power="ac")
         self.assertFalse(j["judged"])
         self.assertTrue(j["ok"])
-        j2 = perf.judge_editmode(rows(), cfg, base=None, is_reference=True, power="battery")
+        j2 = perf.judge_editmode(rows(), cfg, base=None, is_reference=True, power="battery-lowpower")
         self.assertFalse(j2["judged"])
 
     def test_spec_filter_namespaces(self):
@@ -134,10 +134,10 @@ class LogicSpecTests(unittest.TestCase):
 
 class CmdLogicVerdictTests(unittest.TestCase):
     def test_unjudged_perf_makes_spec_verdict_fail(self):
-        """배터리 등으로 성능 판정이 빠지면 AC-18 증거가 없으므로 완료 판정(requireAllAcs)은 실패 (T26a)."""
+        """저전력 모드 배터리 등으로 성능 판정이 빠지면 AC-18 증거가 없으므로 완료 판정(requireAllAcs)은 실패 (T26a)."""
         from farm import report
         r = logic.parse_results(os.path.join(FIX, "nunit-categories.xml"))
-        j = perf.judge_editmode(rows(), CONFIG, base=None, is_reference=True, power="battery")
+        j = perf.judge_editmode(rows(), CONFIG, base=None, is_reference=True, power="battery-lowpower")
         ev = {"spec": INFO, "logic": {"ok": True}, "scenarios": [], "requireAllAcs": True, "editmodePerf": j,
               "acEvidence": commands.ac_evidence(INFO, {"ok": True}, r, j)}
         self.assertEqual(report.verdict_of(ev), "fail")
