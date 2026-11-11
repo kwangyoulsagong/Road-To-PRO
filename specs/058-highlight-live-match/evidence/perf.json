@@ -5,10 +5,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.LiveSceneSelector_ms",
       "groups": {
         "scene_select_ms": {
-          "median": 0.7330000000000005,
-          "min": 0.7114000000000011,
-          "max": 0.8582999999999998,
-          "avg": 0.74332,
+          "median": 0.7969499999999998,
+          "min": 0.7355999999999998,
+          "max": 1.6198000000000006,
+          "avg": 0.9000400000000001,
           "unit": "ms",
           "samples": 10
         }
