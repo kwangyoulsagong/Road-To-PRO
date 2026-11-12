@@ -108,12 +108,12 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/011-goalkeeper"
   },
   "meta": {
-    "commit": "382bfe54656b844104676d7a9519678879b11d55",
+    "commit": "a4eb64d2f153d5cda1d9cf640810ce0674229572",
     "branch": "feat/011-goalkeeper",
     "dirty": true,
     "unity": "6000.3.27f2",
-    "time": "2026-11-12 08:56:36 +0900",
-    "durationSec": 35.9996452331543,
+    "time": "2026-11-12 08:59:54 +0900",
+    "durationSec": 35.09196424484253,
     "command": "python3 Tools/devicefarm/farm.py shot --spec 011",
     "profiles": [
       "mac-m1-1600p-light-ko"
@@ -137,8 +137,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 20.6,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085615-shot/mac-m1-1600p-light-ko",
+          "durationSec": 19.7,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -148,11 +148,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085615-shot/mac-m1-1600p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/011-gk-highlight.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085615-shot/mac-m1-1600p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko",
             "-farmSeed",
             "20261109",
             "-farmProfile",
@@ -182,7 +182,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 7916.6,
+              "ms": 7632.8,
               "message": "",
               "timedOut": false
             },
@@ -191,7 +191,7 @@
               "type": "waitFor",
               "name": null,
               "status": "passed",
-              "ms": 5173.5,
+              "ms": 4807.2,
               "message": "",
               "timedOut": false
             },
@@ -200,7 +200,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 43.4,
+              "ms": 42.4,
               "message": "",
               "timedOut": false
             },
@@ -209,7 +209,7 @@
               "type": "capture",
               "name": "gkdive",
               "status": "passed",
-              "ms": 333.2,
+              "ms": 327.7,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -225,7 +225,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 33.3,
+              "ms": 22.1,
               "message": "",
               "timedOut": false
             },
@@ -234,7 +234,7 @@
               "type": "capture",
               "name": "gkpunch",
               "status": "passed",
-              "ms": 331.9,
+              "ms": 336.9,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -250,7 +250,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 34.6,
+              "ms": 29.6,
               "message": "",
               "timedOut": false
             },
@@ -259,7 +259,7 @@
               "type": "capture",
               "name": "gkconceded",
               "status": "passed",
-              "ms": 288.5,
+              "ms": 293.8,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -274,7 +274,7 @@
           "captures": [
             {
               "step": "gkdive",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085615-shot/mac-m1-1600p-light-ko/captures/gkdive.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko/captures/gkdive.png",
               "baseline": null,
               "diff": null,
               "scenario": "011-gk-highlight",
@@ -287,7 +287,7 @@
             },
             {
               "step": "gkpunch",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085615-shot/mac-m1-1600p-light-ko/captures/gkpunch.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko/captures/gkpunch.png",
               "baseline": null,
               "diff": null,
               "scenario": "011-gk-highlight",
@@ -300,7 +300,7 @@
             },
             {
               "step": "gkconceded",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085615-shot/mac-m1-1600p-light-ko/captures/gkconceded.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko/captures/gkconceded.png",
               "baseline": null,
               "diff": null,
               "scenario": "011-gk-highlight",
@@ -342,8 +342,8 @@
   "acEvidence": {
     "AC-25": [
       {
-        "label": "수동 승인 기록 evidence/approval.md (없음 또는 AC 미기재)",
-        "ok": false
+        "label": "수동 승인 기록 evidence/approval.md",
+        "ok": true
       }
     ],
     "AC-01": [
@@ -396,8 +396,8 @@
     ],
     "AC-17": [
       {
-        "label": "EditMode 성능 4항목 — 전원 상태 battery — 판정 제외",
-        "ok": false
+        "label": "EditMode 성능 4/4 통과 (mac-m1-1600p)",
+        "ok": true
       },
       {
         "label": "IL2CPP 벤치 4/4 통과",
@@ -459,21 +459,21 @@
     "passed": 58,
     "failed": 0,
     "skipped": 1,
-    "duration": 35.2271065,
+    "duration": 34.7075507,
     "compileErrors": [],
     "failures": [],
-    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085505-logic/logic.png",
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085505-logic/logic.html"
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085825-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085825-logic/logic.html"
   },
   "editmodePerf": {
-    "judged": false,
+    "judged": true,
     "ok": true,
-    "note": "전원 상태 battery — 판정 제외",
+    "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "GoalkeeperPerfTests.Position_Once_us/gk_position_p95_us/min": 12.5,
+      "GoalkeeperPerfTests.Position_Once_us/gk_position_p95_us/min": 12.6,
       "GoalkeeperPerfTests.Save_Once_us/gk_save_p95_us/min": 8.1,
-      "GoalkeeperPerfTests.PerTick_TwoKeepers_us/gk_tick_avg_us/min": 4.593080756013745,
+      "GoalkeeperPerfTests.PerTick_TwoKeepers_us/gk_tick_avg_us/min": 4.682249140893472,
       "GoalkeeperPerfTests.Gc_Zero/gk_gc_bytes/max": 0.0
     },
     "budget": [
@@ -481,7 +481,7 @@
         "ac": "AC-17",
         "label": "위치 탐색 1회 p95 (Mono 회귀)",
         "metric": "GoalkeeperPerfTests.Position_Once_us/gk_position_p95_us/min",
-        "value": 12.5,
+        "value": 12.6,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -499,7 +499,7 @@
         "ac": "AC-17",
         "label": "결정 틱당 GK 2명 평균 (Mono 회귀)",
         "metric": "GoalkeeperPerfTests.PerTick_TwoKeepers_us/gk_tick_avg_us/min",
-        "value": 4.593080756013745,
+        "value": 4.682249140893472,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -588,5 +588,5 @@
     "AC-18": "2D 탑뷰 디버그 오버레이(040) 구현 후 E2E"
   },
   "requireAllAcs": true,
-  "verdict": "fail"
+  "verdict": "candidate"
 }
