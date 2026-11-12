@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "011-gk-highlight",
+  "spec": "011",
+  "description": "실제 경기(058 경로, 011 선방 모델) GK 3장면: 다이빙 선방(접촉 0.1 s 전)·펀칭(고정 경기에 없으면 쳐내기로 대체, 로그에 표시)·실점(공이 골라인을 넘기 직전). 손–공 화면 거리는 보류(2026-11-11 사용자 결정, GK 클립 후속 스펙) — 다이빙·선방이 보이는지 육안 승인 (AC-25)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-25"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.gkdive"
+    },
+    {
+      "type": "capture",
+      "name": "gkdive",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.gkpunch"
+    },
+    {
+      "type": "capture",
+      "name": "gkpunch",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.gkconceded"
+    },
+    {
+      "type": "capture",
+      "name": "gkconceded",
+      "kind": "3d"
+    }
+  ]
+}

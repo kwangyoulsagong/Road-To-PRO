@@ -4,6 +4,7 @@
 {name, warmupFrames, frameMs[], mainThreadMs[], gpuMs[] (specs/044, 개발 빌드), gcAllocBytes[], drawCalls[], triangles[],
  textureMemoryBytes, totalMemoryBytes, power: "ac"|"battery"|"unknown"}
 """
+import re
 import json
 import math
 import os
@@ -118,13 +119,29 @@ def summarize(sec):
     return out
 
 
+# 판정하는 전원 상태 (specs/000 개정 2026-11-12): 전원 연결 또는 배터리(저전력 모드 꺼짐).
+# Apple Silicon은 저전력 모드가 아니면 배터리에서도 성능이 같다 — 실측 차이 1~3 %(회귀 기준 10 % 안).
+JUDGED_POWER = ("ac", "battery")
+_LOW_POWER = re.compile(r"lowpowermode\s+1\b")
+
+
+def power_judged(power):
+    return power in JUDGED_POWER
+
+
+def power_note(power):
+    """판정 제외 사유 (판정하는 상태면 "")."""
+    return "" if power_judged(power) else f"전원 상태 {power} — 판정 제외"
+
+
 def power_state(unity_battery_status, pmset_text=None):
-    """전원 상태: pmset 출력이 있으면 우선 ('AC Power'/'Battery Power'), 없으면 Unity batteryStatus."""
+    """전원 상태: pmset 출력이 있으면 우선 ('AC Power'/'Battery Power' + `pmset -g`의 lowpowermode),
+    없으면 Unity batteryStatus. 배터리 + 저전력 모드는 "battery-lowpower"(판정 제외)."""
     if pmset_text:
         if "AC Power" in pmset_text:
             return "ac"
         if "Battery Power" in pmset_text:
-            return "battery"
+            return "battery-lowpower" if _LOW_POWER.search(pmset_text) else "battery"
     return {"Charging": "ac", "Full": "ac", "NotCharging": "ac", "Discharging": "battery"}.get(
         unity_battery_status, "unknown"
     )
@@ -211,12 +228,12 @@ def evaluate(metrics, budget, base, is_reference, power, sections=None):
     """FR-44: 기준 기기 + 전원 연결 측정만 통과/실패 판정. 나머지는 기록만. sections = 같은 실행의 구간별 지표 (orSection용)."""
     budget_rows = judge_budget(metrics, budget, sections)
     reg_rows = judge_regression(metrics, base)
-    judged = bool(is_reference) and power == "ac"
+    judged = bool(is_reference) and power_judged(power)
     note = ""
     if not is_reference:
         note = "기준 기기 아님 — 기록·상대 비교만"
-    elif power != "ac":
-        note = f"전원 상태 {power} — 판정 제외"
+    elif not power_judged(power):
+        note = power_note(power)
     ok = True
     if judged:
         ok = all(r["ok"] for r in budget_rows) and all(r["ok"] for r in reg_rows)
@@ -332,12 +349,12 @@ def judge_editmode(rows, cfg, base, is_reference, power):
         reg_rows.append({"ac": b.get("ac"), "label": b["label"], "metric": _bkey(b), "value": v, "previous": prev,
                          "changePct": round(change * 100, 4) if math.isfinite(change) else None,
                          "ok": change < REGRESSION_LIMIT - 1e-9})
-    judged = bool(is_reference) and power == "ac"
+    judged = bool(is_reference) and power_judged(power)
     note = ""
     if not is_reference:
         note = f"기준 기기({cfg.get('profile')}) 아님 — 기록만"
-    elif power != "ac":
-        note = f"전원 상태 {power} — 판정 제외"
+    elif not power_judged(power):
+        note = power_note(power)
     ok = True
     if judged:
         ok = all(r["ok"] for r in budget_rows) and all(r["ok"] for r in reg_rows)

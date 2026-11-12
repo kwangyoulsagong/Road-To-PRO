@@ -27,9 +27,19 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Flow
         public void SnapshotDuringGoalDeadBall_RestoreContinues_Identical()
         {
             var refSim = Reference();
-            var g = refSim.Result.Goals[0];
             var p = MatchParams.Create(Tuning().Match);
-            foreach (var at in new[] { g.Tick + 20, g.Tick + p.CelebrationTicks + 5 }) // 세리머니 중, 복귀 중
+            // 세리머니 단계 안과 복귀 단계 안에 각각 스냅샷 경계가 있는 첫 골 (011로 골 시각이 바뀌어 첫 골 고정 대신 조건으로 고른다)
+            var celeb = p.CelebrationTicks;
+            var g = refSim.Result.Goals[0];
+            long s1 = -1, s2 = -1;
+            foreach (var cand in refSim.Result.Goals)
+            {
+                var a1 = refSim.NearestSnapshot(cand.Tick + celeb - 1).Tick;
+                var a2 = refSim.NearestSnapshot(cand.Tick + celeb + 120).Tick;
+                if (a1 > cand.Tick && a2 > cand.Tick + celeb) { g = cand; s1 = a1; s2 = a2; break; }
+            }
+            Assert.That(s1, Is.GreaterThan(0), "조건에 맞는 골 없음");
+            foreach (var at in new[] { s1, s2 }) // 세리머니 중, 복귀 중
             {
                 var snap = refSim.NearestSnapshot(at);
                 Assert.That(snap.Tick, Is.GreaterThan(g.Tick), "골 뒤 스냅샷");

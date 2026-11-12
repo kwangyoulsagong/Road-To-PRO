@@ -42,8 +42,11 @@ class JudgeTests(unittest.TestCase):
         self.assertFalse(j["ok"])
 
     def test_battery_not_judged(self):
-        j = bench.judge({"skeleton_match_ms": 500, "physics_us_per_tick": 40}, CFG, "il2cpp", None, True, "battery")
+        # specs/000 개정 2026-11-12: 저전력 모드 배터리만 판정 제외, 그냥 배터리는 판정
+        j = bench.judge({"skeleton_match_ms": 500, "physics_us_per_tick": 40}, CFG, "il2cpp", None, True, "battery-lowpower")
         self.assertFalse(j["judged"])
+        j = bench.judge({"skeleton_match_ms": 500, "physics_us_per_tick": 40}, CFG, "il2cpp", None, True, "battery")
+        self.assertTrue(j["judged"])
 
 
 class RestoreSettingsTests(unittest.TestCase):

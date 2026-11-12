@@ -12,7 +12,9 @@ def read_steps(out_dir):
 
 def pmset_text():
     try:
-        return subprocess.run(["pmset", "-g", "batt"], capture_output=True, text=True, timeout=5).stdout
+        # batt = 전원 출처, -g = lowpowermode (specs/000 개정 2026-11-12: 배터리는 저전력 모드일 때만 판정 제외)
+        return "".join(subprocess.run(["pmset", "-g", *a], capture_output=True, text=True, timeout=5).stdout
+                       for a in (["batt"], []))
     except (OSError, subprocess.SubprocessError):
         return ""
 

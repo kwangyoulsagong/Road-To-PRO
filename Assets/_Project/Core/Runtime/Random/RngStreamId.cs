@@ -17,6 +17,8 @@ namespace RoadToPro.Core.Random
         MatchFlow = 8,
         /// <summary>팀 형태: 슬롯 추종·라인 일체성 오차 (specs/009).</summary>
         TeamShape = 9,
+        /// <summary>골키퍼: 위치 오차 재추첨·선방 처리·GK 행동 선택 (specs/011).</summary>
+        Goalkeeper = 10,
 
         CareerWeek = 101,
         CareerEvents = 102,

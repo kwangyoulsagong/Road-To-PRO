@@ -33,9 +33,13 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Match
                 return _tuning ??= new MatchTuning(
                     TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("ball.json"))),
                     TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("kinematics.json"))),
-                    TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("match.json"))));
+                    TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("match.json"))),
+                    goalkeeper: Goalkeeper());
             }
         }
+
+        /// <summary>골키퍼 튜닝 기본값 (specs/011).</summary>
+        public static TuningBundle Goalkeeper() => TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("goalkeeper.json")));
 
         public static TuningRegistry MatchRegistry() => TuningLoader.LoadDefinitionsFile(Tuning("match.json"));
 
@@ -43,7 +47,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Match
         public static MatchTuning TuningWith(string matchValuesJson)
         {
             var t = Tuning();
-            return new MatchTuning(t.Ball, t.Kinematics, TuningLoader.ParseBundle(MatchRegistry(), matchValuesJson));
+            return new MatchTuning(t.Ball, t.Kinematics, TuningLoader.ParseBundle(MatchRegistry(), matchValuesJson), goalkeeper: t.Goalkeeper);
         }
 
         public static readonly Vec2[] Formation442 =

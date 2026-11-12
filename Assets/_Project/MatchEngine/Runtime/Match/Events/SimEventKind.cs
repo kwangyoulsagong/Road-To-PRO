@@ -53,6 +53,18 @@ namespace RoadToPro.MatchEngine.Match.Events
         Catch = 301,
         Punch = 302,
         KeeperRush = 303,
+        /// <summary>다이빙 시작 (011 FR-91·92). Substep = 반응 시작, X/Y/Z = 예정 접촉 지점, A = 방향(−1·0·+1)×10 + 높이 구간(0~2), F0 = 예정 접촉까지 시간(s), F1 = t_react_eff.</summary>
+        DiveStart = 304,
+        /// <summary>쳐내기 (011 FR-92). B 비트 <see cref="EventCodes.ParryDanger"/> = 위험한 쳐내기(리바운드).</summary>
+        Parry = 305,
+        /// <summary>073 예약: 1v1 덮치기.</summary>
+        Smother = 306,
+        /// <summary>073 예약: 크로스 클레임 실패.</summary>
+        ClaimFail = 307,
+        /// <summary>074 예약: GK 배급.</summary>
+        Distribution = 308,
+        /// <summary>다이빙 뒤 일어나기 끝 (011 FR-17·92).</summary>
+        KeeperRecovered = 309,
 
         // 012 (400~): 심판 · 재시작
         Foul = 400,
@@ -153,5 +165,13 @@ namespace RoadToPro.MatchEngine.Match.Events
         public const int LeaveSubstituted = 1;
         public const int LeaveSentOff = 2;
         public const int LeaveInjured = 3;
+
+        // 골키퍼 (specs/011): Parry·Catch·Punch의 B 비트, Goal의 B 비트
+        /// <summary>B 하위 2비트 = 높이 구간(0 낮음 · 1 중간 · 2 높음).</summary>
+        public const int HeightBandMask = 3;
+        /// <summary>Parry B: 위험한 쳐내기(골문 앞 리바운드, FR-12).</summary>
+        public const int ParryDanger = 4;
+        /// <summary>Goal B: GK 손끝이 닿고 들어감 (FR-92, 054 FR-44).</summary>
+        public const int Fingertip = 8;
     }
 }

@@ -1,0 +1,30 @@
+{
+  "spec": "011",
+  "profile": "mac-m1-1600p",
+  "note": "specs/011 성능 예산 표의 기계용 사본. 판정 런타임은 IL2CPP 릴리스 플레이어(`il2cpp` 항목, farm.py bench) — README D17. EditMode(Mono) 항목은 max가 null이면 회귀(+10%) 기준선, 숫자면 판정(할당은 런타임 무관). 선방 판정 1회는 경로가 준비된 상태(Evaluate + Resolve)이고 경로 예측(004 스테퍼, 슛당 1회)은 따로 기록한다. AC-24·25는 손–공 거리만 보류(GK 클립·손 IK 후속 스펙 080, 2026-11-11 사용자 결정) — 나머지(이벤트 필드·시각 차·모순 0, 장면 육안 승인)는 이 스펙에서 판정하므로 deferred에 넣지 않는다.",
+  "manual": {
+    "AC-25": "evidence/approval.md"
+  },
+  "deferred": {
+    "AC-13": "071·072·010 연결 뒤 017 대량 시뮬 1,000경기 집계",
+    "AC-18": "2D 탑뷰 디버그 오버레이(040) 구현 후 E2E"
+  },
+  "tests": [
+    "RoadToPro.Tests.EditMode.MatchEngine.Goalkeeper",
+    "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests"
+  ],
+  "budgets": [
+    {"ac": "AC-17", "label": "위치 탐색 1회 p95 (Mono 회귀)", "test": "GoalkeeperPerfTests.Position_Once_us", "group": "gk_position_p95_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
+    {"ac": "AC-17", "label": "선방 판정 1회 p95 (Mono 회귀)", "test": "GoalkeeperPerfTests.Save_Once_us", "group": "gk_save_p95_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
+    {"ac": "AC-17", "label": "결정 틱당 GK 2명 평균 (Mono 회귀)", "test": "GoalkeeperPerfTests.PerTick_TwoKeepers_us", "group": "gk_tick_avg_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
+    {"ac": "AC-17", "label": "위치 탐색 경로 GC 할당", "test": "GoalkeeperPerfTests.Gc_Zero", "group": "gk_gc_bytes", "stat": "max", "max": 0, "unit": "B"}
+  ],
+  "il2cpp": {
+    "budgets": [
+      {"ac": "AC-17", "label": "위치 탐색 1회 p95", "metric": "gk_position_p95_us", "max": 10, "unit": "µs"},
+      {"ac": "AC-17", "label": "선방 판정 1회 p95", "metric": "gk_save_p95_us", "max": 5, "unit": "µs"},
+      {"ac": "AC-17", "label": "결정 틱당 GK 2명 평균 (006 FR-80 몫)", "metric": "gk_tick_avg_us", "max": 1.5, "unit": "µs"},
+      {"ac": "AC-17", "label": "결정 틱당 GK 2명 p95", "metric": "gk_tick_p95_us", "max": 30, "unit": "µs"}
+    ]
+  }
+}

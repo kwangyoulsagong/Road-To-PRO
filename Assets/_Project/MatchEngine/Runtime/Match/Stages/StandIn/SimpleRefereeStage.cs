@@ -60,6 +60,9 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                     var g = SimEvent.Make(SimEventKind.Goal, attacking, c.LastTouchSlot >= 0 ? ctx.PlayerAtSlot(c.LastTouchSlot) : -1);
                     g.Substep = c.Substep;
                     g.A = own ? 1 : 0;
+                    ctx.Keepers.Watcher.ConsumeGoal(defending, out var gkFlags, out var psxg); // 011 FR-80·92: 손끝 닿음·PSxG
+                    g.B |= gkFlags;
+                    g.F1 = psxg;
                     ctx.SetPosition(ref g, c.Position);
                     ctx.Emit(g);
                     flow.OnGoal(attacking, c.LastTouchSlot);

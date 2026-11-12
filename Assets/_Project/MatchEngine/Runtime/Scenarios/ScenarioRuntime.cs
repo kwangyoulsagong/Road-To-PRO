@@ -167,6 +167,17 @@ namespace RoadToPro.MatchEngine.Scenarios
             return true;
         }
 
+        /// <summary>배역 의도 지점 (역할 목표, 부수효과 없음 — 011 FR-94 GK 의도).</summary>
+        public bool TryReadIntent(MatchContext ctx, int slot, out Vec2 point)
+        {
+            point = default;
+            var team = _castRun[slot];
+            if (team < 0) return false;
+            var run = _runs[team];
+            point = ctx.FromTeamPerspective(run.Team, run.Target[_castRole[slot]]);
+            return true;
+        }
+
         Decision MoveToTarget(MatchContext ctx, ScenarioRun run, int role) =>
             new Decision { Kind = DecisionKind.MoveTo, Point = ctx.FromTeamPerspective(run.Team, run.Target[role]), TargetSlot = -1 };
 

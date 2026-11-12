@@ -236,6 +236,7 @@ namespace RoadToPro.MatchEngine.Match.Flow
         {
             var k = _ctx.Kinematics;
             var id = _ctx.Squad.PlayerAt(slot);
+            _ctx.Keepers.OnRemoved(_ctx, slot); // 011: 다이빙 중이면 외부 구동을 풀어 걸어 나가게
             _ctx.Squad.Remove(slot, why, _ctx.Tick, k.Stats(slot));
             Walkers.BeginLeave(slot, id, why == PlayerStatus.SentOff ? WalkKind.SentOff : WalkKind.InjuredOff);
             if (_ctx.Ball.Phase == BallPhase.Controlled && _ctx.Ball.OwnerId == slot)
@@ -262,6 +263,7 @@ namespace RoadToPro.MatchEngine.Match.Flow
             }
             if (PenaltyKickTick >= 0 && tick - PenaltyKickTick >= 3 * SimClock.TicksPerSecond) ClearPenalty();
             Walkers.EndTick();
+            _ctx.Keepers.EnsureKeeper(_ctx); // 011: GK가 걸어 나간 뒤 빈 GK 슬롯을 필드 선수가 맡는다
             if (State == FlowState.DeadBall) { ReselectTakerIfLost(); DeadBall.EndTick(); }
 
             var elapsed = Elapsed;

@@ -1,0 +1,236 @@
+using System;
+using RoadToPro.Core.Tuning;
+using Ids = RoadToPro.MatchEngine.Goalkeeper.GoalkeeperTuningIds;
+
+namespace RoadToPro.MatchEngine.Goalkeeper
+{
+    /// <summary>
+    /// 골키퍼 파라미터 (Data/tuning/goalkeeper.json, specs/011). 필드 초기값 = 파일 기본값(<c>GoalkeeperParamsTests</c>가 일치 확인).
+    /// 튜닝 묶음이 없는 경기는 <see cref="Defaults"/>를 쓴다. 생성 뒤 바꾸지 않는다(틱 경로는 필드만 읽음).
+    /// </summary>
+    public sealed class GoalkeeperParams
+    {
+        public readonly float MapReactBase = 0.32f;
+        public readonly float MapReactSlope = 0.14f;
+        public readonly float MapDiveBase = 3.0f;
+        public readonly float MapDiveSlope = 1.6f;
+        public readonly float MapRmaxSlope = 0.3f;
+        public readonly float MapHandlingBase = 2.0f;
+        public readonly float MapHandlingSlope = 4.0f;
+        public readonly float MapSpillBase = 6.0f;
+        public readonly float MapSpillSlope = 3.0f;
+        public readonly float MapPosNoiseBase = 0.6f;
+        public readonly float MapPosNoiseSlope = 0.5f;
+        public readonly float MapOneOnOneBase = 0.15f;
+        public readonly float MapOneOnOneSlope = 0.1f;
+        public readonly float MapJumpSlope = 0.3f;
+        public readonly float MapCommandSlope = 0.2f;
+        public readonly float MapSweepingBase = 0.4f;
+        public readonly float MapSweepingSlope = 0.5f;
+        public readonly float MapDistributionBase = 6.0f;
+        public readonly float MapDistributionSlope = 4.5f;
+        public readonly float ReachR0 = 0.8f;
+        public readonly float ReachBodyHalf = 0.25f;
+        public readonly float ReachRmaxBase = 2.6f;
+        public readonly float ReachRefHeight = 1.88f;
+        public readonly float ReachStandZ = 2.3f;
+        public readonly float ReachHighZ = 1.5f;
+        public readonly float ReachHighFade = 0.8f;
+        public readonly float ReachSReach = 0.15f;
+        public readonly float ReachBackSpeed = 2.0f;
+        public readonly float SaveAlpha = 0.08f;
+        public readonly float SaveBeta = 1.5f;
+        public readonly float SaveGamma = 1.0f;
+        public readonly float SaveDelta = 0.8f;
+        public readonly float SaveB = 3.0f;
+        public readonly float SaveC = 1.5f;
+        public readonly float SavePunchSpeed = 26.0f;
+        public readonly float SavePunchZ = 1.6f;
+        public readonly float SaveCrowdRadius = 2.0f;
+        public readonly float SaveCrowdCount = 2.0f;
+        public readonly float SaveExtremeLowZ = 0.25f;
+        public readonly float SaveExtremeHighZ = 2.0f;
+        public readonly float SaveBounceWindow = 0.15f;
+        public readonly float SaveSafeSpeed = 0.45f;
+        public readonly float SaveDangerSpeedMin = 3.0f;
+        public readonly float SaveReboundMin = 3.0f;
+        public readonly float SaveReboundMax = 8.0f;
+        public readonly float SaveReboundSpread = 1.0f;
+        public readonly float SaveFingertipBand = 0.1f;
+        public readonly float SaveParryWide = 2.0f;
+        public readonly float SavePunchDist = 15.0f;
+        public readonly float OcclusionMin = 0.1f;
+        public readonly float OcclusionMax = 0.2f;
+        public readonly float OcclusionRadius = 0.35f;
+        public readonly float OcclusionFullTime = 0.2f;
+        public readonly float GridRowLow = 1.4f;
+        public readonly float GridRowMid = 1.0f;
+        public readonly float GridRowHigh = 1.2f;
+        public readonly float GridColOuter = 1.0f;
+        public readonly float GridColSecond = 0.9f;
+        public readonly float GridColThird = 0.8f;
+        public readonly float GridColCenter = 0.6f;
+        public readonly float PosCandidates = 15.0f;
+        public readonly float PosDepthMin = 0.5f;
+        public readonly float PosDepthMax = 6.0f;
+        public readonly float PosLateral = 0.5f;
+        public readonly float PosRiskScale = 0.5f;
+        public readonly float PosLambda = 0.05f;
+        public readonly float PosMu = 0.4f;
+        public readonly float PosHSafeBase = 2.0f;
+        public readonly float PosHSafeRatio = 0.12f;
+        public readonly float PosShotSpeed = 24.0f;
+        public readonly float PosShootRange = 35.0f;
+        public readonly float PosLowRate = 0.3f;
+        public readonly float PosBlendBand = 3.0f;
+        public readonly float PosMaxStep = 1.5f;
+        public readonly float PosSoftTemp = 0.05f;
+        public readonly float PosNearPostAngle = 8.0f;
+        public readonly float WaitRatio = 0.3f;
+        public readonly float WaitMin = 4.0f;
+        public readonly float WaitMax = 20.0f;
+        public readonly float WaitTraditional = 0.6f;
+        public readonly float WaitDefaultLine = 30.0f;
+        public readonly float WaitSweeperOffset = 18.0f;
+        public readonly float StillSpeed = 1.0f;
+        public readonly float StillMovingPenalty = 0.3f;
+        public readonly float DiveRecover = 1.0f;
+        public readonly float DiveLand = 0.25f;
+        public readonly float DiveMinMove = 0.15f;
+        public readonly float DiveLowZ = 0.6f;
+        public readonly float DiveHighZ = 1.6f;
+        public readonly float FieldDisplay = 2.0f;
+        public readonly float LeagueDisplay = 10.5f;
+        public readonly float ChoiceTauMax = 0.35f;
+        public readonly float ChoiceTauMin = 0.05f;
+        public readonly float ChoicePositionUtility = 0.5f;
+        public readonly float ChoiceContestWin = 1.0f;
+        public readonly float ChoiceContestFail = 0.5f;
+        public readonly float ChoiceContestScale = 0.25f;
+        public readonly float ChoiceContestLookahead = 0.3f;
+        public readonly float ChoiceStickiness = 0.1f;
+        public readonly float ChoiceMoveCost = 0.05f;
+        public readonly float ChoiceWIntent = 0.3f;
+        public readonly float ChoiceRIntent = 5.0f;
+        public readonly float ChoiceThetaOpp = 0.2f;
+
+        /// <summary>코드 기본값 묶음의 해시 대용 (튜닝 묶음이 없을 때 경기 튜닝 해시에 넣는다).</summary>
+        public readonly ulong Hash;
+
+        GoalkeeperParams() { Hash = 0x6B5F_6465_6661_756CUL; }
+
+        GoalkeeperParams(TuningBundle t)
+        {
+            if (t == null) throw new ArgumentNullException(nameof(t));
+            MapReactBase = t.Get(Ids.MapReactBase);
+            MapReactSlope = t.Get(Ids.MapReactSlope);
+            MapDiveBase = t.Get(Ids.MapDiveBase);
+            MapDiveSlope = t.Get(Ids.MapDiveSlope);
+            MapRmaxSlope = t.Get(Ids.MapRmaxSlope);
+            MapHandlingBase = t.Get(Ids.MapHandlingBase);
+            MapHandlingSlope = t.Get(Ids.MapHandlingSlope);
+            MapSpillBase = t.Get(Ids.MapSpillBase);
+            MapSpillSlope = t.Get(Ids.MapSpillSlope);
+            MapPosNoiseBase = t.Get(Ids.MapPosNoiseBase);
+            MapPosNoiseSlope = t.Get(Ids.MapPosNoiseSlope);
+            MapOneOnOneBase = t.Get(Ids.MapOneOnOneBase);
+            MapOneOnOneSlope = t.Get(Ids.MapOneOnOneSlope);
+            MapJumpSlope = t.Get(Ids.MapJumpSlope);
+            MapCommandSlope = t.Get(Ids.MapCommandSlope);
+            MapSweepingBase = t.Get(Ids.MapSweepingBase);
+            MapSweepingSlope = t.Get(Ids.MapSweepingSlope);
+            MapDistributionBase = t.Get(Ids.MapDistributionBase);
+            MapDistributionSlope = t.Get(Ids.MapDistributionSlope);
+            ReachR0 = t.Get(Ids.ReachR0);
+            ReachBodyHalf = t.Get(Ids.ReachBodyHalf);
+            ReachRmaxBase = t.Get(Ids.ReachRmaxBase);
+            ReachRefHeight = t.Get(Ids.ReachRefHeight);
+            ReachStandZ = t.Get(Ids.ReachStandZ);
+            ReachHighZ = t.Get(Ids.ReachHighZ);
+            ReachHighFade = t.Get(Ids.ReachHighFade);
+            ReachSReach = t.Get(Ids.ReachSReach);
+            ReachBackSpeed = t.Get(Ids.ReachBackSpeed);
+            SaveAlpha = t.Get(Ids.SaveAlpha);
+            SaveBeta = t.Get(Ids.SaveBeta);
+            SaveGamma = t.Get(Ids.SaveGamma);
+            SaveDelta = t.Get(Ids.SaveDelta);
+            SaveB = t.Get(Ids.SaveB);
+            SaveC = t.Get(Ids.SaveC);
+            SavePunchSpeed = t.Get(Ids.SavePunchSpeed);
+            SavePunchZ = t.Get(Ids.SavePunchZ);
+            SaveCrowdRadius = t.Get(Ids.SaveCrowdRadius);
+            SaveCrowdCount = t.Get(Ids.SaveCrowdCount);
+            SaveExtremeLowZ = t.Get(Ids.SaveExtremeLowZ);
+            SaveExtremeHighZ = t.Get(Ids.SaveExtremeHighZ);
+            SaveBounceWindow = t.Get(Ids.SaveBounceWindow);
+            SaveSafeSpeed = t.Get(Ids.SaveSafeSpeed);
+            SaveDangerSpeedMin = t.Get(Ids.SaveDangerSpeedMin);
+            SaveReboundMin = t.Get(Ids.SaveReboundMin);
+            SaveReboundMax = t.Get(Ids.SaveReboundMax);
+            SaveReboundSpread = t.Get(Ids.SaveReboundSpread);
+            SaveFingertipBand = t.Get(Ids.SaveFingertipBand);
+            SaveParryWide = t.Get(Ids.SaveParryWide);
+            SavePunchDist = t.Get(Ids.SavePunchDist);
+            OcclusionMin = t.Get(Ids.OcclusionMin);
+            OcclusionMax = t.Get(Ids.OcclusionMax);
+            OcclusionRadius = t.Get(Ids.OcclusionRadius);
+            OcclusionFullTime = t.Get(Ids.OcclusionFullTime);
+            GridRowLow = t.Get(Ids.GridRowLow);
+            GridRowMid = t.Get(Ids.GridRowMid);
+            GridRowHigh = t.Get(Ids.GridRowHigh);
+            GridColOuter = t.Get(Ids.GridColOuter);
+            GridColSecond = t.Get(Ids.GridColSecond);
+            GridColThird = t.Get(Ids.GridColThird);
+            GridColCenter = t.Get(Ids.GridColCenter);
+            PosCandidates = t.Get(Ids.PosCandidates);
+            PosDepthMin = t.Get(Ids.PosDepthMin);
+            PosDepthMax = t.Get(Ids.PosDepthMax);
+            PosLateral = t.Get(Ids.PosLateral);
+            PosRiskScale = t.Get(Ids.PosRiskScale);
+            PosLambda = t.Get(Ids.PosLambda);
+            PosMu = t.Get(Ids.PosMu);
+            PosHSafeBase = t.Get(Ids.PosHSafeBase);
+            PosHSafeRatio = t.Get(Ids.PosHSafeRatio);
+            PosShotSpeed = t.Get(Ids.PosShotSpeed);
+            PosShootRange = t.Get(Ids.PosShootRange);
+            PosLowRate = t.Get(Ids.PosLowRate);
+            PosBlendBand = t.Get(Ids.PosBlendBand);
+            PosMaxStep = t.Get(Ids.PosMaxStep);
+            PosSoftTemp = t.Get(Ids.PosSoftTemp);
+            PosNearPostAngle = t.Get(Ids.PosNearPostAngle);
+            WaitRatio = t.Get(Ids.WaitRatio);
+            WaitMin = t.Get(Ids.WaitMin);
+            WaitMax = t.Get(Ids.WaitMax);
+            WaitTraditional = t.Get(Ids.WaitTraditional);
+            WaitDefaultLine = t.Get(Ids.WaitDefaultLine);
+            WaitSweeperOffset = t.Get(Ids.WaitSweeperOffset);
+            StillSpeed = t.Get(Ids.StillSpeed);
+            StillMovingPenalty = t.Get(Ids.StillMovingPenalty);
+            DiveRecover = t.Get(Ids.DiveRecover);
+            DiveLand = t.Get(Ids.DiveLand);
+            DiveMinMove = t.Get(Ids.DiveMinMove);
+            DiveLowZ = t.Get(Ids.DiveLowZ);
+            DiveHighZ = t.Get(Ids.DiveHighZ);
+            FieldDisplay = t.Get(Ids.FieldDisplay);
+            LeagueDisplay = t.Get(Ids.LeagueDisplay);
+            ChoiceTauMax = t.Get(Ids.ChoiceTauMax);
+            ChoiceTauMin = t.Get(Ids.ChoiceTauMin);
+            ChoicePositionUtility = t.Get(Ids.ChoicePositionUtility);
+            ChoiceContestWin = t.Get(Ids.ChoiceContestWin);
+            ChoiceContestFail = t.Get(Ids.ChoiceContestFail);
+            ChoiceContestScale = t.Get(Ids.ChoiceContestScale);
+            ChoiceContestLookahead = t.Get(Ids.ChoiceContestLookahead);
+            ChoiceStickiness = t.Get(Ids.ChoiceStickiness);
+            ChoiceMoveCost = t.Get(Ids.ChoiceMoveCost);
+            ChoiceWIntent = t.Get(Ids.ChoiceWIntent);
+            ChoiceRIntent = t.Get(Ids.ChoiceRIntent);
+            ChoiceThetaOpp = t.Get(Ids.ChoiceThetaOpp);
+            Hash = t.Hash;
+        }
+
+        public static GoalkeeperParams Create(TuningBundle t) => t == null ? Defaults : new GoalkeeperParams(t);
+
+        /// <summary>파일 기본값과 같은 코드 기본값.</summary>
+        public static readonly GoalkeeperParams Defaults = new GoalkeeperParams();
+    }
+}

@@ -80,11 +80,15 @@ namespace RoadToPro.MatchEngine.Match
         public readonly Tactics.ShapeData Shape;
         /// <summary>시나리오 데이터 (specs/013). 전술을 쓰는 경기에서만 쓰고, 없으면 대체 단계 그대로다.</summary>
         public readonly Scenarios.ScenarioData Scenario;
+        /// <summary>골키퍼 튜닝 (specs/011, Data/tuning/goalkeeper.json). 없으면 코드 기본값(<see cref="RoadToPro.MatchEngine.Goalkeeper.GoalkeeperParams.Defaults"/>, 파일 기본값과 같음).</summary>
+        public readonly TuningBundle Goalkeeper;
 
-        public MatchTuning(TuningBundle ball, TuningBundle kinematics, TuningBundle match, Tactics.ShapeData shape = null, Scenarios.ScenarioData scenario = null)
+        public MatchTuning(TuningBundle ball, TuningBundle kinematics, TuningBundle match, Tactics.ShapeData shape = null, Scenarios.ScenarioData scenario = null,
+            TuningBundle goalkeeper = null)
         {
             Shape = shape;
             Scenario = scenario;
+            Goalkeeper = goalkeeper;
             Ball = ball ?? throw new ArgumentNullException(nameof(ball));
             Kinematics = kinematics ?? throw new ArgumentNullException(nameof(kinematics));
             Match = match ?? throw new ArgumentNullException(nameof(match));
@@ -101,6 +105,7 @@ namespace RoadToPro.MatchEngine.Match
                 h.Add(Match.Hash);
                 if (Shape != null) { h.Add(Shape.Tuning.Hash); h.Add(Shape.Formations.Hash); }
                 if (Scenario != null) { h.Add(Scenario.Tuning.Hash); h.Add(Scenario.Library.Hash); }
+                if (Goalkeeper != null) h.Add(Goalkeeper.Hash);
                 return h.Value;
             }
         }

@@ -47,6 +47,8 @@ namespace RoadToPro.Presentation.Highlight.Selection
         public bool EndWide;
         /// <summary>사건 위치 (정규화 x·y).</summary>
         public float EventX, EventY;
+        /// <summary>장면을 고른 시뮬 이벤트 종류 (011: 선방 장면이 잡기·쳐내기·펀칭 중 무엇인지).</summary>
+        public SimEventKind EventKind;
     }
 
     /// <summary>선정 결과: 시간 순 장면 목록, 장면별 정보, 공 재배치 시각(FR-47 확인용).</summary>
@@ -77,6 +79,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
         {
             public long Tick, Seq;
             public LiveSceneKind Kind;
+            public SimEventKind EventKind;
             public int Team, Player, Other;
             public float X, Y;
             public float Score;
@@ -150,7 +153,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
                         break;
                 }
 
-                var c = new Cand { Tick = e.Tick, Seq = e.Seq, Team = e.Team, Player = e.PlayerId, Other = e.OtherId, X = e.X, Y = e.Y, OverturnTick = -1, Kind = LiveSceneKind.Filler, Score = 0f };
+                var c = new Cand { EventKind = e.Kind, Tick = e.Tick, Seq = e.Seq, Team = e.Team, Player = e.PlayerId, Other = e.OtherId, X = e.X, Y = e.Y, OverturnTick = -1, Kind = LiveSceneKind.Filler, Score = 0f };
                 switch (e.Kind)
                 {
                     case SimEventKind.Goal:
@@ -168,6 +171,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
                         break;
                     case SimEventKind.Save:
                     case SimEventKind.Catch:
+                    case SimEventKind.Parry: // 011 쳐내기
                     case SimEventKind.Punch:
                         c.Kind = LiveSceneKind.Save; c.Score = t.Save;
                         break;
@@ -336,7 +340,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
         static LiveSceneInfo Info(int id, SceneRole role, in Cand b, double eventTime, int shooter, int angle, int angles, bool my) => new LiveSceneInfo
         {
             SceneId = id, Role = role, Kind = b.Kind, EventTick = b.Tick, EventTime = eventTime, Team = b.Team, PlayerId = b.Player,
-            ShooterId = shooter, AngleIndex = angle, AngleCount = angles, Score = b.Score, MyPlayerInvolved = my, EventX = b.X, EventY = b.Y,
+            ShooterId = shooter, AngleIndex = angle, AngleCount = angles, Score = b.Score, MyPlayerInvolved = my, EventX = b.X, EventY = b.Y, EventKind = b.EventKind,
         };
 
         // ── 위치 판정 (이벤트 위치는 정규화 x·y) ──

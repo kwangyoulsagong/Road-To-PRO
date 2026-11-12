@@ -489,12 +489,12 @@ namespace RoadToPro.Verification.Samples.Motion
             var v1 = Dir((float)(Math.PI * 0.15), 9f, 3f);
             BallLine(d, Start, b1 + new Vec3(16f, 0.6f, -3f), t1, b1);
             BallFly(d, t1, t2 - 1f, b1, v1);
-            Ev(d, t1, SimEventKind.Save, 0, -1, BodyPart.Hand, ActionOutcome.Success, b1, v1);
+            Ev(d, t1, SimEventKind.Parry, 0, -1, BodyPart.Hand, ActionOutcome.Success, b1, v1); // 011: 접촉은 Parry·Catch·Punch, Save는 집계 이벤트
             // 실점: 반대편 구석으로 — 다이빙했지만 손이 닿지 않는다
             var goal = new Vec3(-_pitch.LengthM * 0.5f - 0.2f, 1.2f, 3f);
             BallLine(d, t2 - 1f, goal + new Vec3(18f, 0f, -2f), t2, goal);
             BallHold(d, t2, Start + 9f, goal);
-            Ev(d, t2, SimEventKind.Save, 0, -1, BodyPart.None, ActionOutcome.Fail, goal, default);
+            Ev(d, t2, SimEventKind.DiveStart, 0, -1, BodyPart.None, ActionOutcome.Fail, goal, default); // 011: 실점 다이빙 = 변환기가 예정 접촉 시각으로 옮긴 DiveStart
             Key(m, "save", t1);
             Key(m, "saveAfter", t1 + AfterContact);
             Key(m, "beaten", t2);

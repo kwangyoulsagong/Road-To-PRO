@@ -12,12 +12,20 @@ namespace RoadToPro.MatchEngine.Match
     {
         public readonly int Id;
         public readonly KinematicAttributes Attributes;
+        /// <summary>GK 능력치 (specs/011, 002 전 대체 입력). 지정 안 됨(<c>IsSet</c> false)이면 선발 GK는 리그 평균, 필드 선수는 대체값.</summary>
+        public readonly Goalkeeper.KeeperAttributes Keeper;
 
         public MatchPlayer(int id, in KinematicAttributes attributes)
+            : this(id, attributes, default)
+        {
+        }
+
+        public MatchPlayer(int id, in KinematicAttributes attributes, in Goalkeeper.KeeperAttributes keeper)
         {
             if (id < 0) throw new ArgumentOutOfRangeException(nameof(id), "선수 id는 0 이상");
             Id = id;
             Attributes = attributes;
+            Keeper = keeper;
         }
     }
 

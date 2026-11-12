@@ -15,6 +15,8 @@ namespace RoadToPro.MatchEngine.Match.Stages
     public sealed class PhysicsStage : StatelessStage
     {
         public const float BallCarryOffset = 0.45f;
+        /// <summary>다이빙 중 GK가 잡은 공이 손 위치로 따라가는 서브스텝당 최대 이동 (m, 15 m/s).</summary>
+        public const float KeeperHoldStep = 0.15f;
 
         public override StageId Id => StageId.Physics;
 
@@ -40,7 +42,15 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 {
                     ref readonly var o = ref k.State(ball.OwnerId);
                     var bp = o.Position + o.Facing * BallCarryOffset;
-                    BallCommands.SetControlledPosition(ref ball, new Vec3(bp.X, bp.Y, ctx.BallParams.Radius));
+                    var target = new Vec3(bp.X, bp.Y, ctx.BallParams.Radius);
+                    if (ctx.Keepers.IsBusySlot(ball.OwnerId))
+                    {
+                        // 011: 다이빙 중 잡은 공은 손 위치로 서브스텝당 최대 KeeperHoldStep만 옮긴다 (순간이동 금지)
+                        var d = target - ball.Position;
+                        var len = d.Length();
+                        if (len > KeeperHoldStep) target = ball.Position + d * (KeeperHoldStep / len);
+                    }
+                    BallCommands.SetControlledPosition(ref ball, target);
                 }
                 ctx.BallEvents.Clear();
                 BallStepper.Step(ref ball, ctx.BallParams, ctx.BallEvents, out _);
@@ -76,6 +86,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                         InGoalMouth = mouth, Position = ball.Position, LastTouchTeam = ctx.LastTouchTeam, LastTouchSlot = ctx.LastTouchSlot,
                     });
                 }
+                if (!crossed) ctx.Keepers.OnSubstep(ctx, abs, sub); // 011 FR-15·17: 다이빙 진행·슛 감시·선방 적용
                 if (!crossed) TryClaim(ctx, abs, sub);
                 rec.AfterSubstep(abs);
                 SubstepsRun++;
@@ -92,6 +103,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
             var victim = ball.OwnerId;
             var team = Squad.TeamOfSlot(a.KickerSlot);
             BallCommands.Kick(ref ball, a.Velocity, a.Spin, ctx.BallParams, ctx.BallEvents);
+            ctx.Keepers.NotifyFlight(); // 011: 골문을 향하는지 다음 감시에서 예측
             if (a.IsKickoff)
             {
                 var ko = SimEvent.Make(SimEventKind.Kickoff, team, ctx.PlayerAtSlot(a.KickerSlot));
@@ -150,12 +162,13 @@ namespace RoadToPro.MatchEngine.Match.Stages
             var p = ctx.Params;
             var pos = ball.Position;
             if (pos.Z > p.ClaimMaxZ) return;
-            if (pos.X < 0f || pos.X > ctx.Pitch.LengthM || pos.Y < 0f || pos.Y > ctx.Pitch.WidthM) return;
+            // 공 전체가 라인 밖일 때만 잡기 금지 (라인 위 공은 인플레이 — 011 발견: 골라인 위에 멈춘 공을 아무도 못 잡아 경기가 멈춤)
+            var rb = ctx.BallParams.Radius;
+            if (pos.X < -rb || pos.X > ctx.Pitch.LengthM + rb || pos.Y < -rb || pos.Y > ctx.Pitch.WidthM + rb) return;
             var v2 = ball.Velocity.LengthSq();
             var fieldOk = v2 <= p.ClaimMaxSpeed * p.ClaimMaxSpeed;
-            // 골키퍼(대체, 011 자리): 손으로 더 넓게·더 빠른 공까지
+            // 골키퍼 (011 FR-16): 자기 페널티 박스 안에서만 손으로 더 넓게. 골문을 향하는 슛은 선방 모델만 판정(추적 중이면 제외)
             var keeperR = p.ClaimRadius * 1.8f;
-            var keeperOk = v2 <= 4f * p.ClaimMaxSpeed * p.ClaimMaxSpeed;
             int best = -1;
             float bestScore = float.MaxValue;
             var k = ctx.Kinematics;
@@ -163,8 +176,9 @@ namespace RoadToPro.MatchEngine.Match.Stages
             {
                 if (!ctx.IsSlotControllable(s)) continue;
                 if ((s == ctx.LastKickSlot || s == ctx.LastTackleVictim) && abs - ctx.LastKickSubstep < 25) continue;
-                var keeper = Squad.IsKeeperSlot(s);
-                if (keeper ? !keeperOk : !fieldOk) continue;
+                var keeper = Squad.IsKeeperSlot(s) && InOwnBox(ctx, Squad.TeamOfSlot(s), pos);
+                if (Squad.IsKeeperSlot(s) && ctx.Keepers.ExcludedFromClaim(s)) continue;
+                if (!fieldOk) continue;
                 var r = keeper ? keeperR : p.ClaimRadius;
                 var d = k.State(s).Position;
                 var dx = d.X - pos.X;
@@ -206,6 +220,20 @@ namespace RoadToPro.MatchEngine.Match.Stages
             ctx.PossessionStartTick = ctx.Tick;
             if (ctx.Flow.PenaltyKickTick >= 0) ctx.Flow.ClearPenalty();
         }
+
+        /// <summary>
+        /// 공이 team의 자기 페널티 박스 안(손 사용 가능)인가 (011 FR-16). 공 일부라도 선 위면 허용 — 중심이 선에서 반지름 안까지
+        /// (스펙 경계 '[미정: 규칙 확인]', 012에서 재확인).
+        /// </summary>
+        public static bool InOwnBox(MatchContext ctx, int team, Vec3 ball)
+        {
+            var goal = ctx.OwnGoal(team);
+            var r = ctx.BallParams.Radius;
+            var depth = (ball.X - goal.X) * ctx.AttackDir(team);
+            return depth >= -r && depth <= BoxDepth + r && DMath.Abs(ball.Y - goal.Y) <= BoxHalfWidth + r;
+        }
+
+        public const float BoxDepth = 16.5f, BoxHalfWidth = 20.16f;
 
         /// <summary>FR-82 사용 부위 (대체): 높이로 머리·가슴·허벅지, 그 아래는 몸 방향 기준 공이 있는 쪽 발.</summary>
         public static BodyPart PartFor(in PlayerMotionState s, Vec3 ball)

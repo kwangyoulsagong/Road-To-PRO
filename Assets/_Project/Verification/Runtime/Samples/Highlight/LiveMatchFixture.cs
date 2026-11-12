@@ -11,6 +11,7 @@ namespace RoadToPro.Verification.Samples.Highlight
     /// (058 플랜: 파울 장면은 주입 카드로 대체). 내 선수는 홈 10번(id 10).
     /// 대체 판단의 평균 득점이 확정 밸런스(2.5~3.0)를 크게 넘어서(약 24골, 008·010 전) 이 경기만 대체 슈팅 확률을 낮춘다 — 3:3에
     /// 실점·박스 안 슈팅·수비·퇴장 장면이 모두 나온다 (2026-11-11 사용자 결정: AC-15 보류 + E2E 경기만 저득점). 게임 튜닝은 그대로.
+    /// 011(선방 모델)로 0.05에서는 플레이어 빌드 경기가 2:0(실점 장면 없음)이라 0.08로 올렸다 — 양 팀 득점·선방·쳐내기 장면이 나온다.
     /// </summary>
     public static class LiveMatchFixture
     {
@@ -19,14 +20,14 @@ namespace RoadToPro.Verification.Samples.Highlight
         public const long SendOffTick = 36_000;
         public const int SendOffPlayer = 104;
 
-        public const float ShotProb = 0.05f;
+        public const float ShotProb = 0.08f;
 
         /// <summary>경기 튜닝에서 대체 슈팅 확률만 바꾼 묶음.</summary>
         public static MatchTuning Tuning(MatchTuning baseTuning, string dataDir)
         {
             var reg = TuningLoader.LoadDefinitionsFile(Path.Combine(dataDir, "tuning", "match.json"));
             var match = TuningLoader.ParseBundle(reg, "{\"version\":1,\"values\":[{\"id\":\"standin.shotProb\",\"value\":" + ShotProb.ToString(CultureInfo.InvariantCulture) + "}]}");
-            return new MatchTuning(baseTuning.Ball, baseTuning.Kinematics, match, baseTuning.Shape, baseTuning.Scenario);
+            return new MatchTuning(baseTuning.Ball, baseTuning.Kinematics, match, baseTuning.Shape, baseTuning.Scenario, baseTuning.Goalkeeper);
         }
 
         public static MatchSetup Prepare(MatchSetup setup)

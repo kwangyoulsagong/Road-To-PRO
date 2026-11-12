@@ -19,6 +19,7 @@ using RoadToPro.Presentation.Rendering.Logic;
 using RoadToPro.Verification.Bench;
 using Unity.Profiling;
 using UnityEngine;
+using RoadToPro.MatchEngine.Match.Events;
 using UnityEngine.UIElements;
 
 namespace RoadToPro.Verification.Samples.Highlight
@@ -245,6 +246,10 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["live.freeze.conceded"] = () => FreezeGoal(1, b => b.EventTime - 0.5d);
             FarmContext.Screens["live.freeze.woodwork"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Woodwork || i.Kind == LiveSceneKind.Save, i => i.Kind == LiveSceneKind.ShotInBox);
             FarmContext.Screens["live.freeze.defensive"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Defensive, null);
+            // 011 AC-25: GK 장면 — 다이빙 선방(접촉 0.1 s 전), 펀칭(없으면 다른 선방), 실점(공이 골라인을 넘기 직전)
+            FarmContext.Screens["live.freeze.gkdive"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Save && (i.EventKind == SimEventKind.Parry || i.EventKind == SimEventKind.Catch), i => i.Kind == LiveSceneKind.Save, -0.1d);
+            FarmContext.Screens["live.freeze.gkpunch"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Save && i.EventKind == SimEventKind.Punch, i => i.Kind == LiveSceneKind.Save && i.EventKind == SimEventKind.Parry, 0d);
+            FarmContext.Screens["live.freeze.gkconceded"] = () => FreezeGoal(0, b => b.EventTime - 0.05d);
             FarmContext.Screens["live.freeze.foul"] = () => FreezeKind(i => i.Kind == LiveSceneKind.RedCard || i.Kind == LiveSceneKind.YellowCard || i.Kind == LiveSceneKind.Foul, null);
             _halves = StandInHud.Add(doc.rootVisualElement, "halvesLabel", 16f, 352f);
             _halves.style.opacity = 0f; // 058 AC-11 확인 신호 (캡처 제외)
@@ -272,7 +277,9 @@ namespace RoadToPro.Verification.Samples.Highlight
                 player.Sequencer.SeekAndPause(i, System.Math.Min(System.Math.Max(at(b), scenes[i].Scene.Start), scenes[i].Scene.End));
                 return;
             }
-            Debug.LogError($"[highlight] 058 골 장면 없음 ({which})");
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < scenes.Count; i++) { var inf = _liveBriefs?.InfoOf(scenes[i].Scene.Id); if (inf != null) sb.Append($" {scenes[i].Scene.Id}:{inf.Role}/{inf.Kind}/t{inf.Team}"); }
+            Debug.LogError($"[highlight] 058 골 장면 없음 ({which}) 장면:{sb}");
         }
 
         /// <summary>첫 골 묶음 안에서 역할이 role인 첫 장면.</summary>
@@ -295,7 +302,7 @@ namespace RoadToPro.Verification.Samples.Highlight
             Debug.LogError($"[highlight] 058 골 묶음에 {role} 없음");
         }
 
-        void FreezeKind(System.Func<LiveSceneInfo, bool> want, System.Func<LiveSceneInfo, bool> fallback)
+        void FreezeKind(System.Func<LiveSceneInfo, bool> want, System.Func<LiveSceneInfo, bool> fallback, double offset = 0d)
         {
             var scenes = player.Scenes;
             for (int pass = 0; pass < 2; pass++)
@@ -307,7 +314,8 @@ namespace RoadToPro.Verification.Samples.Highlight
                     var info = _liveBriefs?.InfoOf(scenes[i].Scene.Id);
                     if (info == null || info.Role != SceneRole.Live || !f(info)) continue;
                     var s = scenes[i].Scene;
-                    player.Sequencer.SeekAndPause(i, System.Math.Min(System.Math.Max(info.EventTime, s.Start), s.End));
+                    player.Sequencer.SeekAndPause(i, System.Math.Min(System.Math.Max(info.EventTime + offset, s.Start), s.End));
+                    if (pass == 1) Debug.Log($"[highlight] 대체 장면 사용 ({info.EventKind})");
                     return;
                 }
             }

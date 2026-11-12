@@ -99,7 +99,10 @@ class JudgeTests(unittest.TestCase):
         self.assertIn("기준 기기 아님", res["note"])
 
     def test_battery_power_excluded(self):
+        # specs/000 개정 2026-11-12: 배터리 + 저전력 모드만 판정 제외, 그냥 배터리는 판정
         res = perf.evaluate(self.metrics, {"frameMs.max": 1}, None, is_reference=True, power="battery")
+        self.assertTrue(res["judged"])
+        res = perf.evaluate(self.metrics, {"frameMs.max": 1}, None, is_reference=True, power="battery-lowpower")
         self.assertFalse(res["judged"])
         self.assertTrue(res["ok"])
         res = perf.evaluate(self.metrics, {"frameMs.max": 1}, None, is_reference=True, power="ac")
@@ -124,6 +127,17 @@ class PowerAndNullTests(unittest.TestCase):
         self.assertEqual(perf.power_state("Unknown"), "unknown")
         self.assertEqual(perf.power_state("Unknown", "Now drawing from 'AC Power'"), "ac")
         self.assertEqual(perf.power_state("Charging", "Now drawing from 'Battery Power'"), "battery")
+        # specs/000 개정 2026-11-12: 배터리는 저전력 모드일 때만 판정 제외
+        self.assertEqual(perf.power_state(None, "Now drawing from 'Battery Power'\n lowpowermode         1\n"), "battery-lowpower")
+        self.assertEqual(perf.power_state(None, "Now drawing from 'Battery Power'\n lowpowermode         0\n"), "battery")
+
+    def test_power_judged(self):
+        self.assertTrue(perf.power_judged("ac"))
+        self.assertTrue(perf.power_judged("battery"))
+        self.assertFalse(perf.power_judged("battery-lowpower"))
+        self.assertFalse(perf.power_judged("unknown"))
+        self.assertEqual(perf.power_note("battery"), "")
+        self.assertIn("판정 제외", perf.power_note("battery-lowpower"))
 
     def test_null_counters_skipped(self):
         m = perf.summarize(section([10.0] * 10, drawCalls=None, triangles=None, textureMemoryBytes=None))

@@ -26,8 +26,8 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                 float x, y;
                 if (Squad.IsKeeperSlot(s))
                 {
-                    x = Clamp(f.X + 0.1f * (b.X - 0.5f), 0.01f, 0.12f);
-                    y = Clamp(0.5f + 0.25f * (b.Y - 0.5f), 0.42f, 0.58f);
+                    targets[s] = ctx.Keepers.UpdateTarget(ctx, team, -1f, false); // 011 FR-93 (팀 형태 없는 경기: 라인 높이 모름)
+                    continue;
                 }
                 else
                 {
