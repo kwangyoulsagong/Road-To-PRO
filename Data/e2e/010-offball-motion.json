@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "010-offball-motion",
+  "spec": "010",
+  "description": "실경기(058 경로) 하이라이트에서 오프볼 선수 움직임: 수비 액션·슈팅(또는 골대) 장면 정지 캡처 — 형태 유지 선수가 조깅 이하로 움직이고 전원 전력질주가 아닌지 육안 승인. 재생 로그의 오프볼 [anim] 속도 점프 경고 0 (AC-24)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-24"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.defensive"
+    },
+    {
+      "type": "capture",
+      "name": "defensive",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.woodwork"
+    },
+    {
+      "type": "capture",
+      "name": "attack",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.conceded"
+    },
+    {
+      "type": "capture",
+      "name": "conceded",
+      "kind": "3d"
+    }
+  ]
+}

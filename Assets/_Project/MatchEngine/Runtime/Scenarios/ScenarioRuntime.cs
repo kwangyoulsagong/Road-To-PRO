@@ -167,6 +167,34 @@ namespace RoadToPro.MatchEngine.Scenarios
             return true;
         }
 
+        /// <summary>슬롯의 배역 (010 의도 패킷용, 부수효과 없음). 배역이 아니면 false.</summary>
+        public bool TryGetCast(int slot, out ScenarioRun run, out int role)
+        {
+            var team = _castRun[slot];
+            run = team >= 0 ? _runs[team] : null;
+            role = team >= 0 ? _castRole[slot] : -1;
+            return team >= 0;
+        }
+
+        /// <summary>단계 제한 시간 (틱).</summary>
+        public long StepLimitTicks => _p.StepLimitTicks;
+
+        /// <summary>
+        /// 기회주의 이탈 (010 FR-94): 그 선수의 배역만 해제한다(다른 배역·시나리오는 그대로). 해제 이벤트 + <see cref="SimEventKind.IntentOpportunistic"/>.
+        /// 배역이 아니면 false.
+        /// </summary>
+        public bool ReleaseOpportunistic(MatchContext ctx, int slot)
+        {
+            var team = _castRun[slot];
+            if (team < 0) return false;
+            var run = _runs[team];
+            var role = _castRole[slot];
+            EmitReleased(ctx, run, role);
+            Emit(ctx, SimEventKind.IntentOpportunistic, run, role, slot, run.Player[role]);
+            ReleaseRole(run, role);
+            return true;
+        }
+
         /// <summary>배역 의도 지점 (역할 목표, 부수효과 없음 — 011 FR-94 GK 의도).</summary>
         public bool TryReadIntent(MatchContext ctx, int slot, out Vec2 point)
         {

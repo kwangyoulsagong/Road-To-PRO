@@ -1,0 +1,84 @@
+{
+  "judged": true,
+  "ok": true,
+  "note": "",
+  "backend": "il2cpp",
+  "profile": "mac-m1-1600p",
+  "budget": [
+    {
+      "ac": "AC-17",
+      "label": "결정 틱 1회 평균 (006 FR-80 몫)",
+      "metric": "dec_tick_avg_us",
+      "value": 8.666730902777777,
+      "budget": 12,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "결정 틱 1회 p95",
+      "metric": "dec_tick_p95_us",
+      "value": 17.2,
+      "budget": 60,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "오프볼 선수 1명 평균 (2026-11-12 사용자 결정 0.4 → 1.0)",
+      "metric": "dec_offball_avg_us",
+      "value": 0.615715,
+      "budget": 1.0,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "오프볼 선수 1명 p95",
+      "metric": "dec_offball_p95_us",
+      "value": 0.7000000000000001,
+      "budget": 2,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "경기 1개 의사결정 누적",
+      "metric": "dec_match_s",
+      "value": 0.4992037,
+      "budget": 0.65,
+      "unit": "s",
+      "ok": true
+    },
+    {
+      "ac": "AC-17",
+      "label": "결정 틱 GC 할당",
+      "metric": "dec_gc_bytes_per_tick",
+      "value": 0,
+      "budget": 0,
+      "unit": "B",
+      "ok": true
+    }
+  ],
+  "regression": [],
+  "stages": {},
+  "metrics": {
+    "dec_tick_avg_us": 8.666730902777777,
+    "dec_tick_p95_us": 17.2,
+    "dec_match_s": 0.4992037,
+    "dec_ticks": 57600,
+    "dec_gc_bytes_per_tick": 0,
+    "dec_space_queries_avg": 2.9814583333333333,
+    "dec_space_queries_max": 8,
+    "dec_offball_avg_us": 0.615715,
+    "dec_offball_p95_us": 0.7000000000000001
+  },
+  "host": "mac-m1-1600p",
+  "power": "ac",
+  "buildCached": true,
+  "durationSec": 8.2,
+  "unity": "6000.3.27f2",
+  "cpu": "Apple M1 Pro",
+  "development": false,
+  "commit": "128fb0d39853a207fa43e847a76f116a3f67f8a8"
+}

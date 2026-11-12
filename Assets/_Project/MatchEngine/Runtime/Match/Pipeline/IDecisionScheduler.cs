@@ -17,6 +17,12 @@ namespace RoadToPro.MatchEngine.Match.Pipeline
         void AddTo(ref StableHasher h);
     }
 
+    /// <summary>스케줄러를 직접 만드는 결정 단계 (specs/010 LOD). 옵션에 스케줄러가 없으면 경기가 이 스케줄러를 쓴다.</summary>
+    public interface IDecisionSchedulerProvider
+    {
+        IDecisionScheduler Scheduler { get; }
+    }
+
     /// <summary>
     /// 대체 스케줄러: 슬롯별 주기 (기본 매 틱). 슬롯 s는 (tick − 기준 틱) % 주기 == 0일 때 결정한다.
     /// 주기를 바꾸면 바꾼 다음 틱을 새 기준으로 삼는다 — 전환 순간 누락·중복 없음 (AC-04).

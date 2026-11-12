@@ -40,6 +40,8 @@ namespace RoadToPro.MatchEngine.Match
         public Scenarios.IScenarioDiagnostics ScenarioDiagnostics;
         /// <summary>강제 선택 (FR-53, 검증·미리보기 전용).</summary>
         public Scenarios.ScenarioForceRequest ScenarioForce;
+        /// <summary>판단 AI 진단 (specs/010 FR-60~62). 경기마다 새로 만드는 함수 — null이면 끔.</summary>
+        public Func<UtilityAI.IDecisionDiagnostics> DecisionDiagnostics;
 
         public MatchSimOptions Clone() => new MatchSimOptions
         {
@@ -47,6 +49,7 @@ namespace RoadToPro.MatchEngine.Match
             LogCapacity = LogCapacity, KeepEventLog = KeepEventLog, PenaltyJudge = PenaltyJudge,
             ShapeInputs = ShapeInputs, ShapeTelemetry = ShapeTelemetry, ShapeDiagnostics = ShapeDiagnostics,
             ScenarioInputs = ScenarioInputs, ScenarioDiagnostics = ScenarioDiagnostics, ScenarioForce = ScenarioForce,
+            DecisionDiagnostics = DecisionDiagnostics,
         };
     }
 
@@ -98,7 +101,8 @@ namespace RoadToPro.MatchEngine.Match
             if (_stages == null || _stages.Length != Pipeline.Stages.Count) throw new ArgumentException($"단계는 {Pipeline.Stages.Count}개");
             for (int i = 0; i < _stages.Length; i++)
                 if (_stages[i] == null || (int)_stages[i].Id != i) throw new ArgumentException($"단계 {i} 자리에 {_stages[i]?.Id} — FR-01 순서와 다르다");
-            _scheduler = _options.Scheduler != null ? _options.Scheduler() : new FixedPeriodScheduler(1);
+            _scheduler = _options.Scheduler != null ? _options.Scheduler()
+                : (_stages[(int)StageId.ScenarioOrUtility] as IDecisionSchedulerProvider)?.Scheduler ?? new FixedPeriodScheduler(1); // 010: 결정 단계의 LOD
             if (_options.PenaltyJudge != null) _ctx.Flow.PenaltyJudge = _options.PenaltyJudge();
             _ctx.Flow.Start();
             _ctx.Recorder.EmitInitialFrame();
@@ -123,6 +127,7 @@ namespace RoadToPro.MatchEngine.Match
             if (tuning.Scenario == null)
             {
                 stages[(int)StageId.Shape] = new ShapeStage(p, catalog, inputs, setup, f0, f1, options?.ShapeTelemetry, options?.ShapeDiagnostics);
+                stages[(int)StageId.ScenarioOrUtility] = new UtilityDecisionStage(setup, tuning) { Diagnostics = options?.DecisionDiagnostics?.Invoke() }; // 010
                 return stages;
             }
 
@@ -132,7 +137,7 @@ namespace RoadToPro.MatchEngine.Match
             var shape = new ShapeStage(p, catalog, shapeInputs, setup, f0, f1, options?.ShapeTelemetry, options?.ShapeDiagnostics);
             runtime.BindRoles(new Scenarios.FormationRoleSource(shape));
             stages[(int)StageId.Shape] = new ScenarioShapeStage(shape, runtime);
-            stages[(int)StageId.ScenarioOrUtility] = new ScenarioStage(runtime);
+            stages[(int)StageId.ScenarioOrUtility] = new ScenarioStage(runtime, new UtilityDecisionStage(setup, tuning, runtime) { Diagnostics = options?.DecisionDiagnostics?.Invoke() }); // 013 선택 + 010 판단
             return stages;
         }
 
@@ -446,6 +451,7 @@ namespace RoadToPro.MatchEngine.Match
             o.ShapeTelemetry = null; // 재구성이 지나간 틱을 다시 보고하면 집계가 중복된다 (009 리뷰 R1)
             o.ShapeDiagnostics = null;
             o.ScenarioDiagnostics = null;
+            o.DecisionDiagnostics = null; // 010: 재구성 중복 보고 방지
             var sim = new MatchSim(_setup, _tuning, o);
             for (int i = 0; i < _stages.Length; i++)
                 if (ReferenceEquals(sim._stages[i], _stages[i])) throw new InvalidOperationException($"단계 팩토리가 같은 인스턴스를 돌려준다 (단계 {i}) — 경기마다 새로 만들어야 한다 (리뷰 R1)");

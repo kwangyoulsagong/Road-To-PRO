@@ -31,10 +31,10 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                     case DecisionKind.Keep: continue;
                     case DecisionKind.HoldShape:
                         if (!board.HasShapeTarget(s)) continue; // 009 FR-90: 시나리오 배역
-                        c = SteeringCommand.Formation(board.ShapeTarget(s));
+                        c = SteeringCommand.Formation(board.ShapeTarget(s), d.MaxSpeed); // 010 FR-70: 강도 속도 상한 (대체 결정은 0 = 최고 속도)
                         break;
                     case DecisionKind.MoveTo: c = SteeringCommand.Arrive(d.Point, d.MaxSpeed); break;
-                    case DecisionKind.Chase: c = d.TargetSlot >= 0 ? SteeringCommand.Pursue(d.TargetSlot) : SteeringCommand.InterceptBall(d.Point); break;
+                    case DecisionKind.Chase: c = d.TargetSlot >= 0 ? SteeringCommand.Pursue(d.TargetSlot, d.MaxSpeed) : SteeringCommand.InterceptBall(d.Point); break;
                     case DecisionKind.Carry: c = SteeringCommand.Seek(d.Point, d.MaxSpeed); break;
                     default: c = SteeringCommand.Idle(); break;
                 }

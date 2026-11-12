@@ -14,6 +14,10 @@ namespace RoadToPro.MatchEngine.Match
         public readonly KinematicAttributes Attributes;
         /// <summary>GK 능력치 (specs/011, 002 전 대체 입력). 지정 안 됨(<c>IsSet</c> false)이면 선발 GK는 리그 평균, 필드 선수는 대체값.</summary>
         public readonly Goalkeeper.KeeperAttributes Keeper;
+        /// <summary>정신·성격 (specs/010, 002 전 대체 입력). 지정 안 됨이면 평균(<see cref="UtilityAI.DecisionAttributes.Average"/>).</summary>
+        public readonly UtilityAI.DecisionAttributes Mind;
+        /// <summary>플레이 스타일 (specs/010, 003 전 대체 입력). null이면 중립.</summary>
+        public readonly UtilityAI.PlayStyle Style;
 
         public MatchPlayer(int id, in KinematicAttributes attributes)
             : this(id, attributes, default)
@@ -21,12 +25,22 @@ namespace RoadToPro.MatchEngine.Match
         }
 
         public MatchPlayer(int id, in KinematicAttributes attributes, in Goalkeeper.KeeperAttributes keeper)
+            : this(id, attributes, keeper, default, null)
+        {
+        }
+
+        public MatchPlayer(int id, in KinematicAttributes attributes, in Goalkeeper.KeeperAttributes keeper, in UtilityAI.DecisionAttributes mind, UtilityAI.PlayStyle style)
         {
             if (id < 0) throw new ArgumentOutOfRangeException(nameof(id), "선수 id는 0 이상");
             Id = id;
             Attributes = attributes;
             Keeper = keeper;
+            Mind = mind;
+            Style = style;
         }
+
+        /// <summary>정신·스타일만 바꾼 복사본.</summary>
+        public MatchPlayer WithMind(in UtilityAI.DecisionAttributes mind, UtilityAI.PlayStyle style = null) => new MatchPlayer(Id, Attributes, Keeper, mind, style ?? Style);
     }
 
     /// <summary>팀 입력 (FR-10). Starters[0]이 골키퍼다.</summary>

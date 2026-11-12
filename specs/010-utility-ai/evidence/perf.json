@@ -1,0 +1,159 @@
+{
+  "results": [
+    {
+      "name": "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount",
+      "groups": {
+        "dec_gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "DecisionPerfTests.DecisionTick_us_Queries",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DecisionPerfTests.DecisionTick_us_Queries",
+      "groups": {
+        "dec_tick_avg_us": {
+          "median": 51.79827491408935,
+          "min": 51.79827491408935,
+          "max": 51.79827491408935,
+          "avg": 51.79827491408935,
+          "unit": "us",
+          "samples": 1
+        },
+        "dec_tick_p95_us": {
+          "median": 105.4,
+          "min": 105.4,
+          "max": 105.4,
+          "avg": 105.4,
+          "unit": "us",
+          "samples": 1
+        },
+        "dec_match_s": {
+          "median": 3.0146596,
+          "min": 3.0146596,
+          "max": 3.0146596,
+          "avg": 3.0146596,
+          "unit": "s",
+          "samples": 1
+        },
+        "dec_space_queries_avg": {
+          "median": 2.692044673539519,
+          "min": 2.692044673539519,
+          "max": 2.692044673539519,
+          "avg": 2.692044673539519,
+          "unit": "",
+          "samples": 1
+        },
+        "dec_space_queries_max": {
+          "median": 8.0,
+          "min": 8.0,
+          "max": 8.0,
+          "avg": 8.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "DecisionPerfTests.OffBallPlayer_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DecisionPerfTests.OffBallPlayer_us",
+      "groups": {
+        "dec_offball_avg_us": {
+          "median": 3.1362050000000004,
+          "min": 3.129105,
+          "max": 3.136390000000001,
+          "avg": 3.133900000000001,
+          "unit": "us",
+          "samples": 3
+        },
+        "dec_offball_p95_us": {
+          "median": 8.5,
+          "min": 8.5,
+          "max": 8.5,
+          "avg": 8.5,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_avg_us/min": 51.79827491408935,
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_p95_us/min": 105.4,
+      "DecisionPerfTests.OffBallPlayer_us/dec_offball_p95_us/min": 8.5,
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_avg/max": 2.692044673539519,
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_max/max": 8.0,
+      "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount/dec_gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 평균 (Mono 회귀)",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_avg_us/min",
+        "value": 51.79827491408935,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 p95 (Mono 회귀)",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_p95_us/min",
+        "value": 105.4,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "오프볼 선수 1명 p95 (Mono 회귀)",
+        "metric": "DecisionPerfTests.OffBallPlayer_us/dec_offball_p95_us/min",
+        "value": 8.5,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱당 피치 컨트롤 질의 평균",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_avg/max",
+        "value": 2.692044673539519,
+        "budget": 3,
+        "unit": "",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱당 피치 컨트롤 질의 최대",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_max/max",
+        "value": 8.0,
+        "budget": 8,
+        "unit": "",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 경로 GC 할당 횟수",
+        "metric": "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount/dec_gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}

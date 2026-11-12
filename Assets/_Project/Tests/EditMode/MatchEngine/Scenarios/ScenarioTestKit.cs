@@ -57,11 +57,21 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         public static MatchTuning MatchTuningOf(ScenarioData d)
         {
             var t = ShapeTestKit.TuningWithShape();
-            return new MatchTuning(t.Ball, t.Kinematics, t.Match, t.Shape, d, t.Goalkeeper);
+            return new MatchTuning(t.Ball, t.Kinematics, t.Match, t.Shape, d, t.Goalkeeper, t.Decision);
         }
 
-        public static MatchSim Sim(ScenarioData d, MatchSimOptions o = null, ulong seed = 20261109UL) =>
-            new MatchSim(ShapeTestKit.Setup(seed: seed), MatchTuningOf(d), o);
+        public static MatchSim Sim(ScenarioData d, MatchSimOptions o = null, ulong seed = 20261109UL, MatchTuning tuning = null) =>
+            new MatchSim(ShapeTestKit.Setup(seed: seed), tuning ?? MatchTuningOf(d), o);
+
+        /// <summary>
+        /// 010 기회주의 이탈을 끈 튜닝 (θ_opp 최대) — 013 배역 규칙(이탈·회수)만 시험할 때. 010이 배역을 먼저 풀면 013 규칙의 전제가 사라진다.
+        /// </summary>
+        public static MatchTuning NoOpportunism(ScenarioData d)
+        {
+            var t = MatchTuningOf(d);
+            var dec = RoadToPro.Core.Tuning.TuningLoader.ParseBundle(MatchTestKit.DecisionTuning().Registry, MatchTestKit.Values(("dec.intent.thetaOpp", 3f)));
+            return new MatchTuning(t.Ball, t.Kinematics, t.Match, t.Shape, t.Scenario, t.Goalkeeper, dec);
+        }
 
         public static ScenarioRuntime Runtime(MatchSim sim) => ((ScenarioStage)sim.Stage(StageId.ScenarioOrUtility)).Runtime;
 
@@ -77,15 +87,39 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             "{\"role\":\"o\",\"required\":false,\"steps\":[{\"do\":\"drop\"}]}]";
 
         /// <summary>강제 선택이 시작될 때까지 돌린다.</summary>
-        public static MatchSim Forced(ScenarioData d, string id, int team = 0, ulong seed = 20261109UL, MatchSimOptions options = null)
+        public static MatchSim Forced(ScenarioData d, string id, int team = 0, ulong seed = 20261109UL, MatchSimOptions options = null, MatchTuning tuning = null)
         {
             var o = options ?? new MatchSimOptions();
             o.ScenarioForce = new ScenarioForceRequest { Id = id, Team = team, Allowed = true };
-            var sim = Sim(d, o, seed);
+            var sim = Sim(d, o, seed, tuning);
             var rt = Runtime(sim);
             for (int i = 0; i < 3000 && !rt.Run(team).Active; i++) sim.StepTicks(1);
             NUnit.Framework.Assert.That(rt.Run(team).Active, NUnit.Framework.Is.True, "강제 시작 실패");
             return sim;
+        }
+
+        /// <summary>
+        /// 1틱 진행 전에 공 소유자 6 m 안의 상대를 8 m 밖으로 치운다 — 010 압박이 운반자를 바로 태클해 013 규칙(체이닝·시간 초과·패스 완료)의
+        /// 전제가 깨지지 않게 하는 테스트 픽스처 (2026-11-12, specs/010 T18).
+        /// </summary>
+        public static void StepWithoutPressure(MatchSim sim)
+        {
+            var ctx = sim.Context;
+            ref readonly var b = ref ctx.Ball;
+            if (b.Phase == RoadToPro.MatchEngine.Ball.BallPhase.Controlled && b.OwnerId >= 0)
+            {
+                var c = ctx.SlotState(b.OwnerId).Position;
+                var opp = 1 - RoadToPro.MatchEngine.Match.Squad.TeamOfSlot(b.OwnerId);
+                for (int o = opp * 11 + 1; o < (opp + 1) * 11; o++)
+                {
+                    if (!ctx.IsSlotActive(o)) continue;
+                    var d = ctx.SlotState(o).Position - c;
+                    if (d.LengthSq() >= 36f) continue;
+                    var dir = d.LengthSq() > 1e-4f ? d.Normalized() : new RoadToPro.Core.Math.Vec2(0f, 1f);
+                    ctx.Kinematics.Place(o, c + dir * 8f, ctx.SlotState(o).Facing);
+                }
+            }
+            sim.StepTicks(1);
         }
 
         public static int LastEndReason(MatchSim sim)

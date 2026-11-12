@@ -55,6 +55,7 @@
   "ClaimFail": {"none": "073 예약"},
   "Distribution": {"none": "074 예약"},
   "KeeperRecovered": {"none": "011 일어나기 끝 — 다이빙 클립 끝 동작으로 처리"},
+  "IntentOpportunistic": {"none": "010 판단 기록 — 동작 없음"},
   "Foul": {"who": "other", "clips": ["fall_n", "fall_ne", "fall_e", "fall_se", "fall_s", "fall_sw", "fall_w", "fall_nw", "hit_stumble"]},
   "Card": {"who": "referee", "clips": ["ref_card"]},
   "Offside": {"who": "referee", "clips": ["ref_whistle"]},

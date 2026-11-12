@@ -3,6 +3,7 @@ using System.IO;
 using RoadToPro.Core.Tuning;
 using RoadToPro.MatchEngine.Match;
 using RoadToPro.MatchEngine.Match.Input;
+using RoadToPro.MatchEngine.UtilityAI;
 
 namespace RoadToPro.Verification.Samples.Highlight
 {
@@ -20,20 +21,44 @@ namespace RoadToPro.Verification.Samples.Highlight
         public const long SendOffTick = 36_000;
         public const int SendOffPlayer = 104;
 
-        public const float ShotProb = 0.08f;
+        public const float ShotProb = 0.15f;
 
         /// <summary>경기 튜닝에서 대체 슈팅 확률만 바꾼 묶음.</summary>
         public static MatchTuning Tuning(MatchTuning baseTuning, string dataDir)
         {
             var reg = TuningLoader.LoadDefinitionsFile(Path.Combine(dataDir, "tuning", "match.json"));
             var match = TuningLoader.ParseBundle(reg, "{\"version\":1,\"values\":[{\"id\":\"standin.shotProb\",\"value\":" + ShotProb.ToString(CultureInfo.InvariantCulture) + "}]}");
-            return new MatchTuning(baseTuning.Ball, baseTuning.Kinematics, match, baseTuning.Shape, baseTuning.Scenario, baseTuning.Goalkeeper);
+            return new MatchTuning(baseTuning.Ball, baseTuning.Kinematics, match, baseTuning.Shape, baseTuning.Scenario, baseTuning.Goalkeeper, baseTuning.Decision);
         }
 
         public static MatchSetup Prepare(MatchSetup setup)
         {
             setup.MyPlayerId = MyPlayerId;
+            // specs/010 T16: 양 팀 전술(009 형태 → 010 판단 AI 경로) + 포지션별 대체 스타일 프리셋 (003 전, E2E 셋업에서만)
+            setup.Home.Tactics = new RoadToPro.MatchEngine.Tactics.TeamTactics { FormationId = "4-4-2" };
+            setup.Away.Tactics = new RoadToPro.MatchEngine.Tactics.TeamTactics { FormationId = "4-4-2" };
+            Styles(setup.Home);
+            Styles(setup.Away);
             return setup;
+        }
+
+        /// <summary>4-4-2 선발 순서(GK, RB·CB·CB·LB, RM·CM·CM·LM, ST·ST) 기준 스타일. 003 역할 데이터가 생기면 그쪽으로.</summary>
+        static void Styles(TeamSetup t)
+        {
+            for (int i = 0; i < t.Players.Length; i++)
+            {
+                var p = t.Players[i];
+                var k = System.Array.IndexOf(t.Starters, p.Id);
+                PlayStyle st = k switch
+                {
+                    1 or 4 => PlayStyle.WingBack(),
+                    5 or 8 => PlayStyle.Winger(),
+                    6 => PlayStyle.Anchor(),
+                    9 or 10 => PlayStyle.Poacher(),
+                    _ => null,
+                };
+                if (st != null) t.Players[i] = p.WithMind(p.Mind, st);
+            }
         }
 
         public static MatchSimOptions Options()

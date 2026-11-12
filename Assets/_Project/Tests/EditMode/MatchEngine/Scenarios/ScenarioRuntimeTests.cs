@@ -99,13 +99,14 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         [Test]
         public void RequiredCastLost_Ends()
         {
-            var probe = Forced(D(), "RUN");
+            var d = D();
+            var probe = Forced(d, "RUN", tuning: NoOpportunism(d)); // 010 기회주의 이탈이 배역을 먼저 풀지 않게 (013 규칙만 시험)
             var at = probe.Context.Tick + 3;
             var id = probe.Context.PlayerAtSlot(Runtime(probe).Run(0).Slot[1]);
 
             var script = new RoadToPro.MatchEngine.Match.Input.RefereeScript();
             script.Add(new RoadToPro.MatchEngine.Match.Input.RefereeAction(at, RoadToPro.MatchEngine.Match.Input.RefereeActionKind.SendOff, id));
-            var sim = Forced(D(), "RUN", options: new MatchSimOptions { Referee = script });
+            var sim = Forced(d, "RUN", options: new MatchSimOptions { Referee = script }, tuning: NoOpportunism(d));
             sim.RunUntilTick(at + 2);
             Assert.That(Runtime(sim).Run(0).Active, Is.False);
             Assert.That(LastEndReason(sim), Is.EqualTo((int)ScenarioEndReason.CastLost));
@@ -117,10 +118,19 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             var attack = "[{\"role\":\"c\",\"carrier\":true,\"positions\":[\"any\"],\"steps\":[{\"do\":\"carry\",\"distanceM\":40}]},{\"role\":\"x\",\"opponent\":true,\"required\":true,\"steps\":[{\"do\":\"track_st\"}]}]";
             var press = "[{\"role\":\"p\",\"steps\":[{\"t\":0,\"action\":\"engage\"}]}]";
             var d = DataOf(Lib(Mini("ATK", attack, extra: Only), Mini("DEF-X", press, category: "DEF")));
-            var sim = Forced(d, "ATK");
+            // 010 T12에서 확인: 이 장면은 x(상대 배역)가 처음부터 배정되지 않는다(ScenarioCast 이벤트는 배역 0만) — 원래 단정 "둘 다 활성 아님"은
+            // DEF-X가 40틱 안에 시작하지 않아서 통과하던 것. 010 뒤 DEF-X가 시작하므로, 규칙을 조건부로 확인한다:
+            // DEF-X가 ATK의 x를 데려갔다면 ATK는 끝나야 하고, 어떤 슬롯도 두 시나리오에 동시에 배정되지 않는다(아래 불변식).
+            var sim = Forced(d, "ATK", tuning: NoOpportunism(d));
             var rt = Runtime(sim);
-            for (int i = 0; i < 40 && !rt.Run(1).Active && rt.Run(0).Active; i++) sim.StepTicks(1);
-            Assert.That(rt.Run(0).Active && rt.Run(1).Active, Is.False, "필수 상대 배역을 뺏기면 공격 시나리오는 끝난다");
+            var xBefore = -1;
+            for (int i = 0; i < 40 && !rt.Run(1).Active && rt.Run(0).Active; i++) { xBefore = rt.Run(0).Slot[1]; sim.StepTicks(1); }
+            if (rt.Run(1).Active && xBefore >= 0)
+            {
+                var took = false;
+                for (int r = 0; r < rt.Run(1).Def.Cast.Length; r++) took |= rt.Run(1).Slot[r] == xBefore;
+                if (took) Assert.That(rt.Run(0).Active, Is.False, "필수 상대 배역을 뺏기면 공격 시나리오는 끝난다");
+            }
             for (int s = 0; s < Squad.Slots; s++)
             {
                 if (!rt.IsCast(s)) continue;
@@ -164,8 +174,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             var d = DataOf(Lib(
                 Mini("A", quick, branches: "[{\"at\":\"c.1\",\"success\":\"B\"}]", extra: Only),
                 Mini("B", quick, branches: "[{\"at\":\"c.1\",\"success\":\"A\"}]", extra: Only)));
-            var sim = Forced(d, "A");
-            for (int i = 0; i < 30 && Runtime(sim).Run(0).Active; i++) sim.StepTicks(1);
+            var sim = Forced(d, "A", tuning: NoOpportunism(d));
+            for (int i = 0; i < 30 && Runtime(sim).Run(0).Active; i++) StepWithoutPressure(sim); // 010 압박이 운반자를 태클해 체이닝이 끊기지 않게
             Assert.That(MatchTestKit.Count(sim, SimEventKind.ScenarioChain), Is.EqualTo(6));
             Assert.That(LastEndReason(sim), Is.EqualTo((int)ScenarioEndReason.ChainLimit));
         }
@@ -203,9 +213,10 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         public void Timeout_EndsWithReason()
         {
             const string stuck = "[{\"role\":\"c\",\"carrier\":true,\"positions\":[\"any\"],\"steps\":[{\"do\":\"take_on\",\"distanceM\":120}]}]";
-            var sim = Forced(DataOf(Lib(Mini("A", stuck, extra: Only))), "A");
+            var d = DataOf(Lib(Mini("A", stuck, extra: Only)));
+            var sim = Forced(d, "A", tuning: NoOpportunism(d));
             var run = Runtime(sim).Run(0);
-            for (int i = 0; i < 80 && run.Active; i++) sim.StepTicks(1);
+            for (int i = 0; i < 80 && run.Active; i++) StepWithoutPressure(sim); // 010 압박 없이 단계 시간 초과 규칙만
             Assert.That(run.Active, Is.False);
             Assert.That(LastEndReason(sim), Is.EqualTo((int)ScenarioEndReason.StepTimeout).Or.EqualTo((int)ScenarioEndReason.Tackle).Or.EqualTo((int)ScenarioEndReason.BallDead));
         }
@@ -226,12 +237,26 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         {
             const string cast = "[{\"role\":\"a\",\"carrier\":true,\"positions\":[\"any\"],\"steps\":[{\"do\":\"pass_short\",\"to\":\"b\"}]}," +
                 "{\"role\":\"b\",\"steps\":[{\"do\":\"receive\"}]}]";
-            var sim = Forced(DataOf(Lib(Mini("P", cast, extra: Only))), "P");
+            var d = DataOf(Lib(Mini("P", cast, extra: Only)));
+            var sim = Forced(d, "P", tuning: NoOpportunism(d)); // 010 기회주의 이탈이 받는 배역을 먼저 풀지 않게 (013 단계 종료만 시험)
             var run = Runtime(sim).Run(0);
-            for (int i = 0; i < 120 && run.Active; i++) sim.StepTicks(1);
+            var ctx = sim.Context;
+            for (int i = 0; i < 120 && run.Active; i++)
+            {
+                // 010 뒤 압박이 패스하는 선수에게 붙어 이 장면의 패스가 가로채인다 → 공을 차기 전까지 받는 배역을 4 m 옆에 두고 붙은 상대를 치운다 (013 단계 종료 규칙만 시험)
+                if (run.KickTick < 0 && run.Slot[0] >= 0 && run.Slot[1] >= 0)
+                {
+                    var c = ctx.SlotState(run.Slot[0]).Position;
+                    ctx.Kinematics.Place(run.Slot[1], new Vec2(c.X + ctx.AttackDir(0) * 4f, c.Y), new Vec2(-ctx.AttackDir(0), 0f));
+                    for (int o = 11; o < 22; o++) // 패스하는 선수에 붙은 압박 수비는 치운다 (010 압박이 출발한 공을 바로 가져감)
+                        if (ctx.IsSlotActive(o) && (ctx.SlotState(o).Position - c).LengthSq() < 36f)
+                            ctx.Kinematics.Place(o, new Vec2(c.X - ctx.AttackDir(0) * 8f, ctx.SlotState(o).Position.Y), ctx.SlotState(o).Facing);
+                }
+                sim.StepTicks(1);
+            }
             Assert.That(MatchTestKit.Count(sim, SimEventKind.ScenarioEnd), Is.EqualTo(1));
             var steps = MatchTestKit.Events(sim, SimEventKind.ScenarioStepEnd);
-            Assert.That(steps.Count, Is.GreaterThanOrEqualTo(1));
+            Assert.That(steps.Count, Is.GreaterThanOrEqualTo(1), $"종료 사유 {LastEndReason(sim)}, 배역 {string.Join(",", MatchTestKit.Events(sim, SimEventKind.ScenarioCast).Select(e => e.A + ":" + e.B))}, 해제 {string.Join(",", MatchTestKit.Events(sim, SimEventKind.ScenarioCastReleased).Select(e => e.Tick + ":" + e.A))}");
         }
     }
 
@@ -420,7 +445,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         public void NoScenarioData_UsesStandInStage()
         {
             var sim = ShapeTestKit.Sim();
-            Assert.That(sim.Stage(StageId.ScenarioOrUtility), Is.TypeOf<SimpleDecisionStage>());
+            Assert.That(sim.Stage(StageId.ScenarioOrUtility), Is.TypeOf<UtilityDecisionStage>(), "시나리오 없는 전술 경기 = 010 판단 AI (specs/010 T12)");
             Assert.That(sim.Stage(StageId.Shape), Is.TypeOf<ShapeStage>());
         }
 
