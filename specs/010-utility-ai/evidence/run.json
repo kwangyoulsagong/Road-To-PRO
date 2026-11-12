@@ -1,0 +1,522 @@
+{
+  "title": "010 로직 증거",
+  "spec": {
+    "id": "010",
+    "name": "010 — 판단 AI: 22명 기본 실행 · 오프볼 · 결정 주기 · 시나리오 의도",
+    "acs": [
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "점수 분해: 기본 점수 0.10, 역할 1.2, 성향 1.1, 버릇 1.8, 지시 1.0이면 최종 점수가 0.10 × 1.2 × 1.1 × 1.8 × 1.0과 1e-6 이내로 같다. 지시 가중치 0이고 준수율 1이면 그 후보는 선택되지 않는다. (손실 항 부분은 072 AC-02)"
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "기획서 4.2.1 버릇 15종 각각에 대해, 해당 고려 항목 점수에 표의 배수가 적용된다(15개 파라미터화 테스트, 온볼 항목은 072 후보 생성기로)."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "softmax 선택: 후보 2개(정규화 점수 1.0과 0.9) 고정 장면 10,000회에서 Decisions 20 선수(τ = 0.05)의 최고점 선택 비율이 88.1% ± 3%p, Decisions 1 선수(τ = 0.35)가 57.1% ± 3%p다 (기대값 = 1/(1 + e^(−0.1/τ)), FR-20 최댓값 정규화)."
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "압박도 1.0에서 Composure 1 선수의 평가 노이즈 표준편차가 Composure 20 선수보다 크고, 압박도 0에서는 둘이 같다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "로직",
+        "text": "결정 LOD: 공 20 m 밖 비배역 선수는 10 결정 틱 동안 2~4회만 결정하고, 공 소유 변화가 일어난 다음 틱에는 전원이 결정한다. 트리거가 없는 틱에서는 동시 결정 인원이 상한 이하다(트리거·배역 대상은 상한에서 제외)."
+      },
+      {
+        "id": "AC-09",
+        "kind": "로직",
+        "text": "결정 유지: 진행 중 행동보다 10% 높은 후보로는 바뀌지 않고 20% 높은 후보로는 재추첨한다 (임계값 15% 기준). 재추첨하지 않은 결정은 softmax RNG를 소비하지 않는다. 실행된 패스는 취소되지 않는다."
+      },
+      {
+        "id": "AC-10",
+        "kind": "로직",
+        "text": "의도 해제(붕괴·기회주의)·배역 종료 통보 틱에 해당 선수 전원의 의도 보너스가 같은 틱에 0이 되고, 같은 틱 안에 유효한 결정을 가진다(공백 틱 0). 해제 범위 밖 배역 선수의 의도는 유지된다 (FR-51·95)."
+      },
+      {
+        "id": "AC-12",
+        "kind": "로직",
+        "text": "공 몰림 억제: 공 근처 동료가 이미 3명 [제안]이면 네 번째 선수가 공 쪽 후보를 고르는 비율이 억제 없을 때보다 낮다. 두 선수가 같은 지점을 번갈아 양보하는 진동이 2 s 안에 끝난다."
+      },
+      {
+        "id": "AC-13",
+        "kind": "로직",
+        "text": "키 모먼트 선택이 들어오면 해당 선수의 다음 결정이 그 선택과 같고(의도 보너스와 무관), 다른 선수 결정에는 영향이 없다."
+      },
+      {
+        "id": "AC-15",
+        "kind": "결정론",
+        "text": "같은 시드로 90분 경기 의사결정을 2회 돌리면 모든 결정(선수, 틱, 선택 후보, 점수, 결정 출처)의 해시가 같다. 선수 목록 입력 순서를 섞어도 해시가 같다(처리 순서가 id 기준으로 고정됨)."
+      },
+      {
+        "id": "AC-16",
+        "kind": "결정론",
+        "text": "텔레메트리 켜기/끄기가 결정 결과 해시를 바꾸지 않는다."
+      },
+      {
+        "id": "AC-17",
+        "kind": "성능",
+        "text": "결정 틱 1회 p95, 오프볼 선수 결정 p95, 피치 컨트롤 질의 수, GC 0 B가 예산 안이다."
+      },
+      {
+        "id": "AC-19",
+        "kind": "결정론",
+        "text": "FR-62 진단 출력을 켠 실행과 끈 실행(같은 시드)의 이벤트 로그 해시와 체크포인트 해시가 모두 같다. 끈 실행에서 진단용 할당은 0 B다."
+      },
+      {
+        "id": "AC-20",
+        "kind": "로직",
+        "text": "점수가 비슷한(차이 < 15%) 오프볼 후보 두 개가 있는 고정 장면에서 2 s 동안 행동이 바뀌는 횟수가 1 [제안] 이하이고, 같은 행동 안 목표점 이동이 결정 틱당 2 m 이하다 (FR-44~46)."
+      },
+      {
+        "id": "AC-21",
+        "kind": "로직",
+        "text": "90분 헤드리스에서 오프볼 결정의 질주 비율이 `[미정]` 범위 안이고, 피로 C = 1 선수의 질주 결정 비율이 C = 0보다 낮다. 형태 유지 결정에서 목표 거리 `[미정]` 미만이면 강도가 조깅 이하다. 트리거 없는 결정 틱에 강도가 두 단계 이상 바뀌지 않는다 (FR-70~72)."
+      },
+      {
+        "id": "AC-22",
+        "kind": "로직",
+        "text": "침투 픽스처 1,000회에서 OffBall 20 선수는 OffBall 1 선수보다 출발 시점이 빠르고, 출발 시점에 오프사이드 위치일 비율이 낮다 (FR-18·19a)."
+      },
+      {
+        "id": "AC-23",
+        "kind": "로직",
+        "text": "배역 중인 선수에게도 매 결정 틱 010(또는 072) 결정이 있고 결정 출처가 \"의도 일치/의도 무시/기회주의\" 중 하나다. 배역 종료 틱에 그 선수의 출처가 \"일반\"이고 009 형태 목표가 있다(공백 0). 마크 대상은 009 재배정 주기 사이에 바뀌지 않는다 (FR-19b·50·53)."
+      },
+      {
+        "id": "AC-24",
+        "kind": "E2E",
+        "text": "3D 하이라이트 고정 시드 장면에서 오프볼 선수의 `[anim] 속도 점프` 경고가 0이고, 형태 유지 선수가 조깅 이하로 움직이는 모습이 보인다. 이 경고의 원인(순간이동·기록 프레임)은 058이 먼저 다루므로, 이 AC는 058 완료 뒤 재확인한다 (그 전에는 \"보류\"). 시나리오 `e2e/010-offball-motion`, 프로필: mac-m1-1600p — 육안 승인. — **속도 점프 0은 보류** (2026-11-12 사용자 결정): 058 뒤 재확인 결과 오프볼 점프 30분 549건(010 이전 대체 단계도 같은 규모). 프레임당 ≈ 1 m/s 감속이라 005 해법 감속 상한으로는 나올 수 없어 005 순간 효과(저속 피벗·접촉 감속)·재생 속도 추정 쪽 원인 조사를 후속으로. 형태 유지가 조깅 이하로 보이는지는 이번에 육안 승인."
+      },
+      {
+        "id": "AC-26",
+        "kind": "로직",
+        "text": "TopSpeed·Acceleration만 다른 쌍둥이 공격수를 같은 픽스처 1,000회에 넣으면 빠른 쪽의 RunInBehind 선택 비율이 높다 (도달 시간·피치 컨트롤 경유, 이항 검정 p < 0.01)."
+      },
+      {
+        "id": "AC-27",
+        "kind": "로직",
+        "text": "성향 하나만 다른 쌍둥이 선수(예: 침투 10 대 90, 방향 10 대 90, 압박 적극성 10 대 90)를 같은 오프볼 픽스처 1,000회에 넣으면 오프볼 행동 분포가 다르다 (카이제곱 p < 0.01). 버릇 \"라인 브레이커\" 보유 선수는 미보유 쌍둥이보다 RunInBehind 비율이 높다 (FR-80·81·82)."
+      },
+      {
+        "id": "AC-28",
+        "kind": "로직",
+        "text": "다혈질(Temperament)만 다른 쌍둥이 미드필더는 높은 쪽의 압박·태클 시도 비율이 높다. 프로의식·WorkRate가 높은 쪽은 회복 달리기·질주 결정 비율이 높다. 앵커 역할은 트레콸르티스타 역할보다 형태 목표에서 벗어난 거리의 분포가 작다 (각 이항 또는 카이제곱 p < 0.01, FR-83~85)."
+      },
+      {
+        "id": "AC-29",
+        "kind": "로직",
+        "text": "22명 기본 실행: 90분 헤드리스에서 매 결정 틱 22명 전원이 결정 상태를 갖고(누락 0), 오픈플레이 수비 쪽 선수의 의도 보너스가 0이 아닌 결정이 0건이다(세트피스 제외). GK 고유 결정이 같은 틱에 011에서 온다 (FR-90·97)."
+      },
+      {
+        "id": "AC-30",
+        "kind": "로직",
+        "text": "의도 보너스: 오버래핑 의도를 받은 배역 풀백 고정 장면 1,000회에서 의도 일치 행동 선택 비율이 보너스 0(w_intent = 0) 장면보다 높다(이항 p < 0.01). 보너스는 결합 배수와 곱해지지 않는다(분해 값 1e-6 일치) (FR-91·92)."
+      },
+      {
+        "id": "AC-31",
+        "kind": "로직",
+        "text": "Teamwork 준수: Teamwork만 다른 쌍둥이(1 대 20)의 의도 준수율이 20 쪽이 높고, 의도와 충돌하는 버릇 레벨 2 보유 쌍둥이는 레벨 0보다 낮다(각 이항 p < 0.01). 준수 굴림의 RNG 소비가 의도 단계당 정확히 1회다 (FR-93)."
+      },
+      {
+        "id": "AC-32",
+        "kind": "로직",
+        "text": "기회주의: 의도 밖 후보의 정규화 점수가 의도 일치 최고 후보보다 θ_opp 미만으로 높으면 1,000회 중 의도 밖 선택 0회이고, θ_opp 이상이면 선택될 수 있으며 선택될 때마다 같은 틱에 013 해제 통보(사유 opportunistic)가 정확히 1건 나간다 (FR-94)."
+      },
+      {
+        "id": "AC-33",
+        "kind": "로직",
+        "text": "시나리오 0개 기준선: 의도 입력 없이 1,000경기 헤드리스(017)에서 평균 득점이 2.5~3.0, 경기당 슈팅이 22~28 [제안] 범위 안이다 (reports E표). 072·008·070·071·011·012 연결 뒤 검증하고 그 전에는 \"보류\" (FR-98)."
+      },
+      {
+        "id": "AC-34",
+        "kind": "로직",
+        "text": "압박 강도: PressIntensity만 다른 두 팀(높음/낮음) 같은 상대 100경기씩 헤드리스에서 높음 팀의 Press 결정 비율·질주 결정 비율·고강도 거리가 높고, 경기 종료 시점 평균 만성 피로 C도 높다 (각 p < 0.01) (FR-100·102). — (2026-11-12) 종료 C 비교를 한때 보류했으나 T14a 강도 보정(강한 압박 = 1·2·3순위 압박 질주, FR-100) 뒤 포화가 풀려 판정한다. 대체 온볼 턴오버(≈ 2 s)로 운동량이 많은 점은 리포트에 남긴다."
+      },
+      {
+        "id": "AC-35",
+        "kind": "로직",
+        "text": "게겐프레싱: 지시 켬/끔 같은 시드 묶음에서 소유 상실 후 창 t_gp 안 압박 인원·Press 선택 비율이 켬 쪽이 높고(p < 0.01), 창이 끝난 뒤 1 s 구간에서는 두 조건의 압박 인원 차가 [미정] 이하다. 창 중 소유를 되찾으면 창이 즉시 끝난다 (FR-101)."
+      },
+      {
+        "id": "AC-36",
+        "kind": "로직",
+        "text": "피로 되먹임: 같은 강한 압박 지시 팀 100경기에서 마지막 15분 질주 결정 비율이 첫 15분보다 낮고(p < 0.01), 감소 폭을 리포트에 남긴다 (검증 목표 −18~45%는 017 소유, reports F표). 005 피로를 끈 대조 실행에서는 감소가 유의하지 않다 (FR-102)."
+      },
+      {
+        "id": "AC-37",
+        "kind": "로직",
+        "text": "(연결 때 재확인) 003·007이 구현되고 013 의도 패킷이 들어오면 대체 입력을 바꿔 AC-02·03·22·26~28·30~32를 다시 실행해 통과한다. 그 전에는 \"보류\"."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/010-utility-ai"
+  },
+  "meta": {
+    "commit": "6f9ac3729fc6b10359238251be5f557c11abd6f2",
+    "branch": "feat/010-utility-ai",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-12 15:49:14 +0900",
+    "durationSec": 114.36946105957031,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 010",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 109,
+    "passed": 103,
+    "failed": 0,
+    "skipped": 6,
+    "duration": 90.3231331,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-154914-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-154914-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_avg_us/min": 52.08607388316151,
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_p95_us/min": 105.8,
+      "DecisionPerfTests.OffBallPlayer_us/dec_offball_p95_us/min": 8.4,
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_avg/max": 2.692044673539519,
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_max/max": 8.0,
+      "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount/dec_gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 평균 (Mono 회귀)",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_avg_us/min",
+        "value": 52.08607388316151,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 p95 (Mono 회귀)",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_p95_us/min",
+        "value": 105.8,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "오프볼 선수 1명 p95 (Mono 회귀)",
+        "metric": "DecisionPerfTests.OffBallPlayer_us/dec_offball_p95_us/min",
+        "value": 8.4,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱당 피치 컨트롤 질의 평균",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_avg/max",
+        "value": 2.692044673539519,
+        "budget": 3,
+        "unit": "",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱당 피치 컨트롤 질의 최대",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_max/max",
+        "value": 8.0,
+        "budget": 8,
+        "unit": "",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 경로 GC 할당 횟수",
+        "metric": "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount/dec_gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 평균 (006 FR-80 몫)",
+        "metric": "dec_tick_avg_us",
+        "value": 8.666730902777777,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 p95",
+        "metric": "dec_tick_p95_us",
+        "value": 17.2,
+        "budget": 60,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "오프볼 선수 1명 평균 (2026-11-12 사용자 결정 0.4 → 1.0)",
+        "metric": "dec_offball_avg_us",
+        "value": 0.615715,
+        "budget": 1.0,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "오프볼 선수 1명 p95",
+        "metric": "dec_offball_p95_us",
+        "value": 0.7000000000000001,
+        "budget": 2,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "경기 1개 의사결정 누적",
+        "metric": "dec_match_s",
+        "value": 0.4992037,
+        "budget": 0.65,
+        "unit": "s",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 GC 할당",
+        "metric": "dec_gc_bytes_per_tick",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "dec_tick_avg_us": 8.666730902777777,
+      "dec_tick_p95_us": 17.2,
+      "dec_match_s": 0.4992037,
+      "dec_ticks": 57600,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 2.9814583333333333,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.615715,
+      "dec_offball_p95_us": 0.7000000000000001
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": true,
+    "durationSec": 8.2,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M1 Pro",
+    "development": false,
+    "commit": "128fb0d39853a207fa43e847a76f116a3f67f8a8"
+  },
+  "requireAllAcs": true,
+  "deferred": {
+    "AC-33": "시나리오 0개 기준선 1,000경기 평균 득점 2.5~3.0 — 072·008·070·071·012 연결 뒤(스펙 명시). 이번에는 100경기 측정값만 리포트",
+    "AC-37": "003·007 구현과 013 의도 패킷 개정 뒤 대체 입력을 바꿔 AC-02·03·22·26~28·30~32 재실행"
+  },
+  "acEvidence": {
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-12": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-13": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-15": [
+      {
+        "label": "결정론 테스트 3/3 통과",
+        "ok": true
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "결정론 테스트 3/3 통과",
+        "ok": true
+      }
+    ],
+    "AC-17": [
+      {
+        "label": "EditMode 성능 6/6 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 6/6 통과",
+        "ok": true
+      }
+    ],
+    "AC-19": [
+      {
+        "label": "결정론 테스트 3/3 통과",
+        "ok": true
+      }
+    ],
+    "AC-20": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-21": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-22": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-23": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-26": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-27": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-28": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-29": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-30": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-31": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-32": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-34": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-35": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-36": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-24": [
+      {
+        "label": "수동 승인 기록 evidence/approval.md",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "deferred"
+}
