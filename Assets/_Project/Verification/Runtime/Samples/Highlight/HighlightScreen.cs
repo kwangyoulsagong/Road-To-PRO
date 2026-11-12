@@ -176,7 +176,7 @@ namespace RoadToPro.Verification.Samples.Highlight
         static MatchSim Match()
         {
             if (_match != null) return _match;
-            var work = new MatchBenchWorkloads(DataDir);
+            var work = new DecisionBenchWorkloads(DataDir); // specs/010 T16: 전술(009)·GK(011)·판단(010) 경로 — 이전엔 006 대체 단계(전원 전력질주)였다
             _tuning = LiveMatchFixture.Tuning(work.Tuning, DataDir); // 058: E2E 경기만 저득점
             // specs/058: 실경기 하이라이트 고정 경기 (퇴장 주입 — 파울 장면 대체, 내 선수 지정)
             _match = new MatchSim(LiveMatchFixture.Prepare(MatchBenchWorkloads.Setup(Seed)), _tuning, LiveMatchFixture.Options());

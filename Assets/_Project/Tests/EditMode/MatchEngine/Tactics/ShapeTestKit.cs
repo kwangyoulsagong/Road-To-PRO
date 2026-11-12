@@ -70,7 +70,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Tactics
         public static MatchTuning TuningWithShape()
         {
             var t = MatchTestKit.Tuning();
-            return new MatchTuning(t.Ball, t.Kinematics, t.Match, Data(), goalkeeper: t.Goalkeeper);
+            return new MatchTuning(t.Ball, t.Kinematics, t.Match, Data(), goalkeeper: t.Goalkeeper, decision: t.Decision);
         }
 
         public static MatchSetup Setup(string home = "4-3-3", string away = "4-4-2", ulong seed = 20261109UL)

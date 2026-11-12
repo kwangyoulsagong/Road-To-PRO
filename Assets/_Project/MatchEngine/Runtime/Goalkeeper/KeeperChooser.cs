@@ -32,7 +32,7 @@ namespace RoadToPro.MatchEngine.Goalkeeper
     }
 
     /// <summary>
-    /// GK 행동 선택 (specs/011 FR-94, 010 FR-20·92·94의 대체 구현 — 010 구현 때 010 공용 선택기로 옮긴다).
+    /// GK 행동 선택 (specs/011 FR-94 — 선택 수식은 010 공용 선택기 <see cref="UtilityAI.UtilityChooser"/>로 옮겼다, specs/010 T04).
     /// ① 기대효용이 음수인 후보는 뺀다(위치 선정은 항상 남김, 073 FR-02 "EU &gt; 0이면 실행") ② 최댓값 정규화 U_i / max(|U_max|, ε)
     /// ③ 의도 일치 후보에 + w_intent·m (m = 종류 일치 × max(0, 1 − d/r_intent) × 창 안 1 / 밖 0.5) ④ 의도가 있으면 의도 밖 후보는
     /// 의도 최고 점수 + θ_opp보다 높을 때만 남김 ⑤ softmax(점수/τ), τ = τ_max − (τ_max − τ_min)·n(Decisions).
@@ -44,10 +44,10 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         const float Eps = 1e-6f;
 
         readonly GoalkeeperParams _p;
-        readonly float[] _score = new float[MaxCandidates];
+        readonly float[] _u = new float[MaxCandidates];
+        readonly float[] _m = new float[MaxCandidates];
         readonly bool[] _in = new bool[MaxCandidates];
-        readonly float[] _soft = new float[MaxCandidates];
-        readonly int[] _map = new int[MaxCandidates];
+        readonly UtilityAI.UtilityChooser _chooser = new UtilityAI.UtilityChooser();
 
         public KeeperChooser(GoalkeeperParams p) => _p = p;
 
@@ -61,37 +61,21 @@ namespace RoadToPro.MatchEngine.Goalkeeper
             return near * (intent.InWindow ? 1f : 0.5f);
         }
 
-        /// <summary>후보 중 하나를 고른다 (인덱스). 후보 0은 위치 선정이어야 한다.</summary>
+        /// <summary>후보 중 하나를 고른다 (인덱스). 후보 0은 위치 선정이어야 한다. 선택 수식은 010 공용 선택기(<see cref="UtilityAI.UtilityChooser"/>).</summary>
         public int Choose(KeeperCandidate[] cands, int count, in KeeperIntent intent, float decisionsN, SeedRng rng)
         {
             if (count <= 1) return 0;
             if (count > MaxCandidates) count = MaxCandidates;
-            float umax = float.MinValue;
             for (int i = 0; i < count; i++)
             {
+                _u[i] = cands[i].Utility;
                 _in[i] = i == 0 || cands[i].Utility >= 0f; // ① 음수 기대효용 제외
-                if (_in[i] && cands[i].Utility > umax) umax = cands[i].Utility;
+                _m[i] = _in[i] && _p.ChoiceWIntent > 0f ? Match(in cands[i], in intent) : 0f; // 보너스 0 = 의도 없음과 같음 (AC-27)
             }
-            var norm = DMath.Max(DMath.Abs(umax), Eps);
-            float bestIntent = float.MinValue;
-            var anyIntent = false;
-            for (int i = 0; i < count; i++)
-            {
-                if (!_in[i]) continue;
-                var m = _p.ChoiceWIntent > 0f ? Match(in cands[i], in intent) : 0f; // 보너스 0 = 의도 없음과 같음 (AC-27)
-                _score[i] = cands[i].Utility / norm + _p.ChoiceWIntent * m; // ② ③
-                if (m > 0f) { anyIntent = true; if (_score[i] > bestIntent) bestIntent = _score[i]; }
-            }
-            if (anyIntent) // ④ 기회주의 이탈 제한
-                for (int i = 0; i < count; i++)
-                    if (_in[i] && Match(in cands[i], in intent) <= 0f && _score[i] < bestIntent + _p.ChoiceThetaOpp) _in[i] = false;
-            int n = 0;
-            for (int i = 0; i < count; i++)
-                if (_in[i]) { _soft[n] = _score[i]; _map[n] = i; n++; }
-            if (n == 0) return 0;
-            var tau = KeeperMapping.Temperature(_p, decisionsN);
-            var pick = rng.PickSoftmax(new System.ReadOnlySpan<float>(_soft, 0, n), tau);
-            return _map[pick];
+            var m = new System.ReadOnlySpan<float>(_m, 0, count);
+            _chooser.Evaluate(new System.ReadOnlySpan<float>(_u, 0, count), m, new System.ReadOnlySpan<bool>(_in, 0, count), default, _p.ChoiceWIntent, Eps); // ② ③
+            _chooser.FilterOpportunistic(m, _p.ChoiceThetaOpp); // ④ 기회주의 이탈 제한
+            return _chooser.Pick(KeeperMapping.Temperature(_p, decisionsN), rng); // ⑤
         }
     }
 }

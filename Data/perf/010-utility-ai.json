@@ -1,0 +1,121 @@
+{
+  "spec": "010",
+  "profile": "mac-m1-1600p",
+  "note": "specs/010 성능 예산 표의 기계용 사본. 판정 런타임은 IL2CPP 릴리스 플레이어(`il2cpp` 항목, farm.py bench --spec 010) — README D17. EditMode(Mono) 항목은 max가 null이면 회귀(+10%) 기준선, 숫자면 판정(질의 수·할당은 런타임 무관). 결정 틱 1회 = 단계 5 전체(22명 LOD + 오프볼 + 대체 온볼(072 자리) + GK 위임(011) + 질의 + 선택). AC-24는 058 완료 뒤 이번에 장면 확인(육안 승인). AC-24 중 '오프볼 [anim] 속도 점프 0'만 보류(2026-11-12 사용자 결정: 005 순간 효과·재생 속도 추정 원인 조사 후속) — 형태 유지 조깅 이하는 육안 승인으로 판정. 오프볼 1명 평균 예산 0.4 → 1.0 µs(2026-11-12 사용자 결정).",
+  "manual": {
+    "AC-24": "evidence/approval.md"
+  },
+  "deferred": {
+    "AC-33": "시나리오 0개 기준선 1,000경기 평균 득점 2.5~3.0 — 072·008·070·071·012 연결 뒤(스펙 명시). 이번에는 100경기 측정값만 리포트",
+    "AC-37": "003·007 구현과 013 의도 패킷 개정 뒤 대체 입력을 바꿔 AC-02·03·22·26~28·30~32 재실행"
+  },
+  "tests": [
+    "RoadToPro.Tests.EditMode.MatchEngine.UtilityAI",
+    "RoadToPro.Tests.Performance.MatchEngine.DecisionPerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-17",
+      "label": "결정 틱 1회 평균 (Mono 회귀)",
+      "test": "DecisionPerfTests.DecisionTick_us_Queries",
+      "group": "dec_tick_avg_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-17",
+      "label": "결정 틱 1회 p95 (Mono 회귀)",
+      "test": "DecisionPerfTests.DecisionTick_us_Queries",
+      "group": "dec_tick_p95_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-17",
+      "label": "오프볼 선수 1명 p95 (Mono 회귀)",
+      "test": "DecisionPerfTests.OffBallPlayer_us",
+      "group": "dec_offball_p95_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-17",
+      "label": "결정 틱당 피치 컨트롤 질의 평균",
+      "test": "DecisionPerfTests.DecisionTick_us_Queries",
+      "group": "dec_space_queries_avg",
+      "stat": "max",
+      "max": 3,
+      "unit": ""
+    },
+    {
+      "ac": "AC-17",
+      "label": "결정 틱당 피치 컨트롤 질의 최대",
+      "test": "DecisionPerfTests.DecisionTick_us_Queries",
+      "group": "dec_space_queries_max",
+      "stat": "max",
+      "max": 8,
+      "unit": ""
+    },
+    {
+      "ac": "AC-17",
+      "label": "결정 틱 경로 GC 할당 횟수",
+      "test": "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount",
+      "group": "dec_gc_alloc_count",
+      "stat": "max",
+      "max": 0,
+      "unit": ""
+    }
+  ],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 평균 (006 FR-80 몫)",
+        "metric": "dec_tick_avg_us",
+        "max": 12,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 p95",
+        "metric": "dec_tick_p95_us",
+        "max": 60,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-17",
+        "label": "오프볼 선수 1명 평균 (2026-11-12 사용자 결정 0.4 → 1.0)",
+        "metric": "dec_offball_avg_us",
+        "max": 1.0,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-17",
+        "label": "오프볼 선수 1명 p95",
+        "metric": "dec_offball_p95_us",
+        "max": 2,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-17",
+        "label": "경기 1개 의사결정 누적",
+        "metric": "dec_match_s",
+        "max": 0.65,
+        "unit": "s"
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 GC 할당",
+        "metric": "dec_gc_bytes_per_tick",
+        "max": 0,
+        "unit": "B"
+      }
+    ]
+  }
+}

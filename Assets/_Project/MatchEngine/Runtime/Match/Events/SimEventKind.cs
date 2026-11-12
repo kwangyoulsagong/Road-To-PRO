@@ -114,6 +114,10 @@ namespace RoadToPro.MatchEngine.Match.Events
         ScenarioCastReleased = 608,
         InstructionBreach = 700,
         KeyMoment = 800,
+
+        // 010 (900~): 판단 AI
+        /// <summary>기회주의 이탈로 배역 해제 (010 FR-94). A = 배역 번호, B = 슬롯. 같은 틱에 <see cref="ScenarioCastReleased"/>도 나간다.</summary>
+        IntentOpportunistic = 900,
     }
 
     /// <summary>FR-82 공 접촉 사용 부위.</summary>
