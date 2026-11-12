@@ -1,5 +1,5 @@
 {
-  "title": "010 로직 증거",
+  "title": "010 장면 스크린샷 (shot)",
   "spec": {
     "id": "010",
     "name": "010 — 판단 AI: 22명 기본 실행 · 오프볼 · 결정 주기 · 시나리오 의도",
@@ -158,193 +158,244 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/010-utility-ai"
   },
   "meta": {
-    "commit": "6f9ac3729fc6b10359238251be5f557c11abd6f2",
+    "commit": "7252b19aaa9122752c7952ae93a8b6c36a6c72cf",
     "branch": "feat/010-utility-ai",
     "dirty": true,
     "unity": "6000.3.27f2",
-    "time": "2026-11-12 15:49:14 +0900",
-    "durationSec": 114.36946105957031,
-    "command": "python3 Tools/devicefarm/farm.py logic --spec 010",
+    "time": "2026-11-12 15:55:05 +0900",
+    "durationSec": 45.21751403808594,
+    "command": "python3 Tools/devicefarm/farm.py shot --spec 010",
     "profiles": [
-      "mac-m1-1600p"
+      "mac-m1-1600p-light-ko"
+    ],
+    "buildCached": false,
+    "builds": [
+      "development"
     ]
   },
-  "logic": {
-    "ok": true,
-    "total": 109,
-    "passed": 103,
-    "failed": 0,
-    "skipped": 6,
-    "duration": 90.3231331,
-    "compileErrors": [],
-    "failures": [],
-    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-154914-logic/logic.png",
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-154914-logic/logic.html"
-  },
-  "scenarios": [],
-  "editmodePerf": {
-    "judged": true,
-    "ok": true,
-    "note": "",
-    "profile": "mac-m1-1600p",
-    "metrics": {
-      "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_avg_us/min": 52.08607388316151,
-      "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_p95_us/min": 105.8,
-      "DecisionPerfTests.OffBallPlayer_us/dec_offball_p95_us/min": 8.4,
-      "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_avg/max": 2.692044673539519,
-      "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_max/max": 8.0,
-      "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount/dec_gc_alloc_count/max": 0.0
-    },
-    "budget": [
-      {
-        "ac": "AC-17",
-        "label": "결정 틱 1회 평균 (Mono 회귀)",
-        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_avg_us/min",
-        "value": 52.08607388316151,
-        "budget": "—",
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-17",
-        "label": "결정 틱 1회 p95 (Mono 회귀)",
-        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_p95_us/min",
-        "value": 105.8,
-        "budget": "—",
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-17",
-        "label": "오프볼 선수 1명 p95 (Mono 회귀)",
-        "metric": "DecisionPerfTests.OffBallPlayer_us/dec_offball_p95_us/min",
-        "value": 8.4,
-        "budget": "—",
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-17",
-        "label": "결정 틱당 피치 컨트롤 질의 평균",
-        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_avg/max",
-        "value": 2.692044673539519,
-        "budget": 3,
-        "unit": "",
-        "ok": true
-      },
-      {
-        "ac": "AC-17",
-        "label": "결정 틱당 피치 컨트롤 질의 최대",
-        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_max/max",
-        "value": 8.0,
-        "budget": 8,
-        "unit": "",
-        "ok": true
-      },
-      {
-        "ac": "AC-17",
-        "label": "결정 틱 경로 GC 할당 횟수",
-        "metric": "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount/dec_gc_alloc_count/max",
-        "value": 0.0,
-        "budget": 0,
-        "unit": "",
-        "ok": true
-      }
-    ],
-    "regression": [],
-    "host": "mac-m1-1600p",
-    "power": "ac"
-  },
-  "benchPerf": {
-    "judged": true,
-    "ok": true,
-    "note": "",
-    "backend": "il2cpp",
-    "profile": "mac-m1-1600p",
-    "budget": [
-      {
-        "ac": "AC-17",
-        "label": "결정 틱 1회 평균 (006 FR-80 몫)",
-        "metric": "dec_tick_avg_us",
-        "value": 8.666730902777777,
-        "budget": 12,
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-17",
-        "label": "결정 틱 1회 p95",
-        "metric": "dec_tick_p95_us",
-        "value": 17.2,
-        "budget": 60,
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-17",
-        "label": "오프볼 선수 1명 평균 (2026-11-12 사용자 결정 0.4 → 1.0)",
-        "metric": "dec_offball_avg_us",
-        "value": 0.615715,
-        "budget": 1.0,
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-17",
-        "label": "오프볼 선수 1명 p95",
-        "metric": "dec_offball_p95_us",
-        "value": 0.7000000000000001,
-        "budget": 2,
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-17",
-        "label": "경기 1개 의사결정 누적",
-        "metric": "dec_match_s",
-        "value": 0.4992037,
-        "budget": 0.65,
-        "unit": "s",
-        "ok": true
-      },
-      {
-        "ac": "AC-17",
-        "label": "결정 틱 GC 할당",
-        "metric": "dec_gc_bytes_per_tick",
-        "value": 0,
-        "budget": 0,
-        "unit": "B",
-        "ok": true
-      }
-    ],
-    "regression": [],
-    "stages": {},
-    "metrics": {
-      "dec_tick_avg_us": 8.666730902777777,
-      "dec_tick_p95_us": 17.2,
-      "dec_match_s": 0.4992037,
-      "dec_ticks": 57600,
-      "dec_gc_bytes_per_tick": 0,
-      "dec_space_queries_avg": 2.9814583333333333,
-      "dec_space_queries_max": 8,
-      "dec_offball_avg_us": 0.615715,
-      "dec_offball_p95_us": 0.7000000000000001
-    },
-    "host": "mac-m1-1600p",
-    "power": "ac",
-    "buildCached": true,
-    "durationSec": 8.2,
-    "unity": "6000.3.27f2",
-    "cpu": "Apple M1 Pro",
-    "development": false,
-    "commit": "128fb0d39853a207fa43e847a76f116a3f67f8a8"
-  },
-  "requireAllAcs": true,
-  "deferred": {
-    "AC-33": "시나리오 0개 기준선 1,000경기 평균 득점 2.5~3.0 — 072·008·070·071·012 연결 뒤(스펙 명시). 이번에는 100경기 측정값만 리포트",
-    "AC-37": "003·007 구현과 013 의도 패킷 개정 뒤 대체 입력을 바꿔 AC-02·03·22·26~28·30~32 재실행"
-  },
+  "scenarios": [
+    {
+      "scenario": "010-offball-motion",
+      "description": "실경기(058 경로) 하이라이트에서 오프볼 선수 움직임: 수비 액션·슈팅(또는 골대) 장면 정지 캡처 — 형태 유지 선수가 조깅 이하로 움직이고 전원 전력질주가 아닌지 육안 승인. 재생 로그의 오프볼 [anim] 속도 점프 경고 0 (AC-24)",
+      "combos": [
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 25.9,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-155438-shot/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-155438-shot/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/010-offball-motion.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-155438-shot/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261109",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 11166.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 6524,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 42.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "defensive",
+              "status": "passed",
+              "ms": 336.3,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/defensive.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 29.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "attack",
+              "status": "passed",
+              "ms": 305.2,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/attack.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 28.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "conceded",
+              "status": "passed",
+              "ms": 289.5,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/conceded.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "defensive",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-155438-shot/mac-m1-1600p-light-ko/captures/defensive.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "010-offball-motion",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "attack",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-155438-shot/mac-m1-1600p-light-ko/captures/attack.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "010-offball-motion",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "conceded",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-155438-shot/mac-m1-1600p-light-ko/captures/conceded.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "010-offball-motion",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": [
+              {
+                "type": "Warning",
+                "message": "[RoadToPro] [anim] 속도 점프 5.31 → 4.44 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=판단",
+                "reason": "판단 원인(008·010 대체 행동 모델)의 목표 속도 15 m/s 미만 순간 가감속만 임시 무시. 058에서 경고에 원인 표시(FR-12)를 붙였고 배치·기록 원인(순간이동·클립 프레임 누락)은 무시하지 않는다 — AC-13. 008·010 연결 때 항목을 지우고 재확인. 2026-11-09 사용자 승인 (041), 2026-11-11 058 범위 축소",
+                "pattern": "^\\[RoadToPro\\] \\[anim\\] 속도 점프 \\d+\\.\\d+ → (\\d|1[0-4])\\.\\d+ m/s .*원인=판단$",
+                "count": 8656
+              }
+            ]
+          },
+          "checkpoints": [],
+          "motion": null,
+          "verdict": "candidate"
+        }
+      ],
+      "determinism": null,
+      "verdict": "candidate",
+      "build": "development"
+    }
+  ],
   "acEvidence": {
+    "AC-24": [
+      {
+        "label": "수동 승인 기록 evidence/approval.md",
+        "ok": true
+      }
+    ],
     "AC-02": [
       {
         "label": "EditMode 테스트",
@@ -510,13 +561,181 @@
         "label": "EditMode 테스트",
         "ok": true
       }
-    ],
-    "AC-24": [
-      {
-        "label": "수동 승인 기록 evidence/approval.md",
-        "ok": true
-      }
     ]
   },
-  "verdict": "deferred"
+  "logic": {
+    "ok": true,
+    "total": 109,
+    "passed": 103,
+    "failed": 0,
+    "skipped": 6,
+    "duration": 88.9485162,
+    "compileErrors": [],
+    "failures": [],
+    "png": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-155226-logic/logic.png",
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-155226-logic/logic.html"
+  },
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_avg_us/min": 52.78749140893471,
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_p95_us/min": 107.1,
+      "DecisionPerfTests.OffBallPlayer_us/dec_offball_p95_us/min": 9.0,
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_avg/max": 2.692044673539519,
+      "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_max/max": 8.0,
+      "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount/dec_gc_alloc_count/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 평균 (Mono 회귀)",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_avg_us/min",
+        "value": 52.78749140893471,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 p95 (Mono 회귀)",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_tick_p95_us/min",
+        "value": 107.1,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "오프볼 선수 1명 p95 (Mono 회귀)",
+        "metric": "DecisionPerfTests.OffBallPlayer_us/dec_offball_p95_us/min",
+        "value": 9.0,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱당 피치 컨트롤 질의 평균",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_avg/max",
+        "value": 2.692044673539519,
+        "budget": 3,
+        "unit": "",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱당 피치 컨트롤 질의 최대",
+        "metric": "DecisionPerfTests.DecisionTick_us_Queries/dec_space_queries_max/max",
+        "value": 8.0,
+        "budget": 8,
+        "unit": "",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 경로 GC 할당 횟수",
+        "metric": "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount/dec_gc_alloc_count/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 평균 (006 FR-80 몫)",
+        "metric": "dec_tick_avg_us",
+        "value": 8.666730902777777,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 1회 p95",
+        "metric": "dec_tick_p95_us",
+        "value": 17.2,
+        "budget": 60,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "오프볼 선수 1명 평균 (2026-11-12 사용자 결정 0.4 → 1.0)",
+        "metric": "dec_offball_avg_us",
+        "value": 0.615715,
+        "budget": 1.0,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "오프볼 선수 1명 p95",
+        "metric": "dec_offball_p95_us",
+        "value": 0.7000000000000001,
+        "budget": 2,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "경기 1개 의사결정 누적",
+        "metric": "dec_match_s",
+        "value": 0.4992037,
+        "budget": 0.65,
+        "unit": "s",
+        "ok": true
+      },
+      {
+        "ac": "AC-17",
+        "label": "결정 틱 GC 할당",
+        "metric": "dec_gc_bytes_per_tick",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "dec_tick_avg_us": 8.666730902777777,
+      "dec_tick_p95_us": 17.2,
+      "dec_match_s": 0.4992037,
+      "dec_ticks": 57600,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 2.9814583333333333,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.615715,
+      "dec_offball_p95_us": 0.7000000000000001
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": true,
+    "durationSec": 8.2,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M1 Pro",
+    "development": false,
+    "commit": "128fb0d39853a207fa43e847a76f116a3f67f8a8"
+  },
+  "deferred": {
+    "AC-33": "시나리오 0개 기준선 1,000경기 평균 득점 2.5~3.0 — 072·008·070·071·012 연결 뒤(스펙 명시). 이번에는 100경기 측정값만 리포트",
+    "AC-37": "003·007 구현과 013 의도 패킷 개정 뒤 대체 입력을 바꿔 AC-02·03·22·26~28·30~32 재실행"
+  },
+  "requireAllAcs": true,
+  "verdict": "candidate"
 }
