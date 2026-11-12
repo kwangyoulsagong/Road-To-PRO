@@ -70,6 +70,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
         public void WriteState(StateWriter w)
         {
             w.Write(_x.RestartKickTick);
+            _x.WritePass(w);
             for (int s = 0; s < Squad.Slots; s++)
             {
                 w.Write((byte)_intent[s].Kind); w.Write(_intent[s].Point); w.Write(_intent[s].TargetSlot); w.Write(_intent[s].MaxSpeed);
@@ -79,6 +80,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
         public void ReadState(StateReader r)
         {
             _x.RestartKickTick = r.ReadLong();
+            _x.ReadPass(r);
             for (int s = 0; s < Squad.Slots; s++)
                 _intent[s] = new Decision { Kind = (DecisionKind)r.ReadByte(), Point = r.ReadVec2(), TargetSlot = r.ReadInt(), MaxSpeed = r.ReadFloat() };
         }
@@ -86,6 +88,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
         public void AddTo(ref StableHasher h)
         {
             h.Add(_x.RestartKickTick);
+            _x.AddPassTo(ref h);
             for (int s = 0; s < Squad.Slots; s++)
             {
                 h.Add((byte)_intent[s].Kind); h.Add(_intent[s].Point.X); h.Add(_intent[s].Point.Y); h.Add(_intent[s].TargetSlot); h.Add(_intent[s].MaxSpeed);

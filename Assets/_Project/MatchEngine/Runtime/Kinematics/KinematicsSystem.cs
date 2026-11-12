@@ -33,6 +33,8 @@ namespace RoadToPro.MatchEngine.Kinematics
         readonly bool[] _contact;
         readonly Vec2[] _snapPos, _snapVel, _push, _desired, _faultVel;
         readonly bool[] _fault;
+        readonly float[] _capSpeed;
+        readonly long[] _capUntil;
         readonly float[] _sepCorr;
         readonly SolveInfo[] _info;
         readonly int[] _targetIdx;
@@ -98,6 +100,8 @@ namespace RoadToPro.MatchEngine.Kinematics
             _desired = new Vec2[_n];
             _faultVel = new Vec2[_n];
             _fault = new bool[_n];
+            _capSpeed = new float[_n];
+            _capUntil = new long[_n];
             _sepCorr = new float[_n];
             _info = new SolveInfo[_n];
             _targetIdx = new int[_n];
@@ -151,6 +155,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             _queue.Clear(i);
             _contact[i] = false;
             _fault[i] = false;
+            _capUntil[i] = 0;
             _targetIdx[i] = -1;
             if (_ext[i]) { _ext[i] = false; _external--; _extVel[i] = Vec2.Zero; }
             if (!_active[i]) { _active[i] = true; _inactive--; }
@@ -212,6 +217,8 @@ namespace RoadToPro.MatchEngine.Kinematics
             _queue.Clear(t);
             _contact[t] = false;
             _fault[t] = false;
+            _capSpeed[t] = _capSpeed[f];
+            _capUntil[t] = _capUntil[f];
             _targetIdx[t] = -1;
             if (_ext[t]) { _ext[t] = false; _external--; _extVel[t] = Vec2.Zero; }
             _active[t] = true;
@@ -264,6 +271,8 @@ namespace RoadToPro.MatchEngine.Kinematics
                 w.Write(_contact[i]);
                 w.Write(_fault[i]);
                 w.Write(_faultVel[i]);
+                w.Write(_capSpeed[i]);
+                w.Write(_capUntil[i]);
                 _queue.Write(i, w);
                 _stats[i].Write(w);
             }
@@ -296,6 +305,8 @@ namespace RoadToPro.MatchEngine.Kinematics
                 _contact[i] = r.ReadBool();
                 _fault[i] = r.ReadBool();
                 _faultVel[i] = r.ReadVec2();
+                _capSpeed[i] = r.ReadFloat();
+                _capUntil[i] = r.ReadLong();
                 _queue.Read(i, r);
                 _stats[i] = MotionStats.Read(r);
             }
@@ -324,6 +335,20 @@ namespace RoadToPro.MatchEngine.Kinematics
             _s[i].Active = cmd;
             _targetIdx[i] = IndexOf(cmd.TargetId);
         }
+
+        /// <summary>
+        /// 008 FR-64: 킥·터치 직후 감속. untilSubstep(절대) 전까지 이 선수의 목표 최대 속도를 cap으로 제한한다 — 위치·속도는 직접 바꾸지 않고
+        /// 005 가속·감속 한계로만 줄어든다.
+        /// </summary>
+        public void SetSpeedCap(int id, float cap, long untilSubstep)
+        {
+            var i = Require(id);
+            if (!FloatGuard.IsFinite(cap) || cap < 0f) throw new ArgumentOutOfRangeException(nameof(cap));
+            _capSpeed[i] = cap;
+            _capUntil[i] = untilSubstep;
+        }
+
+        public long SpeedCapUntil(int index) => _capUntil[index];
 
         /// <summary>접촉 (008이 부른다, FR-04): 속도 × (1 − 손실), 다음 서브스텝 a_cap × 초과 허용 배율.</summary>
         public void ApplyContact(int id)
@@ -391,6 +416,7 @@ namespace RoadToPro.MatchEngine.Kinematics
                 // ② 행동 ④ 합성 — 흔한 행동(Seek·Arrive·Intercept·대형·Idle)은 스칼라 경로, 대상 선수 행동은 Steering(Vec2)
                 ref readonly var cmd = ref s.Active;
                 var maxSpeed = cmd.MaxSpeed > 0f && cmd.MaxSpeed < vmaxEff ? cmd.MaxSpeed : vmaxEff;
+                if (_capUntil[i] > substep && _capSpeed[i] < maxSpeed) maxSpeed = _capSpeed[i]; // 008 FR-64: 킥·터치 직후 감속 (명령 상한으로만)
                 float bx, by;
                 var px = _snapPos[i].X; var py = _snapPos[i].Y;
                 var vx = _snapVel[i].X; var vy = _snapVel[i].Y;
@@ -572,6 +598,7 @@ namespace RoadToPro.MatchEngine.Kinematics
                 h.Add(_contact[i]); // 다음 서브스텝 a_cap 배율에 영향 (리뷰 R1)
                 h.Add(_fault[i]);
                 if (_fault[i]) { h.Add(_faultVel[i].X); h.Add(_faultVel[i].Y); }
+                if (_capUntil[i] > Substep) { h.Add((byte)0xC4); h.Add(_capSpeed[i]); h.Add(_capUntil[i]); } // 008 감속 상한 (안 쓰면 해시 그대로)
                 _queue.AddTo(i, ref h);
                 _stats[i].AddTo(ref h);
             }

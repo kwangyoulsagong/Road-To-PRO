@@ -53,13 +53,24 @@ namespace RoadToPro.MatchEngine.Match.Pipeline
         Stand = 5,
     }
 
-    /// <summary>공에 가하는 동작 (단계 5가 정하고 물리 단계 서브스텝 0에서 적용).</summary>
+    /// <summary>
+    /// 공에 가하는 동작 (단계 5가 정한다). specs/008: 물리 단계가 예약 킥으로 받아 킥 준비 시간 뒤 공이 도달 거리 안인 서브스텝에 실행한다(FR-65).
+    /// <see cref="HasIntent"/>면 "의도"(조준점·속도 후보·발사각)만 담고 실행 오차는 접촉 순간 액션 RNG로 넣는다(FR-13). 아니면(슛·클리어·대체 태클 — 070·071 전)
+    /// <see cref="Velocity"/>를 그대로 쓴다.
+    /// </summary>
     public struct BallAction
     {
         public BallActionKind Kind;
         public int KickerSlot;
         public int TargetSlot;
         public Vec3 Velocity;
+        /// <summary>008 의도 패스: 조준점(미터)·초속·발사각(rad, 0 = 땅볼)·평가 xPass·원터치 여부.</summary>
+        public bool HasIntent;
+        public Vec2 Aim;
+        public float Speed;
+        public float Elevation;
+        public float XPass;
+        public bool IsOneTouch;
         public Vec3 Spin;
         public Events.BodyPart Part;
         public bool IsRestart;

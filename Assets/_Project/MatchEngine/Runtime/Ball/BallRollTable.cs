@@ -79,6 +79,22 @@ namespace RoadToPro.MatchEngine.Ball
             return lo + (x - _dist[lo]) / (_dist[hi] - _dist[lo]);
         }
 
+        /// <summary>누적 거리 x의 스텝 번호와 속도를 이진 탐색 한 번으로 (specs/008 평가 핫 경로). <see cref="StepAtDistance"/>·<see cref="SpeedAtDistance"/>와 같은 값.</summary>
+        public void Sample(float x, out float step, out float speed)
+        {
+            if (x <= 0f) { step = 0f; speed = _speeds[0]; return; }
+            if (x >= _dist[_count - 1]) { step = _count - 1; speed = _speeds[_count - 1]; return; }
+            int lo = 0, hi = _count - 1;
+            while (hi - lo > 1)
+            {
+                var mid = (lo + hi) >> 1;
+                if (_dist[mid] <= x) lo = mid; else hi = mid;
+            }
+            var f = (x - _dist[lo]) / (_dist[hi] - _dist[lo]);
+            step = lo + f;
+            speed = _speeds[lo] + (_speeds[hi] - _speeds[lo]) * f;
+        }
+
         /// <summary>누적 거리 x에서의 속도 (선형 보간).</summary>
         public float SpeedAtDistance(float x)
         {

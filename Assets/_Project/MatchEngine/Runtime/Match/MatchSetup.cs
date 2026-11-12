@@ -18,6 +18,8 @@ namespace RoadToPro.MatchEngine.Match
         public readonly UtilityAI.DecisionAttributes Mind;
         /// <summary>플레이 스타일 (specs/010, 003 전 대체 입력). null이면 중립.</summary>
         public readonly UtilityAI.PlayStyle Style;
+        /// <summary>기술 능력치 (specs/008, 002 전 대체 입력). 지정 안 됨이면 평균(<see cref="Actions.TechnicalAttributes.Average"/>).</summary>
+        public readonly Actions.TechnicalAttributes Technical;
 
         public MatchPlayer(int id, in KinematicAttributes attributes)
             : this(id, attributes, default)
@@ -30,6 +32,12 @@ namespace RoadToPro.MatchEngine.Match
         }
 
         public MatchPlayer(int id, in KinematicAttributes attributes, in Goalkeeper.KeeperAttributes keeper, in UtilityAI.DecisionAttributes mind, UtilityAI.PlayStyle style)
+            : this(id, attributes, keeper, mind, style, default)
+        {
+        }
+
+        public MatchPlayer(int id, in KinematicAttributes attributes, in Goalkeeper.KeeperAttributes keeper, in UtilityAI.DecisionAttributes mind, UtilityAI.PlayStyle style,
+            in Actions.TechnicalAttributes technical)
         {
             if (id < 0) throw new ArgumentOutOfRangeException(nameof(id), "선수 id는 0 이상");
             Id = id;
@@ -37,10 +45,14 @@ namespace RoadToPro.MatchEngine.Match
             Keeper = keeper;
             Mind = mind;
             Style = style;
+            Technical = technical;
         }
 
         /// <summary>정신·스타일만 바꾼 복사본.</summary>
-        public MatchPlayer WithMind(in UtilityAI.DecisionAttributes mind, UtilityAI.PlayStyle style = null) => new MatchPlayer(Id, Attributes, Keeper, mind, style ?? Style);
+        public MatchPlayer WithMind(in UtilityAI.DecisionAttributes mind, UtilityAI.PlayStyle style = null) => new MatchPlayer(Id, Attributes, Keeper, mind, style ?? Style, Technical);
+
+        /// <summary>기술 능력치만 바꾼 복사본 (specs/008).</summary>
+        public MatchPlayer WithTechnical(in Actions.TechnicalAttributes technical) => new MatchPlayer(Id, Attributes, Keeper, Mind, Style, technical);
     }
 
     /// <summary>팀 입력 (FR-10). Starters[0]이 골키퍼다.</summary>

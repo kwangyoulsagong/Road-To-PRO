@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "id": "008-live-recheck",
+  "spec": "008",
+  "description": "specs/008 AC-21: 058 실경기 하이라이트를 008 실제 판정(패스·수신·인터셉트·첫 터치)으로 다시 재생 — 실점·골대·수비 액션·파울 장면 캡처와 장면 번호 일치, 전체 재생 로그의 [anim] 속도 점프 원인별 집계(판단·액션 원인 수를 리포트에). 070·071은 아직 대체라 부분 재확인",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-21"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.conceded"
+    },
+    {
+      "type": "capture",
+      "name": "conceded",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "sceneMatchLabel",
+      "text": "ok",
+      "ac": "AC-21"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.woodwork"
+    },
+    {
+      "type": "capture",
+      "name": "woodwork",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "sceneMatchLabel",
+      "text": "ok",
+      "ac": "AC-21"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.defensive"
+    },
+    {
+      "type": "capture",
+      "name": "defensive",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "sceneMatchLabel",
+      "text": "ok",
+      "ac": "AC-21"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.foul"
+    },
+    {
+      "type": "capture",
+      "name": "foul",
+      "kind": "3d"
+    },
+    {
+      "type": "assertText",
+      "element": "sceneMatchLabel",
+      "text": "ok",
+      "ac": "AC-21"
+    }
+  ]
+}

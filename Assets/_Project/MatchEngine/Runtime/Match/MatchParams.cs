@@ -84,11 +84,14 @@ namespace RoadToPro.MatchEngine.Match
         public readonly TuningBundle Goalkeeper;
         /// <summary>판단 AI 튜닝 (specs/010, Data/tuning/decision.json). 없으면 코드 기본값(<see cref="RoadToPro.MatchEngine.UtilityAI.DecisionParams.Defaults"/>).</summary>
         public readonly TuningBundle Decision;
+        /// <summary>액션 모델 튜닝 (specs/008, Data/tuning/action.json). 없으면 코드 기본값(<see cref="RoadToPro.MatchEngine.Actions.ActionParams.Defaults"/>).</summary>
+        public readonly TuningBundle Action;
 
         public MatchTuning(TuningBundle ball, TuningBundle kinematics, TuningBundle match, Tactics.ShapeData shape = null, Scenarios.ScenarioData scenario = null,
-            TuningBundle goalkeeper = null, TuningBundle decision = null)
+            TuningBundle goalkeeper = null, TuningBundle decision = null, TuningBundle action = null)
         {
             Decision = decision;
+            Action = action;
             Shape = shape;
             Scenario = scenario;
             Goalkeeper = goalkeeper;
@@ -110,6 +113,7 @@ namespace RoadToPro.MatchEngine.Match
                 if (Scenario != null) { h.Add(Scenario.Tuning.Hash); h.Add(Scenario.Library.Hash); }
                 if (Goalkeeper != null) h.Add(Goalkeeper.Hash);
                 if (Decision != null) h.Add(Decision.Hash);
+                if (Action != null) h.Add(Action.Hash);
                 return h.Value;
             }
         }

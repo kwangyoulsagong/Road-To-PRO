@@ -230,7 +230,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
 
         void AddLooseBall(DecisionWorld w, int s)
         {
-            var q = w.Ball + w.BallVel * _p.LooseLookahead;
+            // 008 T14a: 나에게 오는 패스는 공 경로 위 최근접점으로 (실행 오차로 빗나간 공에 맞춘다)
+            var q = w.PassTarget == s ? Actions.ReceivePoint.OnPath(w.Ball, w.BallVel, w.Pos[s], _p.LooseLookahead) : w.Ball + w.BallVel * _p.LooseLookahead;
             var mine = Kinematics.TimeToIntercept.Estimate(in w.Tti[s], q.X, q.Y);
             var t = DecisionWorld.TeamOf(s);
             int rank = 0;
