@@ -58,6 +58,16 @@ class LogicSpecTests(unittest.TestCase):
         ev2 = commands.ac_evidence(INFO, {"ok": False}, r, j)
         self.assertFalse(all(i["ok"] for i in ev2["AC-06"]))
 
+    def test_bench_skip_reason_passes_perf_ac(self):
+        # 2026-11-12 검증 경량화: 틱 경로를 안 바꾼 스펙은 사유를 남기고 IL2CPP 벤치를 생략
+        r = logic.parse_results(os.path.join(FIX, "nunit-categories.xml"))
+        j = perf.judge_editmode(rows(), CONFIG, base=None, is_reference=True, power="ac")
+        missing = commands.ac_evidence(INFO, {"ok": True}, r, j, None, bench_required=True)
+        self.assertFalse(all(i["ok"] for i in missing["AC-18"]))
+        skipped = commands.ac_evidence(INFO, {"ok": True}, r, j, None, bench_required=True, bench_skip="틱 경로 변경 없음")
+        self.assertTrue(all(i["ok"] for i in skipped["AC-18"]))
+        self.assertTrue(any("틱 경로 변경 없음" in i["label"] for i in skipped["AC-18"]))
+
     def test_determinism_ac_without_tests_has_no_evidence(self):
         r = logic.parse_results(os.path.join(FIX, "nunit-categories.xml"))
         for c in r.cases:

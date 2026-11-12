@@ -65,6 +65,9 @@ def build_parser():
     _add_target_options(lg)
     lg.add_argument("--filter", help="테스트 이름 필터 (Unity -testFilter, 세미콜론 구분)")
     lg.add_argument("--category", default="!Slow", help="테스트 카테고리 (기본 !Slow)")
+    lg.add_argument("--scope", help="테스트 범위: auto(main 이후 바뀐 파일의 의존 범위, 권장) · core · match · presentation · verification · all (쉼표 구분, 2026-11-12)")
+    lg.add_argument("--skip-bench", metavar="사유", help="IL2CPP 벤치를 생략한다 (시뮬 틱 경로 변경 없음 등). 사유가 AC 증거에 남는다 (2026-11-12)")
+    lg.add_argument("--png", action="store_true", help="로직 리포트 PNG도 만든다 (기본 끔, 2026-11-12)")
     # 프로필 매트릭스(smoke·full)·기준 이미지 비교는 2026-11-11 폐지 (2026-11-11 사용자 결정). 장면 스크린샷 1프로필 + 육안 승인
     _add_target_options(sub.add_parser("shot", help="E2E 장면 스크린샷 (기본 mac-m1-1600p 1프로필, 기준 비교 없음 — 육안 승인)"))
 
