@@ -56,6 +56,36 @@ class ParseTests(unittest.TestCase):
         self.assertIn(m["branch"], html)
         self.assertIn("6000.3.27f2", html)
 
+    def test_code_dirty_ignores_evidence_and_docs(self):
+        # 2026-11-12 검증 경량화: 증거·문서만 바뀌면 재실행이 필요 없다
+        self.assertFalse(logic.code_dirty(" M specs/008-x/tasks.md\n?? specs/008-x/evidence/report.html\n M docs/index.html\n"))
+        self.assertFalse(logic.code_dirty(""))
+        self.assertTrue(logic.code_dirty(" M Assets/_Project/MatchEngine/Runtime/A.cs\n"))
+        self.assertTrue(logic.code_dirty("?? Data/tuning/action.json\n M specs/a.md\n"))
+        self.assertTrue(logic.code_dirty('R  specs/old.md -> Tools/devicefarm/farm/x.py\n'))
+
+    def test_scope_filter(self):
+        import re
+        self.assertEqual(logic.scope_filter(None), "")
+        self.assertEqual(logic.scope_filter("match,all"), "")
+        rx = re.compile(logic.scope_filter("match"))
+        self.assertTrue(rx.search("RoadToPro.Tests.EditMode.MatchEngine.Ball.BallStepperTests.X"))
+        self.assertTrue(rx.search("RoadToPro.Tests.EditMode.Presentation.Highlight.LiveTests.Y"))
+        self.assertTrue(rx.search("RoadToPro.Tests.EditMode.Architecture.AsmdefTests.Z"))
+        self.assertFalse(rx.search("RoadToPro.Tests.EditMode.Presentation.Players.HairTests.W"))
+        self.assertFalse(rx.search("RoadToPro.Tests.EditMode.Verification.DriverTests.V"))
+        with self.assertRaises(ValueError):
+            logic.scope_filter("nope")
+
+    def test_auto_scope_follows_dependencies(self):
+        a = logic.auto_scope
+        self.assertEqual(a(["Assets/_Project/MatchEngine/Runtime/A.cs", "Data/tuning/action.json", "specs/008/plan.md"]), "match")
+        self.assertEqual(a(["Assets/_Project/Presentation/X.cs", "Assets/_Project/Tests/EditMode/MatchEngine/T.cs"]), "presentation,match")
+        self.assertEqual(a(["Assets/_Project/Core/Runtime/Math/Vec2.cs", "Assets/_Project/Presentation/X.cs"]), "all")
+        self.assertEqual(a(["Assets/_Project/Career/Runtime/Y.cs"]), "all")  # 규칙 없는 새 모듈은 안전하게 전체
+        self.assertEqual(a(["specs/008/tasks.md", "docs/index.html"]), "")
+        self.assertEqual(a(["Tools/devicefarm/farm/logic.py"]), "")  # Unity 테스트와 무관 (Python 테스트로 검증)
+
     def test_html_escapes(self):
         r = logic.compile_failure_result(["A.cs(1,1): error CS0001: <script>x</script>"])
         html = logic.render_html(r, {"commit": "c", "branch": "b", "unity": "u", "time": "t"})

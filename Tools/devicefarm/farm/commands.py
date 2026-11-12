@@ -101,7 +101,7 @@ def logic_section(test_filter="", category="!Slow", out_dir=None, name="logic"):
     return d, res
 
 
-def ac_evidence(info, logic_dict, res, perf_judgement, bench_judgement=None, bench_required=False):
+def ac_evidence(info, logic_dict, res, perf_judgement, bench_judgement=None, bench_required=False, bench_skip=None):
     """스펙 AC ↔ EditMode 증거 (specs/001 T26).
     로직: EditMode 전체 통과. 결정론: `Determinism` 카테고리 테스트가 1개 이상 있고 전부 통과.
     성능: EditMode 성능 예산 판정 (해당 AC 항목만)."""
@@ -130,8 +130,11 @@ def ac_evidence(info, logic_dict, res, perf_judgement, bench_judgement=None, ben
                 brow = [r for r in (bench_judgement or {}).get("budget", []) + (bench_judgement or {}).get("regression", [])
                         if r.get("ac") in (None, a["id"])]
                 if bench_judgement is None:
-                    if rows:
-                        out[a["id"]].append({"label": "IL2CPP 벤치 결과 없음 (farm.py bench --spec)", "ok": False})
+                    if rows and bench_skip:
+                        # 2026-11-12 검증 경량화: 시뮬 틱 경로를 바꾸지 않은 스펙은 벤치를 생략하고 사유를 남긴다
+                        out[a["id"]].append({"label": f"IL2CPP 벤치 생략 — {bench_skip}", "ok": True})
+                    elif rows:
+                        out[a["id"]].append({"label": "IL2CPP 벤치 결과 없음 (farm.py bench --spec, 생략하려면 --skip-bench \"사유\")", "ok": False})
                 elif brow:
                     out.setdefault(a["id"], [])
                     bbad = [r for r in brow if not r["ok"]]
@@ -189,14 +192,21 @@ _SCENARIO_LABEL = re.compile(r" \((smoke|full|shot)\) (pass|fail|candidate|revie
 
 
 def cmd_logic(args, argv):
-    preflight.run_all(need_chrome=True)
+    want_png = bool(getattr(args, "png", False))
+    try:
+        scope = logic.scope_filter(getattr(args, "scope", None))
+    except ValueError as err:
+        raise RunnerError(str(err)) from err
+    preflight.run_all(need_chrome=want_png)
     t0 = time.time()
     with preflight.RunLock():
         run_dir = new_run_dir("logic")
         cfg = perf.load_spec_config(args.spec) if args.spec else None
         # 보류 AC 설정은 Unity를 띄우기 전에 검사한다 (설정 오류 = 실행기 오류, 종료 3)
         deferred = deferred_acs(cfg, spec_info(args.spec)) if args.spec else {}
-        test_filter = args.filter or perf.test_filter(cfg)
+        # --filter > --scope(+스펙 성능 테스트) > 스펙 성능 테스트 > 전체
+        spec_tests = perf.test_filter(cfg)
+        test_filter = args.filter or (";".join(x for x in (scope, spec_tests) if x) if scope else spec_tests)
         perf_json = os.path.join(run_dir, "PerformanceTestResults.json") if cfg else None
         log("[farm] 로직 테스트 (EditMode) 실행 중…" + (f" 필터 {test_filter}" if test_filter else ""))
         meta = logic.metadata()
@@ -206,7 +216,8 @@ def cmd_logic(args, argv):
         with open(html_path, "w", encoding="utf-8") as f:
             f.write(logic.render_html(res, meta))
         lg = res.to_dict()
-        lg["png"] = chrome.screenshot(html_path, os.path.join(out_dir, "logic.png"))
+        # 로직 리포트 PNG는 기본으로 만들지 않는다 (2026-11-12 검증 경량화 — report.html 표와 내용이 같다). --png로 켠다
+        lg["png"] = chrome.screenshot(html_path, os.path.join(out_dir, "logic.png")) if want_png else None
         lg["html"] = html_path
         meta.update(durationSec=time.time() - t0, command=command_line(argv), profiles=[])
         info = spec_info(args.spec)
@@ -233,7 +244,7 @@ def cmd_logic(args, argv):
         meta["profiles"] = [judgement["host"]] if judgement else []
         ev = {"title": f"{info['id']} 로직 증거", "spec": info, "meta": meta, "logic": lg, "scenarios": [],
               "editmodePerf": judgement, "benchPerf": bench_j, "requireAllAcs": bool(cfg), "deferred": deferred,
-              "acEvidence": {k: v for k, v in ac_evidence(info, lg, res, judgement, bench_j, bench_required).items()
+              "acEvidence": {k: v for k, v in ac_evidence(info, lg, res, judgement, bench_j, bench_required, getattr(args, "skip_bench", None)).items()
                              if k not in deferred}}  # 보류 AC에 일반 증거(EditMode 통과)를 자동으로 붙이지 않는다 (specs/006)
         if args.spec:
             ev["acEvidence"].update(manual_acs(cfg, info))

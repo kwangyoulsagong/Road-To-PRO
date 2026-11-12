@@ -120,6 +120,16 @@ def _git(*args):
         return ""
 
 
+def _git_raw(*args):
+    """앞 공백을 지우지 않는다 (porcelain 첫 줄 상태 칸 보존)."""
+    try:
+        return subprocess.run(
+            ["git", *args], cwd=paths.REPO, capture_output=True, text=True, timeout=10
+        ).stdout
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
 def unity_version():
     try:
         with open(paths.PROJECT_VERSION_TXT, encoding="utf-8") as f:
@@ -131,11 +141,111 @@ def unity_version():
     return "?"
 
 
+# 증거·문서만 바뀐 작업 트리는 "커밋 안 된 코드 변경"으로 보지 않는다 (2026-11-12 검증 경량화:
+# 증거 커밋마다 logic·shot을 다시 돌리던 반복을 없앤다). 코드·데이터·설정이 바뀌었을 때만 dirty.
+DOC_ONLY_PREFIXES = ("specs/", "docs/", "reports/", "research_notes/", ".farm/")
+
+
+def code_dirty(porcelain):
+    """git status --porcelain 출력 → 증거·문서 밖의 변경이 있는가."""
+    for line in (porcelain or "").splitlines():
+        if len(line) < 4:
+            continue
+        path = line[3:].split(" -> ")[-1].strip().strip('"')
+        if not path.startswith(DOC_ONLY_PREFIXES):
+            return True
+    return False
+
+
+# Unity -testFilter 정규식 범위 (2026-11-12 검증 경량화). 스펙 끝 로직 검증은 바뀐 모듈 범위만 돌린다.
+# match에 Presentation.Highlight가 들어가는 이유: 실경기 하이라이트 픽스처(058)가 경기 엔진을 그대로 돌린다.
+SCOPES = {
+    "core": ("Core", "Architecture"),
+    "match": ("Core", "Architecture", "MatchEngine", r"Presentation\.Highlight"),
+    "presentation": ("Architecture", "Presentation"),
+    "verification": ("Verification",),
+    "all": (),
+}
+
+
+# 바뀐 경로 → 범위 (의존 방향 Presentation·Verification → MatchEngine → Core, 10-csharp.md).
+# Core·테스트 asmdef·패키지·프로젝트 설정은 모두가 기대므로 all. 순서대로 첫 일치.
+AUTO_RULES = (
+    ("Assets/_Project/Core/", "all"),
+    ("Assets/_Project/Tests/EditMode/RoadToPro.Tests.EditMode.asmdef", "all"),
+    ("Packages/", "all"),
+    ("ProjectSettings/", "all"),
+    ("Assets/_Project/Tests/EditMode/Core/", "core"),
+    ("Assets/_Project/Tests/EditMode/Architecture/", "core"),
+    ("Assets/_Project/MatchEngine/", "match"),
+    ("Assets/_Project/Tests/EditMode/MatchEngine/", "match"),
+    ("Data/tuning/", "match"),
+    ("Data/scenarios/", "match"),
+    ("Assets/_Project/Tests/EditMode/Presentation/", "presentation"),
+    ("Assets/_Project/Presentation/", "presentation"),
+    ("Assets/_Project/UI/", "presentation"),
+    ("Assets/_Project/Verification/", "verification"),
+    ("Assets/_Project/Tests/EditMode/Verification/", "verification"),
+    ("Data/e2e/", "verification"),
+)
+# 위에 없는 Assets/ 아래 코드(Career·WorldGen·Data 등 새 모듈)는 안전하게 all
+AUTO_FALLBACK_PREFIX = "Assets/"
+
+
+def auto_scope(paths_changed):
+    """바뀐 파일 목록 → 범위 문자열 (쉼표 구분). 코드 변경이 없으면 ""."""
+    found = []
+    for path in paths_changed:
+        if path.startswith(DOC_ONLY_PREFIXES):
+            continue
+        name = None
+        for prefix, sc in AUTO_RULES:
+            if path.startswith(prefix):
+                name = sc
+                break
+        if name is None and path.startswith(AUTO_FALLBACK_PREFIX):
+            name = "all"
+        if name == "all":
+            return "all"
+        if name and name not in found:
+            found.append(name)
+    return ",".join(found)
+
+
+def changed_since(base="main"):
+    """base와 갈라진 지점 이후 커밋된 변경 + 작업 트리 변경 경로."""
+    out = _git_raw("diff", "--name-only", f"{base}...HEAD").splitlines()
+    for line in _git_raw("status", "--porcelain").splitlines():
+        if len(line) > 3:
+            out.append(line[3:].split(" -> ")[-1].strip().strip('"'))
+    return [p for p in dict.fromkeys(x.strip() for x in out) if p]
+
+
+def scope_filter(scopes):
+    """쉼표로 구분한 범위 이름 → -testFilter 정규식. 'all'이 있거나 비면 "" (전체)."""
+    if (scopes or "").strip() == "auto":
+        scopes = auto_scope(changed_since())
+        if not scopes:
+            raise ValueError("main 이후 바뀐 코드가 없다 — 범위를 직접 지정하라 (--scope match 등)")
+    names = [n.strip() for n in (scopes or "").split(",") if n.strip()]
+    if not names or "all" in names:
+        return ""
+    unknown = [n for n in names if n not in SCOPES]
+    if unknown:
+        raise ValueError("알 수 없는 범위: " + ", ".join(unknown) + " (가능: " + ", ".join(SCOPES) + ")")
+    parts = []
+    for n in names:
+        for ns in SCOPES[n]:
+            if ns not in parts:
+                parts.append(ns)
+    return r"^RoadToPro\.Tests\.EditMode\.(" + "|".join(parts) + r")\."
+
+
 def metadata():
     return {
         "commit": _git("rev-parse", "HEAD") or "0000000",
         "branch": _git("rev-parse", "--abbrev-ref", "HEAD") or "?",
-        "dirty": bool(_git("status", "--porcelain")),
+        "dirty": code_dirty(_git_raw("status", "--porcelain")),
         "unity": unity_version(),
         "time": _dt.datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %z"),
     }
