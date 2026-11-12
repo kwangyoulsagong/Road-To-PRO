@@ -108,17 +108,17 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/011-goalkeeper"
   },
   "meta": {
-    "commit": "a4eb64d2f153d5cda1d9cf640810ce0674229572",
+    "commit": "6db2ae66b8d4a72e3e693556d99f99b398822433",
     "branch": "feat/011-goalkeeper",
-    "dirty": true,
+    "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-12 08:59:54 +0900",
-    "durationSec": 35.09196424484253,
+    "time": "2026-11-12 09:01:02 +0900",
+    "durationSec": 19.234160900115967,
     "command": "python3 Tools/devicefarm/farm.py shot --spec 011",
     "profiles": [
       "mac-m1-1600p-light-ko"
     ],
-    "buildCached": false,
+    "buildCached": true,
     "builds": [
       "development"
     ]
@@ -137,8 +137,8 @@
           "status": "passed",
           "reason": "",
           "exitCode": 0,
-          "durationSec": 19.7,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko",
+          "durationSec": 18.3,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-090043-shot/mac-m1-1600p-light-ko",
           "args": [
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
             "-screen-fullscreen",
@@ -148,11 +148,11 @@
             "-screen-height",
             "600",
             "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko/player.log",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-090043-shot/mac-m1-1600p-light-ko/player.log",
             "-farmScenario",
             "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/011-gk-highlight.json",
             "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-090043-shot/mac-m1-1600p-light-ko",
             "-farmSeed",
             "20261109",
             "-farmProfile",
@@ -182,7 +182,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 7632.8,
+              "ms": 7733,
               "message": "",
               "timedOut": false
             },
@@ -191,7 +191,7 @@
               "type": "waitFor",
               "name": null,
               "status": "passed",
-              "ms": 4807.2,
+              "ms": 4825.2,
               "message": "",
               "timedOut": false
             },
@@ -200,7 +200,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 42.4,
+              "ms": 41.3,
               "message": "",
               "timedOut": false
             },
@@ -209,7 +209,7 @@
               "type": "capture",
               "name": "gkdive",
               "status": "passed",
-              "ms": 327.7,
+              "ms": 312.4,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -225,7 +225,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 22.1,
+              "ms": 20.6,
               "message": "",
               "timedOut": false
             },
@@ -234,7 +234,7 @@
               "type": "capture",
               "name": "gkpunch",
               "status": "passed",
-              "ms": 336.9,
+              "ms": 324.5,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -250,7 +250,7 @@
               "type": "goto",
               "name": null,
               "status": "passed",
-              "ms": 29.6,
+              "ms": 24.7,
               "message": "",
               "timedOut": false
             },
@@ -259,7 +259,7 @@
               "type": "capture",
               "name": "gkconceded",
               "status": "passed",
-              "ms": 293.8,
+              "ms": 284.3,
               "message": "",
               "timedOut": false,
               "capture": {
@@ -274,7 +274,7 @@
           "captures": [
             {
               "step": "gkdive",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko/captures/gkdive.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-090043-shot/mac-m1-1600p-light-ko/captures/gkdive.png",
               "baseline": null,
               "diff": null,
               "scenario": "011-gk-highlight",
@@ -287,7 +287,7 @@
             },
             {
               "step": "gkpunch",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko/captures/gkpunch.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-090043-shot/mac-m1-1600p-light-ko/captures/gkpunch.png",
               "baseline": null,
               "diff": null,
               "scenario": "011-gk-highlight",
@@ -300,7 +300,7 @@
             },
             {
               "step": "gkconceded",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-085934-shot/mac-m1-1600p-light-ko/captures/gkconceded.png",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261112-090043-shot/mac-m1-1600p-light-ko/captures/gkconceded.png",
               "baseline": null,
               "diff": null,
               "scenario": "011-gk-highlight",
