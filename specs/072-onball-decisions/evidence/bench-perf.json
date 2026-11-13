@@ -1,0 +1,94 @@
+{
+  "judged": true,
+  "ok": true,
+  "note": "",
+  "backend": "il2cpp",
+  "profile": "mac-m1-1600p",
+  "budget": [
+    {
+      "ac": "AC-12",
+      "label": "공 소유 선수 1명 결정 평균 (008·070·071 평가 포함, 2026-11-13 사용자 결정 8 → 12)",
+      "metric": "onball_owner_avg_us",
+      "value": 9.50979306020067,
+      "budget": 12,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-12",
+      "label": "공 소유 선수 1명 결정 p95",
+      "metric": "onball_owner_p95_us",
+      "value": 17.1,
+      "budget": 30,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-12",
+      "label": "시야 집합 구성 (동료 10명)",
+      "metric": "onball_vision_avg_us",
+      "value": 0.06848485,
+      "budget": 0.5,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-12",
+      "label": "온볼 결정 GC 할당",
+      "metric": "onball_gc_bytes_per_decision",
+      "value": 0,
+      "budget": 0,
+      "unit": "B",
+      "ok": true
+    },
+    {
+      "ac": "AC-12",
+      "label": "010 결정 틱 1회 평균 (072 포함, 006 FR-80 몫)",
+      "metric": "dec_tick_avg_us",
+      "value": 5.822974910394265,
+      "budget": 12,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-12",
+      "label": "010 결정 틱 1회 p95 (072 포함)",
+      "metric": "dec_tick_p95_us",
+      "value": 13.9,
+      "budget": 60,
+      "unit": "µs",
+      "ok": true
+    }
+  ],
+  "regression": [],
+  "stages": {},
+  "metrics": {
+    "onball_owner_avg_us": 9.50979306020067,
+    "onball_owner_p95_us": 17.1,
+    "onball_owner_samples": 9568,
+    "onball_owner_world_avg_us": 0.6974080267558528,
+    "onball_owner_decide_avg_us": 8.812385033444816,
+    "onball_owner_decide_p95_us": 16.4,
+    "onball_candidates_avg": 15.060096153846153,
+    "onball_gc_bytes_per_decision": 0,
+    "onball_vision_avg_us": 0.06848485,
+    "onball_vision_p95_us": 0.07490000000000001,
+    "dec_tick_avg_us": 5.822974910394265,
+    "dec_tick_p95_us": 13.9,
+    "dec_match_s": 0.324922,
+    "dec_ticks": 55800,
+    "dec_gc_bytes_per_tick": 0,
+    "dec_space_queries_avg": 0.942347670250896,
+    "dec_space_queries_max": 8,
+    "dec_offball_avg_us": 0.48219000000000006,
+    "dec_offball_p95_us": 0.9
+  },
+  "host": "mac-m1-1600p",
+  "power": "ac",
+  "buildCached": false,
+  "durationSec": 12.2,
+  "unity": "6000.3.27f2",
+  "cpu": "Apple M1 Pro",
+  "development": false,
+  "commit": "02a0cc86787e87e990837dd12b53da9ac397600e"
+}

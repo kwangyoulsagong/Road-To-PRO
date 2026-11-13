@@ -1,6 +1,6 @@
 # 072 — 온볼 판단: 후보 · 점수 · 선택 · 지시 · 다이빙 · 태스크
 
-상태: 승인됨
+상태: 구현 완료 · AC-05(헤드리스 1,000경기)·AC-10(040)·AC-13(연결 재확인) 보류 (2026-11-13)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 Unity 배치로 돌린다(실패 확인 → 구현 → 통과).
@@ -31,4 +31,4 @@
 ## F. 마감
 - [x] T11a [대체] 보정 (2026-11-13 사용자 결정) — 파일: `Data/tuning/decision.json`(`dec.onball.*` [대체] 값만), `T/OnBallMatchTests.cs`(측정용 튜닝 덮어쓰기) — 검증: 100경기 측정 경기당 슈팅 20~35·득점 ≤ 16(072 전 수준), 058 `058-live-variety` 장면 에러 0 + 육안 승인, OnBall 테스트 재통과 — 사유: 072 후 경기당 슈팅 215·득점 30 → 058 하이라이트 121장면, 058 E2E '해당 종류 장면 없음' — 결과: 30경기 반복 4회. 사거리·xG만 줄이면 골문 앞까지 몰고 들어가 득점이 오히려 늘어(62·36) 3회 실패 → 사용자 보고 → T11b. 채택: 돌파 판정 7 m·60°, 캐리 상실 0.8, 슈팅 사거리 25 m [대체]. 측정 덮어쓰기는 `.farm/onball-tune.json`(gitignore). 테스트 조정: AC-06 표본 1,000 → 3,000(돌파 선택 빈도 하락), 013 미러 테스트는 배역 의도 고정 튜닝(`ScenarioTestKit.ScriptedCast`)
 - [x] T11b 071 대체 슈팅 결과 (2026-11-13 사용자 결정) — 파일: `ME/Match/Stages/StandIn/StandInOnBall.cs`(`ShootWithXg`), `ME/Match/Stages/UtilityDecisionStage.cs`, `D/OnBallDecider.cs`(결과에 대체 xG), `Data/tuning/decision.json`(`shot.onTargetK` 1.5·`shot.missMax` 3 m [대체]) — 검증: 30경기 측정 득점 30 → 5.7 — 결과: 072 슈팅은 골문 안 확률 = min(1, xG × 1.5)로 굴리고(결정 RNG 고정 3회) 아니면 포스트 밖으로. 경기당 슈팅은 145~155로 남음(공격이 박스까지 닿는 횟수 = 수비 쪽 070·017 몫, 사용자 보고)
-- [ ] T11 검증·리포트 — `determinism-reviewer` 리뷰 → 커밋 → `python3 Tools/devicefarm/farm.py logic --spec 072 --scope auto` → `python3 Tools/devicefarm/farm.py bench --spec 072`(틱 경로 변경) → (058 하이라이트 결과가 바뀌었으면) `farm.py shot --scenario <058 장면>` 육안 승인 → `/verify 072` 리포트 아티팩트 발행 → 상태 갱신(AC-05 헤드리스·AC-10·AC-13 보류 표시)
+- [x] T11 검증·리포트 — `determinism-reviewer` 리뷰 → 커밋 → `python3 Tools/devicefarm/farm.py logic --spec 072 --scope auto` → `python3 Tools/devicefarm/farm.py bench --spec 072`(틱 경로 변경) → (058 하이라이트 결과가 바뀌었으면) `farm.py shot --scenario <058 장면>` 육안 승인 → `/verify 072` 리포트 아티팩트 발행 → 상태 갱신(AC-05 헤드리스·AC-10·AC-13 보류 표시) — 결과: `determinism-reviewer` H1·M3·L 반영(T07 줄), logic(auto) 1,569 중 통과 1,558·실패 0(건너뜀 11), IL2CPP 벤치 6/6(소유자 결정 평균 9.51 µs/12 — 2026-11-13 예산 8 → 12 사용자 결정, p95 17.1/30, 시야 0.07/0.5, 할당 0, 010 결정 틱 5.8/12), 058 `058-live-variety` 실점·골대·파울 3장면 육안 승인·수비 장면 보류(`evidence/approval.md`, `Data/e2e/log-ignore.json`). 100경기 측정(경기당): 득점 5.05, 슈팅 153, 패스 436(수신 49 %), 돌파 12.9(성공 35 %), 넘어지기 2.4, 소유 변경 173 — 슈팅 과다는 070·017 몫. 검증 중 고친 것: 의도 대상 짧은 패스 최소 거리 예외(013 `Pass_Completes_ToReceiver`), 돌파 실패 시 수비수 `Tackle` 이벤트
