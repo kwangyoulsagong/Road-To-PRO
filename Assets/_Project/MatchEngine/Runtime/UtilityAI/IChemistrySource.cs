@@ -17,6 +17,12 @@ namespace RoadToPro.MatchEngine.UtilityAI
 
         public float Chemistry(int a, int b) => (uint)a < DecisionWorld.N && (uint)b < DecisionWorld.N ? _v[a * DecisionWorld.N + b] : 0f;
 
+        /// <summary>슬롯 s의 행·열을 0으로 (교체로 선수가 바뀜).</summary>
+        public void ClearSlot(int s)
+        {
+            for (int o = 0; o < DecisionWorld.N; o++) { _v[s * DecisionWorld.N + o] = 0f; _v[o * DecisionWorld.N + s] = 0f; }
+        }
+
         public void Set(int a, int b, float chem)
         {
             if (!(chem >= 0f && chem <= 1f)) throw new System.ArgumentOutOfRangeException(nameof(chem), chem, "케미는 0~1");

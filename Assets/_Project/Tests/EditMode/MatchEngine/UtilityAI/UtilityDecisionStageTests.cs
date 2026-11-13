@@ -84,7 +84,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
                     var owns = b.Phase == BallPhase.Controlled && b.OwnerId == s;
                     var cast = rt.IsCast(s);
                     ref readonly var st = ref stage.State(s);
-                    if (v.State != FlowState.InPlay || owns || Squad.IsKeeperSlot(s)) { wasCast[s] = cast; continue; }
+                    // 072: 이번 틱 시작에 공을 가졌던 배역(결정 뒤 차서 지금은 소유자가 아님)은 온볼 판단이 정한다
+                    if (v.State != FlowState.InPlay || owns || Squad.IsKeeperSlot(s) || stage.World.Owner == s) { wasCast[s] = cast; continue; }
                     if (cast && stage.World.Intent[s].Has)
                     {
                         castChecks++;

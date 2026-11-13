@@ -291,7 +291,8 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             }
         }
 
-        static void Shoot(MatchContext ctx, int s, int team, bool restart, bool penalty)
+        /// <summary>대체 슈팅 공 동작 (072가 재사용 — 조준 오차는 071 전 대체, 결정 RNG 2회).</summary>
+        public static void Shoot(MatchContext ctx, int s, int team, bool restart, bool penalty)
         {
             var me = ctx.SlotState(s);
             var goal = ctx.OpponentGoal(team);
@@ -366,14 +367,17 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             return true;
         }
 
-        static void ClearForward(MatchContext ctx, int s, int team)
+        static void ClearForward(MatchContext ctx, int s, int team) => ClearForward(ctx, s, team, true);
+
+        /// <summary>앞으로 걷어내기 (072 인플레이 걷어내기는 restart = false).</summary>
+        public static void ClearForward(MatchContext ctx, int s, int team, bool restart)
         {
             var me = ctx.SlotState(s);
             var dir = ctx.AttackDir(team);
             ctx.Board.SetBallAction(new BallAction
             {
                 Kind = BallActionKind.Clearance, KickerSlot = s, TargetSlot = -1, Velocity = new Vec3(dir * 18f, 0f, 8f),
-                Part = PhysicsStage.PartFor(in me, ctx.Ball.Position), IsRestart = true,
+                Part = PhysicsStage.PartFor(in me, ctx.Ball.Position), IsRestart = restart,
             });
         }
 

@@ -73,7 +73,7 @@ namespace RoadToPro.MatchEngine.UtilityAI
             Point = ctx.FromTeamPerspective(run.Team, run.Target[role]),
             InWindow = ctx.Tick - run.StepStart[role] < _runtime.StepLimitTicks,
             TargetSlot = -1,
-            NextPassTarget = st.TargetKind == StepTargetKind.Role && st.TargetRef >= 0 ? run.Slot[st.TargetRef] : -1,
+            NextPassTarget = st.Class == VerbClass.Pass && st.TargetKind == StepTargetKind.Role && st.TargetRef >= 0 ? run.Slot[st.TargetRef] : -1, // 패스 단계에서만
         };
 
         /// <summary>

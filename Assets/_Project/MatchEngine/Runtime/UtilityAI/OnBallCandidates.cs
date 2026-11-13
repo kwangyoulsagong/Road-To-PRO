@@ -183,7 +183,7 @@ namespace RoadToPro.MatchEngine.UtilityAI
                 {
                     if (!w.Active[o]) continue;
                     var d2 = (w.Pos[o] - me).LengthSq();
-                    if (d2 <= nearD2) { nearD2 = d2; near = o; }
+                    if (d2 < nearD2 || (near < 0 && d2 <= nearD2)) { nearD2 = d2; near = o; } // 동점 = 낮은 슬롯
                 }
                 if (near >= 0)
                 {

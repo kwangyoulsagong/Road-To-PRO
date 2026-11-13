@@ -1,0 +1,30 @@
+{
+  "spec": "072",
+  "profile": "mac-m1-1600p",
+  "note": "specs/072 성능 예산 표의 기계용 사본. 판정 런타임은 IL2CPP 릴리스 플레이어(`il2cpp` 항목, farm.py bench --spec 072) — README D17. EditMode(Mono) 항목은 max가 null이면 회귀 기준선(기록만), 숫자면 판정. 공 소유 선수 1명 결정 = 008 월드 갱신 + 압박 + 시야 + 후보(008 평가 포함) + 점수 + 선택. 010 결정 틱 예산(dec_tick_*)도 072를 포함해 다시 잰다.",
+  "deferred": {
+    "AC-05": "헤드리스 1,000경기 쌍둥이 비교 — 008·070·071 연결 전 고정 픽스처 1,000회로 대체(스펙 명시)",
+    "AC-10": "040 디버그 뷰 구현 후 E2E (스펙 명시)",
+    "AC-13": "003·007·033·070·071·012 연결 때 대체 입력을 바꿔 AC-01~09 재실행"
+  },
+  "tests": [
+    "RoadToPro.Tests.EditMode.MatchEngine.UtilityAI",
+    "RoadToPro.Tests.Performance.MatchEngine.OnBallPerfTests"
+  ],
+  "budgets": [
+    {"ac": "AC-12", "label": "공 소유 선수 1명 결정 평균 (Mono 회귀)", "test": "OnBallPerfTests.OwnerDecision_us", "group": "onball_owner_avg_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
+    {"ac": "AC-12", "label": "공 소유 선수 1명 결정 p95 (Mono 회귀)", "test": "OnBallPerfTests.OwnerDecision_us", "group": "onball_owner_p95_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
+    {"ac": "AC-12", "label": "시야 집합 구성 (Mono 회귀)", "test": "OnBallPerfTests.VisionSet_us", "group": "onball_vision_avg_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
+    {"ac": "AC-12", "label": "온볼 결정 GC 할당", "test": "OnBallPerfTests.OwnerDecision_NoAlloc_GcAllocCount", "group": "onball_gc_bytes_per_decision", "stat": "max", "max": 0, "unit": "B"}
+  ],
+  "il2cpp": {
+    "budgets": [
+      {"ac": "AC-12", "label": "공 소유 선수 1명 결정 평균 (008·070·071 평가 포함)", "metric": "onball_owner_avg_us", "max": 8, "unit": "µs"},
+      {"ac": "AC-12", "label": "공 소유 선수 1명 결정 p95", "metric": "onball_owner_p95_us", "max": 30, "unit": "µs"},
+      {"ac": "AC-12", "label": "시야 집합 구성 (동료 10명)", "metric": "onball_vision_avg_us", "max": 0.5, "unit": "µs"},
+      {"ac": "AC-12", "label": "온볼 결정 GC 할당", "metric": "onball_gc_bytes_per_decision", "max": 0, "unit": "B"},
+      {"ac": "AC-12", "label": "010 결정 틱 1회 평균 (072 포함, 006 FR-80 몫)", "metric": "dec_tick_avg_us", "max": 12, "unit": "µs"},
+      {"ac": "AC-12", "label": "010 결정 틱 1회 p95 (072 포함)", "metric": "dec_tick_p95_us", "max": 60, "unit": "µs"}
+    ]
+  }
+}

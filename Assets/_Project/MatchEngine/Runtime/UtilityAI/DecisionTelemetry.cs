@@ -53,6 +53,12 @@ namespace RoadToPro.MatchEngine.UtilityAI
         readonly long[] _lastTick = new long[DecisionWorld.N];
         readonly Consideration[] _lastKind = new Consideration[DecisionWorld.N];
         readonly bool[] _lastHas = new bool[DecisionWorld.N];
+        // 072 온볼 (FR-40)
+        public readonly int[,] OnBallAttempts = new int[DecisionWorld.N, OnBallItems.Count];
+        public readonly int[] InstructionIgnored = new int[DecisionWorld.N];
+        public readonly int[] OnBallDecisions = new int[DecisionWorld.N];
+        /// <summary>마지막 온볼 결정 진단 (040 '의사결정' 레이어: 시야 부채꼴·후보 점수 막대) — <see cref="SlotFilter"/> 선수(−1이면 아무나)의 최신 1건.</summary>
+        public readonly OnBallSnapshot LastOnBall = new OnBallSnapshot();
         public long MaxSpaceQueries;
         public long SpaceQueries;
         public long Ticks;
@@ -138,6 +144,16 @@ namespace RoadToPro.MatchEngine.UtilityAI
             };
         }
 
+        public void OnOnBallDecision(long tick, int slot, in OnBallResult result, OnBallDecider decider, DecisionWorld world)
+        {
+            OnBallDecisions[slot]++;
+            OnBallAttempts[slot, (int)result.Item]++;
+            if (result.IgnoredInstruction) InstructionIgnored[slot]++;
+            SourceCount[slot, (int)result.Source]++;
+            if (SlotFilter >= 0 && SlotFilter != slot) return;
+            LastOnBall.Capture(tick, slot, in result, decider, world);
+        }
+
         public void OnTick(long tick, DecisionWorld world, int spaceQueries)
         {
             Ticks++;
@@ -164,5 +180,55 @@ namespace RoadToPro.MatchEngine.UtilityAI
         }
 
         public int Opportunistic(int s) => SourceCount[s, (int)DecisionSource.Opportunistic];
+    }
+}
+
+namespace RoadToPro.MatchEngine.UtilityAI
+{
+    /// <summary>
+    /// 온볼 결정 1건 진단 (specs/072 FR-40, 040 '의사결정' 레이어 입력): 시야 부채꼴(위치·몸 방향·반경·시야각·집합 동료)과 후보 점수 막대(항목·대상·최종 점수·이득·손실·배수).
+    /// 버퍼는 생성 때 고정 크기 — 기록에 할당 없음.
+    /// </summary>
+    public sealed class OnBallSnapshot
+    {
+        public long Tick = long.MinValue;
+        public int Slot = -1;
+        public RoadToPro.Core.Math.Vec2 Position, Facing;
+        public float Radius, AngleDeg;
+        public int VisionCount;
+        public readonly int[] VisionSlots = new int[VisionSet.Capacity];
+        public int CandidateCount;
+        public readonly OnBallItem[] Items = new OnBallItem[UtilityChooser.MaxCandidates];
+        public readonly int[] Targets = new int[UtilityChooser.MaxCandidates];
+        public readonly float[] Scores = new float[UtilityChooser.MaxCandidates];
+        public readonly float[] Gains = new float[UtilityChooser.MaxCandidates];
+        public readonly float[] Losses = new float[UtilityChooser.MaxCandidates];
+        public readonly float[] Mults = new float[UtilityChooser.MaxCandidates];
+        public int Chosen = -1;
+
+        public void Capture(long tick, int slot, in OnBallResult r, OnBallDecider d, DecisionWorld w)
+        {
+            Tick = tick;
+            Slot = slot;
+            Position = w.Pos[slot];
+            var v = d.Candidates.Vision;
+            Facing = v.Facing;
+            Radius = v.Radius;
+            AngleDeg = v.AngleDeg;
+            VisionCount = v.Count;
+            for (int i = 0; i < v.Count; i++) VisionSlots[i] = v.Slot(i);
+            var c = d.Candidates;
+            CandidateCount = c.Count;
+            for (int i = 0; i < c.Count; i++)
+            {
+                Items[i] = c[i].Item;
+                Targets[i] = c[i].Target;
+                Scores[i] = d.Chooser.IsIn(i) ? d.Chooser.Score(i) : float.NegativeInfinity;
+                Gains[i] = c[i].Gain;
+                Losses[i] = c[i].Loss;
+                Mults[i] = c[i].Mult;
+            }
+            Chosen = d.LastPick;
+        }
     }
 }

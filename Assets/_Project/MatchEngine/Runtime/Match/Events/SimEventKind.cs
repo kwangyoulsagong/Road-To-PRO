@@ -141,6 +141,9 @@ namespace RoadToPro.MatchEngine.Match.Events
     /// <summary>교체·종료 사유 등 이벤트 데이터 코드 (SimEvent.A).</summary>
     public static class EventCodes
     {
+        /// <summary>돌파 이벤트(<see cref="SimEventKind.Dribble"/>) B 비트: 성공 (072 대체 1:1 판정, 070 전).</summary>
+        public const int DribbleSuccess = 1;
+
         // 교체 거부 사유
         public const int RejectLimit = 1;
         public const int RejectWindows = 2;
