@@ -8,6 +8,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
     {
         /// <summary>결정 1회. decider가 null이 아니면 이번 결정의 후보·점수 분해를 읽을 수 있다(오프볼).</summary>
         void OnDecision(long tick, int slot, in PlayerDecisionState state, OffBallDecider decider, DecisionWorld world);
+        /// <summary>온볼 결정 1회 (specs/072 FR-40): 결과 + 결정자(시야 집합·후보·점수 분해 읽기 전용).</summary>
+        void OnOnBallDecision(long tick, int slot, in OnBallResult result, OnBallDecider decider, DecisionWorld world);
         /// <summary>틱 끝 (결정 대상 처리 뒤).</summary>
         void OnTick(long tick, DecisionWorld world, int spaceQueries);
     }

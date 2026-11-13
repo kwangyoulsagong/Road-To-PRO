@@ -4,6 +4,7 @@ using RoadToPro.Core.Math;
 using RoadToPro.Core.Serialization;
 using RoadToPro.Core.Time;
 using RoadToPro.MatchEngine.Ball;
+using RoadToPro.MatchEngine.Match.Events;
 using RoadToPro.MatchEngine.Match.Flow;
 using RoadToPro.MatchEngine.Match.Pipeline;
 using RoadToPro.MatchEngine.Match.Stages.StandIn;
@@ -15,8 +16,9 @@ namespace RoadToPro.MatchEngine.Match.Stages
 {
     /// <summary>
     /// 단계 5 — 판단 AI (specs/010). 결정 대상(LOD 스케줄러 + 외부 입력 + 의도 변화 + 키 모먼트)을 선수 id 순으로 처리한다.
-    /// ① 인플레이가 아님·외부 입력·공 소유자 → 대체 경로(<see cref="StandInOnBall"/>, 012·072 자리, 배역 소유자는 시나리오 실행)
-    /// ② GK(인플레이·공 미소유) → 011 GK 결정 ③ 그 밖의 필드 선수(배역 포함) → 010 오프볼 판단(<see cref="OffBallDecider"/>).
+    /// ① 인플레이가 아님·외부 입력·공 가진 GK → 대체 경로(<see cref="StandInOnBall"/>, 012·074 자리)
+    /// ② 인플레이 공 소유 필드 선수(배역 포함) → 072 온볼 판단(<see cref="OnBallDecider"/>) ③ GK(인플레이·공 미소유) → 011 GK 결정
+    /// ④ 그 밖의 필드 선수(배역 포함) → 010 오프볼 판단(<see cref="OffBallDecider"/>).
     /// 배역 비소유 선수는 시나리오가 행동을 정하지 않고 의도 패킷만 준다(FR-50·53). 기회주의 이탈은 같은 틱에 013에 통보(FR-94).
     /// 결정은 보드에 쓰고 결정하지 않은 선수는 직전 결정을 유지한다(FR-43).
     /// </summary>
@@ -32,6 +34,9 @@ namespace RoadToPro.MatchEngine.Match.Stages
         readonly StandInStyleSource _style;
         readonly StandInSpace _space;
         readonly OffBallDecider _decider;
+        readonly OnBallDecider _onBall;
+        readonly StandInChemistry _chem = new StandInChemistry();
+        readonly StandInOnBallEval _eval;
         readonly LodDecisionScheduler _sched;
         readonly KeyMomentOverride _keys = new KeyMomentOverride();
         readonly Dictionary<int, MatchPlayer> _players = new Dictionary<int, MatchPlayer>();
@@ -52,6 +57,10 @@ namespace RoadToPro.MatchEngine.Match.Stages
         long _passTick = long.MinValue / 2;
         long _nextMarkTick;
         int _lastMarkPossTeam = -2;
+        // 072 온볼: 이동 결정 유지(010 FR-42 최소 유지)·돌파 성공 후 제친 수비수 태클 차단(070 대체)
+        readonly long[] _onBallUntil = new long[N];
+        readonly long[] _beatenUntil = new long[N];
+        readonly long[] _onBallTick = new long[N];
 
         public UtilityDecisionStage(MatchSetup setup, MatchTuning tuning, ScenarioRuntime runtime = null)
         {
@@ -62,6 +71,8 @@ namespace RoadToPro.MatchEngine.Match.Stages
             _style = new StandInStyleSource(N, _p.TendencyBase);
             _space = new StandInSpace(_p);
             _decider = new OffBallDecider(_p, _space, _style);
+            _eval = new StandInOnBallEval(_p);
+            _onBall = new OnBallDecider(_p, _style, _eval, _chem);
             _sched = new LodDecisionScheduler(_p) { Cast = _intents };
             AddPlayers(setup.Home);
             AddPlayers(setup.Away);
@@ -71,6 +82,9 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 _playerAt[s] = int.MinValue;
                 _prevIntentKey[s] = -1;
                 _w.Intent[s] = IntentPacket.None;
+                _onBallUntil[s] = long.MinValue / 2;
+                _beatenUntil[s] = long.MinValue / 2;
+                _onBallTick[s] = long.MinValue / 2;
             }
         }
 
@@ -88,6 +102,10 @@ namespace RoadToPro.MatchEngine.Match.Stages
         public StandInStyleSource Style => _style;
         public KeyMomentOverride KeyMoments => _keys;
         public OffBallDecider Decider => _decider;
+        public OnBallDecider OnBall => _onBall;
+        /// <summary>케미 스냅샷 (033 전 대체 — 경기 시작 전에 채운다).</summary>
+        public StandInChemistry Chemistry { get { _chemSet = true; return _chem; } }
+        bool _chemSet;
         public ISpaceEvaluator Space => _space;
         public ref readonly PlayerDecisionState State(int slot) => ref _state[slot];
         /// <summary>선수의 현재 결정 (보드에 쓰는 값).</summary>
@@ -141,6 +159,12 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     d = _x.DecideKeeper(ctx, s, ref hasAction);
                     Other(s, DecisionSource.Keeper, ctx.Tick);
                 }
+                else if (inPlay && s == owner && !Squad.IsKeeperSlot(s) && _x.InputOf(s) == default && !flow.DeadBall.Pending)
+                {
+                    var hadAction = hasAction;
+                    d = DecideOnBall(ctx, s, ref hasAction);
+                    if (!hadAction && hasAction) RememberPass(ctx, s);
+                }
                 else if (!inPlay || _x.InputOf(s) != default || s == owner || Squad.IsKeeperSlot(s))
                 {
                     var hadAction = hasAction;
@@ -166,7 +190,8 @@ namespace RoadToPro.MatchEngine.Match.Stages
                             _prevIntentKey[s] = -1;
                         }
                         d = ToDecision(s, in r);
-                        if (r.Kind == Consideration.Press && r.Target >= 0
+                        if (r.IgnoredInstruction) EmitIgnored(ctx, s, r.IgnoredKind, r.IgnoredWeight);
+                        if (r.Kind == Consideration.Press && r.Target >= 0 && _beatenUntil[s] <= ctx.Tick
                             && _x.TryTackle(ctx, s, r.Target, OffBallScorer.TackleAttemptScale(_p, _w.Mind[s].Temperament), ref hasAction))
                             d = StandInOnBall.Stand();
                         if (!hasKey) Diagnostics?.OnDecision(ctx.Tick, s, in _state[s], _decider, _w);
@@ -186,6 +211,136 @@ namespace RoadToPro.MatchEngine.Match.Stages
             }
             for (int s = 0; s < N; s++) board.SetDecision(s, in _intent[s]);
             Diagnostics?.OnTick(ctx.Tick, _w, _space.QueryCount);
+        }
+
+        /// <summary>
+        /// 072 온볼 결정 (인플레이 공 소유 필드 선수). 보유 시간 하한 동안·이동 결정 최소 유지(010 FR-42) 동안은 직전 이동을 이어 간다(RNG 미소비).
+        /// 결정이 나면: 패스·스루·크로스 → 008 의도 공 동작, 슈팅·걷어내기 → 대체 공 동작, 돌파 → 070 대체 1:1 판정(결정 RNG 1회), 캐리·홀드 → 이동, 넘어지기 → 012 입력 이벤트.
+        /// 지시 무시·기회주의 이탈·의도 일치 킥 통보는 같은 틱.
+        /// </summary>
+        Decision DecideOnBall(MatchContext ctx, int s, ref bool hasAction)
+        {
+            var tick = ctx.Tick;
+            var team = Squad.TeamOfSlot(s);
+            var me = ctx.SlotState(s);
+            var p = ctx.Params;
+            var carrySpeed = _w.Profile[s].MaxSpeed * p.CarrySpeedRatio;
+            var fresh = _onBallTick[s] < ctx.PossessionStartTick; // 이번 소유에서 아직 온볼 결정 안 함 (결정론 리뷰 L)
+            var held = tick - ctx.PossessionStartTick;
+            var keep = !fresh && tick < _onBallUntil[s] && !_sched.WasTriggered(s) && !_intentChanged[s];
+            ref readonly var pend = ref ctx.Actions.Pending;
+            if (pend.Active && pend.Action.KickerSlot == s) return StandInOnBall.Stand(); // 킥 준비 중: 다시 판단하지 않는다 (RNG 미소비, 결정론 리뷰 H)
+            if (hasAction || held < p.HoldTicks || keep)
+            {
+                if (!fresh && (_intent[s].Kind == DecisionKind.Carry || _intent[s].Kind == DecisionKind.Stand)) return _intent[s];
+                var goal = ctx.OpponentGoal(team);
+                var carryTo = new Vec2(goal.X - ctx.AttackDir(team) * 12f, me.Position.Y + (goal.Y - me.Position.Y) * 0.3f);
+                return new Decision { Kind = DecisionKind.Carry, Point = carryTo, TargetSlot = -1, MaxSpeed = carrySpeed };
+            }
+
+            var act = ctx.Actions;
+            act.Refresh(ctx);
+            var pressure = act.PressureOn(ctx, s);
+            var oneTouch = held <= (long)act.P.OneTouchTicks;
+            _onBallTick[s] = tick;
+            var r = _onBall.Decide(_w, act.World, act.P, ctx.BallParams, s, ref _state[s], ctx.DecisionRng, pressure, oneTouch, held * _w.Dt);
+            Diagnostics?.OnOnBallDecision(tick, s, in r, _onBall, _w);
+
+            if (r.IgnoredInstruction) EmitIgnored(ctx, s, r.IgnoredKind, r.IgnoredWeight);
+            if (r.ReleaseIntent && _intents != null && _intents.NotifyOpportunistic(ctx, s))
+            {
+                _w.Intent[s] = IntentPacket.None;
+                _prevIntentKey[s] = -1;
+            }
+
+            var from = ctx.Ball.Position.XY;
+            switch (r.Item)
+            {
+                case OnBallItem.ShortPass:
+                case OnBallItem.ProgPass:
+                case OnBallItem.ThroughBall:
+                case OnBallItem.Switch:
+                case OnBallItem.Cross:
+                {
+                    var a = Actions.ActionSystem.IntentAction(s, r.Target, in r.Pass, from, oneTouch);
+                    a.Part = PhysicsStage.PartFor(in me, ctx.Ball.Position);
+                    ctx.Board.SetBallAction(a);
+                    hasAction = true;
+                    _x.LastPassTarget = r.Target;
+                    _x.LastPassTick = tick;
+                    act.Diagnostics?.OnPassChosen(tick, s, r.Target, in r.Pass);
+                    if (_w.Intent[s].Has && _w.Intent[s].NextPassTarget == r.Target) _runtime?.NotifyOnBallKick(ctx, s); // 출처가 아니라 실제 킥이 단계와 맞는지 (결정론 리뷰 M)
+                    return StandInOnBall.Stand();
+                }
+                case OnBallItem.Shoot:
+                    StandInOnBall.ShootWithXg(ctx, s, team, r.Xg, _p.OnBallShotOnTargetK, _p.OnBallShotMissMax); // 071 대체 결과 (T11b)
+                    hasAction = true;
+                    if (_w.Intent[s].Has && (_w.Intent[s].Kind == Consideration.Shot || _w.Intent[s].Kind == Consideration.LongShot)) _runtime?.NotifyOnBallKick(ctx, s);
+                    return StandInOnBall.Stand();
+                case OnBallItem.Clear:
+                    StandInOnBall.ClearForward(ctx, s, team, false);
+                    hasAction = true;
+                    return StandInOnBall.Stand();
+                case OnBallItem.Dive:
+                {
+                    var e = SimEvent.Make(SimEventKind.DiveAttempt, team, ctx.PlayerAtSlot(s), r.Target >= 0 ? ctx.PlayerAtSlot(r.Target) : -1);
+                    e.A = r.ContactBin;
+                    e.B = s;
+                    e.X = me.Position.X;
+                    e.Y = me.Position.Y;
+                    e.F0 = r.FoulValue;
+                    ctx.Emit(e);
+                    _onBallUntil[s] = tick + HoldMinTicks;
+                    return new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
+                }
+                case OnBallItem.Dribble when r.Defender >= 0:
+                {
+                    var ok = ctx.DecisionRng.NextFloat() < r.P; // 070 대체 1:1 판정
+                    var e = SimEvent.Make(SimEventKind.Dribble, team, ctx.PlayerAtSlot(s), ctx.PlayerAtSlot(r.Defender));
+                    e.A = s;
+                    e.B = ok ? EventCodes.DribbleSuccess : 0;
+                    e.X = me.Position.X;
+                    e.Y = me.Position.Y;
+                    e.F0 = r.P;
+                    ctx.Emit(e);
+                    if (!ok)
+                    {
+                        // 돌파 실패 = 수비수의 태클 성공 (070 대체): 하이라이트 수비 액션·스탯이 읽는 Tackle 이벤트
+                        var tk = SimEvent.Make(SimEventKind.Tackle, Squad.TeamOfSlot(r.Defender), ctx.PlayerAtSlot(r.Defender), ctx.PlayerAtSlot(s));
+                        var dpos = ctx.SlotState(r.Defender).Position;
+                        tk.X = dpos.X;
+                        tk.Y = dpos.Y;
+                        tk.BallPhase = ctx.Ball.Phase;
+                        ctx.Emit(tk);
+                        act.TransferPossession(ctx, r.Defender, ctx.SlotState(r.Defender).Position); // 이벤트·마지막 터치까지 수신 경로와 같게 (결정론 리뷰 M)
+                        hasAction = true;
+                        return new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
+                    }
+                    _beatenUntil[r.Defender] = tick + (long)(_p.OnBallBeatenBlock * SimClock.TicksPerSecond + 0.5f);
+                    _onBallUntil[s] = tick + HoldMinTicks;
+                    return new Decision { Kind = DecisionKind.Carry, Point = r.Point, TargetSlot = -1, MaxSpeed = carrySpeed };
+                }
+                case OnBallItem.Hold:
+                    _onBallUntil[s] = tick + HoldMinTicks;
+                    return new Decision { Kind = DecisionKind.Carry, Point = me.Position, TargetSlot = -1, MaxSpeed = _w.Profile[s].MaxSpeed * IntensityPicker.SpeedRatio(_p, Intensity.Walk) };
+                default: // 캐리
+                    _onBallUntil[s] = tick + HoldMinTicks;
+                    return new Decision { Kind = DecisionKind.Carry, Point = r.Point, TargetSlot = -1, MaxSpeed = carrySpeed };
+            }
+        }
+
+        long HoldMinTicks => (long)(_p.HoldMinTime * SimClock.TicksPerSecond + 0.5f);
+
+        void EmitIgnored(MatchContext ctx, int s, Consideration kind, float weight)
+        {
+            var e = SimEvent.Make(SimEventKind.InstructionIgnored, Squad.TeamOfSlot(s), ctx.PlayerAtSlot(s));
+            e.A = (int)kind;
+            e.B = s;
+            e.F0 = weight;
+            var pos = ctx.SlotState(s).Position;
+            e.X = pos.X;
+            e.Y = pos.Y;
+            ctx.Emit(e);
         }
 
         /// <summary>이 슬롯이 이번 틱 공 동작을 냈다 — 패스면 받는 슬롯을 기억한다 (대체 온볼 또는 시나리오 패스).</summary>
@@ -240,7 +395,10 @@ namespace RoadToPro.MatchEngine.Match.Stages
         {
             var w = _w;
             var board = ctx.Board;
+            var flow = ctx.Flow;
             w.Tick = ctx.Tick;
+            var left = (flow.NominalTicks - flow.Elapsed) / (float)SimClock.TicksPerMinute; // 072 FR-11 남은 시간 (정규 기준)
+            w.MinutesLeft = (left < 0f ? 0f : left) + (flow.Period == 0 ? 45f : (flow.Period == 2 ? 15f : 0f));
             w.Dt = 1f / SimClock.TicksPerSecond;
             w.PitchL = ctx.Pitch.LengthM;
             w.PitchW = ctx.Pitch.WidthM;
@@ -297,6 +455,8 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 ref readonly var so = ref board.ShapeOutput(t);
                 ref readonly var ins = ref board.Instructions(t);
                 w.PressIntensity[t] = ins.PressIntensity;
+                w.Tempo[t] = ins.Tempo; w.Directness[t] = ins.Directness; w.Risk[t] = ins.Risk; w.TimeWasting[t] = ins.TimeWasting; // 072 FR-11
+                w.GoalDiff[t] = flow.Goals(t) - flow.Goals(1 - t);
                 w.Presser[t * 3 + 0] = Slot(t, so.PressActive ? so.Press1 : so.FirstResponder); // 압박 비활성이면 1순위 대응자가 붙는다 (009 FR-51)
                 w.Presser[t * 3 + 1] = so.PressActive ? Slot(t, so.Press2) : -1;
                 w.Presser[t * 3 + 2] = so.PressActive ? Slot(t, so.Press3) : -1;
@@ -346,14 +506,20 @@ namespace RoadToPro.MatchEngine.Match.Stages
             if (playerId >= 0 && _players.TryGetValue(playerId, out var p))
             {
                 _w.Mind[s] = p.Mind.OrAverage();
+                _w.Tech[s] = p.Technical.OrAverage();
                 _style.SetStyle(s, p.Style);
             }
             else
             {
                 _w.Mind[s] = DecisionAttributes.Average;
+                _w.Tech[s] = Actions.TechnicalAttributes.Average;
                 _style.SetStyle(s, null);
             }
             _state[s] = PlayerDecisionState.Initial; // 교체·자리 이동: 결정 상태 제거 (경계: 배역 선수 교체)
+            _onBallUntil[s] = long.MinValue / 2;
+            _beatenUntil[s] = long.MinValue / 2;
+            _onBallTick[s] = long.MinValue / 2;
+            if (_chemSet) _chem.ClearSlot(s); // 슬롯 키 케미: 교체로 다른 선수가 오면 물려받지 않는다 (033 연결 때 선수 id 키로, 결정론 리뷰 M)
             _hasAnchor[s] = false;
         }
 
@@ -366,6 +532,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 w.Write((byte)_intent[s].Kind); w.Write(_intent[s].Point); w.Write(_intent[s].TargetSlot); w.Write(_intent[s].MaxSpeed);
                 _state[s].Write(w);
                 w.Write(_lastAnchor[s]); w.Write(_hasAnchor[s]); w.Write(_playerAt[s]); w.Write(_prevIntentKey[s]); w.Write(_w.MarkTarget[s]);
+                w.Write(_onBallUntil[s]); w.Write(_beatenUntil[s]); w.Write(_onBallTick[s]);
             }
             w.Write(_lossTick[0]); w.Write(_lossTick[1]); w.Write(_lastPossTeam); w.Write(_nextMarkTick); w.Write(_lastMarkPossTeam); w.Write(_passTarget); w.Write(_passTick);
             _keys.Write(w);
@@ -382,12 +549,14 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 _lastAnchor[s] = r.ReadVec2(); _hasAnchor[s] = r.ReadBool();
                 var pid = r.ReadInt();
                 _prevIntentKey[s] = r.ReadInt(); _w.MarkTarget[s] = r.ReadInt();
+                var obu = r.ReadLong(); var btu = r.ReadLong(); var obt = r.ReadLong();
                 if (pid != _playerAt[s])
                 {
                     var st = _state[s]; var la = _lastAnchor[s]; var ha = _hasAnchor[s];
                     Rebind(s, pid); // 스타일·정신 다시 연결 (상태는 읽은 값으로 되돌림)
                     _state[s] = st; _lastAnchor[s] = la; _hasAnchor[s] = ha;
                 }
+                _onBallUntil[s] = obu; _beatenUntil[s] = btu; _onBallTick[s] = obt;
             }
             _lossTick[0] = r.ReadLong(); _lossTick[1] = r.ReadLong(); _lastPossTeam = r.ReadInt(); _nextMarkTick = r.ReadLong(); _lastMarkPossTeam = r.ReadInt(); _passTarget = r.ReadInt(); _passTick = r.ReadLong();
             _keys.Read(r);
@@ -402,6 +571,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 h.Add((byte)_intent[s].Kind); h.Add(_intent[s].Point.X); h.Add(_intent[s].Point.Y); h.Add(_intent[s].TargetSlot); h.Add(_intent[s].MaxSpeed);
                 _state[s].AddTo(ref h);
                 h.Add(_lastAnchor[s].X); h.Add(_lastAnchor[s].Y); h.Add(_hasAnchor[s]); h.Add(_playerAt[s]); h.Add(_prevIntentKey[s]); h.Add(_w.MarkTarget[s]);
+                h.Add(_onBallUntil[s]); h.Add(_beatenUntil[s]); h.Add(_onBallTick[s]);
             }
             h.Add(_lossTick[0]); h.Add(_lossTick[1]); h.Add(_lastPossTeam); h.Add(_nextMarkTick); h.Add(_lastMarkPossTeam); h.Add(_passTarget); h.Add(_passTick);
             _keys.AddTo(ref h);

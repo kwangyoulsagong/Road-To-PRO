@@ -245,7 +245,7 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["live.freeze.kickoff"] = () => FreezeGroup(SceneRole.GoalTail, s => s.End - 0.8d);
             FarmContext.Screens["live.freeze.conceded"] = () => FreezeGoal(1, b => b.EventTime - 0.5d);
             FarmContext.Screens["live.freeze.woodwork"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Woodwork || i.Kind == LiveSceneKind.Save, i => i.Kind == LiveSceneKind.ShotInBox);
-            FarmContext.Screens["live.freeze.defensive"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Defensive, null);
+            FarmContext.Screens["live.freeze.defensive"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Defensive, null, 0d, "defensive"); // 장면 종류를 메시지에 (072 보류 무시 규칙이 이 종류만 맞춘다)
             // 011 AC-25: GK 장면 — 다이빙 선방(접촉 0.1 s 전), 펀칭(없으면 다른 선방), 실점(공이 골라인을 넘기 직전)
             FarmContext.Screens["live.freeze.gkdive"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Save && (i.EventKind == SimEventKind.Parry || i.EventKind == SimEventKind.Catch), i => i.Kind == LiveSceneKind.Save, -0.1d);
             FarmContext.Screens["live.freeze.gkpunch"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Save && i.EventKind == SimEventKind.Punch, i => i.Kind == LiveSceneKind.Save && i.EventKind == SimEventKind.Parry, 0d);
@@ -302,7 +302,7 @@ namespace RoadToPro.Verification.Samples.Highlight
             Debug.LogError($"[highlight] 058 골 묶음에 {role} 없음");
         }
 
-        void FreezeKind(System.Func<LiveSceneInfo, bool> want, System.Func<LiveSceneInfo, bool> fallback, double offset = 0d)
+        void FreezeKind(System.Func<LiveSceneInfo, bool> want, System.Func<LiveSceneInfo, bool> fallback, double offset = 0d, string label = null)
         {
             var scenes = player.Scenes;
             for (int pass = 0; pass < 2; pass++)
@@ -319,7 +319,7 @@ namespace RoadToPro.Verification.Samples.Highlight
                     return;
                 }
             }
-            Debug.LogError("[highlight] 058 해당 종류 장면 없음");
+            Debug.LogError(label == null ? "[highlight] 058 해당 종류 장면 없음" : $"[highlight] 058 해당 종류 장면 없음 ({label})");
         }
 
         double _checkHalvesAt = double.NaN;

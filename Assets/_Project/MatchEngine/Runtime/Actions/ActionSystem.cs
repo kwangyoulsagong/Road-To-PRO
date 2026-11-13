@@ -484,6 +484,32 @@ namespace RoadToPro.MatchEngine.Actions
             Diagnostics?.OnContact(ctx.Tick, sub, s, kind, touch.Distance);
         }
 
+        /// <summary>
+        /// 결정 단계의 소유 이전 (specs/072 대체 1:1 돌파 실패 → 수비수 소유, 070 전): 수신 경로와 같은 후처리 — 공 잡기, <see cref="SimEventKind.PossessionChange"/>,
+        /// 마지막 터치·소유 시작·날아가는 패스·시도 초기화·페널티 정리. 결정 RNG·물리 RNG를 쓰지 않는다.
+        /// </summary>
+        public void TransferPossession(MatchContext ctx, int s, Vec2 at)
+        {
+            ref var ball = ref ctx.Ball;
+            var prevTeam = ball.OwnerId >= 0 ? ActionWorld.TeamOf(ball.OwnerId) : ctx.LastTouchTeam;
+            var team = ActionWorld.TeamOf(s);
+            var pos = new Vec3(at.X, at.Y, ctx.BallParams.Radius);
+            BallCommands.TakeControl(ref ball, s, pos, ctx.BallEvents);
+            if (team != prevTeam)
+            {
+                var pc = SimEvent.Make(SimEventKind.PossessionChange, team, ctx.PlayerAtSlot(s));
+                ctx.SetPosition(ref pc, pos);
+                ctx.Emit(pc);
+            }
+            ctx.LastTouchTeam = team;
+            ctx.LastTouchSlot = s;
+            ctx.LastKickKind = 0;
+            _flightTarget = -1;
+            ctx.PossessionStartTick = ctx.Tick;
+            if (ctx.Flow.PenaltyKickTick >= 0) ctx.Flow.ClearPenalty();
+            ResetAttempts();
+        }
+
         // ── 발행 뒤 ──
 
         /// <summary>이번 틱 발행분(로그 from 이후)의 패스 이벤트 B로 상세 기록에 이벤트 Seq를 연결한다 (FR-72).</summary>

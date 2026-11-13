@@ -291,7 +291,8 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             }
         }
 
-        static void Shoot(MatchContext ctx, int s, int team, bool restart, bool penalty)
+        /// <summary>대체 슈팅 공 동작 (072가 재사용 — 조준 오차는 071 전 대체, 결정 RNG 2회).</summary>
+        public static void Shoot(MatchContext ctx, int s, int team, bool restart, bool penalty)
         {
             var me = ctx.SlotState(s);
             var goal = ctx.OpponentGoal(team);
@@ -305,6 +306,36 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             {
                 Kind = BallActionKind.Shot, KickerSlot = s, TargetSlot = -1, Velocity = new Vec3(dir.X * speed, dir.Y * speed, vz),
                 Part = PhysicsStage.PartFor(in me, ctx.Ball.Position), IsRestart = restart, IsPenalty = penalty,
+            });
+        }
+
+        /// <summary>
+        /// 072 슈팅의 071 대체 결과 (specs/072 T11b): 결정 RNG 고정 3회 — ① 골문 안 여부 (확률 = min(1, xG × k)) ② 가로 조준 ③ 발사 높이.
+        /// 골문 안이면 포스트 안쪽 0.4 m까지, 아니면 포스트 바깥 0.5 m ~ missMax(좌우 무작위). 071이 구현되면 교체.
+        /// </summary>
+        public static void ShootWithXg(MatchContext ctx, int s, int team, float xg, float onTargetK, float missMax)
+        {
+            var me = ctx.SlotState(s);
+            var goal = ctx.OpponentGoal(team);
+            var half = BallParams.GoalWidth * 0.5f;
+            var pOn = xg * onTargetK;
+            var on = ctx.DecisionRng.NextFloat() < (pOn > 1f ? 1f : pOn);
+            var u = ctx.DecisionRng.Range(-1f, 1f);
+            float ty;
+            if (on) ty = goal.Y + u * (half - 0.4f);
+            else
+            {
+                var off = 0.5f + DMath.Abs(u) * (missMax - 0.5f);
+                ty = goal.Y + (u < 0f ? -(half + off) : (half + off));
+            }
+            var d = new Vec2(goal.X, ty) - ctx.Ball.Position.XY;
+            var dir = d.Normalized();
+            var speed = ctx.Params.ShotSpeed;
+            var vz = ctx.DecisionRng.Range(0.3f, 3.0f);
+            ctx.Board.SetBallAction(new BallAction
+            {
+                Kind = BallActionKind.Shot, KickerSlot = s, TargetSlot = -1, Velocity = new Vec3(dir.X * speed, dir.Y * speed, vz),
+                Part = PhysicsStage.PartFor(in me, ctx.Ball.Position),
             });
         }
 
@@ -366,14 +397,17 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             return true;
         }
 
-        static void ClearForward(MatchContext ctx, int s, int team)
+        static void ClearForward(MatchContext ctx, int s, int team) => ClearForward(ctx, s, team, true);
+
+        /// <summary>앞으로 걷어내기 (072 인플레이 걷어내기는 restart = false).</summary>
+        public static void ClearForward(MatchContext ctx, int s, int team, bool restart)
         {
             var me = ctx.SlotState(s);
             var dir = ctx.AttackDir(team);
             ctx.Board.SetBallAction(new BallAction
             {
                 Kind = BallActionKind.Clearance, KickerSlot = s, TargetSlot = -1, Velocity = new Vec3(dir * 18f, 0f, 8f),
-                Part = PhysicsStage.PartFor(in me, ctx.Ball.Position), IsRestart = true,
+                Part = PhysicsStage.PartFor(in me, ctx.Ball.Position), IsRestart = restart,
             });
         }
 

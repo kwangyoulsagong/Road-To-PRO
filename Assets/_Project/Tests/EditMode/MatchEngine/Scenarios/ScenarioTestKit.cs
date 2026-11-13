@@ -73,6 +73,15 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             return new MatchTuning(t.Ball, t.Kinematics, t.Match, t.Shape, t.Scenario, t.Goalkeeper, dec);
         }
 
+        /// <summary>배역이 의도를 항상 따른다 (준수 1, 기회주의 없음) — 072 이후 배역 공 소유자도 판단 AI가 정하므로 013 단계 규칙만 시험할 때.</summary>
+        public static MatchTuning ScriptedCast(ScenarioData d)
+        {
+            var t = MatchTuningOf(d);
+            var dec = RoadToPro.Core.Tuning.TuningLoader.ParseBundle(MatchTestKit.DecisionTuning().Registry, MatchTestKit.Values(
+                ("dec.intent.thetaOpp", 3f), ("dec.comply.base", 1f), ("dec.comply.max", 1f), ("dec.comply.min", 1f)));
+            return new MatchTuning(t.Ball, t.Kinematics, t.Match, t.Shape, t.Scenario, t.Goalkeeper, dec);
+        }
+
         public static ScenarioRuntime Runtime(MatchSim sim) => ((ScenarioStage)sim.Stage(StageId.ScenarioOrUtility)).Runtime;
 
         /// <summary>최소 시나리오 JSON. 트리거·배역·분기는 JSON 조각으로 넣는다.</summary>

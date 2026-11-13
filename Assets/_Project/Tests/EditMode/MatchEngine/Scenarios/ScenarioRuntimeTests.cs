@@ -238,7 +238,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             const string cast = "[{\"role\":\"a\",\"carrier\":true,\"positions\":[\"any\"],\"steps\":[{\"do\":\"pass_short\",\"to\":\"b\"}]}," +
                 "{\"role\":\"b\",\"steps\":[{\"do\":\"receive\"}]}]";
             var d = DataOf(Lib(Mini("P", cast, extra: Only)));
-            var sim = Forced(d, "P", tuning: NoOpportunism(d)); // 010 기회주의 이탈이 받는 배역을 먼저 풀지 않게 (013 단계 종료만 시험)
+            var sim = Forced(d, "P", tuning: ScriptedCast(d)); // 010 기회주의 이탈·072 온볼 판단이 단계를 벗어나지 않게 (013 단계 종료만 시험)
             var run = Runtime(sim).Run(0);
             var ctx = sim.Context;
             for (int i = 0; i < 120 && run.Active; i++)
@@ -268,7 +268,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         static MatchSim Setup(string id, ScenarioData d, bool flip)
         {
             var force = new ScenarioForceRequest { Id = id, Team = 0, Allowed = true, FromTick = long.MaxValue };
-            var sim = Sim(d, new MatchSimOptions { ScenarioForce = force });
+            var sim = Sim(d, new MatchSimOptions { ScenarioForce = force }, tuning: ScriptedCast(d)); // 010·072 판단의 기회주의 이탈은 미러 대칭이 아니다 — 013 배역 대칭만 시험
             var ctx = sim.Context;
             sim.StepTicks(600);
             for (int i = 0; i < 2000 && !ctx.Flow.InPlay; i++) sim.StepTicks(1);

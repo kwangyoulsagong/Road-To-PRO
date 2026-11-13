@@ -24,6 +24,7 @@ namespace RoadToPro.MatchEngine.UtilityAI
         public void Score(DecisionWorld w, int s, ref OffBallCandidate c)
         {
             c.Mult = _style.Multiplier(s, c.Kind);
+            c.MultFull = _style.MultiplierFullCompliance(s, c.Kind);
             if (c.Mult <= 0f) { c.Tactic = 0f; c.Utility = 0f; return; }
             var t = DecisionWorld.TeamOf(s);
             var m = w.Mind[s];
@@ -51,5 +52,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
             c.Tactic = f;
             c.Utility = c.Gain * c.Mult * f - c.Loss;
         }
+
+        /// <summary>준수율 1로 다시 낸 점수 (072 FR-32). 결합 배수 0으로 빠졌던 후보는 전술 보정 없이(1) 근사.</summary>
+        public static float FullComplianceUtility(in OffBallCandidate c) => c.Gain * c.MultFull * (c.Mult > 0f ? c.Tactic : 1f) - c.Loss;
     }
 }

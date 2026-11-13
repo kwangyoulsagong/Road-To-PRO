@@ -12,7 +12,7 @@ namespace RoadToPro.MatchEngine.UtilityAI
     /// </summary>
     public sealed class UtilityChooser
     {
-        public const int MaxCandidates = 16;
+        public const int MaxCandidates = 24;
 
         readonly float[] _score = new float[MaxCandidates];
         readonly bool[] _in = new bool[MaxCandidates];

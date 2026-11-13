@@ -46,6 +46,17 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
         }
 
         public void OnTick(long tick, DecisionWorld world, int spaceQueries) { }
+
+        /// <summary>072 온볼 결정 (AC-11 해시: 선수·틱·후보 집합·점수·선택).</summary>
+        public long OnBallDecisions;
+        public void OnOnBallDecision(long tick, int slot, in OnBallResult r, OnBallDecider decider, DecisionWorld world)
+        {
+            OnBallDecisions++;
+            _h.Add(tick); _h.Add(slot); _h.Add((byte)r.Item); _h.Add(r.Target); _h.Add(r.Point.X); _h.Add(r.Point.Y); _h.Add(r.IgnoredInstruction);
+            var c = decider.Candidates;
+            _h.Add(c.Count);
+            for (int i = 0; i < c.Count; i++) { _h.Add((byte)c[i].Item); _h.Add(c[i].Target); _h.Add(decider.Chooser.Score(i)); }
+        }
     }
 
     /// <summary>specs/010 T14: 결정론(AC-15·16·19)·90분 강도(AC-21)·전술 → 운동량(AC-34·35·36)·시나리오 0개 기준선 측정(AC-33 보류).</summary>
@@ -197,6 +208,10 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
             public void OnTick(long tick, DecisionWorld world, int q)
             {
                 for (int i = 0; i < _d.Length; i++) _d[i].OnTick(tick, world, q);
+            }
+            public void OnOnBallDecision(long tick, int slot, in OnBallResult r, OnBallDecider decider, DecisionWorld world)
+            {
+                for (int i = 0; i < _d.Length; i++) _d[i].OnOnBallDecision(tick, slot, in r, decider, world);
             }
         }
 
