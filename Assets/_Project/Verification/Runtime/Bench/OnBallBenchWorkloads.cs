@@ -64,6 +64,8 @@ namespace RoadToPro.Verification.Bench
             var rng = new SeedRng(7201);
             var act = ctx.Actions;
             var t = new long[maxTicks];
+            var tw = new long[maxTicks];
+            var td = new long[maxTicks];
             var n = 0;
             long cands = 0, bytes = 0;
             for (int tick = 0; tick < maxTicks && !sim.IsFinished; tick++)
@@ -79,14 +81,22 @@ namespace RoadToPro.Verification.Bench
                 var t0 = Stopwatch.GetTimestamp();
                 act.Refresh(ctx);
                 var pressure = act.PressureOn(ctx, s);
+                var t1 = Stopwatch.GetTimestamp();
                 dec.Decide(stage.World, act.World, act.P, ctx.BallParams, s, ref st, rng, pressure, false, held);
-                t[n++] = Stopwatch.GetTimestamp() - t0;
+                var t2 = Stopwatch.GetTimestamp();
+                t[n] = t2 - t0;
+                tw[n] = t1 - t0; // 008 월드 갱신(22명 TTI)·압박 — 틱당 1회 공유 비용
+                td[n] = t2 - t1; // 시야·후보(008 평가)·점수·선택
+                n++;
                 bytes += GC.GetAllocatedBytesForCurrentThread() - a0;
                 cands += dec.Candidates.Count;
             }
             m["onball_owner_avg_us"] = Avg(t, n);
             m["onball_owner_p95_us"] = P95(t, n);
             m["onball_owner_samples"] = n;
+            m["onball_owner_world_avg_us"] = Avg(tw, n);
+            m["onball_owner_decide_avg_us"] = Avg(td, n);
+            m["onball_owner_decide_p95_us"] = P95(td, n);
             m["onball_candidates_avg"] = n > 0 ? (double)cands / n : 0;
             m["onball_gc_bytes_per_decision"] = n > 0 ? (double)bytes / n : 0;
         }
