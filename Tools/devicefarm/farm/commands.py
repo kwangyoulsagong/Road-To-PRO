@@ -206,7 +206,10 @@ def cmd_logic(args, argv):
         deferred = deferred_acs(cfg, spec_info(args.spec)) if args.spec else {}
         # --filter > --scope(+스펙 성능 테스트) > 스펙 성능 테스트 > 전체
         spec_tests = perf.test_filter(cfg)
-        test_filter = args.filter or (";".join(x for x in (scope, spec_tests) if x) if scope else spec_tests)
+        # 범위가 전체(all — auto가 Core 변경 등으로 all을 낸 경우 포함)면 필터 없이 전부 (스펙 성능 테스트도 포함된다).
+        # 2026-11-12 008: 빈 범위를 "범위 없음"으로 읽어 스펙 테스트만 돌던 버그 수정
+        scope_all = getattr(args, "scope", None) is not None and scope == ""
+        test_filter = args.filter or ("" if scope_all else (";".join(x for x in (scope, spec_tests) if x) if scope else spec_tests))
         perf_json = os.path.join(run_dir, "PerformanceTestResults.json") if cfg else None
         log("[farm] 로직 테스트 (EditMode) 실행 중…" + (f" 필터 {test_filter}" if test_filter else ""))
         meta = logic.metadata()
