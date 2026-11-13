@@ -178,16 +178,16 @@ namespace RoadToPro.MatchEngine.UtilityAI
         public readonly float OnBallOffsideAvoidBase = 0.3f;
         public readonly float OnBallOffsideAvoidSlope = 0.6f;
         public readonly float OnBallDribbleStep = 5.0f;
-        public readonly float OnBallDribbleEngage = 4.0f;
-        public readonly float OnBallDribbleCone = 45.0f;
+        public readonly float OnBallDribbleEngage = 7.0f;
+        public readonly float OnBallDribbleCone = 60.0f;
         public readonly float OnBallDribbleMateClear = 2.0f;
-        public readonly float OnBallCarryLoss = 0.3f;
+        public readonly float OnBallCarryLoss = 0.8f;
         public readonly float OnBallDribB0 = 0.0f;
         public readonly float OnBallDribB1 = 3.0f;
         public readonly float OnBallDribB2 = 1.0f;
         public readonly float OnBallProbMin = 0.02f;
         public readonly float OnBallProbMax = 0.95f;
-        public readonly float OnBallShotRange = 30.0f;
+        public readonly float OnBallShotRange = 25.0f;
         public readonly float OnBallLongShotDist = 20.0f;
         public readonly float OnBallShotB0 = -1.0f;
         public readonly float OnBallShotBDist = 0.1f;
@@ -222,6 +222,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
         public readonly float OnBallDiveWeight = 0.3f;
         public readonly float OnBallBeatenBlock = 1.0f;
         public readonly float OnBallChemK = 0.15f;
+        public readonly float OnBallShotOnTargetK = 1.5f;
+        public readonly float OnBallShotMissMax = 3.0f;
 
         DecisionParams() { Hash = 0x6465_635F_6465_6661UL; }
 
@@ -434,6 +436,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
             OnBallDiveWeight = t.Get(Ids.OnBallDiveWeight);
             OnBallBeatenBlock = t.Get(Ids.OnBallBeatenBlock);
             OnBallChemK = t.Get(Ids.OnBallChemK);
+            OnBallShotOnTargetK = t.Get(Ids.OnBallShotOnTargetK);
+            OnBallShotMissMax = t.Get(Ids.OnBallShotMissMax);
             Hash = t.Hash;
         }
 

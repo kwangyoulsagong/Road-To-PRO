@@ -273,7 +273,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     return StandInOnBall.Stand();
                 }
                 case OnBallItem.Shoot:
-                    StandInOnBall.Shoot(ctx, s, team, false, false);
+                    StandInOnBall.ShootWithXg(ctx, s, team, r.Xg, _p.OnBallShotOnTargetK, _p.OnBallShotMissMax); // 071 대체 결과 (T11b)
                     hasAction = true;
                     if (_w.Intent[s].Has && (_w.Intent[s].Kind == Consideration.Shot || _w.Intent[s].Kind == Consideration.LongShot)) _runtime?.NotifyOnBallKick(ctx, s);
                     return StandInOnBall.Stand();

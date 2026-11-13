@@ -16,6 +16,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
         public int Defender;
         /// <summary>선택 후보의 성공 확률 (드리블 1:1 대체 판정에 쓴다).</summary>
         public float P;
+        /// <summary>슈팅: 대체 xG (071 대체 슈팅 결과에 쓴다).</summary>
+        public float Xg;
         /// <summary>넘어지기: 파울 유도 기대 가치·접촉 강도 구간 (0 없음, 1 약함).</summary>
         public float FoulValue;
         public int ContactBin;
@@ -200,6 +202,7 @@ namespace RoadToPro.MatchEngine.UtilityAI
             {
                 Item = ch.Item, Target = ch.Target, Point = ch.Point, Pass = ch.Pass, Defender = ch.Defender, P = ch.P, Fallback = _cands.Fallback,
             };
+            if (ch.Item == OnBallItem.Shoot) r.Xg = ch.V;
             if (ch.Item == OnBallItem.Dive)
             {
                 r.FoulValue = _eval.FoulValue(w, s);

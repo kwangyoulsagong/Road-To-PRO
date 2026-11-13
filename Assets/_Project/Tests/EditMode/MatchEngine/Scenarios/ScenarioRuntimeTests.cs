@@ -268,7 +268,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         static MatchSim Setup(string id, ScenarioData d, bool flip)
         {
             var force = new ScenarioForceRequest { Id = id, Team = 0, Allowed = true, FromTick = long.MaxValue };
-            var sim = Sim(d, new MatchSimOptions { ScenarioForce = force });
+            var sim = Sim(d, new MatchSimOptions { ScenarioForce = force }, tuning: ScriptedCast(d)); // 010·072 판단의 기회주의 이탈은 미러 대칭이 아니다 — 013 배역 대칭만 시험
             var ctx = sim.Context;
             sim.StepTicks(600);
             for (int i = 0; i < 2000 && !ctx.Flow.InPlay; i++) sim.StepTicks(1);

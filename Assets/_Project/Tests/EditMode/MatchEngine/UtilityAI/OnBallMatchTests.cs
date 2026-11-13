@@ -63,8 +63,23 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
         [Test, Explicit("리포트용 측정"), Category("Slow"), Timeout(1_200_000)]
         public void Report_100Matches_OnBallMeasurements()
         {
-            const int n = 100;
+            // 보정용: .farm/onball-tune.json({"n": 경기 수, "values": [{"id": .., "value": ..}]})이 있으면 경기 수·결정 튜닝을 덮어쓴다 (gitignore, 기본은 100경기·파일 기본값)
+            var n = 100;
             var tu = ShapeTestKit.TuningWithShape();
+            var tunePath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), ".farm", "onball-tune.json");
+            if (System.IO.File.Exists(tunePath))
+            {
+                var raw = System.IO.File.ReadAllText(tunePath);
+                var nm = System.Text.RegularExpressions.Regex.Match(raw, "\"n\"\\s*:\\s*(\\d+)");
+                if (nm.Success) n = int.Parse(nm.Groups[1].Value);
+                var vm = System.Text.RegularExpressions.Regex.Match(raw, "\"values\"\\s*:\\s*(\\[[^\\]]*\\])");
+                if (vm.Success)
+                {
+                    var dec = RoadToPro.Core.Tuning.TuningLoader.ParseBundle(MatchTestKit.DecisionTuning().Registry, "{\"version\":1,\"values\":" + vm.Groups[1].Value + "}");
+                    tu = new MatchTuning(tu.Ball, tu.Kinematics, tu.Match, tu.Shape, tu.Scenario, tu.Goalkeeper, dec, tu.Action);
+                }
+                TestContext.WriteLine($"튜닝 덮어쓰기: n={n} {raw}");
+            }
             ShapeTestKit.Setup(seed: 1UL);
             var res = new One[n];
             System.Threading.Tasks.Parallel.For(0, n, i => res[i] = RunOne(i, tu));

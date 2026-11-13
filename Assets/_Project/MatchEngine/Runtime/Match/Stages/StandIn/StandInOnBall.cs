@@ -310,6 +310,36 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
         }
 
         /// <summary>
+        /// 072 슈팅의 071 대체 결과 (specs/072 T11b): 결정 RNG 고정 3회 — ① 골문 안 여부 (확률 = min(1, xG × k)) ② 가로 조준 ③ 발사 높이.
+        /// 골문 안이면 포스트 안쪽 0.4 m까지, 아니면 포스트 바깥 0.5 m ~ missMax(좌우 무작위). 071이 구현되면 교체.
+        /// </summary>
+        public static void ShootWithXg(MatchContext ctx, int s, int team, float xg, float onTargetK, float missMax)
+        {
+            var me = ctx.SlotState(s);
+            var goal = ctx.OpponentGoal(team);
+            var half = BallParams.GoalWidth * 0.5f;
+            var pOn = xg * onTargetK;
+            var on = ctx.DecisionRng.NextFloat() < (pOn > 1f ? 1f : pOn);
+            var u = ctx.DecisionRng.Range(-1f, 1f);
+            float ty;
+            if (on) ty = goal.Y + u * (half - 0.4f);
+            else
+            {
+                var off = 0.5f + DMath.Abs(u) * (missMax - 0.5f);
+                ty = goal.Y + (u < 0f ? -(half + off) : (half + off));
+            }
+            var d = new Vec2(goal.X, ty) - ctx.Ball.Position.XY;
+            var dir = d.Normalized();
+            var speed = ctx.Params.ShotSpeed;
+            var vz = ctx.DecisionRng.Range(0.3f, 3.0f);
+            ctx.Board.SetBallAction(new BallAction
+            {
+                Kind = BallActionKind.Shot, KickerSlot = s, TargetSlot = -1, Velocity = new Vec3(dir.X * speed, dir.Y * speed, vz),
+                Part = PhysicsStage.PartFor(in me, ctx.Ball.Position),
+            });
+        }
+
+        /// <summary>
         /// 마지막으로 낸 패스(결정)의 받는 슬롯과 틱. 010 수신 우선권이 같은 틱에 읽는다. 날아가는 패스의 받는 선수는 실행 기준인 <c>ActionSystem.FlightTarget</c>을 쓴다(결정론 리뷰).
         /// 값이 다음 틱에 남으므로 해시·스냅샷에 넣어 둔다.
         /// </summary>

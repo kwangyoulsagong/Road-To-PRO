@@ -105,6 +105,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
         [Test]
         public void Twin_Dribbling1vs20_MoreDribbleAndSuccess_AC06()
         {
+            const int N = 3000; // 돌파 판정 7 m(T11b) 뒤 선택 빈도가 낮아 표본을 늘린다
             int pick1 = 0, ok1 = 0, pick20 = 0, ok20 = 0;
             var roll = new SeedRng(77);
             Wing(dribbling: 0f).Distribution(6, 106, N, r => { if (r.Item == OnBallItem.Dribble) { pick1++; if (roll.NextFloat() < r.P) ok1++; } });

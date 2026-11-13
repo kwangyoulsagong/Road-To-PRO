@@ -211,5 +211,7 @@ namespace RoadToPro.MatchEngine.UtilityAI
         public const string OnBallDiveWeight = "dec.onball.dive.weight";
         public const string OnBallBeatenBlock = "dec.onball.dribble.beatenBlock";
         public const string OnBallChemK = "dec.onball.chem.k";
+        public const string OnBallShotOnTargetK = "dec.onball.shot.onTargetK";
+        public const string OnBallShotMissMax = "dec.onball.shot.missMax";
     }
 }
