@@ -305,6 +305,13 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     ctx.Emit(e);
                     if (!ok)
                     {
+                        // 돌파 실패 = 수비수의 태클 성공 (070 대체): 하이라이트 수비 액션·스탯이 읽는 Tackle 이벤트
+                        var tk = SimEvent.Make(SimEventKind.Tackle, Squad.TeamOfSlot(r.Defender), ctx.PlayerAtSlot(r.Defender), ctx.PlayerAtSlot(s));
+                        var dpos = ctx.SlotState(r.Defender).Position;
+                        tk.X = dpos.X;
+                        tk.Y = dpos.Y;
+                        tk.BallPhase = ctx.Ball.Phase;
+                        ctx.Emit(tk);
                         act.TransferPossession(ctx, r.Defender, ctx.SlotState(r.Defender).Position); // 이벤트·마지막 터치까지 수신 경로와 같게 (결정론 리뷰 M)
                         hasAction = true;
                         return new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
