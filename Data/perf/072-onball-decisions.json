@@ -19,7 +19,7 @@
   ],
   "il2cpp": {
     "budgets": [
-      {"ac": "AC-12", "label": "공 소유 선수 1명 결정 평균 (008·070·071 평가 포함)", "metric": "onball_owner_avg_us", "max": 8, "unit": "µs"},
+      {"ac": "AC-12", "label": "공 소유 선수 1명 결정 평균 (008·070·071 평가 포함, 2026-11-13 사용자 결정 8 → 12)", "metric": "onball_owner_avg_us", "max": 12, "unit": "µs"},
       {"ac": "AC-12", "label": "공 소유 선수 1명 결정 p95", "metric": "onball_owner_p95_us", "max": 30, "unit": "µs"},
       {"ac": "AC-12", "label": "시야 집합 구성 (동료 10명)", "metric": "onball_vision_avg_us", "max": 0.5, "unit": "µs"},
       {"ac": "AC-12", "label": "온볼 결정 GC 할당", "metric": "onball_gc_bytes_per_decision", "max": 0, "unit": "B"},
