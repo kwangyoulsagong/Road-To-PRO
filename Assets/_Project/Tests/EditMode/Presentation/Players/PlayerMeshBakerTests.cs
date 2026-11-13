@@ -157,6 +157,9 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 double best = double.MaxValue;
                 for (int rep = 0; rep < 5; rep++)
                 {
+                    // 앞선 테스트(경기 여러 판을 돌리는 엔진 테스트)가 남긴 힙 때문에 GC가 측정 중에 끼지 않게 (2026-11-13, 008 전체 실행에서 395 ms로 튐)
+                    System.GC.Collect();
+                    System.GC.WaitForPendingFinalizers();
                     var sw = System.Diagnostics.Stopwatch.StartNew();
                     for (int i = 0; i < rigs.Length; i++)
                     {
