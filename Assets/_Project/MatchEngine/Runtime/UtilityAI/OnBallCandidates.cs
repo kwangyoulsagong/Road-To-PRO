@@ -89,7 +89,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
                 var o = _vision.Slot(i);
                 var seen = _vision.Seen(i);
                 var dist = (seen - from).Length();
-                if (dist < _p.OnBallPassMinDist) continue;
+                if (dist < _p.OnBallPassMinDist && !(intentActive && o == intent.NextPassTarget)) continue; // 의도 대상(레이오프 등)은 최소 거리 예외
+                if (dist < 1f) continue;
                 var offside = _eval.OffsideFactor(w, s, o);
                 var chem = _chem != null ? _chem.Chemistry(s, o) : 0f;
                 var mateInBox = _eval.InOppBox(w, t, seen);

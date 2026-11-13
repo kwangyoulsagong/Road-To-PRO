@@ -238,7 +238,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             const string cast = "[{\"role\":\"a\",\"carrier\":true,\"positions\":[\"any\"],\"steps\":[{\"do\":\"pass_short\",\"to\":\"b\"}]}," +
                 "{\"role\":\"b\",\"steps\":[{\"do\":\"receive\"}]}]";
             var d = DataOf(Lib(Mini("P", cast, extra: Only)));
-            var sim = Forced(d, "P", tuning: NoOpportunism(d)); // 010 기회주의 이탈이 받는 배역을 먼저 풀지 않게 (013 단계 종료만 시험)
+            var sim = Forced(d, "P", tuning: ScriptedCast(d)); // 010 기회주의 이탈·072 온볼 판단이 단계를 벗어나지 않게 (013 단계 종료만 시험)
             var run = Runtime(sim).Run(0);
             var ctx = sim.Context;
             for (int i = 0; i < 120 && run.Active; i++)
