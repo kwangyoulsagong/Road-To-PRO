@@ -96,6 +96,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             ref readonly var ball = ref ctx.Ball;
             var target = ball.Position.XY + ball.Velocity.XY * 0.3f;
             _presser = -1;
+            _receiver = -1;
             for (int t = 0; t < 2; t++)
             {
                 _chaser[t] = -1;
@@ -111,7 +112,19 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             }
             if (ball.Phase == BallPhase.Controlled && ball.OwnerId >= 0)
                 _presser = _chaser[1 - Squad.TeamOfSlot(ball.OwnerId)];
+            else if (ball.Phase != BallPhase.Controlled && ctx.Actions.FlightTarget is var ft && ft >= 0
+                && ctx.IsSlotControllable(ft) && Squad.TeamOfSlot(ft) == ctx.LastTouchTeam && ft != ctx.LastKickSlot
+                && !Squad.IsKeeperSlot(ft) && (_override == null || !_override.IsCast(ft)))
+            {
+                // 008 T14a: 실행된 동료 패스가 날아가는 중이면 받는 선수가 그 팀 추격자 — 공 경로 위 최근접점으로 (대체·시나리오 패스 모두)
+                _receiver = ft;
+                _chaser[ctx.LastTouchTeam] = _receiver;
+                _receivePoint = Actions.ReceivePoint.OnPath(ball.Position.XY, ball.Velocity.XY, ctx.SlotState(_receiver).Position, ctx.Actions.P.ReceiveAhead);
+            }
         }
+
+        int _receiver = -1;
+        Vec2 _receivePoint;
 
         public Decision Decide(MatchContext ctx, int s, ref bool hasAction)
         {
@@ -203,7 +216,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             // 느슨한 공
             if (ball.Phase != BallPhase.Controlled && s == _chaser[team])
             {
-                var target = ball.Position.XY + ball.Velocity.XY * 0.3f;
+                var target = s == _receiver ? _receivePoint : ball.Position.XY + ball.Velocity.XY * 0.3f;
                 return new Decision { Kind = DecisionKind.Chase, Point = target, TargetSlot = -1 };
             }
             return new Decision { Kind = DecisionKind.HoldShape, TargetSlot = -1 };
@@ -295,40 +308,61 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             });
         }
 
-        /// <summary>앞쪽(진행 방향) 이득 − 거리 비용 + 잡음이 가장 큰 동료에게 땅볼 패스. 킥오프는 아무 방향이나 가까운 동료.</summary>
-        /// <summary>마지막으로 낸 패스의 받는 슬롯과 틱 (010 수신 우선권, 상태 아님 — 같은 틱에 읽는다).</summary>
-        public int LastPassTarget { get; private set; } = -1;
-        public long LastPassTick { get; private set; } = long.MinValue;
+        /// <summary>
+        /// 마지막으로 낸 패스(결정)의 받는 슬롯과 틱. 010 수신 우선권이 같은 틱에 읽는다. 날아가는 패스의 받는 선수는 실행 기준인 <c>ActionSystem.FlightTarget</c>을 쓴다(결정론 리뷰).
+        /// 값이 다음 틱에 남으므로 해시·스냅샷에 넣어 둔다.
+        /// </summary>
+        public int LastPassTarget { get; set; } = -1;
+        public long LastPassTick { get; set; } = long.MinValue;
 
+        public void WritePass(Core.Serialization.StateWriter w) { w.Write(LastPassTarget); w.Write(LastPassTick); }
+        public void ReadPass(Core.Serialization.StateReader r) { LastPassTarget = r.ReadInt(); LastPassTick = r.ReadLong(); }
+        public void AddPassTo(ref Core.Hashing.StableHasher h) { h.Add(LastPassTarget); h.Add(LastPassTick); }
+
+        /// <summary>
+        /// 대체 패스 선택 (072 자리, specs/008 T14): 동료마다 008 평가(로지스틱 xPass, 속도 후보·스루볼 lead)를 내고
+        /// 점수 = xPass × max(floor, 1 + xtK·ΔxT + gainK·전진 거리) + 잡음 U(0, noise) [대체, act.standin.*]가 가장 큰 패스를 의도로 낸다(실행 오차는 접촉 순간 008).
+        /// 킥오프는 가까운 동료. 결정 RNG 소비는 후보당 1회(이전과 같은 규칙).
+        /// </summary>
         bool Pass(MatchContext ctx, int s, int team, bool restart, bool kickoff)
         {
             var me = ctx.SlotState(s);
             var p = ctx.Params;
             var dir = ctx.AttackDir(team);
+            var act = ctx.Actions;
+            var from = ctx.Ball.Position.XY;
             int best = -1;
-            float bestScore = float.MinValue, bestDist = 0f;
+            float bestScore = float.MinValue;
+            var bestOpt = default(Actions.PassOption);
+            var press = act.PressureOn(ctx, s); // 패서 압박은 후보와 무관 — 1회
             for (int o = team * Squad.SlotsPerTeam; o < (team + 1) * Squad.SlotsPerTeam; o++)
             {
                 if (o == s || !ctx.IsSlotControllable(o)) continue;
                 var op = ctx.SlotState(o).Position;
                 var dist = (op - me.Position).Length();
                 if (dist < 4f || dist > p.PassRange) continue;
-                var gain = (op.X - me.Position.X) * dir;
-                var score = (kickoff ? -dist : gain - 0.2f * dist) + ctx.DecisionRng.Range(0f, 8f);
-                if (score > bestScore) { bestScore = score; best = o; bestDist = dist; }
+                var noise = ctx.DecisionRng.Range(0f, act.P.StandInNoise);
+                var opt = act.EvaluatePass(ctx, s, o, op, press, out var dxt);
+                if (!kickoff)
+                {
+                    var th = act.EvaluateThrough(ctx, s, o, press, out var dxt2);
+                    if (th.Valid && th.XPass * DMath.Max(act.P.StandInFloor, 1f + act.P.StandInXtK * dxt2) > opt.XPass * DMath.Max(act.P.StandInFloor, 1f + act.P.StandInXtK * dxt)) { opt = th; dxt = dxt2; }
+                }
+                if (!opt.Valid) continue;
+                var gain = (opt.Aim.X - from.X) * dir;
+                var score = kickoff ? -dist + noise : opt.XPass * DMath.Max(act.P.StandInFloor, 1f + act.P.StandInXtK * dxt + act.P.StandInGainK * gain) + noise;
+                act.Diagnostics?.OnPassCandidate(ctx.Tick, s, o, in opt, dxt, press, score);
+                if (score > bestScore) { bestScore = score; best = o; bestOpt = opt; }
             }
             if (best < 0) return false;
             LastPassTarget = best;
             LastPassTick = ctx.Tick;
-            var tp = ctx.SlotState(best).Position;
-            var inv = BallInverse.GroundSpeedFor(ctx.BallParams, bestDist, p.PassExtraSpeed);
-            var speed = inv.Status == BallInverseStatus.Ok ? inv.Speed : DMath.Min(bestDist * 0.9f + 5f, 25f);
-            var u = (tp - ctx.Ball.Position.XY).Normalized();
-            ctx.Board.SetBallAction(new BallAction
-            {
-                Kind = BallActionKind.Pass, KickerSlot = s, TargetSlot = best, Velocity = new Vec3(u.X * speed, u.Y * speed, 0f),
-                Part = PhysicsStage.PartFor(in me, ctx.Ball.Position), IsRestart = restart, IsKickoff = kickoff,
-            });
+            act.Diagnostics?.OnPassChosen(ctx.Tick, s, best, in bestOpt);
+            var a = Actions.ActionSystem.IntentAction(s, best, in bestOpt, from, ctx.Tick - ctx.PossessionStartTick <= (long)act.P.OneTouchTicks);
+            a.Part = PhysicsStage.PartFor(in me, ctx.Ball.Position);
+            a.IsRestart = restart;
+            a.IsKickoff = kickoff;
+            ctx.Board.SetBallAction(a);
             return true;
         }
 

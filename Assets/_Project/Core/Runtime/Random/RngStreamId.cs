@@ -19,6 +19,8 @@ namespace RoadToPro.Core.Random
         TeamShape = 9,
         /// <summary>골키퍼: 위치 오차 재추첨·선방 처리·GK 행동 선택 (specs/011).</summary>
         Goalkeeper = 10,
+        /// <summary>액션 실행: 킥 오차·수신 컨트롤 판정·첫 터치 (specs/008 FR-61).</summary>
+        Action = 11,
 
         CareerWeek = 101,
         CareerEvents = 102,

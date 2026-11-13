@@ -28,7 +28,7 @@ namespace RoadToPro.Verification.Samples.Highlight
         {
             var reg = TuningLoader.LoadDefinitionsFile(Path.Combine(dataDir, "tuning", "match.json"));
             var match = TuningLoader.ParseBundle(reg, "{\"version\":1,\"values\":[{\"id\":\"standin.shotProb\",\"value\":" + ShotProb.ToString(CultureInfo.InvariantCulture) + "}]}");
-            return new MatchTuning(baseTuning.Ball, baseTuning.Kinematics, match, baseTuning.Shape, baseTuning.Scenario, baseTuning.Goalkeeper, baseTuning.Decision);
+            return new MatchTuning(baseTuning.Ball, baseTuning.Kinematics, match, baseTuning.Shape, baseTuning.Scenario, baseTuning.Goalkeeper, baseTuning.Decision, baseTuning.Action);
         }
 
         public static MatchSetup Prepare(MatchSetup setup)

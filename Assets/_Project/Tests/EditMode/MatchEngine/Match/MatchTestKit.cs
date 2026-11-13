@@ -34,12 +34,15 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Match
                     TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("ball.json"))),
                     TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("kinematics.json"))),
                     TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("match.json"))),
-                    goalkeeper: Goalkeeper(), decision: DecisionTuning());
+                    goalkeeper: Goalkeeper(), decision: DecisionTuning(), action: ActionTuning());
             }
         }
 
         /// <summary>골키퍼 튜닝 기본값 (specs/011).</summary>
         public static TuningBundle DecisionTuning() => TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("decision.json")));
+
+        /// <summary>액션 모델 튜닝 기본값 (specs/008).</summary>
+        public static TuningBundle ActionTuning() => TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("action.json")));
 
         public static TuningBundle Goalkeeper() => TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(Tuning("goalkeeper.json")));
 
@@ -49,7 +52,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Match
         public static MatchTuning TuningWith(string matchValuesJson)
         {
             var t = Tuning();
-            return new MatchTuning(t.Ball, t.Kinematics, TuningLoader.ParseBundle(MatchRegistry(), matchValuesJson), goalkeeper: t.Goalkeeper, decision: t.Decision);
+            return new MatchTuning(t.Ball, t.Kinematics, TuningLoader.ParseBundle(MatchRegistry(), matchValuesJson), goalkeeper: t.Goalkeeper, decision: t.Decision, action: t.Action);
         }
 
         public static readonly Vec2[] Formation442 =

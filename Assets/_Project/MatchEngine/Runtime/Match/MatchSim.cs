@@ -61,7 +61,7 @@ namespace RoadToPro.MatchEngine.Match
     public sealed class MatchSim
     {
         public const byte SnapshotTagCore = 1, SnapshotTagFlow = 2, SnapshotTagSquad = 3, SnapshotTagOfficials = 4,
-            SnapshotTagKinematics = 5, SnapshotTagScheduler = 6, SnapshotTagKeepers = 7, SnapshotTagStageBase = 10;
+            SnapshotTagKinematics = 5, SnapshotTagScheduler = 6, SnapshotTagKeepers = 7, SnapshotTagActions = 8, SnapshotTagStageBase = 10;
 
         readonly MatchSetup _setup;
         readonly MatchTuning _tuning;
@@ -354,6 +354,7 @@ namespace RoadToPro.MatchEngine.Match
             _ctx.AddStateTo(ref h);
             _scheduler.AddTo(ref h);
             _ctx.Keepers.AddTo(ref h);
+            _ctx.Actions.AddTo(ref h);
             for (int i = 0; i < _stages.Length; i++) _stages[i].AddTo(ref h);
             return h.Value;
         }
@@ -373,6 +374,7 @@ namespace RoadToPro.MatchEngine.Match
             w.BeginSection(SnapshotTagKinematics); _ctx.Kinematics.WriteState(w); w.EndSection();
             w.BeginSection(SnapshotTagScheduler); _scheduler.WriteState(w); w.EndSection();
             w.BeginSection(SnapshotTagKeepers); _ctx.Keepers.Write(w); w.EndSection();
+            w.BeginSection(SnapshotTagActions); _ctx.Actions.Write(w); w.EndSection();
             for (int i = 0; i < _stages.Length; i++)
             {
                 w.BeginSection((byte)(SnapshotTagStageBase + i));
@@ -405,6 +407,7 @@ namespace RoadToPro.MatchEngine.Match
             r.BeginSection(SnapshotTagKinematics); _ctx.Kinematics.ReadState(r); r.EndSection();
             r.BeginSection(SnapshotTagScheduler); _scheduler.ReadState(r); r.EndSection();
             r.BeginSection(SnapshotTagKeepers); _ctx.Keepers.Read(r); r.EndSection();
+            r.BeginSection(SnapshotTagActions); _ctx.Actions.Read(r); r.EndSection();
             for (int i = 0; i < _stages.Length; i++)
             {
                 r.BeginSection((byte)(SnapshotTagStageBase + i));

@@ -47,14 +47,23 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
                     var head = kit.Rigs[e].Bone("Head").position;
                     var hips = kit.Rigs[e].Bone("Hips").position;
                     float moved = (head - first[e]).magnitude;
-                    if (moved > 0.001f || head.y < hips.y)
+                    kit.Plan.Evaluate(e, at, ref pose);
+                    // 011 다이빙 중인 GK는 누운 자세가 정상 (008 연결 뒤 이 시드 첫 골에서 GK가 다이빙 — 2026-11-13). 정지 포즈 동일성은 그대로 검사
+                    var diving = IsDive(pose);
+                    if (moved > 0.001f || (!diving && head.y < hips.y))
                     {
-                        kit.Plan.Evaluate(e, at, ref pose);
                         problems.AppendLine($"e{e} moved {moved:0.000} headY {head.y:0.00} hipsY {hips.y:0.00} roll {pose.Roll:0.00} pitch {pose.Pitch:0.00} twist {pose.Twist:0.00} yaw {pose.Yaw:0.00} clips {Clips(pose)}");
                     }
                 }
                 Assert.AreEqual("", problems.ToString());
             }
+        }
+
+        static bool IsDive(PoseSample s)
+        {
+            for (int i = 0; i < s.Count; i++)
+                if (s.Weight(i) > 0.5f && AnimTestKit.Lib.Get(s.Clip(i)).Id.StartsWith("gk_dive", StringComparison.Ordinal)) return true;
+            return false;
         }
 
         static string Clips(PoseSample s)

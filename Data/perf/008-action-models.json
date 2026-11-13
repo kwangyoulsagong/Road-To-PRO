@@ -1,0 +1,33 @@
+{
+  "spec": "008",
+  "profile": "mac-m1-1600p",
+  "note": "specs/008 성능 예산 표의 기계용 사본. 판정 런타임은 IL2CPP 릴리스 플레이어(`il2cpp` 항목, farm.py bench) — README D17. EditMode(Mono) 항목은 max가 null이면 회귀(+10%) 기준선, 숫자면 판정(할당은 런타임 무관). 볼 소유자 평가 합계는 실경기(010 전술 경기)에서 공을 가진 인플레이 틱마다 대체 온볼과 같은 평가(동료 × 속도 6종 + 스루볼 lead 3, 월드 갱신 포함)를 잰 상한값 — 070 드리블·071 슛 평가는 아직 없다(연결 때 재측정).",
+  "manual": {
+    "AC-21": "evidence/approval.md"
+  },
+  "deferred": {
+    "AC-13": "017 대량 시뮬 1,000경기 (010·072·011·012 연결 뒤). 지금은 고정 상황 비율만 기록",
+    "AC-15": "2D 탑뷰 디버그 뷰(040) 구현 후 E2E",
+    "AC-24": "002 능력치·007 피치 컨트롤 구현 뒤 대체 입력 교체 재검증"
+  },
+  "tests": [
+    "RoadToPro.Tests.EditMode.MatchEngine.Actions",
+    "RoadToPro.Tests.Performance.MatchEngine.ActionPerfTests"
+  ],
+  "budgets": [
+    {"ac": "AC-14", "label": "로지스틱 xPass 1회 (Mono 회귀)", "test": "ActionPerfTests.Logistic_Once_us", "group": "act_xpass_logistic_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
+    {"ac": "AC-14", "label": "물리 xPass 1회 p95 (Mono 회귀)", "test": "ActionPerfTests.Physics_Once_us", "group": "act_xpass_physics_p95_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
+    {"ac": "AC-14", "label": "압박 11×11 (Mono 회귀)", "test": "ActionPerfTests.Pressure_Team_us", "group": "act_pressure_team_avg_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
+    {"ac": "AC-14", "label": "결정 틱당 볼 소유자 평가 평균 (Mono 회귀)", "test": "ActionPerfTests.OwnerTick_us", "group": "act_owner_tick_avg_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
+    {"ac": "AC-14", "label": "평가·실행 경로 GC 할당", "test": "ActionPerfTests.Gc_Zero", "group": "act_gc_bytes", "stat": "max", "max": 0, "unit": "B"}
+  ],
+  "il2cpp": {
+    "budgets": [
+      {"ac": "AC-14", "label": "로지스틱 xPass 1회", "metric": "act_xpass_logistic_us", "max": 0.2, "unit": "µs"},
+      {"ac": "AC-14", "label": "물리 xPass 1회 p95 (3 s 궤적)", "metric": "act_xpass_physics_p95_us", "max": 80, "unit": "µs"},
+      {"ac": "AC-14", "label": "결정 틱당 볼 소유자 평가 평균 (2026-11-13 사용자 결정 6 → 12)", "metric": "act_owner_tick_avg_us", "max": 12, "unit": "µs"},
+      {"ac": "AC-14", "label": "결정 틱당 볼 소유자 평가 p95 (2026-11-13 사용자 결정 20 → 25)", "metric": "act_owner_tick_p95_us", "max": 25, "unit": "µs"},
+      {"ac": "AC-14", "label": "압박 강도 팀 전체 11×11", "metric": "act_pressure_team_avg_us", "max": 5, "unit": "µs"}
+    ]
+  }
+}

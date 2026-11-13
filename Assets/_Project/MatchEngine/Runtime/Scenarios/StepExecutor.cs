@@ -246,28 +246,47 @@ namespace RoadToPro.MatchEngine.Scenarios
             var d = aim - from;
             var dist = d.Length();
             if (dist < 1f) return;
-            var u = d.Normalized();
-            Vec3 velocity;
-            if (ScenarioVerbs.IsAir(st.Verb))
+            // 008 T14: 시나리오가 정한 대상·영역으로, 속도는 008 후보 평가(공중 동사는 뜬공 후보만). 실행 오차는 접촉 순간 008
+            var mode = ScenarioVerbs.IsAir(st.Verb) ? Actions.PassModel.LoftMode.LoftedOnly : Actions.PassModel.LoftMode.GroundOnly;
+            var receiver = targetSlot >= 0 ? targetSlot : NearestMate(ctx, slot, aim);
+            var opt = receiver >= 0 ? ctx.Actions.EvaluatePass(ctx, slot, receiver, aim, out _, out _, mode) : default;
+            if (!opt.Valid)
             {
-                var flight = dist / _p.AerialSpeed;
-                velocity = new Vec3(u.X * _p.AerialSpeed, u.Y * _p.AerialSpeed, DMath.Abs(ctx.BallParams.Gravity) * flight * 0.5f);
-            }
-            else
-            {
-                var inv = BallInverse.GroundSpeedFor(ctx.BallParams, dist, ctx.Params.PassExtraSpeed);
-                var speed = inv.Status == BallInverseStatus.Ok ? inv.Speed : DMath.Min(dist * 0.9f + 5f, 25f);
-                velocity = new Vec3(u.X * speed, u.Y * speed, 0f);
+                // 받을 동료가 없거나 후보 없음: 이전 규칙의 속도로 의도만 (오차는 그대로 008)
+                var u = d.Normalized();
+                opt.Valid = true;
+                opt.Aim = aim;
+                if (ScenarioVerbs.IsAir(st.Verb)) { opt.Speed = _p.AerialSpeed; opt.Elevation = ctx.Actions.P.LoftHigh * Actions.ActionMath.DegToRad; }
+                else
+                {
+                    var inv = BallInverse.GroundSpeedFor(ctx.BallParams, dist, ctx.Params.PassExtraSpeed);
+                    opt.Speed = inv.Status == BallInverseStatus.Ok ? inv.Speed : DMath.Min(dist * 0.9f + 5f, 25f);
+                }
+                opt.XPass = 0f;
             }
             hasAction = true;
             run.PendingRole = role;
             run.KickTick = ctx.Tick;
             run.LastKickTick = ctx.Tick;
-            ctx.Board.SetBallAction(new BallAction
+            ctx.Actions.Diagnostics?.OnPassChosen(ctx.Tick, slot, targetSlot, in opt);
+            var a = Actions.ActionSystem.IntentAction(slot, targetSlot, in opt, from, ctx.Tick - ctx.PossessionStartTick <= (long)ctx.Actions.P.OneTouchTicks);
+            a.Part = PhysicsStage.PartFor(in me, ctx.Ball.Position);
+            a.IsRestart = restart;
+            ctx.Board.SetBallAction(a);
+        }
+
+        static int NearestMate(MatchContext ctx, int slot, Vec2 aim)
+        {
+            var team = Squad.TeamOfSlot(slot);
+            var best = -1;
+            var bd = float.MaxValue;
+            for (int o = team * Squad.SlotsPerTeam; o < (team + 1) * Squad.SlotsPerTeam; o++)
             {
-                Kind = BallActionKind.Pass, KickerSlot = slot, TargetSlot = targetSlot, Velocity = velocity,
-                Part = PhysicsStage.PartFor(in me, ctx.Ball.Position), IsRestart = restart,
-            });
+                if (o == slot || !ctx.IsSlotControllable(o)) continue;
+                var dd = (ctx.SlotState(o).Position - aim).LengthSq();
+                if (dd < bd) { bd = dd; best = o; }
+            }
+            return best;
         }
 
         void TryShoot(MatchContext ctx, ScenarioRun run, int role, ref bool hasAction)

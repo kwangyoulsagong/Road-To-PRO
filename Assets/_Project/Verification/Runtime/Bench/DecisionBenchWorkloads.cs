@@ -34,7 +34,8 @@ namespace RoadToPro.Verification.Bench
                 TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(P("match.json"))),
                 shape,
                 goalkeeper: TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(P("goalkeeper.json"))),
-                decision: TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(P("decision.json"))));
+                decision: TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(P("decision.json"))),
+                action: TuningBundle.Defaults(TuningLoader.LoadDefinitionsFile(P("action.json"))));
         }
 
         /// <summary>전술(009)·GK(011)·판단(010) 튜닝 묶음 — 실경기 E2E 장면도 쓴다.</summary>
