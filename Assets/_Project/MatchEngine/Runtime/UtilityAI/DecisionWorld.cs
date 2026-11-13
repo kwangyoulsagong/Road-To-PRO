@@ -23,6 +23,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
         public readonly TimeToIntercept.Context[] Tti = new TimeToIntercept.Context[N];
         public readonly KinematicAttributes[] Kin = new KinematicAttributes[N];
         public readonly DecisionAttributes[] Mind = new DecisionAttributes[N];
+        /// <summary>기술 능력치 (072 온볼: 돌파·결정력·크로스·중거리·태클 대체 입력 포함, 002 전).</summary>
+        public readonly Actions.TechnicalAttributes[] Tech = new Actions.TechnicalAttributes[N];
 
         public Vec2 Ball, BallVel;
         public float BallZ;
@@ -52,10 +54,17 @@ namespace RoadToPro.MatchEngine.UtilityAI
         /// <summary>이번 틱 공 반경 안 팀별 선수 수 (FR-15, 실제 위치).</summary>
         public readonly int[] NearBall = new int[2];
 
+        // 072 온볼 (FR-11): 팀 지시(0~1)·스코어·남은 시간
+        public readonly float[] Tempo = { 0.5f, 0.5f }, Directness = { 0.5f, 0.5f }, Risk = { 0.5f, 0.5f }, TimeWasting = { 0f, 0f };
+        /// <summary>팀 관점 득실차 (내 득점 − 상대 득점).</summary>
+        public readonly int[] GoalDiff = new int[2];
+        /// <summary>경기 남은 시간 (분, 정규 시간 기준 근사).</summary>
+        public float MinutesLeft = 90f;
+
         public DecisionWorld()
         {
             for (int i = 0; i < Presser.Length; i++) Presser[i] = -1;
-            for (int i = 0; i < N; i++) { MarkTarget[i] = -1; W[i] = 1f; Mind[i] = DecisionAttributes.Average; }
+            for (int i = 0; i < N; i++) { MarkTarget[i] = -1; W[i] = 1f; Mind[i] = DecisionAttributes.Average; Tech[i] = Actions.TechnicalAttributes.Average; }
         }
 
         public static int TeamOf(int slot) => slot / PerTeam;

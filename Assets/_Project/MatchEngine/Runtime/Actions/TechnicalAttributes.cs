@@ -20,15 +20,23 @@ namespace RoadToPro.MatchEngine.Actions
 
         public readonly bool IsSet;
         public readonly float Passing, FirstTouch, Technique;
+        /// <summary>072 온볼 대체 입력 (002 전, specs/072 플랜 대체 4): 돌파·결정력·크로스·중거리, 그리고 수비 1:1 대체 판정용 태클. 지정 안 하면 50.</summary>
+        public readonly float Dribbling, Finishing, Crossing, LongShots, Tackling;
         public readonly Foot PreferredFoot;
         /// <summary>약발 등급 1~5 (5 = 양발).</summary>
         public readonly int WeakFoot;
 
-        public TechnicalAttributes(float passing, float firstTouch, float technique, Foot preferredFoot = Foot.Right, int weakFoot = 3)
+        public TechnicalAttributes(float passing, float firstTouch, float technique, Foot preferredFoot = Foot.Right, int weakFoot = 3,
+            float dribbling = 50f, float finishing = 50f, float crossing = 50f, float longShots = 50f, float tackling = 50f)
         {
             Passing = Check(passing, nameof(passing));
             FirstTouch = Check(firstTouch, nameof(firstTouch));
             Technique = Check(technique, nameof(technique));
+            Dribbling = Check(dribbling, nameof(dribbling));
+            Finishing = Check(finishing, nameof(finishing));
+            Crossing = Check(crossing, nameof(crossing));
+            LongShots = Check(longShots, nameof(longShots));
+            Tackling = Check(tackling, nameof(tackling));
             if (weakFoot < 1 || weakFoot > 5) throw new ArgumentOutOfRangeException(nameof(weakFoot), weakFoot, "약발 등급은 1~5");
             if (preferredFoot != Foot.Right && preferredFoot != Foot.Left) throw new ArgumentOutOfRangeException(nameof(preferredFoot));
             PreferredFoot = preferredFoot;
@@ -39,11 +47,19 @@ namespace RoadToPro.MatchEngine.Actions
         /// <summary>모든 값 50, 오른발, 약발 3 (지정 안 된 선수).</summary>
         public static readonly TechnicalAttributes Average = new TechnicalAttributes(50f, 50f, 50f);
 
-        /// <summary>표시값 N(1~20)으로 기술 3종을 채운다.</summary>
+        /// <summary>표시값 N(1~20)으로 기술 능력치 전부(072 대체 5종 포함)를 채운다.</summary>
         public static TechnicalAttributes Uniform(int display, Foot foot = Foot.Right, int weakFoot = 3)
         {
             var v = Kinematics.KinematicAttributes.InternalFromDisplay(display);
-            return new TechnicalAttributes(v, v, v, foot, weakFoot);
+            return new TechnicalAttributes(v, v, v, foot, weakFoot, v, v, v, v, v);
+        }
+
+        /// <summary>072 대체 5종만 바꾼 사본 (null = 그대로).</summary>
+        public TechnicalAttributes WithOnBall(float? dribbling = null, float? finishing = null, float? crossing = null, float? longShots = null, float? tackling = null)
+        {
+            var b = OrAverage();
+            return new TechnicalAttributes(b.Passing, b.FirstTouch, b.Technique, b.PreferredFoot, b.WeakFoot,
+                dribbling ?? b.Dribbling, finishing ?? b.Finishing, crossing ?? b.Crossing, longShots ?? b.LongShots, tackling ?? b.Tackling);
         }
 
         /// <summary>지정 안 됐으면 평균값.</summary>

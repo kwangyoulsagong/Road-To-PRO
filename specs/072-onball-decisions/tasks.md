@@ -9,8 +9,8 @@
 경로 접두: `ME/` = `Assets/_Project/MatchEngine/Runtime/`, `D/` = `ME/UtilityAI/`, `T/` = `Assets/_Project/Tests/EditMode/MatchEngine/UtilityAI/`.
 
 ## A. 기반
-- [ ] T01 튜닝·이벤트·항목 — 파일: `Data/tuning/decision.json`(`dec.onball.*`), `D/{DecisionParams,DecisionTuningIds,OnBallItem}.cs`, `ME/Match/Events/SimEventKind.cs`(901·902, Dribble 성공 비트), `Presentation/Players/Data/043-anim-map.json` — 검증: 컴파일, 튜닝 로드·파일=코드 기본값 테스트, `AnimationMapTests`
-- [ ] T02 대체 입력 — 파일: `ME/Actions/TechnicalAttributes.cs`(Dribbling·Finishing·Crossing·LongShots), `D/{IChemistrySource,StandInChemistry,IOnBallEvaluator,StandInOnBallEval}.cs`, `D/{IStyleMultiplierSource,StandInStyleSource}.cs`(개인 지시·`MultiplierFullCompliance`), `D/UtilityChooser.cs`(상한 24), `T/OnBallEvalTests.cs` — 검증: 대체 확률 단조성(능력치·거리·압박), 오프사이드 위험(FR-15), 개인 지시 곱, 008 기존 테스트 해시 불변
+- [x] T01 튜닝·이벤트·항목 — 파일: `Data/tuning/decision.json`(`dec.onball.*`), `D/{DecisionParams,DecisionTuningIds,OnBallItem}.cs`, `ME/Match/Events/SimEventKind.cs`(901·902, Dribble 성공 비트), `Presentation/Players/Data/043-anim-map.json` — 검증: 컴파일, 튜닝 로드·파일=코드 기본값 테스트, `AnimationMapTests` — 결과: `dec.onball.*` 61개([제안] 11·[대체] 50, 정의 206개), 이벤트 `InstructionIgnored = 901`·`DiveAttempt = 902`, `OnBallItem`(9종 + Clear·Dive)·`ConsiderationSet`. 파일=코드 기본값·`AnimationMapTests` 통과
+- [x] T02 대체 입력 — 파일: `ME/Actions/TechnicalAttributes.cs`(Dribbling·Finishing·Crossing·LongShots), `D/{IChemistrySource,StandInChemistry,IOnBallEvaluator,StandInOnBallEval}.cs`, `D/{IStyleMultiplierSource,StandInStyleSource}.cs`(개인 지시·`MultiplierFullCompliance`), `D/UtilityChooser.cs`(상한 24), `T/OnBallEvalTests.cs` — 검증: 대체 확률 단조성(능력치·거리·압박), 오프사이드 위험(FR-15), 개인 지시 곱, 008 기존 테스트 해시 불변 — 결과: `OnBallEvalTests` 8 + `StyleMultiplierTests`·`UtilityChooserTests`·008 `Actions` 필터 합계 102/102. 플랜과 다른 점: 기술 능력치 대체에 수비 1:1 판정용 `Tackling`도 추가(5종), `DecisionWorld`에 `Tech`·팀 지시 4종·득실차·남은 시간 추가, 지시 억제 판정용 `InstructionWeight(slot, k)`도 인터페이스에 추가
 
 ## B. 시야 · 후보 · 점수 (FR-01~04·10~15·20)
 - [ ] T03 테스트 — 파일: `T/OnBallFixture.cs`, `T/OnBallVisionTests.cs`, `T/OnBallScoringTests.cs`, `T/OnBallCandidateTests.cs` — 검증: AC-01·02·03·08, 후보 상한 24·폴백·경계 드리블·오프사이드 유지·동료 감소·동점 순서 — 실패 확인

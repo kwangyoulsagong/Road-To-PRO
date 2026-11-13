@@ -16,6 +16,10 @@ namespace RoadToPro.MatchEngine.UtilityAI
         /// <summary>선수(슬롯) s의 고려 항목 k 결합 배수 (역할 × 성향 × 버릇 × 실효 지시 × 날씨, 클램프 포함). 0이면 그 후보는 제외.</summary>
         float Multiplier(int slot, Consideration k);
         void Breakdown(int slot, Consideration k, out MultiplierBreakdown b);
+        /// <summary>준수율 1이었을 때의 결합 배수 (072 FR-32 지시 무시 판정, 003 FR-42).</summary>
+        float MultiplierFullCompliance(int slot, Consideration k);
+        /// <summary>선수 s에게 걸린 원시 지시 가중치 (팀 × 개인, 1 = 지시 없음). 1 미만이면 억제 지시 (FR-32).</summary>
+        float InstructionWeight(int slot, Consideration k);
         /// <summary>역할 자유도 (FR-85 이탈 상한).</summary>
         float Freedom(int slot);
         /// <summary>의도 종류 k와 충돌하는 버릇의 최고 레벨 0/1/2 (FR-93).</summary>

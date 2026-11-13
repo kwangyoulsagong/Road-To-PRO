@@ -118,6 +118,12 @@ namespace RoadToPro.MatchEngine.Match.Events
         // 010 (900~): 판단 AI
         /// <summary>기회주의 이탈로 배역 해제 (010 FR-94). A = 배역 번호, B = 슬롯. 같은 틱에 <see cref="ScenarioCastReleased"/>도 나간다.</summary>
         IntentOpportunistic = 900,
+
+        // 072 (901~): 온볼 판단
+        /// <summary>지시 무시 (072 FR-31·32, 003 FR-42 기준). A = 억제된 고려 항목(<c>Consideration</c>), B = 슬롯, F0 = 실효 지시 가중치. 결과(성공·실패)는 같은 선수의 다음 공 사건으로 025가 묶는다.</summary>
+        InstructionIgnored = 901,
+        /// <summary>넘어지기 선택 (072 FR-20 → 012 FR-27 입력). A = 접촉 강도 구간(0 = 접촉 없음, 1 = 약한 접촉), B = 슬롯, X/Y = 위치, F0 = 파울 유도 기대 가치.</summary>
+        DiveAttempt = 902,
     }
 
     /// <summary>FR-82 공 접촉 사용 부위.</summary>

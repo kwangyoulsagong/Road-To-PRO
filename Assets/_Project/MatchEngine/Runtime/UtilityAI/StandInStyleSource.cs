@@ -16,6 +16,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
         readonly float[] _compliance;
         readonly float[] _weather = new float[Considerations.Count];
         readonly float[][] _table;
+        readonly float[][] _tableFull;
+        readonly float[][] _pinstr;
 
         public StandInStyleSource(int slots, float tendencyBase)
         {
@@ -24,11 +26,16 @@ namespace RoadToPro.MatchEngine.UtilityAI
             _style = new PlayStyle[slots];
             _compliance = new float[slots];
             _table = new float[slots][];
+            _tableFull = new float[slots][];
+            _pinstr = new float[slots][];
             for (int s = 0; s < slots; s++)
             {
                 _style[s] = PlayStyle.Neutral();
                 _compliance[s] = 1f;
                 _table[s] = new float[Considerations.Count];
+                _tableFull[s] = new float[Considerations.Count];
+                _pinstr[s] = new float[Considerations.Count];
+                for (int k = 0; k < Considerations.Count; k++) _pinstr[s][k] = 1f;
             }
             for (int k = 0; k < Considerations.Count; k++) { _instr[0][k] = 1f; _instr[1][k] = 1f; _weather[k] = 1f; }
             for (int s = 0; s < slots; s++) Rebuild(s);
@@ -47,6 +54,13 @@ namespace RoadToPro.MatchEngine.UtilityAI
         {
             _instr[team][(int)k] = weight;
             for (int s = 0; s < _slots; s++) if (TeamOf(s) == team) Rebuild(s);
+        }
+
+        /// <summary>개인 지시 가중치 (072 FR-11 "크로스 줄여라" 등, 팀 지시와 곱한다, 기본 1).</summary>
+        public void SetPlayerInstructionWeight(int slot, Consideration k, float weight)
+        {
+            _pinstr[slot][(int)k] = weight;
+            Rebuild(slot);
         }
 
         /// <summary>지시 준수율 (003 FR-40 전 대체, 기본 1).</summary>
@@ -71,10 +85,15 @@ namespace RoadToPro.MatchEngine.UtilityAI
             {
                 Breakdown(s, (Consideration)k, out var b);
                 _table[s][k] = b.Combined;
+                _tableFull[s][k] = StyleMath.Combine(b.Role, b.Tendency, b.Habit, StyleMath.EffectiveInstruction(InstructionWeight(s, (Consideration)k), 1f), b.Weather);
             }
         }
 
         public float Multiplier(int slot, Consideration k) => _table[slot][(int)k];
+
+        public float MultiplierFullCompliance(int slot, Consideration k) => _tableFull[slot][(int)k];
+
+        public float InstructionWeight(int slot, Consideration k) => _instr[TeamOf(slot)][(int)k] * _pinstr[slot][(int)k];
 
         public void Breakdown(int slot, Consideration k, out MultiplierBreakdown b)
         {
@@ -84,7 +103,7 @@ namespace RoadToPro.MatchEngine.UtilityAI
             float h = 1f;
             for (int i = 0; i < HabitTable.Count; i++) h *= HabitTable.Multiplier((Habit)i, st.HabitLevels[i], k);
             b.Habit = h;
-            b.Instruction = StyleMath.EffectiveInstruction(_instr[TeamOf(slot)][(int)k], _compliance[slot]);
+            b.Instruction = StyleMath.EffectiveInstruction(InstructionWeight(slot, k), _compliance[slot]);
             b.Weather = _weather[(int)k];
             b.Combined = StyleMath.Combine(b.Role, b.Tendency, b.Habit, b.Instruction, b.Weather);
         }
