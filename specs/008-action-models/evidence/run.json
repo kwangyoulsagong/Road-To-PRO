@@ -108,37 +108,28 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/008-action-models"
   },
   "meta": {
-    "commit": "8a22e24c9aa1d116f63e4b2b94247eb3d9ebde3c",
+    "commit": "c97000a2074237c1b07dee4ef3ed10c375b7e693",
     "branch": "feat/008-action-models",
     "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-13 09:25:20 +0900",
-    "durationSec": 1454.454729795456,
+    "time": "2026-11-13 10:58:21 +0900",
+    "durationSec": 1289.2890770435333,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 008 --scope auto",
     "profiles": [
       "mac-m1-1600p"
     ]
   },
   "logic": {
-    "ok": false,
+    "ok": true,
     "total": 1516,
-    "passed": 1502,
-    "failed": 2,
+    "passed": 1504,
+    "failed": 0,
     "skipped": 11,
-    "duration": 1427.544472,
+    "duration": 1276.1663099,
     "compileErrors": [],
-    "failures": [
-      {
-        "name": "HighlightFrozenPoseTests.ApplyAt_GoalMomentTwice_PoseIdenticalAndUpright",
-        "message": "Expected string length 0 but was 108. Strings differ at index 0.\n  Expected: <string.Empty>\n  But was:  \"e0 moved 0.000 headY 0.69 hipsY 0.71 roll 0.00 pitch 0.00 twi...\"\n  -----------^"
-      },
-      {
-        "name": "PlayerMeshBakerTests.Bake25Players_Time_Within056Plus20",
-        "message": "057 AC-10 굽기 시간 056 대비 +20%\n  Expected: less than or equal to 371.39999999999998d\n  But was:  506.98290000000003d"
-      }
-    ],
+    "failures": [],
     "png": null,
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261113-092520-logic/logic.html"
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261113-105821-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -147,10 +138,10 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "ActionPerfTests.Logistic_Once_us/act_xpass_logistic_us/min": 0.05848415,
-      "ActionPerfTests.Physics_Once_us/act_xpass_physics_p95_us/min": 428.1,
-      "ActionPerfTests.Pressure_Team_us/act_pressure_team_avg_us/min": 15.711635,
-      "ActionPerfTests.OwnerTick_us/act_owner_tick_avg_us/min": 57.37826280623607,
+      "ActionPerfTests.Logistic_Once_us/act_xpass_logistic_us/min": 0.0569392,
+      "ActionPerfTests.Physics_Once_us/act_xpass_physics_p95_us/min": 310.2,
+      "ActionPerfTests.Pressure_Team_us/act_pressure_team_avg_us/min": 14.43625,
+      "ActionPerfTests.OwnerTick_us/act_owner_tick_avg_us/min": 48.380979955456574,
       "ActionPerfTests.Gc_Zero/act_gc_bytes/max": 0.0
     },
     "budget": [
@@ -158,7 +149,7 @@
         "ac": "AC-14",
         "label": "로지스틱 xPass 1회 (Mono 회귀)",
         "metric": "ActionPerfTests.Logistic_Once_us/act_xpass_logistic_us/min",
-        "value": 0.05848415,
+        "value": 0.0569392,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -167,7 +158,7 @@
         "ac": "AC-14",
         "label": "물리 xPass 1회 p95 (Mono 회귀)",
         "metric": "ActionPerfTests.Physics_Once_us/act_xpass_physics_p95_us/min",
-        "value": 428.1,
+        "value": 310.2,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -176,7 +167,7 @@
         "ac": "AC-14",
         "label": "압박 11×11 (Mono 회귀)",
         "metric": "ActionPerfTests.Pressure_Team_us/act_pressure_team_avg_us/min",
-        "value": 15.711635,
+        "value": 14.43625,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -185,7 +176,7 @@
         "ac": "AC-14",
         "label": "결정 틱당 볼 소유자 평가 평균 (Mono 회귀)",
         "metric": "ActionPerfTests.OwnerTick_us/act_owner_tick_avg_us/min",
-        "value": 57.37826280623607,
+        "value": 48.380979955456574,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -202,9 +193,92 @@
     ],
     "regression": [],
     "host": "mac-m1-1600p",
-    "power": "ac"
+    "power": "battery"
   },
-  "benchPerf": null,
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-14",
+        "label": "로지스틱 xPass 1회",
+        "metric": "act_xpass_logistic_us",
+        "value": 0.0077493499999999995,
+        "budget": 0.2,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "물리 xPass 1회 p95 (3 s 궤적)",
+        "metric": "act_xpass_physics_p95_us",
+        "value": 53,
+        "budget": 80,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "결정 틱당 볼 소유자 평가 평균 (2026-11-13 사용자 결정 6 → 12)",
+        "metric": "act_owner_tick_avg_us",
+        "value": 11.233183165382336,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "결정 틱당 볼 소유자 평가 p95 (2026-11-13 사용자 결정 20 → 25)",
+        "metric": "act_owner_tick_p95_us",
+        "value": 22.6,
+        "budget": 25,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-14",
+        "label": "압박 강도 팀 전체 11×11",
+        "metric": "act_pressure_team_avg_us",
+        "value": 2.02631,
+        "budget": 5,
+        "unit": "µs",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "act_xpass_logistic_us": 0.0077493499999999995,
+      "act_xpass_logistic_p95_us": 0.0078,
+      "act_xpass_physics_avg_us": 52.137649999999994,
+      "act_xpass_physics_p95_us": 53,
+      "act_pressure_team_avg_us": 2.02631,
+      "act_pressure_team_p95_us": 2.2,
+      "act_owner_tick_avg_us": 11.233183165382336,
+      "act_owner_tick_p95_us": 22.6,
+      "act_owner_ticks": 8435,
+      "dec_tick_avg_us": 6.156826164874552,
+      "dec_tick_p95_us": 15.4,
+      "dec_match_s": 0.3435509,
+      "dec_ticks": 55800,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 1.0677777777777777,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.6829900000000001,
+      "dec_offball_p95_us": 0.8
+    },
+    "host": "mac-m1-1600p",
+    "power": "battery",
+    "buildCached": false,
+    "durationSec": 12.2,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M1 Pro",
+    "development": false,
+    "commit": "c97000a2074237c1b07dee4ef3ed10c375b7e693"
+  },
   "requireAllAcs": true,
   "deferred": {
     "AC-13": "017 대량 시뮬 1,000경기 (010·072·011·012 연결 뒤). 지금은 고정 상황 비율만 기록",
@@ -215,43 +289,43 @@
     "AC-01": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-02": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-03": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-04": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-05": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-10": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-11": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-12": [
@@ -266,8 +340,8 @@
         "ok": true
       },
       {
-        "label": "IL2CPP 벤치 결과 없음 (farm.py bench --spec, 생략하려면 --skip-bench \"사유\")",
-        "ok": false
+        "label": "IL2CPP 벤치 5/5 통과",
+        "ok": true
       }
     ],
     "AC-17": [
@@ -285,39 +359,39 @@
     "AC-19": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-20": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-22": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-23": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-25": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-21": [
       {
-        "label": "수동 승인 기록 evidence/approval.md (없음 또는 AC 미기재)",
-        "ok": false
+        "label": "수동 승인 기록 evidence/approval.md",
+        "ok": true
       }
     ]
   },
-  "verdict": "fail"
+  "verdict": "deferred"
 }

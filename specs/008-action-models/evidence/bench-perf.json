@@ -1,0 +1,84 @@
+{
+  "judged": true,
+  "ok": true,
+  "note": "",
+  "backend": "il2cpp",
+  "profile": "mac-m1-1600p",
+  "budget": [
+    {
+      "ac": "AC-14",
+      "label": "로지스틱 xPass 1회",
+      "metric": "act_xpass_logistic_us",
+      "value": 0.0077493499999999995,
+      "budget": 0.2,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-14",
+      "label": "물리 xPass 1회 p95 (3 s 궤적)",
+      "metric": "act_xpass_physics_p95_us",
+      "value": 53,
+      "budget": 80,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-14",
+      "label": "결정 틱당 볼 소유자 평가 평균 (2026-11-13 사용자 결정 6 → 12)",
+      "metric": "act_owner_tick_avg_us",
+      "value": 11.233183165382336,
+      "budget": 12,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-14",
+      "label": "결정 틱당 볼 소유자 평가 p95 (2026-11-13 사용자 결정 20 → 25)",
+      "metric": "act_owner_tick_p95_us",
+      "value": 22.6,
+      "budget": 25,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-14",
+      "label": "압박 강도 팀 전체 11×11",
+      "metric": "act_pressure_team_avg_us",
+      "value": 2.02631,
+      "budget": 5,
+      "unit": "µs",
+      "ok": true
+    }
+  ],
+  "regression": [],
+  "stages": {},
+  "metrics": {
+    "act_xpass_logistic_us": 0.0077493499999999995,
+    "act_xpass_logistic_p95_us": 0.0078,
+    "act_xpass_physics_avg_us": 52.137649999999994,
+    "act_xpass_physics_p95_us": 53,
+    "act_pressure_team_avg_us": 2.02631,
+    "act_pressure_team_p95_us": 2.2,
+    "act_owner_tick_avg_us": 11.233183165382336,
+    "act_owner_tick_p95_us": 22.6,
+    "act_owner_ticks": 8435,
+    "dec_tick_avg_us": 6.156826164874552,
+    "dec_tick_p95_us": 15.4,
+    "dec_match_s": 0.3435509,
+    "dec_ticks": 55800,
+    "dec_gc_bytes_per_tick": 0,
+    "dec_space_queries_avg": 1.0677777777777777,
+    "dec_space_queries_max": 8,
+    "dec_offball_avg_us": 0.6829900000000001,
+    "dec_offball_p95_us": 0.8
+  },
+  "host": "mac-m1-1600p",
+  "power": "battery",
+  "buildCached": false,
+  "durationSec": 12.2,
+  "unity": "6000.3.27f2",
+  "cpu": "Apple M1 Pro",
+  "development": false,
+  "commit": "c97000a2074237c1b07dee4ef3ed10c375b7e693"
+}

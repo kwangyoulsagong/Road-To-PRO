@@ -1,6 +1,6 @@
 # 008 — 액션 모델: 패스 · 수신 · 공통 실행 인터페이스 · 태스크
 
-상태: 승인됨
+상태: 구현 완료 · AC-13·15·24 보류 (2026-11-13)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 배치로 돌린다(실패 확인 → 구현 → 통과).
@@ -37,4 +37,4 @@
 - [x] T17 성능 테스트 — 파일: `Tests/Performance/MatchEngine/ActionPerfTests.cs` — 검증: AC-14 EditMode 기준선(로지스틱 1회·물리 xPass 1회·압박 11×11·볼 소유자 평가 합계·GC 0 B) — 결과: `ActionPerfTests` 5 + `Verification/Runtime/Bench/ActionBenchWorkloads.cs`(IL2CPP 벤치와 공용, `SimBench`에 008 등록) + `Data/perf/008-action-models.json`. Mono: 로지스틱 0.055 µs, 물리 xPass p95 298 µs, 압박 11×11 13.9 µs, 볼 소유자 평가 평균 52 µs·p95 111 µs(공을 가진 모든 틱 상한), GC 0 B. 최적화(결과 같음): 상대 TTI 하한 가지치기, 속도 후보별 구름 시작값·뜬공 삼각함수 캐시, 최고 logit만 확률 변환, 패서 압박 틱당 1회, 004 `BallRollTable.Sample`(이진 탐색 1회) 추가. IL2CPP 판정은 T18
 
 ## F. 검증
-- [ ] T18 마지막 검증 — `determinism-reviewer` 리뷰(코어 변경) → 커밋 → `farm.py logic --spec 008 --scope auto`(Core `RngStreamId` 변경으로 전체 예상), `farm.py bench --spec 008`(틱 경로 변경), `farm.py shot --scenario 058-live-goal-sequence`·`058-live-variety`(AC-21, 육안 승인) → `/verify 008` 리포트 아티팩트 발행. 보류 표시: AC-13(017), AC-15(040), AC-21 일부(070·071), AC-24(002·007) — 결과:
+- [x] T18 마지막 검증 — `determinism-reviewer` 리뷰(코어 변경) → 커밋 → `farm.py logic --spec 008 --scope auto`(Core `RngStreamId` 변경으로 전체 예상), `farm.py bench --spec 008`(틱 경로 변경), `farm.py shot --scenario 058-live-goal-sequence`·`058-live-variety`(AC-21, 육안 승인) → `/verify 008` 리포트 아티팩트 발행. 보류 표시: AC-13(017), AC-15(040), AC-21 일부(070·071), AC-24(002·007) — 결과: `determinism-reviewer` 블로커 0 — 지적 반영(실행된 패스 기준 받는 선수 `FlightTarget`, 머리 위 공 판정 제외·골대 꺾임 시 판정 초기화, TTI 가지치기 여유 1e-4, 진단 콜백 주의, 대체 상수 9개 튜닝 이동 → 정의 89개). 검증 중 발견·수정: 놓친 공이 반경 안에서 멈추면 아무도 안 잡아 경기가 20분 멈춤(느린 공은 판정 표시 무시 + 회귀 테스트 `LooseBall_NeverStuck_6Matches`), farm `--scope auto`가 all일 때 스펙 테스트만 돌던 버그, 041 정지 포즈 테스트의 다이빙 GK, 057 굽기 시간 테스트 GC 부하. `farm.py logic --spec 008 --scope auto`(Core 변경 → 전체) 1,516 중 1,504 통과·실패 0. `ActionMotionAuditTests`(Explicit) 수동 1회: 접촉 24,604건 위반 0. IL2CPP 벤치 5/5 — 로지스틱 0.008 µs, 물리 xPass p95 53 µs, 압박 2.0 µs, 볼 소유자 평가 평균 11.2 µs·p95 22.6 µs(예산 2026-11-13 사용자 결정 6/20 → 12/25, 007·072 연결 때 재측정), 경기 결정 틱 평균 6.19 µs(010 8.67). 상대 하한 정렬 가지치기 추가(결과 같음). AC-21 `008-live-recheck` 4장 육안 승인(2026-11-13, 부분 재확인 — 070·071 때 다시), 속도 점프 5,913건 전부 판단 원인(008 전 8,656). 보류: AC-13(017), AC-15(040), AC-24(002·007)

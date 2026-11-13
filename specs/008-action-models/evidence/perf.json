@@ -5,10 +5,10 @@
       "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Hash_30kEvents_ms",
       "groups": {
         "Time": {
-          "median": 3.7514499999999984,
-          "min": 3.642899999999999,
-          "max": 4.619700000000002,
-          "avg": 3.92312,
+          "median": 3.58325,
+          "min": 3.5489999999999995,
+          "max": 3.6633,
+          "avg": 3.59137,
           "unit": "ms",
           "samples": 10
         }
@@ -19,10 +19,10 @@
       "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Rng_Normal_ns",
       "groups": {
         "ns_per_op": {
-          "median": 72.88538,
-          "min": 70.55847,
-          "max": 76.13172000000002,
-          "avg": 73.21924714285714,
+          "median": 61.32133,
+          "min": 61.08573,
+          "max": 61.42211,
+          "avg": 61.29870714285715,
           "unit": "ns",
           "samples": 7
         }
@@ -33,10 +33,10 @@
       "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Rng_Uniform_ns",
       "groups": {
         "ns_per_op": {
-          "median": 6.801844,
-          "min": 6.257932000000001,
-          "max": 7.772363,
-          "avg": 6.824132,
+          "median": 5.690602,
+          "min": 5.669407,
+          "max": 5.733481,
+          "avg": 5.697058571428572,
           "unit": "ns",
           "samples": 7
         }
@@ -47,10 +47,10 @@
       "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Swept_ns",
       "groups": {
         "ns_per_op": {
-          "median": 85.05898,
-          "min": 76.91923,
-          "max": 87.70227,
-          "avg": 84.19816285714286,
+          "median": 71.93923000000001,
+          "min": 71.70446,
+          "max": 72.35906,
+          "avg": 72.01288285714287,
           "unit": "ns",
           "samples": 7
         }
@@ -61,10 +61,10 @@
       "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Tuning_Load1000_ms",
       "groups": {
         "Time": {
-          "median": 13.942049999998744,
-          "min": 7.241500000000087,
-          "max": 28.20569999999998,
-          "avg": 14.214383333333354,
+          "median": 6.660349999999198,
+          "min": 6.4979000000003,
+          "max": 21.078999999999724,
+          "avg": 7.161993333333339,
           "unit": "ms",
           "samples": 30
         }
@@ -75,10 +75,10 @@
       "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Vec_Normalize_ns",
       "groups": {
         "ns_per_op": {
-          "median": 37.797880000000006,
-          "min": 36.29759,
-          "max": 42.27134000000001,
-          "avg": 38.781650000000006,
+          "median": 35.30111,
+          "min": 35.15298,
+          "max": 35.3724,
+          "avg": 35.272540000000006,
           "unit": "ns",
           "samples": 7
         }
@@ -117,10 +117,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.ActionPerfTests.Logistic_Once_us",
       "groups": {
         "act_xpass_logistic_us": {
-          "median": 0.0585716,
-          "min": 0.05848415,
-          "max": 0.05986885,
-          "avg": 0.05897486666666666,
+          "median": 0.0571992,
+          "min": 0.0569392,
+          "max": 0.0572923,
+          "avg": 0.05714356666666667,
           "unit": "us",
           "samples": 3
         }
@@ -131,18 +131,18 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.ActionPerfTests.OwnerTick_us",
       "groups": {
         "act_owner_tick_avg_us": {
-          "median": 57.37826280623607,
-          "min": 57.37826280623607,
-          "max": 57.37826280623607,
-          "avg": 57.37826280623607,
+          "median": 48.380979955456574,
+          "min": 48.380979955456574,
+          "max": 48.380979955456574,
+          "avg": 48.380979955456574,
           "unit": "us",
           "samples": 1
         },
         "act_owner_tick_p95_us": {
-          "median": 108.7,
-          "min": 108.7,
-          "max": 108.7,
-          "avg": 108.7,
+          "median": 92.1,
+          "min": 92.1,
+          "max": 92.1,
+          "avg": 92.1,
           "unit": "us",
           "samples": 1
         }
@@ -153,10 +153,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.ActionPerfTests.Physics_Once_us",
       "groups": {
         "act_xpass_physics_p95_us": {
-          "median": 645.0,
-          "min": 428.1,
-          "max": 747.6,
-          "avg": 606.9,
+          "median": 310.7,
+          "min": 310.2,
+          "max": 312.2,
+          "avg": 311.0333333333333,
           "unit": "us",
           "samples": 3
         }
@@ -167,10 +167,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.ActionPerfTests.Pressure_Team_us",
       "groups": {
         "act_pressure_team_avg_us": {
-          "median": 17.8891,
-          "min": 15.711635,
-          "max": 19.32985,
-          "avg": 17.643528333333332,
+          "median": 14.45086,
+          "min": 14.43625,
+          "max": 14.51423,
+          "avg": 14.467113333333332,
           "unit": "us",
           "samples": 3
         }
@@ -181,10 +181,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.GroundInverse_us",
       "groups": {
         "us_per_op": {
-          "median": 0.04906,
-          "min": 0.04836,
-          "max": 0.10178,
-          "avg": 0.06791714285714286,
+          "median": 0.06474,
+          "min": 0.06414,
+          "max": 0.07388,
+          "avg": 0.06608857142857143,
           "unit": "us",
           "samples": 7
         }
@@ -195,10 +195,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Predict10s_us",
       "groups": {
         "us_per_op": {
-          "median": 249.13165,
-          "min": 237.80980000000005,
-          "max": 278.3507,
-          "avg": 253.3844,
+          "median": 209.6982,
+          "min": 208.08555,
+          "max": 221.2863,
+          "avg": 211.16020714285716,
           "unit": "us",
           "samples": 7
         }
@@ -209,10 +209,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_Air_ns",
       "groups": {
         "ns_per_op": {
-          "median": 242.57242,
-          "min": 235.21316,
-          "max": 259.17576,
-          "avg": 245.96416285714284,
+          "median": 222.87966,
+          "min": 221.83564,
+          "max": 226.64796,
+          "avg": 223.36474285714283,
           "unit": "ns",
           "samples": 7
         }
@@ -223,10 +223,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_Idle_ns",
       "groups": {
         "ns_per_op": {
-          "median": 10.791810000000002,
-          "min": 10.27391,
-          "max": 12.15094,
-          "avg": 10.866084285714283,
+          "median": 9.94246,
+          "min": 9.80524,
+          "max": 10.10498,
+          "avg": 9.947247142857142,
           "unit": "ns",
           "samples": 7
         }
@@ -237,10 +237,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_Rolling_ns",
       "groups": {
         "ns_per_op": {
-          "median": 221.76604,
-          "min": 208.20116,
-          "max": 243.92942000000008,
-          "avg": 222.87328857142856,
+          "median": 191.93358,
+          "min": 190.80066000000005,
+          "max": 192.19636,
+          "avg": 191.7501942857143,
           "unit": "ns",
           "samples": 7
         }
@@ -251,10 +251,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_WeightedAvg_ns",
       "groups": {
         "ns_per_op": {
-          "median": 105.97542000000001,
-          "min": 103.92739000000002,
-          "max": 112.16778000000002,
-          "avg": 106.7094442857143,
+          "median": 95.70731,
+          "min": 95.40279,
+          "max": 96.5089,
+          "avg": 95.75924428571427,
           "unit": "ns",
           "samples": 7
         }
@@ -279,10 +279,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.LiveSceneSelector_ms",
       "groups": {
         "scene_select_ms": {
-          "median": 7.797249999999991,
-          "min": 5.511699999999991,
-          "max": 20.4927,
-          "avg": 9.735569999999996,
+          "median": 0.8386000000000005,
+          "min": 0.714500000000001,
+          "max": 2.521900000000001,
+          "avg": 1.171610000000001,
           "unit": "ms",
           "samples": 10
         }
@@ -321,26 +321,26 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.DecisionPerfTests.DecisionTick_us_Queries",
       "groups": {
         "dec_tick_avg_us": {
-          "median": 39.26448245614035,
-          "min": 39.26448245614035,
-          "max": 39.26448245614035,
-          "avg": 39.26448245614035,
+          "median": 36.91888947368421,
+          "min": 36.91888947368421,
+          "max": 36.91888947368421,
+          "avg": 36.91888947368421,
           "unit": "us",
           "samples": 1
         },
         "dec_tick_p95_us": {
-          "median": 103.7,
-          "min": 103.7,
-          "max": 103.7,
-          "avg": 103.7,
+          "median": 95.4,
+          "min": 95.4,
+          "max": 95.4,
+          "avg": 95.4,
           "unit": "us",
           "samples": 1
         },
         "dec_match_s": {
-          "median": 2.2380755,
-          "min": 2.2380755,
-          "max": 2.2380755,
-          "avg": 2.2380755,
+          "median": 2.1043767,
+          "min": 2.1043767,
+          "max": 2.1043767,
+          "avg": 2.1043767,
           "unit": "s",
           "samples": 1
         },
@@ -367,18 +367,18 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.DecisionPerfTests.OffBallPlayer_us",
       "groups": {
         "dec_offball_avg_us": {
-          "median": 5.010065000000001,
-          "min": 4.97705,
-          "max": 5.14226,
-          "avg": 5.043125000000001,
+          "median": 4.8535,
+          "min": 4.836880000000001,
+          "max": 4.866175,
+          "avg": 4.852185,
           "unit": "us",
           "samples": 3
         },
         "dec_offball_p95_us": {
-          "median": 10.5,
-          "min": 10.4,
-          "max": 10.5,
-          "avg": 10.466666666666669,
+          "median": 10.3,
+          "min": 10.3,
+          "max": 10.4,
+          "avg": 10.333333333333334,
           "unit": "us",
           "samples": 3
         }
@@ -403,18 +403,18 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.PerTick_TwoKeepers_us",
       "groups": {
         "gk_tick_avg_us": {
-          "median": 4.38072695035461,
-          "min": 4.38072695035461,
-          "max": 4.38072695035461,
-          "avg": 4.38072695035461,
+          "median": 4.299698581560283,
+          "min": 4.299698581560283,
+          "max": 4.299698581560283,
+          "avg": 4.299698581560283,
           "unit": "us",
           "samples": 1
         },
         "gk_tick_p95_us": {
-          "median": 10.0,
-          "min": 10.0,
-          "max": 10.0,
-          "avg": 10.0,
+          "median": 9.9,
+          "min": 9.9,
+          "max": 9.9,
+          "avg": 9.9,
           "unit": "us",
           "samples": 1
         }
@@ -425,18 +425,18 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.Position_Once_us",
       "groups": {
         "gk_position_p95_us": {
-          "median": 13.1,
-          "min": 13.1,
-          "max": 13.6,
-          "avg": 13.266666666666666,
+          "median": 12.8,
+          "min": 12.7,
+          "max": 12.8,
+          "avg": 12.766666666666666,
           "unit": "us",
           "samples": 3
         },
         "gk_position_avg_us": {
-          "median": 12.294215,
-          "min": 12.242285,
-          "max": 13.084615,
-          "avg": 12.540371666666667,
+          "median": 11.76077,
+          "min": 11.67202,
+          "max": 11.765435,
+          "avg": 11.732741666666668,
           "unit": "us",
           "samples": 3
         }
@@ -447,18 +447,18 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.Save_Once_us",
       "groups": {
         "gk_save_p95_us": {
-          "median": 8.9,
-          "min": 8.7,
-          "max": 9.2,
-          "avg": 8.933333333333332,
+          "median": 8.2,
+          "min": 8.2,
+          "max": 8.3,
+          "avg": 8.233333333333333,
           "unit": "us",
           "samples": 3
         },
         "gk_predict_p95_us": {
-          "median": 48.8,
-          "min": 48.6,
-          "max": 50.5,
-          "avg": 49.29999999999999,
+          "median": 46.4,
+          "min": 46.2,
+          "max": 46.6,
+          "avg": 46.4,
           "unit": "us",
           "samples": 3
         }
@@ -469,10 +469,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.BallIntercept_us",
       "groups": {
         "us_per_op": {
-          "median": 9.8462475,
-          "min": 9.740002,
-          "max": 10.25652,
-          "avg": 9.907472928571428,
+          "median": 9.3680615,
+          "min": 9.313046000000002,
+          "max": 9.7724305,
+          "avg": 9.424891285714285,
           "unit": "us",
           "samples": 7
         }
@@ -483,10 +483,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.Substep22_Avg_us",
       "groups": {
         "us_per_op": {
-          "median": 12.99605333333329,
-          "min": 12.806036666666733,
-          "max": 13.256213333333427,
-          "avg": 12.980424285714296,
+          "median": 12.431316666666724,
+          "min": 12.314610000000021,
+          "max": 13.055416666666767,
+          "avg": 12.540524761904816,
           "unit": "us",
           "samples": 7
         }
@@ -497,10 +497,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.Substep22_P95_us",
       "groups": {
         "us_per_op": {
-          "median": 14.8,
-          "min": 14.2,
-          "max": 36.9,
-          "avg": 21.0,
+          "median": 14.100000000000001,
+          "min": 14.100000000000001,
+          "max": 14.2,
+          "avg": 14.12857142857143,
           "unit": "us",
           "samples": 7
         }
@@ -511,10 +511,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.Tti_ns",
       "groups": {
         "ns_per_op": {
-          "median": 214.35118000000003,
-          "min": 209.12328000000005,
-          "max": 236.229,
-          "avg": 216.66350571428575,
+          "median": 198.95520000000005,
+          "min": 196.99616,
+          "max": 200.12888,
+          "avg": 198.94642571428568,
           "unit": "ns",
           "samples": 7
         }
@@ -561,10 +561,10 @@
           "samples": 3
         },
         "restore_avg_ms": {
-          "median": 0.6340250000000001,
-          "min": 0.60865,
-          "max": 0.69997,
-          "avg": 0.6475483333333334,
+          "median": 0.601335,
+          "min": 0.60091,
+          "max": 0.679845,
+          "avg": 0.6273633333333334,
           "unit": "ms",
           "samples": 3
         }
@@ -575,10 +575,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchPerfTests.Clip11s_ms",
       "groups": {
         "ms": {
-          "median": 24.54681,
-          "min": 22.688413333333337,
-          "max": 32.883246666666665,
-          "avg": 25.907343333333337,
+          "median": 22.1364,
+          "min": 21.371423333333336,
+          "max": 22.820956666666667,
+          "avg": 22.006026,
           "unit": "ms",
           "samples": 5
         }
@@ -589,26 +589,26 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchPerfTests.FullMatch_PhysicsAndTick_us",
       "groups": {
         "physics_us_per_tick": {
-          "median": 117.97494237588651,
-          "min": 117.93669680851065,
-          "max": 118.0131879432624,
-          "avg": 117.97494237588651,
+          "median": 113.30294237588652,
+          "min": 113.17791666666666,
+          "max": 113.4279680851064,
+          "avg": 113.30294237588652,
           "unit": "us",
           "samples": 2
         },
         "tick_avg_us": {
-          "median": 134.90316843971632,
-          "min": 134.76702127659576,
-          "max": 135.0393156028369,
-          "avg": 134.90316843971632,
+          "median": 128.48087943262414,
+          "min": 128.31617021276597,
+          "max": 128.64558865248227,
+          "avg": 128.48087943262414,
           "unit": "us",
           "samples": 2
         },
         "stages_sum_us": {
-          "median": 133.3007340425532,
-          "min": 133.13726241134754,
-          "max": 133.46420567375887,
-          "avg": 133.3007340425532,
+          "median": 127.11878812056737,
+          "min": 126.96325,
+          "max": 127.27432624113476,
+          "avg": 127.11878812056737,
           "unit": "us",
           "samples": 2
         }
@@ -641,10 +641,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchPerfTests.SkeletonMatch_ms",
       "groups": {
         "ms": {
-          "median": 401.0875,
-          "min": 396.3815,
-          "max": 417.0395,
-          "avg": 404.8361666666667,
+          "median": 357.6922,
+          "min": 357.4289,
+          "max": 357.9747,
+          "avg": 357.6986,
           "unit": "ms",
           "samples": 3
         }
@@ -655,10 +655,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.ScenarioPerfTests.Load_270",
       "groups": {
         "load_270_ms": {
-          "median": 11.8871,
-          "min": 10.3805,
-          "max": 136.2122,
-          "avg": 52.826600000000006,
+          "median": 9.2801,
+          "min": 9.2092,
+          "max": 18.8292,
+          "avg": 12.4395,
           "unit": "ms",
           "samples": 3
         }
@@ -683,26 +683,26 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.ScenarioPerfTests.Tick_us",
       "groups": {
         "scenario_tick_avg_us": {
-          "median": 0.979718085106383,
-          "min": 0.9040319148936172,
-          "max": 1.055404255319149,
-          "avg": 0.979718085106383,
+          "median": 0.7813803191489361,
+          "min": 0.7663581560283688,
+          "max": 0.7964024822695036,
+          "avg": 0.7813803191489361,
           "unit": "us",
           "samples": 2
         },
         "scenario_tick_p95_us": {
-          "median": 1.9,
-          "min": 1.8,
-          "max": 2.0,
-          "avg": 1.9,
+          "median": 1.35,
+          "min": 1.3,
+          "max": 1.4000000000000001,
+          "avg": 1.35,
           "unit": "us",
           "samples": 2
         },
         "scenario_match_s": {
-          "median": 0.0552561,
-          "min": 0.0509874,
-          "max": 0.0595248,
-          "avg": 0.0552561,
+          "median": 0.04406985000000001,
+          "min": 0.04322260000000001,
+          "max": 0.0449171,
+          "avg": 0.04406985000000001,
           "unit": "s",
           "samples": 2
         }
@@ -715,8 +715,8 @@
         "rematch_p95_us": {
           "median": 6.5,
           "min": 6.5,
-          "max": 6.6,
-          "avg": 6.533333333333334,
+          "max": 6.5,
+          "avg": 6.5,
           "unit": "us",
           "samples": 3
         }
@@ -741,26 +741,26 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.ShapePerfTests.Tick_us",
       "groups": {
         "shape_tick_avg_us": {
-          "median": 13.3977850877193,
-          "min": 13.287931578947369,
-          "max": 13.507638596491228,
-          "avg": 13.3977850877193,
+          "median": 13.024168421052632,
+          "min": 12.773529824561404,
+          "max": 13.27480701754386,
+          "avg": 13.024168421052632,
           "unit": "us",
           "samples": 2
         },
         "shape_tick_p95_us": {
-          "median": 24.35,
-          "min": 24.3,
-          "max": 24.400000000000006,
-          "avg": 24.35,
+          "median": 24.15,
+          "min": 23.8,
+          "max": 24.5,
+          "avg": 24.15,
           "unit": "us",
           "samples": 2
         },
         "shape_match_s": {
-          "median": 0.7636737499999999,
-          "min": 0.7574121,
-          "max": 0.7699353999999999,
-          "avg": 0.7636737499999999,
+          "median": 0.7423776,
+          "min": 0.7280912,
+          "max": 0.756664,
+          "avg": 0.7423776,
           "unit": "s",
           "samples": 2
         }
@@ -771,10 +771,10 @@
       "fullName": "RoadToPro.Tests.Performance.Presentation.KitCompositorPerfTests.PerTeam_Under50ms",
       "groups": {
         "KitCompose.PerTeam": {
-          "median": 28.9063,
-          "min": 18.5786,
-          "max": 45.0882,
-          "avg": 29.510185714285715,
+          "median": 16.8265,
+          "min": 16.6002,
+          "max": 18.7331,
+          "avg": 17.1219,
           "unit": "ms",
           "samples": 7
         }
@@ -793,10 +793,10 @@
           "samples": 20
         },
         "Time": {
-          "median": 1.2249500000000353,
-          "min": 1.2094999999999345,
-          "max": 1.2776999999999816,
-          "avg": 1.2307450000000202,
+          "median": 1.2245000000001625,
+          "min": 1.2090000000000032,
+          "max": 2.1406999999999243,
+          "avg": 1.2753299999999956,
           "unit": "ms",
           "samples": 20
         }
@@ -809,10 +809,10 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "ActionPerfTests.Logistic_Once_us/act_xpass_logistic_us/min": 0.05848415,
-      "ActionPerfTests.Physics_Once_us/act_xpass_physics_p95_us/min": 428.1,
-      "ActionPerfTests.Pressure_Team_us/act_pressure_team_avg_us/min": 15.711635,
-      "ActionPerfTests.OwnerTick_us/act_owner_tick_avg_us/min": 57.37826280623607,
+      "ActionPerfTests.Logistic_Once_us/act_xpass_logistic_us/min": 0.0569392,
+      "ActionPerfTests.Physics_Once_us/act_xpass_physics_p95_us/min": 310.2,
+      "ActionPerfTests.Pressure_Team_us/act_pressure_team_avg_us/min": 14.43625,
+      "ActionPerfTests.OwnerTick_us/act_owner_tick_avg_us/min": 48.380979955456574,
       "ActionPerfTests.Gc_Zero/act_gc_bytes/max": 0.0
     },
     "budget": [
@@ -820,7 +820,7 @@
         "ac": "AC-14",
         "label": "로지스틱 xPass 1회 (Mono 회귀)",
         "metric": "ActionPerfTests.Logistic_Once_us/act_xpass_logistic_us/min",
-        "value": 0.05848415,
+        "value": 0.0569392,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -829,7 +829,7 @@
         "ac": "AC-14",
         "label": "물리 xPass 1회 p95 (Mono 회귀)",
         "metric": "ActionPerfTests.Physics_Once_us/act_xpass_physics_p95_us/min",
-        "value": 428.1,
+        "value": 310.2,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -838,7 +838,7 @@
         "ac": "AC-14",
         "label": "압박 11×11 (Mono 회귀)",
         "metric": "ActionPerfTests.Pressure_Team_us/act_pressure_team_avg_us/min",
-        "value": 15.711635,
+        "value": 14.43625,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -847,7 +847,7 @@
         "ac": "AC-14",
         "label": "결정 틱당 볼 소유자 평가 평균 (Mono 회귀)",
         "metric": "ActionPerfTests.OwnerTick_us/act_owner_tick_avg_us/min",
-        "value": 57.37826280623607,
+        "value": 48.380979955456574,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -864,6 +864,6 @@
     ],
     "regression": [],
     "host": "mac-m1-1600p",
-    "power": "ac"
+    "power": "battery"
   }
 }
