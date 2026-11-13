@@ -25,8 +25,8 @@
     "budgets": [
       {"ac": "AC-14", "label": "로지스틱 xPass 1회", "metric": "act_xpass_logistic_us", "max": 0.2, "unit": "µs"},
       {"ac": "AC-14", "label": "물리 xPass 1회 p95 (3 s 궤적)", "metric": "act_xpass_physics_p95_us", "max": 80, "unit": "µs"},
-      {"ac": "AC-14", "label": "결정 틱당 볼 소유자 평가 평균", "metric": "act_owner_tick_avg_us", "max": 6, "unit": "µs"},
-      {"ac": "AC-14", "label": "결정 틱당 볼 소유자 평가 p95", "metric": "act_owner_tick_p95_us", "max": 20, "unit": "µs"},
+      {"ac": "AC-14", "label": "결정 틱당 볼 소유자 평가 평균 (2026-11-13 사용자 결정 6 → 12)", "metric": "act_owner_tick_avg_us", "max": 12, "unit": "µs"},
+      {"ac": "AC-14", "label": "결정 틱당 볼 소유자 평가 p95 (2026-11-13 사용자 결정 20 → 25)", "metric": "act_owner_tick_p95_us", "max": 25, "unit": "µs"},
       {"ac": "AC-14", "label": "압박 강도 팀 전체 11×11", "metric": "act_pressure_team_avg_us", "max": 5, "unit": "µs"}
     ]
   }
