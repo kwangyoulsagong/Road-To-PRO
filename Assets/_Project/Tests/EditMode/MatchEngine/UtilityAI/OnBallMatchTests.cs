@@ -60,7 +60,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
         }
 
         /// <summary>100경기 측정 (리포트 표용, 판정 없음). 경기 하나는 단일 스레드, 경기 여러 개만 병렬(006 FR-71).</summary>
-        [Test, Explicit("리포트용 측정"), Category("Slow")]
+        [Test, Explicit("리포트용 측정"), Category("Slow"), Timeout(1_200_000)]
         public void Report_100Matches_OnBallMeasurements()
         {
             const int n = 100;
