@@ -48,6 +48,8 @@ namespace RoadToPro.MatchEngine.Actions
 
         /// <summary>TTI 하한 가지치기 여유 (s): float 경계(정지 근처 반응 시간만 반환·뉴턴 1 ulp)에서도 결과가 같게 (결정론 리뷰).</summary>
         public const float PruneSlack = 1e-4f;
+        readonly float[] _lb = new float[PerTeam];
+        readonly int[] _lbSlot = new int[PerTeam];
 
         public static int TeamOf(int slot) => slot / PerTeam;
         public static bool IsKeeper(int slot) => slot % PerTeam == 0;
@@ -89,16 +91,27 @@ namespace RoadToPro.MatchEngine.Actions
         {
             var mine = TimeToIntercept.Estimate(in Tti[s], point.X, point.Y);
             var opp = 1 - TeamOf(s);
-            var best = float.MaxValue;
+            // 하한 TTI ≥ 반응 + 거리/Vm (005 모노-지수 x(t) ≤ Vm·t, 방향 전환·감속 비용 ≥ 0)을 모두 구해 작은 순서로 정확히 계산하고,
+            // 하한(− 여유 PruneSlack)이 현재 최솟값 이상이면 나머지는 건너뛴다 — 최솟값은 가지치기 없이 구한 값과 같다 (결정론 리뷰)
+            var n = 0;
             for (int o = opp * PerTeam; o < (opp + 1) * PerTeam; o++)
             {
                 if (!Active[o]) continue;
-                // 가지치기 (결과 동일 — float 오차 여유 PruneSlack): TTI ≥ 반응 + 거리/Vm (005 모노-지수 x(t) ≤ Vm·t, 방향 전환·감속 비용 ≥ 0) — 하한이 현재 최솟값 이상이면 건너뛴다
                 ref readonly var k = ref Tti[o];
                 var dx = point.X - k.StartX;
                 var dy = point.Y - k.StartY;
-                if (k.Reaction + DMath.Sqrt(dx * dx + dy * dy) * k.InvVm - PruneSlack >= best) continue;
-                var t = TimeToIntercept.Estimate(in k, point.X, point.Y);
+                var lb = k.Reaction + DMath.Sqrt(dx * dx + dy * dy) * k.InvVm;
+                // 삽입 정렬 (하한 오름차순, 동률은 낮은 슬롯 먼저)
+                var j = n++;
+                while (j > 0 && _lb[j - 1] > lb) { _lb[j] = _lb[j - 1]; _lbSlot[j] = _lbSlot[j - 1]; j--; }
+                _lb[j] = lb;
+                _lbSlot[j] = o;
+            }
+            var best = float.MaxValue;
+            for (int i = 0; i < n; i++)
+            {
+                if (_lb[i] - PruneSlack >= best) break;
+                var t = TimeToIntercept.Estimate(in Tti[_lbSlot[i]], point.X, point.Y);
                 if (t < best) best = t;
             }
             if (best == float.MaxValue) return 1f;
