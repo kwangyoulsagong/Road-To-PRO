@@ -184,7 +184,7 @@
     {"id": "dec.onball.cross.third", "default": 0.66, "min": 0.3, "max": 1, "unit": "", "tag": "[대체]", "source": "specs/072 크로스 구역: 공격 방향 피치 길이 비율 이상"},
     {"id": "dec.onball.cross.base", "default": 0.6, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "specs/072 071 대체 크로스 성공 = 뜬공 xPass × (base + slope·Crossing)"},
     {"id": "dec.onball.cross.slope", "default": 0.8, "min": 0, "max": 2, "unit": "", "tag": "[대체]", "source": "specs/072 071 대체 크로스: Crossing 기울기"},
-    {"id": "dec.onball.hold.value", "default": 0.01, "min": 0, "max": 0.2, "unit": "", "tag": "[대체]", "source": "specs/072 FR-01 홀드 기본 이득"},
+    {"id": "dec.onball.hold.value", "default": 0.01, "min": -0.2, "max": 0.2, "unit": "", "tag": "[대체]", "source": "specs/072 FR-01 홀드 기본 이득"},
     {"id": "dec.onball.hold.maxPressure", "default": 0.8, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "specs/072 이 압박 이상이면 홀드 후보 없음"},
     {"id": "dec.onball.hold.loss", "default": 0.5, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "specs/072 홀드 상실 확률 = 압박 × 이 값"},
     {"id": "dec.onball.hold.decay", "default": 0.004, "min": 0, "max": 0.05, "unit": "1/s", "tag": "[대체]", "source": "specs/072 FR-11 Tempo: 홀드 이득 감소율 × (0.5 + Tempo) × 보유 시간"},

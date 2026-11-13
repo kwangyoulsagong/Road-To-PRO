@@ -19,6 +19,10 @@ namespace RoadToPro.MatchEngine.UtilityAI
         public bool Settled;
         /// <summary>이번 결정에서 softmax로 재추첨했는가 (아니면 유지, FR-45).</summary>
         public bool Rerolled;
+        /// <summary>지시 무시 (072 FR-31·32) — 같은 틱에 이벤트 1건. 재추첨한 결정에서만 판정한다.</summary>
+        public bool IgnoredInstruction;
+        public Consideration IgnoredKind;
+        public float IgnoredWeight;
     }
 
     /// <summary>
@@ -34,6 +38,9 @@ namespace RoadToPro.MatchEngine.UtilityAI
         readonly OffBallCandidates _cands;
         readonly OffBallScorer _scorer;
         readonly UtilityChooser _chooser = new UtilityChooser();
+        readonly UtilityChooser _full = new UtilityChooser();
+        readonly float[] _uf = new float[OffBallCandidates.Capacity];
+        readonly bool[] _inf = new bool[OffBallCandidates.Capacity];
         readonly float[] _u = new float[OffBallCandidates.Capacity];
         readonly float[] _m = new float[OffBallCandidates.Capacity];
         readonly float[] _noise = new float[OffBallCandidates.Capacity];
@@ -146,6 +153,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
                 c.Noise = _noise[i];
                 c.Match = intentActive ? MatchOf(in c, in intent) : 0f;
                 _u[i] = c.Utility;
+                _uf[i] = OffBallScorer.FullComplianceUtility(in c);
+                _inf[i] = c.MultFull > 0f;
                 _m[i] = c.Match;
                 _in[i] = c.Mult > 0f;
             }
@@ -173,6 +182,27 @@ namespace RoadToPro.MatchEngine.UtilityAI
 
             ref var ch = ref _cands[pick];
             var r = new OffBallResult { Kind = ch.Kind, Target = ch.Target, Rerolled = rerolled };
+
+            // 지시 무시 (072 FR-31·32, 003 FR-42): 억제 지시가 걸린 행동을 새로 골랐고, 준수율 1이었다면 다른 후보가 최고점 (RNG 없음)
+            if (rerolled && _style.InstructionWeight(s, ch.Kind) < 1f)
+            {
+                var differs = false;
+                for (int i = 0; i < n; i++) if (_cands[i].Mult != _cands[i].MultFull) { differs = true; break; }
+                if (differs)
+                {
+                    var ms = new ReadOnlySpan<float>(_m, 0, n);
+                    _full.Evaluate(new ReadOnlySpan<float>(_uf, 0, n), ms, new ReadOnlySpan<bool>(_inf, 0, n), new ReadOnlySpan<float>(_noise, 0, n), _p.IntentW, _p.NormEps);
+                    if (intentActive) _full.FilterOpportunistic(ms, _p.IntentThetaOpp);
+                    var bf = _full.Best();
+                    if (bf >= 0 && bf != pick)
+                    {
+                        r.IgnoredInstruction = true;
+                        r.IgnoredKind = ch.Kind;
+                        _style.Breakdown(s, ch.Kind, out var b);
+                        r.IgnoredWeight = b.Instruction;
+                    }
+                }
+            }
 
             // ⑨ 목표점 이동 제한 (FR-46): 같은 행동 유지 중이면 결정 틱당 2 m
             var point = ch.Point;

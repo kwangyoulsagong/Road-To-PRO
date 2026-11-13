@@ -195,6 +195,25 @@ namespace RoadToPro.MatchEngine.Scenarios
             return true;
         }
 
+        /// <summary>
+        /// 072 온볼 판단이 배역 공 소유자의 킥을 냈다(의도와 일치) — 시나리오 실행기가 직접 찼을 때와 같이 킥 대기 상태로 둔다(단계 성공 판정은 기존 규칙).
+        /// 현재 단계가 패스·슈팅이 아니거나 배역이 아니면 false. 같은 틱 단계 5에서만 부른다.
+        /// </summary>
+        public bool NotifyOnBallKick(MatchContext ctx, int slot)
+        {
+            var team = _castRun[slot];
+            if (team < 0) return false;
+            var run = _runs[team];
+            var role = _castRole[slot];
+            if (run.State[role] != ScenarioRun.Running) return false;
+            var cls = run.CurrentStep(role).Class;
+            if (cls != VerbClass.Pass && cls != VerbClass.Shoot) return false;
+            run.PendingRole = role;
+            run.KickTick = ctx.Tick;
+            run.LastKickTick = ctx.Tick;
+            return true;
+        }
+
         /// <summary>배역 의도 지점 (역할 목표, 부수효과 없음 — 011 FR-94 GK 의도).</summary>
         public bool TryReadIntent(MatchContext ctx, int slot, out Vec2 point)
         {

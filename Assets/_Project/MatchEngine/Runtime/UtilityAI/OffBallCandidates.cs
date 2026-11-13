@@ -15,6 +15,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
         public float Loss;
         // ── 점수 분해 (FR-60) ──
         public float Mult;
+        /// <summary>준수율 1이었을 때의 결합 배수 (072 FR-32 지시 무시 판정).</summary>
+        public float MultFull;
         public float Tactic;
         public float Utility;
         public float Match;
