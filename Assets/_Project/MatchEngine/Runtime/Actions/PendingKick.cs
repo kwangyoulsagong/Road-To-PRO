@@ -31,6 +31,7 @@ namespace RoadToPro.MatchEngine.Actions
             h.Add(a.Velocity.X); h.Add(a.Velocity.Y); h.Add(a.Velocity.Z); h.Add(a.Spin.X); h.Add(a.Spin.Y); h.Add(a.Spin.Z);
             h.Add((byte)a.Part); h.Add(a.IsRestart); h.Add(a.IsPenalty); h.Add(a.IsKickoff);
             h.Add(a.HasIntent); h.Add(a.Aim.X); h.Add(a.Aim.Y); h.Add(a.Speed); h.Add(a.Elevation); h.Add(a.XPass); h.Add(a.IsOneTouch);
+            if (a.HasShot || a.CrossType != 0) { h.Add(a.HasShot); h.Add(a.ShotCell); h.Add(a.ShotPower); h.Add(a.ShotXg); h.Add(a.CrossType); } // 071: 안 쓰면 해시 불변
             h.Add(Victim);
             h.Add((byte)Plan.Foot); h.Add(Plan.WeakFoot); h.Add((byte)Plan.Tech); h.Add(Plan.BodyAngle); h.Add(Plan.Windup); h.Add(Plan.SigmaMul);
             h.Add(Due); h.Add(Expire); h.Add(Tick);
@@ -45,6 +46,7 @@ namespace RoadToPro.MatchEngine.Actions
             w.Write(a.Velocity); w.Write(a.Spin);
             w.Write((byte)a.Part); w.Write(a.IsRestart); w.Write(a.IsPenalty); w.Write(a.IsKickoff);
             w.Write(a.HasIntent); w.Write(a.Aim); w.Write(a.Speed); w.Write(a.Elevation); w.Write(a.XPass); w.Write(a.IsOneTouch);
+            w.Write(a.HasShot); w.Write(a.ShotCell); w.Write(a.ShotPower); w.Write(a.ShotXg); w.Write(a.CrossType);
             w.Write(Victim);
             w.Write((byte)Plan.Foot); w.Write(Plan.WeakFoot); w.Write((byte)Plan.Tech); w.Write(Plan.BodyAngle); w.Write(Plan.Windup); w.Write(Plan.SigmaMul);
             w.Write(Due); w.Write(Expire); w.Write(Tick);
@@ -61,6 +63,7 @@ namespace RoadToPro.MatchEngine.Actions
                 Part = (BodyPart)r.ReadByte(), IsRestart = r.ReadBool(), IsPenalty = r.ReadBool(), IsKickoff = r.ReadBool(),
                 HasIntent = r.ReadBool(), Aim = r.ReadVec2(), Speed = r.ReadFloat(), Elevation = r.ReadFloat(), XPass = r.ReadFloat(), IsOneTouch = r.ReadBool(),
             };
+            a.HasShot = r.ReadBool(); a.ShotCell = r.ReadInt(); a.ShotPower = r.ReadFloat(); a.ShotXg = r.ReadFloat(); a.CrossType = r.ReadByte();
             k.Action = a;
             k.Victim = r.ReadInt();
             k.Plan = new KickPlan

@@ -52,6 +52,11 @@ namespace RoadToPro.MatchEngine.Match.Events
         /// PlayerId = 공격자(공을 가진/다투는 쪽), OtherId = 수비자, F0 = 강도(0~1), F1 = 늦은 정도(0~1). 소비자: 012(파울·징계), 027(부상 위험).
         /// </summary>
         Contact = 214,
+        /// <summary>
+        /// specs/071 FR-05 공중볼 경합 승자의 헤더: A = 결과(0 헤딩슛 · 1 헤딩 패스 · 2 클리어), PlayerId = 승자, OtherId = 경합 최근접 상대(없으면 −1),
+        /// B = 공중볼 상세 번호 + 1 (<c>ActionDetailLog</c>, 0 = 없음), F0 = 승리 확률, F1 = 헤딩슛 xG(슛이 아니면 0).
+        /// </summary>
+        Header = 215,
 
         // 011 (300~): 골키퍼
         Save = 300,

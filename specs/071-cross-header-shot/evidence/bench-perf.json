@@ -1,0 +1,100 @@
+{
+  "judged": true,
+  "ok": true,
+  "note": "",
+  "backend": "il2cpp",
+  "profile": "mac-m1-1600p",
+  "budget": [
+    {
+      "ac": "AC-10",
+      "label": "xG 평가 1회",
+      "metric": "shot_xg_eval_us",
+      "value": 0.053996499999999996,
+      "budget": 0.2,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-10",
+      "label": "조준 셀 선택 1회 (21셀 × 평가)",
+      "metric": "shot_aim_us",
+      "value": 1.3679145000000001,
+      "budget": 3.0,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-10",
+      "label": "공중볼 경합 판정 1회 (참여 ≤ 6명)",
+      "metric": "aerial_contest_us",
+      "value": 0.11643175,
+      "budget": 1.0,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-10",
+      "label": "평가 GC 할당",
+      "metric": "shot_gc_bytes_models",
+      "value": 0,
+      "budget": 0,
+      "unit": "B",
+      "ok": true
+    },
+    {
+      "ac": "AC-10",
+      "label": "실경기 틱당 GC 할당",
+      "metric": "shot_gc_bytes_per_tick",
+      "value": 0,
+      "budget": 0,
+      "unit": "B",
+      "ok": true
+    },
+    {
+      "ac": "AC-10",
+      "label": "010 결정 틱 1회 평균 (072·070·071 포함, 072 예산 그대로)",
+      "metric": "dec_tick_avg_us",
+      "value": 4.747137755102041,
+      "budget": 12,
+      "unit": "µs",
+      "ok": true
+    }
+  ],
+  "regression": [],
+  "stages": {},
+  "metrics": {
+    "shot_xg_eval_us": 0.053996499999999996,
+    "shot_xg_eval_p95_us": 0.0554,
+    "shot_aim_us": 1.3679145000000001,
+    "shot_aim_p95_us": 1.4096,
+    "aerial_contest_us": 0.11643175,
+    "aerial_contest_p95_us": 0.1216,
+    "shot_gc_bytes_models": 0,
+    "shot_sink": 1,
+    "shot_match_tick_avg_us": 35.81186666666667,
+    "shot_match_tick_p95_us": 49.2,
+    "shot_match_ticks": 54000,
+    "shot_gc_bytes_per_tick": 0,
+    "shot_planned": 46,
+    "shot_blocks": 0,
+    "aerial_contests": 68,
+    "aerial_headers": 2,
+    "dec_tick_avg_us": 4.747137755102041,
+    "dec_tick_p95_us": 12.9,
+    "dec_match_s": 0.2791317,
+    "dec_ticks": 58800,
+    "dec_gc_bytes_per_tick": 0,
+    "dec_space_queries_avg": 0.7256972789115647,
+    "dec_space_queries_max": 8,
+    "dec_offball_avg_us": 0.4513150000000001,
+    "dec_offball_p95_us": 0.8
+  },
+  "host": "mac-m1-1600p",
+  "power": "ac",
+  "buildCached": false,
+  "durationSec": 13.0,
+  "unity": "6000.3.27f2",
+  "cpu": "Apple M1 Pro",
+  "development": false,
+  "commit": "3af4d21cf6b57594467739cbb12bbfa4a09fa1c7"
+}

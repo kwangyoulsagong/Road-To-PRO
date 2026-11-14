@@ -52,7 +52,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
         static OnBallFixture BoxScene(PlayStyle style = null)
         {
             var f = new OnBallFixture();
-            f.Place(6, new Vec2(88f, 44f));
+            f.Place(6, new Vec2(86f, 50f)); // 2026-11-14 specs/071: 071 xG에서 (88, 44)는 기본 슈팅 89 %로 포화 → 버릇 차이가 보이는 박스 모서리 밖
             f.Place(9, new Vec2(99f, 32f));
             f.GiveBall(6);
             if (style != null) f.Style.SetStyle(6, style);

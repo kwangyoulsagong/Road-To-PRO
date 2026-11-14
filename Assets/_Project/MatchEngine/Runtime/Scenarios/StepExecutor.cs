@@ -315,6 +315,16 @@ namespace RoadToPro.MatchEngine.Scenarios
             if (!ReadyToKick(ctx, run, role, ref hasAction, out var restart)) return;
             var slot = run.Slot[role];
             ref readonly var me = ref ctx.SlotState(slot);
+            if (ctx.Actions.Duels.Enabled) // 071 FR-13: 010 파이프라인은 조준 셀·실행 오차 (시나리오 RNG 소비 없음)
+            {
+                hasAction = true;
+                run.PendingRole = role;
+                run.KickTick = ctx.Tick;
+                run.LastKickTick = ctx.Tick;
+                var a = ctx.Actions.Shots.Plan(ctx, slot, run.Team, -1f, restart, false, PhysicsStage.PartFor(in me, ctx.Ball.Position));
+                ctx.Board.SetBallAction(a);
+                return;
+            }
             var goal = ctx.OpponentGoal(run.Team);
             var half = BallParams.GoalWidth * 0.5f - 0.4f;
             var dir = (new Vec2(goal.X, goal.Y + _rng.Range(-half, half)) - ctx.Ball.Position.XY).Normalized();

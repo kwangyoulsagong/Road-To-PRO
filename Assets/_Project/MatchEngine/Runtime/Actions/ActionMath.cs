@@ -53,6 +53,19 @@ namespace RoadToPro.MatchEngine.Actions
         /// <summary>표준 정규 표본. 정확히 균등 난수 2개 소비 (FR-61 고정 소비).</summary>
         public static float StdNormal(SeedRng rng) => rng.Normal(0f, 1f);
 
+        /// <summary>
+        /// 표준 정규 누적분포 Φ(x) (specs/071 FR-13 P_onTarget). Abramowitz–Stegun 7.1.26 erf 근사(최대 오차 1.5e-7), RNG 없음.
+        /// </summary>
+        public static float NormalCdf(float x)
+        {
+            if (!(x == x)) return 0.5f;
+            var z = DMath.Abs(x) * 0.70710678f;
+            var t = 1f / (1f + 0.3275911f * z);
+            var poly = t * (0.254829592f + t * (-0.284496736f + t * (1.421413741f + t * (-1.453152027f + t * 1.061405429f))));
+            var erf = 1f - poly * DMath.Exp(-z * z);
+            return x >= 0f ? 0.5f * (1f + erf) : 0.5f * (1f - erf);
+        }
+
         /// <summary>2D 벡터를 각도(rad)만큼 회전.</summary>
         public static Vec2 Rotate(Vec2 v, float rad)
         {

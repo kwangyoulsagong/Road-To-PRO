@@ -14,7 +14,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
     /// <summary>specs/072 T07: 단계 5 소유자 분기 — 실행·이벤트 1건 규칙(AC-04·09)·데드볼/GK 경계.</summary>
     public class OnBallStageTests
     {
-        const long Ticks = 6_000; // 10분
+        const long Ticks = 9_000; // 15분 (2026-11-14 specs/071: 10분은 데드볼 시간 비중에 따라 온볼 결정 50건 경계 — 궤적 변화에 흔들려 늘림)
 
         static UtilityDecisionStage StageOf(MatchSim sim) => (UtilityDecisionStage)sim.Stage(StageId.ScenarioOrUtility);
 

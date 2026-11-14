@@ -76,6 +76,13 @@ namespace RoadToPro.MatchEngine.Match.Pipeline
         public bool IsRestart;
         public bool IsPenalty;
         public bool IsKickoff;
+        /// <summary>071 슈팅 의도 (FR-13·14): 조준 셀(011 7×3 격자)·파워(0~1)·슈팅 순간 xG. 실행 오차는 접촉 순간 액션 RNG.</summary>
+        public bool HasShot;
+        public int ShotCell;
+        public float ShotPower;
+        public float ShotXg;
+        /// <summary>071 크로스 타입 (0 = 크로스 아님, <c>Actions.CrossType</c> + 1).</summary>
+        public byte CrossType;
     }
 
     public enum BallActionKind : byte

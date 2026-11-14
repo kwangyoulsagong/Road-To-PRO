@@ -31,6 +31,10 @@ namespace RoadToPro.MatchEngine.Actions
         public IActionDiagnostics Diagnostics;
         /// <summary>070 결투 하위 시스템 (드리블 터치·테이크온·태클·몸싸움·접촉).</summary>
         public readonly DuelSystem Duels;
+        /// <summary>071 슈팅 하위 시스템 (xG·조준·실행 오차·블록·페널티).</summary>
+        public readonly ShotSystem Shots;
+        /// <summary>071 공중볼 경합·헤더 하위 시스템.</summary>
+        public readonly AerialSystem Aerials;
 
         PendingKick _pending;
         byte _pendingFlow;
@@ -64,6 +68,8 @@ namespace RoadToPro.MatchEngine.Actions
             World.AttackDir[1] = -1;
             World.PrepareRoll(p, bp);
             Duels = new DuelSystem(this, bp);
+            Shots = new ShotSystem(this);
+            Aerials = new AerialSystem(this);
         }
 
         public ref readonly PendingKick Pending => ref _pending;
@@ -141,12 +147,16 @@ namespace RoadToPro.MatchEngine.Actions
                 World.SetSkills(s, mp.Technical.OrAverage(), mind.Vision, mind.Composure, lvl);
                 var slide = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.SlideMaster] : (byte)0;
                 World.SetDuel(s, mp.Technical.OrAverage(), in mp.Attributes, mind.Temperament, slide);
+                var cutIn = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.CutInMaster] : (byte)0;
+                var crossM = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.CrossMachine] : (byte)0;
+                World.SetFinish(s, mp.Technical.OrAverage(), in mp.Attributes, cutIn, crossM);
             }
             else
             {
                 World.SetSkills(s, TechnicalAttributes.Average, 50f, 50f, 0);
                 var avg = Kinematics.KinematicAttributes.Uniform(10);
                 World.SetDuel(s, TechnicalAttributes.Average, in avg, 50f, 0);
+                World.SetFinish(s, TechnicalAttributes.Average, in avg, 0, 0);
             }
         }
 
@@ -321,7 +331,9 @@ namespace RoadToPro.MatchEngine.Actions
             var tackle = pk.Victim >= 0;
             var victim = pk.Victim;
             var team = Squad.TeamOfSlot(a.KickerSlot);
-            var velocity = a.HasIntent ? IntentVelocity(ctx, in pk) : a.Velocity;
+            var velocity = a.HasShot ? Shots.ExecuteVelocity(ctx, ref a, in pk.Plan)
+                : a.CrossType != 0 && CrossModel.IsAerial((CrossType)(a.CrossType - 1)) ? CrossVelocity(ctx, in pk) // 071 FR-02: 뜬 크로스 착지 오차
+                : (a.HasIntent ? IntentVelocity(ctx, in pk) : a.Velocity);
             var detail = -1;
             if (a.Kind == BallActionKind.Pass) detail = SnapshotOffside(ctx, a.KickerSlot, team);
             BallCommands.Kick(ref ball, velocity, a.Spin, ctx.BallParams, ctx.BallEvents);
@@ -333,7 +345,8 @@ namespace RoadToPro.MatchEngine.Actions
                 ctx.SetPosition(ref ko, ball.Position);
                 ctx.Emit(ko);
             }
-            var kind = tackle ? SimEventKind.Tackle : a.Kind == BallActionKind.Shot ? SimEventKind.Shot : a.Kind == BallActionKind.Pass ? SimEventKind.Pass : SimEventKind.Clearance;
+            var kind = tackle ? SimEventKind.Tackle : a.Kind == BallActionKind.Shot ? SimEventKind.Shot
+                : a.Kind == BallActionKind.Pass ? (a.CrossType != 0 ? SimEventKind.Cross : SimEventKind.Pass) : SimEventKind.Clearance;
             var e = SimEvent.Make(kind, team, ctx.PlayerAtSlot(a.KickerSlot),
                 tackle ? ctx.PlayerAtSlot(victim) : (a.TargetSlot >= 0 ? ctx.PlayerAtSlot(a.TargetSlot) : -1));
             e.Substep = (sbyte)sub;
@@ -342,9 +355,15 @@ namespace RoadToPro.MatchEngine.Actions
             e.F0 = velocity.Length();
             if (a.Kind == BallActionKind.Pass)
             {
-                e.A = ActionOutcome.PassFlags(pk.Plan.Tech, a.IsOneTouch, pk.Plan.WeakFoot);
+                e.A = ActionOutcome.PassFlags(pk.Plan.Tech, a.IsOneTouch, pk.Plan.WeakFoot) | (a.CrossType << CrossTypeShift); // 071: 크로스 타입 + 1
                 e.F1 = a.XPass;
                 e.B = detail + 1;
+            }
+            else if (a.HasShot)
+            {
+                e.A = (a.IsPenalty ? 1 : 0) | ShotFlagPlanned; // 071: 비트 2 = 071 조준 슛
+                e.B = a.ShotCell + 1;
+                e.F1 = a.ShotXg; // FR-16·AC-03: 슈팅 순간 xG (015가 읽는 자리)
             }
             else e.A = a.IsPenalty ? 1 : 0;
             ctx.SetPosition(ref e, ball.Position);
@@ -354,6 +373,11 @@ namespace RoadToPro.MatchEngine.Actions
             ctx.LastKickSubstep = abs;
             ctx.LastTackleVictim = tackle ? victim : -1;
             ctx.LastKickKind = (byte)a.Kind;
+            if (Duels.Enabled && !tackle) // 071: 010 파이프라인만 (006 대체 파이프라인은 그대로 — 해시 불변)
+            {
+                if (a.Kind == BallActionKind.Shot) Shots.OnKicked(ctx, a.KickerSlot, abs);
+                Aerials.OnLoftedKick(ctx, a.KickerSlot, a.Kind, a.CrossType); // FR-03: 뜬 공 경합 예약
+            }
             ctx.LastTouchTeam = team;
             ctx.LastTouchSlot = a.KickerSlot;
             ctx.Recorder.MarkAction(a.KickerSlot, tackle ? MotionHint.Tackle : MotionHint.Kick);
@@ -393,7 +417,7 @@ namespace RoadToPro.MatchEngine.Actions
         }
 
         /// <summary>FR-15: 패스 순간 22 슬롯 x·공 x·수비 팀 오프사이드 라인(뒤에서 두 번째 수비수 x). 판정은 012.</summary>
-        int SnapshotOffside(MatchContext ctx, int passer, int team)
+        internal int SnapshotOffside(MatchContext ctx, int passer, int team)
         {
             var def = 1 - team;
             var dir = ctx.AttackDir(team);
@@ -419,7 +443,40 @@ namespace RoadToPro.MatchEngine.Actions
             ctx.Kinematics.SetSpeedCap(slot, cap, abs + (long)(P.AfterDuration / _bp.Dt + 0.5f));
         }
 
-        void ResetAttempts() => System.Array.Clear(_attempted, 0, _attempted.Length);
+        /// <summary>Cross 이벤트 A: 패스 플래그 | (크로스 타입 + 1) &lt;&lt; 이 값 (071 FR-01).</summary>
+        public const int CrossTypeShift = 8;
+
+        /// <summary>071 헤더 패스: 날아가는 패스 받는 슬롯.</summary>
+        internal void SetFlightTarget(int slot) => _flightTarget = slot;
+
+        /// <summary>
+        /// 071 FR-02 뜬 크로스(Early·Lofted) 실행 초속: 조준점에 착지 오차 σ_landing(2D 정규, RNG 정확히 4)을 넣은 점으로 004 역산.
+        /// </summary>
+        Vec3 CrossVelocity(MatchContext ctx, in PendingKick pk)
+        {
+            Refresh(ctx); // 결정론 리뷰 H1
+            var a = pk.Action;
+            var k = a.KickerSlot;
+            var from = ctx.Ball.Position.XY;
+            var sigma = CrossModel.SigmaLanding(P, World.Crossing[k], PressureOn(ctx, k));
+            var aim = CrossModel.ApplyLanding(a.Aim, sigma, Rng, out _);
+            var d = aim - from;
+            var dist = d.Length();
+            var dir = dist > 1e-5f ? d / dist : ctx.SlotState(k).Facing;
+            var e = a.Elevation > 0f ? a.Elevation : 0.5f;
+            var inv = BallInverse.LoftedSpeedFor(_bp, dist > 0.5f ? dist : 0.5f, e, Vec3.Zero, P.LoftMaxApex, _scratch);
+            var sp = inv.Status == BallInverseStatus.Unreachable ? a.Speed : inv.Speed;
+            CrossModel.Speed(P, (CrossType)(a.CrossType - 1), out var lo, out var hi);
+            if (sp < lo * 0.6f) sp = lo * 0.6f; // 짧은 크로스 하한 (역산 실패 방지 — 타입 범위는 017 비교용)
+            return new Vec3(dir.X * sp * DMath.Cos(e), dir.Y * sp * DMath.Cos(e), sp * DMath.Sin(e));
+        }
+
+        /// <summary>Shot 이벤트 A 비트: 071 조준 슛(셀 B − 1, xG F1).</summary>
+        public const int ShotFlagPlanned = 2;
+        /// <summary>Shot 이벤트 A 비트: 헤딩슛 (071 FR-05).</summary>
+        public const int ShotFlagHeader = 4;
+
+        internal void ResetAttempts() => System.Array.Clear(_attempted, 0, _attempted.Length);
 
         // ── 수신 · 인터셉트 (FR-45·67·70) ──
 
@@ -432,6 +489,7 @@ namespace RoadToPro.MatchEngine.Actions
         {
             ref var ball = ref ctx.Ball;
             if (!ctx.Flow.InPlay || ball.Phase == BallPhase.Controlled) return;
+            if (Aerials.HoldsBall) return; // 071: 공중볼 승자가 헤더할 때까지 다른 선수는 잡지 않는다
             var pos = ball.Position;
             var rb = ctx.BallParams.Radius;
             // 공 전체가 라인 밖일 때만 잡기 금지 (라인 위 공은 인플레이 — 011 발견)
@@ -566,7 +624,8 @@ namespace RoadToPro.MatchEngine.Actions
             for (int i = from; i < log.Count; i++)
             {
                 ref readonly var e = ref log[i];
-                if (e.Kind == SimEventKind.Pass && e.B > 0) Details.Bind(e.B - 1, e.Seq);
+                if ((e.Kind == SimEventKind.Pass || e.Kind == SimEventKind.Cross) && e.B > 0) Details.Bind(e.B - 1, e.Seq);
+                else if (e.Kind == SimEventKind.Header && e.B > 0) Details.Aerials.BindGroup(e.B - 1, e.Seq);
                 else if (e.Kind == SimEventKind.Contact && e.B > 0) Details.Contacts.Bind(e.B - 1, e.Seq);
             }
         }
@@ -583,6 +642,8 @@ namespace RoadToPro.MatchEngine.Actions
             for (int s = 0; s < ActionWorld.N; s++) { h.Add(_attempted[s]); h.Add(_touchCooldown[s]); }
             Details.AddTo(ref h);
             Duels.AddTo(ref h);
+            Shots.AddTo(ref h);
+            Aerials.AddTo(ref h);
         }
 
         public void Write(StateWriter w)
@@ -595,6 +656,8 @@ namespace RoadToPro.MatchEngine.Actions
             for (int s = 0; s < ActionWorld.N; s++) { w.Write(_attempted[s]); w.Write(_touchCooldown[s]); }
             Details.Write(w);
             Duels.Write(w);
+            Shots.Write(w);
+            Aerials.Write(w);
         }
 
         public void Read(StateReader r)
@@ -607,6 +670,8 @@ namespace RoadToPro.MatchEngine.Actions
             for (int s = 0; s < ActionWorld.N; s++) { _attempted[s] = r.ReadBool(); _touchCooldown[s] = r.ReadLong(); }
             Details.Read(r);
             Duels.Read(r);
+            Shots.Read(r);
+            Aerials.Read(r);
             _worldTick = long.MinValue;
         }
     }
