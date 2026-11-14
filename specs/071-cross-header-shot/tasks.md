@@ -1,6 +1,6 @@
 # 071 — 크로스 · 공중볼 · 헤더 · 슈팅 · xG · 태스크
 
-상태: 승인됨 (2026-11-14)
+상태: 구현 완료 (2026-11-15) — AC-12 육안 승인 대기, AC-11·13 보류
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 Unity 배치로 돌린다(실패 확인 → 구현 → 통과).
@@ -32,4 +32,4 @@
 
 ## F. 화면 · 검증
 - [x] T12 E2E 장면 — 파일: `Data/e2e/071-cross-shot.json`(058 실경기 경로, 고정 시드 3장면: 컷백 슛 골·크로스 공중볼 헤더·30 m 중거리 슛), 필요하면 `LiveSceneSelector`(Header 장면 점수) — 검증: `farm.py shot --scenario 071-cross-shot`(mac-m1-1600p) 스크린샷 직접 확인 → **사용자 육안 승인**(AC-12), 헤더 접촉 프레임 머리–공 거리 로그 — 결과: `ShotSceneSeedSearch`(64시드)에서 장면 안 컷백 슛·헤더가 있는 시드 0개(실경기 크로스 0~2/경기·뜬 공 경합 참여 부족). 시드 20261149, 장면 2개 캡처: `cutback_goal`(대체 — 25 m 안 슛 골), `longshot`(플레이어 빌드에서는 대체 20 m+ 슛, 에디터·빌드 시뮬 차이). 헤더 장면·머리–공 거리는 보류(081 크로스 선택·착지점 추격 뒤 재촬영). 처음 실행은 이벤트 X·Y(0~1 정규화)를 미터로 읽은 버그로 두 장면이 같은 슛 — 고쳐 재촬영. 직접 확인: 두 장면 모두 슛 순간(박스 안 빨강 선수·박스 모서리 밖 파랑 선수). **사용자 육안 승인 대기**
-- [ ] T13 `/verify 071` — 커밋 → `farm.py logic --spec 071 --scope auto`(MatchEngine 변경 → `match`) 1회 + `farm.py bench --spec 071`(시뮬 틱 경로 변경) 1회 → `evidence/report.html` 아티팩트 발행. AC-11·13 보류 사유 기록
+- [x] T13 `/verify 071` — 커밋 → `farm.py logic --spec 071 --scope auto`(MatchEngine 변경 → `match`) 1회 + `farm.py bench --spec 071`(시뮬 틱 경로 변경) 1회 → `evidence/report.html` 아티팩트 발행. AC-11·13 보류 사유 기록 — 결과: logic(auto → match 범위) 1,678개 중 통과 1,667·실패 0·컴파일 에러 0, EditMode 성능 5/5, IL2CPP 벤치 6/6(xG 0.054 µs·조준 1.37 µs·경합 0.12 µs·할당 0 B·결정 틱 4.75 µs). 리포트 https://claude.ai/artifact/E7hPuDnoPeRDAqTXNeJZie — AC-12만 실패 표시(승인 대기: 기록은 `evidence/approval-pending.md`, 승인되면 `approval.md`로 이름을 바꿔 리포트 재생성). 벤치가 로직 뒤에 끝나 리포트는 같은 로직 결과 XML로 다시 만들었다(테스트 재실행 없음, 리포트의 "걸린 시간 0s"는 그 때문)
