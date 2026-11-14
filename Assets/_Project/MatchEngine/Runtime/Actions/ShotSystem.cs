@@ -114,6 +114,7 @@ namespace RoadToPro.MatchEngine.Actions
         /// </summary>
         public Vec3 ExecuteVelocity(MatchContext ctx, ref BallAction a, in KickPlan plan, float extraSigmaMul = 1f)
         {
+            _a.Refresh(ctx); // 스냅샷 복원 직후에도 같은 입력 (결정론 리뷰 H1)
             Executed++;
             var w = _a.World;
             var s = a.KickerSlot;
@@ -224,6 +225,7 @@ namespace RoadToPro.MatchEngine.Actions
 
         void Block(MatchContext ctx, int s, long abs, int sub, Vec3 at, Vec2 body, float dist)
         {
+            _a.Refresh(ctx); // 결정론 리뷰 H1
             Blocks++;
             ref var ball = ref ctx.Ball;
             var v = ball.Velocity;

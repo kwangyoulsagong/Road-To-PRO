@@ -75,6 +75,39 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
             Assert.IsTrue(fa && fb, "액션당 RNG 소비 고정 (크로스 4 · 경합 5 · 슛 4 · 페널티 5)");
         }
 
+        /// <summary>결정론 리뷰 H1: 슛 예약·슛 비행·공중볼 결정 중 스냅샷 → Fork 복원 → 끝까지 = 중단 없는 실행.</summary>
+        [Test, Category("Determinism")]
+        [Category("Slow")]
+        public void ForkRestore_DuringShotAndAerialStates_SameResult()
+        {
+            var o = new RoadToPro.MatchEngine.Match.MatchSimOptions { Checkpoints = RoadToPro.MatchEngine.Match.Replay.CheckpointMode.All };
+            var a = RoadToPro.Tests.EditMode.MatchEngine.Tactics.ShapeTestKit.Sim(o);
+            var ctx = a.Context;
+            long pendShot = -1, flight = -1, decided = -1;
+            while (!a.IsFinished && (pendShot < 0 || flight < 0 || decided < 0))
+            {
+                a.StepTick();
+                if (pendShot < 0 && ctx.Actions.Pending.Active && ctx.Actions.Pending.Action.HasShot) pendShot = ctx.Tick;
+                if (flight < 0 && ctx.Actions.Shots.InFlight) flight = ctx.Tick;
+                if (decided < 0 && ctx.Actions.Aerials.IsDecided) decided = ctx.Tick;
+            }
+            a.RunToEnd();
+            TestContext.WriteLine($"슛 예약 {pendShot}, 슛 비행 {flight}, 경합 결정 {decided}");
+            var checkedN = 0;
+            foreach (var t in new[] { pendShot, flight, decided })
+            {
+                if (t < 0) continue;
+                var snap = a.NearestSnapshot(t);
+                var fork = a.Fork();
+                fork.Restore(snap, a.Log, a.Checkpoints);
+                var r = fork.RunToEnd();
+                Assert.That(r.EventLogHash, Is.EqualTo(a.Result.EventLogHash), $"틱 {t} 복원 이벤트 해시");
+                Assert.That(r.FinalStateHash, Is.EqualTo(a.Result.FinalStateHash), $"틱 {t} 복원 최종 상태");
+                checkedN++;
+            }
+            Assert.GreaterOrEqual(checkedN, 2);
+        }
+
         [Test, Category("Determinism")]
         [Category("Slow")]
         public void Match_TwoRuns_SameHash_With071()

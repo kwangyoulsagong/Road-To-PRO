@@ -174,7 +174,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
             f.Put(11, new Vec2(goal.X - dir * 4f, goal.Y), new Vec2(-dir, 0f));
             f.Ticks(20);
             Assert.AreEqual(1, f.Ctx.Actions.Aerials.KeeperWins);
-            Assert.IsFalse(Find(f, SimEventKind.Header).HasValue, "GK는 헤더 없이 011 잡기 경로");
+            var h = Find(f, SimEventKind.Header);
+            Assert.IsTrue(h.HasValue && h.Value.A == (int)HeaderOutcome.Keeper, "GK는 헤더 없이 011 잡기 경로 — Keeper 결과 기록만 (결정론 리뷰 M2)");
+            Assert.AreEqual(0, f.Count(SimEventKind.Shot) + f.Count(SimEventKind.Clearance), "헤더 동작 없음");
         }
     }
 }

@@ -454,6 +454,7 @@ namespace RoadToPro.MatchEngine.Actions
         /// </summary>
         Vec3 CrossVelocity(MatchContext ctx, in PendingKick pk)
         {
+            Refresh(ctx); // 결정론 리뷰 H1
             var a = pk.Action;
             var k = a.KickerSlot;
             var from = ctx.Ball.Position.XY;

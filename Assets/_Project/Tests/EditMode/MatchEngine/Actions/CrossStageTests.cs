@@ -57,8 +57,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
                 }
                 else if (e.Kind == SimEventKind.Header)
                 {
+                    Assert.That(e.A, Is.InRange(0, 5));
+                    if (e.A > 2) continue; // GK 승리·놓침 기록 (헤더 없음)
                     headers++;
-                    Assert.That(e.A, Is.InRange(0, 2));
                     if (e.A == 0) headShots++;
                 }
             }

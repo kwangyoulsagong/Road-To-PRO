@@ -37,7 +37,7 @@ namespace RoadToPro.Verification.Samples.Highlight
         /// <summary>specs/070 AC-11 결투 장면 경기 (DuelSceneSeedSearch로 고름 — 에디터 기준 4종 모두. 플레이어 빌드 경기는 약간 달라 테이크온 실패·슬라이딩은 대체 장면을 쓸 수 있다).</summary>
         const ulong Seed070 = 20261121UL;
         /// <summary>071 크로스·헤더·중거리 장면 경기 시드 (T12 시드 탐색 결과).</summary>
-        const ulong Seed071 = 20261141UL;
+        const ulong Seed071 = 20261141UL; // 64시드 탐색: 장면 안 컷백 슛·헤더는 어느 시드에도 없음(크로스 경기당 0~1), 25 m 슛 6
         static ulong _matchSeed = Seed;
         const int LoopCount = 10, WaitFrames = 60;
         const double TransitionWindow = 1d;
@@ -269,7 +269,7 @@ namespace RoadToPro.Verification.Samples.Highlight
             // specs/071 AC-12: 컷백 슛 골·크로스 공중볼 헤더·30 m 중거리 슛 (슛 이벤트 순간 — 공이 발·머리를 떠난 직후)
             FarmContext.Screens["livePlay071"] = () => { HighlightCastStage.NightRequested = false; if (_matchSeed != Seed071) { _matchSeed = Seed071; _match = null; } Play(false); };
             FarmContext.Screens["live.freeze.cutback_goal"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && FollowsCutback(e) && ScoredAfter(e),
-                e => e.Kind == SimEventKind.Shot && FollowsCutback(e), "cutback_goal");
+                e => e.Kind == SimEventKind.Shot && e.Part != BodyPart.Head && ScoredAfter(e), "cutback_goal"); // 대체: 골이 된 슛 (실경기 크로스 0~1개 — 072·010 몫, 081)
             FarmContext.Screens["live.freeze.header"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && e.Part == BodyPart.Head,
                 e => e.Kind == SimEventKind.Header, "header");
             FarmContext.Screens["live.freeze.longshot"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && e.Part != BodyPart.Head && ShotDistance(e) >= 25f,

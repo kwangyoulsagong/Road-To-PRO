@@ -17,8 +17,10 @@ namespace RoadToPro.MatchEngine.Actions
         Clear = 2,
         /// <summary>GK가 손으로 이김 — 헤더 없이 011 잡기 경로로 넘긴다(클레임·펀칭은 073).</summary>
         Keeper = 3,
-        /// <summary>참여자 0명 — 루즈볼.</summary>
+        /// <summary>참여자 0명 — 루즈볼 (이벤트 없음).</summary>
         None = 4,
+        /// <summary>결정된 승자가 공에 못 닿음(놓침·라인·다른 터치·이탈) — 헤더 없이 일반 수신.</summary>
+        Missed = 5,
     }
 
     /// <summary>
@@ -78,6 +80,24 @@ namespace RoadToPro.MatchEngine.Actions
         /// <summary>헤더 실행 대기 중 — 다른 선수의 수신 판정을 막는다.</summary>
         public bool HoldsBall => _decided;
 
+        /// <summary>결정된 경합이 헤더 없이 끝남 → Header 이벤트(A = 결과, B = 묶음 연결)로 남긴다 (결정론 리뷰 M2: 1초 공백 설명·054 동작 정보 연결).</summary>
+        void EndWithoutHeader(MatchContext ctx, int sub, HeaderOutcome outcome)
+        {
+            if (_winner >= 0 && _detailFirst >= 0)
+            {
+                var team = Squad.TeamOfSlot(_winner);
+                var he = SimEvent.Make(SimEventKind.Header, team, ctx.PlayerAtSlot(_winner), _nearestOpp >= 0 && ctx.IsSlotActive(_nearestOpp) ? ctx.PlayerAtSlot(_nearestOpp) : -1);
+                he.Substep = (sbyte)sub;
+                he.A = (int)outcome;
+                he.B = _detailFirst + 1;
+                he.F0 = _winProb;
+                he.BallPhase = ctx.Ball.Phase;
+                ctx.SetPosition(ref he, ctx.Ball.Position);
+                ctx.Emit(he);
+            }
+            Cancel();
+        }
+
         public void Cancel()
         {
             _armed = false;
@@ -110,14 +130,18 @@ namespace RoadToPro.MatchEngine.Actions
             ref var ball = ref ctx.Ball;
             if (!ctx.Flow.InPlay || ball.Phase == BallPhase.Controlled || ctx.LastKickSlot != _kicker && !_decided || ctx.LastTouchSlot != _kicker)
             {
-                if (_decided) CancelReason[!ctx.Flow.InPlay ? 0 : ball.Phase == BallPhase.Controlled ? 1 : 2]++;
-                Cancel();
+                if (_decided) { CancelReason[!ctx.Flow.InPlay ? 0 : ball.Phase == BallPhase.Controlled ? 1 : 2]++; EndWithoutHeader(ctx, sub, HeaderOutcome.Missed); }
+                else Cancel();
                 return;
             }
             for (int i = 0; i < ctx.BallEvents.Count; i++)
             {
                 var k = ctx.BallEvents[i].Kind;
-                if (k == BallEventKind.GoalFrameHit || k == BallEventKind.BoundaryCrossed) { if (_decided) CancelReason[3]++; Cancel(); return; }
+                if (k == BallEventKind.GoalFrameHit || k == BallEventKind.BoundaryCrossed)
+                {
+                    if (_decided) { CancelReason[3]++; EndWithoutHeader(ctx, sub, HeaderOutcome.Missed); } else Cancel();
+                    return;
+                }
             }
             if (_armed && !_decided)
             {
@@ -126,7 +150,7 @@ namespace RoadToPro.MatchEngine.Actions
             }
             if (_decided)
             {
-                if (!ctx.IsSlotControllable(_winner)) { CancelReason[4]++; Cancel(); return; }
+                if (!ctx.IsSlotControllable(_winner)) { CancelReason[4]++; EndWithoutHeader(ctx, sub, HeaderOutcome.Missed); return; }
                 var wp = ctx.SlotState(_winner).Position;
                 var near = (ball.Position.XY - wp).LengthSq() <= _p.AerialRadius * _p.AerialRadius && ball.Position.Z <= _reach && ball.Position.Z <= _p.AerialContactZ; // [대체] 머리 접촉 수평 허용 = 경합 반경 2 m (뻗기·점프 포함)
                 if (near) Execute(ctx, abs, sub);
@@ -134,7 +158,7 @@ namespace RoadToPro.MatchEngine.Actions
                 {
                     // 승자가 끝내 공 밑에 못 옴 → 헤더 없이 일반 수신(008)으로 (RNG는 이미 고정 소비 — 순간이동 헤더 금지)
                     Missed++;
-                    Cancel();
+                    EndWithoutHeader(ctx, sub, HeaderOutcome.Missed);
                 }
             }
         }
@@ -192,7 +216,7 @@ namespace RoadToPro.MatchEngine.Actions
             {
                 KeeperWins++;
                 _outcome = HeaderOutcome.Keeper;
-                Cancel(); // 011 잡기 경로(Resolve hands)로 — 클레임·펀칭은 073
+                EndWithoutHeader(ctx, sub, HeaderOutcome.Keeper); // 011 잡기 경로(Resolve hands)로 — 클레임·펀칭은 073
                 return;
             }
             ChooseOutcome(ctx, w, winTeam, landing);
@@ -365,7 +389,10 @@ namespace RoadToPro.MatchEngine.Actions
 
         void Execute(MatchContext ctx, long abs, int sub)
         {
+            _a.Refresh(ctx); // 결정론 리뷰 H1
             _decided = false;
+            if (_passTarget >= 0 && !ctx.IsSlotControllable(_passTarget)) _passTarget = -1; // 리뷰 L3: 결정 뒤 퇴장·교체
+            if (_nearestOpp >= 0 && !ctx.IsSlotControllable(_nearestOpp)) _nearestOpp = -1;
             Headers++;
             var s = _winner;
             var team = Squad.TeamOfSlot(s);
@@ -396,12 +423,12 @@ namespace RoadToPro.MatchEngine.Actions
                     var to = ctx.SlotState(_passTarget).Position;
                     var d = to - from.XY;
                     var dist = d.Length();
-                    var sp = 4f + 0.6f * dist;
-                    if (sp > 14f) sp = 14f;
+                    var sp = _p.HeaderPassBase + _p.HeaderPassK * dist;
+                    if (sp > _p.HeaderPassVMax) sp = _p.HeaderPassVMax;
                     var dir = dist > 1e-4f ? d / dist : new Vec2(ctx.AttackDir(team), 0f);
                     var sa = PassExecution.SigmaAngleDeg(_p, w.Passing[s], _a.PressureOn(ctx, s), w.Composure[s], _p.ShotHeaderMul, 1f);
                     var h = ActionMath.Rotate(dir * sp, _n1 * sa * ActionMath.DegToRad);
-                    v = new Vec3(h.X, h.Y, 2.5f + 0.5f * _n2);
+                    v = new Vec3(h.X, h.Y, _p.HeaderPassVz + 0.5f * _n2);
                     kind = SimEventKind.Pass;
                     kick = BallActionKind.Pass;
                     target = _passTarget;
@@ -411,9 +438,9 @@ namespace RoadToPro.MatchEngine.Actions
                 {
                     // 클리어(수비 승자) / 헤딩 패스 대상 없음: 자기 골문 반대 방향, ±25°·속도 lerp(lo, hi, Φ(n2)), 위로 5 m/s
                     var away = new Vec2(ctx.AttackDir(team), 0f);
-                    var h = ActionMath.Rotate(away, _n1 * 25f * ActionMath.DegToRad);
+                    var h = ActionMath.Rotate(away, _n1 * _p.HeaderClearAngle * ActionMath.DegToRad);
                     var sp = ActionMath.Lerp(_p.HeaderClearLo, _p.HeaderClearHi, ActionMath.NormalCdf(_n2));
-                    v = new Vec3(h.X * sp, h.Y * sp, 5f);
+                    v = new Vec3(h.X * sp, h.Y * sp, _p.HeaderClearVz);
                     kind = SimEventKind.Clearance;
                     kick = BallActionKind.Clearance;
                     break;

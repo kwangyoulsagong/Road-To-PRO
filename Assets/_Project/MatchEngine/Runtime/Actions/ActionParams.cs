@@ -244,6 +244,12 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly float AerialStaminaLo = 0.85f;
         public readonly float AerialJumpLead = 0.35f;
         public readonly float AerialDecideLead = 1.0f;
+        public readonly float HeaderPassBase = 4.0f;
+        public readonly float HeaderPassK = 0.6f;
+        public readonly float HeaderPassVMax = 14.0f;
+        public readonly float HeaderPassVz = 2.5f;
+        public readonly float HeaderClearAngle = 25.0f;
+        public readonly float HeaderClearVz = 5.0f;
         public readonly float HeaderShotMinXg = 0.04f;
         public readonly float HeaderClearLo = 8.0f;
         public readonly float HeaderClearHi = 14.0f;
@@ -493,6 +499,12 @@ namespace RoadToPro.MatchEngine.Actions
             AerialStaminaLo = t.Get(Ids.AerialStaminaLo);
             AerialJumpLead = t.Get(Ids.AerialJumpLead);
             AerialDecideLead = t.Get(Ids.AerialDecideLead);
+            HeaderPassBase = t.Get(Ids.HeaderPassBase);
+            HeaderPassK = t.Get(Ids.HeaderPassK);
+            HeaderPassVMax = t.Get(Ids.HeaderPassVMax);
+            HeaderPassVz = t.Get(Ids.HeaderPassVz);
+            HeaderClearAngle = t.Get(Ids.HeaderClearAngle);
+            HeaderClearVz = t.Get(Ids.HeaderClearVz);
             HeaderShotMinXg = t.Get(Ids.HeaderShotMinXg);
             HeaderClearLo = t.Get(Ids.HeaderClearLo);
             HeaderClearHi = t.Get(Ids.HeaderClearHi);
