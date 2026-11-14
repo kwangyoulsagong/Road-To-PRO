@@ -1,0 +1,1027 @@
+{
+  "results": [
+    {
+      "name": "CorePerfTests.Hash_30kEvents_ms",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Hash_30kEvents_ms",
+      "groups": {
+        "Time": {
+          "median": 3.5733999999999995,
+          "min": 3.5053,
+          "max": 3.603200000000001,
+          "avg": 3.5615800000000015,
+          "unit": "ms",
+          "samples": 10
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.Rng_Normal_ns",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Rng_Normal_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 61.13843,
+          "min": 60.96036,
+          "max": 61.87558,
+          "avg": 61.28041142857142,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.Rng_Uniform_ns",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Rng_Uniform_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 5.676913000000001,
+          "min": 5.6502,
+          "max": 5.834012,
+          "avg": 5.711159714285715,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.Swept_ns",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Swept_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 74.12470000000002,
+          "min": 72.40489,
+          "max": 76.64328,
+          "avg": 73.93300142857144,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.Tuning_Load1000_ms",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Tuning_Load1000_ms",
+      "groups": {
+        "Time": {
+          "median": 7.108349999999518,
+          "min": 6.694800000000214,
+          "max": 17.89420000000064,
+          "avg": 7.94430666666661,
+          "unit": "ms",
+          "samples": 30
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.Vec_Normalize_ns",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.Vec_Normalize_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 36.15742,
+          "min": 35.93928,
+          "max": 36.59844,
+          "avg": 36.20257857142857,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "CorePerfTests.ZeroAlloc_MathRngClockLog",
+      "fullName": "RoadToPro.Tests.Performance.Core.CorePerfTests.ZeroAlloc_MathRngClockLog",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 5
+        }
+      }
+    },
+    {
+      "name": "ActionPerfTests.Gc_Zero",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ActionPerfTests.Gc_Zero",
+      "groups": {
+        "act_gc_bytes": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "bytes",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "ActionPerfTests.Logistic_Once_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ActionPerfTests.Logistic_Once_us",
+      "groups": {
+        "act_xpass_logistic_us": {
+          "median": 0.05825015,
+          "min": 0.0574567,
+          "max": 0.05828845,
+          "avg": 0.05799843333333333,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "ActionPerfTests.OwnerTick_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ActionPerfTests.OwnerTick_us",
+      "groups": {
+        "act_owner_tick_avg_us": {
+          "median": 50.74788117081695,
+          "min": 50.74788117081695,
+          "max": 50.74788117081695,
+          "avg": 50.74788117081695,
+          "unit": "us",
+          "samples": 1
+        },
+        "act_owner_tick_p95_us": {
+          "median": 98.8,
+          "min": 98.8,
+          "max": 98.8,
+          "avg": 98.8,
+          "unit": "us",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "ActionPerfTests.Physics_Once_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ActionPerfTests.Physics_Once_us",
+      "groups": {
+        "act_xpass_physics_p95_us": {
+          "median": 323.5,
+          "min": 323.0,
+          "max": 344.1,
+          "avg": 330.2,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "ActionPerfTests.Pressure_Team_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ActionPerfTests.Pressure_Team_us",
+      "groups": {
+        "act_pressure_team_avg_us": {
+          "median": 14.94273,
+          "min": 14.703385,
+          "max": 15.166945,
+          "avg": 14.937686666666666,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.GroundInverse_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.GroundInverse_us",
+      "groups": {
+        "us_per_op": {
+          "median": 0.04814,
+          "min": 0.046360000000000005,
+          "max": 0.06047999999999999,
+          "avg": 0.04976285714285715,
+          "unit": "us",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.Predict10s_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Predict10s_us",
+      "groups": {
+        "us_per_op": {
+          "median": 214.6448,
+          "min": 211.3763,
+          "max": 218.811,
+          "avg": 214.94435,
+          "unit": "us",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.Substep_Air_ns",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_Air_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 231.40904,
+          "min": 229.83254,
+          "max": 234.2058,
+          "avg": 231.66858,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.Substep_Idle_ns",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_Idle_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 10.04949,
+          "min": 9.98497,
+          "max": 10.189370000000002,
+          "avg": 10.072667142857144,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.Substep_Rolling_ns",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_Rolling_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 196.6169,
+          "min": 195.09594,
+          "max": 197.79958000000005,
+          "avg": 196.64576000000005,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.Substep_WeightedAvg_ns",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.Substep_WeightedAvg_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 99.54081,
+          "min": 96.8557,
+          "max": 100.40072,
+          "avg": 98.97671285714284,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "BallPerfTests.ZeroAlloc_StepPredictInverse",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.BallPerfTests.ZeroAlloc_StepPredictInverse",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 5
+        }
+      }
+    },
+    {
+      "name": "DeadBallPerfTests.LiveSceneSelector_ms",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.LiveSceneSelector_ms",
+      "groups": {
+        "scene_select_ms": {
+          "median": 0.7110999999999998,
+          "min": 0.6665000000000001,
+          "max": 0.7976000000000001,
+          "avg": 0.72136,
+          "unit": "ms",
+          "samples": 10
+        }
+      }
+    },
+    {
+      "name": "DeadBallPerfTests.TickGc_GoalDeadBall_Zero",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.TickGc_GoalDeadBall_Zero",
+      "groups": {
+        "gc_alloc_count_deadball": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DecisionPerfTests.DecisionTick_NoAlloc_GcAllocCount",
+      "groups": {
+        "dec_gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "DecisionPerfTests.DecisionTick_us_Queries",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DecisionPerfTests.DecisionTick_us_Queries",
+      "groups": {
+        "dec_tick_avg_us": {
+          "median": 24.241282986111113,
+          "min": 24.241282986111113,
+          "max": 24.241282986111113,
+          "avg": 24.241282986111113,
+          "unit": "us",
+          "samples": 1
+        },
+        "dec_tick_p95_us": {
+          "median": 78.10000000000001,
+          "min": 78.10000000000001,
+          "max": 78.10000000000001,
+          "avg": 78.10000000000001,
+          "unit": "us",
+          "samples": 1
+        },
+        "dec_match_s": {
+          "median": 1.3962979,
+          "min": 1.3962979,
+          "max": 1.3962979,
+          "avg": 1.3962979,
+          "unit": "s",
+          "samples": 1
+        },
+        "dec_space_queries_avg": {
+          "median": 0.6973958333333333,
+          "min": 0.6973958333333333,
+          "max": 0.6973958333333333,
+          "avg": 0.6973958333333333,
+          "unit": "",
+          "samples": 1
+        },
+        "dec_space_queries_max": {
+          "median": 8.0,
+          "min": 8.0,
+          "max": 8.0,
+          "avg": 8.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "DecisionPerfTests.OffBallPlayer_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DecisionPerfTests.OffBallPlayer_us",
+      "groups": {
+        "dec_offball_avg_us": {
+          "median": 5.3684,
+          "min": 5.34402,
+          "max": 5.3690500000000005,
+          "avg": 5.360490000000001,
+          "unit": "us",
+          "samples": 3
+        },
+        "dec_offball_p95_us": {
+          "median": 10.100000000000001,
+          "min": 10.100000000000001,
+          "max": 10.100000000000001,
+          "avg": 10.100000000000001,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "DuelPerfTests.MatchTick_NoAlloc",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DuelPerfTests.MatchTick_NoAlloc",
+      "groups": {
+        "duel_gc_bytes_per_tick": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "bytes",
+          "samples": 1
+        },
+        "duel_match_tick_avg_us": {
+          "median": 150.47726666666668,
+          "min": 150.47726666666668,
+          "max": 150.47726666666668,
+          "avg": 150.47726666666668,
+          "unit": "us",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "DuelPerfTests.Models_NoAlloc",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DuelPerfTests.Models_NoAlloc",
+      "groups": {
+        "duel_gc_bytes_models": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "bytes",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "DuelPerfTests.Models_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DuelPerfTests.Models_us",
+      "groups": {
+        "duel_takeon_eval_us": {
+          "median": 1.55657325,
+          "min": 1.55657325,
+          "max": 1.55657325,
+          "avg": 1.55657325,
+          "unit": "us",
+          "samples": 1
+        },
+        "duel_tackle_eval_us": {
+          "median": 0.2470755,
+          "min": 0.2470755,
+          "max": 0.2470755,
+          "avg": 0.2470755,
+          "unit": "us",
+          "samples": 1
+        },
+        "duel_steal_judge_us": {
+          "median": 0.43791475,
+          "min": 0.43791475,
+          "max": 0.43791475,
+          "avg": 0.43791475,
+          "unit": "us",
+          "samples": 1
+        },
+        "duel_gap_substep_us": {
+          "median": 0.06670725,
+          "min": 0.06670725,
+          "max": 0.06670725,
+          "avg": 0.06670725,
+          "unit": "us",
+          "samples": 1
+        },
+        "duel_contact_us": {
+          "median": 0.416587,
+          "min": 0.416587,
+          "max": 0.416587,
+          "avg": 0.416587,
+          "unit": "us",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "GoalkeeperPerfTests.Gc_Zero",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.Gc_Zero",
+      "groups": {
+        "gk_gc_bytes": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "bytes",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "GoalkeeperPerfTests.PerTick_TwoKeepers_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.PerTick_TwoKeepers_us",
+      "groups": {
+        "gk_tick_avg_us": {
+          "median": 4.202547872340426,
+          "min": 4.202547872340426,
+          "max": 4.202547872340426,
+          "avg": 4.202547872340426,
+          "unit": "us",
+          "samples": 1
+        },
+        "gk_tick_p95_us": {
+          "median": 9.7,
+          "min": 9.7,
+          "max": 9.7,
+          "avg": 9.7,
+          "unit": "us",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "GoalkeeperPerfTests.Position_Once_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.Position_Once_us",
+      "groups": {
+        "gk_position_p95_us": {
+          "median": 12.4,
+          "min": 12.4,
+          "max": 12.4,
+          "avg": 12.4,
+          "unit": "us",
+          "samples": 3
+        },
+        "gk_position_avg_us": {
+          "median": 11.488015,
+          "min": 11.476475,
+          "max": 11.496345,
+          "avg": 11.486945,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "GoalkeeperPerfTests.Save_Once_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.GoalkeeperPerfTests.Save_Once_us",
+      "groups": {
+        "gk_save_p95_us": {
+          "median": 8.3,
+          "min": 8.3,
+          "max": 8.3,
+          "avg": 8.3,
+          "unit": "us",
+          "samples": 3
+        },
+        "gk_predict_p95_us": {
+          "median": 46.3,
+          "min": 46.3,
+          "max": 46.5,
+          "avg": 46.36666666666667,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "KinematicsPerfTests.BallIntercept_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.BallIntercept_us",
+      "groups": {
+        "us_per_op": {
+          "median": 9.395695000000002,
+          "min": 9.365799,
+          "max": 9.4182445,
+          "avg": 9.395173142857145,
+          "unit": "us",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "KinematicsPerfTests.Substep22_Avg_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.Substep22_Avg_us",
+      "groups": {
+        "us_per_op": {
+          "median": 12.287753333333328,
+          "min": 12.275030000000042,
+          "max": 12.420973333333444,
+          "avg": 12.311162380952393,
+          "unit": "us",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "KinematicsPerfTests.Substep22_P95_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.Substep22_P95_us",
+      "groups": {
+        "us_per_op": {
+          "median": 14.0,
+          "min": 14.0,
+          "max": 14.0,
+          "avg": 14.0,
+          "unit": "us",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "KinematicsPerfTests.Tti_ns",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.Tti_ns",
+      "groups": {
+        "ns_per_op": {
+          "median": 197.25106,
+          "min": 196.06178,
+          "max": 199.3437,
+          "avg": 197.37106571428572,
+          "unit": "ns",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "KinematicsPerfTests.ZeroAlloc_StepTtiIntercept",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.KinematicsPerfTests.ZeroAlloc_StepTtiIntercept",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 5
+        }
+      }
+    },
+    {
+      "name": "MatchPerfTests.AllocPerTick_GcAllocCount",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchPerfTests.AllocPerTick_GcAllocCount",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "MatchPerfTests.Checkpoint_SizeAndRestore",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchPerfTests.Checkpoint_SizeAndRestore",
+      "groups": {
+        "checkpoint_max_kb": {
+          "median": 13.68359375,
+          "min": 13.68359375,
+          "max": 13.68359375,
+          "avg": 13.68359375,
+          "unit": "",
+          "samples": 3
+        },
+        "restore_avg_ms": {
+          "median": 0.602405,
+          "min": 0.60164,
+          "max": 0.60713,
+          "avg": 0.603725,
+          "unit": "ms",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "MatchPerfTests.Clip11s_ms",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchPerfTests.Clip11s_ms",
+      "groups": {
+        "ms": {
+          "median": 21.379160000000002,
+          "min": 21.32945,
+          "max": 21.79526333333333,
+          "avg": 21.482322000000003,
+          "unit": "ms",
+          "samples": 5
+        }
+      }
+    },
+    {
+      "name": "MatchPerfTests.FullMatch_PhysicsAndTick_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchPerfTests.FullMatch_PhysicsAndTick_us",
+      "groups": {
+        "physics_us_per_tick": {
+          "median": 112.73931382978724,
+          "min": 112.72748936170214,
+          "max": 112.75113829787236,
+          "avg": 112.73931382978724,
+          "unit": "us",
+          "samples": 2
+        },
+        "tick_avg_us": {
+          "median": 127.45459574468086,
+          "min": 127.44348581560284,
+          "max": 127.46570567375888,
+          "avg": 127.45459574468086,
+          "unit": "us",
+          "samples": 2
+        },
+        "stages_sum_us": {
+          "median": 126.17324379432625,
+          "min": 126.1622340425532,
+          "max": 126.1842535460993,
+          "avg": 126.17324379432625,
+          "unit": "us",
+          "samples": 2
+        }
+      }
+    },
+    {
+      "name": "MatchPerfTests.Memory_LogAndRing_MB",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchPerfTests.Memory_LogAndRing_MB",
+      "groups": {
+        "event_log_mb": {
+          "median": 1.375,
+          "min": 1.375,
+          "max": 1.375,
+          "avg": 1.375,
+          "unit": "",
+          "samples": 1
+        },
+        "ring_buffer_mb": {
+          "median": 0.9321212768554688,
+          "min": 0.9321212768554688,
+          "max": 0.9321212768554688,
+          "avg": 0.9321212768554688,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "MatchPerfTests.SkeletonMatch_ms",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchPerfTests.SkeletonMatch_ms",
+      "groups": {
+        "ms": {
+          "median": 355.5776,
+          "min": 354.154,
+          "max": 356.0632,
+          "avg": 355.2649333333334,
+          "unit": "ms",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "OnBallPerfTests.OwnerDecision_NoAlloc_GcAllocCount",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.OnBallPerfTests.OwnerDecision_NoAlloc_GcAllocCount",
+      "groups": {
+        "onball_gc_bytes_per_decision": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "bytes",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "OnBallPerfTests.OwnerDecision_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.OnBallPerfTests.OwnerDecision_us",
+      "groups": {
+        "onball_owner_avg_us": {
+          "median": 39.80665778961385,
+          "min": 39.80665778961385,
+          "max": 39.80665778961385,
+          "avg": 39.80665778961385,
+          "unit": "us",
+          "samples": 1
+        },
+        "onball_owner_p95_us": {
+          "median": 70.8,
+          "min": 70.8,
+          "max": 70.8,
+          "avg": 70.8,
+          "unit": "us",
+          "samples": 1
+        },
+        "onball_candidates_avg": {
+          "median": 15.121171770972037,
+          "min": 15.121171770972037,
+          "max": 15.121171770972037,
+          "avg": 15.121171770972037,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "OnBallPerfTests.VisionSet_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.OnBallPerfTests.VisionSet_us",
+      "groups": {
+        "onball_vision_avg_us": {
+          "median": 0.3276253500000001,
+          "min": 0.3276253500000001,
+          "max": 0.3276253500000001,
+          "avg": 0.3276253500000001,
+          "unit": "us",
+          "samples": 1
+        },
+        "onball_vision_p95_us": {
+          "median": 0.4079,
+          "min": 0.4079,
+          "max": 0.4079,
+          "avg": 0.4079,
+          "unit": "us",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "ScenarioPerfTests.Load_270",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ScenarioPerfTests.Load_270",
+      "groups": {
+        "load_270_ms": {
+          "median": 9.0203,
+          "min": 8.862400000000001,
+          "max": 16.1202,
+          "avg": 11.3343,
+          "unit": "ms",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ScenarioPerfTests.Tick_NoAlloc_DiagnosticsOff",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "ScenarioPerfTests.Tick_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ScenarioPerfTests.Tick_us",
+      "groups": {
+        "scenario_tick_avg_us": {
+          "median": 0.489915780141844,
+          "min": 0.48110460992907805,
+          "max": 0.49872695035461,
+          "avg": 0.489915780141844,
+          "unit": "us",
+          "samples": 2
+        },
+        "scenario_tick_p95_us": {
+          "median": 0.4,
+          "min": 0.4,
+          "max": 0.4,
+          "avg": 0.4,
+          "unit": "us",
+          "samples": 2
+        },
+        "scenario_match_s": {
+          "median": 0.02763125,
+          "min": 0.0271343,
+          "max": 0.0281282,
+          "avg": 0.02763125,
+          "unit": "s",
+          "samples": 2
+        }
+      }
+    },
+    {
+      "name": "ShapePerfTests.Rematch_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ShapePerfTests.Rematch_us",
+      "groups": {
+        "rematch_p95_us": {
+          "median": 6.4,
+          "min": 6.4,
+          "max": 6.4,
+          "avg": 6.400000000000001,
+          "unit": "us",
+          "samples": 3
+        }
+      }
+    },
+    {
+      "name": "ShapePerfTests.Tick_NoAlloc_GcAllocCount",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ShapePerfTests.Tick_NoAlloc_GcAllocCount",
+      "groups": {
+        "gc_alloc_count": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "ShapePerfTests.Tick_us",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.ShapePerfTests.Tick_us",
+      "groups": {
+        "shape_tick_avg_us": {
+          "median": 13.863233506944448,
+          "min": 13.861677083333333,
+          "max": 13.864789930555558,
+          "avg": 13.863233506944448,
+          "unit": "us",
+          "samples": 2
+        },
+        "shape_tick_p95_us": {
+          "median": 23.5,
+          "min": 23.5,
+          "max": 23.5,
+          "avg": 23.5,
+          "unit": "us",
+          "samples": 2
+        },
+        "shape_match_s": {
+          "median": 0.79852225,
+          "min": 0.7984326,
+          "max": 0.7986119,
+          "avg": 0.79852225,
+          "unit": "s",
+          "samples": 2
+        }
+      }
+    },
+    {
+      "name": "KitCompositorPerfTests.PerTeam_Under50ms",
+      "fullName": "RoadToPro.Tests.Performance.Presentation.KitCompositorPerfTests.PerTeam_Under50ms",
+      "groups": {
+        "KitCompose.PerTeam": {
+          "median": 16.227600000000002,
+          "min": 16.1634,
+          "max": 27.2651,
+          "avg": 17.796057142857144,
+          "unit": "ms",
+          "samples": 7
+        }
+      }
+    },
+    {
+      "name": "SampleSimPerfTests.Simulate_1000Ticks",
+      "fullName": "RoadToPro.Tests.Performance.SampleSimPerfTests.Simulate_1000Ticks",
+      "groups": {
+        "Time.GC()": {
+          "median": 38.0,
+          "min": 38.0,
+          "max": 38.0,
+          "avg": 38.0,
+          "unit": "",
+          "samples": 20
+        },
+        "Time": {
+          "median": 1.2122499999998697,
+          "min": 1.206700000000012,
+          "max": 1.2275999999997111,
+          "avg": 1.2144399999999764,
+          "unit": "ms",
+          "samples": 20
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "DuelPerfTests.Models_us/duel_takeon_eval_us/min": 1.55657325,
+      "DuelPerfTests.Models_us/duel_tackle_eval_us/min": 0.2470755,
+      "DuelPerfTests.Models_us/duel_steal_judge_us/min": 0.43791475,
+      "DuelPerfTests.Models_us/duel_contact_us/min": 0.416587,
+      "DuelPerfTests.Models_NoAlloc/duel_gc_bytes_models/max": 0.0,
+      "DuelPerfTests.MatchTick_NoAlloc/duel_gc_bytes_per_tick/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-09",
+        "label": "테이크온 평가 1회 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_takeon_eval_us/min",
+        "value": 1.55657325,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "태클 평가 1회 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_tackle_eval_us/min",
+        "value": 0.2470755,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "이격 탈취 판정 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_steal_judge_us/min",
+        "value": 0.43791475,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "접촉 기록 1건 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_contact_us/min",
+        "value": 0.416587,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "결투 평가 GC 할당",
+        "metric": "DuelPerfTests.Models_NoAlloc/duel_gc_bytes_models/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "실경기 틱당 GC 할당 (결투 포함)",
+        "metric": "DuelPerfTests.MatchTick_NoAlloc/duel_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "battery"
+  }
+}

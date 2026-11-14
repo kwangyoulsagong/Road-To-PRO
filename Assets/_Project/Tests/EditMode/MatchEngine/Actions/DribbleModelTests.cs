@@ -82,7 +82,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
         [Test]
         public void StealProb_OpponentFirst_Higher()
         {
-            Assert.Greater(DribbleModel.StealProb(P, 1.0f, 0.4f), 0.8f);
+            // sigmoid(k·(TTI_소유자 − TTI_상대 − 여유)) 공식 그대로, 상대가 먼저 닿을수록 큼
+            Assert.AreEqual(ActionMath.Sigmoid(P.DribStealK * (1.0f - 0.4f - P.DribStealMargin)), DribbleModel.StealProb(P, 1.0f, 0.4f), 1e-5f);
+            Assert.Greater(DribbleModel.StealProb(P, 1.0f, 0.4f), 0.5f);
             Assert.Less(DribbleModel.StealProb(P, 0.4f, 1.0f), 0.1f);
         }
     }
