@@ -73,12 +73,12 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/071-cross-header-shot"
   },
   "meta": {
-    "commit": "3af4d21cf6b57594467739cbb12bbfa4a09fa1c7",
+    "commit": "59114fbab63d6aaccdbe1b58cc6efc3db49c58b2",
     "branch": "feat/071-cross-header-shot",
     "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-15 01:05:57 +0900",
-    "durationSec": 0.10726714134216309,
+    "time": "2026-11-15 01:15:16 +0900",
+    "durationSec": 0.1120598316192627,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 071 --scope auto",
     "profiles": [
       "mac-m1-1600p"
@@ -94,7 +94,7 @@
     "compileErrors": [],
     "failures": [],
     "png": null,
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261115-010556-logic/logic.html"
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261115-011516-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -332,10 +332,10 @@
     ],
     "AC-12": [
       {
-        "label": "수동 승인 기록 evidence/approval.md (없음 또는 AC 미기재)",
-        "ok": false
+        "label": "수동 승인 기록 evidence/approval.md",
+        "ok": true
       }
     ]
   },
-  "verdict": "fail"
+  "verdict": "deferred"
 }
