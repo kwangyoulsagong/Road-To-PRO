@@ -20,7 +20,7 @@
   ],
   "il2cpp": {
     "budgets": [
-      {"ac": "AC-09", "label": "테이크온 평가 1회", "metric": "duel_takeon_eval_us", "max": 0.2, "unit": "µs"},
+      {"ac": "AC-09", "label": "테이크온 평가 1회 (2026-11-14 0.2 → 0.4, 커버 TTI 10명 — 경기당 수 회)", "metric": "duel_takeon_eval_us", "max": 0.4, "unit": "µs"},
       {"ac": "AC-09", "label": "태클 평가 1회", "metric": "duel_tackle_eval_us", "max": 0.2, "unit": "µs"},
       {"ac": "AC-09", "label": "드리블 이격 탈취 판정 (근처 상대 ≤ 4명)", "metric": "duel_steal_judge_us", "max": 0.5, "unit": "µs"},
       {"ac": "AC-09", "label": "접촉 이벤트 기록 1건", "metric": "duel_contact_us", "max": 1.0, "unit": "µs"},

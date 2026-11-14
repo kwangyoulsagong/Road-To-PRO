@@ -68,33 +68,28 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/070-dribble-tackle-duel"
   },
   "meta": {
-    "commit": "b1a0f68829fd6070d17e4d44a8d8ababf518efdd",
+    "commit": "70d578709ec08f462956defa85f29f859bc4a42c",
     "branch": "feat/070-dribble-tackle-duel",
     "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-14 18:46:17 +0900",
-    "durationSec": 1382.8872690200806,
+    "time": "2026-11-14 19:36:33 +0900",
+    "durationSec": 1376.3154780864716,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 070 --scope auto",
     "profiles": [
       "mac-m1-1600p"
     ]
   },
   "logic": {
-    "ok": false,
+    "ok": true,
     "total": 1626,
-    "passed": 1614,
-    "failed": 1,
+    "passed": 1615,
+    "failed": 0,
     "skipped": 11,
-    "duration": 1364.107357,
+    "duration": 1355.0836475,
     "compileErrors": [],
-    "failures": [
-      {
-        "name": "DribbleModelTests.StealProb_OpponentFirst_Higher",
-        "message": "Expected: greater than 0.800000012f\n  But was:  0.645656288f"
-      }
-    ],
+    "failures": [],
     "png": null,
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-184617-logic/logic.html"
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-193633-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -103,10 +98,10 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "DuelPerfTests.Models_us/duel_takeon_eval_us/min": 1.55657325,
-      "DuelPerfTests.Models_us/duel_tackle_eval_us/min": 0.2470755,
-      "DuelPerfTests.Models_us/duel_steal_judge_us/min": 0.43791475,
-      "DuelPerfTests.Models_us/duel_contact_us/min": 0.416587,
+      "DuelPerfTests.Models_us/duel_takeon_eval_us/min": 1.5725465,
+      "DuelPerfTests.Models_us/duel_tackle_eval_us/min": 0.247271,
+      "DuelPerfTests.Models_us/duel_steal_judge_us/min": 0.43436975,
+      "DuelPerfTests.Models_us/duel_contact_us/min": 0.41641175,
       "DuelPerfTests.Models_NoAlloc/duel_gc_bytes_models/max": 0.0,
       "DuelPerfTests.MatchTick_NoAlloc/duel_gc_bytes_per_tick/max": 0.0
     },
@@ -115,7 +110,7 @@
         "ac": "AC-09",
         "label": "테이크온 평가 1회 (Mono 회귀)",
         "metric": "DuelPerfTests.Models_us/duel_takeon_eval_us/min",
-        "value": 1.55657325,
+        "value": 1.5725465,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -124,7 +119,7 @@
         "ac": "AC-09",
         "label": "태클 평가 1회 (Mono 회귀)",
         "metric": "DuelPerfTests.Models_us/duel_tackle_eval_us/min",
-        "value": 0.2470755,
+        "value": 0.247271,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -133,7 +128,7 @@
         "ac": "AC-09",
         "label": "이격 탈취 판정 (Mono 회귀)",
         "metric": "DuelPerfTests.Models_us/duel_steal_judge_us/min",
-        "value": 0.43791475,
+        "value": 0.43436975,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -142,7 +137,7 @@
         "ac": "AC-09",
         "label": "접촉 기록 1건 (Mono 회귀)",
         "metric": "DuelPerfTests.Models_us/duel_contact_us/min",
-        "value": 0.416587,
+        "value": 0.41641175,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -180,43 +175,43 @@
     "AC-01": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-02": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-03": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-04": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-05": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-06": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-07": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-08": [
