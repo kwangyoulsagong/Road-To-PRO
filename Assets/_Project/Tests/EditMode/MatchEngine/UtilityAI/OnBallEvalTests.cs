@@ -26,7 +26,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
         }
 
         [Test]
-        public void ShotXg_CloserCentralSkilled_Higher()
+        public void ShotXg_CloserCentral_Higher_SkillIndependent071()
         {
             var f = Fx();
             var e = new StandInOnBallEval(f.P);
@@ -35,11 +35,10 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
             var wide = e.ShotXg(f.W, 6, new Vec2(100f, 10f), 0f);
             Assert.Greater(near, far);
             Assert.Greater(near, wide);
-            Assert.That(near, Is.InRange(0.1f, 0.5f), "11 m 정면 대체 xG");
+            Assert.That(near, Is.InRange(0.05f, 0.5f), "11 m 정면 xG (071 FR-10)");
+            // 071 FR-10·16: xG는 위치·상황 평가 — 능력치는 실행 오차(FR-14)에만 들어간다 (2026-11-14 072 대체 식 교체)
             f.W.Tech[6] = TechnicalAttributes.Average.WithOnBall(finishing: 95f);
-            Assert.Greater(e.ShotXg(f.W, 6, new Vec2(94f, 34f), 0f), near);
-            f.W.Tech[6] = TechnicalAttributes.Average.WithOnBall(longShots: 95f);
-            Assert.Greater(e.ShotXg(f.W, 6, new Vec2(80f, 34f), 0f), far, "20 m 밖은 중거리 능력치");
+            Assert.AreEqual(near, e.ShotXg(f.W, 6, new Vec2(94f, 34f), 0f), 0f);
             Assert.Less(e.ShotXg(f.W, 6, new Vec2(94f, 34f), 1f), near, "압박이 높으면 낮다");
         }
 

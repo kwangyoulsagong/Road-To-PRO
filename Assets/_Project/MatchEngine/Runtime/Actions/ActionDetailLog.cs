@@ -19,6 +19,9 @@ namespace RoadToPro.MatchEngine.Actions
         /// <summary>070 FR-13 접촉 상세 — 저장은 <see cref="Contacts"/>(종류별 고정 배열, 같은 누적 해시·창 규칙).</summary>
         public const byte KindContact = 2;
         public readonly ContactLog Contacts = new ContactLog();
+        public const byte KindAerial = 3;
+        /// <summary>071 FR-06 공중볼 동작 정보 — 저장은 <see cref="Aerials"/>(같은 규칙, 기록 0건이면 해시 불변).</summary>
+        public readonly AerialLog Aerials = new AerialLog();
         /// <summary>스냅샷·해시에 내용을 넣는 최근 기록 수 (012 오프사이드 판정은 직전 패스만 읽는다).</summary>
         public const int Window = 16;
 
@@ -93,6 +96,7 @@ namespace RoadToPro.MatchEngine.Actions
             _roll = StableHasher.OffsetBasis;
             Overflow = 0;
             Contacts.Clear();
+            Aerials.Clear();
         }
 
         public void AddTo(ref StableHasher h)
@@ -102,6 +106,7 @@ namespace RoadToPro.MatchEngine.Actions
             h.Add(_roll);
             for (int i = WindowStart; i < _count; i++) AddRecord(ref h, i);
             Contacts.AddTo(ref h);
+            Aerials.AddTo(ref h);
         }
 
         public void Write(StateWriter w)
@@ -117,6 +122,7 @@ namespace RoadToPro.MatchEngine.Actions
                 for (int s = 0; s < Slots; s++) w.Write(_runnerX[i * Slots + s]);
             }
             Contacts.Write(w);
+            Aerials.Write(w);
         }
 
         public void Read(StateReader r)
@@ -135,6 +141,7 @@ namespace RoadToPro.MatchEngine.Actions
                 for (int s = 0; s < Slots; s++) _runnerX[i * Slots + s] = r.ReadFloat();
             }
             Contacts.Read(r);
+            Aerials.Read(r);
         }
     }
 }

@@ -96,7 +96,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
             "{\"role\":\"o\",\"required\":false,\"steps\":[{\"do\":\"drop\"}]}]";
 
         /// <summary>강제 선택이 시작될 때까지 돌린다.</summary>
-        public static MatchSim Forced(ScenarioData d, string id, int team = 0, ulong seed = 20261109UL, MatchSimOptions options = null, MatchTuning tuning = null)
+        /// <remarks>기본 시드 20261109 → 20261110 (2026-11-14 specs/071: 슈팅 결정 RNG 제거로 경기 궤적이 바뀌어 강제 시작 직후 공을 잃는 시드가 됨).</remarks>
+        public static MatchSim Forced(ScenarioData d, string id, int team = 0, ulong seed = 20261110UL, MatchSimOptions options = null, MatchTuning tuning = null)
         {
             var o = options ?? new MatchSimOptions();
             o.ScenarioForce = new ScenarioForceRequest { Id = id, Team = team, Allowed = true };

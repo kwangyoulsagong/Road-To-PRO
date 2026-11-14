@@ -29,6 +29,10 @@ namespace RoadToPro.MatchEngine.Actions
         /// <summary>070 태클 스타일 대체 입력 (FR-31): 다혈질(010 정신, 정규화)·슬라이딩 장인 레벨.</summary>
         public readonly float[] Temperament = new float[N];
         public readonly byte[] SlideLevel = new byte[N];
+        /// <summary>071 슈팅·크로스·공중볼 입력 (정규화 a, 키는 cm): Finishing·LongShots·Crossing·Heading·Jumping(002 전 대체), 005 Stamina, 버릇 레벨(컷인 장인·크로스 머신).</summary>
+        public readonly float[] Finishing = new float[N], LongShots = new float[N], Crossing = new float[N], Heading = new float[N], Jumping = new float[N],
+            HeightCm = new float[N], Stamina = new float[N];
+        public readonly byte[] CutInLevel = new byte[N], CrossLevel = new byte[N];
 
         /// <summary>땅볼 속도 후보별 구름 표 시작값 캐시 (같은 함수 값 — 평가 핫 경로에서 이진 탐색 2회 절약). <see cref="PrepareRoll"/>.</summary>
         public readonly float[] RollX0 = new float[4], RollStep0 = new float[4], LoftSin2 = new float[2], LoftSin = new float[2];
@@ -71,6 +75,21 @@ namespace RoadToPro.MatchEngine.Actions
             Tti[s] = new TimeToIntercept.Context(in Profile[s], pos, vel, 1f, 0f, kp);
             SetSkills(s, tech.OrAverage(), vision, composure, 0);
             SetDuel(s, tech.OrAverage(), in kin, 50f, 0);
+            SetFinish(s, tech.OrAverage(), in kin, 0, 0);
+        }
+
+        /// <summary>071 슈팅·크로스·공중볼 입력 (002 FR-14 정규화 능력치만, 키는 cm 그대로).</summary>
+        public void SetFinish(int s, in TechnicalAttributes tech, in KinematicAttributes kin, byte cutInLevel, byte crossLevel)
+        {
+            Finishing[s] = ActionMath.Norm(tech.Finishing);
+            LongShots[s] = ActionMath.Norm(tech.LongShots);
+            Crossing[s] = ActionMath.Norm(tech.Crossing);
+            Heading[s] = ActionMath.Norm(tech.Heading);
+            Jumping[s] = ActionMath.Norm(tech.Jumping);
+            HeightCm[s] = tech.HeightCm;
+            Stamina[s] = ActionMath.Norm(kin.Stamina);
+            CutInLevel[s] = cutInLevel;
+            CrossLevel[s] = crossLevel;
         }
 
         /// <summary>070 결투 입력 (FR-30: 002 FR-14 정규화 능력치만).</summary>

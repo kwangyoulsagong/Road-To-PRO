@@ -361,7 +361,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         {
             var o = new MatchSimOptions { ScenarioForce = new ScenarioForceRequest { Id = id, Team = 0, Allowed = allowed } };
             var sim = Sim(d, o);
-            sim.StepTicks(1200);
+            sim.StepTicks(3000); // 2026-11-14 specs/071: 1,200 → 3,000틱 (경기 궤적 변화로 팀 0 첫 기회가 늦어짐)
             return sim;
         }
 

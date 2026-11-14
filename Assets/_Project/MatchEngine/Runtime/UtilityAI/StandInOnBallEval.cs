@@ -5,14 +5,20 @@ namespace RoadToPro.MatchEngine.UtilityAI
 {
     /// <summary>
     /// 070·071·012 전 대체 평가 (specs/072 플랜 대체 1·2). 모든 계수는 decision.json `dec.onball.*` [대체] — 070·071 구현 때 교체하고 AC-13으로 재확인.
-    /// 돌파 = σ(b0 + b1·(Dribbling − 수비 Tackling) − b2·압박), xG = σ(b0 − bDist·d + bAngle·골문각 + bSkill·(능력 − 0.5) − bPress·압박),
+    /// 돌파 = σ(b0 + b1·(Dribbling − 수비 Tackling) − b2·압박), xG = 071 ShotModel(FR-10, 2026-11-14 교체),
     /// 크로스 = 뜬공 xPass × (base + slope·Crossing). 능력치는 0~1 정규화.
     /// </summary>
     public sealed class StandInOnBallEval : IOnBallEvaluator
     {
         readonly DecisionParams _p;
+        readonly Actions.ActionParams _ap;
 
-        public StandInOnBallEval(DecisionParams p) => _p = p;
+        /// <param name="ap">071 xG 모델 계수 (null = 코드 기본값). FR-16: xG는 071 <see cref="Actions.ShotModel"/>이 소유한다.</param>
+        public StandInOnBallEval(DecisionParams p, Actions.ActionParams ap = null)
+        {
+            _p = p;
+            _ap = ap ?? Actions.ActionParams.Defaults;
+        }
 
         static float N(float v) => DecisionAttributes.N(v);
         static float Sigmoid(float x) => x > 30f ? 1f : (x < -30f ? 0f : 1f / (1f + DMath.Exp(-x)));
@@ -25,21 +31,12 @@ namespace RoadToPro.MatchEngine.UtilityAI
             return Clamp(Sigmoid(_p.OnBallDribB0 + _p.OnBallDribB1 * (me - def) - _p.OnBallDribB2 * pressure));
         }
 
+        /// <summary>071 FR-10·16: <see cref="Actions.ShotModel.Xg"/> (결정 월드 위치로 콘 블로커·GK 이탈을 채운다). 어시스트·바운드는 결정 시점에 모름 → 0.</summary>
         public float ShotXg(DecisionWorld w, int s, Vec2 from, float pressure)
         {
             var team = DecisionWorld.TeamOf(s);
-            var goal = w.OppGoal(team);
-            var d = (goal - from).Length();
-            var half = Ball.BallParams.GoalWidth * 0.5f;
-            // 골문 시야각 = 두 골포스트 방향 사이 각
-            var a = new Vec2(goal.X - from.X, goal.Y - half - from.Y);
-            var b = new Vec2(goal.X - from.X, goal.Y + half - from.Y);
-            var angle = DMath.Atan2(DMath.Abs(a.X * b.Y - a.Y * b.X), a.X * b.X + a.Y * b.Y);
-            var t = w.Tech[s].OrAverage();
-            var skill = N(d > _p.OnBallLongShotDist ? t.LongShots : t.Finishing);
-            var x = _p.OnBallShotB0 - _p.OnBallShotBDist * d + _p.OnBallShotBAngle * angle + _p.OnBallShotBSkill * (skill - 0.5f) - _p.OnBallShotBPress * pressure;
-            var xg = Sigmoid(x);
-            return xg > _p.OnBallXgMax ? _p.OnBallXgMax : xg;
+            var c = Actions.ShotContextBuilder.Build(_ap, w.Pos, w.Active, w.OppGoal(team), w.AttackDir[team], 1 - team, from, pressure);
+            return Actions.ShotModel.Xg(_ap, in c);
         }
 
         public float CrossSuccess(DecisionWorld w, int s, float loftedXPass)

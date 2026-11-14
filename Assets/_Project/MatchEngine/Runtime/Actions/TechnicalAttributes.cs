@@ -24,13 +24,16 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly float Dribbling, Finishing, Crossing, LongShots, Tackling;
         /// <summary>070 결투 대체 입력 (002 전, specs/070 플랜): 위치선정(테이크온 수비)·근력(태클·몸싸움·접촉 질량). 지정 안 하면 50.</summary>
         public readonly float Positioning, Strength;
+        /// <summary>071 공중볼 대체 입력 (002 전, specs/071 플랜): 헤딩·점프(0~100, 기본 50)·키(cm, 기본 180, 150~215).</summary>
+        public readonly float Heading, Jumping, HeightCm;
+        public const float HeightMinCm = 150f, HeightMaxCm = 215f, HeightDefaultCm = 180f;
         public readonly Foot PreferredFoot;
         /// <summary>약발 등급 1~5 (5 = 양발).</summary>
         public readonly int WeakFoot;
 
         public TechnicalAttributes(float passing, float firstTouch, float technique, Foot preferredFoot = Foot.Right, int weakFoot = 3,
             float dribbling = 50f, float finishing = 50f, float crossing = 50f, float longShots = 50f, float tackling = 50f,
-            float positioning = 50f, float strength = 50f)
+            float positioning = 50f, float strength = 50f, float heading = 50f, float jumping = 50f, float heightCm = HeightDefaultCm)
         {
             Passing = Check(passing, nameof(passing));
             FirstTouch = Check(firstTouch, nameof(firstTouch));
@@ -42,6 +45,10 @@ namespace RoadToPro.MatchEngine.Actions
             Tackling = Check(tackling, nameof(tackling));
             Positioning = Check(positioning, nameof(positioning));
             Strength = Check(strength, nameof(strength));
+            Heading = Check(heading, nameof(heading));
+            Jumping = Check(jumping, nameof(jumping));
+            if (!(heightCm >= HeightMinCm && heightCm <= HeightMaxCm)) throw new ArgumentOutOfRangeException(nameof(heightCm), heightCm, "키는 150~215 cm");
+            HeightCm = heightCm;
             if (weakFoot < 1 || weakFoot > 5) throw new ArgumentOutOfRangeException(nameof(weakFoot), weakFoot, "약발 등급은 1~5");
             if (preferredFoot != Foot.Right && preferredFoot != Foot.Left) throw new ArgumentOutOfRangeException(nameof(preferredFoot));
             PreferredFoot = preferredFoot;
@@ -56,7 +63,7 @@ namespace RoadToPro.MatchEngine.Actions
         public static TechnicalAttributes Uniform(int display, Foot foot = Foot.Right, int weakFoot = 3)
         {
             var v = Kinematics.KinematicAttributes.InternalFromDisplay(display);
-            return new TechnicalAttributes(v, v, v, foot, weakFoot, v, v, v, v, v, v, v);
+            return new TechnicalAttributes(v, v, v, foot, weakFoot, v, v, v, v, v, v, v, v, v);
         }
 
         /// <summary>072 대체 5종만 바꾼 사본 (null = 그대로).</summary>
@@ -65,7 +72,7 @@ namespace RoadToPro.MatchEngine.Actions
             var b = OrAverage();
             return new TechnicalAttributes(b.Passing, b.FirstTouch, b.Technique, b.PreferredFoot, b.WeakFoot,
                 dribbling ?? b.Dribbling, finishing ?? b.Finishing, crossing ?? b.Crossing, longShots ?? b.LongShots, tackling ?? b.Tackling,
-                b.Positioning, b.Strength);
+                b.Positioning, b.Strength, b.Heading, b.Jumping, b.HeightCm);
         }
 
         /// <summary>070 결투 입력만 바꾼 사본 (null = 그대로).</summary>
@@ -73,7 +80,18 @@ namespace RoadToPro.MatchEngine.Actions
         {
             var b = OrAverage();
             return new TechnicalAttributes(b.Passing, b.FirstTouch, b.Technique, b.PreferredFoot, b.WeakFoot,
-                dribbling ?? b.Dribbling, b.Finishing, b.Crossing, b.LongShots, tackling ?? b.Tackling, positioning ?? b.Positioning, strength ?? b.Strength);
+                dribbling ?? b.Dribbling, b.Finishing, b.Crossing, b.LongShots, tackling ?? b.Tackling, positioning ?? b.Positioning, strength ?? b.Strength,
+                b.Heading, b.Jumping, b.HeightCm);
+        }
+
+        /// <summary>071 슈팅·크로스·공중볼 입력만 바꾼 사본 (null = 그대로).</summary>
+        public TechnicalAttributes WithAerial(float? heading = null, float? jumping = null, float? heightCm = null, float? strength = null, float? positioning = null,
+            float? finishing = null, float? crossing = null, float? longShots = null)
+        {
+            var b = OrAverage();
+            return new TechnicalAttributes(b.Passing, b.FirstTouch, b.Technique, b.PreferredFoot, b.WeakFoot,
+                b.Dribbling, finishing ?? b.Finishing, crossing ?? b.Crossing, longShots ?? b.LongShots, b.Tackling, positioning ?? b.Positioning, strength ?? b.Strength,
+                heading ?? b.Heading, jumping ?? b.Jumping, heightCm ?? b.HeightCm);
         }
 
         /// <summary>지정 안 됐으면 평균값.</summary>

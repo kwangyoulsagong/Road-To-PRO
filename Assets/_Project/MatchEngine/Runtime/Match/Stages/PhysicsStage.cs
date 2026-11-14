@@ -23,6 +23,12 @@ namespace RoadToPro.MatchEngine.Match.Stages
         /// <summary>테스트용 서브스텝 카운터 (AC-02: 틱당 정확히 10회).</summary>
         public long SubstepsRun { get; private set; }
 
+        static bool HasBoundary(MatchContext ctx)
+        {
+            for (int i = 0; i < ctx.BallEvents.Count; i++) if (ctx.BallEvents[i].Kind == BallEventKind.BoundaryCrossed) return true;
+            return false;
+        }
+
         public override void Execute(MatchContext ctx)
         {
             var k = ctx.Kinematics;
@@ -58,6 +64,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 }
                 ctx.BallEvents.Clear();
                 BallStepper.Step(ref ball, ctx.BallParams, ctx.BallEvents, out _);
+                if (!crossed && ctx.Actions.Shots.InFlight && !HasBoundary(ctx)) ctx.Actions.Shots.OnSubstep(ctx, abs, sub); // 071 FR-15: 슛 블록 (공 적분 뒤, 라인 앞 — 라인을 넘은 서브스텝은 판정 안 함, 결정론 리뷰 M1)
                 for (int i = 0; i < ctx.BallEvents.Count; i++)
                 {
                     ref readonly var be = ref ctx.BallEvents[i];
@@ -90,6 +97,8 @@ namespace RoadToPro.MatchEngine.Match.Stages
                         InGoalMouth = mouth, Position = ball.Position, LastTouchTeam = ctx.LastTouchTeam, LastTouchSlot = ctx.LastTouchSlot,
                     });
                 }
+                if (!crossed) ctx.Actions.Aerials.OnSubstep(ctx, abs, sub); // 071 FR-03·05: 공중볼 경합·헤더 (GK·수신 앞)
+                else if (ctx.Actions.Aerials.IsArmed || ctx.Actions.Aerials.IsDecided) ctx.Actions.Aerials.Cancel();
                 if (!crossed) ctx.Keepers.OnSubstep(ctx, abs, sub); // 011 FR-15·17: 다이빙 진행·슛 감시·선방 적용
                 if (!crossed) ctx.Actions.Resolve(ctx, abs, sub); // 008 FR-45·67: 수신·인터셉트·첫 터치
                 if (!crossed) ctx.Actions.Duels.OnShield(ctx, abs, sub); // 070 FR-20: 몸싸움
@@ -146,6 +155,12 @@ namespace RoadToPro.MatchEngine.Match.Stages
     public sealed class PublishStage : StatelessStage
     {
         public override StageId Id => StageId.Publish;
+        static bool HasBoundary(MatchContext ctx)
+        {
+            for (int i = 0; i < ctx.BallEvents.Count; i++) if (ctx.BallEvents[i].Kind == BallEventKind.BoundaryCrossed) return true;
+            return false;
+        }
+
         public override void Execute(MatchContext ctx)
         {
             var from = ctx.Log.Count;
