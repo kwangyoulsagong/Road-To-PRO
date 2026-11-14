@@ -11,22 +11,119 @@
     "RoadToPro.Tests.Performance.MatchEngine.DuelPerfTests"
   ],
   "budgets": [
-    {"ac": "AC-09", "label": "테이크온 평가 1회 (Mono 회귀)", "test": "DuelPerfTests.Models_us", "group": "duel_takeon_eval_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
-    {"ac": "AC-09", "label": "태클 평가 1회 (Mono 회귀)", "test": "DuelPerfTests.Models_us", "group": "duel_tackle_eval_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
-    {"ac": "AC-09", "label": "이격 탈취 판정 (Mono 회귀)", "test": "DuelPerfTests.Models_us", "group": "duel_steal_judge_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
-    {"ac": "AC-09", "label": "접촉 기록 1건 (Mono 회귀)", "test": "DuelPerfTests.Models_us", "group": "duel_contact_us", "stat": "min", "max": null, "unit": "µs", "regression": false},
-    {"ac": "AC-09", "label": "결투 평가 GC 할당", "test": "DuelPerfTests.Models_NoAlloc", "group": "duel_gc_bytes_models", "stat": "max", "max": 0, "unit": "B"},
-    {"ac": "AC-09", "label": "실경기 틱당 GC 할당 (결투 포함)", "test": "DuelPerfTests.MatchTick_NoAlloc", "group": "duel_gc_bytes_per_tick", "stat": "max", "max": 0, "unit": "B"}
+    {
+      "ac": "AC-09",
+      "label": "테이크온 평가 1회 (Mono 회귀)",
+      "test": "DuelPerfTests.Models_us",
+      "group": "duel_takeon_eval_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-09",
+      "label": "태클 평가 1회 (Mono 회귀)",
+      "test": "DuelPerfTests.Models_us",
+      "group": "duel_tackle_eval_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-09",
+      "label": "이격 탈취 판정 (Mono 회귀)",
+      "test": "DuelPerfTests.Models_us",
+      "group": "duel_steal_judge_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-09",
+      "label": "접촉 기록 1건 (Mono 회귀)",
+      "test": "DuelPerfTests.Models_us",
+      "group": "duel_contact_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-09",
+      "label": "결투 평가 GC 할당",
+      "test": "DuelPerfTests.Models_NoAlloc",
+      "group": "duel_gc_bytes_models",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    },
+    {
+      "ac": "AC-09",
+      "label": "실경기 틱당 GC 할당 (결투 포함)",
+      "test": "DuelPerfTests.MatchTick_NoAlloc",
+      "group": "duel_gc_bytes_per_tick",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    }
   ],
   "il2cpp": {
     "budgets": [
-      {"ac": "AC-09", "label": "테이크온 평가 1회 (2026-11-14 0.2 → 0.4, 커버 TTI 10명 — 경기당 수 회)", "metric": "duel_takeon_eval_us", "max": 0.4, "unit": "µs"},
-      {"ac": "AC-09", "label": "태클 평가 1회", "metric": "duel_tackle_eval_us", "max": 0.2, "unit": "µs"},
-      {"ac": "AC-09", "label": "드리블 이격 탈취 판정 (근처 상대 ≤ 4명)", "metric": "duel_steal_judge_us", "max": 0.5, "unit": "µs"},
-      {"ac": "AC-09", "label": "접촉 이벤트 기록 1건", "metric": "duel_contact_us", "max": 1.0, "unit": "µs"},
-      {"ac": "AC-09", "label": "결투 평가 GC 할당", "metric": "duel_gc_bytes_models", "max": 0, "unit": "B"},
-      {"ac": "AC-09", "label": "실경기 틱당 GC 할당 (결투 포함 경로 전체)", "metric": "duel_gc_bytes_per_tick", "max": 0, "unit": "B"},
-      {"ac": "AC-09", "label": "010 결정 틱 1회 평균 (072·070 포함, 072 예산 그대로)", "metric": "dec_tick_avg_us", "max": 12, "unit": "µs"}
+      {
+        "ac": "AC-09",
+        "label": "테이크온 평가 1회 (2026-11-14 0.2 → 0.4, 커버 TTI 10명 — 경기당 수 회)",
+        "metric": "duel_takeon_eval_us",
+        "max": 0.4,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-09",
+        "label": "태클 평가 1회",
+        "metric": "duel_tackle_eval_us",
+        "max": 0.2,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-09",
+        "label": "드리블 이격 탈취 판정 (근처 상대 ≤ 4명)",
+        "metric": "duel_steal_judge_us",
+        "max": 0.5,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-09",
+        "label": "접촉 이벤트 기록 1건",
+        "metric": "duel_contact_us",
+        "max": 1.0,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-09",
+        "label": "결투 평가 GC 할당",
+        "metric": "duel_gc_bytes_models",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-09",
+        "label": "실경기 틱당 GC 할당 (결투 포함 경로 전체)",
+        "metric": "duel_gc_bytes_per_tick",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-09",
+        "label": "010 결정 틱 1회 평균 (072·070 포함, 072 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "max": 12,
+        "unit": "µs"
+      }
     ]
+  },
+  "manual": {
+    "AC-11": "evidence/approval.md"
   }
 }
