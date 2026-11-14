@@ -295,6 +295,11 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
         public static void Shoot(MatchContext ctx, int s, int team, bool restart, bool penalty)
         {
             var me = ctx.SlotState(s);
+            if (ctx.Actions.Duels.Enabled) // 071: 010 파이프라인은 조준 셀·실행 오차 (006 대체 파이프라인은 그대로 — 해시 불변)
+            {
+                ctx.Board.SetBallAction(ctx.Actions.Shots.Plan(ctx, s, team, -1f, restart, penalty, PhysicsStage.PartFor(in me, ctx.Ball.Position)));
+                return;
+            }
             var goal = ctx.OpponentGoal(team);
             var half = BallParams.GoalWidth * 0.5f - 0.4f;
             var ty = goal.Y + ctx.DecisionRng.Range(-half, half);
@@ -306,36 +311,6 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             {
                 Kind = BallActionKind.Shot, KickerSlot = s, TargetSlot = -1, Velocity = new Vec3(dir.X * speed, dir.Y * speed, vz),
                 Part = PhysicsStage.PartFor(in me, ctx.Ball.Position), IsRestart = restart, IsPenalty = penalty,
-            });
-        }
-
-        /// <summary>
-        /// 072 슈팅의 071 대체 결과 (specs/072 T11b): 결정 RNG 고정 3회 — ① 골문 안 여부 (확률 = min(1, xG × k)) ② 가로 조준 ③ 발사 높이.
-        /// 골문 안이면 포스트 안쪽 0.4 m까지, 아니면 포스트 바깥 0.5 m ~ missMax(좌우 무작위). 071이 구현되면 교체.
-        /// </summary>
-        public static void ShootWithXg(MatchContext ctx, int s, int team, float xg, float onTargetK, float missMax)
-        {
-            var me = ctx.SlotState(s);
-            var goal = ctx.OpponentGoal(team);
-            var half = BallParams.GoalWidth * 0.5f;
-            var pOn = xg * onTargetK;
-            var on = ctx.DecisionRng.NextFloat() < (pOn > 1f ? 1f : pOn);
-            var u = ctx.DecisionRng.Range(-1f, 1f);
-            float ty;
-            if (on) ty = goal.Y + u * (half - 0.4f);
-            else
-            {
-                var off = 0.5f + DMath.Abs(u) * (missMax - 0.5f);
-                ty = goal.Y + (u < 0f ? -(half + off) : (half + off));
-            }
-            var d = new Vec2(goal.X, ty) - ctx.Ball.Position.XY;
-            var dir = d.Normalized();
-            var speed = ctx.Params.ShotSpeed;
-            var vz = ctx.DecisionRng.Range(0.3f, 3.0f);
-            ctx.Board.SetBallAction(new BallAction
-            {
-                Kind = BallActionKind.Shot, KickerSlot = s, TargetSlot = -1, Velocity = new Vec3(dir.X * speed, dir.Y * speed, vz),
-                Part = PhysicsStage.PartFor(in me, ctx.Ball.Position),
             });
         }
 

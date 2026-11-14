@@ -236,6 +236,7 @@ namespace RoadToPro.MatchEngine.Actions
         public const string AerialRunUpSpeed = "act.aerial.runUpSpeed";
         public const string AerialStaminaLo = "act.aerial.staminaLo";
         public const string AerialJumpLead = "act.aerial.jumpLead";
+        public const string AerialDecideLead = "act.aerial.decideLead";
         public const string HeaderShotMinXg = "act.header.shotMinXg";
         public const string HeaderClearLo = "act.header.clearLo";
         public const string HeaderClearHi = "act.header.clearHi";

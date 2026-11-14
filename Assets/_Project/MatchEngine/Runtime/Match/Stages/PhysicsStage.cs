@@ -58,6 +58,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 }
                 ctx.BallEvents.Clear();
                 BallStepper.Step(ref ball, ctx.BallParams, ctx.BallEvents, out _);
+                if (ctx.Actions.Shots.InFlight) ctx.Actions.Shots.OnSubstep(ctx, abs, sub); // 071 FR-15: 슛 블록 (공 적분 뒤, 라인 앞)
                 for (int i = 0; i < ctx.BallEvents.Count; i++)
                 {
                     ref readonly var be = ref ctx.BallEvents[i];
@@ -90,6 +91,8 @@ namespace RoadToPro.MatchEngine.Match.Stages
                         InGoalMouth = mouth, Position = ball.Position, LastTouchTeam = ctx.LastTouchTeam, LastTouchSlot = ctx.LastTouchSlot,
                     });
                 }
+                if (!crossed) ctx.Actions.Aerials.OnSubstep(ctx, abs, sub); // 071 FR-03·05: 공중볼 경합·헤더 (GK·수신 앞)
+                else if (ctx.Actions.Aerials.IsArmed || ctx.Actions.Aerials.IsDecided) ctx.Actions.Aerials.Cancel();
                 if (!crossed) ctx.Keepers.OnSubstep(ctx, abs, sub); // 011 FR-15·17: 다이빙 진행·슛 감시·선방 적용
                 if (!crossed) ctx.Actions.Resolve(ctx, abs, sub); // 008 FR-45·67: 수신·인터셉트·첫 터치
                 if (!crossed) ctx.Actions.Duels.OnShield(ctx, abs, sub); // 070 FR-20: 몸싸움

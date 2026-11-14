@@ -36,6 +36,8 @@ namespace RoadToPro.Verification.Samples.Highlight
         const ulong Seed = 20261109UL;
         /// <summary>specs/070 AC-11 결투 장면 경기 (DuelSceneSeedSearch로 고름 — 에디터 기준 4종 모두. 플레이어 빌드 경기는 약간 달라 테이크온 실패·슬라이딩은 대체 장면을 쓸 수 있다).</summary>
         const ulong Seed070 = 20261121UL;
+        /// <summary>071 크로스·헤더·중거리 장면 경기 시드 (T12 시드 탐색 결과).</summary>
+        const ulong Seed071 = 20261141UL;
         static ulong _matchSeed = Seed;
         const int LoopCount = 10, WaitFrames = 60;
         const double TransitionWindow = 1d;
@@ -264,6 +266,14 @@ namespace RoadToPro.Verification.Samples.Highlight
                 e => e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleSliding) == 0, "tackle_stand");
             FarmContext.Screens["live.freeze.tackle_slide"] = () => FreezeEvent(e => e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleSliding) != 0 && (e.A & EventCodes.TackleLate) != 0,
                 e => e.Kind == SimEventKind.Tackle && ((e.A & EventCodes.TackleSliding) != 0 || (e.A & EventCodes.TackleWon) == 0), "tackle_slide"); // 대체: 슬라이딩 또는 빗나간 태클
+            // specs/071 AC-12: 컷백 슛 골·크로스 공중볼 헤더·30 m 중거리 슛 (슛 이벤트 순간 — 공이 발·머리를 떠난 직후)
+            FarmContext.Screens["livePlay071"] = () => { HighlightCastStage.NightRequested = false; if (_matchSeed != Seed071) { _matchSeed = Seed071; _match = null; } Play(false); };
+            FarmContext.Screens["live.freeze.cutback_goal"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && FollowsCutback(e) && ScoredAfter(e),
+                e => e.Kind == SimEventKind.Shot && FollowsCutback(e), "cutback_goal");
+            FarmContext.Screens["live.freeze.header"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && e.Part == BodyPart.Head,
+                e => e.Kind == SimEventKind.Header, "header");
+            FarmContext.Screens["live.freeze.longshot"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && e.Part != BodyPart.Head && ShotDistance(e) >= 25f,
+                e => e.Kind == SimEventKind.Shot && ShotDistance(e) >= 20f, "longshot");
             _halves = StandInHud.Add(doc.rootVisualElement, "halvesLabel", 16f, 352f);
             _halves.style.opacity = 0f; // 058 AC-11 확인 신호 (캡처 제외)
         }
@@ -339,6 +349,42 @@ namespace RoadToPro.Verification.Samples.Highlight
         /// specs/070: 경기 이벤트 로그에서 조건에 맞고 선정된 (리플레이 아닌) 장면 구간 안에 있는 첫 이벤트 순간(+0.05 s)에 멈춘다.
         /// 장면 클립은 순서대로 만들어지므로 이벤트 로그(A·B 비트 포함)로 찾는다. 없으면 대체 조건, 그것도 없으면 오류 로그.
         /// </summary>
+        /// <summary>071: 슛 직전 10초 안에 같은 팀 컷백 크로스(Cross A 타입 = Cutback + 1)가 있었나.</summary>
+        bool FollowsCutback(SimEvent shot)
+        {
+            var log = Match().Result.EventLog;
+            for (int k = 0; k < log.Length; k++)
+            {
+                var e = log[k];
+                if (e.Tick > shot.Tick) break;
+                if (e.Kind == SimEventKind.Cross && e.Team == shot.Team && shot.Tick - e.Tick <= 100
+                    && (e.A >> RoadToPro.MatchEngine.Actions.ActionSystem.CrossTypeShift) == (int)RoadToPro.MatchEngine.Actions.CrossType.Cutback + 1) return true;
+            }
+            return false;
+        }
+
+        bool ScoredAfter(SimEvent shot)
+        {
+            var log = Match().Result.EventLog;
+            for (int k = 0; k < log.Length; k++)
+            {
+                var e = log[k];
+                if (e.Tick < shot.Tick) continue;
+                if (e.Tick > shot.Tick + 50) break;
+                if (e.Kind == SimEventKind.Goal && e.Team == shot.Team) return true;
+            }
+            return false;
+        }
+
+        /// <summary>슛 위치에서 상대 골문 중앙까지 거리 (이벤트 X·Y, 전·후반 공격 방향은 골문 두 개 중 가까운 쪽이 아닌 먼 쪽을 피하려고 짧은 쪽).</summary>
+        float ShotDistance(SimEvent e)
+        {
+            var pitch = PitchSpec.Default;
+            var a = System.Math.Sqrt((e.X - 0f) * (e.X - 0f) + (e.Y - pitch.WidthM * 0.5f) * (e.Y - pitch.WidthM * 0.5f));
+            var b = System.Math.Sqrt((e.X - pitch.LengthM) * (e.X - pitch.LengthM) + (e.Y - pitch.WidthM * 0.5f) * (e.Y - pitch.WidthM * 0.5f));
+            return (float)System.Math.Min(a, b);
+        }
+
         void FreezeEvent(System.Func<SimEvent, bool> want, System.Func<SimEvent, bool> fallback, string label)
         {
             var scenes = player.Scenes;
@@ -357,7 +403,7 @@ namespace RoadToPro.Verification.Samples.Highlight
                         var s = scenes[i].Scene;
                         if (s.IsReplay || t < s.Start || t > s.End) continue;
                         player.Sequencer.SeekAndPause(i, System.Math.Min(t + 0.05d, s.End));
-                        Debug.Log(pass == 0 ? $"[highlight] 070 장면 {label}: 장면 {s.Id} t={t:0.00}" : $"[highlight] 070 대체 장면 사용 ({label}): 장면 {s.Id}");
+                        Debug.Log(pass == 0 ? $"[highlight] 결투·슈팅 장면 {label}: 장면 {s.Id} t={t:0.00}" : $"[highlight] 결투·슈팅 대체 장면 사용 ({label}): 장면 {s.Id}");
                         return;
                     }
                 }

@@ -71,7 +71,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
             _style = new StandInStyleSource(N, _p.TendencyBase);
             _space = new StandInSpace(_p);
             _decider = new OffBallDecider(_p, _space, _style);
-            _eval = new StandInOnBallEval(_p);
+            _eval = new StandInOnBallEval(_p, Actions.ActionParams.Create(tuning?.Action));
             _onBall = new OnBallDecider(_p, _style, _eval, _chem);
             _sched = new LodDecisionScheduler(_p) { Cast = _intents };
             AddPlayers(setup.Home);
@@ -86,6 +86,31 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 _beatenUntil[s] = long.MinValue / 2;
                 _onBallTick[s] = long.MinValue / 2;
             }
+        }
+
+        readonly float[] _crossW = new float[Actions.CrossModel.Types];
+
+        /// <summary>
+        /// 071 FR-01·20 크로스 타입: 상황 가중(골라인까지 크로서·받는 선수 x 거리, 크로스 머신 버릇 레벨)으로 결정 RNG 균등 1개를 써서 고르고,
+        /// 타입 발사각(최고점 범위 중앙)·컷백 속도(12~16 m/s 땅볼)를 의도에 넣는다. 실행 오차는 접촉 순간(뜬 공 = 착지 오차, 그 외 = 008 패스 오차).
+        /// </summary>
+        void ApplyCrossType(MatchContext ctx, int s, int team, int target, ref BallAction a)
+        {
+            var act = ctx.Actions;
+            var goalX = ctx.OpponentGoal(team).X;
+            var crosserToLine = DMath.Abs(goalX - ctx.Ball.Position.X);
+            var receiverToLine = target >= 0 ? DMath.Abs(goalX - ctx.SlotState(target).Position.X) : crosserToLine;
+            Actions.CrossModel.Weights(act.P, crosserToLine, receiverToLine, act.World.CrossLevel[s], _crossW);
+            var type = Actions.CrossModel.Pick(_crossW, ctx.DecisionRng.NextFloat());
+            var dist = (a.Aim - ctx.Ball.Position.XY).Length();
+            if (type == Actions.CrossType.Cutback)
+            {
+                Actions.CrossModel.Speed(act.P, type, out var lo, out var hi);
+                a.Elevation = 0f;
+                a.Speed = a.Speed < lo ? lo : (a.Speed > hi ? hi : a.Speed);
+            }
+            else a.Elevation = Actions.CrossModel.Elevation(act.P, type, dist);
+            a.CrossType = (byte)((int)type + 1);
         }
 
         void AddPlayers(TeamSetup t)
@@ -158,6 +183,12 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     // 070 FR-04: 대기 테이크온이 3 m 안에 들어옴 → 이번 틱 판정 (결정 주기와 무관)
                     var carryTo = _intent[s].Kind == DecisionKind.Carry ? _intent[s].Point : ctx.SlotState(s).Position;
                     _intent[s] = ResolveTakeOn(ctx, s, toDef, carryTo, ref hasAction);
+                    board.MarkDecided(s);
+                    continue;
+                }
+                if (inPlay && ctx.Actions.Aerials.TryChase(s, out var headAt))
+                {
+                    _intent[s] = new Decision { Kind = DecisionKind.MoveTo, Point = headAt, TargetSlot = -1, MaxSpeed = 0f }; // 071 T08a: 공중볼 승자 → 접촉 지점
                     board.MarkDecided(s);
                     continue;
                 }
@@ -285,6 +316,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 {
                     var a = Actions.ActionSystem.IntentAction(s, r.Target, in r.Pass, from, oneTouch);
                     a.Part = PhysicsStage.PartFor(in me, ctx.Ball.Position);
+                    if (r.Item == OnBallItem.Cross) ApplyCrossType(ctx, s, team, r.Target, ref a); // 071 FR-01·20: 타입 선택 (결정 RNG 1)
                     ctx.Board.SetBallAction(a);
                     hasAction = true;
                     _x.LastPassTarget = r.Target;
@@ -294,7 +326,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     return StandInOnBall.Stand();
                 }
                 case OnBallItem.Shoot:
-                    StandInOnBall.ShootWithXg(ctx, s, team, r.Xg, _p.OnBallShotOnTargetK, _p.OnBallShotMissMax); // 071 대체 결과 (T11b)
+                    ctx.Board.SetBallAction(ctx.Actions.Shots.Plan(ctx, s, team, r.Xg, false, false, PhysicsStage.PartFor(in me, ctx.Ball.Position))); // 071 FR-13: 조준 셀·파워, 오차는 접촉 순간
                     hasAction = true;
                     if (_w.Intent[s].Has && (_w.Intent[s].Kind == Consideration.Shot || _w.Intent[s].Kind == Consideration.LongShot)) _runtime?.NotifyOnBallKick(ctx, s);
                     return StandInOnBall.Stand();

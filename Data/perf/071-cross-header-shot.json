@@ -1,0 +1,114 @@
+{
+  "spec": "071",
+  "profile": "mac-m1-1600p",
+  "note": "specs/071 성능 예산 표의 기계용 사본. 판정 런타임은 IL2CPP 릴리스 플레이어(`il2cpp` 항목, farm.py bench --spec 071) — README D17. EditMode(Mono) 항목은 max가 null이면 회귀 기준선(기록만). 조준은 P_beatGK 대체 근사(011 FR-14 연결은 AC-13). 공중볼 경합은 참여 6명 최악 경우.",
+  "deferred": {
+    "AC-11": "017 대량 시뮬(1,000경기) 크로스 성공률·헤딩 전환율·슈팅 전환율·경기당 슈팅·슈팅당 xG — 010·072·011·012 뒤 (스펙 명시). 지금은 고정 상황 하네스·100경기 측정값만 기록",
+    "AC-13": "002·007·011 FR-14 연결 때 대체 입력을 바꿔 AC-01·04·05·07 재실행"
+  },
+  "tests": [
+    "RoadToPro.Tests.EditMode.MatchEngine.Actions",
+    "RoadToPro.Tests.Performance.MatchEngine.ShotAerialPerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-10",
+      "label": "xG 평가 1회 (Mono 회귀)",
+      "test": "ShotAerialPerfTests.Models_us",
+      "group": "shot_xg_eval_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-10",
+      "label": "조준 셀 선택 1회 (Mono 회귀)",
+      "test": "ShotAerialPerfTests.Models_us",
+      "group": "shot_aim_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-10",
+      "label": "공중볼 경합 판정 1회 (Mono 회귀)",
+      "test": "ShotAerialPerfTests.Models_us",
+      "group": "aerial_contest_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-10",
+      "label": "평가 경로 GC 할당",
+      "test": "ShotAerialPerfTests.Models_NoAlloc",
+      "group": "shot_gc_bytes_models",
+      "stat": "max",
+      "max": 0,
+      "unit": "B",
+      "regression": false
+    },
+    {
+      "ac": "AC-10",
+      "label": "실경기 틱당 GC 할당 (071 포함)",
+      "test": "ShotAerialPerfTests.MatchTick_NoAlloc",
+      "group": "shot_gc_bytes_per_tick",
+      "stat": "max",
+      "max": 0,
+      "unit": "B",
+      "regression": false
+    }
+  ],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-10",
+        "label": "xG 평가 1회",
+        "metric": "shot_xg_eval_us",
+        "max": 0.2,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-10",
+        "label": "조준 셀 선택 1회 (21셀 × 평가)",
+        "metric": "shot_aim_us",
+        "max": 3.0,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-10",
+        "label": "공중볼 경합 판정 1회 (참여 ≤ 6명)",
+        "metric": "aerial_contest_us",
+        "max": 1.0,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-10",
+        "label": "평가 GC 할당",
+        "metric": "shot_gc_bytes_models",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-10",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-10",
+        "label": "010 결정 틱 1회 평균 (072·070·071 포함, 072 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "max": 12,
+        "unit": "µs"
+      }
+    ]
+  },
+  "manual": {
+    "AC-12": "evidence/approval.md"
+  }
+}

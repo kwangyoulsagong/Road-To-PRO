@@ -239,6 +239,7 @@
     {"id": "act.header.passMax", "default": 15, "min": 2, "max": 40, "unit": "m", "tag": "[대체]", "source": "specs/071 FR-05 헤딩 패스 최대 거리"},
     {"id": "act.header.shotPower", "default": 0.3, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "specs/071 FR-05 헤딩슛 파워 (v_shot 보간 값)"},
     {"id": "act.pen.naturalP", "default": 0.6, "min": 0.5, "max": 1, "unit": "", "tag": "[설계]", "source": "specs/071 FR-17 자연 측 선호 p ≈ 0.6"},
-    {"id": "act.pen.power", "default": 0.7, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "specs/071 FR-17 페널티 파워"}
+    {"id": "act.pen.power", "default": 0.7, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "specs/071 FR-17 페널티 파워"},
+    {"id": "act.aerial.decideLead", "default": 1.0, "min": 0.2, "max": 3, "unit": "s", "tag": "[대체]", "source": "specs/071 FR-03 경합 판정 시각: 착지까지 이 시간 이하로 남은 첫 서브스텝 (선수가 공 밑으로 갈 시간 — 판정 시점 [미정])"}
   ]
 }

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "071-cross-shot",
+  "spec": "071",
+  "description": "실경기 하이라이트(058 경로)의 슈팅 장면 3종: 컷백 슛 골(없으면 컷백 뒤 슛)·크로스 공중볼 헤딩슛(없으면 헤더)·25 m 이상 중거리 슛(없으면 20 m 이상) 순간 캡처 (AC-12). 머리–공 거리는 054 접촉 동기화 로그",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261141
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-12"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay071"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.cutback_goal"
+    },
+    {
+      "type": "capture",
+      "name": "cutback_goal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.header"
+    },
+    {
+      "type": "capture",
+      "name": "header",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.longshot"
+    },
+    {
+      "type": "capture",
+      "name": "longshot",
+      "kind": "3d"
+    }
+  ]
+}
