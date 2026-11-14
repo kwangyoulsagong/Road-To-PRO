@@ -1,0 +1,287 @@
+{
+  "title": "071 장면 스크린샷 (shot)",
+  "spec": {
+    "id": "071",
+    "name": "071 — 크로스 · 공중볼 · 헤더 · 슈팅 · xG",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "공중볼 경합 10,000회: 키만 20 cm 큰 선수가 타이밍이 0.4 s 늦으면 패배 비율이 30% 이상이고(키 단독 결정 아님), 타이밍이 같으면 점프·키가 큰 쪽 승률이 높다 (이항 검정 p < 0.01). (원래 008 AC-07, 30%는 '베스트 케이스'로 [제안] 채택)"
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "xG: 페널티 지점 정면(11 m) > 박스 모서리 > 30 m 중거리 순, 헤더 < 같은 위치 발 슛(0.5~0.6배 범위), 블로커 증가 시 감소, 모든 값 0~1. 골라인 위·골대 뒤 입력에서 NaN 없음. (원래 008 AC-09)"
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "페널티 슈팅의 xG가 FR-11 고정값이고, 015가 기록한 페널티 xG와 같다. (원래 008 AC-16)"
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "크로스 착지 오차(FR-02)와 슈팅 조준 오차(FR-14) 표본(10만 회) 표준편차가 공식 값과 ±3% 이내."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "같은 고정 상황·같은 시드 묶음(10,000회)에서 크로스·피니싱만 다른 두 선수(표시 18 vs 8)의 착지·조준 오차 표준편차가 18 쪽이 작고(F 검정 p < 0.01), 버릇 \"컷인 장인\"만 다른 두 선수의 감아차기 σ가 0.9배(±3%)다."
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "경계 · 예외 상황 목록 입력 각각(경합 0명, 큰 softmax, 골라인 위, 골대 뒤, 조준 셀 전부 0, GK 헤더, 극단 능력치)에서 NaN 0건, 예외 0건, 규칙대로."
+      },
+      {
+        "id": "AC-07",
+        "kind": "로직",
+        "text": "조준: GK를 골문 왼쪽으로 1 m 치우친 픽스처 1,000회에서 오른쪽 셀 선택 비율이 중앙 GK 픽스처보다 높고(이항 p < 0.01), 선택 셀이 항상 `P_onTarget × P_beatGK` 최대 셀(평가 단계, 오차 전)이다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "로직",
+        "text": "공중볼 경합 참여자마다 FR-06 동작 정보(도약·정점 시각, 정점 높이)가 상세 기록에 있고 정점 시각이 t_land ± 0.5 s 안이다. 경합 참여자 사이 접촉 이벤트가 070 FR-13 필드를 모두 채운다."
+      },
+      {
+        "id": "AC-09",
+        "kind": "결정론",
+        "text": "고정 시드 크로스·경합·슈팅·페널티 실행 10만 건을 2회 실행해 결과 해시가 같고, 액션당 RNG 소비 개수가 분기와 무관하게 고정이다."
+      },
+      {
+        "id": "AC-10",
+        "kind": "성능",
+        "text": "성능 예산 표 항목이 기준 프로필에서 예산 안, 할당 0 B."
+      },
+      {
+        "id": "AC-11",
+        "kind": "로직",
+        "text": "017 대량 시뮬(1,000경기)에서 크로스 성공률·헤딩 전환율·슈팅 전환율·경기당 슈팅·슈팅당 평균 xG가 017 FR-20 목표 범위 안이다 (010·072·011·012가 갖춰진 뒤. 그 전에는 고정 상황 하네스로 개별 비율만 보고 \"보류\")."
+      },
+      {
+        "id": "AC-12",
+        "kind": "E2E",
+        "text": "041 하이라이트(실제 경기, 058 경로)에서 고정 시드 3장면(컷백 슛 골, 크로스 공중볼 헤더, 30 m 중거리 슛)을 캡처해 기준 이미지와 비교한다. 헤더 장면에서 공 접촉 프레임에 머리–공 거리가 054 접촉 동기화 허용치 안이다. 시나리오 `e2e/071-cross-shot`, 프로필: smoke (mac-m1-1600p) — 육안 승인."
+      },
+      {
+        "id": "AC-13",
+        "kind": "로직",
+        "text": "(연결 때 재확인) 002·007·011이 구현되면 대체 입력을 실제 능력치·xT·011 FR-14로 바꿔 AC-01·04·05·07을 다시 실행해 통과한다. 그 전에는 \"보류\"."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/071-cross-header-shot"
+  },
+  "meta": {
+    "commit": "898885574478d527ced2526302bb40a8a520f4bc",
+    "branch": "feat/071-cross-header-shot",
+    "dirty": true,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-15 00:38:39 +0900",
+    "durationSec": 51.470621824264526,
+    "command": "python3 Tools/devicefarm/farm.py shot --spec 071 --scenario 071-cross-shot --profile mac-m1-1600p",
+    "profiles": [
+      "mac-m1-1600p-light-ko"
+    ],
+    "buildCached": false,
+    "builds": [
+      "development"
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario": "071-cross-shot",
+      "description": "실경기 하이라이트(058 경로)의 슈팅 장면: 컷백 슛 골(없으면 대체 — 골이 된 슛)·25 m 이상 중거리 슛(없으면 20 m 이상) 순간 캡처 (AC-12). 크로스 공중볼 헤더 장면은 보류 — 실경기 크로스 경기당 0~1개·뜬 공 경합 참여자 부족(072 크로스 선택·010 착지점 추격, 081)",
+      "combos": [
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 23.6,
+          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261115-003814-shot/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261115-003814-shot/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/071-cross-shot.json",
+            "-farmOut",
+            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261115-003814-shot/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261149",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 10033.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 6223.2,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 43.3,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "cutback_goal",
+              "status": "passed",
+              "ms": 338.7,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/cutback_goal.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 27.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "capture",
+              "name": "longshot",
+              "status": "passed",
+              "ms": 333.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/longshot.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "cutback_goal",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261115-003814-shot/mac-m1-1600p-light-ko/captures/cutback_goal.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "071-cross-shot",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "longshot",
+              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261115-003814-shot/mac-m1-1600p-light-ko/captures/longshot.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "071-cross-shot",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [],
+          "logs": {
+            "ok": false,
+            "errors": [],
+            "warnings": [
+              {
+                "type": "Warning",
+                "message": "[RoadToPro] [anim] 속도 점프 2.02 → 0.00 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=배치"
+              },
+              {
+                "type": "Warning",
+                "message": "[RoadToPro] [anim] 속도 점프 1.55 → 0.00 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=배치"
+              }
+            ],
+            "ignored": [
+              {
+                "type": "Warning",
+                "message": "[RoadToPro] [anim] 속도 점프 2.00 → 1.16 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=판단",
+                "reason": "판단 원인(008·010 대체 행동 모델)의 목표 속도 15 m/s 미만 순간 가감속만 임시 무시. 058에서 경고에 원인 표시(FR-12)를 붙였고 배치·기록 원인(순간이동·클립 프레임 누락)은 무시하지 않는다 — AC-13. 008·010 연결 때 항목을 지우고 재확인. 2026-11-09 사용자 승인 (041), 2026-11-11 058 범위 축소",
+                "pattern": "^\\[RoadToPro\\] \\[anim\\] 속도 점프 \\d+\\.\\d+ → (\\d|1[0-4])\\.\\d+ m/s .*원인=판단$",
+                "count": 4451
+              }
+            ]
+          },
+          "checkpoints": [],
+          "motion": null,
+          "verdict": "fail"
+        }
+      ],
+      "determinism": null,
+      "verdict": "fail",
+      "build": "development"
+    }
+  ],
+  "acEvidence": {
+    "AC-12": [
+      {
+        "label": "수동 승인 기록 evidence/approval.md (없음 또는 AC 미기재)",
+        "ok": false
+      }
+    ]
+  },
+  "verdict": "fail"
+}

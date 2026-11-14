@@ -37,7 +37,7 @@ namespace RoadToPro.Verification.Samples.Highlight
         /// <summary>specs/070 AC-11 결투 장면 경기 (DuelSceneSeedSearch로 고름 — 에디터 기준 4종 모두. 플레이어 빌드 경기는 약간 달라 테이크온 실패·슬라이딩은 대체 장면을 쓸 수 있다).</summary>
         const ulong Seed070 = 20261121UL;
         /// <summary>071 크로스·헤더·중거리 장면 경기 시드 (T12 시드 탐색 결과).</summary>
-        const ulong Seed071 = 20261141UL; // 64시드 탐색: 장면 안 컷백 슛·헤더는 어느 시드에도 없음(크로스 경기당 0~1), 25 m 슛 6
+        const ulong Seed071 = 20261149UL; // 64시드 탐색: 장면 안 컷백 슛·헤더는 어느 시드에도 없음(크로스 경기당 0~2), 이 시드는 25 m 슛 2·25 m 안 슛 골 8
         static ulong _matchSeed = Seed;
         const int LoopCount = 10, WaitFrames = 60;
         const double TransitionWindow = 1d;
@@ -269,7 +269,7 @@ namespace RoadToPro.Verification.Samples.Highlight
             // specs/071 AC-12: 컷백 슛 골·크로스 공중볼 헤더·30 m 중거리 슛 (슛 이벤트 순간 — 공이 발·머리를 떠난 직후)
             FarmContext.Screens["livePlay071"] = () => { HighlightCastStage.NightRequested = false; if (_matchSeed != Seed071) { _matchSeed = Seed071; _match = null; } Play(false); };
             FarmContext.Screens["live.freeze.cutback_goal"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && FollowsCutback(e) && ScoredAfter(e),
-                e => e.Kind == SimEventKind.Shot && e.Part != BodyPart.Head && ScoredAfter(e), "cutback_goal"); // 대체: 골이 된 슛 (실경기 크로스 0~1개 — 072·010 몫, 081)
+                e => e.Kind == SimEventKind.Shot && e.Part != BodyPart.Head && ShotDistance(e) < 25f && ScoredAfter(e), "cutback_goal"); // 대체: 25 m 안 슛 골 (중거리 장면과 겹치지 않게) (실경기 크로스 0~1개 — 072·010 몫, 081)
             FarmContext.Screens["live.freeze.header"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && e.Part == BodyPart.Head,
                 e => e.Kind == SimEventKind.Header, "header");
             FarmContext.Screens["live.freeze.longshot"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && e.Part != BodyPart.Head && ShotDistance(e) >= 25f,
@@ -376,12 +376,13 @@ namespace RoadToPro.Verification.Samples.Highlight
             return false;
         }
 
-        /// <summary>슛 위치에서 상대 골문 중앙까지 거리 (이벤트 X·Y, 전·후반 공격 방향은 골문 두 개 중 가까운 쪽이 아닌 먼 쪽을 피하려고 짧은 쪽).</summary>
-        float ShotDistance(SimEvent e)
+        /// <summary>슛 위치(이벤트 X·Y는 0~1 정규화)에서 가까운 골문 중앙까지 거리 (m).</summary>
+        static float ShotDistance(SimEvent e)
         {
             var pitch = PitchSpec.Default;
-            var a = System.Math.Sqrt((e.X - 0f) * (e.X - 0f) + (e.Y - pitch.WidthM * 0.5f) * (e.Y - pitch.WidthM * 0.5f));
-            var b = System.Math.Sqrt((e.X - pitch.LengthM) * (e.X - pitch.LengthM) + (e.Y - pitch.WidthM * 0.5f) * (e.Y - pitch.WidthM * 0.5f));
+            double x = e.X * pitch.LengthM, y = e.Y * pitch.WidthM, cy = pitch.WidthM * 0.5;
+            var a = System.Math.Sqrt(x * x + (y - cy) * (y - cy));
+            var b = System.Math.Sqrt((x - pitch.LengthM) * (x - pitch.LengthM) + (y - cy) * (y - cy));
             return (float)System.Math.Min(a, b);
         }
 
