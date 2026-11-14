@@ -47,6 +47,11 @@ namespace RoadToPro.MatchEngine.Match.Events
         Goal = 211,
         WoodworkHit = 212,
         BallRecovered = 213,
+        /// <summary>
+        /// specs/070 FR-13 접촉 (파울 여부와 무관): A = <c>Actions.ContactKind</c>, B = 접촉 상세 번호 + 1 (<c>ActionDetailLog</c>, 0 = 없음),
+        /// PlayerId = 공격자(공을 가진/다투는 쪽), OtherId = 수비자, F0 = 강도(0~1), F1 = 늦은 정도(0~1). 소비자: 012(파울·징계), 027(부상 위험).
+        /// </summary>
+        Contact = 214,
 
         // 011 (300~): 골키퍼
         Save = 300,
@@ -143,6 +148,12 @@ namespace RoadToPro.MatchEngine.Match.Events
     {
         /// <summary>돌파 이벤트(<see cref="SimEventKind.Dribble"/>) B 비트: 성공 (072 대체 1:1 판정, 070 전).</summary>
         public const int DribbleSuccess = 1;
+        /// <summary>태클 이벤트(<see cref="SimEventKind.Tackle"/>) A 비트 (specs/070): 슬라이딩.</summary>
+        public const int TackleSliding = 1;
+        /// <summary>태클 이벤트 A 비트 (specs/070): 공을 따냄(잡기·찔러내기). 없으면 빗나감 — 058 동작은 실패 태클로 읽을 수 있다.</summary>
+        public const int TackleWon = 2;
+        /// <summary>태클 이벤트 A 비트 (specs/070): 공이 떠난 뒤 들어간 늦은 태클 (공 획득 없음).</summary>
+        public const int TackleLate = 4;
 
         // 교체 거부 사유
         public const int RejectLimit = 1;

@@ -1,0 +1,110 @@
+{
+  "judged": true,
+  "ok": true,
+  "note": "",
+  "backend": "il2cpp",
+  "profile": "mac-m1-1600p",
+  "budget": [
+    {
+      "ac": "AC-09",
+      "label": "테이크온 평가 1회 (2026-11-14 0.2 → 0.4, 커버 TTI 10명 — 경기당 수 회)",
+      "metric": "duel_takeon_eval_us",
+      "value": 0.30446275,
+      "budget": 0.4,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-09",
+      "label": "태클 평가 1회",
+      "metric": "duel_tackle_eval_us",
+      "value": 0.0279785,
+      "budget": 0.2,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-09",
+      "label": "드리블 이격 탈취 판정 (근처 상대 ≤ 4명)",
+      "metric": "duel_steal_judge_us",
+      "value": 0.05933825,
+      "budget": 0.5,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-09",
+      "label": "접촉 이벤트 기록 1건",
+      "metric": "duel_contact_us",
+      "value": 0.044822,
+      "budget": 1.0,
+      "unit": "µs",
+      "ok": true
+    },
+    {
+      "ac": "AC-09",
+      "label": "결투 평가 GC 할당",
+      "metric": "duel_gc_bytes_models",
+      "value": 0,
+      "budget": 0,
+      "unit": "B",
+      "ok": true
+    },
+    {
+      "ac": "AC-09",
+      "label": "실경기 틱당 GC 할당 (결투 포함 경로 전체)",
+      "metric": "duel_gc_bytes_per_tick",
+      "value": 0,
+      "budget": 0,
+      "unit": "B",
+      "ok": true
+    },
+    {
+      "ac": "AC-09",
+      "label": "010 결정 틱 1회 평균 (072·070 포함, 072 예산 그대로)",
+      "metric": "dec_tick_avg_us",
+      "value": 4.727152482269504,
+      "budget": 12,
+      "unit": "µs",
+      "ok": true
+    }
+  ],
+  "regression": [],
+  "stages": {},
+  "metrics": {
+    "duel_takeon_eval_us": 0.30446275,
+    "duel_takeon_eval_p95_us": 0.32439999999999997,
+    "duel_tackle_eval_us": 0.0279785,
+    "duel_tackle_eval_p95_us": 0.0281,
+    "duel_steal_judge_us": 0.05933825,
+    "duel_steal_judge_p95_us": 0.0603,
+    "duel_gap_substep_us": 0.012304500000000001,
+    "duel_contact_us": 0.044822,
+    "duel_gc_bytes_models": 0,
+    "duel_sink": 1,
+    "duel_match_tick_avg_us": 35.71723782771536,
+    "duel_match_tick_p95_us": 47.9,
+    "duel_match_ticks": 53400,
+    "duel_gc_bytes_per_tick": 0,
+    "duel_touches": 465,
+    "duel_tackles": 42,
+    "duel_contacts": 160,
+    "dec_tick_avg_us": 4.727152482269504,
+    "dec_tick_p95_us": 12.600000000000001,
+    "dec_match_s": 0.2666114,
+    "dec_ticks": 56400,
+    "dec_gc_bytes_per_tick": 0,
+    "dec_space_queries_avg": 0.7872163120567376,
+    "dec_space_queries_max": 8,
+    "dec_offball_avg_us": 0.47684499999999996,
+    "dec_offball_p95_us": 0.8
+  },
+  "host": "mac-m1-1600p",
+  "power": "battery",
+  "buildCached": true,
+  "durationSec": 10.4,
+  "unity": "6000.3.27f2",
+  "cpu": "Apple M1 Pro",
+  "development": false,
+  "commit": "e0d2517eedf3fe9dcb2a5c4d7cf19cc10546c86f"
+}

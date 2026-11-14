@@ -16,6 +16,9 @@ namespace RoadToPro.MatchEngine.Actions
         public const int Capacity = 4096;
         public const int Slots = 22;
         public const byte KindOffsideSnapshot = 1;
+        /// <summary>070 FR-13 접촉 상세 — 저장은 <see cref="Contacts"/>(종류별 고정 배열, 같은 누적 해시·창 규칙).</summary>
+        public const byte KindContact = 2;
+        public readonly ContactLog Contacts = new ContactLog();
         /// <summary>스냅샷·해시에 내용을 넣는 최근 기록 수 (012 오프사이드 판정은 직전 패스만 읽는다).</summary>
         public const int Window = 16;
 
@@ -89,6 +92,7 @@ namespace RoadToPro.MatchEngine.Actions
             _availFrom = 0;
             _roll = StableHasher.OffsetBasis;
             Overflow = 0;
+            Contacts.Clear();
         }
 
         public void AddTo(ref StableHasher h)
@@ -97,6 +101,7 @@ namespace RoadToPro.MatchEngine.Actions
             h.Add(Overflow);
             h.Add(_roll);
             for (int i = WindowStart; i < _count; i++) AddRecord(ref h, i);
+            Contacts.AddTo(ref h);
         }
 
         public void Write(StateWriter w)
@@ -111,6 +116,7 @@ namespace RoadToPro.MatchEngine.Actions
                 w.Write(_seq[i]); w.Write(_tick[i]); w.Write(_kind[i]); w.Write(_passer[i]); w.Write(_ballX[i]); w.Write(_lineX[i]);
                 for (int s = 0; s < Slots; s++) w.Write(_runnerX[i * Slots + s]);
             }
+            Contacts.Write(w);
         }
 
         public void Read(StateReader r)
@@ -128,6 +134,7 @@ namespace RoadToPro.MatchEngine.Actions
                 _seq[i] = r.ReadLong(); _tick[i] = r.ReadLong(); _kind[i] = r.ReadByte(); _passer[i] = r.ReadInt(); _ballX[i] = r.ReadFloat(); _lineX[i] = r.ReadFloat();
                 for (int s = 0; s < Slots; s++) _runnerX[i * Slots + s] = r.ReadFloat();
             }
+            Contacts.Read(r);
         }
     }
 }

@@ -1,0 +1,129 @@
+{
+  "spec": "070",
+  "profile": "mac-m1-1600p",
+  "note": "specs/070 성능 예산 표의 기계용 사본. 판정 런타임은 IL2CPP 릴리스 플레이어(`il2cpp` 항목, farm.py bench --spec 070) — README D17. EditMode(Mono) 항목은 max가 null이면 회귀 기준선(기록만). 이격 탈취 판정은 서브스텝당 '반경 안 상대 찾기 + 닿는 순간 소유자 TTI 1회'를 매번 닿는 최악 경우로 잰다. 실경기 틱 평균은 결투 포함 경로 전체 기록(기준선: 072 이후 첫 측정).",
+  "deferred": {
+    "AC-10": "017 대량 시뮬(1,000경기) 테이크온 성공률·PPDA 목표 — 010·072·011·012 뒤 (스펙 명시). 지금은 고정 상황 하네스·100경기 측정값만 기록",
+    "AC-12": "002·003·007·012·027 연결 때 대체 입력을 바꿔 AC-01·03·04·06 재실행, FR-13 필드를 012·027 테스트가 읽기"
+  },
+  "tests": [
+    "RoadToPro.Tests.EditMode.MatchEngine.Actions",
+    "RoadToPro.Tests.Performance.MatchEngine.DuelPerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-09",
+      "label": "테이크온 평가 1회 (Mono 회귀)",
+      "test": "DuelPerfTests.Models_us",
+      "group": "duel_takeon_eval_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-09",
+      "label": "태클 평가 1회 (Mono 회귀)",
+      "test": "DuelPerfTests.Models_us",
+      "group": "duel_tackle_eval_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-09",
+      "label": "이격 탈취 판정 (Mono 회귀)",
+      "test": "DuelPerfTests.Models_us",
+      "group": "duel_steal_judge_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-09",
+      "label": "접촉 기록 1건 (Mono 회귀)",
+      "test": "DuelPerfTests.Models_us",
+      "group": "duel_contact_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-09",
+      "label": "결투 평가 GC 할당",
+      "test": "DuelPerfTests.Models_NoAlloc",
+      "group": "duel_gc_bytes_models",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    },
+    {
+      "ac": "AC-09",
+      "label": "실경기 틱당 GC 할당 (결투 포함)",
+      "test": "DuelPerfTests.MatchTick_NoAlloc",
+      "group": "duel_gc_bytes_per_tick",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    }
+  ],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-09",
+        "label": "테이크온 평가 1회 (2026-11-14 0.2 → 0.4, 커버 TTI 10명 — 경기당 수 회)",
+        "metric": "duel_takeon_eval_us",
+        "max": 0.4,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-09",
+        "label": "태클 평가 1회",
+        "metric": "duel_tackle_eval_us",
+        "max": 0.2,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-09",
+        "label": "드리블 이격 탈취 판정 (근처 상대 ≤ 4명)",
+        "metric": "duel_steal_judge_us",
+        "max": 0.5,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-09",
+        "label": "접촉 이벤트 기록 1건",
+        "metric": "duel_contact_us",
+        "max": 1.0,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-09",
+        "label": "결투 평가 GC 할당",
+        "metric": "duel_gc_bytes_models",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-09",
+        "label": "실경기 틱당 GC 할당 (결투 포함 경로 전체)",
+        "metric": "duel_gc_bytes_per_tick",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-09",
+        "label": "010 결정 틱 1회 평균 (072·070 포함, 072 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "max": 12,
+        "unit": "µs"
+      }
+    ]
+  },
+  "manual": {
+    "AC-11": "evidence/approval.md"
+  }
+}

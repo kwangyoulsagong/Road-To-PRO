@@ -301,6 +301,21 @@ namespace RoadToPro.Presentation.Players.Logic
         /// <summary>태클 동작 허용 거리 (058 FR-50, highlight.tackleMaxDistance).</summary>
         public const float TackleMaxDistance = TackleGate.DefaultMaxDistance;
 
+        readonly List<int> _styleBuf = new List<int>();
+
+        /// <summary>specs/070: 슬라이딩 태클이면 id에 "slide"가 든 클립만, 아니면 그 클립을 뺀다. 남는 후보가 없으면 원래 후보.</summary>
+        IReadOnlyList<int> TackleStyle(IReadOnlyList<int> cands, bool sliding)
+        {
+            _styleBuf.Clear();
+            for (int i = 0; i < cands.Count; i++)
+            {
+                var id = _lib.Get(cands[i]).Id;
+                var slide = id != null && id.IndexOf("slide", StringComparison.Ordinal) >= 0;
+                if (slide == sliding) _styleBuf.Add(cands[i]);
+            }
+            return _styleBuf.Count > 0 ? _styleBuf : cands;
+        }
+
         void BuildActions(AnimationMap map, ILogger log)
         {
             var evs = new List<AnimEvent>(_d.Events);
@@ -313,6 +328,7 @@ namespace RoadToPro.Presentation.Players.Logic
                 var who = map.Who(ev.Kind);
                 int e = EntityFor(ev, who);
                 if (e < 0 || e >= HighlightData.Entities) continue;
+                if (ev.Kind == SimEventKind.Tackle && (ev.Flags & AnimEvent.FromSim) != 0) cands = TackleStyle(cands, (ev.Flags & EventCodes.TackleSliding) != 0); // 070: 슬라이딩 비트 → 슬라이딩 클립 (합성 장면은 그대로)
                 if (TackleGate.Applies(ev.Kind)) // 058 FR-50·51: 상대가 가까울 때만 태클 동작
                 {
                     TackleGate.Filter(_lib, cands, _d, ev, e, TackleMaxDistance, _gateBuf, log);

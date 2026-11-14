@@ -1,0 +1,350 @@
+{
+  "title": "070 로직 증거",
+  "spec": {
+    "id": "070",
+    "name": "070 — 드리블 · 테이크온 · 태클 · 몸싸움 · 접촉",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "평균 능력치(모두 10, angleAdv = cover = defSetFactor = 0, 민첩·속도 동일) 1v1 테이크온 성공 확률이 37% ± 1%p (이론값 sigmoid(−0.55) ≈ 36.6%), 결과 분기 비율(탈취 60·아웃 15·파울 10·루즈 15)이 10만 회 표본에서 ±1%p. (원래 008 AC-06)"
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "태클·경합·공중볼·몸싸움 고정 상황 각각에서 접촉 이벤트가 1건씩 나오고 FR-13 필드가 모두 채워진다 (범위 0~1, NaN 0). 뒤에서 들어간 태클의 angleFromBehind가 정면 태클보다 크고, 공이 떠난 뒤 태클은 lateness > 0이다. 파울률 목표는 012 AC-23이 검증한다. (원래 008 AC-08)"
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "드리블 터치 거리·방향 오차 표본(10만 회) 표준편차가 FR-02 공식 값과 ±3% 이내이고, 터치 거리 최댓값이 5.0 m를 넘지 않는다."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "같은 고정 상황·같은 시드 묶음(10,000회)에서 Dribbling만 다른 두 선수(표시 18 vs 8)의 터치 방향 오차 표준편차가 18 쪽이 작고(F 검정 p < 0.01) 테이크온 성공률이 높다(이항 검정 p < 0.01)."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "경계 · 예외 상황 목록 입력 각각(동시 태클, 늦은 태클, 도달 거리 밖 획득, 3 m 경계, 이격 0, 다운 중 시도, 극단 능력치, 피치 밖 스냅샷)에서 NaN 0건, 예외 0건, 규칙대로."
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "FR-03: 드리블 중 공 상태가 매 틱 \"컨트롤\"이고(009 점유 판정 결과가 대체 단계와 같음), 탈취 판정은 터치 이격이 열린 구간에서만 일어난다. 같은 픽스처 1,000회에서 터치 거리 4 m 묶음의 탈취율이 1 m 묶음보다 높다(이항 검정 p < 0.01)."
+      },
+      {
+        "id": "AC-07",
+        "kind": "로직",
+        "text": "슬라이딩 실패 후 1.2 s 동안 그 선수에게 이동 명령이 0건이고, 그 구간 005 한계 감시 위반 0건, 다운 상태를 바꾸면 체크포인트 해시가 바뀐다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "결정론",
+        "text": "고정 시드 드리블·테이크온·태클·몸싸움 실행 10만 건을 2회 실행해 결과 해시가 같고, 액션당 RNG 소비 개수가 분기와 무관하게 고정이다."
+      },
+      {
+        "id": "AC-09",
+        "kind": "성능",
+        "text": "성능 예산 표 항목이 기준 프로필에서 예산 안, 할당 0 B."
+      },
+      {
+        "id": "AC-10",
+        "kind": "로직",
+        "text": "017 대량 시뮬(1,000경기)에서 테이크온 성공률·PPDA가 017 FR-20 목표 범위 안이다 (010·072·011·012가 갖춰진 뒤. 그 전에는 고정 상황 하네스로 개별 비율만 보고 \"보류\")."
+      },
+      {
+        "id": "AC-11",
+        "kind": "E2E",
+        "text": "041 하이라이트(실제 경기, 058 경로)에서 고정 시드 4장면(테이크온 성공, 테이크온 실패 탈취, 스탠딩 태클, 늦은 슬라이딩 태클)을 캡처해 기준 이미지와 비교한다. 태클 동작이 나오는 모든 프레임에서 상대 캐리어가 058 FR-50 거리 안에 있고, 주변에 상대가 없는 태클 동작이 0건이다. 시나리오 `e2e/070-duel-situations`, 프로필: smoke (mac-m1-1600p) — 육안 승인."
+      },
+      {
+        "id": "AC-12",
+        "kind": "로직",
+        "text": "(연결 때 재확인) 002·003·007이 구현되면 대체 입력을 실제 능력치·버릇·커버 PPCF로 바꿔 AC-01·03·04·06을 다시 실행해 통과하고, 012·027 연결 때 FR-13 필드를 그쪽 테스트가 읽어 통과한다. 그 전에는 \"보류\"."
+      }
+    ],
+    "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/070-dribble-tackle-duel"
+  },
+  "meta": {
+    "commit": "e3a7b617da3a29b12c18f8c792aaf4e3cd4f7a8e",
+    "branch": "feat/070-dribble-tackle-duel",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-14 20:21:18 +0900",
+    "durationSec": 1370.545090675354,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 070 --scope auto",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 1626,
+    "passed": 1615,
+    "failed": 0,
+    "skipped": 11,
+    "duration": 1352.7961918,
+    "compileErrors": [],
+    "failures": [],
+    "png": null,
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-202118-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "DuelPerfTests.Models_us/duel_takeon_eval_us/min": 1.5705175,
+      "DuelPerfTests.Models_us/duel_tackle_eval_us/min": 0.24932425,
+      "DuelPerfTests.Models_us/duel_steal_judge_us/min": 0.43610425,
+      "DuelPerfTests.Models_us/duel_contact_us/min": 0.4172455,
+      "DuelPerfTests.Models_NoAlloc/duel_gc_bytes_models/max": 0.0,
+      "DuelPerfTests.MatchTick_NoAlloc/duel_gc_bytes_per_tick/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-09",
+        "label": "테이크온 평가 1회 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_takeon_eval_us/min",
+        "value": 1.5705175,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "태클 평가 1회 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_tackle_eval_us/min",
+        "value": 0.24932425,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "이격 탈취 판정 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_steal_judge_us/min",
+        "value": 0.43610425,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "접촉 기록 1건 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_contact_us/min",
+        "value": 0.4172455,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "결투 평가 GC 할당",
+        "metric": "DuelPerfTests.Models_NoAlloc/duel_gc_bytes_models/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "실경기 틱당 GC 할당 (결투 포함)",
+        "metric": "DuelPerfTests.MatchTick_NoAlloc/duel_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "battery"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-09",
+        "label": "테이크온 평가 1회 (2026-11-14 0.2 → 0.4, 커버 TTI 10명 — 경기당 수 회)",
+        "metric": "duel_takeon_eval_us",
+        "value": 0.30446275,
+        "budget": 0.4,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "태클 평가 1회",
+        "metric": "duel_tackle_eval_us",
+        "value": 0.0279785,
+        "budget": 0.2,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "드리블 이격 탈취 판정 (근처 상대 ≤ 4명)",
+        "metric": "duel_steal_judge_us",
+        "value": 0.05933825,
+        "budget": 0.5,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "접촉 이벤트 기록 1건",
+        "metric": "duel_contact_us",
+        "value": 0.044822,
+        "budget": 1.0,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "결투 평가 GC 할당",
+        "metric": "duel_gc_bytes_models",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "실경기 틱당 GC 할당 (결투 포함 경로 전체)",
+        "metric": "duel_gc_bytes_per_tick",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "010 결정 틱 1회 평균 (072·070 포함, 072 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "value": 4.727152482269504,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "duel_takeon_eval_us": 0.30446275,
+      "duel_takeon_eval_p95_us": 0.32439999999999997,
+      "duel_tackle_eval_us": 0.0279785,
+      "duel_tackle_eval_p95_us": 0.0281,
+      "duel_steal_judge_us": 0.05933825,
+      "duel_steal_judge_p95_us": 0.0603,
+      "duel_gap_substep_us": 0.012304500000000001,
+      "duel_contact_us": 0.044822,
+      "duel_gc_bytes_models": 0,
+      "duel_sink": 1,
+      "duel_match_tick_avg_us": 35.71723782771536,
+      "duel_match_tick_p95_us": 47.9,
+      "duel_match_ticks": 53400,
+      "duel_gc_bytes_per_tick": 0,
+      "duel_touches": 465,
+      "duel_tackles": 42,
+      "duel_contacts": 160,
+      "dec_tick_avg_us": 4.727152482269504,
+      "dec_tick_p95_us": 12.600000000000001,
+      "dec_match_s": 0.2666114,
+      "dec_ticks": 56400,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 0.7872163120567376,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.47684499999999996,
+      "dec_offball_p95_us": 0.8
+    },
+    "host": "mac-m1-1600p",
+    "power": "battery",
+    "buildCached": true,
+    "durationSec": 10.4,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M1 Pro",
+    "development": false,
+    "commit": "e0d2517eedf3fe9dcb2a5c4d7cf19cc10546c86f"
+  },
+  "requireAllAcs": true,
+  "deferred": {
+    "AC-10": "017 대량 시뮬(1,000경기) 테이크온 성공률·PPDA 목표 — 010·072·011·012 뒤 (스펙 명시). 지금은 고정 상황 하네스·100경기 측정값만 기록",
+    "AC-12": "002·003·007·012·027 연결 때 대체 입력을 바꿔 AC-01·03·04·06 재실행, FR-13 필드를 012·027 테스트가 읽기"
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "결정론 테스트 85/85 통과",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "EditMode 성능 6/6 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 7/7 통과",
+        "ok": true
+      }
+    ],
+    "AC-11": [
+      {
+        "label": "수동 승인 기록 evidence/approval.md",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "deferred"
+}

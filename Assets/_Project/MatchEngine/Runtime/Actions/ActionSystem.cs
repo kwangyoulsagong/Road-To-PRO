@@ -29,10 +29,14 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly PhysicsXPass Physics = new PhysicsXPass();
         /// <summary>FR-63 진단 싱크. null이면 호출 0.</summary>
         public IActionDiagnostics Diagnostics;
+        /// <summary>070 결투 하위 시스템 (드리블 터치·테이크온·태클·몸싸움·접촉).</summary>
+        public readonly DuelSystem Duels;
 
         PendingKick _pending;
         byte _pendingFlow;
         int _flightTarget = -1;
+        byte _carrierTriggers;
+        int _triggerSlot = -1;
         readonly bool[] _attempted = new bool[ActionWorld.N];
         readonly long[] _touchCooldown = new long[ActionWorld.N];
 
@@ -59,12 +63,43 @@ namespace RoadToPro.MatchEngine.Actions
             World.AttackDir[0] = 1;
             World.AttackDir[1] = -1;
             World.PrepareRoll(p, bp);
+            Duels = new DuelSystem(this, bp);
         }
 
         public ref readonly PendingKick Pending => ref _pending;
         /// <summary>지금 날아가는 패스의 받는 슬롯 (실행된 패스만, 수신·다른 킥이면 −1). T14a 받는 선수 추격이 읽는다.</summary>
         public int FlightTarget => _flightTarget;
         public bool IsAttempted(int slot) => _attempted[slot];
+
+        /// <summary>
+        /// 070 FR-14 압박 트리거 플래그 (<see cref="PressTriggers"/>): 마지막 수신 순간 플래그(등진 수신·불안한 터치·백패스) + 지금 공 위치 플래그(터치라인·상대 진영).
+        /// 공을 가진 선수가 없으면 0.
+        /// </summary>
+        public byte CarrierTriggers(MatchContext ctx)
+        {
+            ref readonly var ball = ref ctx.Ball;
+            if (ball.Phase != BallPhase.Controlled || ball.OwnerId < 0 || ball.OwnerId >= Squad.Slots) return 0;
+            var team = Squad.TeamOfSlot(ball.OwnerId);
+            var keep = ball.OwnerId == _triggerSlot ? (byte)(_carrierTriggers & (PressTriggers.BackToGoal | PressTriggers.HeavyTouch | PressTriggers.BackPass)) : (byte)0; // 다른 경로로 소유가 바뀌면 수신 비트 없음 (결정론 리뷰 L3)
+            return (byte)(keep | PressTriggers.Positional(ball.Position.XY, ctx.AttackDir(team), ctx.Pitch.LengthM, ctx.Pitch.WidthM));
+        }
+
+        /// <summary>070 FR-13: 접촉 상세를 기록하고 Contact 이벤트(B = 번호 + 1)를 낸다. 상세 번호를 돌려준다(가득 차면 −1, 이벤트 B = 0).</summary>
+        public int EmitContact(MatchContext ctx, in ContactDetail c)
+        {
+            var idx = Details.Contacts.Add(in c);
+            var team = c.Attacker >= 0 ? Squad.TeamOfSlot(c.Attacker) : (c.Defender >= 0 ? 1 - Squad.TeamOfSlot(c.Defender) : 0);
+            var e = SimEvent.Make(SimEventKind.Contact, team, c.Attacker >= 0 ? ctx.PlayerAtSlot(c.Attacker) : -1, c.Defender >= 0 ? ctx.PlayerAtSlot(c.Defender) : -1);
+            e.Substep = c.Substep;
+            e.A = (int)c.Kind;
+            e.B = idx + 1;
+            e.F0 = c.Intensity;
+            e.F1 = c.Lateness;
+            e.BallPhase = ctx.Ball.Phase;
+            ctx.SetPosition(ref e, new Vec3(c.X, c.Y, c.Height));
+            ctx.Emit(e);
+            return idx;
+        }
 
         // ── 평가 입력 ──
 
@@ -104,8 +139,15 @@ namespace RoadToPro.MatchEngine.Actions
                 var mind = mp.Mind.OrAverage();
                 var lvl = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.OneTouchMaster] : (byte)0;
                 World.SetSkills(s, mp.Technical.OrAverage(), mind.Vision, mind.Composure, lvl);
+                var slide = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.SlideMaster] : (byte)0;
+                World.SetDuel(s, mp.Technical.OrAverage(), in mp.Attributes, mind.Temperament, slide);
             }
-            else World.SetSkills(s, TechnicalAttributes.Average, 50f, 50f, 0);
+            else
+            {
+                World.SetSkills(s, TechnicalAttributes.Average, 50f, 50f, 0);
+                var avg = Kinematics.KinematicAttributes.Uniform(10);
+                World.SetDuel(s, TechnicalAttributes.Average, in avg, 50f, 0);
+            }
         }
 
         /// <summary>FR-02·03: 슬롯 s를 목표로 한 상대 팀 압박 (월드 기준). 볼 소유자면 공 목표와 큰 값.</summary>
@@ -256,7 +298,7 @@ namespace RoadToPro.MatchEngine.Actions
             var d2 = (ball.Position.XY - kp).LengthSq();
             if (d2 > reach * reach)
             {
-                if (abs >= _pending.Expire) Cancel();
+                if (abs >= _pending.Expire && !Duels.GapOpenFor(a.KickerSlot)) Cancel(); // 070: 드리블 이격 중이면 공에 닿을 때까지 기다린다
                 return false;
             }
             Execute(ctx, abs, sub);
@@ -404,6 +446,7 @@ namespace RoadToPro.MatchEngine.Actions
                 if (!ctx.IsSlotControllable(s)) continue;
                 if ((s == ctx.LastKickSlot || s == ctx.LastTackleVictim) && abs - ctx.LastKickSubstep < 25) continue;
                 if (abs < _touchCooldown[s]) continue;
+                if (ctx.Kinematics.IsImmobile(s)) continue; // 070: 다운·회복 지연 중에는 공을 잡지 않는다
                 var isKeeper = Squad.IsKeeperSlot(s);
                 if (isKeeper && ctx.Keepers.ExcludedFromClaim(s)) continue;
                 var hands = isKeeper && Match.Stages.PhysicsStage.InOwnBox(ctx, Squad.TeamOfSlot(s), pos);
@@ -463,7 +506,11 @@ namespace RoadToPro.MatchEngine.Actions
             e.BallPhase = ball.Phase;
             e.F0 = speed;
             e.F1 = touch.Distance;
-            e.B = ActionOutcome.ReceptionFlags(touch.Heavy, TouchKind.Deliberate);
+            var backPass = team == prevTeam && kickKind == BallActionKind.Pass && prevKicker >= 0 && prevKicker != s
+                && PressTriggers.IsBackPass(ctx.SlotState(prevKicker).Position, pos.XY, ctx.AttackDir(team));
+            _triggerSlot = s;
+            _carrierTriggers = PressTriggers.OnReception(pos.XY, ctx.SlotState(s).Facing, ctx.AttackDir(team), ctx.Pitch.LengthM, ctx.Pitch.WidthM, touch.Heavy, backPass);
+            e.B = ActionOutcome.ReceptionFlags(touch.Heavy, TouchKind.Deliberate) | (_carrierTriggers << PressTriggers.EventShift);
             ctx.SetPosition(ref e, pos);
             ctx.Emit(e);
             if (team != prevTeam)
@@ -495,6 +542,7 @@ namespace RoadToPro.MatchEngine.Actions
             var team = ActionWorld.TeamOf(s);
             var pos = new Vec3(at.X, at.Y, ctx.BallParams.Radius);
             BallCommands.TakeControl(ref ball, s, pos, ctx.BallEvents);
+            _carrierTriggers = 0;
             if (team != prevTeam)
             {
                 var pc = SimEvent.Make(SimEventKind.PossessionChange, team, ctx.PlayerAtSlot(s));
@@ -519,6 +567,7 @@ namespace RoadToPro.MatchEngine.Actions
             {
                 ref readonly var e = ref log[i];
                 if (e.Kind == SimEventKind.Pass && e.B > 0) Details.Bind(e.B - 1, e.Seq);
+                else if (e.Kind == SimEventKind.Contact && e.B > 0) Details.Contacts.Bind(e.B - 1, e.Seq);
             }
         }
 
@@ -530,8 +579,10 @@ namespace RoadToPro.MatchEngine.Actions
             _pending.AddTo(ref h);
             h.Add(_pendingFlow);
             h.Add(_flightTarget);
+            h.Add(_carrierTriggers); h.Add(_triggerSlot);
             for (int s = 0; s < ActionWorld.N; s++) { h.Add(_attempted[s]); h.Add(_touchCooldown[s]); }
             Details.AddTo(ref h);
+            Duels.AddTo(ref h);
         }
 
         public void Write(StateWriter w)
@@ -540,8 +591,10 @@ namespace RoadToPro.MatchEngine.Actions
             _pending.Write(w);
             w.Write(_pendingFlow);
             w.Write(_flightTarget);
+            w.Write(_carrierTriggers); w.Write(_triggerSlot);
             for (int s = 0; s < ActionWorld.N; s++) { w.Write(_attempted[s]); w.Write(_touchCooldown[s]); }
             Details.Write(w);
+            Duels.Write(w);
         }
 
         public void Read(StateReader r)
@@ -550,8 +603,10 @@ namespace RoadToPro.MatchEngine.Actions
             _pending = PendingKick.Read(r);
             _pendingFlow = r.ReadByte();
             _flightTarget = r.ReadInt();
+            _carrierTriggers = r.ReadByte(); _triggerSlot = r.ReadInt();
             for (int s = 0; s < ActionWorld.N; s++) { _attempted[s] = r.ReadBool(); _touchCooldown[s] = r.ReadLong(); }
             Details.Read(r);
+            Duels.Read(r);
             _worldTick = long.MinValue;
         }
     }

@@ -117,6 +117,8 @@ namespace RoadToPro.MatchEngine.Match.Stages
         public void Execute(MatchContext ctx)
         {
             var board = ctx.Board;
+            var duels = ctx.Actions.Duels;
+            duels.Enabled = true; // 070: 010 파이프라인에서만 결투 판정 (006 대체 파이프라인은 끔)
             _x.BeginTick();
             var n = _x.MergeInputs(ctx);
             _x.ComputeChasers(ctx);
@@ -144,7 +146,26 @@ namespace RoadToPro.MatchEngine.Match.Stages
             var hasAction = false;
             for (int s = 0; s < N; s++)
             {
-                if (!_due[s]) continue;
+                if (ctx.Kinematics.IsImmobile(s) && ctx.IsSlotControllable(s))
+                {
+                    // 070 FR-11·06 · 005 FR-29: 다운·회복 지연 중에는 결정하지 않는다 (RNG 미소비)
+                    _intent[s] = StandInOnBall.Stand();
+                    board.MarkDecided(s);
+                    continue;
+                }
+                if (inPlay && s == owner && !Squad.IsKeeperSlot(s) && !flow.DeadBall.Pending && !hasAction && !(ctx.Actions.Pending.Active && ctx.Actions.Pending.Action.KickerSlot == s) && duels.TakeOnReady(ctx, s, out var toDef))
+                {
+                    // 070 FR-04: 대기 테이크온이 3 m 안에 들어옴 → 이번 틱 판정 (결정 주기와 무관)
+                    var carryTo = _intent[s].Kind == DecisionKind.Carry ? _intent[s].Point : ctx.SlotState(s).Position;
+                    _intent[s] = ResolveTakeOn(ctx, s, toDef, carryTo, ref hasAction);
+                    board.MarkDecided(s);
+                    continue;
+                }
+                if (!_due[s])
+                {
+                    if (inPlay && s == owner && duels.GapOpenFor(s)) { _intent[s] = ChaseBall(ctx, s); board.MarkDecided(s); } // 070: 이격 중 공 따라가기
+                    continue;
+                }
                 if (!ctx.IsSlotControllable(s)) continue; // 058: 걷는 선수는 흐름이 직접 조향
                 if (ctx.Keepers.IsBusySlot(s)) // 011 FR-17
                 {
@@ -164,6 +185,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     var hadAction = hasAction;
                     d = DecideOnBall(ctx, s, ref hasAction);
                     if (!hadAction && hasAction) RememberPass(ctx, s);
+                    if (duels.GapOpenFor(s) && (d.Kind == DecisionKind.Carry || d.Kind == DecisionKind.Stand)) d = ChaseBall(ctx, s); // 070: 이격 중엔 공부터
                 }
                 else if (!inPlay || _x.InputOf(s) != default || s == owner || Squad.IsKeeperSlot(s))
                 {
@@ -191,9 +213,8 @@ namespace RoadToPro.MatchEngine.Match.Stages
                         }
                         d = ToDecision(s, in r);
                         if (r.IgnoredInstruction) EmitIgnored(ctx, s, r.IgnoredKind, r.IgnoredWeight);
-                        if (r.Kind == Consideration.Press && r.Target >= 0 && _beatenUntil[s] <= ctx.Tick
-                            && _x.TryTackle(ctx, s, r.Target, OffBallScorer.TackleAttemptScale(_p, _w.Mind[s].Temperament), ref hasAction))
-                            d = StandInOnBall.Stand();
+                        if (r.Kind == Consideration.Press && r.Target >= 0 && _beatenUntil[s] <= ctx.Tick)
+                            duels.TryTackleAttempt(ctx, s, r.Target, ctx.Params.TackleProb * OffBallScorer.TackleAttemptScale(_p, _w.Mind[s].Temperament), ctx.DecisionRng); // 070: 시도 여부는 010, 결과는 접촉 서브스텝
                         if (!hasKey) Diagnostics?.OnDecision(ctx.Tick, s, in _state[s], _decider, _w);
                     }
                     if (hasKey)
@@ -224,12 +245,12 @@ namespace RoadToPro.MatchEngine.Match.Stages
             var team = Squad.TeamOfSlot(s);
             var me = ctx.SlotState(s);
             var p = ctx.Params;
-            var carrySpeed = _w.Profile[s].MaxSpeed * p.CarrySpeedRatio;
+            var carrySpeed = ctx.Actions.Duels.CarrySpeed(ctx, s); // 070 FR-01 vmax_ball
             var fresh = _onBallTick[s] < ctx.PossessionStartTick; // 이번 소유에서 아직 온볼 결정 안 함 (결정론 리뷰 L)
             var held = tick - ctx.PossessionStartTick;
             var keep = !fresh && tick < _onBallUntil[s] && !_sched.WasTriggered(s) && !_intentChanged[s];
             ref readonly var pend = ref ctx.Actions.Pending;
-            if (pend.Active && pend.Action.KickerSlot == s) return StandInOnBall.Stand(); // 킥 준비 중: 다시 판단하지 않는다 (RNG 미소비, 결정론 리뷰 H)
+            if (pend.Active && pend.Action.KickerSlot == s) return ctx.Actions.Duels.GapOpenFor(s) ? ChaseBall(ctx, s) : StandInOnBall.Stand(); // 킥 준비 중: 다시 판단하지 않는다 (RNG 미소비, 결정론 리뷰 H). 070: 이격 중이면 공으로
             if (hasAction || held < p.HoldTicks || keep)
             {
                 if (!fresh && (_intent[s].Kind == DecisionKind.Carry || _intent[s].Kind == DecisionKind.Stand)) return _intent[s];
@@ -293,33 +314,12 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     _onBallUntil[s] = tick + HoldMinTicks;
                     return new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
                 }
+                case OnBallItem.Dribble when r.Defender >= 0 && act.Duels.TakeOnTriggered(ctx, s, r.Defender):
+                    return ResolveTakeOn(ctx, s, r.Defender, r.Point, ref hasAction);
                 case OnBallItem.Dribble when r.Defender >= 0:
-                {
-                    var ok = ctx.DecisionRng.NextFloat() < r.P; // 070 대체 1:1 판정
-                    var e = SimEvent.Make(SimEventKind.Dribble, team, ctx.PlayerAtSlot(s), ctx.PlayerAtSlot(r.Defender));
-                    e.A = s;
-                    e.B = ok ? EventCodes.DribbleSuccess : 0;
-                    e.X = me.Position.X;
-                    e.Y = me.Position.Y;
-                    e.F0 = r.P;
-                    ctx.Emit(e);
-                    if (!ok)
-                    {
-                        // 돌파 실패 = 수비수의 태클 성공 (070 대체): 하이라이트 수비 액션·스탯이 읽는 Tackle 이벤트
-                        var tk = SimEvent.Make(SimEventKind.Tackle, Squad.TeamOfSlot(r.Defender), ctx.PlayerAtSlot(r.Defender), ctx.PlayerAtSlot(s));
-                        var dpos = ctx.SlotState(r.Defender).Position;
-                        tk.X = dpos.X;
-                        tk.Y = dpos.Y;
-                        tk.BallPhase = ctx.Ball.Phase;
-                        ctx.Emit(tk);
-                        act.TransferPossession(ctx, r.Defender, ctx.SlotState(r.Defender).Position); // 이벤트·마지막 터치까지 수신 경로와 같게 (결정론 리뷰 M)
-                        hasAction = true;
-                        return new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
-                    }
-                    _beatenUntil[r.Defender] = tick + (long)(_p.OnBallBeatenBlock * SimClock.TicksPerSecond + 0.5f);
+                    act.Duels.ArmTakeOn(ctx, s, r.Defender); // 070 FR-04: 아직 3 m 밖 — 다가가며 조건이 되면 그때 판정
                     _onBallUntil[s] = tick + HoldMinTicks;
                     return new Decision { Kind = DecisionKind.Carry, Point = r.Point, TargetSlot = -1, MaxSpeed = carrySpeed };
-                }
                 case OnBallItem.Hold:
                     _onBallUntil[s] = tick + HoldMinTicks;
                     return new Decision { Kind = DecisionKind.Carry, Point = me.Position, TargetSlot = -1, MaxSpeed = _w.Profile[s].MaxSpeed * IntensityPicker.SpeedRatio(_p, Intensity.Walk) };
@@ -328,6 +328,39 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     return new Decision { Kind = DecisionKind.Carry, Point = r.Point, TargetSlot = -1, MaxSpeed = carrySpeed };
             }
         }
+
+        /// <summary>
+        /// 070 FR-04~06: 1v1 테이크온 판정 (액션 RNG 2) — 성공 시 수비수 회복 지연, 실패 분기(탈취·아웃·파울 획득·루즈볼)는 DuelSystem이 적용.
+        /// Dribble 이벤트 1건(B 성공 비트, F0 확률, F1 결과). 공을 잃으면 Stand, 아니면 carryTo로 캐리.
+        /// </summary>
+        Decision ResolveTakeOn(MatchContext ctx, int s, int def, Vec2 carryTo, ref bool hasAction)
+        {
+            var tick = ctx.Tick;
+            var team = Squad.TeamOfSlot(s);
+            var me = ctx.SlotState(s);
+            var outcome = ctx.Actions.Duels.TakeOn(ctx, s, def, out var prob);
+            var ok = outcome == Actions.TakeOnOutcome.Beat;
+            var e = SimEvent.Make(SimEventKind.Dribble, team, ctx.PlayerAtSlot(s), ctx.PlayerAtSlot(def));
+            e.A = s;
+            e.B = ok ? EventCodes.DribbleSuccess : 0;
+            e.X = me.Position.X;
+            e.Y = me.Position.Y;
+            e.F0 = prob;
+            e.F1 = (float)outcome;
+            ctx.Emit(e);
+            if (!ok && outcome != Actions.TakeOnOutcome.FoulWon)
+            {
+                hasAction = true;
+                return new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
+            }
+            if (ok) _beatenUntil[def] = tick + (long)(_p.OnBallBeatenBlock * SimClock.TicksPerSecond + 0.5f);
+            _onBallUntil[s] = tick + HoldMinTicks;
+            return new Decision { Kind = DecisionKind.Carry, Point = carryTo, TargetSlot = -1, MaxSpeed = ctx.Actions.Duels.CarrySpeed(ctx, s) };
+        }
+
+        /// <summary>070: 드리블 이격 중 소유자는 굴러가는 공을 최고속도로 쫓는다 (공이 발에 없을 때라 vmax_ball 상한 밖 — 터치 초속도 이 추격을 가정해 정한다).</summary>
+        Decision ChaseBall(MatchContext ctx, int s)
+            => new Decision { Kind = DecisionKind.Carry, Point = ctx.Actions.Duels.ChasePoint(ctx), TargetSlot = -1, MaxSpeed = 0f };
 
         long HoldMinTicks => (long)(_p.HoldMinTime * SimClock.TicksPerSecond + 0.5f);
 

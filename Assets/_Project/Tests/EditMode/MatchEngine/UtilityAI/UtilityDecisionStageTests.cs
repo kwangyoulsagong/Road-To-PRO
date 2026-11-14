@@ -74,7 +74,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
             var wasCast = new bool[22];
             for (int s = 0; s < 22; s++) wasCast[s] = rt.IsCast(s);
             int castChecks = 0, endChecks = 0;
-            for (int k = 0; k < 400; k++)
+            // 070: 드리블 터치로 배역 캐리가 공을 라인 밖으로 내보내 첫 배역이 데드볼로 끝나는 시드가 있어 표본 구간을 400 → 1,500틱으로
+            for (int k = 0; k < 1500 && (endChecks == 0 || k < 400); k++)
             {
                 sim.StepTick();
                 var v = sim.View;
