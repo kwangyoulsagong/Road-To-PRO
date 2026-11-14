@@ -141,12 +141,16 @@ namespace RoadToPro.MatchEngine.Actions
                 World.SetSkills(s, mp.Technical.OrAverage(), mind.Vision, mind.Composure, lvl);
                 var slide = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.SlideMaster] : (byte)0;
                 World.SetDuel(s, mp.Technical.OrAverage(), in mp.Attributes, mind.Temperament, slide);
+                var cutIn = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.CutInMaster] : (byte)0;
+                var crossM = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.CrossMachine] : (byte)0;
+                World.SetFinish(s, mp.Technical.OrAverage(), in mp.Attributes, cutIn, crossM);
             }
             else
             {
                 World.SetSkills(s, TechnicalAttributes.Average, 50f, 50f, 0);
                 var avg = Kinematics.KinematicAttributes.Uniform(10);
                 World.SetDuel(s, TechnicalAttributes.Average, in avg, 50f, 0);
+                World.SetFinish(s, TechnicalAttributes.Average, in avg, 0, 0);
             }
         }
 
