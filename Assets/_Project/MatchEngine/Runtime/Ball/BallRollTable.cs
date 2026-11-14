@@ -95,6 +95,15 @@ namespace RoadToPro.MatchEngine.Ball
             speed = _speeds[lo] + (_speeds[hi] - _speeds[lo]) * f;
         }
 
+        /// <summary>스텝 번호(실수) → 누적 거리 (선형 보간, <see cref="StepAtDistance"/>의 역). specs/070 드리블 이격 공 위치.</summary>
+        public float DistanceAtStep(float step)
+        {
+            if (!(step > 0f)) return 0f; // NaN 포함 (결정론 리뷰 L5)
+            if (step >= _count - 1) return _dist[_count - 1];
+            var lo = (int)step;
+            return _dist[lo] + (_dist[lo + 1] - _dist[lo]) * (step - lo);
+        }
+
         /// <summary>누적 거리 x에서의 속도 (선형 보간).</summary>
         public float SpeedAtDistance(float x)
         {

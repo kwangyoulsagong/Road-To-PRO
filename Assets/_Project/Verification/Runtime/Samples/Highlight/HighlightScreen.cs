@@ -34,6 +34,9 @@ namespace RoadToPro.Verification.Samples.Highlight
     {
         const string StageScene = "Highlight3D";
         const ulong Seed = 20261109UL;
+        /// <summary>specs/070 AC-11 결투 장면 경기 (DuelSceneSeedSearch로 고름 — 에디터 기준 4종 모두. 플레이어 빌드 경기는 약간 달라 테이크온 실패·슬라이딩은 대체 장면을 쓸 수 있다).</summary>
+        const ulong Seed070 = 20261121UL;
+        static ulong _matchSeed = Seed;
         const int LoopCount = 10, WaitFrames = 60;
         const double TransitionWindow = 1d;
         static readonly Color MenuBackground = new Color(0.95f, 0.95f, 0.96f);
@@ -176,10 +179,11 @@ namespace RoadToPro.Verification.Samples.Highlight
         static MatchSim Match()
         {
             if (_match != null) return _match;
+            var seed = _matchSeed;
             var work = new DecisionBenchWorkloads(DataDir); // specs/010 T16: 전술(009)·GK(011)·판단(010) 경로 — 이전엔 006 대체 단계(전원 전력질주)였다
             _tuning = LiveMatchFixture.Tuning(work.Tuning, DataDir); // 058: E2E 경기만 저득점
             // specs/058: 실경기 하이라이트 고정 경기 (퇴장 주입 — 파울 장면 대체, 내 선수 지정)
-            _match = new MatchSim(LiveMatchFixture.Prepare(MatchBenchWorkloads.Setup(Seed)), _tuning, LiveMatchFixture.Options());
+            _match = new MatchSim(LiveMatchFixture.Prepare(MatchBenchWorkloads.Setup(seed)), _tuning, LiveMatchFixture.Options());
             _match.RunToEnd();
             return _match;
         }
@@ -238,6 +242,7 @@ namespace RoadToPro.Verification.Samples.Highlight
         void RegisterLiveScreens()
         {
             FarmContext.Screens["livePlay"] = () => { HighlightCastStage.NightRequested = false; Play(false); };
+            FarmContext.Screens["livePlay070"] = () => { HighlightCastStage.NightRequested = false; if (_matchSeed != Seed070) { _matchSeed = Seed070; _match = null; } Play(false); }; // 070 결투 장면 경기
             FarmContext.Screens["live.freeze.net"] = () => FreezeGoal(0, b => double.IsNaN(b.NetContactTime) ? b.EventTime + 0.3d : b.NetContactTime + 0.1d);
             FarmContext.Screens["live.freeze.closeup"] = () => FreezeGoal(0, b => CloseupStart(b) + 1.0d);
             FarmContext.Screens["live.freeze.celebration"] = () => FreezeGoal(0, b => CloseupStart(b) + 2.5d + 1.5d);
@@ -251,6 +256,14 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["live.freeze.gkpunch"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Save && i.EventKind == SimEventKind.Punch, i => i.Kind == LiveSceneKind.Save && i.EventKind == SimEventKind.Parry, 0d);
             FarmContext.Screens["live.freeze.gkconceded"] = () => FreezeGoal(0, b => b.EventTime - 0.05d);
             FarmContext.Screens["live.freeze.foul"] = () => FreezeKind(i => i.Kind == LiveSceneKind.RedCard || i.Kind == LiveSceneKind.YellowCard || i.Kind == LiveSceneKind.Foul, null);
+            // specs/070 AC-11: 결투 장면 — 선정된 장면 구간 안의 테이크온·태클 이벤트 순간 (경기 이벤트 로그 A·B 비트)
+            FarmContext.Screens["live.freeze.takeon_ok"] = () => FreezeEvent(e => e.Kind == SimEventKind.Dribble && (e.B & EventCodes.DribbleSuccess) != 0, null, "takeon_ok");
+            FarmContext.Screens["live.freeze.takeon_lost"] = () => FreezeEvent(e => e.Kind == SimEventKind.Dribble && (e.B & EventCodes.DribbleSuccess) == 0,
+                e => e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleWon) != 0 && (e.A & EventCodes.TackleSliding) == 0, "takeon_lost"); // 대체: 공을 따낸 태클(탈취)
+            FarmContext.Screens["live.freeze.tackle_stand"] = () => FreezeEvent(e => e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleSliding) == 0 && (e.A & EventCodes.TackleWon) != 0,
+                e => e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleSliding) == 0, "tackle_stand");
+            FarmContext.Screens["live.freeze.tackle_slide"] = () => FreezeEvent(e => e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleSliding) != 0 && (e.A & EventCodes.TackleLate) != 0,
+                e => e.Kind == SimEventKind.Tackle && ((e.A & EventCodes.TackleSliding) != 0 || (e.A & EventCodes.TackleWon) == 0), "tackle_slide"); // 대체: 슬라이딩 또는 빗나간 태클
             _halves = StandInHud.Add(doc.rootVisualElement, "halvesLabel", 16f, 352f);
             _halves.style.opacity = 0f; // 058 AC-11 확인 신호 (캡처 제외)
         }
@@ -320,6 +333,40 @@ namespace RoadToPro.Verification.Samples.Highlight
                 }
             }
             Debug.LogError(label == null ? "[highlight] 058 해당 종류 장면 없음" : $"[highlight] 058 해당 종류 장면 없음 ({label})");
+        }
+
+        /// <summary>
+        /// specs/070: 경기 이벤트 로그에서 조건에 맞고 선정된 (리플레이 아닌) 장면 구간 안에 있는 첫 이벤트 순간(+0.05 s)에 멈춘다.
+        /// 장면 클립은 순서대로 만들어지므로 이벤트 로그(A·B 비트 포함)로 찾는다. 없으면 대체 조건, 그것도 없으면 오류 로그.
+        /// </summary>
+        void FreezeEvent(System.Func<SimEvent, bool> want, System.Func<SimEvent, bool> fallback, string label)
+        {
+            var scenes = player.Scenes;
+            var log = Match().Result.EventLog;
+            for (int pass = 0; pass < 2; pass++)
+            {
+                var f = pass == 0 ? want : fallback;
+                if (f == null) break;
+                for (int k = 0; k < log.Length; k++)
+                {
+                    var e = log[k];
+                    if (!f(e)) continue;
+                    var t = e.Tick * 0.1d + System.Math.Max((int)e.Substep, 0) * 0.01d;
+                    for (int i = 0; i < scenes.Count; i++)
+                    {
+                        var s = scenes[i].Scene;
+                        if (s.IsReplay || t < s.Start || t > s.End) continue;
+                        player.Sequencer.SeekAndPause(i, System.Math.Min(t + 0.05d, s.End));
+                        Debug.Log(pass == 0 ? $"[highlight] 070 장면 {label}: 장면 {s.Id} t={t:0.00}" : $"[highlight] 070 대체 장면 사용 ({label}): 장면 {s.Id}");
+                        return;
+                    }
+                }
+            }
+            var sb = new System.Text.StringBuilder();
+            for (int k = 0; k < log.Length; k++) if (log[k].Kind == SimEventKind.Dribble) sb.Append($" D@{log[k].Tick * 0.1d:0.0}b{log[k].B}");
+            sb.Append(" | 장면:");
+            for (int i = 0; i < scenes.Count; i++) sb.Append($" {scenes[i].Scene.Start:0}-{scenes[i].Scene.End:0}{(scenes[i].Scene.IsReplay ? "r" : "")}");
+            Debug.LogError($"[highlight] 070 해당 이벤트 장면 없음 ({label}) 시드 {_matchSeed}{sb}");
         }
 
         double _checkHalvesAt = double.NaN;

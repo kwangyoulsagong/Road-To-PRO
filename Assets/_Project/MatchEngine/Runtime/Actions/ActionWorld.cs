@@ -23,6 +23,12 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly int[] WeakFoot = new int[N];
         /// <summary>원터치 마스터 버릇 레벨 (0 = 없음, FR-71 ②).</summary>
         public readonly byte[] OneTouchLevel = new byte[N];
+        /// <summary>070 결투 입력 (정규화 a): 기술 Dribbling·Tackling·Positioning·Strength(002 전 대체), 005 운동 Agility·Pace·Balance.</summary>
+        public readonly float[] Dribbling = new float[N], Tackling = new float[N], Positioning = new float[N], Strength = new float[N],
+            Agility = new float[N], Pace = new float[N], Balance = new float[N];
+        /// <summary>070 태클 스타일 대체 입력 (FR-31): 다혈질(010 정신, 정규화)·슬라이딩 장인 레벨.</summary>
+        public readonly float[] Temperament = new float[N];
+        public readonly byte[] SlideLevel = new byte[N];
 
         /// <summary>땅볼 속도 후보별 구름 표 시작값 캐시 (같은 함수 값 — 평가 핫 경로에서 이진 탐색 2회 절약). <see cref="PrepareRoll"/>.</summary>
         public readonly float[] RollX0 = new float[4], RollStep0 = new float[4], LoftSin2 = new float[2], LoftSin = new float[2];
@@ -64,6 +70,21 @@ namespace RoadToPro.MatchEngine.Actions
             Vel[s] = vel;
             Tti[s] = new TimeToIntercept.Context(in Profile[s], pos, vel, 1f, 0f, kp);
             SetSkills(s, tech.OrAverage(), vision, composure, 0);
+            SetDuel(s, tech.OrAverage(), in kin, 50f, 0);
+        }
+
+        /// <summary>070 결투 입력 (FR-30: 002 FR-14 정규화 능력치만).</summary>
+        public void SetDuel(int s, in TechnicalAttributes tech, in KinematicAttributes kin, float temperament, byte slideLevel)
+        {
+            Dribbling[s] = ActionMath.Norm(tech.Dribbling);
+            Tackling[s] = ActionMath.Norm(tech.Tackling);
+            Positioning[s] = ActionMath.Norm(tech.Positioning);
+            Strength[s] = ActionMath.Norm(tech.Strength);
+            Agility[s] = ActionMath.Norm(kin.Agility);
+            Pace[s] = ActionMath.Norm(kin.Pace);
+            Balance[s] = ActionMath.Norm(kin.Balance);
+            Temperament[s] = ActionMath.Norm(temperament);
+            SlideLevel[s] = slideLevel;
         }
 
         public void SetSkills(int s, in TechnicalAttributes tech, float vision, float composure, byte oneTouchLevel)

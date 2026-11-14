@@ -10,6 +10,8 @@ namespace RoadToPro.Presentation.Highlight.Selection
     {
         public float Goal = 100f, RedCard = 80f, Penalty = 75f, VarOverturn = 70f, Woodwork = 45f, Save = 40f;
         public float ShotInBox = 35f, ShotOutBox = 20f, Defensive = 25f, YellowCard = 15f, Foul = 15f;
+        /// <summary>specs/070 테이크온 성공 장면 [제안] (018 연결 때 교체).</summary>
+        public float TakeOn = 36f;
         public float MultLate = 1.3f, MultClose = 1.2f, MultMyPlayer = 1.5f;
         public int SceneMin = 8, SceneMax = 15;
         public double Before = 8d, After = 3d, GoalAfter = 7d, MinShot = 2.5d, SubSceneSeconds = 6d, ConsecutiveGoalSeconds = 60d;
@@ -30,6 +32,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
                 ShotInBox = t.Get("highlight.score.shotInBox"),
                 ShotOutBox = t.Get("highlight.score.shotOutBox"),
                 Defensive = t.Get("highlight.score.defensive"),
+                TakeOn = t.Get("highlight.score.takeOn"),
                 YellowCard = t.Get("highlight.score.yellowCard"),
                 Foul = t.Get("highlight.score.foul"),
                 MultLate = t.Get("highlight.mult.late"),

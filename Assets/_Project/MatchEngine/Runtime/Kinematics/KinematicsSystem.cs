@@ -35,12 +35,15 @@ namespace RoadToPro.MatchEngine.Kinematics
         readonly bool[] _fault;
         readonly float[] _capSpeed;
         readonly long[] _capUntil;
+        readonly long[] _immUntil;
         readonly float[] _sepCorr;
         readonly SolveInfo[] _info;
         readonly int[] _targetIdx;
         readonly Separation _sep;
 
         public long Substep { get; private set; }
+        /// <summary>이동 불가 중 무시한 명령 수 (FR-29 진단, 상태 아님).</summary>
+        public long IgnoredCommands { get; private set; }
         public int Count => _n;
         public KinematicsParams Params => _p;
 
@@ -102,6 +105,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             _fault = new bool[_n];
             _capSpeed = new float[_n];
             _capUntil = new long[_n];
+            _immUntil = new long[_n];
             _sepCorr = new float[_n];
             _info = new SolveInfo[_n];
             _targetIdx = new int[_n];
@@ -156,6 +160,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             _contact[i] = false;
             _fault[i] = false;
             _capUntil[i] = 0;
+            _immUntil[i] = 0;
             _targetIdx[i] = -1;
             if (_ext[i]) { _ext[i] = false; _external--; _extVel[i] = Vec2.Zero; }
             if (!_active[i]) { _active[i] = true; _inactive--; }
@@ -219,6 +224,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             _fault[t] = false;
             _capSpeed[t] = _capSpeed[f];
             _capUntil[t] = _capUntil[f];
+            _immUntil[t] = _immUntil[f];
             _targetIdx[t] = -1;
             if (_ext[t]) { _ext[t] = false; _external--; _extVel[t] = Vec2.Zero; }
             _active[t] = true;
@@ -236,6 +242,7 @@ namespace RoadToPro.MatchEngine.Kinematics
             _s[i].Position = position;
             _s[i].Facing = f;
             if (_ext[i]) { _ext[i] = false; _external--; _extVel[i] = Vec2.Zero; }
+            _immUntil[i] = 0; // 재시작 배치는 이동 불가를 푼다 (070 결정론 리뷰 L9)
             Freeze(i);
         }
 
@@ -273,6 +280,7 @@ namespace RoadToPro.MatchEngine.Kinematics
                 w.Write(_faultVel[i]);
                 w.Write(_capSpeed[i]);
                 w.Write(_capUntil[i]);
+                w.Write(_immUntil[i]);
                 _queue.Write(i, w);
                 _stats[i].Write(w);
             }
@@ -307,6 +315,7 @@ namespace RoadToPro.MatchEngine.Kinematics
                 _faultVel[i] = r.ReadVec2();
                 _capSpeed[i] = r.ReadFloat();
                 _capUntil[i] = r.ReadLong();
+                _immUntil[i] = r.ReadLong();
                 _queue.Read(i, r);
                 _stats[i] = MotionStats.Read(r);
             }
@@ -321,6 +330,7 @@ namespace RoadToPro.MatchEngine.Kinematics
         {
             var i = Require(id);
             RequireFinite(in cmd);
+            if (_immUntil[i] > Substep) { IgnoredCommands++; return; } // FR-29 이동 불가
             var delay = Fatigue.ReactionDelay(in _prof[i], _s[i].W, _p);
             var steps = (long)DMath.Floor(delay / _p.Dt + 0.5f);
             if (_queue.Enqueue(i, in cmd, Substep + steps)) Diagnostics?.OnCommandDropped(Substep, id);
@@ -331,6 +341,7 @@ namespace RoadToPro.MatchEngine.Kinematics
         {
             var i = Require(id);
             RequireFinite(in cmd);
+            if (_immUntil[i] > Substep) { IgnoredCommands++; return; } // FR-29 이동 불가
             _queue.Clear(i);
             _s[i].Active = cmd;
             _targetIdx[i] = IndexOf(cmd.TargetId);
@@ -349,6 +360,24 @@ namespace RoadToPro.MatchEngine.Kinematics
         }
 
         public long SpeedCapUntil(int index) => _capUntil[index];
+
+        /// <summary>
+        /// FR-29 이동 불가 시간 (070 슬라이딩 다운·회복 지연, 012·027 재사용): untilSubstep(절대) 전까지 새 명령을 무시하고 대기 명령을 비우며
+        /// 목표 속도 0으로 감속 한계 안에서만 멈춘다. 이미 걸려 있으면 더 늦은 끝 시각을 쓴다.
+        /// </summary>
+        public void SetImmobile(int id, long untilSubstep)
+        {
+            var i = Require(id);
+            if (untilSubstep <= Substep) return;
+            if (untilSubstep > _immUntil[i]) _immUntil[i] = untilSubstep;
+            _queue.Clear(i);
+            _s[i].Active = SteeringCommand.Idle();
+            _targetIdx[i] = -1;
+        }
+
+        /// <summary>지금 서브스텝에 이동 불가인가 (인덱스).</summary>
+        public bool IsImmobile(int index) => _immUntil[index] > Substep;
+        public long ImmobileUntil(int index) => _immUntil[index];
 
         /// <summary>접촉 (008이 부른다, FR-04): 속도 × (1 − 손실), 다음 서브스텝 a_cap × 초과 허용 배율.</summary>
         public void ApplyContact(int id)
@@ -478,6 +507,7 @@ namespace RoadToPro.MatchEngine.Kinematics
                     }
                 }
                 var desired = new Vec2(dx, dy);
+                if (_immUntil[i] > substep) desired = Vec2.Zero; // FR-29: 밀어내기 포함 목표 속도 0 (겹침은 ⑥ 위치 투영이 푼다)
                 if (cmd.Kind == SteeringKind.OffsetArrive && _targetIdx[i] >= 0 && _targetIdx[i] != i && _active[_targetIdx[i]])
                     desired = Steering.LimitBackpedal(desired, _snapPos[_targetIdx[i]], cmd.Point, p); // 밀어내기를 더해도 백페달 ≤ 4 m/s (FR-26)
                 _desired[i] = desired;
@@ -599,6 +629,7 @@ namespace RoadToPro.MatchEngine.Kinematics
                 h.Add(_fault[i]);
                 if (_fault[i]) { h.Add(_faultVel[i].X); h.Add(_faultVel[i].Y); }
                 if (_capUntil[i] > Substep) { h.Add((byte)0xC4); h.Add(_capSpeed[i]); h.Add(_capUntil[i]); } // 008 감속 상한 (안 쓰면 해시 그대로)
+                if (_immUntil[i] > Substep) { h.Add((byte)0xD9); h.Add(_immUntil[i]); } // FR-29 이동 불가 (안 쓰면 해시 그대로)
                 _queue.AddTo(i, ref h);
                 _stats[i].AddTo(ref h);
             }

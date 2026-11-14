@@ -191,6 +191,11 @@ namespace RoadToPro.MatchEngine.Scenarios
                 var owner = ball.Phase == BallPhase.Controlled ? ball.OwnerId : -1;
                 if (owner < 0 || Squad.TeamOfSlot(owner) == Squad.TeamOfSlot(slot))
                     return new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
+                if (st.Verb == ScenarioVerb.Engage && ctx.Actions.Duels.Enabled)
+                {
+                    TryDuelTackle(ctx, slot, owner); // 070: 예약 태클 (공 동작 슬롯을 쓰지 않음), 압박은 계속
+                    return new Decision { Kind = DecisionKind.Chase, TargetSlot = owner };
+                }
                 if (st.Verb == ScenarioVerb.Engage && !hasAction && TryTackle(ctx, slot, owner))
                 {
                     hasAction = true;
@@ -202,6 +207,22 @@ namespace RoadToPro.MatchEngine.Scenarios
                 ? ctx.SlotState(track).Position
                 : ctx.FromTeamPerspective(run.Team, run.Target[role]);
             return new Decision { Kind = DecisionKind.MoveTo, Point = pointM, TargetSlot = -1 };
+        }
+
+        /// <summary>070: Engage 태클 — 최대 도달 거리 안이면 시도 1 + 스타일 1 (시나리오 RNG), 고른 스타일 도달 거리 안이면 예약.</summary>
+        bool TryDuelTackle(MatchContext ctx, int slot, int owner)
+        {
+            var duels = ctx.Actions.Duels;
+            if (duels.TackleOf(slot).Active || ctx.Kinematics.IsImmobile(slot)) return false;
+            var p = ctx.Actions.P;
+            var d2 = (ctx.SlotState(owner).Position - ctx.SlotState(slot).Position).LengthSq();
+            var max = Actions.TackleModel.Reach(p, true);
+            if (d2 > max * max || !_rng.Bernoulli(ctx.Params.TackleProb)) return false;
+            ctx.Actions.Refresh(ctx);
+            var w = ctx.Actions.World;
+            var sliding = Actions.TackleModel.ChooseSliding(p, w.Temperament[slot], w.SlideLevel[slot], _rng);
+            var reach = Actions.TackleModel.Reach(p, sliding);
+            return d2 <= reach * reach && duels.ScheduleTackle(ctx, slot, owner, sliding);
         }
 
         bool TryTackle(MatchContext ctx, int slot, int owner)

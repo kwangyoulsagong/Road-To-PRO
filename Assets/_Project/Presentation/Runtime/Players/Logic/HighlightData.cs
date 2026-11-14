@@ -22,10 +22,15 @@ namespace RoadToPro.Presentation.Players.Logic
         public readonly BodyPart Part;
         public readonly ActionOutcome Outcome;
         public readonly Vec3 BallPos, BallVelOut;
+        /// <summary>시뮬 이벤트 데이터 (specs/070): 하위 16비트 = SimEvent.A, 상위 16비트 = SimEvent.B. 태클 슬라이딩·테이크온 성공 비트 등.</summary>
+        public readonly int Flags;
+        /// <summary><see cref="Flags"/> 비트: 실경기 시뮬 이벤트에서 왔다 (A·B 비트가 의미 있음). 합성 장면 이벤트는 0.</summary>
+        public const int FromSim = 0x8000;
 
         public AnimEvent(float time, long seq, SimEventKind kind, int entity, int other, BodyPart part, ActionOutcome outcome,
-            Vec3 ballPos, Vec3 ballVelOut)
+            Vec3 ballPos, Vec3 ballVelOut, int flags = 0)
         {
+            Flags = flags;
             Time = time;
             Seq = seq;
             Kind = kind;

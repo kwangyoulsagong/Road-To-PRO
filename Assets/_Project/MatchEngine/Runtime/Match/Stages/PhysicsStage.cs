@@ -36,7 +36,9 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 rec.CapturePre(abs);
                 if (sub == 0 && action.Kind != BallActionKind.None) ctx.Actions.Schedule(ctx, in action, abs);
                 ctx.Actions.OnSubstep(ctx, abs, sub); // 008 FR-65: 예약 킥 접촉 서브스텝
+                ctx.Actions.Duels.OnTackles(ctx, abs, sub); // 070 FR-10·11: 예약 태클 접촉 서브스텝
                 k.Step();
+                ctx.Actions.Duels.OnDribble(ctx, abs, sub); // 070 FR-02·03: 드리블 터치·이격·탈취
                 ctx.Officials.Step(ctx.KinParams.Dt);
                 ref var ball = ref ctx.Ball;
                 if (ball.Phase == BallPhase.Controlled && ball.OwnerId >= 0 && ball.OwnerId < Squad.Slots)
@@ -51,6 +53,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                         var len = d.Length();
                         if (len > KeeperHoldStep) target = ball.Position + d * (KeeperHoldStep / len);
                     }
+                    else if (ctx.Actions.Duels.ControlledBallPosition(ctx, abs, target, out var dp)) target = dp; // 070: 이격 중 굴림 위치·되돌아가기
                     BallCommands.SetControlledPosition(ref ball, target);
                 }
                 ctx.BallEvents.Clear();
@@ -89,6 +92,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 }
                 if (!crossed) ctx.Keepers.OnSubstep(ctx, abs, sub); // 011 FR-15·17: 다이빙 진행·슛 감시·선방 적용
                 if (!crossed) ctx.Actions.Resolve(ctx, abs, sub); // 008 FR-45·67: 수신·인터셉트·첫 터치
+                if (!crossed) ctx.Actions.Duels.OnShield(ctx, abs, sub); // 070 FR-20: 몸싸움
                 rec.AfterSubstep(abs);
                 SubstepsRun++;
             }

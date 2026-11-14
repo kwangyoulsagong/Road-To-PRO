@@ -45,7 +45,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
             Assert.Greater(decisions, 50);
             Assert.Greater(passes, 10);
             Assert.Greater(MatchTestKit.Count(sim, SimEventKind.Pass), 10);
-            Assert.AreEqual(Sum(tel.OnBallAttempts, (int)OnBallItem.Dribble), MatchTestKit.Count(sim, SimEventKind.Dribble), "돌파 선택마다 대체 1:1 판정 이벤트 1건");
+            // 070: 돌파 선택 중 FR-04 발동 조건(수비수가 공–골문 사이 < 3 m)을 만족한 것만 1v1 판정 이벤트를 낸다 (나머지는 캐리 터치)
+            Assert.LessOrEqual(MatchTestKit.Count(sim, SimEventKind.Dribble), Sum(tel.OnBallAttempts, (int)OnBallItem.Dribble), "돌파 판정 이벤트 ≤ 돌파 선택");
             Assert.AreEqual(Sum(tel.OnBallAttempts, (int)OnBallItem.Dive), MatchTestKit.Count(sim, SimEventKind.DiveAttempt), "넘어지기 선택마다 012 입력 이벤트 1건 (AC-09)");
         }
 
@@ -86,6 +87,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
             var sim = ShapeTestKit.Sim(new MatchSimOptions { DecisionDiagnostics = () => tel = new DecisionTelemetry() });
             var prev = new int[22];
             int bad = 0;
+            var startState = sim.View.State;
             for (long i = 0; i < Ticks && sim.StepTick(); i++)
             {
                 var v = sim.View;
@@ -94,8 +96,10 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
                 {
                     if (tel.OnBallDecisions[s] == prev[s]) continue;
                     prev[s] = tel.OnBallDecisions[s];
-                    if (v.State != FlowState.InPlay || Squad.IsKeeperSlot(s)) bad++;
+                    // 결정은 틱 시작 상태 기준 (070: 같은 틱 물리 단계에서 드리블 이격 공이 라인을 넘어 틱 끝에 데드볼일 수 있다)
+                    if (startState != FlowState.InPlay || Squad.IsKeeperSlot(s)) bad++;
                 }
+                startState = v.State;
             }
             Assert.AreEqual(0, bad, "데드볼 재시작·GK 소유는 012·074 대체 경로");
         }

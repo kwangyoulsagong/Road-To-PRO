@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "id": "070-duel-situations",
+  "spec": "070",
+  "description": "실경기 하이라이트(058 경로)의 결투 장면 4종: 테이크온 성공·테이크온 실패(탈취)·스탠딩 태클·늦은 슬라이딩 태클(없으면 슬라이딩 태클) 순간 캡처 (AC-11). 장면 로그의 태클 거리 대체(058 FR-52) 0건 확인",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261121
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-11"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay070"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.takeon_ok"
+    },
+    {
+      "type": "capture",
+      "name": "takeon_ok",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.takeon_lost"
+    },
+    {
+      "type": "capture",
+      "name": "takeon_lost",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.tackle_stand"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_stand",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.tackle_slide"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_slide",
+      "kind": "3d"
+    }
+  ]
+}

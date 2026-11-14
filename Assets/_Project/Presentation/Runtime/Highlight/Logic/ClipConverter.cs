@@ -75,8 +75,10 @@ namespace RoadToPro.Presentation.Highlight.Logic
                 int frame = FrameIndex(clip, time);
                 int entity = SlotOf(clip.Frames[frame], ev.PlayerId);
                 if (entity < 0) continue;
+                // 070: 태클은 공을 따냈으면 Win, 빗나갔으면 Fail(공에 닿지 않는 동작, 054 FR-36) — A 비트
+                var outcome = ev.Kind == SimEventKind.Tackle ? ((ev.A & EventCodes.TackleWon) != 0 ? ActionOutcome.Win : ActionOutcome.Fail) : ActionOutcome.Success;
                 data.Events.Add(new AnimEvent((float)time, ev.Seq, ev.Kind, entity, SlotOf(clip.Frames[frame], ev.OtherId), ev.Part,
-                    ActionOutcome.Success, EventBall(ev, data.Ball[frame], pitch), BallVelocityAfter(data, frame)));
+                    outcome, EventBall(ev, data.Ball[frame], pitch), BallVelocityAfter(data, frame), (ev.A & 0x7FFF) | AnimEvent.FromSim | (ev.B << 16)));
             }
             return data;
         }

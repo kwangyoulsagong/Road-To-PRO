@@ -25,6 +25,8 @@ namespace RoadToPro.Presentation.Highlight.Selection
         SubOut = 12,
         /// <summary>VAR 판정 번복 (018 FR-01·22): 취소된 골은 골 장면이 아니라 이 장면으로 들어간다.</summary>
         VarOverturn = 13,
+        /// <summary>테이크온 성공 (specs/070 — 수비수를 제치는 장면, 스펙 배경 '하이라이트의 단골').</summary>
+        TakeOn = 14,
     }
 
     /// <summary>선정된 장면 하나의 연출 정보. <see cref="LiveSceneBriefs"/>가 042 <see cref="SceneBrief"/>로 바꾼다.</summary>
@@ -183,6 +185,9 @@ namespace RoadToPro.Presentation.Highlight.Selection
                     case SimEventKind.Block:
                     case SimEventKind.Interception:
                         if (e.Team >= 0 && OwnThirdDistance(e, pitch) < pitch.LengthM / 3f) { c.Kind = LiveSceneKind.Defensive; c.Score = t.Defensive; }
+                        break;
+                    case SimEventKind.Dribble:
+                        if ((e.B & EventCodes.DribbleSuccess) != 0) { c.Kind = LiveSceneKind.TakeOn; c.Score = t.TakeOn; } // 070 테이크온 성공
                         break;
                     case SimEventKind.Foul:
                         if (NearBox(e, pitch, t.FreeKickZone)) { c.Kind = LiveSceneKind.Foul; c.Score = t.Foul; }

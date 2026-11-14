@@ -57,6 +57,7 @@
   "KeeperRecovered": {"none": "011 일어나기 끝 — 다이빙 클립 끝 동작으로 처리"},
   "IntentOpportunistic": {"none": "010 판단 기록 — 동작 없음"},
   "InstructionIgnored": {"none": "072 지시 무시 기록 — 동작 없음"},
+  "Contact": {"none": "070 접촉 기록 (012·027 입력) — 동작은 Tackle·Dribble·Duel 이벤트가 고른다"},
   "DiveAttempt": {"none": "072 넘어지기 선택 — 넘어지는 동작은 012 판정 뒤 [미정]"},
   "Foul": {"who": "other", "clips": ["fall_n", "fall_ne", "fall_e", "fall_se", "fall_s", "fall_sw", "fall_w", "fall_nw", "hit_stumble"]},
   "Card": {"who": "referee", "clips": ["ref_card"]},
