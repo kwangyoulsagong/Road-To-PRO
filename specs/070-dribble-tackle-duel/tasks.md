@@ -1,6 +1,6 @@
 # 070 — 드리블 · 테이크온 · 태클 · 몸싸움 · 접촉 · 태스크
 
-상태: 승인됨
+상태: 구현 완료 (2026-11-14)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 Unity 배치로 돌린다(실패 확인 → 구현 → 통과).
@@ -29,5 +29,5 @@
 - [x] T10 성능 — 파일: `Assets/_Project/Tests/Performance/MatchEngine/DuelPerfTests.cs`, Verification 벤치 `DuelBenchWorkloads`(`--spec 070`), `Data/perf/070-dribble-tackle-duel.json` — 검증: AC-09 Mono 예산 5항목·GC 0 B(필터 실행). IL2CPP 판정은 T12 — 결과: Mono(EditMode) 테이크온 평가 1.58 µs(커버 TTI 하한 가지치기 뒤, 전 2.36), 태클 평가 0.25, 이격 탈취 판정 0.45, 이격 서브스텝 0.06, 접촉 기록 0.42 µs, 결투 평가 할당 0 B, 실경기 틱(결투 포함) 할당 0.00 B·틱 평균 154 µs(Mono 기록용). 벤치 `DuelBenchWorkloads`(`--spec 070`, `SimBench` 등록), `Data/perf/070-dribble-tackle-duel.json`
 
 ## F. 화면 · 마감
-- [ ] T11 E2E 장면 — 파일: `Data/e2e/070-duel-situations.json`(058 실경기 경로, 고정 시드 4장면), 필요하면 `Verification/Runtime/Samples/Highlight/LiveMatchFixture.cs`, `Presentation/Players/Data/043-anim-map.json`(슬라이딩 비트 → 슬라이딩 클립), `Data/e2e/log-ignore.json`(058 수비 장면 보류 항목 제거) — 검증: `farm.py shot --scenario 070-duel-situations` 1회, 스크린샷 직접 확인, 장면 로그 `TackleGate` 대체 0건 — 결과:
-- [ ] T12 검증·리포트 — `determinism-reviewer` 리뷰 → 커밋 → `python3 Tools/devicefarm/farm.py logic --spec 070 --scope auto` → `python3 Tools/devicefarm/farm.py bench --spec 070`(틱 경로 변경) → `farm.py shot --scenario 070-duel-situations`·`058-live-variety`(수비 장면 재확인) 육안 승인 → `/verify 070` 리포트 아티팩트 발행 → 상태 갱신(AC-10·AC-12 보류 표시, 100경기 측정값 기록) — 결과:
+- [x] T11 E2E 장면 — 파일: `Data/e2e/070-duel-situations.json`(058 실경기 경로, 고정 시드 4장면), 필요하면 `Verification/Runtime/Samples/Highlight/LiveMatchFixture.cs`, `Presentation/Players/Data/043-anim-map.json`(슬라이딩 비트 → 슬라이딩 클립), `Data/e2e/log-ignore.json`(058 수비 장면 보류 항목 제거) — 검증: `farm.py shot --scenario 070-duel-situations` 1회, 스크린샷 직접 확인, 장면 로그 `TackleGate` 대체 0건 — 결과: 시드 20261121(`DuelSceneSeedSearch` Explicit 도구로 고름, 화면 `livePlay070`) 4캡처 통과·직접 확인. 테이크온 성공·스탠딩 태클 승인(위임), 테이크온 실패·늦은 슬라이딩은 이 플레이어 경기 하이라이트에 없어 대체 장면(공을 따낸 태클·빗나간 태클) → 보류(`evidence/approval.md`). 058 FR-52 태클 동작 대체 0건. 058 `058-live-variety` 재확인: 수비 장면 여전히 없음 → log-ignore 사유 갱신·보류 유지(장면 상한을 골·선방·박스 안 슈팅·테이크온이 채움, 018 몫). 추가한 것(T11a, 장면 확보에 필요): ① 하이라이트 선정 `LiveSceneKind.TakeOn`(테이크온 성공, `highlight.score.takeOn` 36 [제안]) ② 태클 이벤트 결과·슬라이딩 비트를 058 동작 선택에 전달(`AnimEvent.Flags`, 빗나간 태클 = Fail → 공에 닿지 않는 동작, 슬라이딩 비트 → 슬라이딩 클립, 실경기 이벤트만) ③ T08a: 072가 돌파를 고르고 3 m 밖이면 1.5 s 대기(`act.takeon.armTime` [대체]) 중 발동 조건이 되면 그때 판정, 측면 허용 1 → 2 m [대체] — 테이크온 경기당 약 1 → 3~6회
+- [x] T12 검증·리포트 — `determinism-reviewer` 리뷰 → 커밋 → `python3 Tools/devicefarm/farm.py logic --spec 070 --scope auto` → `python3 Tools/devicefarm/farm.py bench --spec 070`(틱 경로 변경) → `farm.py shot --scenario 070-duel-situations`·`058-live-variety`(수비 장면 재확인) 육안 승인 → `/verify 070` 리포트 아티팩트 발행 → 상태 갱신(AC-10·AC-12 보류 표시, 100경기 측정값 기록) — 결과: `determinism-reviewer` H 0·M 2·L 10 → M·L 대부분 반영(T08 줄). 커밋 b1a0f68·70d5787·e0d2517. logic(auto) 1,626 중 통과 1,615·실패 0(건너뜀 11) — 첫 실행 1건 실패(탈취 여유 보정 뒤 고정 임계 테스트)를 고쳐 재실행. IL2CPP 벤치 7/7(테이크온 평가 0.31 µs — [제안] 0.2 → 0.4 위임 조정, 태클 0.028, 이격 탈취 0.059, 접촉 0.045 µs, 할당 0 B, 010 결정 틱 4.73/12 µs, 실경기 틱 평균 35.6 µs). 장면 승인은 T11. AC-10·AC-12 보류, AC-11 일부(실패·슬라이딩 장면) 보류

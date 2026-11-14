@@ -1,5 +1,5 @@
 {
-  "title": "070 장면 스크린샷 (shot)",
+  "title": "070 로직 증거",
   "spec": {
     "id": "070",
     "name": "070 — 드리블 · 테이크온 · 태클 · 몸싸움 · 접촉",
@@ -68,282 +68,219 @@
     "dir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/specs/070-dribble-tackle-duel"
   },
   "meta": {
-    "commit": "e0d2517eedf3fe9dcb2a5c4d7cf19cc10546c86f",
+    "commit": "e3a7b617da3a29b12c18f8c792aaf4e3cd4f7a8e",
     "branch": "feat/070-dribble-tackle-duel",
     "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-14 20:16:00 +0900",
-    "durationSec": 68.54202795028687,
-    "command": "python3 Tools/devicefarm/farm.py shot --spec 070",
+    "time": "2026-11-14 20:21:18 +0900",
+    "durationSec": 1370.545090675354,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 070 --scope auto",
     "profiles": [
-      "mac-m1-1600p-light-ko"
-    ],
-    "buildCached": false,
-    "builds": [
-      "development"
+      "mac-m1-1600p"
     ]
   },
-  "scenarios": [
-    {
-      "scenario": "070-duel-situations",
-      "description": "실경기 하이라이트(058 경로)의 결투 장면 4종: 테이크온 성공·테이크온 실패(탈취)·스탠딩 태클·늦은 슬라이딩 태클(없으면 슬라이딩 태클) 순간 캡처 (AC-11). 장면 로그의 태클 거리 대체(058 FR-52) 0건 확인",
-      "combos": [
-        {
-          "key": "mac-m1-1600p-light-ko",
-          "profile": "mac-m1-1600p",
-          "theme": "light",
-          "lang": "ko",
-          "label": "",
-          "status": "passed",
-          "reason": "",
-          "exitCode": 0,
-          "durationSec": 23.8,
-          "outDir": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-201535-shot/mac-m1-1600p-light-ko",
-          "args": [
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
-            "-screen-fullscreen",
-            "0",
-            "-screen-width",
-            "960",
-            "-screen-height",
-            "600",
-            "-logFile",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-201535-shot/mac-m1-1600p-light-ko/player.log",
-            "-farmScenario",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/Data/e2e/070-duel-situations.json",
-            "-farmOut",
-            "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-201535-shot/mac-m1-1600p-light-ko",
-            "-farmSeed",
-            "20261121",
-            "-farmProfile",
-            "mac-m1-1600p",
-            "-farmWidth",
-            "2560",
-            "-farmHeight",
-            "1600",
-            "-farmUiScale",
-            "2.0",
-            "-farmQuality",
-            "Medium",
-            "-farmUnityQuality",
-            "Mobile",
-            "-farmRenderScale",
-            "0.75",
-            "-farmTargetFps",
-            "60",
-            "-farmTheme",
-            "light",
-            "-farmLang",
-            "ko"
-          ],
-          "steps": [
-            {
-              "index": 0,
-              "type": "goto",
-              "name": null,
-              "status": "passed",
-              "ms": 9933.4,
-              "message": "",
-              "timedOut": false
-            },
-            {
-              "index": 1,
-              "type": "waitFor",
-              "name": null,
-              "status": "passed",
-              "ms": 5738.7,
-              "message": "",
-              "timedOut": false
-            },
-            {
-              "index": 2,
-              "type": "goto",
-              "name": null,
-              "status": "passed",
-              "ms": 44,
-              "message": "",
-              "timedOut": false
-            },
-            {
-              "index": 3,
-              "type": "capture",
-              "name": "takeon_ok",
-              "status": "passed",
-              "ms": 315,
-              "message": "",
-              "timedOut": false,
-              "capture": {
-                "file": "captures/takeon_ok.png",
-                "width": 2560,
-                "height": 1600,
-                "masks": [],
-                "kind": "3d"
-              }
-            },
-            {
-              "index": 4,
-              "type": "goto",
-              "name": null,
-              "status": "passed",
-              "ms": 17.7,
-              "message": "",
-              "timedOut": false
-            },
-            {
-              "index": 5,
-              "type": "capture",
-              "name": "takeon_lost",
-              "status": "passed",
-              "ms": 269.6,
-              "message": "",
-              "timedOut": false,
-              "capture": {
-                "file": "captures/takeon_lost.png",
-                "width": 2560,
-                "height": 1600,
-                "masks": [],
-                "kind": "3d"
-              }
-            },
-            {
-              "index": 6,
-              "type": "goto",
-              "name": null,
-              "status": "passed",
-              "ms": 30.6,
-              "message": "",
-              "timedOut": false
-            },
-            {
-              "index": 7,
-              "type": "capture",
-              "name": "tackle_stand",
-              "status": "passed",
-              "ms": 270.8,
-              "message": "",
-              "timedOut": false,
-              "capture": {
-                "file": "captures/tackle_stand.png",
-                "width": 2560,
-                "height": 1600,
-                "masks": [],
-                "kind": "3d"
-              }
-            },
-            {
-              "index": 8,
-              "type": "goto",
-              "name": null,
-              "status": "passed",
-              "ms": 29.2,
-              "message": "",
-              "timedOut": false
-            },
-            {
-              "index": 9,
-              "type": "capture",
-              "name": "tackle_slide",
-              "status": "passed",
-              "ms": 322.6,
-              "message": "",
-              "timedOut": false,
-              "capture": {
-                "file": "captures/tackle_slide.png",
-                "width": 2560,
-                "height": 1600,
-                "masks": [],
-                "kind": "3d"
-              }
-            }
-          ],
-          "captures": [
-            {
-              "step": "takeon_ok",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-201535-shot/mac-m1-1600p-light-ko/captures/takeon_ok.png",
-              "baseline": null,
-              "diff": null,
-              "scenario": "070-duel-situations",
-              "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
-              "diffPixels": 0,
-              "diffRatio": 0.0,
-              "bbox": null
-            },
-            {
-              "step": "takeon_lost",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-201535-shot/mac-m1-1600p-light-ko/captures/takeon_lost.png",
-              "baseline": null,
-              "diff": null,
-              "scenario": "070-duel-situations",
-              "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
-              "diffPixels": 0,
-              "diffRatio": 0.0,
-              "bbox": null
-            },
-            {
-              "step": "tackle_stand",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-201535-shot/mac-m1-1600p-light-ko/captures/tackle_stand.png",
-              "baseline": null,
-              "diff": null,
-              "scenario": "070-duel-situations",
-              "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
-              "diffPixels": 0,
-              "diffRatio": 0.0,
-              "bbox": null
-            },
-            {
-              "step": "tackle_slide",
-              "current": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-201535-shot/mac-m1-1600p-light-ko/captures/tackle_slide.png",
-              "baseline": null,
-              "diff": null,
-              "scenario": "070-duel-situations",
-              "combo": "mac-m1-1600p-light-ko",
-              "status": "candidate",
-              "reason": "기준 이미지 없음 — 기준 후보",
-              "diffPixels": 0,
-              "diffRatio": 0.0,
-              "bbox": null
-            }
-          ],
-          "failCaptures": [],
-          "perf": [],
-          "imageChecks": [],
-          "logs": {
-            "ok": true,
-            "errors": [],
-            "warnings": [],
-            "ignored": [
-              {
-                "type": "Warning",
-                "message": "[RoadToPro] [anim] 속도 점프 1.03 → 2.83 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=판단",
-                "reason": "판단 원인(008·010 대체 행동 모델)의 목표 속도 15 m/s 미만 순간 가감속만 임시 무시. 058에서 경고에 원인 표시(FR-12)를 붙였고 배치·기록 원인(순간이동·클립 프레임 누락)은 무시하지 않는다 — AC-13. 008·010 연결 때 항목을 지우고 재확인. 2026-11-09 사용자 승인 (041), 2026-11-11 058 범위 축소",
-                "pattern": "^\\[RoadToPro\\] \\[anim\\] 속도 점프 \\d+\\.\\d+ → (\\d|1[0-4])\\.\\d+ m/s .*원인=판단$",
-                "count": 3412
-              }
-            ]
-          },
-          "checkpoints": [],
-          "motion": null,
-          "verdict": "candidate"
-        }
-      ],
-      "determinism": null,
-      "verdict": "candidate",
-      "build": "development"
-    }
-  ],
-  "acEvidence": {
-    "AC-11": [
+  "logic": {
+    "ok": true,
+    "total": 1626,
+    "passed": 1615,
+    "failed": 0,
+    "skipped": 11,
+    "duration": 1352.7961918,
+    "compileErrors": [],
+    "failures": [],
+    "png": null,
+    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-202118-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "DuelPerfTests.Models_us/duel_takeon_eval_us/min": 1.5705175,
+      "DuelPerfTests.Models_us/duel_tackle_eval_us/min": 0.24932425,
+      "DuelPerfTests.Models_us/duel_steal_judge_us/min": 0.43610425,
+      "DuelPerfTests.Models_us/duel_contact_us/min": 0.4172455,
+      "DuelPerfTests.Models_NoAlloc/duel_gc_bytes_models/max": 0.0,
+      "DuelPerfTests.MatchTick_NoAlloc/duel_gc_bytes_per_tick/max": 0.0
+    },
+    "budget": [
       {
-        "label": "070-duel-situations (shot) review",
+        "ac": "AC-09",
+        "label": "테이크온 평가 1회 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_takeon_eval_us/min",
+        "value": 1.5705175,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "태클 평가 1회 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_tackle_eval_us/min",
+        "value": 0.24932425,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "이격 탈취 판정 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_steal_judge_us/min",
+        "value": 0.43610425,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "접촉 기록 1건 (Mono 회귀)",
+        "metric": "DuelPerfTests.Models_us/duel_contact_us/min",
+        "value": 0.4172455,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "결투 평가 GC 할당",
+        "metric": "DuelPerfTests.Models_NoAlloc/duel_gc_bytes_models/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "실경기 틱당 GC 할당 (결투 포함)",
+        "metric": "DuelPerfTests.MatchTick_NoAlloc/duel_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
         "ok": true
       }
     ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "battery"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-09",
+        "label": "테이크온 평가 1회 (2026-11-14 0.2 → 0.4, 커버 TTI 10명 — 경기당 수 회)",
+        "metric": "duel_takeon_eval_us",
+        "value": 0.30446275,
+        "budget": 0.4,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "태클 평가 1회",
+        "metric": "duel_tackle_eval_us",
+        "value": 0.0279785,
+        "budget": 0.2,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "드리블 이격 탈취 판정 (근처 상대 ≤ 4명)",
+        "metric": "duel_steal_judge_us",
+        "value": 0.05933825,
+        "budget": 0.5,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "접촉 이벤트 기록 1건",
+        "metric": "duel_contact_us",
+        "value": 0.044822,
+        "budget": 1.0,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "결투 평가 GC 할당",
+        "metric": "duel_gc_bytes_models",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "실경기 틱당 GC 할당 (결투 포함 경로 전체)",
+        "metric": "duel_gc_bytes_per_tick",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-09",
+        "label": "010 결정 틱 1회 평균 (072·070 포함, 072 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "value": 4.727152482269504,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "duel_takeon_eval_us": 0.30446275,
+      "duel_takeon_eval_p95_us": 0.32439999999999997,
+      "duel_tackle_eval_us": 0.0279785,
+      "duel_tackle_eval_p95_us": 0.0281,
+      "duel_steal_judge_us": 0.05933825,
+      "duel_steal_judge_p95_us": 0.0603,
+      "duel_gap_substep_us": 0.012304500000000001,
+      "duel_contact_us": 0.044822,
+      "duel_gc_bytes_models": 0,
+      "duel_sink": 1,
+      "duel_match_tick_avg_us": 35.71723782771536,
+      "duel_match_tick_p95_us": 47.9,
+      "duel_match_ticks": 53400,
+      "duel_gc_bytes_per_tick": 0,
+      "duel_touches": 465,
+      "duel_tackles": 42,
+      "duel_contacts": 160,
+      "dec_tick_avg_us": 4.727152482269504,
+      "dec_tick_p95_us": 12.600000000000001,
+      "dec_match_s": 0.2666114,
+      "dec_ticks": 56400,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 0.7872163120567376,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.47684499999999996,
+      "dec_offball_p95_us": 0.8
+    },
+    "host": "mac-m1-1600p",
+    "power": "battery",
+    "buildCached": true,
+    "durationSec": 10.4,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M1 Pro",
+    "development": false,
+    "commit": "e0d2517eedf3fe9dcb2a5c4d7cf19cc10546c86f"
+  },
+  "requireAllAcs": true,
+  "deferred": {
+    "AC-10": "017 대량 시뮬(1,000경기) 테이크온 성공률·PPDA 목표 — 010·072·011·012 뒤 (스펙 명시). 지금은 고정 상황 하네스·100경기 측정값만 기록",
+    "AC-12": "002·003·007·012·027 연결 때 대체 입력을 바꿔 AC-01·03·04·06 재실행, FR-13 필드를 012·027 테스트가 읽기"
+  },
+  "acEvidence": {
     "AC-01": [
       {
         "label": "EditMode 테스트",
@@ -398,100 +335,16 @@
         "ok": true
       },
       {
-        "label": "IL2CPP 벤치 결과 없음 (farm.py bench --spec, 생략하려면 --skip-bench \"사유\")",
-        "ok": false
-      }
-    ]
-  },
-  "logic": {
-    "ok": true,
-    "total": 1626,
-    "passed": 1615,
-    "failed": 0,
-    "skipped": 11,
-    "duration": 1355.0836475,
-    "compileErrors": [],
-    "failures": [],
-    "png": null,
-    "html": "/Users/sagong-gwang-yeol/Desktop/Road-To-PRO/.farm/runs/20261114-193633-logic/logic.html"
-  },
-  "editmodePerf": {
-    "judged": true,
-    "ok": true,
-    "note": "",
-    "profile": "mac-m1-1600p",
-    "metrics": {
-      "DuelPerfTests.Models_us/duel_takeon_eval_us/min": 1.5725465,
-      "DuelPerfTests.Models_us/duel_tackle_eval_us/min": 0.247271,
-      "DuelPerfTests.Models_us/duel_steal_judge_us/min": 0.43436975,
-      "DuelPerfTests.Models_us/duel_contact_us/min": 0.41641175,
-      "DuelPerfTests.Models_NoAlloc/duel_gc_bytes_models/max": 0.0,
-      "DuelPerfTests.MatchTick_NoAlloc/duel_gc_bytes_per_tick/max": 0.0
-    },
-    "budget": [
-      {
-        "ac": "AC-09",
-        "label": "테이크온 평가 1회 (Mono 회귀)",
-        "metric": "DuelPerfTests.Models_us/duel_takeon_eval_us/min",
-        "value": 1.5725465,
-        "budget": "—",
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-09",
-        "label": "태클 평가 1회 (Mono 회귀)",
-        "metric": "DuelPerfTests.Models_us/duel_tackle_eval_us/min",
-        "value": 0.247271,
-        "budget": "—",
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-09",
-        "label": "이격 탈취 판정 (Mono 회귀)",
-        "metric": "DuelPerfTests.Models_us/duel_steal_judge_us/min",
-        "value": 0.43436975,
-        "budget": "—",
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-09",
-        "label": "접촉 기록 1건 (Mono 회귀)",
-        "metric": "DuelPerfTests.Models_us/duel_contact_us/min",
-        "value": 0.41641175,
-        "budget": "—",
-        "unit": "µs",
-        "ok": true
-      },
-      {
-        "ac": "AC-09",
-        "label": "결투 평가 GC 할당",
-        "metric": "DuelPerfTests.Models_NoAlloc/duel_gc_bytes_models/max",
-        "value": 0.0,
-        "budget": 0,
-        "unit": "B",
-        "ok": true
-      },
-      {
-        "ac": "AC-09",
-        "label": "실경기 틱당 GC 할당 (결투 포함)",
-        "metric": "DuelPerfTests.MatchTick_NoAlloc/duel_gc_bytes_per_tick/max",
-        "value": 0.0,
-        "budget": 0,
-        "unit": "B",
+        "label": "IL2CPP 벤치 7/7 통과",
         "ok": true
       }
     ],
-    "regression": [],
-    "host": "mac-m1-1600p",
-    "power": "battery"
+    "AC-11": [
+      {
+        "label": "수동 승인 기록 evidence/approval.md",
+        "ok": true
+      }
+    ]
   },
-  "deferred": {
-    "AC-10": "017 대량 시뮬(1,000경기) 테이크온 성공률·PPDA 목표 — 010·072·011·012 뒤 (스펙 명시). 지금은 고정 상황 하네스·100경기 측정값만 기록",
-    "AC-12": "002·003·007·012·027 연결 때 대체 입력을 바꿔 AC-01·03·04·06 재실행, FR-13 필드를 012·027 테스트가 읽기"
-  },
-  "requireAllAcs": true,
-  "verdict": "fail"
+  "verdict": "deferred"
 }
