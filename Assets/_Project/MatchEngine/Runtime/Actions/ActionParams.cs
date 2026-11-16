@@ -66,7 +66,7 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly float CtrlFreeSpeed = 2.0f;
         public readonly float XpSampleDt = 0.05f;
         public readonly float XpHorizon = 3.0f;
-        public readonly float TouchSigmaBase = 1.8f;
+        public readonly float TouchSigmaBase = 1.4f;
         public readonly float TouchSigmaSlope = 1.4f;
         public readonly float TouchPressK = 0.5f;
         public readonly float TouchAngle = 60.0f;
@@ -113,8 +113,8 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly float DribDistSigma = 0.1f;
         public readonly float DribMinSpeed = 2.0f;
         public readonly float DribSpeedNormMax = 9.0f;
-        public readonly float DribStealK = 6.0f;
-        public readonly float DribStealMargin = 0.5f;
+        public readonly float DribStealK = 9.0f;
+        public readonly float DribStealMargin = 1.0f;
         public readonly float TakeOnRange = 3.0f;
         public readonly float TakeOnLaneHalf = 2.0f;
         public readonly float TakeOnC0 = -0.55f;
@@ -163,12 +163,13 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly float HandSilBase = 0.3f;
         public readonly float HandSilSpeedK = 0.1f;
         public readonly float HabitSlideFoul = 1.4f;
-        public readonly float TakeOnArmTime = 1.5f;
+        public readonly float TakeOnArmTime = 2.5f;
         public readonly float TackleWindupStand = 0.12f;
         public readonly float TackleWindupSlide = 0.25f;
         public readonly float DribMaxGapTime = 6.0f;
         public readonly float DribCloseMin = 0.1f;
         public readonly float DribReglueStep = 0.15f;
+        public readonly float DribKeeperClaimRadius = 2.5f;
         // 071
         public readonly float XgC0 = -1.1f;
         public readonly float XgKDist = 0.1f;
@@ -425,6 +426,7 @@ namespace RoadToPro.MatchEngine.Actions
             DribMaxGapTime = t.Get(Ids.DribMaxGapTime);
             DribCloseMin = t.Get(Ids.DribCloseMin);
             DribReglueStep = t.Get(Ids.DribReglueStep);
+            DribKeeperClaimRadius = t.Get(Ids.DribKeeperClaimRadius);
             XgC0 = t.Get(Ids.XgC0);
             XgKDist = t.Get(Ids.XgKDist);
             XgKAngle = t.Get(Ids.XgKAngle);

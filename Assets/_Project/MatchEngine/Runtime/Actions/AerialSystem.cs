@@ -42,6 +42,7 @@ namespace RoadToPro.MatchEngine.Actions
         readonly ActionSystem _a;
         readonly ActionParams _p;
         readonly BallEventBuffer _scratch = new BallEventBuffer(8);
+        readonly BallEventBuffer _predEv = new BallEventBuffer(16); // 081: 시뮬 기본 용량과 같게 (예측 경로가 골대 근처를 지나도 넘치지 않게)
 
         // 예약
         bool _armed;
@@ -57,10 +58,12 @@ namespace RoadToPro.MatchEngine.Actions
 
         readonly int[] _slot = new int[MaxParticipants];
         readonly float[] _score = new float[MaxParticipants], _prob = new float[MaxParticipants], _arrive = new float[MaxParticipants],
-            _reachOf = new float[MaxParticipants], _jumpOf = new float[MaxParticipants], _timingOf = new float[MaxParticipants];
+            _reachOf = new float[MaxParticipants], _jumpOf = new float[MaxParticipants], _timingOf = new float[MaxParticipants], _distOf = new float[MaxParticipants];
 
         /// <summary>테스트·진단 누계 (상태 아님).</summary>
         public long Armed, Contests, Headers, EmptyContests, KeeperWins, Uncontested, Missed;
+        /// <summary>양 팀 선수가 모두 참여한 경합 수 (specs/081 FR-01 측정, 진단 누계 — 해시·스냅샷 밖).</summary>
+        public long BothTeamContests;
         /// <summary>결정 뒤 실행 전 취소 사유 (진단): 0 데드볼 · 1 컨트롤됨 · 2 다른 터치 · 3 라인·골대 · 4 승자 이탈.</summary>
         public readonly long[] CancelReason = new long[5];
         /// <summary>마지막 경합 참여자 수·착지점 최근접 선수 거리·남은 착지 시간 (진단).</summary>
@@ -171,16 +174,13 @@ namespace RoadToPro.MatchEngine.Actions
             Contests++;
             _a.Refresh(ctx);
             var w = _a.World;
-            ref readonly var ball = ref ctx.Ball;
-            var g = ctx.BallParams.Gravity > 0.1f ? ctx.BallParams.Gravity : 9.81f;
-            var z = ball.Position.Z;
-            var vz = ball.Velocity.Z;
-            var tLand = (vz + DMath.Sqrt(vz * vz + 2f * g * (z > 0f ? z : 0f))) / g;
-            var landing = ball.Position.XY + ball.Velocity.XY * tLand;
+            // 081 T08a: 착지점·시각은 항력 포함 예측 (전에는 진공 포물선 — 실제 착지보다 수 m 멀어 참여자 TTI 조건이 빗나갔다)
+            Predict(ctx, _p.AerialContactZ, out _, out _, out var landing, out var tLand);
             var dt = ctx.BallParams.Dt;
             _landAbs = abs + (long)(tLand / dt + 0.5f);
             var n = Gather(ctx, w, landing, tLand, abs);
             LastParticipants = n;
+            if (BothTeams(n)) BothTeamContests++;
             AerialModel.Softmax(_score, n, _prob);
             var u = _a.Rng.NextFloat();
             var pick = AerialModel.Pick(_prob, n, u);
@@ -212,7 +212,7 @@ namespace RoadToPro.MatchEngine.Actions
                 var d = (w.Pos[_slot[i]] - w.Pos[_winner]).LengthSq();
                 if (d < bestD) { bestD = d; _nearestOpp = _slot[i]; }
             }
-            if (Squad.IsKeeperSlot(_winner) && Match.Stages.PhysicsStage.InOwnBox(ctx, winTeam, ball.Position))
+            if (Squad.IsKeeperSlot(_winner) && Match.Stages.PhysicsStage.InOwnBox(ctx, winTeam, ctx.Ball.Position))
             {
                 KeeperWins++;
                 _outcome = HeaderOutcome.Keeper;
@@ -226,13 +226,8 @@ namespace RoadToPro.MatchEngine.Actions
         /// <summary>내려오는 공이 높이 h를 지나는 수평 위치 (중력만 근사).</summary>
         Vec2 ContactPoint(MatchContext ctx, float h)
         {
-            ref readonly var ball = ref ctx.Ball;
-            var g = ctx.BallParams.Gravity > 0.1f ? ctx.BallParams.Gravity : 9.81f;
-            var dz = ball.Position.Z - h;
-            var vz = ball.Velocity.Z;
-            var disc = vz * vz + 2f * g * (dz > 0f ? dz : 0f);
-            var t = (vz + DMath.Sqrt(disc)) / g;
-            return ball.Position.XY + ball.Velocity.XY * (t > 0f ? t : 0f);
+            Predict(ctx, h, out var atH, out _, out _, out _); // 081 T08a: 항력 포함
+            return atH;
         }
 
         /// <summary>T08a: 경합 승자는 헤더 접촉 지점으로 간다 (010 결정 단계가 읽음 — 070 드리블 추격과 같은 방식).</summary>
@@ -240,6 +235,63 @@ namespace RoadToPro.MatchEngine.Actions
         {
             point = _contact;
             return _decided && slot == _winner;
+        }
+
+        /// <summary>
+        /// specs/081 FR-24·25: 경합이 예약되고 아직 판정 전이면 예측 착지점(지면, 항력 포함 — 판정과 같은 <see cref="Predict"/>)·남은 시간·킥한 팀.
+        /// 010 결정 단계가 착지점 추격 대상을 매 틱 다시 고를 때 읽는다. 판정·취소되면 false.
+        /// </summary>
+        public bool TryLanding(MatchContext ctx, out Vec2 landing, out float tLand, out int kickerTeam)
+        {
+            landing = default;
+            tLand = 0f;
+            kickerTeam = -1;
+            if (!_armed || _decided || _kicker < 0) return false;
+            Predict(ctx, _p.AerialContactZ, out _, out _, out landing, out tLand);
+            kickerTeam = Squad.TeamOfSlot(_kicker);
+            return true;
+        }
+
+        /// <summary>
+        /// 081 T08a: 공 상태 복사본을 004 <see cref="BallStepper"/>로 서브스텝마다 진행해 (항력·마그누스 포함, 실제 시뮬과 같은 계산)
+        /// 처음 높이 h 아래로 내려오는 지점·시각과 첫 바운드(착지) 지점·시각을 구한다. 입력 상태는 바꾸지 않는다. RNG 없음, 할당 0.
+        /// 10 s 안에 착지하지 않거나 공이 멈추면 마지막 위치.
+        /// </summary>
+        void Predict(MatchContext ctx, float h, out Vec2 atH, out float tAtH, out Vec2 landing, out float tLand)
+        {
+            var bp = ctx.BallParams;
+            var b = ctx.Ball;
+            var dt = bp.Dt;
+            var max = (int)(BallPredictor.MaxHorizonSeconds / dt); // 004 예측 상한 (10 s)
+            atH = default;
+            tAtH = -1f;
+            landing = b.Position.XY;
+            tLand = 0f;
+            for (int i = 1; i <= max; i++)
+            {
+                if (b.Phase == BallPhase.Rest || b.Phase == BallPhase.Controlled || b.Phase == BallPhase.Rolling) break; // 구르기 시작 = 착지 뒤 (바운드 없이 굴러가는 공은 더 볼 것 없음)
+                var prev = b.Position;
+                _predEv.Clear();
+                BallStepper.Step(ref b, bp, _predEv, out _);
+                if (tAtH < 0f && prev.Z > h && b.Position.Z <= h)
+                {
+                    var f = (prev.Z - h) / (prev.Z - b.Position.Z);
+                    atH = prev.XY + (b.Position.XY - prev.XY) * f;
+                    tAtH = (i - 1 + f) * dt;
+                }
+                for (int k = 0; k < _predEv.Count; k++)
+                {
+                    ref readonly var e = ref _predEv[k];
+                    if (e.Kind != BallEventKind.Bounce) continue;
+                    landing = e.Position.XY;
+                    tLand = (i - 1 + e.Fraction) * dt;
+                    if (tAtH < 0f) { atH = landing; tAtH = tLand; }
+                    return;
+                }
+                landing = b.Position.XY;
+                tLand = i * dt;
+            }
+            if (tAtH < 0f) { atH = landing; tAtH = tLand; }
         }
 
         float TimeToLand(MatchContext ctx)
@@ -250,6 +302,9 @@ namespace RoadToPro.MatchEngine.Actions
             var vz = ball.Velocity.Z;
             return (vz + DMath.Sqrt(vz * vz + 2f * g * z)) / g;
         }
+
+        /// <summary>도착 시간 → 거리 순 (엄격 — 같으면 먼저 온 낮은 슬롯이 앞).</summary>
+        static bool Before(float tti, float dist, float otherTti, float otherDist) => tti < otherTti || (tti == otherTti && dist < otherDist);
 
         bool BothTeams(int n)
         {
@@ -272,25 +327,32 @@ namespace RoadToPro.MatchEngine.Actions
                 var pos = w.Pos[s];
                 var rel = pos - landing;
                 var dist = rel.Length();
-                var pull = dist < _p.AerialRadius ? dist : _p.AerialRadius;
-                var pt = dist > 1e-4f ? landing + rel * (pull / dist) : landing;
-                var tti = TimeToIntercept.Estimate(in w.Tti[s], pt.X, pt.Y);
+                // 081 T08a: 이미 경합 반경 안이면 도착 시간 0 (전에는 자기 위치까지의 TTI — 달려오던 선수는 멈췄다 돌아오는 시간 ≈ 2 s가 되어 빠졌다)
+                float tti;
+                if (dist <= _p.AerialRadius) tti = 0f;
+                else
+                {
+                    var pt = landing + rel * (_p.AerialRadius / dist);
+                    tti = TimeToIntercept.Estimate(in w.Tti[s], pt.X, pt.Y);
+                }
                 if (dist < LastNearestDist) LastNearestDist = dist;
                 if (tti < LastNearestTti) LastNearestTti = tti;
                 if (!(tti <= tLand + _p.AerialTtiSlack)) continue;
                 var j = n < MaxParticipants ? n++ : MaxParticipants;
+                // 081 결정론 리뷰 M: 반경 안(도착 0) 동점은 거리 → 슬롯 순 (팀 0이 슬롯 순서로 자리를 먼저 차지하지 않게)
                 if (j == MaxParticipants)
                 {
-                    if (tti >= _arrive[MaxParticipants - 1]) continue;
+                    if (!Before(tti, dist, _arrive[MaxParticipants - 1], _distOf[MaxParticipants - 1])) continue;
                     j = MaxParticipants - 1;
                 }
-                while (j > 0 && _arrive[j - 1] > tti)
+                while (j > 0 && Before(tti, dist, _arrive[j - 1], _distOf[j - 1]))
                 {
-                    _arrive[j] = _arrive[j - 1]; _slot[j] = _slot[j - 1];
+                    _arrive[j] = _arrive[j - 1]; _slot[j] = _slot[j - 1]; _distOf[j] = _distOf[j - 1];
                     j--;
                 }
                 _arrive[j] = tti;
                 _slot[j] = s;
+                _distOf[j] = dist;
             }
             for (int i = 0; i < n; i++)
             {

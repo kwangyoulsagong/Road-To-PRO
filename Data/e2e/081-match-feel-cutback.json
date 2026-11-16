@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "081-match-feel-cutback",
+  "spec": "081",
+  "description": "081 AC-07 컷백 슛 골 (플레이어 빌드 시드 20261267 — 256시드 중 유일, 대체 없음)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261267
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-07"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay081cutback"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.cutback_goal"
+    },
+    {
+      "type": "capture",
+      "name": "cutback_goal",
+      "kind": "3d"
+    }
+  ]
+}

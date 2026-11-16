@@ -39,7 +39,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
             Assert.AreEqual(d.TakeOns, takeOnEvents, "테이크온마다 Dribble 이벤트 1건");
             Assert.Greater(contacts, 0);
             Assert.AreEqual(0, unlinked, "모든 Contact 이벤트가 상세 기록에 연결 (FR-13·008 FR-72)");
-            Assert.AreEqual(d.Contacts, contacts);
+            // 2026-11-16 specs/081 T08a: 공중볼 경합 접촉(071, ContactKind.Aerial)은 결투 시스템 누계 밖 — 착지 예측 수정 뒤 10분 경기에도 헤더가 난다
+            Assert.AreEqual(d.Contacts, contacts - kinds[(int)ContactKind.Aerial]);
         }
     }
 }

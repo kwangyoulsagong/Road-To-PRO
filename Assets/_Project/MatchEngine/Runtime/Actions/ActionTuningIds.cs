@@ -162,6 +162,7 @@ namespace RoadToPro.MatchEngine.Actions
         public const string DribMaxGapTime = "act.drib.maxGapTime";
         public const string DribCloseMin = "act.drib.closeMin";
         public const string DribReglueStep = "act.drib.reglueStep";
+        public const string DribKeeperClaimRadius = "act.drib.keeperClaimRadius";
         // 071 크로스 · 공중볼 · 헤더 · 슈팅 · xG
         public const string XgC0 = "act.xg.c0";
         public const string XgKDist = "act.xg.kDist";

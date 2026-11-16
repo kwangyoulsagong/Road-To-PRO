@@ -28,7 +28,7 @@ namespace RoadToPro.Verification.Bench
             }
             try
             {
-                if (spec != "006" && spec != "008" && spec != "009" && spec != "010" && spec != "011" && spec != "013" && spec != "058" && spec != "072" && spec != "070" && spec != "071") throw new ArgumentException($"벤치 없는 스펙: {spec}");
+                if (spec != "006" && spec != "008" && spec != "009" && spec != "010" && spec != "011" && spec != "013" && spec != "058" && spec != "072" && spec != "070" && spec != "071" && spec != "081") throw new ArgumentException($"벤치 없는 스펙: {spec}");
                 if (string.IsNullOrEmpty(data) || !Directory.Exists(data)) throw new ArgumentException($"-simBenchData 폴더 없음: {data}");
                 Directory.CreateDirectory(outDir);
                 var metrics = spec == "013" ? new ScenarioBenchWorkloads(data).RunAll() : spec == "009" ? new ShapeBenchWorkloads(data).RunAll()
@@ -38,6 +38,7 @@ namespace RoadToPro.Verification.Bench
                     : spec == "072" ? new OnBallBenchWorkloads(data).RunAll()
                     : spec == "070" ? new DuelBenchWorkloads(data).RunAll()
                     : spec == "071" ? new ShotAerialBenchWorkloads(data).RunAll()
+                    : spec == "081" ? Merge(new ShotAerialBenchWorkloads(data).RunAll(), new OnBallBenchWorkloads(data).RunAll()) // 081: 071 실경기 틱·결정 틱 + 072 소유자 결정(박스 지점 크로스 후보 포함)
                     : spec == "058" ? new MatchBenchWorkloads(data).RunLiveHighlight() : new MatchBenchWorkloads(data).RunAll();
                 var doc = new Dictionary<string, object>
                 {
@@ -105,6 +106,13 @@ namespace RoadToPro.Verification.Bench
         {
             var i = Array.IndexOf(a, key);
             return i >= 0 && i + 1 < a.Length ? a[i + 1] : null;
+        }
+
+        /// <summary>081: 두 워크로드 지표 합치기 (같은 키는 뒤가 이긴다).</summary>
+        static Dictionary<string, double> Merge(Dictionary<string, double> a, Dictionary<string, double> b)
+        {
+            foreach (var kv in b) a[kv.Key] = kv.Value;
+            return a;
         }
     }
 }

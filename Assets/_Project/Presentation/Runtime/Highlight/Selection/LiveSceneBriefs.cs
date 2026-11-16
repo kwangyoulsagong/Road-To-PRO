@@ -1,3 +1,4 @@
+using RoadToPro.MatchEngine.Match.Events;
 using System;
 using System.Collections.Generic;
 using RoadToPro.Core.Math;
@@ -51,6 +52,24 @@ namespace RoadToPro.Presentation.Highlight.Selection
                 EndWide = info.EndWide,
                 DeadBalls = DeadBallsIn(start, end),
             };
+            if (info.EventKind == SimEventKind.Dribble || info.EventKind == SimEventKind.Tackle)
+            {
+                // 081 FR-31: 결투 장면 — 두 선수 슬롯 (둘 다 있어야 줌)
+                var da = Slot(tick, info.PlayerId);
+                var db = Slot(tick, info.OtherId);
+                if (da >= 0 && db >= 0 && da != db) { b.DuelA = da; b.DuelB = db; }
+            }
+            {
+                // 081 FR-31 개정: 장면 구간 안 결투 순간 전부
+                var list = new System.Collections.Generic.List<DuelMoment>();
+                foreach (var d in _list.Duels)
+                {
+                    if (d.Time < start || d.Time > end) continue;
+                    int sa = Slot(d.Tick, d.Player), sb = Slot(d.Tick, d.Other);
+                    if (sa >= 0 && sb >= 0 && sa != sb) list.Add(new DuelMoment(d.Time, sa, sb));
+                }
+                b.Duels = list.ToArray();
+            }
             if (b.MyPlayer < 0) b.MyPlayerInvolved = false;
             // 실점(상대 골): 내 선수 추적 모드에서도 세리머니에 내 선수를 비추지 않는다 (FR-24)
             if (info.Kind == LiveSceneKind.Goal && b.MyPlayer >= 0 && Slot(tick, info.PlayerId) != b.MyPlayer && TeamOfSlot(b.MyPlayer) != info.Team)

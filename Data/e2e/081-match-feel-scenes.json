@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "id": "081-match-feel-scenes",
+  "spec": "081",
+  "description": "실경기 하이라이트(058 경로) 결투·수비 장면 — 대체 없이(fallback 없음), 플레이어 빌드에서 고른 시드 20261382: 돌파 성공·돌파 실패·스탠딩 태클·늦은 슬라이딩·수비 액션 장면 (AC-07). 헤딩슛 = 081-match-feel-header, 컷백 슛 골 = 081-match-feel-cutback",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261382
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-07"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay081"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.takeon_ok"
+    },
+    {
+      "type": "capture",
+      "name": "takeon_ok",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.takeon_lost"
+    },
+    {
+      "type": "capture",
+      "name": "takeon_lost",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.tackle_stand"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_stand",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.tackle_slide"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_slide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.defensive"
+    },
+    {
+      "type": "capture",
+      "name": "defensive",
+      "kind": "3d"
+    }
+  ]
+}

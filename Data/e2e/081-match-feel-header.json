@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "081-match-feel-header",
+  "spec": "081",
+  "description": "081 AC-07 크로스 공중볼 헤딩슛 (플레이어 빌드 시드 20261195, 대체 없음) — 헤더 접촉 프레임 머리–공 거리 로그 (054 허용치)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261195
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-07"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay081header"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.header"
+    },
+    {
+      "type": "capture",
+      "name": "header",
+      "kind": "3d"
+    }
+  ]
+}

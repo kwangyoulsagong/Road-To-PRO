@@ -55,6 +55,14 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
         }
     }
 
+    /// <summary>결투 순간 (081 FR-31): 경기 시각·두 선수 슬롯.</summary>
+    public readonly struct DuelMoment
+    {
+        public readonly double Time;
+        public readonly int A, B;
+        public DuelMoment(double time, int a, int b) { Time = time; A = a; B = b; }
+    }
+
     /// <summary>장면별 연출 입력. 018이 채울 형식이고, 그 전에는 Verification의 대체물이 만든다.</summary>
     public sealed class SceneBrief
     {
@@ -63,6 +71,10 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
         public double EventTime;
         public Vec3 EventPos;
         public int Scorer = -1, Shooter = -1;
+        /// <summary>대표 사건이 테이크온·태클이면 결투하는 두 선수 슬롯 (081 FR-31), 아니면 −1.</summary>
+        public int DuelA = -1, DuelB = -1;
+        /// <summary>장면 안의 테이크온·태클 순간 전부 (081 FR-31 개정 — 대표 사건이 아니어도 결투 줌, AC-07 "알아볼 수 있는 크기").</summary>
+        public DuelMoment[] Duels = Array.Empty<DuelMoment>();
         public int AngleIndex, AngleCount;
         public bool LongPath;
         public int MyPlayer = -1;

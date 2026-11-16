@@ -38,6 +38,18 @@ namespace RoadToPro.Verification.Samples.Highlight
         const ulong Seed070 = 20261121UL;
         /// <summary>071 크로스·헤더·중거리 장면 경기 시드 (T12 시드 탐색 결과).</summary>
         const ulong Seed071 = 20261149UL; // 64시드 탐색: 장면 안 컷백 슛·헤더는 어느 시드에도 없음(크로스 경기당 0~2), 이 시드는 25 m 슛 2·25 m 안 슛 골 8
+        /// <summary>
+        /// specs/081 T19: 플레이어 빌드에서 고른 시드 — 에디터에서 찾은 시드(20261409·20261293)는 플레이어 빌드에선 다른 경기가 됐다(시뮬 차이).
+        /// 플레이어 안 256시드 탐색(`FeelSceneCoverage`, 2026-11-16, 같은 빌드·플랫폼 재현): 주 장면 5종을 한 경기에 다 갖춘 시드 없음 →
+        /// A = 돌파 성공·실패·스탠딩·늦은 슬라이딩·수비 장면, 헤딩슛 = 20261195, 컷백 슛 골 = 20261267 (256시드 중 1개).
+        /// </summary>
+        const ulong Seed081 = 20261382UL, Seed081Header = 20261195UL, Seed081Cutback = 20261267UL;
+
+        static void PlayFeelSeed(ulong seed)
+        {
+            if (_matchSeed != seed) { _matchSeed = seed; _match = null; }
+        }
+
         static ulong _matchSeed = Seed;
         const int LoopCount = 10, WaitFrames = 60;
         const double TransitionWindow = 1d;
@@ -200,6 +212,12 @@ namespace RoadToPro.Verification.Samples.Highlight
             var hl = RoadToPro.Core.Tuning.TuningBundle.Defaults(RoadToPro.Core.Tuning.TuningLoader.LoadDefinitionsFile(Path.Combine(DataDir, "tuning", "highlight.json")));
             _live = LiveSceneSelector.Select(sim.Result.EventLog, sim.Result.EndTick, PitchSpec.Default, LiveMatchFixture.MyPlayerId, SceneScoreTable.From(hl));
             var scenes = _live.Scenes;
+            {
+                // 081: 장면 목록 (역할·구간) — 배치 원인 경고 추적
+                var sb = new System.Text.StringBuilder($"[highlight] 장면 목록 시드 {_matchSeed}:");
+                foreach (var sc in scenes) sb.Append($" {sc.Id}:{(_live.Info.TryGetValue(sc.Id, out var inf) ? inf.Role.ToString() : "?")}[{sc.Start:0.0}-{sc.End:0.0}]");
+                Debug.Log(sb.ToString());
+            }
             if (keyMoment && scenes.Length > 0)
             {
                 var f = scenes[0];
@@ -274,8 +292,36 @@ namespace RoadToPro.Verification.Samples.Highlight
                 e => e.Kind == SimEventKind.Header, "header");
             FarmContext.Screens["live.freeze.longshot"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && e.Part != BodyPart.Head && ShotDistance(e) >= 25f,
                 e => e.Kind == SimEventKind.Shot && ShotDistance(e) >= 20f, "longshot");
+            // specs/081 AC-07: 대체 장면 없이 (fallback 없음) — 없으면 에러 로그로 실패
+            FarmContext.Screens["livePlay081"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081); Play(false); };
+            FarmContext.Screens["livePlay081header"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081Header); Play(false); };
+            FarmContext.Screens["livePlay081cutback"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081Cutback); Play(false); };
+            FarmContext.Screens["live.freeze081.cutback_goal"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && FollowsCutback(e) && ScoredAfter(e), null, "cutback_goal");
+            FarmContext.Screens["live.freeze081.takeon_ok"] = () => FreezeEvent(e => e.Kind == SimEventKind.Dribble && (e.B & EventCodes.DribbleSuccess) != 0, null, "takeon_ok");
+            FarmContext.Screens["live.freeze081.takeon_lost"] = () => FreezeEvent(e => e.Kind == SimEventKind.Dribble && (e.B & EventCodes.DribbleSuccess) == 0, null, "takeon_lost");
+            FarmContext.Screens["live.freeze081.tackle_stand"] = () => FreezeEvent(e => e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleSliding) == 0 && (e.A & EventCodes.TackleWon) != 0, null, "tackle_stand");
+            FarmContext.Screens["live.freeze081.tackle_slide"] = () => FreezeEvent(e => e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleSliding) != 0 && (e.A & EventCodes.TackleLate) != 0, null, "tackle_slide");
+            FarmContext.Screens["live.freeze081.header"] = () => { FreezeEvent(e => e.Kind == SimEventKind.Shot && e.Part == BodyPart.Head, null, "header", 0d); StartCoroutine(LogHeadBall()); }; // 접촉 순간 (머리–공 거리)
+            FarmContext.Screens["live.freeze081.defensive"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Defensive, null, 0d, "defensive");
             _halves = StandInHud.Add(doc.rootVisualElement, "halvesLabel", 16f, 352f);
             _halves.style.opacity = 0f; // 058 AC-11 확인 신호 (캡처 제외)
+        }
+
+        /// <summary>081 AC-07: 헤더 접촉 프레임에서 공과 가장 가까운 머리 뼈까지 거리 (054 접촉 동기화 허용치와 비교 — 로그만).</summary>
+        System.Collections.IEnumerator LogHeadBall()
+        {
+            for (int i = 0; i < 3; i++) yield return null; // 정지 프레임이 그려진 뒤
+            var ball = GameObject.Find("Ball");
+            if (ball == null) { Debug.LogWarning("[highlight] 헤더 머리–공 거리: 공 오브젝트 없음"); yield break; }
+            var best = float.MaxValue;
+            foreach (var r in Object.FindObjectsByType<RoadToPro.Presentation.Players.PlayerRig>(FindObjectsSortMode.None))
+            {
+                var h = r.Bone("Head");
+                if (h == null) continue;
+                var d = Vector3.Distance(h.position, ball.transform.position);
+                if (d < best) best = d;
+            }
+            Debug.Log($"[highlight] 081 헤더 접촉 프레임 머리–공 거리 {best:0.000} m");
         }
 
         static double CloseupStart(SceneBrief b)
@@ -386,7 +432,7 @@ namespace RoadToPro.Verification.Samples.Highlight
             return (float)System.Math.Min(a, b);
         }
 
-        void FreezeEvent(System.Func<SimEvent, bool> want, System.Func<SimEvent, bool> fallback, string label)
+        void FreezeEvent(System.Func<SimEvent, bool> want, System.Func<SimEvent, bool> fallback, string label, double offset = 0.05d)
         {
             var scenes = player.Scenes;
             var log = Match().Result.EventLog;
@@ -403,7 +449,7 @@ namespace RoadToPro.Verification.Samples.Highlight
                     {
                         var s = scenes[i].Scene;
                         if (s.IsReplay || t < s.Start || t > s.End) continue;
-                        player.Sequencer.SeekAndPause(i, System.Math.Min(t + 0.05d, s.End));
+                        player.Sequencer.SeekAndPause(i, System.Math.Min(t + offset, s.End));
                         Debug.Log(pass == 0 ? $"[highlight] 결투·슈팅 장면 {label}: 장면 {s.Id} t={t:0.00}" : $"[highlight] 결투·슈팅 대체 장면 사용 ({label}): 장면 {s.Id}");
                         return;
                     }

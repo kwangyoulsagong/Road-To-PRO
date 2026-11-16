@@ -51,6 +51,8 @@ namespace RoadToPro.Presentation.Highlight.Selection
         public float EventX, EventY;
         /// <summary>장면을 고른 시뮬 이벤트 종류 (011: 선방 장면이 잡기·쳐내기·펀칭 중 무엇인지).</summary>
         public SimEventKind EventKind;
+        /// <summary>대표 사건의 상대 선수 id (테이크온 = 수비수, 태클 = 볼 캐리어, 없으면 −1). 081 FR-31 결투 줌.</summary>
+        public int OtherId = -1;
     }
 
     /// <summary>선정 결과: 시간 순 장면 목록, 장면별 정보, 공 재배치 시각(FR-47 확인용).</summary>
@@ -60,6 +62,8 @@ namespace RoadToPro.Presentation.Highlight.Selection
         public readonly Dictionary<int, LiveSceneInfo> Info = new Dictionary<int, LiveSceneInfo>();
         public double[] Relocations = Array.Empty<double>();
         public DeadBallWindow[] DeadBalls = Array.Empty<DeadBallWindow>();
+        /// <summary>경기의 테이크온(Dribble)·태클 사건 (틱·주체·상대 id) — 081 FR-31 결투 줌 입력.</summary>
+        public (long Tick, double Time, int Player, int Other)[] Duels = Array.Empty<(long, double, int, int)>();
     }
 
     /// <summary>
@@ -95,6 +99,10 @@ namespace RoadToPro.Presentation.Highlight.Selection
             public long FirstTick, LastTick, Seq;
             public Cand Best;
             public bool HasGoal, Must;
+            /// <summary>081 FR-30: 묶음 안 058 수비 액션 후보(자기 진영 1/3 태클·블록·인터셉트) 유무와 그중 최고 점수.</summary>
+            public bool HasDefensive;
+            public float DefScore;
+            public Cand DefBest;
             public long GoalTick = -1;
             public bool Replay2;
             public double Start, End;
@@ -109,6 +117,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
 
             // ── 1회 훑기: 기간·재배치·데드볼 창·후보 ──
             var relocations = new List<double>();
+            var duels = new List<(long, double, int, int)>();
             var halves = new List<double>();
             var deadBalls = new List<DeadBallWindow>();
             var periodStartTick = new long[4];
@@ -124,12 +133,17 @@ namespace RoadToPro.Presentation.Highlight.Selection
                     case SimEventKind.PeriodStart:
                         if (e.Period < 4) periodStartTick[e.Period] = e.Tick;
                         inGoalDead = false;
+                        relocations.Add((e.Tick > 0 ? e.Tick - 1 : 0) * TickSeconds); // 081 T19: 기간 시작 킥오프 배치 = 앞 기간 종료 틱 끝(경기 시작은 0틱)(058 FR-10, 선수 전원 순간이동)도 라이브 장면 밖 — 공 재배치와 같은 규칙
                         break;
                     case SimEventKind.PeriodEnd:
                         if (e.Tick < endTick) halves.Add((e.Tick + 1) * TickSeconds);
                         break;
                     case SimEventKind.BallRelocated:
                         relocations.Add(e.Tick * TickSeconds);
+                        break;
+                    case SimEventKind.Dribble:
+                    case SimEventKind.Tackle:
+                        if (e.PlayerId >= 0 && e.OtherId >= 0) duels.Add((e.Tick, Time(e), e.PlayerId, e.OtherId)); // 081 FR-31
                         break;
                     case SimEventKind.DeadBallPhase:
                         if (e.A == 1 || e.A == 4) deadStart = Time(e); // 세리머니 · 재시작 접근
@@ -214,6 +228,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
                 }
             }
             result.Relocations = relocations.ToArray();
+            result.Duels = duels.ToArray();
             result.DeadBalls = deadBalls.ToArray();
 
             // ── 병합 (FR-43): 같은 공격 흐름 = 사건 사이 ≤ After, 골·교체·기간 경계에서 끊는다 ──
@@ -238,6 +253,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
                 }
                 if (c.OverturnTick > cur.LastTick) cur.LastTick = c.OverturnTick;
                 if (c.Kind == LiveSceneKind.Goal) { cur.HasGoal = true; cur.GoalTick = c.Tick; }
+                if (c.Kind == LiveSceneKind.Defensive && (!cur.HasDefensive || c.Score > cur.DefScore)) { cur.HasDefensive = true; cur.DefScore = c.Score; cur.DefBest = c; }
                 if (c.Must) cur.Must = true;
                 if (c.Kind == LiveSceneKind.Woodwork || c.Kind == LiveSceneKind.RedCard || c.Kind == LiveSceneKind.Penalty || c.Kind == LiveSceneKind.VarOverturn
                     || (c.Kind == LiveSceneKind.Save && IsInBoxSaveAfterShot(events, c))) cur.Replay2 = true;
@@ -266,6 +282,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
                     if (Overlaps(c, chosen)) continue;
                     chosen.Add(c);
                 }
+                EnsureDefensive(chosen, clusters, t); // 081 FR-30
                 if (chosen.Count < t.SceneMin)
                     foreach (var c in order)
                     {
@@ -345,7 +362,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
         static LiveSceneInfo Info(int id, SceneRole role, in Cand b, double eventTime, int shooter, int angle, int angles, bool my) => new LiveSceneInfo
         {
             SceneId = id, Role = role, Kind = b.Kind, EventTick = b.Tick, EventTime = eventTime, Team = b.Team, PlayerId = b.Player,
-            ShooterId = shooter, AngleIndex = angle, AngleCount = angles, Score = b.Score, MyPlayerInvolved = my, EventX = b.X, EventY = b.Y, EventKind = b.EventKind,
+            ShooterId = shooter, AngleIndex = angle, AngleCount = angles, Score = b.Score, MyPlayerInvolved = my, EventX = b.X, EventY = b.Y, EventKind = b.EventKind, OtherId = b.Other,
         };
 
         // ── 위치 판정 (이벤트 위치는 정규화 x·y) ──
@@ -461,6 +478,45 @@ namespace RoadToPro.Presentation.Highlight.Selection
             return false;
         }
 
+        /// <summary>
+        /// 081 FR-30: 고른 장면에 수비 액션 후보가 없고 경기에 수비 후보 묶음이 있으면, 수비 점수가 가장 높은 묶음(동점 = 이른 것)을 넣는다.
+        /// 장면 상한이면 비필수(골·필수 아님) 중 점수가 가장 낮은 묶음(동점 = 늦은 것)과 바꾼다. 겹치면 다음 수비 후보, 넣을 수 없으면 그대로 (빈 장면을 만들지 않는다).
+        /// 018 장면 점수가 오면 018이 대체한다.
+        /// </summary>
+        static void EnsureDefensive(List<Cluster> chosen, List<Cluster> clusters, SceneScoreTable t)
+        {
+            foreach (var c in chosen) if (c.HasDefensive) return;
+            var defs = new List<Cluster>();
+            foreach (var c in clusters) if (c.HasDefensive && !chosen.Contains(c)) defs.Add(c);
+            if (defs.Count == 0) return;
+            defs.Sort((a, b) =>
+            {
+                int r = b.DefScore.CompareTo(a.DefScore);
+                if (r != 0) return r;
+                r = a.FirstTick.CompareTo(b.FirstTick);
+                return r != 0 ? r : a.Seq.CompareTo(b.Seq);
+            });
+            Cluster victim = null;
+            if (chosen.Count >= t.SceneMax)
+            {
+                foreach (var c in chosen)
+                {
+                    if (c.Must || c.HasGoal) continue;
+                    if (victim == null || c.Best.Score < victim.Best.Score || (c.Best.Score == victim.Best.Score && c.FirstTick > victim.FirstTick)) victim = c;
+                }
+                if (victim == null) return;
+                chosen.Remove(victim);
+            }
+            foreach (var d in defs)
+            {
+                if (Overlaps(d, chosen)) continue;
+                if (!d.Must && !d.HasGoal) d.Best = d.DefBest; // 수비 액션 때문에 넣은 장면 — 대표 사건도 수비 액션 (장면 종류·결투 줌)
+                chosen.Add(d);
+                return;
+            }
+            if (victim != null) chosen.Add(victim); // 넣을 수 있는 수비 묶음이 없으면 되돌린다
+        }
+
         static bool Overlaps(Cluster c, List<Cluster> chosen)
         {
             foreach (var o in chosen) if (c.Start < o.End && o.Start < c.End) return true;
@@ -524,7 +580,7 @@ namespace RoadToPro.Presentation.Highlight.Selection
                 ref readonly var e = ref events[i];
                 if (e.Kind == SimEventKind.DeadBallPhase && e.A == 3 && ready < 0) ready = Time(e);
                 if (e.Kind == SimEventKind.Kickoff) { kickoff = Time(e); break; }
-                if (e.Kind == SimEventKind.PeriodEnd) { periodEnd = (e.Tick + 1) * TickSeconds; break; }
+                if (e.Kind == SimEventKind.PeriodEnd) { periodEnd = e.Tick * TickSeconds - HalfTick; break; } // 081 T19: 같은 틱 끝에 다음 기간 킥오프 배치(전원 순간이동) — 그 틱 전에 끝낸다
                 if (e.Kind == SimEventKind.Goal) break;
             }
             double goalAfter = goalTick * TickSeconds + t.GoalAfter;

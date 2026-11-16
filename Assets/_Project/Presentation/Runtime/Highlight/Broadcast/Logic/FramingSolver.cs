@@ -42,7 +42,10 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
         public void Reset() => _hasState = false;
 
         /// <summary>대상으로 한 스텝 진행한다. 대상이 없으면 직전 프레이밍을 유지한다 (FR-52).</summary>
-        public CameraPose Step(FramingTarget[] targets, int count)
+        public CameraPose Step(FramingTarget[] targets, int count) => Step(targets, count, 1f);
+
+        /// <summary>minFovScale &lt; 1이면 최소 화각(구역 화각)을 그만큼 좁힌다 — 대상은 Fit이 그대로 담는다 (081 FR-31 결투 줌, 같은 감쇠라 흔들림 없음).</summary>
+        public CameraPose Step(FramingTarget[] targets, int count, float minFovScale)
         {
             if (count <= 0)
             {
@@ -61,6 +64,7 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
 
             float zone = CameraMath.Smoothstep(_t.BoxZoomStartX, _t.BoxZoomEndX, MathF.Abs(ball.X));
             float zoneFov = _t.WideFovDeg + (_t.BoxFovDeg - _t.WideFovDeg) * zone;
+            zoneFov *= minFovScale;
             tanV = MathF.Max(tanV, MathF.Tan(zoneFov * 0.5f * CameraMath.Deg2Rad));
 
             if (_hasState)

@@ -23,7 +23,7 @@
 
     {"id": "gk.reach.r0", "default": 0.8, "min": 0.2, "max": 2, "unit": "m", "tag": "[설계]", "source": "specs/011 FR-03 r0 ≈ 0.8 m (리서치 04 § A2 권장 기본값)"},
     {"id": "gk.reach.bodyHalf", "default": 0.25, "min": 0, "max": 0.6, "unit": "m", "tag": "[설계]", "source": "specs/011 FR-03 몸 반폭 ≈ 0.25 m (리서치 04 § A2)"},
-    {"id": "gk.reach.rmaxBase", "default": 2.6, "min": 1, "max": 5, "unit": "m", "tag": "[대체]", "source": "specs/011 FR-03 r_max 기준 [미정](002 키) — 011 플랜 시작값, 키 1.88 m 기준·키 비례. 017 보정"},
+    {"id": "gk.reach.rmaxBase", "default": 3.0, "min": 1, "max": 5, "unit": "m", "tag": "[대체]", "source": "specs/011 FR-03 r_max 기준 [미정](002 키) — 011 플랜 시작값, 키 1.88 m 기준·키 비례. 017 보정 | 081: 2.6 → 3.0 (T13 3회차: GK 선방률 49 % → 60~80 % (선방 = 도달 확률, 2회차 gk.save.alpha·beta는 잡기/쳐내기 비율만 바꿔 되돌림))"},
     {"id": "gk.reach.refHeight", "default": 1.88, "min": 1.5, "max": 2.2, "unit": "m", "tag": "[대체]", "source": "specs/011 FR-03 r_max 키 비례 기준 키 (002 전 기본 키)"},
     {"id": "gk.reach.standZ", "default": 2.3, "min": 1.5, "max": 3.2, "unit": "m", "tag": "[대체]", "source": "specs/011 FR-03 손 도달 높이(서서 팔 뻗음, 기준 키) — 높은 구석 감쇄 시작점"},
     {"id": "gk.reach.highZ", "default": 1.5, "min": 0.5, "max": 3, "unit": "m", "tag": "[대체]", "source": "specs/011 FR-03 높은 구석 감쇄 [미정 형태] — 이 높이부터 r_max·v_dive 감쇄"},

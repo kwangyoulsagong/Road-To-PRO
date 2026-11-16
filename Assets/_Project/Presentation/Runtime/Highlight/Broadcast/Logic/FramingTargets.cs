@@ -69,6 +69,44 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
             return n;
         }
 
+        /// <summary>
+        /// 081 FR-31: 결투 줌 구간인가 — 시각 t가 결투 순간 [사건 − lead, 사건 + tail] 안이고, 두 선수가 이 프레임에 있으며 수평 거리가 해제 거리 이하.
+        /// 결투 순간 = 장면 대표 사건(DuelA·B, EventTime) 또는 장면 안 테이크온·태클(<see cref="SceneBrief.Duels"/>, 2026-11-16 개정). 아니면 기본 프레이밍.
+        /// </summary>
+        public static bool Duel(HighlightData d, int frame, double t, SceneBrief brief, CameraTuning tu) => Duel(d, frame, t, brief, tu, out _, out _);
+
+        public static bool Duel(HighlightData d, int frame, double t, SceneBrief brief, CameraTuning tu, out int a, out int b)
+        {
+            a = b = -1;
+            if (brief == null || frame < 0 || frame >= d.Frames) return false;
+            if (brief.DuelA >= 0 && brief.DuelB >= 0 && Near(d, frame, t, brief.EventTime, brief.DuelA, brief.DuelB, tu)) { a = brief.DuelA; b = brief.DuelB; return true; }
+            if (brief.Duels != null)
+                foreach (var m in brief.Duels)
+                    if (Near(d, frame, t, m.Time, m.A, m.B, tu)) { a = m.A; b = m.B; return true; }
+            return false;
+        }
+
+        static bool Near(HighlightData d, int frame, double t, double eventTime, int a, int b, CameraTuning tu)
+        {
+            if (t < eventTime - tu.DuelLeadSeconds || t > eventTime + tu.DuelTailSeconds) return false;
+            if (a < 0 || b < 0 || a >= HighlightData.Players || b >= HighlightData.Players) return false;
+            if (!d.Present[frame * HighlightData.Entities + a] || !d.Present[frame * HighlightData.Entities + b]) return false;
+            return Vec3.DistanceSq(PosAt(d, frame, a), PosAt(d, frame, b)) <= tu.DuelReleaseDist * tu.DuelReleaseDist;
+        }
+
+        /// <summary>081 FR-31: 결투 프레이밍 대상 — 공 3, 결투 두 선수 각 2.</summary>
+        public static int CollectDuel(HighlightData d, int frame, int a, int b, FramingTarget[] into)
+        {
+            if (frame < 0 || frame >= d.Frames) return 0;
+            var ball = d.Ball[frame];
+            if (!IsFinite(ball)) return 0;
+            int n = 0;
+            into[n++] = new FramingTarget(ball, BallWeight, false);
+            into[n++] = new FramingTarget(PosAt(d, frame, a), CarrierWeight, true);
+            into[n++] = new FramingTarget(PosAt(d, frame, b), DefenderWeight, true);
+            return n;
+        }
+
         /// <summary>008 전 대체: 이 프레임 뒤 첫 PassReceived의 주체, 없으면 공에 가장 가까운 동료.</summary>
         static int Receiver(HighlightData d, int frame, int carrier, int team)
         {
