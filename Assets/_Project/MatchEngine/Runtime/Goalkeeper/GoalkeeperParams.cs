@@ -31,7 +31,7 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         public readonly float MapDistributionSlope = 4.5f;
         public readonly float ReachR0 = 0.8f;
         public readonly float ReachBodyHalf = 0.25f;
-        public readonly float ReachRmaxBase = 3.0f;
+        public readonly float ReachRmaxBase = 2.6f;
         public readonly float ReachRefHeight = 1.88f;
         public readonly float ReachStandZ = 2.3f;
         public readonly float ReachHighZ = 1.5f;

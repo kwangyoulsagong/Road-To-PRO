@@ -29,7 +29,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
         public void SeparationSigma_100k_Within3pct()
         {
             var sigma = FirstTouchModel.Sigma(P, 0.3f, 20f, 0.4f);
-            var raw = (1.8f - 1.4f * 0.3f) / PassModel.RecvDecay(P, 20f, 0.3f) * (1f + 0.5f * 0.4f);
+            var raw = (P.TouchSigmaBase - P.TouchSigmaSlope * 0.3f) / PassModel.RecvDecay(P, 20f, 0.3f) * (1f + P.TouchPressK * 0.4f); // 2026-11-16 081: 계수 값(1.8 → 1.4 보정) 대신 튜닝을 읽는다
             Assert.AreEqual(raw, sigma, 1e-5f, "FR-67 식");
             var std = SampleStd(100_000, 0.3f, 20f, 0.4f, 91, out var ok);
             Assert.AreEqual(sigma, std, sigma * 0.03);
