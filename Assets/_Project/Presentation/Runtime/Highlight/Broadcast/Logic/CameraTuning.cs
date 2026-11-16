@@ -16,6 +16,8 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
         public float MaxAngularSpeed = 60f, MaxAngularAccel = 240f, MaxFovSpeed = 10f;
         public double BallOffscreenDiagSeconds = 0.5d;
         public float MainBehindMin = 30f, MainBehindMax = 45f, MainHeightMin = 15f, MainHeightMax = 25f;
+        /// <summary>결투(테이크온·태클) 장면 줌 (081 FR-31).</summary>
+        public float DuelFovScale = 0.45f, DuelLeadSeconds = 1f, DuelTailSeconds = 1.5f, DuelReleaseDist = 8f;
 
         public static CameraTuning From(TuningBundle b) => new CameraTuning
         {
@@ -46,6 +48,10 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
             MainBehindMax = b.Get("camera.mainBehindMax"),
             MainHeightMin = b.Get("camera.mainHeightMin"),
             MainHeightMax = b.Get("camera.mainHeightMax"),
+            DuelFovScale = b.Get("camera.duel.fovScale"),
+            DuelLeadSeconds = b.Get("camera.duel.leadSeconds"),
+            DuelTailSeconds = b.Get("camera.duel.tailSeconds"),
+            DuelReleaseDist = b.Get("camera.duel.releaseDist"),
         };
     }
 }

@@ -24,6 +24,12 @@ namespace RoadToPro.MatchEngine.UtilityAI
         public Vec2 Facing { get; private set; }
 
         public int Slot(int i) => _slot[i];
+        /// <summary>슬롯의 시야 집합 인덱스 (없으면 −1).</summary>
+        public int IndexOf(int slot)
+        {
+            for (int i = 0; i < Count; i++) if (_slot[i] == slot) return i;
+            return -1;
+        }
         public Vec2 Seen(int i) => _seen[i];
         public bool InAngle(int i) => _inAngle[i];
 

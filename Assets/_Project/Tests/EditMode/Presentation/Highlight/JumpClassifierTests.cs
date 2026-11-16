@@ -53,6 +53,16 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
         }
 
         [Test]
+        public void IdChange_MarksSwap_OnlyThatSlotAndFrame()
+        {
+            // 081: 교체 투입 프레임은 Swap 표시 — 애니메이션이 속도 기록을 새로 시작한다(경고 없음). 기간 시작 배치는 Swap 아님
+            var d = Convert(new[] { Frame(300, 10f), Frame(301, 10.2f), Frame(302, 10.2f, 99), Frame(303, 10.4f, 99) });
+            Assert.IsTrue(d.Swap[2 * HighlightData.Entities + 0]);
+            Assert.IsFalse(d.Swap[2 * HighlightData.Entities + 1]);
+            Assert.IsFalse(d.Swap[1 * HighlightData.Entities + 0]);
+        }
+
+        [Test]
         public void Classify_PeriodStartFrame_IsPlacementForAll_BallRelocationNot()
         {
             var ps = new SimEvent { Seq = 1, Tick = 101, Substep = SimEvent.TickStart, Kind = SimEventKind.PeriodStart, PlayerId = -1, OtherId = -1 };

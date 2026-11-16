@@ -1,0 +1,63 @@
+{
+  "spec": "081",
+  "profile": "mac-m1-1600p",
+  "note": "specs/081 성능 예산 표의 기계용 사본. 판정 런타임은 IL2CPP 릴리스 플레이어(`il2cpp` 항목, farm.py bench --spec 081) — README D17. 010 결정 틱(착지점 추격·박스 지점 크로스 후보·항력 포함 착지 예측 포함)·실경기 틱 할당·소유자 결정. 장면 선정 ≤ 5 ms는 058 `DeadBallPerfTests.LiveSceneSelector_ms`. 하이라이트 재생 프레임(결투 줌)은 개발 맥 기록만(058·048 기준).",
+  "deferred": {},
+  "tests": [
+    "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests",
+    "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-09",
+      "label": "010 결정 틱 평균 (Mono 회귀)",
+      "test": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase",
+      "group": "dec_tick_avg_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-09",
+      "label": "실경기 틱 GC 할당",
+      "test": "MatchFeelPerfTests.Perf_Tick_ZeroGc",
+      "group": "shot_gc_bytes_per_tick",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    }
+  ],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-09",
+        "label": "010 결정 틱 1회 평균 (070·071·072·착지점 추격·크로스 후보 포함, 072 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "max": 12,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-09",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-09",
+        "label": "공 소유 선수 1명 결정 평균 (072 예산)",
+        "metric": "onball_owner_avg_us",
+        "max": 12,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-09",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "max": 0,
+        "unit": "B"
+      }
+    ]
+  }
+}

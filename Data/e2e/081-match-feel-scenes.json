@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "id": "081-match-feel-scenes",
+  "spec": "081",
+  "description": "실경기 하이라이트(058 경로) 결투·공중볼·수비 장면 — 대체 없이(fallback 없음), 플레이어 빌드 256시드 탐색으로 고른 시드 20261247: 돌파 성공·돌파 실패·스탠딩 태클·크로스 공중볼 헤딩슛·수비 액션 장면 (AC-07). 늦은 슬라이딩 = 081-match-feel-slide",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261247
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-07"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay081"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.takeon_ok"
+    },
+    {
+      "type": "capture",
+      "name": "takeon_ok",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.takeon_lost"
+    },
+    {
+      "type": "capture",
+      "name": "takeon_lost",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.tackle_stand"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_stand",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.header"
+    },
+    {
+      "type": "capture",
+      "name": "header",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.defensive"
+    },
+    {
+      "type": "capture",
+      "name": "defensive",
+      "kind": "3d"
+    }
+  ]
+}

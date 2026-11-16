@@ -60,6 +60,9 @@ namespace RoadToPro.MatchEngine.Match.Stages
         // 072 온볼: 이동 결정 유지(010 FR-42 최소 유지)·돌파 성공 후 제친 수비수 태클 차단(070 대체)
         readonly long[] _onBallUntil = new long[N];
         readonly long[] _beatenUntil = new long[N];
+        // 081 FR-24·25: 뜬 공 착지점 추격 (매 틱 재선택, 상태 아님)
+        readonly AerialChase _aerialChase = new AerialChase();
+        readonly bool[] _chaseExcluded = new bool[N];
         readonly long[] _onBallTick = new long[N];
 
         public UtilityDecisionStage(MatchSetup setup, MatchTuning tuning, ScenarioRuntime runtime = null)
@@ -168,6 +171,15 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 if (inPlay && s != owner && !Squad.IsKeeperSlot(s) && _x.InputOf(s) == default && ctx.IsSlotControllable(s)) _due[s] = true;
                 else _keys.Clear(s);
             }
+            _aerialChase.Clear();
+            if (inPlay && ctx.Actions.Aerials.TryLanding(ctx, out var landing, out _, out var kickerTeam))
+            {
+                // 081 FR-24: 받는 선수(008 T14a)·소유자·이동 불가·조종 불가(걷는 선수 등)는 추격 대상에서 뺀다. 경합 승자 추격(071 T08a)은 판정 뒤라 겹치지 않는다
+                var flightTarget = ctx.Actions.FlightTarget;
+                for (int s = 0; s < N; s++)
+                    _chaseExcluded[s] = s == owner || s == flightTarget || ctx.Kinematics.IsImmobile(s) || !ctx.IsSlotControllable(s) || _x.InputOf(s) != default || ctx.Keepers.IsBusySlot(s); // GK 동작 중(011 FR-17)이면 011이 우선
+                _aerialChase.Select(_p, _w, landing, kickerTeam, _chaseExcluded);
+            }
             var hasAction = false;
             for (int s = 0; s < N; s++)
             {
@@ -189,6 +201,13 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 if (inPlay && ctx.Actions.Aerials.TryChase(s, out var headAt))
                 {
                     _intent[s] = new Decision { Kind = DecisionKind.MoveTo, Point = headAt, TargetSlot = -1, MaxSpeed = 0f }; // 071 T08a: 공중볼 승자 → 접촉 지점
+                    board.MarkDecided(s);
+                    continue;
+                }
+                if (inPlay && _aerialChase.IsChaser(s))
+                {
+                    // 081 FR-24: 뜬 공 착지점 추격 — 오프볼 결정 대신 (RNG 미소비, 결정 주기는 소비하지 않아 추격이 끝나면 다음 결정 차례에 평소 결정)
+                    _intent[s] = new Decision { Kind = DecisionKind.MoveTo, Point = _aerialChase.Landing, TargetSlot = -1, MaxSpeed = 0f };
                     board.MarkDecided(s);
                     continue;
                 }

@@ -107,7 +107,7 @@ namespace RoadToPro.Presentation.Highlight.Logic
             {
                 int i = f * E + e;
                 if (gap) { data.Break[i] = (byte)JumpCause.Record; continue; }
-                if (e < HighlightData.Players && cur.PlayerIds[e] != prev.PlayerIds[e]) data.Break[i] = (byte)JumpCause.Placement;
+                if (e < HighlightData.Players && cur.PlayerIds[e] != prev.PlayerIds[e]) { data.Break[i] = (byte)JumpCause.Placement; data.Swap[i] = true; }
             }
         }
 

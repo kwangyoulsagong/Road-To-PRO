@@ -74,6 +74,8 @@ namespace RoadToPro.Presentation.Players.Logic
         /// 배치(선수 교대·공 재배치·기간 시작)·기록(프레임 번호 건너뜀) 원인을 표시한다. 판단 원인은 표시가 없는 쪽이다.
         /// </summary>
         public readonly byte[] Break;
+        /// <summary>081: 이 프레임에 슬롯 선수가 바뀜(교체 투입) — 앞 프레임과 다른 사람이라 속도 기록을 새로 시작한다.</summary>
+        public readonly bool[] Swap;
 
         public HighlightData(float startTime, int frames)
         {
@@ -85,6 +87,7 @@ namespace RoadToPro.Presentation.Players.Logic
             Yaw = new float[frames * Entities];
             Present = new bool[frames * Entities];
             Break = new byte[frames * Entities];
+            Swap = new bool[frames * Entities];
             Ball = new Vec3[frames];
             BallOwner = new short[frames];
             for (int f = 0; f < frames; f++) BallOwner[f] = -1;

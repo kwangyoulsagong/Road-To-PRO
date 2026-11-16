@@ -188,6 +188,12 @@ namespace RoadToPro.MatchEngine.UtilityAI
         public const string OnBallCrossThird = "dec.onball.cross.third";
         public const string OnBallCrossBase = "dec.onball.cross.base";
         public const string OnBallCrossSlope = "dec.onball.cross.slope";
+        public const string OnBallCrossNearX = "dec.onball.cross.nearX";
+        public const string OnBallCrossFarX = "dec.onball.cross.farX";
+        public const string OnBallCrossSpotX = "dec.onball.cross.spotX";
+        public const string OnBallCrossTtiSlack = "dec.onball.cross.ttiSlack";
+        public const string AerialChasers = "dec.aerial.chasers";
+        public const string AerialMaxDist = "dec.aerial.maxDist";
         public const string OnBallHoldValue = "dec.onball.hold.value";
         public const string OnBallHoldMaxPressure = "dec.onball.hold.maxPressure";
         public const string OnBallHoldLoss = "dec.onball.hold.loss";

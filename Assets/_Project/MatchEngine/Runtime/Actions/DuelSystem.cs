@@ -41,6 +41,8 @@ namespace RoadToPro.MatchEngine.Actions
 
         /// <summary>테스트·진단 누계 (상태 아님).</summary>
         public long Touches, StealChecks, Steals, TakeOns, TacklesResolved, TacklesWon, LateTackles, ShieldChecks, ShieldLosses, Contacts, GapReleases;
+        /// <summary>081 T12a: GK가 잡은 이격 공 (진단 누계, 탈취 Steals와 별도).</summary>
+        public long KeeperClaims;
         /// <summary>마지막 터치의 표본 거리 (진단·테스트, 상태 아님).</summary>
         public float LastTouchDist;
         /// <summary>마지막 탈취 판정 확률·고른 상대 (진단·테스트, 상태 아님).</summary>
@@ -96,6 +98,14 @@ namespace RoadToPro.MatchEngine.Actions
             {
                 var t = (abs - _d.Start + 1) * _bp.Dt;
                 var bp = RollPos(t, out var bspeed);
+                var gk = KeeperAt(ctx, owner, bp);
+                if (gk >= 0)
+                {
+                    // 081 T12a: 이격 공(발에서 떨어진 공)이 자기 박스 안 GK(상대·같은 팀)의 컨트롤 반경에 들어오면 GK가 잡는다 — 터치당 1회 탈취 판정과 별개.
+                    // 전에는 "Controlled"로 남아 GK 바로 옆을 지나 골문으로 굴러 들어갔다(슈팅 없는 득점·자책골)
+                    KeeperClaim(ctx, abs, sub, owner, gk, bp);
+                    return;
+                }
                 if (!_d.Contested)
                 {
                     // FR-03: 이격이 열린 동안 상대가 공 컨트롤 반경에 들어오면 그 순간 소유자·상대의 공 도달 시간(005 TTI)을 비교해 탈취 (터치당 1회)
@@ -208,6 +218,41 @@ namespace RoadToPro.MatchEngine.Actions
         const float PhysicsCarryOffset = Match.Stages.PhysicsStage.BallCarryOffset;
 
         /// <summary>공 컨트롤 반경 안의 가장 가까운 상대 (다운·다이빙 제외, 동률 낮은 슬롯). 없으면 −1.</summary>
+        /// <summary>081 T12a: 공 위치 p가 자기 박스 안이고 GK 잡기 반경(`act.drib.keeperClaimRadius`) 안에 있는 GK (소유자 제외, 이동 가능·동작 중 아님, 가까운 쪽 → 낮은 슬롯). 없으면 −1.</summary>
+        int KeeperAt(MatchContext ctx, int owner, Vec2 p)
+        {
+            var lim = P.DribKeeperClaimRadius * P.DribKeeperClaimRadius;
+            var who = -1;
+            var best = float.MaxValue;
+            for (int t = 0; t < 2; t++)
+            {
+                var g = t * Squad.SlotsPerTeam;
+                if (g == owner || !ctx.IsSlotControllable(g) || Immobile(ctx, g) || ctx.Keepers.IsBusySlot(g)) continue;
+                if (!Match.Stages.PhysicsStage.InOwnBox(ctx, t, new Vec3(p.X, p.Y, 0f))) continue;
+                var d2 = (ctx.SlotState(g).Position - p).LengthSq();
+                if (d2 <= lim && d2 < best) { best = d2; who = g; }
+            }
+            return who;
+        }
+
+        /// <summary>081 T12a: GK가 이격 공을 손으로 잡는다 (BallRecovered, 접촉 없음).</summary>
+        void KeeperClaim(MatchContext ctx, long abs, int sub, int owner, int gk, Vec2 at)
+        {
+            KeeperClaims++;
+            _d.Open = false;
+            ref var ball = ref ctx.Ball;
+            BallCommands.SetControlledPosition(ref ball, new Vec3(at.X, at.Y, _bp.Radius));
+            var e = SimEvent.Make(SimEventKind.BallRecovered, Squad.TeamOfSlot(gk), ctx.PlayerAtSlot(gk), ctx.PlayerAtSlot(owner));
+            e.Substep = (sbyte)sub;
+            e.F1 = (ctx.SlotState(owner).Position - ctx.SlotState(gk).Position).Length();
+            e.BallPhase = BallPhase.Controlled;
+            ctx.SetPosition(ref e, new Vec3(at.X, at.Y, _bp.Radius));
+            ctx.Emit(e);
+            _lostAbs[owner] = abs;
+            _tk[gk] = default;
+            _a.TransferPossession(ctx, gk, at);
+        }
+
         int NearestOpponentAt(MatchContext ctx, int owner, Vec2 ball)
         {
             var opp = 1 - Squad.TeamOfSlot(owner);

@@ -57,8 +57,11 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
                 while (shotIndex < shots.Count - 1 && t >= shots[shotIndex].End - 1e-6d) shotIndex++;
                 var shot = shots[shotIndex];
 
-                int count = FramingTargets.Collect(d, f, _targets);
-                var mainPose = solver.Step(_targets, count);
+                int count;
+                float fovScale = 1f;
+                if (FramingTargets.Duel(d, f, t, brief, _t, out var da, out var db)) { count = FramingTargets.CollectDuel(d, f, da, db, _targets); fovScale = _t.DuelFovScale; } // 081 FR-31
+                else count = FramingTargets.Collect(d, f, _targets);
+                var mainPose = solver.Step(_targets, count, fovScale);
                 var ball = d.Ball[f];
                 var pose = hasLast && count == 0 ? last : Pose(d, f, t, shot, brief, mainPose, ball, top, mine, placements);
 

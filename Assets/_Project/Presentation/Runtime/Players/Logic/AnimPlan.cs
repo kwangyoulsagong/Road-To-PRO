@@ -239,7 +239,8 @@ namespace RoadToPro.Presentation.Players.Logic
                     float vx = f1 == f0 ? 0f : (_d.X[i1] - _d.X[i0]) / span, vz = f1 == f0 ? 0f : (_d.Z[i1] - _d.Z[i0]) / span;
                     float v = (float)Math.Sqrt(vx * vx + vz * vz);
                     if (!_d.Present[i]) v = 0;
-                    v = f == 0 ? v : LocomotionBlend.LimitSpeed(prev, v, dt, log, Highlight.Logic.JumpClassifier.Label(Highlight.Logic.JumpClassifier.Classify(_d, f, e)));
+                    if (SwapNear(f, e)) v = 0f; // 081: 교체 투입 순간 — 다른 사람끼리의 위치 차라 속도가 아니다. 기록을 새로 시작 (경고 없음)
+                    else v = f == 0 ? v : LocomotionBlend.LimitSpeed(prev, v, dt, log, JumpLabel(f, e));
                     prev = v;
                     float dir = 0f;
                     if (v > 0.05f)
@@ -534,6 +535,22 @@ namespace RoadToPro.Presentation.Players.Logic
             for (int i = 0; i < _ballPulls.Count; i++)
                 b += BallVisualCorrection.Offset(_ballPulls[i].pull, _ballPulls[i].contactAt, t);
             return b;
+        }
+
+        /// <summary>속도 점프 원인 표시 (058 FR-12). 배치·기록 원인은 경기 시각·엔티티를 덧붙인다 (081: 원인 추적용, 판단 원인 무시 규칙과 겹치지 않게 끝에만).</summary>
+        string JumpLabel(int f, int e)
+        {
+            var c = Highlight.Logic.JumpClassifier.Classify(_d, f, e);
+            var label = Highlight.Logic.JumpClassifier.Label(c);
+            if (c == JumpCause.Decision) return label;
+            return label + " (t=" + (_d.StartTime + f / (double)HighlightData.FrameRate).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " s, e=" + e + ")";
+        }
+
+        bool SwapNear(int f, int e)
+        {
+            const int E = HighlightData.Entities;
+            for (int k = f; k <= f + 1; k++) if (k > 0 && k < _d.Frames && _d.Swap[k * E + e]) return true;
+            return false;
         }
     }
 }

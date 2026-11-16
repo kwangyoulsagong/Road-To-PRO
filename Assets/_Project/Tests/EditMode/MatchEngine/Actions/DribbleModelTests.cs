@@ -84,7 +84,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
         {
             // sigmoid(k·(TTI_소유자 − TTI_상대 − 여유)) 공식 그대로, 상대가 먼저 닿을수록 큼
             Assert.AreEqual(ActionMath.Sigmoid(P.DribStealK * (1.0f - 0.4f - P.DribStealMargin)), DribbleModel.StealProb(P, 1.0f, 0.4f), 1e-5f);
-            Assert.Greater(DribbleModel.StealProb(P, 1.0f, 0.4f), 0.5f);
+            // 상대가 소유자보다 여유(stealMargin) 넘게 먼저 닿으면 0.5 초과 (2026-11-16 081: 여유 0.5 → 1.0 보정 뒤 고정 숫자 대신 여유 기준)
+            Assert.Greater(DribbleModel.StealProb(P, 0.4f + P.DribStealMargin + 0.6f, 0.4f), 0.5f);
             Assert.Less(DribbleModel.StealProb(P, 0.4f, 1.0f), 0.1f);
         }
     }

@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "081-match-feel-cutback",
+  "spec": "tool",
+  "description": "081 AC-07 컷백 슛 골 — 시드 20261267은 커밋 78abc53 빌드까지의 경기(2026-11-16 육안 승인 캡처 evidence/assets/cutback_goal.png). 7b577c7(밖 공 최소 안쪽 속도) 뒤 플레이어 256시드에 컷백 슛 골 없음 → 증거 실행에서 제외(spec=tool), 071 컷백 크로스 타입 빈도([설계]) 몫",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261267
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay081cutback"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.cutback_goal"
+    },
+    {
+      "type": "capture",
+      "name": "cutback_goal",
+      "kind": "3d"
+    }
+  ]
+}

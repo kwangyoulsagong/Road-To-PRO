@@ -11,8 +11,8 @@ namespace RoadToPro.MatchEngine.UtilityAI
     /// </summary>
     public sealed class OnBallCandidates
     {
-        /// <summary>생성 버퍼 (자르기 전): 패스 3 × 시야 9 + 드리블 8 + 의도 캐리 1 + 슈팅·홀드·걷어내기·넘어지기·여유.</summary>
-        public const int RawCapacity = VisionSet.Capacity * 3 + 8 + 6;
+        /// <summary>생성 버퍼 (자르기 전): 패스 3 × 시야 9 + 박스 지점 크로스 3 (081) + 드리블 8 + 의도 캐리 1 + 슈팅·홀드·걷어내기·넘어지기·여유.</summary>
+        public const int RawCapacity = VisionSet.Capacity * 3 + CrossTargets.Count + 8 + 6;
 
         readonly DecisionParams _p;
         readonly IOnBallEvaluator _eval;
@@ -131,6 +131,28 @@ namespace RoadToPro.MatchEngine.UtilityAI
                     }
                 }
             }
+
+            // ── 박스 지점 크로스 (081 FR-23): 측면 구역이면 박스 안 동료가 없어도 니어·파·스폿 지점 × TTI 최소 동료 ──
+            if (wideZone)
+                for (int k = 0; k < CrossTargets.Count; k++)
+                {
+                    var pt = CrossTargets.Point(_p, w, t, me, k);
+                    var flight = (pt - from).Length() / DMath.Max(ap.CrossLoftedVLo, 1f);
+                    var o = CrossTargets.Receiver(_p, w, s, pt, flight, out _);
+                    if (o < 0) continue;
+                    var cr = PassModel.Best(ap, bp, aw, s, o, from, pt, pressure, PassModel.LoftMode.LoftedOnly);
+                    if (!cr.Valid) continue;
+                    var offside = _eval.OffsideFactor(w, s, o);
+                    var pCross = _eval.CrossSuccess(w, s, cr.XPass) * offside;
+                    // 같은 받는 선수의 크로스가 이미 있으면 성공 확률이 높은 쪽 하나만 (후보 상한 보호)
+                    var dup = -1;
+                    for (int r = 0; r < _rawCount; r++) if (_raw[r].Item == OnBallItem.Cross && _raw[r].Target == o) { dup = r; break; }
+                    if (dup >= 0 && _raw[dup].P >= pCross) continue;
+                    if (dup >= 0) RemoveRaw(dup);
+                    ref var c = ref AddPass(OnBallItem.Cross, o, _vision.IndexOf(o) /* 시야 밖 받는 선수면 −1 */, in cr, offside, _chem != null ? _chem.Chemistry(s, o) : 0f, true, false, aw, ap, t, opp, from, threatFrom);
+                    c.P = pCross;
+                    c.Pre = c.P * c.V;
+                }
 
             // ── 드리블·캐리 8방향 (FR-01) ──
             var dirs = (int)_p.OnBallDribbleDirs;
@@ -304,6 +326,13 @@ namespace RoadToPro.MatchEngine.UtilityAI
             c.LossXt = _p.OnBallXtScale * aw.Threat(ap, opp, lossPoint);
             c.Pre = c.P * c.V;
             return ref c;
+        }
+
+        /// <summary>생성 버퍼에서 r번째를 빼고 뒤를 당긴다 (생성 순서 유지).</summary>
+        void RemoveRaw(int r)
+        {
+            for (int i = r + 1; i < _rawCount; i++) _raw[i - 1] = _raw[i];
+            _rawCount--;
         }
 
         /// <summary>상한을 넘으면 사전 점수 상위만 (동점 = 생성 순서), 남은 후보는 생성 순서 유지.</summary>

@@ -27,6 +27,10 @@
     { "id": "camera.mainBehindMin", "default": 30, "min": 0, "max": 120, "unit": "m", "tag": "[기획]", "source": "specs/042 FR-01, research 07 § 2.1" },
     { "id": "camera.mainBehindMax", "default": 45, "min": 0, "max": 120, "unit": "m", "tag": "[기획]", "source": "specs/042 FR-01, research 07 § 2.1" },
     { "id": "camera.mainHeightMin", "default": 15, "min": 0, "max": 80, "unit": "m", "tag": "[기획]", "source": "specs/042 FR-01, research 07 § 2.1 (추정치)" },
-    { "id": "camera.mainHeightMax", "default": 25, "min": 0, "max": 80, "unit": "m", "tag": "[기획]", "source": "specs/042 FR-01, research 07 § 2.1 (추정치)" }
+    { "id": "camera.mainHeightMax", "default": 25, "min": 0, "max": 80, "unit": "m", "tag": "[기획]", "source": "specs/042 FR-01, research 07 § 2.1 (추정치)" },
+    { "id": "camera.duel.fovScale", "default": 0.45, "min": 0.3, "max": 1, "unit": "", "tag": "[대체]", "source": "specs/081 FR-31 결투(테이크온·태클) 장면 메인 카메라 최소 화각 배율 [미정] — 육안 승인 때 조정" },
+    { "id": "camera.duel.leadSeconds", "default": 1.0, "min": 0, "max": 5, "unit": "s", "tag": "[대체]", "source": "specs/081 FR-31 결투 줌 시작: 사건 이 시간 전 [미정]" },
+    { "id": "camera.duel.tailSeconds", "default": 1.5, "min": 0, "max": 5, "unit": "s", "tag": "[대체]", "source": "specs/081 FR-31 결투 줌 끝: 사건 이 시간 뒤 [미정]" },
+    { "id": "camera.duel.releaseDist", "default": 8, "min": 1, "max": 30, "unit": "m", "tag": "[대체]", "source": "specs/081 FR-31 두 선수가 이 거리보다 멀어지면 기본 프레이밍" }
   ]
 }

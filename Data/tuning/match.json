@@ -12,7 +12,7 @@
     {"id": "standin.subDelay", "default": 25, "min": 0, "max": 120, "unit": "s", "tag": "[대체]", "source": "대체 단계 전용: 교체 1건이 늘리는 데드볼"},
     {"id": "standin.restartDelay", "default": 4, "min": 0, "max": 30, "unit": "s", "tag": "[대체]", "source": "대체 단계 전용: 스로인·골킥·코너·프리킥 준비"},
     {"id": "standin.kickoffDelay", "default": 1, "min": 0, "max": 10, "unit": "s", "tag": "[대체]", "source": "대체 단계 전용: 킥오프 배치 후 출발"},
-    {"id": "standin.holdTime", "default": 1.5, "min": 0.1, "max": 10, "unit": "s", "tag": "[대체]", "source": "대체 단계 전용: 공을 잡고 패스·슈팅까지 최소 시간"},
+    {"id": "standin.holdTime", "default": 0.6, "min": 0.1, "max": 10, "unit": "s", "tag": "[대체]", "source": "대체 단계 전용: 공을 잡고 패스·슈팅까지 최소 시간 | 081: 1.5 → 0.6 (T13: 패스 414 → 1.0 s에서 447, 3회차 0.6 s (≥ 550 목표))"},
     {"id": "standin.shotRange", "default": 24, "min": 5, "max": 40, "unit": "m", "tag": "[대체]", "source": "대체 단계 전용: 슈팅 거리"},
     {"id": "standin.shotProb", "default": 0.35, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "대체 단계 전용: 사거리 안 결정마다 슈팅 확률"},
     {"id": "standin.shotSpeed", "default": 24, "min": 10, "max": 35, "unit": "m/s", "tag": "[대체]", "source": "대체 단계 전용"},

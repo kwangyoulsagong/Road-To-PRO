@@ -50,7 +50,15 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 if (ball.Phase == BallPhase.Controlled && ball.OwnerId >= 0 && ball.OwnerId < Squad.Slots)
                 {
                     ref readonly var o = ref k.State(ball.OwnerId);
-                    var bp = o.Position + o.Facing * BallCarryOffset;
+                    // 081 T12a: GK가 자기 박스에서 손으로 든 공은 몸 위치 (발밑 오프셋을 쓰면 골라인에서 골문 쪽을 볼 때 공이 라인을 넘어 자책골이 됐다)
+                    var held = Squad.IsKeeperSlot(ball.OwnerId) && InOwnBox(ctx, Squad.TeamOfSlot(ball.OwnerId), new Vec3(o.Position.X, o.Position.Y, 0f));
+                    var bp = held ? o.Position : o.Position + o.Facing * BallCarryOffset;
+                    if (held)
+                    {
+                        // 손에 든 공은 골라인 안쪽 (캐치 뒤 탄력으로 GK가 라인 뒤로 밀려도 공은 라인을 넘지 않는다 — 자책골 방지)
+                        var lim = ctx.BallParams.Radius;
+                        bp = new Vec2(bp.X < lim ? lim : (bp.X > ctx.Pitch.LengthM - lim ? ctx.Pitch.LengthM - lim : bp.X), bp.Y);
+                    }
                     var target = new Vec3(bp.X, bp.Y, ctx.BallParams.Radius);
                     if (ctx.Keepers.IsBusySlot(ball.OwnerId))
                     {
@@ -87,9 +95,10 @@ namespace RoadToPro.MatchEngine.Match.Stages
                         });
                     }
                 }
-                if (!crossed && ctx.Flow.InPlay && OutsidePitch(ctx, out var boundary, out var mouth))
+                if (!crossed && ctx.Flow.InPlay && OutsidePitch(ctx, out var boundary, out var mouth) && !EnteringPitch(in ball, boundary))
                 {
-                    // 004는 날아가는·구르는 공의 라인 통과만 낸다. 몰고 나간 공(Controlled)도 같은 사건으로 넘긴다.
+                    // 004는 날아가는·구르는 공의 라인 통과만 낸다. 몰고 나간 공(Controlled)·밖에 남은 공도 같은 사건으로 넘긴다.
+                    // 081 T08b: 단, 밖에서 안으로 들어오는 중인 공(라인 뒤 키커가 던진 스로인)은 제외 — 킥 서브스텝에 아직 밖이라 곧바로 아웃 판정되던 핑퐁 버그
                     crossed = true;
                     board.AddPhysicsCall(new PhysicsCall
                     {
@@ -109,6 +118,24 @@ namespace RoadToPro.MatchEngine.Match.Stages
         }
 
         /// <summary>공 전체가 라인 밖인가 (중심이 라인에서 반지름 넘게). 004 라인 통과 판정과 같은 기준.</summary>
+        /// <summary>081 T08b: Controlled가 아닌 공이 넘은 선 쪽에서 경기장 안으로 움직이는 중인가 (스로인 직후).</summary>
+        /// <summary>던진·찬 공으로 볼 최소 안쪽 속도 (m/s) — 밖에서 거의 멈춘 공이 "들어오는 중"으로 남아 방치되지 않게 (규칙 판정 상수).</summary>
+        const float EnterMinSpeed = 1f;
+
+        static bool EnteringPitch(in BallState ball, BallBoundary boundary)
+        {
+            if (ball.Phase == BallPhase.Controlled || ball.Phase == BallPhase.Rest) return false;
+            var v = ball.Velocity;
+            switch (boundary)
+            {
+                case BallBoundary.GoalLineLow: return v.X > EnterMinSpeed;
+                case BallBoundary.GoalLineHigh: return v.X < -EnterMinSpeed;
+                case BallBoundary.TouchlineLow: return v.Y > EnterMinSpeed;
+                case BallBoundary.TouchlineHigh: return v.Y < -EnterMinSpeed;
+                default: return false;
+            }
+        }
+
         static bool OutsidePitch(MatchContext ctx, out BallBoundary boundary, out bool mouth)
         {
             var pos = ctx.Ball.Position;

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "id": "081-match-feel-slide",
+  "spec": "081",
+  "description": "081 AC-07 늦은 슬라이딩 태클 (플레이어 빌드 시드 20261220, 대체 없음)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261220
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-07"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay081slide"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze081.tackle_slide"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_slide",
+      "kind": "3d"
+    }
+  ]
+}
