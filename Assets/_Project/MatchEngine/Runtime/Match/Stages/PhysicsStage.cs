@@ -119,16 +119,19 @@ namespace RoadToPro.MatchEngine.Match.Stages
 
         /// <summary>공 전체가 라인 밖인가 (중심이 라인에서 반지름 넘게). 004 라인 통과 판정과 같은 기준.</summary>
         /// <summary>081 T08b: Controlled가 아닌 공이 넘은 선 쪽에서 경기장 안으로 움직이는 중인가 (스로인 직후).</summary>
+        /// <summary>던진·찬 공으로 볼 최소 안쪽 속도 (m/s) — 밖에서 거의 멈춘 공이 "들어오는 중"으로 남아 방치되지 않게 (규칙 판정 상수).</summary>
+        const float EnterMinSpeed = 1f;
+
         static bool EnteringPitch(in BallState ball, BallBoundary boundary)
         {
-            if (ball.Phase == BallPhase.Controlled) return false;
+            if (ball.Phase == BallPhase.Controlled || ball.Phase == BallPhase.Rest) return false;
             var v = ball.Velocity;
             switch (boundary)
             {
-                case BallBoundary.GoalLineLow: return v.X > 0f;
-                case BallBoundary.GoalLineHigh: return v.X < 0f;
-                case BallBoundary.TouchlineLow: return v.Y > 0f;
-                case BallBoundary.TouchlineHigh: return v.Y < 0f;
+                case BallBoundary.GoalLineLow: return v.X > EnterMinSpeed;
+                case BallBoundary.GoalLineHigh: return v.X < -EnterMinSpeed;
+                case BallBoundary.TouchlineLow: return v.Y > EnterMinSpeed;
+                case BallBoundary.TouchlineHigh: return v.Y < -EnterMinSpeed;
                 default: return false;
             }
         }
