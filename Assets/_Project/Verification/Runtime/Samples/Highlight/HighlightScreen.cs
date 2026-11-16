@@ -41,9 +41,9 @@ namespace RoadToPro.Verification.Samples.Highlight
         /// <summary>
         /// specs/081 T19: 플레이어 빌드에서 고른 시드 — 에디터에서 찾은 시드(20261409·20261293)는 플레이어 빌드에선 다른 경기가 됐다(시뮬 차이).
         /// 플레이어 안 256시드 탐색(`FeelSceneCoverage`, 2026-11-16, 같은 빌드·플랫폼 재현): 주 장면 5종을 한 경기에 다 갖춘 시드 없음 →
-        /// A = 돌파 성공·실패·스탠딩·늦은 슬라이딩·수비 장면, 헤딩슛 = 20261195, 컷백 슛 골 = 20261267 (256시드 중 1개).
+        /// A = 돌파 성공·실패·스탠딩·헤딩슛·수비 장면, B = 늦은 슬라이딩, 컷백 슛 골 = 20261267(78abc53까지의 엔진에서만).
         /// </summary>
-        const ulong Seed081 = 20261382UL, Seed081Header = 20261195UL, Seed081Cutback = 20261267UL;
+        const ulong Seed081 = 20261247UL, Seed081Slide = 20261220UL, Seed081Cutback = 20261267UL; // 2026-11-16 7b577c7 뒤 플레이어 256시드 재탐색. 컷백 슛 골은 없음(20261267은 78abc53까지의 경기)
 
         static void PlayFeelSeed(ulong seed)
         {
@@ -293,8 +293,9 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["live.freeze.longshot"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && e.Part != BodyPart.Head && ShotDistance(e) >= 25f,
                 e => e.Kind == SimEventKind.Shot && ShotDistance(e) >= 20f, "longshot");
             // specs/081 AC-07: 대체 장면 없이 (fallback 없음) — 없으면 에러 로그로 실패
+            FarmContext.Screens["tool.feelSearch"] = () => StartCoroutine(FeelSearchLog()); // 081 도구: 플레이어 안 시드 탐색 (결과는 로그)
             FarmContext.Screens["livePlay081"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081); Play(false); };
-            FarmContext.Screens["livePlay081header"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081Header); Play(false); };
+            FarmContext.Screens["livePlay081slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081Slide); Play(false); };
             FarmContext.Screens["livePlay081cutback"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081Cutback); Play(false); };
             FarmContext.Screens["live.freeze081.cutback_goal"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && FollowsCutback(e) && ScoredAfter(e), null, "cutback_goal");
             FarmContext.Screens["live.freeze081.takeon_ok"] = () => FreezeEvent(e => e.Kind == SimEventKind.Dribble && (e.B & EventCodes.DribbleSuccess) != 0, null, "takeon_ok");
@@ -305,6 +306,25 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["live.freeze081.defensive"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Defensive, null, 0d, "defensive");
             _halves = StandInHud.Add(doc.rootVisualElement, "halvesLabel", 16f, 352f);
             _halves.style.opacity = 0f; // 058 AC-11 확인 신호 (캡처 제외)
+        }
+
+        /// <summary>081 도구: 플레이어 빌드 안 768시드 탐색 (백그라운드 스레드 — 메인 스레드를 막으면 farm heartbeat가 멈춘다). 종류별 첫 시드를 로그로.</summary>
+        System.Collections.IEnumerator FeelSearchLog()
+        {
+            int[] masks = null;
+            var dir = DataDir;
+            var task = System.Threading.Tasks.Task.Run(() => masks = FeelSceneCoverage.Search(dir, 768));
+            while (!task.IsCompleted) yield return null;
+            if (task.IsFaulted) { Debug.LogError($"[highlight] 081 시드 탐색 실패: {task.Exception}"); yield break; }
+            FeelSceneCoverage.Choose(masks, out var best, out var slide);
+            int head = -1, cut = -1;
+            for (int i = 0; i < masks.Length; i++)
+            {
+                if (head < 0 && (masks[i] & FeelSceneCoverage.HeaderShot) != 0) head = i;
+                if (cut < 0 && (masks[i] & FeelSceneCoverage.CutbackGoal) != 0) cut = i;
+            }
+            string S(int i) => i < 0 ? "없음" : $"{FeelSceneCoverage.FirstSeed + (ulong)i} [{FeelSceneCoverage.Describe(masks[i])}]";
+            Debug.Log($"[highlight] 081 탐색: A {S(best)} · 늦은 슬라이딩 {S(slide)} · 헤딩슛 {S(head)} · 컷백 슛 골 {S(cut)}");
         }
 
         /// <summary>081 AC-07: 헤더 접촉 프레임에서 공과 가장 가까운 머리 뼈까지 거리 (054 접촉 동기화 허용치와 비교 — 로그만).</summary>

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "tool-feel-search",
+  "spec": "tool",
+  "description": "081 도구: 플레이어 빌드 안 768시드 탐색 (장면 종류별 시드 로그). 증거 아님",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261181
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "tool.feelSearch"
+    },
+    {
+      "type": "waitFor",
+      "element": "never-exists-081",
+      "timeoutSec": 700
+    }
+  ]
+}
