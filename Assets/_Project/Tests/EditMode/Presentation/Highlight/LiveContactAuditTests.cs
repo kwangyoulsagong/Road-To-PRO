@@ -124,10 +124,10 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
             TestContext.WriteLine(LiveContactAudit.Summary(all));
         }
 
-        /// <summary>082 FR-05: 고정 시드 10경기 (`Data/e2e/082-live-seeds.json`).</summary>
+        /// <summary>082 FR-05: 고정 시드 10경기 (`Data/e2e/seeds/082-live-seeds.json`).</summary>
         public static ulong[] FixedSeeds()
         {
-            var text = System.IO.File.ReadAllText("Data/e2e/082-live-seeds.json");
+            var text = System.IO.File.ReadAllText("Data/e2e/seeds/082-live-seeds.json");
             var m = System.Text.RegularExpressions.Regex.Match(text, "\"seeds\"\\s*:\\s*\\[([^\\]]*)\\]");
             var parts = m.Groups[1].Value.Split(new[] { ',', ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             var r = new ulong[parts.Length];
