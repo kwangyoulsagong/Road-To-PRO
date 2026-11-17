@@ -1,6 +1,6 @@
 # 083 — 놓친 공중볼 점프 · 이긴 슬라이딩 접촉 · 태스크
 
-상태: 승인됨 (2026-11-17)
+상태: 완료 (2026-11-17) — 추가 태스크 T01a·T02a~d·T08a·T08b, 후속 D25
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 Unity 배치로 돌린다(실패 확인 → 구현 → 통과).
@@ -39,4 +39,4 @@
 
 ## F. 마무리
 - [x] T11 `determinism-reviewer` 리뷰 (`A/DuelSystem.cs` RNG 순서, `MR/MatchSim.cs`·`MR/Replay/StateCheckpoints.cs` — 읽기 전용 확인) — 검증: 지적 사항 0 또는 반영 — 결과: H·M 0. RNG 소비 순서·횟수 그대로(`Resolve`는 결과와 상관없이 2회), 이벤트 A 비트·접촉 강도·다운이 모두 바뀐 결과 하나에서 나옴, 진단 누계는 해시·스냅샷 밖. `CollectGroups`는 읽기 전용·`IsAvailable` 밖 접근 없음·순서 결정적. L1(공 거리 빗나감이 이벤트에서 RNG 빗나감과 구별 안 됨 — 재시뮬로 재현 가능)·L2(진단 누계는 포크 복원 시 0부터 — 테스트는 본 실행 전체를 씀)·L3(`ReplayClip.Aerials` 요소 변경 가능 — 기존 `Frames`·`Events`와 같은 패턴)는 반영 안 함
-- [ ] T12 `/verify 083` — `farm.py logic --spec 083 --scope auto` · `farm.py shot --scenario 083-aerial-slide`(mac-m1-1600p) 육안 승인 · 진단 표(`audit-before/after.json`) report.html 포함 · `farm.py bench --spec 083`(010 결정 틱 ≤ 12 µs) · 058 하이라이트 Performance 테스트 결과 · 아티팩트 발행 — 검증: AC-01~07 전부 통과
+- [x] T12 `/verify 083` — `farm.py logic --spec 083 --scope auto` · `farm.py shot --scenario 083-aerial-slide`(mac-m1-1600p) 육안 승인 · 진단 표(`audit-before/after.json`) report.html 포함 · `farm.py bench --spec 083`(010 결정 틱 ≤ 12 µs) · 058 하이라이트 Performance 테스트 결과 · 아티팩트 발행 — 검증: AC-01~07 전부 통과 — 결과: logic `--scope auto`(Core·Architecture·MatchEngine·Presentation·Verification) 1723개 중 1710 통과·실패 0·건너뜀 13, 결정론 88/88. IL2CPP 벤치: 010 결정 틱 3.72 µs(≤ 12)·실경기 틱 GC 0 B·소유자 결정 5.42 µs·온볼 GC 0 B, 초과·회귀 0. shot `083-aerial-slide` 2장(승인 캡처와 픽셀 동일). AC-01~07 전부 통과. 벤치를 logic 뒤에 돌려 리포트에 빠져 logic → shot 1회 재실행(코드 변경 없음). 리포트 https://claude.ai/artifact/5RUnXrF1mX9834EiwpkeKi
