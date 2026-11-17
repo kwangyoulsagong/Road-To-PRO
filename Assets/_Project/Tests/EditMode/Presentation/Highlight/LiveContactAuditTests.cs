@@ -46,13 +46,12 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
         public void Audit_OnOff_SameHash()
         {
             const ulong seed = 20261247UL;
-            var plain = LiveContactAudit.NewSim(seed);
-            plain.RunToEnd();
-            var scales = LiveContactAudit.CastScales();
-            var rows = LiveContactAudit.RunSeed(seed, scales);
+            // 공유 경기(진단이 읽은 경기)와 새로 돌린 경기의 상태 해시가 같다 — 진단이 시뮬을 바꾸지 않는다
+            var rows = LiveContactAudit.RunSeed(seed, LiveContactAudit.CastScales());
+            var audited = LiveContactAudit.Played90(seed);
             var again = LiveContactAudit.NewSim(seed);
             again.RunToEnd();
-            Assert.AreEqual(plain.StateHash(), again.StateHash());
+            Assert.AreEqual(audited.StateHash(), again.StateHash());
             TestContext.WriteLine(LiveContactAudit.Summary(rows));
         }
 
@@ -63,8 +62,10 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
         {
             if (_fixed != null) return _fixed;
             var scales = LiveContactAudit.CastScales();
+            var seeds = FixedSeeds();
+            LiveContactAudit.Prewarm(seeds); // 경기 10개 병렬, 측정(리그)은 메인 스레드
             var all = new System.Collections.Generic.List<LiveContactAudit.Row>();
-            foreach (var s in FixedSeeds()) all.AddRange(LiveContactAudit.RunSeed(s, scales));
+            foreach (var s in seeds) all.AddRange(LiveContactAudit.RunSeed(s, scales));
             return _fixed = all;
         }
 

@@ -75,23 +75,50 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
         }
 
         static MatchTuning _tuning;
+        static readonly object Gate = new object();
+        static readonly Dictionary<ulong, MatchSim> Played = new Dictionary<ulong, MatchSim>();
 
-        /// <summary>플레이어 하이라이트와 같은 실경기 픽스처 (HighlightScreen·FeelSceneCoverage: 058 LiveMatchFixture + 판단 벤치 튜닝).</summary>
-        public static MatchSim NewSim(ulong seed)
+        static MatchTuning Tuning()
         {
-            if (_tuning == null)
+            lock (Gate)
             {
-                var data = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Data");
-                _tuning = LiveMatchFixture.Tuning(new DecisionBenchWorkloads(data).Tuning, data);
+                if (_tuning == null)
+                {
+                    var data = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "Data");
+                    _tuning = LiveMatchFixture.Tuning(new DecisionBenchWorkloads(data).Tuning, data);
+                }
+                return _tuning;
             }
-            return new MatchSim(LiveMatchFixture.Prepare(MatchBenchWorkloads.Setup(seed)), _tuning, LiveMatchFixture.Options());
+        }
+
+        /// <summary>플레이어 하이라이트와 같은 실경기 픽스처 (HighlightScreen·FeelSceneCoverage: 058 LiveMatchFixture + 판단 벤치 튜닝). 새 경기(아직 안 돌림).</summary>
+        public static MatchSim NewSim(ulong seed) =>
+            new MatchSim(LiveMatchFixture.Prepare(MatchBenchWorkloads.Setup(seed)), Tuning(), LiveMatchFixture.Options());
+
+        /// <summary>
+        /// 90분을 끝낸 경기 (시드별 1회, 테스트 클래스끼리 공유 — 경기는 결정론이라 결과가 같다). 읽기만 할 것.
+        /// 2026-11-17 테스트 시간 단축: 같은 시드 경기를 클래스마다 다시 돌리던 것을 없앰.
+        /// </summary>
+        public static MatchSim Played90(ulong seed)
+        {
+            lock (Gate) if (Played.TryGetValue(seed, out var s)) return s;
+            var sim = NewSim(seed);
+            sim.RunToEnd();
+            lock (Gate) Played[seed] = sim;
+            return sim;
+        }
+
+        /// <summary>여러 시드를 미리 병렬로 돌린다 (경기 하나는 단일 스레드 — 20-match-engine 규칙: 병렬은 경기 여러 개를 나눌 때만).</summary>
+        public static void Prewarm(IReadOnlyList<ulong> seeds)
+        {
+            Tuning();
+            System.Threading.Tasks.Parallel.For(0, seeds.Count, i => Played90(seeds[i]));
         }
 
         /// <summary>시드 하나: 실경기 하이라이트 장면 전부의 헤더·슬라이딩 사건 행.</summary>
         public static List<Row> RunSeed(ulong seed, float[] scales)
         {
-            var sim = NewSim(seed);
-            sim.RunToEnd();
+            var sim = Played90(seed);
             var list = LiveSceneSelector.Select(sim.Result.EventLog, sim.Result.EndTick, PitchSpec.Default, LiveMatchFixture.MyPlayerId, new SceneScoreTable());
             var rows = new List<Row>();
             for (int i = 0; i < list.Scenes.Length; i++)
@@ -127,11 +154,8 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
             const float rate = 1.5f, fps = 60f;
             using var kit = new AnimRigKit(data, scales, actors.ToArray());
             var meter = new MotionMeter(kit.Plan, kit.Rigs, actors.ToArray(), MotionStandardsTests.Load(), $"live-{seed}-{scene}", rate, fps) { Posts = MotionRun.GoalPosts };
-            kit.System.Diagnostics = meter;
-            long n = (long)Math.Floor((data.EndTime - data.StartTime) * fps / rate);
-            for (long f = 0; f <= n; f++) kit.System.ApplyAt(data.StartTime + (float)(f * (double)rate / fps));
-            meter.Finish();
-            kit.System.Diagnostics = null;
+            // 접촉만 잰다: 포즈 = f(t)라 장면 전체 재생(속도·미끄러짐 지표용) 없이 이벤트 시각만 적용해도 같은 값 (MotionMeter.MeasureContacts 주석).
+            // 전에는 장면마다 60 fps 전체 재생 — 진단 시간의 대부분이었다 (2026-11-17 테스트 시간 단축)
             meter.MeasureContacts(kit.System.ApplyAt);
 
             foreach (var r in rows)

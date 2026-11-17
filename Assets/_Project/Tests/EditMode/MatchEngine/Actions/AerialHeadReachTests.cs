@@ -53,10 +53,11 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
         {
             long headers = 0;
             float overHead = float.MinValue, horizontal = 0f, underLow = float.MinValue;
-            foreach (var seed in new ulong[] { 20261247UL, 20261220UL, 20261142UL })
+            var seeds = new ulong[] { 20261247UL, 20261220UL, 20261142UL }; // 082 고정 시드 묶음의 일부 — 진단과 같은 경기를 공유
+            LiveContactAudit.Prewarm(seeds);
+            foreach (var seed in seeds)
             {
-                var sim = LiveContactAudit.NewSim(seed);
-                sim.RunToEnd();
+                var sim = LiveContactAudit.Played90(seed);
                 var a = sim.Context.Actions.Aerials;
                 headers += a.Headers;
                 if (a.Headers == 0) continue;

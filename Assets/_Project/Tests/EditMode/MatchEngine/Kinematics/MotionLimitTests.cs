@@ -10,12 +10,17 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Kinematics
     public class MotionLimitTests
     {
         /// <summary>합성 경기 1,000개 × 5분 (22명, 고정 시드 무작위 명령·접촉) — "운동 한계 초과" 0건.</summary>
-        [Test, Timeout(1_200_000)] // Mono 에디터에서 수 분 걸린다 (5분 × 1,000경기 = 3천만 서브스텝)
+        [Test, Timeout(1_200_000)] // 5분 × 1,000경기 = 3천만 서브스텝
         public void SyntheticMatches1000x5min_NoViolation()
         {
-            var monitor = new MotionLimitMonitor();
-            for (int m = 0; m < 1000; m++)
+            // 경기마다 고정 시드·감시기가 독립이라 경기 단위로 병렬 (경기 하나는 단일 스레드 — 20-match-engine 규칙).
+            // 결과는 순서와 무관: 실패가 있으면 가장 앞 경기 번호를 보고. 2026-11-17 테스트 시간 단축(직렬 240 s)
+            const int Matches = 1000;
+            var fails = new string[Matches];
+            _ = Params; // 지연 초기화(??=)를 병렬 전에 한 번 — 스레드 경합 방지
+            System.Threading.Tasks.Parallel.For(0, Matches, m =>
             {
+                var monitor = new MotionLimitMonitor();
                 var rng = new SeedRng(10_000UL + (ulong)m);
                 var k = new KinematicsSystem(Params, RandomSquad(rng));
                 k.Monitor = monitor;
@@ -28,9 +33,10 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Kinematics
                 if (monitor.Failed)
                 {
                     var v = monitor[0];
-                    Assert.Fail($"경기 {m}: 서브스텝 {v.Substep} 선수 {v.PlayerId} {v.Kind} = {v.Value} > {v.Limit} (총 {monitor.TotalViolations}건)");
+                    fails[m] = $"경기 {m}: 서브스텝 {v.Substep} 선수 {v.PlayerId} {v.Kind} = {v.Value} > {v.Limit} (총 {monitor.TotalViolations}건)";
                 }
-            }
+            });
+            foreach (var f in fails) if (f != null) Assert.Fail(f);
         }
 
         [Test]
