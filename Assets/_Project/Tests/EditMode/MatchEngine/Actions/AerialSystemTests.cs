@@ -14,7 +14,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
         const int Kicker = 7, Att = 9, Def = 14;
 
         /// <summary>팀 0 공격 골문 앞 depth m 지점 위로 떨어지는 뜬 공. 공격수·수비수를 착지점 근처에 둔다.</summary>
-        static DuelFixture Drop(float depth, bool attacker = true, bool defender = true, float defOffset = 0.6f, ulong seed = 7181UL, bool cross = true)
+        static DuelFixture Drop(float depth, bool attacker = true, bool defender = true, float defOffset = 0.6f, ulong seed = 7181UL, bool cross = true, float attOffset = -0.4f)
         {
             var f = new DuelFixture(seed);
             var ctx = f.Ctx;
@@ -22,7 +22,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
             var goal = ctx.OpponentGoal(0);
             var land = new Vec2(goal.X - dir * depth, goal.Y);
             f.Put(Kicker, new Vec2(land.X - dir * 25f, 8f), new Vec2(dir, 0f));
-            if (attacker) f.Put(Att, land + new Vec2(-dir * 0.4f, 0f), new Vec2(dir, 0f));
+            if (attacker) f.Put(Att, land + new Vec2(dir * attOffset, 0f), new Vec2(dir, 0f));
             if (defender) f.Put(Def, land + new Vec2(dir * defOffset, 0.2f), new Vec2(-dir, 0f));
             f.Put(11, new Vec2(goal.X - dir * 0.5f, goal.Y + 3f), new Vec2(-dir, 0f));
             ctx.Ball = BallState.InAir(new Vec3(land.X - dir * 1.5f, land.Y, 6f), new Vec3(dir * 3f, 0f, -1f), Vec3.Zero);
@@ -92,7 +92,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
         [Test]
         public void AttackerAlone_InBox_HeaderShot_PartHead()
         {
-            var f = Drop(7f, defender: false);
+            // 082 FR-03 ③: 헤더는 승자–공 수평 0.6 m 안에서만 — 이 픽스처는 결정 단계가 없어 승자가 접촉 지점으로 달려가지 않으므로
+            // 공이 머리 높이(≈ 2.2 m)를 지나는 지점(착지점 + 0.85 m) 근처에 세운다 (전: −0.4 m, 팔 reach 2.9 m 높이에서 접촉)
+            var f = Drop(7f, defender: false, attOffset: 0.8f);
             f.Ticks(20);
             var s = Find(f, SimEventKind.Shot);
             Assert.IsTrue(s.HasValue, "박스 안 공격수 단독 → 헤딩슛");

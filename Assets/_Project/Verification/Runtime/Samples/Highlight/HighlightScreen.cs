@@ -45,6 +45,9 @@ namespace RoadToPro.Verification.Samples.Highlight
         /// </summary>
         const ulong Seed081 = 20261247UL, Seed081Slide = 20261220UL, Seed081Cutback = 20261267UL; // 2026-11-16 7b577c7 뒤 플레이어 256시드 재탐색. 컷백 슛 골은 없음(20261267은 78abc53까지의 경기)
 
+        /// <summary>specs/082 AC-05: 점프 헤딩슛 · 늦은 슬라이딩 (082 엔진 뒤 플레이어 768시드 탐색 `tool-feel-search`).</summary>
+        const ulong Seed082 = 20261224UL, Seed082Slide = 20261192UL; // 2026-11-17 082 엔진(M-1 반영) 뒤 플레이어 768시드 탐색
+
         static void PlayFeelSeed(ulong seed)
         {
             if (_matchSeed != seed) { _matchSeed = seed; _match = null; }
@@ -296,6 +299,10 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["tool.feelSearch"] = () => StartCoroutine(FeelSearchLog()); // 081 도구: 플레이어 안 시드 탐색 (결과는 로그)
             FarmContext.Screens["livePlay081"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081); Play(false); };
             FarmContext.Screens["livePlay081slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081Slide); Play(false); };
+            FarmContext.Screens["livePlay082"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed082); Play(false); };
+            FarmContext.Screens["livePlay082slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed082Slide); Play(false); };
+            FarmContext.Screens["live.freeze082.header"] = () => { FreezeEvent(e => FeelSceneCoverage.IsJumpHeader(e), null, "header_jump", 0d); StartCoroutine(LogHeadBall()); }; // 접촉 순간
+            FarmContext.Screens["live.freeze082.tackle_slide"] = () => FreezeEvent(e => e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleSliding) != 0 && (e.A & EventCodes.TackleLate) != 0, null, "tackle_slide", 0.3d); // 접촉 + 0.3 s: 누운 자세
             FarmContext.Screens["livePlay081cutback"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081Cutback); Play(false); };
             FarmContext.Screens["live.freeze081.cutback_goal"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && FollowsCutback(e) && ScoredAfter(e), null, "cutback_goal");
             FarmContext.Screens["live.freeze081.takeon_ok"] = () => FreezeEvent(e => e.Kind == SimEventKind.Dribble && (e.B & EventCodes.DribbleSuccess) != 0, null, "takeon_ok");
@@ -317,14 +324,15 @@ namespace RoadToPro.Verification.Samples.Highlight
             while (!task.IsCompleted) yield return null;
             if (task.IsFaulted) { Debug.LogError($"[highlight] 081 시드 탐색 실패: {task.Exception}"); yield break; }
             FeelSceneCoverage.Choose(masks, out var best, out var slide);
-            int head = -1, cut = -1;
+            int head = -1, cut = -1, jump = -1;
             for (int i = 0; i < masks.Length; i++)
             {
+                if (jump < 0 && (masks[i] & FeelSceneCoverage.HeaderJumpShot) != 0) jump = i;
                 if (head < 0 && (masks[i] & FeelSceneCoverage.HeaderShot) != 0) head = i;
                 if (cut < 0 && (masks[i] & FeelSceneCoverage.CutbackGoal) != 0) cut = i;
             }
             string S(int i) => i < 0 ? "없음" : $"{FeelSceneCoverage.FirstSeed + (ulong)i} [{FeelSceneCoverage.Describe(masks[i])}]";
-            Debug.Log($"[highlight] 081 탐색: A {S(best)} · 늦은 슬라이딩 {S(slide)} · 헤딩슛 {S(head)} · 컷백 슛 골 {S(cut)}");
+            Debug.Log($"[highlight] 081 탐색: A {S(best)} · 늦은 슬라이딩 {S(slide)} · 헤딩슛 {S(head)} · 컷백 슛 골 {S(cut)} · 082 점프 헤딩슛 {S(jump)}");
         }
 
         /// <summary>081 AC-07: 헤더 접촉 프레임에서 공과 가장 가까운 머리 뼈까지 거리 (054 접촉 동기화 허용치와 비교 — 로그만).</summary>

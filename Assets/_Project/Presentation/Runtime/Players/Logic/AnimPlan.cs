@@ -95,24 +95,32 @@ namespace RoadToPro.Presentation.Players.Logic
 
         static float Smooth(float x) => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
 
-        public static float Ramp(in ActionChoice a, float t)
+        public static float Ramp(in ActionChoice a, float t) => Ramp(a, t, float.NegativeInfinity);
+
+        /// <summary>from = 같은 선수 앞 액션의 접촉 시각(082 T07b ③): 보정은 그 뒤에서 들어온다 — 다음 동작 보정이 앞 접촉 위치를 끌지 않게.</summary>
+        public static float Ramp(in ActionChoice a, float t, float from)
         {
             float a0 = Math.Min(a.Start - ActionClipSelector.ApproachWindow, a.ContactAt - MinRamp);
+            if (from < a.ContactAt && from > a0) a0 = from;
             if (t <= a0 || t >= a.End + Release) return 0f;
             if (t < a.ContactAt) return Smooth((t - a0) / Math.Max(1e-4f, a.ContactAt - a0));
             return 1f - Smooth((t - a.ContactAt) / Math.Max(1e-4f, a.End + Release - a.ContactAt));
         }
 
-        public static Vec3 Clamp(Vec3 o)
+        public static Vec3 Clamp(Vec3 o) => Clamp(o, MaxOffset);
+
+        /// <summary>082 FR-03 ③: 헤더 액션 동안은 상한이 그 액션의 RootMax(0.6 m).</summary>
+        public static Vec3 Clamp(Vec3 o, float max)
         {
             float m = o.Length();
-            return m > MaxOffset ? o * (MaxOffset / m) : o;
+            return m > max ? o * (max / m) : o;
         }
     }
 
     /// <summary>
     /// 화면 공 보정 (specs/043 FR-44): 접촉 직전 BallPullTime 동안 화면상의 공을 클립 접촉점 쪽으로 최대 BallPullMax만큼 당긴다.
-    /// 접촉 순간 이후에는 0 — 화면 공 = 시뮬 공. 시뮬 공 위치는 바꾸지 않는다.
+    /// 접촉 순간 이후에는 0 — 화면 공 = 시뮬 공(043 접촉 정확도). 그래서 082 FR-02는 접촉 프레임 거리를 시뮬 공 기준으로 판정한다(보정에 기대지 않음).
+    /// 시뮬 공 위치는 바꾸지 않는다.
     /// </summary>
     public static class BallVisualCorrection
     {
@@ -120,10 +128,14 @@ namespace RoadToPro.Presentation.Players.Logic
         /// <summary>054 FR-35 [제안] 15 cm.</summary>
         public const float BallPullMax = 0.15f;
 
-        public static Vec3 Offset(Vec3 residual, float contactAt, float t)
+        public static Vec3 Offset(Vec3 residual, float contactAt, float t) => Offset(residual, contactAt, t, float.NegativeInfinity);
+
+        /// <summary>from = 앞 접촉 키 시각(082 T07b): 창 시작 = max(접촉 − BallPullTime, from). 앞 접촉 프레임에서는 0.</summary>
+        public static Vec3 Offset(Vec3 residual, float contactAt, float t, float from)
         {
-            if (t >= contactAt || t <= contactAt - BallPullTime) return Vec3.Zero;
-            float w = (t - (contactAt - BallPullTime)) / BallPullTime;
+            float start = Math.Max(contactAt - BallPullTime, from);
+            if (t >= contactAt || t <= start) return Vec3.Zero;
+            float w = (t - start) / Math.Max(1e-4f, contactAt - start);
             w = w * w * (3 - 2 * w);
             float m = residual.Length();
             var r = m > BallPullMax ? residual * (BallPullMax / m) : residual;
@@ -150,6 +162,7 @@ namespace RoadToPro.Presentation.Players.Logic
         readonly LocoStyle[] _style;            // 엔티티별 정면 원형 로코모션 (055)
         readonly KickArchetype[] _kick;         // 엔티티별 킥 원형 (055)
         readonly List<(float contactAt, Vec3 pull)> _ballPulls = new List<(float, Vec3)>();
+        float[] _pullFrom;
         MotionTrack _track;
         YawTrack _yaw;
         PostureTrack _posture;
@@ -209,6 +222,9 @@ namespace RoadToPro.Presentation.Players.Logic
             p.BuildLocomotion(log);
             p.BuildActions(map, log);
             p._keys = new ContactKeys(d);
+            // 082 T07b: 보정 창은 앞 접촉 키 뒤에서 시작 (다음 터치 보정이 앞 접촉 프레임 화면 공을 끌지 않게)
+            p._pullFrom = new float[p._ballPulls.Count];
+            for (int i = 0; i < p._pullFrom.Length; i++) p._pullFrom[i] = p._keys.PrevKeyBefore(p._ballPulls[i].contactAt);
             p._track = new MotionTrack(d);
             p._fault = new FaultFollower(d, p._track);
             p._interact = new InteractionPlanner(d, GoalPosts);
@@ -299,6 +315,12 @@ namespace RoadToPro.Presentation.Players.Logic
         }
 
         readonly List<int> _gateBuf = new List<int>();
+        readonly List<int> _headerBuf = new List<int>(1);
+        /// <summary>070 FR-11 빗나간 슬라이딩 다운 시간(s) = Data/tuning/action.json act.tackle.slideDown (082 FR-04, 테스트가 같음을 확인).</summary>
+        public const float SlideDown = 1.2f;
+        /// <summary>tackle_slide_r 누운 자세의 마지막 클립 시각(s): 접촉(0.4 s) ~ 0.8 s 골반 0.39 m 평탄, 0.8 s부터 일어남 (082 T09 측정).</summary>
+        public const float SlideHoldClipTime = 0.8f;
+
         /// <summary>태클 동작 허용 거리 (058 FR-50, highlight.tackleMaxDistance).</summary>
         public const float TackleMaxDistance = TackleGate.DefaultMaxDistance;
 
@@ -329,12 +351,21 @@ namespace RoadToPro.Presentation.Players.Logic
                 var who = map.Who(ev.Kind);
                 int e = EntityFor(ev, who);
                 if (e < 0 || e >= HighlightData.Entities) continue;
-                if (ev.Kind == SimEventKind.Tackle && (ev.Flags & AnimEvent.FromSim) != 0) cands = TackleStyle(cands, (ev.Flags & EventCodes.TackleSliding) != 0); // 070: 슬라이딩 비트 → 슬라이딩 클립 (합성 장면은 그대로)
-                if (TackleGate.Applies(ev.Kind)) // 058 FR-50·51: 상대가 가까울 때만 태클 동작
+                bool simSlide = ev.Kind == SimEventKind.Tackle && (ev.Flags & AnimEvent.FromSim) != 0 && (ev.Flags & EventCodes.TackleSliding) != 0;
+                // 070: 슬라이딩 비트 → 슬라이딩 클립 (합성 장면은 그대로). 082 T03 원인 ④: 결과별 후보(win = 서서 tackle_win_r)보다 비트가 먼저
+                if (ev.Kind == SimEventKind.Tackle && (ev.Flags & AnimEvent.FromSim) != 0) cands = TackleStyle(simSlide ? map.Candidates(ev.Kind) : cands, simSlide);
+                if (TackleGate.Applies(ev.Kind) && !simSlide) // 058 FR-50·51: 상대가 가까울 때만 태클 동작 (082 원인 ①: 실경기 슬라이딩은 시뮬이 판정 거리를 이미 확인 — 제외)
                 {
                     TackleGate.Filter(_lib, cands, _d, ev, e, TackleMaxDistance, _gateBuf, log);
                     if (_gateBuf.Count == 0) continue;
                     cands = _gateBuf;
+                }
+                bool header = HeaderMotion.IsHeader(ev) && !MissesBall(ev);
+                if (header) // 082 FR-01: 필요한 점프로 점프/서서 헤딩을 고른다 (후보에 있을 때만)
+                {
+                    int hc = HeaderMotion.Choose(_lib, ev.BallPos.Y, ScaleOf(e));
+                    for (int i = 0; i < cands.Count; i++)
+                        if (cands[i] == hc) { _headerBuf.Clear(); _headerBuf.Add(hc); cands = _headerBuf; break; }
                 }
                 bool hit = ev.Kind == SimEventKind.Foul || ev.Kind == SimEventKind.Injury;
                 float t = ev.Time + (ev.Kind == SimEventKind.Goal ? CelebrateDelay : 0f);
@@ -364,12 +395,31 @@ namespace RoadToPro.Presentation.Players.Logic
                         // 접촉 순간 루트 오차 ≤ 10 cm (054 FR-02). 남는 차이는 화면 공 보정(≤ 15 cm, FR-35)이 맡는다
                         var offset = choice.RootOffset;
                         float m = offset.Length();
-                        var clamped = m > MotionDefaults.RootContactMax ? offset * (MotionDefaults.RootContactMax / m) : offset;
+                        bool hd = header && _lib.Get(choice.Clip).ContactPart == BodyPart.Head;
+                        float cap = hd ? HeaderMotion.RootCap(_lib.Get(choice.Clip).ContactPoint, ScaleOf(e)) : MotionDefaults.RootContactMax; // 082 FR-03 ③: 헤더만 headRadius + 이마 앞 거리까지
+                        var clamped = m > cap ? offset * (cap / m) : offset;
                         var residual = offset - clamped;
-                        // 높이 차도 화면 공이 맡는다 (시뮬 공 높이는 선수 키를 모른다: 002·008 전까지)
-                        var pull = residual * -1f + new Vec3(0, _lib.Get(choice.Clip).ContactPoint.Y * ScaleOf(e) - ev.BallPos.Y, 0);
+                        float clipY = _lib.Get(choice.Clip).ContactPoint.Y * ScaleOf(e);
+                        float lift = 0f; // 082 FR-03 ②
+                        if (hd)
+                        {
+                            int st = _lib.IndexOf(HeaderMotion.StandClip);
+                            bool jump = _lib.Get(choice.Clip).Id == HeaderMotion.JumpClip && st >= 0;
+                            lift = jump ? HeaderMotion.JumpLift(ev.BallPos.Y, _lib.Get(choice.Clip).ContactPoint.Y, _lib.Get(st).ContactPoint.Y, ScaleOf(e))
+                                        : HeaderMotion.Lift(ev.BallPos.Y, _lib.Get(choice.Clip).ContactPoint.Y, ScaleOf(e));
+                        }
+                        // 남는 높이 차는 화면 공이 맡는다 (헤더는 리프트 뒤 차이)
+                        var pull = residual * -1f + new Vec3(0, clipY + lift - ev.BallPos.Y, 0);
                         if (pull.LengthSq() > 1e-8f) _ballPulls.Add((choice.ContactAt, pull));
                         choice = choice.WithRootOffset(clamped);
+                        if (hd) choice = choice.WithHeader(lift, cap);
+                    }
+                    // 082 FR-04: 빗나간 슬라이딩은 070 다운(act.tackle.slideDown)이 끝날 때까지 누운 자세(클립 시각 SlideHoldClipTime)로 멈췄다가 일어난다
+                    if (simSlide && ev.Outcome == ActionOutcome.Fail)
+                    {
+                        float tHold = choice.Start + SlideHoldClipTime / choice.Rate;
+                        float hold = choice.ContactAt + SlideDown - tHold;
+                        if (hold > 0f) choice = choice.WithHold(SlideHoldClipTime, hold);
                     }
                     tl.EndBefore(choice.Start, choice.ContactAt);
                 }
@@ -459,21 +509,27 @@ namespace RoadToPro.Presentation.Players.Logic
             var tl = _tl[e];
             float actW = 0f;
             Vec3 off = Vec3.Zero;
+            float lift = 0f, rootMax = RootCorrection.MaxOffset;
+            float prevContact = float.NegativeInfinity;
             for (int k = 0; k < tl.Count; k++)
             {
                 var ac = tl.Get(k);
-                off += ac.RootOffset * RootCorrection.Ramp(ac, t);
+                float ramp = RootCorrection.Ramp(ac, t, prevContact);
+                if (ac.ContactAt > prevContact) prevContact = ac.ContactAt;
+                off += ac.RootOffset * ramp;
+                if (ac.Lift != 0f) lift += ac.Lift * HeaderMotion.LiftWeight(ac.Start, ac.ContactAt, t); // 082 FR-03 ②
+                if (ramp > 0f && ac.RootMax > rootMax) rootMax = ac.RootMax;
                 float w = ActionWeight(ac, tl.IsHit(k), t);
                 if (w <= 0) continue;
                 w = Math.Min(w, 1f - actW);
                 var c = _lib.Get(ac.Clip);
-                float ct = Math.Min(c.Length, Math.Max(0f, (t - ac.Start) * ac.Rate));
+                float ct = ac.ClipTime(t, c.Length);
                 s.Add(ac.Clip, ct, w);
                 actW += w;
             }
             _interact.At(e, t, out var ix, out var iz, out var twist);
             off += new Vec3(ix, 0, iz);
-            s.RootOffset = RootCorrection.Clamp(off);
+            s.RootOffset = RootCorrection.Clamp(off, rootMax) + new Vec3(0, lift, 0);
             s.Twist = twist * (1f - actW);
             if (_fault.Active(e))
             {
@@ -533,7 +589,7 @@ namespace RoadToPro.Presentation.Players.Logic
         {
             var b = _keys.Ball(t);
             for (int i = 0; i < _ballPulls.Count; i++)
-                b += BallVisualCorrection.Offset(_ballPulls[i].pull, _ballPulls[i].contactAt, t);
+                b += BallVisualCorrection.Offset(_ballPulls[i].pull, _ballPulls[i].contactAt, t, _pullFrom[i]);
             return b;
         }
 

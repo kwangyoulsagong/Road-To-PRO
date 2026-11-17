@@ -222,6 +222,9 @@ namespace RoadToPro.MatchEngine.Actions
         public const string AerialRadius = "act.aerial.radius";
         public const string AerialTtiSlack = "act.aerial.ttiSlack";
         public const string AerialHeightK = "act.aerial.heightK";
+        public const string AerialHeadK = "act.aerial.headK";
+        public const string AerialHeadRadius = "act.aerial.headRadius";
+        public const string AerialHeadLow = "act.aerial.headLow";
         public const string AerialJumpLo = "act.aerial.jumpLo";
         public const string AerialJumpHi = "act.aerial.jumpHi";
         public const string AerialRunUpMax = "act.aerial.runUpMax";

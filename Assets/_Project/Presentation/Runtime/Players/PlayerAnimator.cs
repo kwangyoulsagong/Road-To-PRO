@@ -80,7 +80,7 @@ namespace RoadToPro.Presentation.Players
             }
             for (int k = 0; k < _slot.Length; k++)
                 if (!_want[k]) _mix.SetInputWeight(k, 0f);
-            _rig.SetRoot(new Vector3(s.Root.X, 0f, s.Root.Z), s.Yaw);
+            _rig.SetRoot(new Vector3(s.Root.X, s.Root.Y, s.Root.Z), s.Yaw); // 082 FR-03 ②: 헤더 리프트(수직), 그 밖에는 0
         }
 
         public void Dispose()

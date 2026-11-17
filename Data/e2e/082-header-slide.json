@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "082-header-slide",
+  "spec": "082",
+  "description": "082 AC-05 점프 헤딩슛 접촉 순간 · 늦은 슬라이딩 누운 자세 (플레이어 빌드 시드 20261224·20261192, 대체 없음)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261224
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-05"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay082"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze082.header"
+    },
+    {
+      "type": "capture",
+      "name": "header_jump",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "livePlay082slide"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze082.tackle_slide"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_slide",
+      "kind": "3d"
+    }
+  ]
+}

@@ -25,6 +25,16 @@ namespace RoadToPro.MatchEngine.Actions
         public static float Reach(ActionParams p, float heightCm, float jumpH, bool keeperHands) =>
             heightCm * p.AerialHeightK / 100f + jumpH + (keeperHands ? p.AerialGkBonus : 0f);
 
+        /// <summary>specs/082 FR-03 ①: 헤더 머리 도달 높이 = 키(cm) × headK(이마 높이 비율)/100 + jumpH. 경합 점수의 reach(팔 기준)와 다르다.</summary>
+        public static float HeadReach(ActionParams p, float heightCm, float jumpH) => heightCm * p.AerialHeadK / 100f + jumpH;
+
+        /// <summary>specs/082 FR-03 ① (T05a): 헤더 최저 높이 = 서 있는 이마 높이(키 × headK) − headLow(무릎 굽혀 낮추는 범위). 이보다 낮은 공은 헤더가 아니다.</summary>
+        public static float HeadLow(ActionParams p, float heightCm) => heightCm * p.AerialHeadK / 100f - p.AerialHeadLow;
+
+        /// <summary>접촉 게이트 높이: GK 손 처리면 손 reach(011), 아니면 머리 도달 (082 FR-03 ①).</summary>
+        public static float ContactReach(ActionParams p, float heightCm, float jumpH, bool keeperHands) =>
+            keeperHands ? Reach(p, heightCm, jumpH, true) : HeadReach(p, heightCm, jumpH);
+
         public static float Timing(ActionParams p, float tArrive, float tLand)
         {
             var w = p.AerialTimingWin > 1e-4f ? p.AerialTimingWin : 1e-4f;

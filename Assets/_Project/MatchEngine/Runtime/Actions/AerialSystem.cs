@@ -29,7 +29,7 @@ namespace RoadToPro.MatchEngine.Actions
     /// ② <see cref="OnSubstep"/>: 내려오는 공이 착지까지 act.aerial.decideLead(1 s) 이하로 남은 첫 서브스텝에 참여자(착지점 반경 2 m · TTI ≤ t_land + 0.3 s, 최대 6명 —
     /// 크로스가 아닌 뜬 공은 양 팀이 모두 있어야 경합, 아니면 일반 수신)의
     /// 점수(FR-03)로 승자를 RNG 1개, 결과 오차를 RNG 4개로 정한다(참여 0명이어도 같은 소비 — FR-61). 동작 정보(FR-06)를 기록한다.
-    /// ③ 승자는 접촉 지점으로 달려가고(<see cref="TryChase"/>), 공에 닿는 서브스텝(수평 경합 반경 안 · 공 높이 ≤ min(reach, contactZ))에 헤더를 실행한다(준비 시간 없음).
+    /// ③ 승자는 접촉 지점으로 달려가고(<see cref="TryChase"/>), 공에 닿는 서브스텝(수평 headRadius 안 · 공 높이 ≤ min(머리 도달, contactZ), 082 FR-03)에 헤더를 실행한다(준비 시간 없음).
     /// 공이 1 m 아래로 내려올 때까지 못 닿으면 헤더 없이 일반 수신으로 넘긴다.
     /// 결정~실행 사이 다른 선수는 공을 잡지 못한다(<see cref="HoldsBall"/>). 상태 → 해시(쓸 때만)·스냅샷.
     /// </summary>
@@ -52,13 +52,13 @@ namespace RoadToPro.MatchEngine.Actions
         bool _decided;
         int _winner = -1, _nearestOpp = -1, _passTarget = -1, _shotCell = -1, _detailFirst = -1;
         HeaderOutcome _outcome;
-        float _winProb, _xg, _n1, _n2, _reach;
+        float _winProb, _xg, _n1, _n2, _reach, _headReach, _headLow;
         Vec2 _contact;
         long _landAbs;
 
         readonly int[] _slot = new int[MaxParticipants];
         readonly float[] _score = new float[MaxParticipants], _prob = new float[MaxParticipants], _arrive = new float[MaxParticipants],
-            _reachOf = new float[MaxParticipants], _jumpOf = new float[MaxParticipants], _timingOf = new float[MaxParticipants], _distOf = new float[MaxParticipants];
+            _reachOf = new float[MaxParticipants], _headReachOf = new float[MaxParticipants], _headLowOf = new float[MaxParticipants], _jumpOf = new float[MaxParticipants], _timingOf = new float[MaxParticipants], _distOf = new float[MaxParticipants];
 
         /// <summary>테스트·진단 누계 (상태 아님).</summary>
         public long Armed, Contests, Headers, EmptyContests, KeeperWins, Uncontested, Missed;
@@ -68,6 +68,10 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly long[] CancelReason = new long[5];
         /// <summary>마지막 경합 참여자 수·착지점 최근접 선수 거리·남은 착지 시간 (진단).</summary>
         public int LastParticipants;
+        /// <summary>specs/082 AC-06 진단 누계: 헤더 실행 순간 (공 높이 − 승자 머리 도달)·승자–공 수평 거리의 최댓값 (해시·스냅샷 밖).</summary>
+        public float MaxContactOverHead = float.MinValue, MaxContactHorizontal;
+        /// <summary>082 T05a 진단 누계: 헤더 실행 순간 (머리 최저 − 공 높이)의 최댓값 (양수면 위반, 해시 밖).</summary>
+        public float MaxContactUnderLow = float.MinValue;
         public float LastNearestDist, LastTLand, LastNearestTti;
 
         public AerialSystem(ActionSystem a)
@@ -155,9 +159,10 @@ namespace RoadToPro.MatchEngine.Actions
             {
                 if (!ctx.IsSlotControllable(_winner)) { CancelReason[4]++; EndWithoutHeader(ctx, sub, HeaderOutcome.Missed); return; }
                 var wp = ctx.SlotState(_winner).Position;
-                var near = (ball.Position.XY - wp).LengthSq() <= _p.AerialRadius * _p.AerialRadius && ball.Position.Z <= _reach && ball.Position.Z <= _p.AerialContactZ; // [대체] 머리 접촉 수평 허용 = 경합 반경 2 m (뻗기·점프 포함)
+                // 082 FR-03 ①·③: 머리 도달 높이 아래 · 승자–공 수평 headRadius(1.0 m [제안]) 안 (071 경합 반경 2 m는 참여 판정에만)
+                var near = (ball.Position.XY - wp).LengthSq() <= _p.AerialHeadRadius * _p.AerialHeadRadius && ball.Position.Z <= _headReach && ball.Position.Z >= _headLow && ball.Position.Z <= _p.AerialContactZ;
                 if (near) Execute(ctx, abs, sub);
-                else if (ball.Position.Z <= FallbackZ)
+                else if (ball.Position.Z <= FallbackZ || ball.Position.Z < _headLow) // 082 T05a: 머리 최저보다 낮아짐 → 헤더 아님
                 {
                     // 승자가 끝내 공 밑에 못 옴 → 헤더 없이 일반 수신(008)으로 (RNG는 이미 고정 소비 — 순간이동 헤더 금지)
                     Missed++;
@@ -202,7 +207,9 @@ namespace RoadToPro.MatchEngine.Actions
             _winner = _slot[pick];
             _winProb = _prob[pick];
             _reach = _reachOf[pick];
-            _contact = ContactPoint(ctx, _reach < _p.AerialContactZ ? _reach : _p.AerialContactZ);
+            _headReach = _headReachOf[pick];
+            _headLow = _headLowOf[pick];
+            _contact = ContactPoint(ctx, _headReach < _p.AerialContactZ ? _headReach : _p.AerialContactZ);
             var winTeam = Squad.TeamOfSlot(_winner);
             _nearestOpp = -1;
             var bestD = float.MaxValue;
@@ -367,6 +374,8 @@ namespace RoadToPro.MatchEngine.Actions
                 var timing = AerialModel.Timing(_p, _arrive[i], tLand);
                 _jumpOf[i] = jump;
                 _reachOf[i] = reach;
+                _headReachOf[i] = AerialModel.ContactReach(_p, w.HeightCm[s], jump, hands);
+                _headLowOf[i] = hands ? 0f : AerialModel.HeadLow(_p, w.HeightCm[s]); // 082 결정론 리뷰 M-1: 손 처리와 같은 기준(GK·자기 박스 착지) — 박스 밖 GK는 필드 선수와 같다
                 _timingOf[i] = timing;
                 _score[i] = AerialModel.Score(_p, reach, timing, w.Strength[s], w.Heading[s], w.Positioning[s]);
             }
@@ -457,6 +466,12 @@ namespace RoadToPro.MatchEngine.Actions
             if (_nearestOpp >= 0 && !ctx.IsSlotControllable(_nearestOpp)) _nearestOpp = -1;
             Headers++;
             var s = _winner;
+            var over = ctx.Ball.Position.Z - _headReach;
+            if (over > MaxContactOverHead) MaxContactOverHead = over;
+            var hz = (ctx.Ball.Position.XY - ctx.SlotState(s).Position).Length();
+            if (hz > MaxContactHorizontal) MaxContactHorizontal = hz;
+            var under = _headLow - ctx.Ball.Position.Z;
+            if (under > MaxContactUnderLow) MaxContactUnderLow = under;
             var team = Squad.TeamOfSlot(s);
             var w = _a.World;
             ref var ball = ref ctx.Ball;
@@ -565,20 +580,20 @@ namespace RoadToPro.MatchEngine.Actions
         {
             if (!_armed && !_decided) return;
             h.Add(_armed); h.Add(_decided); h.Add(_kicker); h.Add(_crossType); h.Add(_winner); h.Add(_nearestOpp); h.Add(_passTarget); h.Add(_shotCell);
-            h.Add(_detailFirst); h.Add((byte)_outcome); h.Add(_winProb); h.Add(_xg); h.Add(_n1); h.Add(_n2); h.Add(_reach); h.Add(_landAbs); h.Add(_contact.X); h.Add(_contact.Y);
+            h.Add(_detailFirst); h.Add((byte)_outcome); h.Add(_winProb); h.Add(_xg); h.Add(_n1); h.Add(_n2); h.Add(_reach); h.Add(_headReach); h.Add(_headLow); h.Add(_landAbs); h.Add(_contact.X); h.Add(_contact.Y);
         }
 
         public void Write(StateWriter w)
         {
             w.Write(_armed); w.Write(_decided); w.Write(_kicker); w.Write(_crossType); w.Write(_winner); w.Write(_nearestOpp); w.Write(_passTarget); w.Write(_shotCell);
-            w.Write(_detailFirst); w.Write((byte)_outcome); w.Write(_winProb); w.Write(_xg); w.Write(_n1); w.Write(_n2); w.Write(_reach); w.Write(_landAbs); w.Write(_contact);
+            w.Write(_detailFirst); w.Write((byte)_outcome); w.Write(_winProb); w.Write(_xg); w.Write(_n1); w.Write(_n2); w.Write(_reach); w.Write(_headReach); w.Write(_headLow); w.Write(_landAbs); w.Write(_contact);
         }
 
         public void Read(StateReader r)
         {
             _armed = r.ReadBool(); _decided = r.ReadBool(); _kicker = r.ReadInt(); _crossType = r.ReadByte(); _winner = r.ReadInt(); _nearestOpp = r.ReadInt();
             _passTarget = r.ReadInt(); _shotCell = r.ReadInt(); _detailFirst = r.ReadInt(); _outcome = (HeaderOutcome)r.ReadByte();
-            _winProb = r.ReadFloat(); _xg = r.ReadFloat(); _n1 = r.ReadFloat(); _n2 = r.ReadFloat(); _reach = r.ReadFloat(); _landAbs = r.ReadLong(); _contact = r.ReadVec2();
+            _winProb = r.ReadFloat(); _xg = r.ReadFloat(); _n1 = r.ReadFloat(); _n2 = r.ReadFloat(); _reach = r.ReadFloat(); _headReach = r.ReadFloat(); _headLow = r.ReadFloat(); _landAbs = r.ReadLong(); _contact = r.ReadVec2();
         }
     }
 }

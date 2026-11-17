@@ -4,6 +4,7 @@ using RoadToPro.Core.Tuning;
 using RoadToPro.MatchEngine.Match;
 using RoadToPro.MatchEngine.Match.Input;
 using RoadToPro.MatchEngine.UtilityAI;
+using RoadToPro.Presentation.Players.Logic;
 
 namespace RoadToPro.Verification.Samples.Highlight
 {
@@ -39,7 +40,45 @@ namespace RoadToPro.Verification.Samples.Highlight
             setup.Away.Tactics = new RoadToPro.MatchEngine.Tactics.TeamTactics { FormationId = "4-4-2" };
             Styles(setup.Home);
             Styles(setup.Away);
+            Heights(setup.Home, 0);
+            Heights(setup.Away, 1);
             return setup;
+        }
+
+        static float[] _castHeights;
+
+        /// <summary>
+        /// 하이라이트 캐스트(HighlightCastStage)와 같은 엔티티별 키(cm): BodyInput(4300 + e·13, 역할별 분포) → AppearanceGenerator.GenerateGroup.
+        /// </summary>
+        public static float[] CastHeightsCm()
+        {
+            if (_castHeights != null) return _castHeights;
+            var inputs = new BodyInput[HighlightData.Entities];
+            for (int e = 0; e < inputs.Length; e++) inputs[e] = new BodyInput(4300 + e * 13, null, null, PlayerScreen.RoleOf(e));
+            var looks = new PlayerAppearance[inputs.Length];
+            AppearanceGenerator.GenerateGroup(inputs, looks);
+            var h = new float[inputs.Length];
+            for (int e = 0; e < h.Length; e++) h[e] = looks[e].HeightCm;
+            return _castHeights = h;
+        }
+
+        /// <summary>
+        /// specs/082 T07a: 선발 키 = 하이라이트 캐스트 키 (엔티티 = 팀·선발 순서 슬롯). 전에는 시뮬 키가 모두 180 cm(기본)이고 화면 키는 무작위라
+        /// 헤더 머리 높이가 최대 ±20 cm 어긋났다(082 FR-02). 교체 선수는 기본 키 그대로(교체 투입 엔티티는 선발 리그를 쓴다 — 한계).
+        /// </summary>
+        static void Heights(TeamSetup t, int team)
+        {
+            var h = CastHeightsCm();
+            for (int i = 0; i < t.Players.Length; i++)
+            {
+                var p = t.Players[i];
+                var k = System.Array.IndexOf(t.Starters, p.Id);
+                if (k < 0) continue;
+                var cm = h[team * 11 + k];
+                if (cm < RoadToPro.MatchEngine.Actions.TechnicalAttributes.HeightMinCm) cm = RoadToPro.MatchEngine.Actions.TechnicalAttributes.HeightMinCm;
+                if (cm > RoadToPro.MatchEngine.Actions.TechnicalAttributes.HeightMaxCm) cm = RoadToPro.MatchEngine.Actions.TechnicalAttributes.HeightMaxCm;
+                t.Players[i] = p.WithTechnical(p.Technical.OrAverage().WithAerial(heightCm: cm));
+            }
         }
 
         /// <summary>4-4-2 선발 순서(GK, RB·CB·CB·LB, RM·CM·CM·LM, ST·ST) 기준 스타일. 003 역할 데이터가 생기면 그쪽으로.</summary>
