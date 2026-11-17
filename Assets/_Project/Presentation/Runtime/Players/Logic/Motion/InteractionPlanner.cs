@@ -188,6 +188,9 @@ namespace RoadToPro.Presentation.Players.Logic.Motion
     /// </summary>
     public sealed class ContactKeys
     {
+        /// <summary>접촉 시각 비교 허용 오차(s) — 30 Hz 프레임 시각 float 오차보다 크고 100 Hz 서브스텝(0.01 s)보다 훨씬 작다.</summary>
+        const float KeyEps = 1e-4f;
+
         readonly float[] _t;
         readonly RoadToPro.Core.Math.Vec3[] _p;
         readonly HighlightData _d;
@@ -232,6 +235,14 @@ namespace RoadToPro.Presentation.Players.Logic.Motion
             }
         }
 
+        /// <summary>082 T07b: 시각 t보다 앞선(허용 오차 밖) 마지막 접촉 키 시각. 없으면 −∞. 화면 공 보정 창이 앞 접촉을 넘지 않게 쓴다.</summary>
+        public float PrevKeyBefore(float t)
+        {
+            float r = float.NegativeInfinity;
+            for (int i = 0; i < _t.Length && _t[i] < t - KeyEps; i++) r = _t[i];
+            return r;
+        }
+
         /// <summary>접촉 키를 넣은 공 위치. 결과는 시뮬 기록 + 접촉 키 — 시뮬 값은 바꾸지 않는다.</summary>
         public RoadToPro.Core.Math.Vec3 Ball(float t)
         {
@@ -244,8 +255,10 @@ namespace RoadToPro.Presentation.Players.Logic.Motion
             var pf = p0;
             for (int i = 0; i < _t.Length; i++)
             {
-                if (_t[i] < t0) continue;
-                if (_t[i] > t1) break;
+                // 082 T07b: 접촉 시각이 프레임 경계와 같으면 float 오차로 t1을 살짝 넘어 키를 건너뛰었다 (접촉 프레임 화면 공 11 cm 어긋남)
+                if (_t[i] < t0 - KeyEps) continue;
+                if (_t[i] > t1 + KeyEps) break;
+                if (_t[i] >= t - KeyEps && _t[i] <= t + KeyEps) return _p[i];
                 if (_t[i] >= t)
                 {
                     float span0 = _t[i] - from;

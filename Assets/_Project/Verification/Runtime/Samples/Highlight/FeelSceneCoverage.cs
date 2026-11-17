@@ -17,6 +17,23 @@ namespace RoadToPro.Verification.Samples.Highlight
     public static class FeelSceneCoverage
     {
         public const int TakeOnOk = 1, TakeOnLost = 2, TackleStand = 4, TackleSlide = 8, CutbackGoal = 16, HeaderShot = 32, Defensive = 64;
+        /// <summary>specs/082 AC-05: 점프 헤딩슛 — 공 높이 ≥ 슈터 이마(캐스트 키 × act.aerial.headK) + <see cref="JumpMargin"/>.</summary>
+        public const int HeaderJumpShot = 128;
+        /// <summary>점프가 화면에 분명히 보이는 여유(m) — 하이라이트 점프 경계(highlight.headerJumpMin 0.10 m)보다 크게.</summary>
+        public const float JumpMargin = 0.2f;
+
+        /// <summary>E2E 픽스처 선발(홈 id 1~11, 원정 101~111)의 캐스트 키(cm). 교체 선수는 180.</summary>
+        public static float CastHeightOf(int playerId)
+        {
+            var h = LiveMatchFixture.CastHeightsCm();
+            if (playerId >= 1 && playerId <= 11) return h[playerId - 1];
+            if (playerId >= 101 && playerId <= 111) return h[11 + playerId - 101];
+            return RoadToPro.MatchEngine.Actions.TechnicalAttributes.HeightDefaultCm;
+        }
+
+        /// <summary>082: 헤딩슛 이벤트가 점프 헤딩(공 높이 ≥ 이마 + JumpMargin)인가. headK = act.aerial.headK 기본값.</summary>
+        public static bool IsJumpHeader(in SimEvent e, float headK = 0.93f) =>
+            e.Kind == SimEventKind.Shot && e.Part == BodyPart.Head && e.Z >= CastHeightOf(e.PlayerId) * headK / 100f + JumpMargin;
         public const int MainKinds = TakeOnOk | TakeOnLost | TackleStand | HeaderShot | Defensive;
         public const ulong FirstSeed = 20261181UL;
 
@@ -36,6 +53,7 @@ namespace RoadToPro.Verification.Samples.Highlight
             if ((mask & TackleSlide) != 0) parts.Add("늦은 슬라이딩");
             if ((mask & CutbackGoal) != 0) parts.Add("컷백 슛 골");
             if ((mask & HeaderShot) != 0) parts.Add("헤딩슛");
+            if ((mask & HeaderJumpShot) != 0) parts.Add("점프 헤딩슛");
             if ((mask & Defensive) != 0) parts.Add("수비 장면");
             return string.Join("·", parts);
         }
@@ -68,6 +86,7 @@ namespace RoadToPro.Verification.Samples.Highlight
                 }
                 if (e.Kind != SimEventKind.Shot) continue;
                 if (e.Part == BodyPart.Head) m |= HeaderShot;
+                if (IsJumpHeader(e)) m |= HeaderJumpShot;
                 for (int j = k - 1; j >= 0 && e.Tick - log[j].Tick <= 100; j--)
                     if (log[j].Kind == SimEventKind.Cross && log[j].Team == e.Team && (log[j].A >> ActionSystem.CrossTypeShift) == (int)CrossType.Cutback + 1)
                     {

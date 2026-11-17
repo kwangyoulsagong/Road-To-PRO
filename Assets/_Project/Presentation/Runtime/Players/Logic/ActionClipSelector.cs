@@ -56,9 +56,23 @@ namespace RoadToPro.Presentation.Players.Logic
         public readonly Vec3 RootOffset;
         /// <summary>보정 한계 안 후보가 없어 남은 차이를 루트 보정이 강제로 맞춘다(FR-46).</summary>
         public readonly bool Snap;
+        /// <summary>082 FR-03 ②: 헤더 수직 리프트(m, 점프 높이 보정). 접촉 시각에 정점(<see cref="HeaderMotion.LiftWeight"/>). 헤더가 아니면 0.</summary>
+        public readonly float Lift;
+        /// <summary>082 FR-03 ③: 이 액션 동안 수평 루트 보정 상한(m). 0이면 기본(<see cref="RootCorrection.MaxOffset"/>).</summary>
+        public readonly float RootMax;
+        /// <summary>082 FR-04: 클립 시각 HoldAt에서 HoldFor 초 동안 멈춘다(슬라이딩 다운). HoldFor = 0이면 없음.</summary>
+        public readonly float HoldAt, HoldFor;
 
         public ActionChoice(int clip, float start, float rate, float contactAt, float end, float strideScale, Vec3 rootOffset, bool snap)
+            : this(clip, start, rate, contactAt, end, strideScale, rootOffset, snap, 0f, 0f, 0f, 0f) { }
+
+        public ActionChoice(int clip, float start, float rate, float contactAt, float end, float strideScale, Vec3 rootOffset, bool snap, float lift, float rootMax,
+            float holdAt = 0f, float holdFor = 0f)
         {
+            Lift = lift;
+            RootMax = rootMax;
+            HoldAt = holdAt;
+            HoldFor = holdFor;
             Clip = clip;
             Start = start;
             Rate = rate;
@@ -69,11 +83,28 @@ namespace RoadToPro.Presentation.Players.Logic
             Snap = snap;
         }
 
-        public ActionChoice WithEnd(float end) => new ActionChoice(Clip, Start, Rate, ContactAt, end, StrideScale, RootOffset, Snap);
-        public ActionChoice WithRootOffset(Vec3 o) => new ActionChoice(Clip, Start, Rate, ContactAt, End, StrideScale, o, Snap);
+        public ActionChoice WithEnd(float end) => new ActionChoice(Clip, Start, Rate, ContactAt, end, StrideScale, RootOffset, Snap, Lift, RootMax, HoldAt, HoldFor);
+        public ActionChoice WithRootOffset(Vec3 o) => new ActionChoice(Clip, Start, Rate, ContactAt, End, StrideScale, o, Snap, Lift, RootMax, HoldAt, HoldFor);
+        public ActionChoice WithHeader(float lift, float rootMax) => new ActionChoice(Clip, Start, Rate, ContactAt, End, StrideScale, RootOffset, Snap, lift, rootMax, HoldAt, HoldFor);
+        /// <summary>정지 구간을 넣고 끝을 그만큼 늦춘다.</summary>
+        public ActionChoice WithHold(float holdAt, float holdFor) =>
+            new ActionChoice(Clip, Start, Rate, ContactAt, End + holdFor, StrideScale, RootOffset, Snap, Lift, RootMax, holdAt, holdFor);
+
+        /// <summary>재생 시각 t의 클립 시각 (정지 구간 반영, 0 ~ length로 자름).</summary>
+        public float ClipTime(float t, float length)
+        {
+            float raw = (t - Start) * Rate;
+            if (HoldFor > 0f && raw > HoldAt)
+            {
+                float tHold = Start + HoldAt / Rate;
+                raw = t <= tHold + HoldFor ? HoldAt : HoldAt + (t - tHold - HoldFor) * Rate;
+            }
+            return Math.Min(length, Math.Max(0f, raw));
+        }
 
         public bool Equals(ActionChoice o) => Clip == o.Clip && Start.Equals(o.Start) && Rate.Equals(o.Rate) && ContactAt.Equals(o.ContactAt) &&
-                                              End.Equals(o.End) && StrideScale.Equals(o.StrideScale) && RootOffset == o.RootOffset && Snap == o.Snap;
+                                              End.Equals(o.End) && StrideScale.Equals(o.StrideScale) && RootOffset == o.RootOffset && Snap == o.Snap &&
+                                              Lift.Equals(o.Lift) && RootMax.Equals(o.RootMax) && HoldAt.Equals(o.HoldAt) && HoldFor.Equals(o.HoldFor);
         public override bool Equals(object obj) => obj is ActionChoice o && Equals(o);
         public override int GetHashCode() => Clip * 397 ^ Start.GetHashCode();
     }

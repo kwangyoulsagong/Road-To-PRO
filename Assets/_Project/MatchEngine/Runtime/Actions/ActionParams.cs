@@ -229,6 +229,9 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly float AerialRadius = 2.0f;
         public readonly float AerialTtiSlack = 0.3f;
         public readonly float AerialHeightK = 1.33f;
+        public readonly float AerialHeadK = 0.93f;
+        public readonly float AerialHeadRadius = 1.0f;
+        public readonly float AerialHeadLow = 0.2f;
         public readonly float AerialJumpLo = 0.35f;
         public readonly float AerialJumpHi = 0.7f;
         public readonly float AerialRunUpMax = 1.15f;
@@ -485,6 +488,9 @@ namespace RoadToPro.MatchEngine.Actions
             AerialRadius = t.Get(Ids.AerialRadius);
             AerialTtiSlack = t.Get(Ids.AerialTtiSlack);
             AerialHeightK = t.Get(Ids.AerialHeightK);
+            AerialHeadK = t.Get(Ids.AerialHeadK);
+            AerialHeadRadius = t.Get(Ids.AerialHeadRadius);
+            AerialHeadLow = t.Get(Ids.AerialHeadLow);
             AerialJumpLo = t.Get(Ids.AerialJumpLo);
             AerialJumpHi = t.Get(Ids.AerialJumpHi);
             AerialRunUpMax = t.Get(Ids.AerialRunUpMax);

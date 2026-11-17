@@ -31,6 +31,11 @@ namespace RoadToPro.Presentation.Players.Motion
         public string Clip;
         public BodyPart SimPart, ClipPart;
         public float Time, TimeError, Distance, DistanceLimit;
+        /// <summary>
+        /// 082 FR-05: 접촉 프레임(시각 = 이벤트 시각) 화면 공까지 거리 — Distance는 접촉 1 ms 전 화면 공(054 측정 정의)이라
+        /// 접촉 프레임에서 공 보정이 풀리면 화면과 다를 수 있다. DistanceRaw = 시뮬 공(이벤트 공 위치)까지.
+        /// </summary>
+        public float DistanceAtContact, DistanceRaw;
         public float RootError;
         /// <summary>킥 계열 디딤발: 공 옆·뒤 거리(m). IsKick이 false면 의미 없음.</summary>
         public bool IsKick;
@@ -424,6 +429,7 @@ namespace RoadToPro.Presentation.Players.Motion
                             // 시각 차 = 클립 접촉 시각 차 + 렌더 프레임 격자에서 가장 가까운 프레임까지(재생 시계 기준, FR-30)
                             Time = ev.Time, TimeError = Math.Abs(a.ContactAt - ev.Time) + 0.5f * _rate / _fps,
                             Distance = (cp - _plan.BallVisual(ev.Time - 1e-3f)).Length(), DistanceLimit = DistanceLimit(c.ContactPart),
+                            DistanceAtContact = (cp - _plan.BallVisual(ev.Time)).Length(), DistanceRaw = (cp - ev.BallPos).Length(),
                             Missed = AnimPlan.MissesBall(ev) || e != ev.Entity,
                             RootError = _s.RootOffset.Length(), OneTouch = a.Rate > 1.001f,
                         };
