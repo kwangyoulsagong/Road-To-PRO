@@ -58,6 +58,30 @@ namespace RoadToPro.MatchEngine.Actions
         int WindowStart => Math.Max(_availFrom, _count - ActionDetailLog.Window);
 
 
+        /// <summary>
+        /// 083 FR-01: 이벤트 중 Header(B &gt; 0)가 가리키는 묶음 기록을 이벤트 순서대로 복사한다 (읽기 전용, 상태·해시 불변).
+        /// 기록이 없거나(B = 0) 넘침·창 밖(<see cref="IsAvailable"/> 아님)이면 건너뛴다. 같은 묶음은 한 번만.
+        /// </summary>
+        public AerialDetail[] CollectGroups(Match.Events.SimEvent[] events)
+        {
+            System.Collections.Generic.List<AerialDetail> list = null;
+            System.Collections.Generic.List<int> seen = null;
+            foreach (var e in events)
+            {
+                if (e.Kind != Match.Events.SimEventKind.Header || e.B <= 0) continue;
+                var first = e.B - 1;
+                if (!IsAvailable(first)) continue;
+                seen ??= new System.Collections.Generic.List<int>();
+                if (seen.Contains(first)) continue;
+                seen.Add(first);
+                list ??= new System.Collections.Generic.List<AerialDetail>();
+                var n = _rec[first].GroupCount;
+                for (int i = first; i < first + n; i++)
+                    if (IsAvailable(i)) list.Add(_rec[i]);
+            }
+            return list == null ? Array.Empty<AerialDetail>() : list.ToArray();
+        }
+
         public void Clear()
         {
             _count = 0;

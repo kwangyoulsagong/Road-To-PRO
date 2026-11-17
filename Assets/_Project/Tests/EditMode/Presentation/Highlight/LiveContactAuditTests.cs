@@ -103,7 +103,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
             var fails = new System.Text.StringBuilder();
             foreach (var r in rows)
             {
-                if (r.Kind != LiveContactAudit.Kind.Slide || r.Excluded) continue;
+                if ((r.Kind != LiveContactAudit.Kind.Slide && r.Kind != LiveContactAudit.Kind.SlideWin) || r.Excluded) continue;
                 n++;
                 if (r.Clip != "tackle_slide_r") fails.AppendLine($"{r.Seed}#{r.Scene} seq {r.Seq} 클립 {r.Clip ?? "-"} ({r.Reason})");
                 if (!(r.TimeError <= Frame)) fails.AppendLine($"{r.Seed}#{r.Scene} seq {r.Seq} 시각 차 {r.TimeError * 1000:0} ms");
@@ -115,20 +115,109 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
             Assert.IsEmpty(fails.ToString());
         }
 
-        /// <summary>실경기 진단 1회 (T03·T10 기준 측정): 고정 시드 묶음 전부 → `.farm/082-audit.json`. 길어서 명시 실행.</summary>
-        [Test, Explicit("082 실경기 진단 — 명시 실행")]
+        /// <summary>083 AC-01 (FR-01·04): 헤더 없이 끝난 경합 — 승자·가장 가까운 상대가 기록 정점(±1 프레임)에 점프하고 머리가 공에 닿지 않는다. 제외는 사유가 있는 것만(FR-02 겹침·GK 박스·기록 없음·장면 경계).</summary>
+        [Test]
+        public void MissedAerials_WinnerAndNearestOppJump_NoTouch()
+        {
+            var rows = FixedRows();
+            int n = 0;
+            var fails = new System.Text.StringBuilder();
+            foreach (var r in rows)
+            {
+                if (r.Kind != LiveContactAudit.Kind.MissedJump || r.Excluded) continue;
+                n++;
+                string at = $"{r.Seed}#{r.Scene} seq {r.Seq} e{r.Entity}";
+                if (r.Clip != HeaderMotion.JumpClip) { fails.AppendLine($"{at} 점프 없음 ({r.Clip ?? "-"}, {r.Reason})"); continue; }
+                if (!(r.ApexError <= Frame)) fails.AppendLine($"{at} 정점 시각 차 {r.ApexError * 1000:0} ms");
+                if (!(r.DistanceAtContact > r.DistanceLimit)) fails.AppendLine($"{at} 머리–공 {r.DistanceAtContact * 100:0.0} cm ≤ 허용치 {r.DistanceLimit * 100:0.0} cm");
+            }
+            TestContext.WriteLine(LiveContactAudit.Summary(rows));
+            Assert.Greater(n, 0, "측정된 놓친 경합 참여자");
+            Assert.IsEmpty(fails.ToString());
+        }
+
+        /// <summary>083 AC-03 (FR-03·04): 이긴 슬라이딩 전부 — 접촉 프레임 발–공 ≤ 5 cm, 시각 차 ≤ ±1 기록 프레임.</summary>
+        [Test]
+        public void SlideWins_FootWithin5cm_TimeWithinFrame()
+        {
+            var rows = FixedRows();
+            int n = 0;
+            var fails = new System.Text.StringBuilder();
+            foreach (var r in rows)
+            {
+                if (r.Kind != LiveContactAudit.Kind.SlideWin || r.Excluded) continue;
+                n++;
+                string at = $"{r.Seed}#{r.Scene} seq {r.Seq} e{r.Entity}";
+                if (!(r.DistanceAtContact <= 0.05f)) fails.AppendLine($"{at} 발–공 {r.DistanceAtContact * 100:0.0} cm (dv {r.MaxSpeedDelta:0.00})");
+                if (!(r.TimeError <= Frame)) fails.AppendLine($"{at} 시각 차 {r.TimeError * 1000:0} ms");
+            }
+            TestContext.WriteLine(LiveContactAudit.Summary(rows));
+            Assert.Greater(n, 0, "측정된 이긴 슬라이딩");
+            Assert.IsEmpty(fails.ToString());
+        }
+
+        /// <summary>실경기 진단 1회 (T03·T10 기준 측정): 고정 시드 묶음 전부 → `.farm/083-audit.json`. 길어서 명시 실행.</summary>
+        [Test, Explicit("082·083 실경기 진단 — 명시 실행")]
         public void Report_FixedSeeds()
         {
             var all = FixedRows();
             System.IO.Directory.CreateDirectory(".farm");
-            System.IO.File.WriteAllText(".farm/082-audit.json", LiveContactAudit.Json(all));
+            System.IO.File.WriteAllText(".farm/083-audit.json", LiveContactAudit.Json(all));
             TestContext.WriteLine(LiveContactAudit.Summary(all));
         }
 
-        /// <summary>082 FR-05: 고정 시드 10경기 (`Data/e2e/seeds/082-live-seeds.json`).</summary>
+        /// <summary>
+        /// 083 T01a: 이긴 슬라이딩이 하이라이트 장면에 나오는 시드 탐색 (082 10경기에 0건). 시드 범위를 병렬로 돌려 장면 안 이벤트(태클·슬라이딩·이김 비트)를 센다.
+        /// 결과는 `.farm/083-slide-seeds.txt`. 길어서 명시 실행.
+        /// </summary>
+        [Test, Explicit("083 시드 탐색 — 명시 실행")]
+        public void SearchSlideWinSeeds()
+        {
+            const ulong from = 20261300UL;
+            const int count = 160;
+            var seeds = new ulong[count];
+            for (int i = 0; i < count; i++) seeds[i] = from + (ulong)i;
+            var wins = new int[count];
+            LiveContactAudit.Prewarm(new ulong[0]);
+            System.Threading.Tasks.Parallel.For(0, count, i =>
+            {
+                var sim = LiveContactAudit.NewSim(seeds[i]);
+                sim.RunToEnd();
+                var log = sim.Result.EventLog;
+                var list = RoadToPro.Presentation.Highlight.Selection.LiveSceneSelector.Select(log, sim.Result.EndTick, RoadToPro.Core.Pitch.PitchSpec.Default,
+                    RoadToPro.Verification.Samples.Highlight.LiveMatchFixture.MyPlayerId, new RoadToPro.Presentation.Highlight.Selection.SceneScoreTable());
+                foreach (var e in log)
+                {
+                    if (e.Kind != SimEventKind.Tackle || (e.A & EventCodes.TackleSliding) == 0 || (e.A & EventCodes.TackleWon) == 0) continue;
+                    double t = RoadToPro.Presentation.Highlight.Logic.ClipConverter.EventTime(e);
+                    foreach (var sc in list.Scenes)
+                        if (t >= sc.Start && t <= sc.End) { wins[i]++; break; }
+                }
+            });
+            var sb = new System.Text.StringBuilder();
+            int total = 0;
+            for (int i = 0; i < count; i++)
+                if (wins[i] > 0) { sb.AppendLine($"{seeds[i]} {wins[i]}"); total += wins[i]; }
+            System.IO.Directory.CreateDirectory(".farm");
+            System.IO.File.WriteAllText(".farm/083-slide-seeds.txt", sb.ToString());
+            TestContext.WriteLine($"이긴 슬라이딩 장면 합계 {total}\n{sb}");
+        }
+
+        /// <summary>082 FR-05 고정 시드 10경기 + 083 FR-04 추가 시드 (`Data/e2e/seeds/082-live-seeds.json`, `083-live-seeds.json`).</summary>
         public static ulong[] FixedSeeds()
         {
-            var text = System.IO.File.ReadAllText("Data/e2e/seeds/082-live-seeds.json");
+            var a = ReadSeeds("Data/e2e/seeds/082-live-seeds.json");
+            if (!System.IO.File.Exists("Data/e2e/seeds/083-live-seeds.json")) return a;
+            var b = ReadSeeds("Data/e2e/seeds/083-live-seeds.json");
+            var r = new ulong[a.Length + b.Length];
+            a.CopyTo(r, 0);
+            b.CopyTo(r, a.Length);
+            return r;
+        }
+
+        static ulong[] ReadSeeds(string path)
+        {
+            var text = System.IO.File.ReadAllText(path);
             var m = System.Text.RegularExpressions.Regex.Match(text, "\"seeds\"\\s*:\\s*\\[([^\\]]*)\\]");
             var parts = m.Groups[1].Value.Split(new[] { ',', ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
             var r = new ulong[parts.Length];

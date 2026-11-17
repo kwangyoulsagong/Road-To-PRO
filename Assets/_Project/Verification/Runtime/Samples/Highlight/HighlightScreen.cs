@@ -46,6 +46,8 @@ namespace RoadToPro.Verification.Samples.Highlight
         const ulong Seed081 = 20261247UL, Seed081Slide = 20261220UL, Seed081Cutback = 20261267UL; // 2026-11-16 7b577c7 뒤 플레이어 256시드 재탐색. 컷백 슛 골은 없음(20261267은 78abc53까지의 경기)
 
         /// <summary>specs/082 AC-05: 점프 헤딩슛 · 늦은 슬라이딩 (082 엔진 뒤 플레이어 768시드 탐색 `tool-feel-search`).</summary>
+        /// <summary>specs/083 AC-05: 놓친 공중볼 경합 점프 · 이긴 슬라이딩 접촉 (083 엔진 뒤 플레이어 768시드 탐색 `tool-feel-search`).</summary>
+        const ulong Seed083 = 20261230UL, Seed083Slide = 20261230UL; // 2026-11-17 083 엔진 뒤 플레이어 768시드 탐색: 놓친 경합 + 이긴 슬라이딩 둘 다 있는 첫 시드
         const ulong Seed082 = 20261224UL, Seed082Slide = 20261192UL; // 2026-11-17 082 엔진(M-1 반영) 뒤 플레이어 768시드 탐색
 
         static void PlayFeelSeed(ulong seed)
@@ -301,6 +303,10 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["livePlay081slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081Slide); Play(false); };
             FarmContext.Screens["livePlay082"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed082); Play(false); };
             FarmContext.Screens["livePlay082slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed082Slide); Play(false); };
+            FarmContext.Screens["livePlay083"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed083); Play(false); };
+            FarmContext.Screens["livePlay083slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed083Slide); Play(false); };
+            FarmContext.Screens["live.freeze083.missed"] = () => FreezeMissedAerial("missed_jump"); // 놓친 경합 기록 정점
+            FarmContext.Screens["live.freeze083.slide"] = () => FreezeEvent(e => FeelSceneCoverage.IsSlideWin(e), null, "slide_win", 0d); // 이긴 슬라이딩 접촉 순간
             FarmContext.Screens["live.freeze082.header"] = () => { FreezeEvent(e => FeelSceneCoverage.IsJumpHeader(e), null, "header_jump", 0d); StartCoroutine(LogHeadBall()); }; // 접촉 순간
             FarmContext.Screens["live.freeze082.tackle_slide"] = () => FreezeEvent(e => e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleSliding) != 0 && (e.A & EventCodes.TackleLate) != 0, null, "tackle_slide", 0.3d); // 접촉 + 0.3 s: 누운 자세
             FarmContext.Screens["livePlay081cutback"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed081Cutback); Play(false); };
@@ -332,7 +338,14 @@ namespace RoadToPro.Verification.Samples.Highlight
                 if (cut < 0 && (masks[i] & FeelSceneCoverage.CutbackGoal) != 0) cut = i;
             }
             string S(int i) => i < 0 ? "없음" : $"{FeelSceneCoverage.FirstSeed + (ulong)i} [{FeelSceneCoverage.Describe(masks[i])}]";
-            Debug.Log($"[highlight] 081 탐색: A {S(best)} · 늦은 슬라이딩 {S(slide)} · 헤딩슛 {S(head)} · 컷백 슛 골 {S(cut)} · 082 점프 헤딩슛 {S(jump)}");
+            int missed = -1, slideWin = -1, both = -1;
+            for (int i = 0; i < masks.Length; i++)
+            {
+                if (missed < 0 && (masks[i] & FeelSceneCoverage.MissedAerial) != 0) missed = i;
+                if (slideWin < 0 && (masks[i] & FeelSceneCoverage.SlideWin) != 0) slideWin = i;
+                if (both < 0 && (masks[i] & FeelSceneCoverage.MissedAerial) != 0 && (masks[i] & FeelSceneCoverage.SlideWin) != 0) both = i;
+            }
+            Debug.Log($"[highlight] 081 탐색: A {S(best)} · 늦은 슬라이딩 {S(slide)} · 헤딩슛 {S(head)} · 컷백 슛 골 {S(cut)} · 082 점프 헤딩슛 {S(jump)} · 083 놓친 경합 {S(missed)} · 이긴 슬라이딩 {S(slideWin)} · 둘 다 {S(both)}");
         }
 
         /// <summary>081 AC-07: 헤더 접촉 프레임에서 공과 가장 가까운 머리 뼈까지 거리 (054 접촉 동기화 허용치와 비교 — 로그만).</summary>
@@ -458,6 +471,69 @@ namespace RoadToPro.Verification.Samples.Highlight
             var a = System.Math.Sqrt(x * x + (y - cy) * (y - cy));
             var b = System.Math.Sqrt((x - pitch.LengthM) * (x - pitch.LengthM) + (y - cy) * (y - cy));
             return (float)System.Math.Min(a, b);
+        }
+
+        /// <summary>
+        /// 083 AC-05: 놓친 공중볼 경합의 승자 기록 정점 시각에 정지 (점프 정점 — 두 선수가 뛰어 있고 공은 머리에 닿지 않는다).
+        /// 장면 동작 계획에 점프가 들어간 참여자가 많고, 기록 점프 높이가 <see cref="MissedJumpShotMinJump"/> 이상이고(낮으면 0.10 m로 잘려 점프로 안 읽힌다), 정점 순간 공이 머리 높이 이상이고(공이 이미 무릎 높이면 경합으로 안 읽힌다, 2026-11-17 육안 검토),
+        /// 그중 공에 가까운 경합을 고른다(공과 멀면 점프가 경합으로 안 읽힌다). 조건을 다 채우는 경합이 없으면 점수가 가장 좋은 경합.
+        /// </summary>
+        const float MissedJumpShotMinJump = 0.3f, MissedJumpShotMinBallY = 1.8f;
+
+        void FreezeMissedAerial(string label)
+        {
+            var scenes = player.Scenes;
+            var sim = Match();
+            var log = sim.Result.EventLog;
+            var rec = sim.Context.Actions.Details.Aerials;
+            int bestScene = -1;
+            double bestT = 0d;
+            float bestScore = float.MaxValue;
+            long bestSeq = -1;
+            for (int k = 0; k < log.Length; k++)
+            {
+                var e = log[k];
+                if (!FeelSceneCoverage.IsMissedAerial(e) || !rec.IsAvailable(e.B - 1)) continue;
+                int first = e.B - 1, n = rec[first].GroupCount;
+                double apex = double.NaN;
+                for (int i = first; i < first + n && rec.IsAvailable(i); i++) if (rec[i].Won) apex = rec[i].ApexSubstep * 0.01d;
+                if (double.IsNaN(apex)) continue;
+                for (int i = 0; i < scenes.Count; i++)
+                {
+                    var s = scenes[i].Scene;
+                    if (s.IsReplay || apex < s.Start || apex > s.End) continue;
+                    float score = 1000f;
+                    var d = scenes[i].Data;
+                    var plan = scenes[i].Plan;
+                    if (d != null && plan != null)
+                    {
+                        int planned = 0;
+                        float near = float.MaxValue, low = float.MaxValue;
+                        float t = (float)apex;
+                        d.FrameAt(t, out var f, out var a);
+                        var ball = d.Ball[f] + (d.Ball[System.Math.Min(f + 1, d.Frames - 1)] - d.Ball[f]) * a;
+                        foreach (var j in d.AerialJumps)
+                        {
+                            if (j.Seq != e.Seq || j.Skip != null) continue;
+                            var tl = plan.Timeline(j.Entity);
+                            for (int q = 0; q < tl.Count; q++)
+                                if (tl.SeqOf(q) == MissedJumpMotion.SeqOf(e.Seq))
+                                {
+                                    planned++;
+                                    low = System.Math.Min(low, j.JumpHeight);
+                                    var p = d.Pos(j.Entity, t);
+                                    near = System.Math.Min(near, (float)System.Math.Sqrt((p.X - ball.X) * (p.X - ball.X) + (p.Z - ball.Z) * (p.Z - ball.Z)));
+                                }
+                        }
+                        if (planned > 0) score = (2 - System.Math.Min(planned, 2)) * 100f + (low < MissedJumpShotMinJump ? 50f : 0f) + (ball.Y < MissedJumpShotMinBallY ? 50f : 0f) + near;
+                    }
+                    if (score < bestScore) { bestScore = score; bestScene = i; bestT = apex; bestSeq = e.Seq; }
+                    break;
+                }
+            }
+            if (bestScene < 0) { Debug.LogError($"[highlight] 083 놓친 경합 장면 없음 ({label}) 시드 {_matchSeed}"); return; }
+            player.Sequencer.SeekAndPause(bestScene, bestT);
+            Debug.Log($"[highlight] 결투·슈팅 장면 {label}: 장면 {scenes[bestScene].Scene.Id} t={bestT:0.00} (경합 이벤트 {bestSeq}, 점수 {bestScore:0.00} — 50 이상이면 점프 높이·공 높이 조건 미달)");
         }
 
         void FreezeEvent(System.Func<SimEvent, bool> want, System.Func<SimEvent, bool> fallback, string label, double offset = 0.05d)

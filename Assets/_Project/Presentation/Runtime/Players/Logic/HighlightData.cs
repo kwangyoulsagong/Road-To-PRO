@@ -12,6 +12,31 @@ namespace RoadToPro.Presentation.Players.Logic
     }
 
     /// <summary>애니메이션이 반응하는 시뮬 이벤트 한 건 (SimEvent에서 041/어댑터가 만든다). 좌표는 Unity 월드(X 길이, Y 위, Z 폭).</summary>
+    /// <summary>
+    /// 놓친 공중볼 경합 점프 하나 (specs/083 FR-01): 071 경합 기록의 참여자 도약·정점·착지 재생 시각(시뮬 초)과 점프 높이(m).
+    /// Seq = 그 경합의 Missed Header 이벤트 번호. Skip이 null이 아니면 동작을 넣지 않은 사유(GK 자기 박스·기록 없음).
+    /// </summary>
+    public readonly struct AerialJump
+    {
+        public readonly int Entity;
+        public readonly long Seq;
+        public readonly float JumpAt, ApexAt, LandAt, JumpHeight;
+        public readonly bool Won;
+        public readonly string Skip;
+
+        public AerialJump(int entity, long seq, float jumpAt, float apexAt, float landAt, float jumpHeight, bool won, string skip = null)
+        {
+            Entity = entity;
+            Seq = seq;
+            JumpAt = jumpAt;
+            ApexAt = apexAt;
+            LandAt = landAt;
+            JumpHeight = jumpHeight;
+            Won = won;
+            Skip = skip;
+        }
+    }
+
     public readonly struct AnimEvent
     {
         public readonly float Time;
@@ -69,6 +94,8 @@ namespace RoadToPro.Presentation.Players.Logic
         /// <summary>프레임별 공 소유 엔티티, 없으면 −1 (054 FR-37 드리블 런). ReplayFrame.BallOwnerSlot에서 041이 옮긴다.</summary>
         public readonly short[] BallOwner;
         public readonly List<AnimEvent> Events = new List<AnimEvent>();
+        /// <summary>083 FR-01: 놓친 공중볼 경합 참여자 점프 (승자 + 가장 가까운 상대). 클립 변환이 채운다.</summary>
+        public readonly List<AerialJump> AerialJumps = new List<AerialJump>();
         /// <summary>
         /// [frame * Entities + e] 앞 프레임과의 불연속 원인 (specs/058 FR-12): 0 없음, <see cref="JumpCause"/> 값.
         /// 배치(선수 교대·공 재배치·기간 시작)·기록(프레임 번호 건너뜀) 원인을 표시한다. 판단 원인은 표시가 없는 쪽이다.

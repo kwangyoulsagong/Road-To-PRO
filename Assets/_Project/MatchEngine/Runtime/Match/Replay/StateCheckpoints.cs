@@ -1,3 +1,4 @@
+using System;
 namespace RoadToPro.MatchEngine.Match.Replay
 {
     /// <summary>
@@ -49,13 +50,19 @@ namespace RoadToPro.MatchEngine.Match.Replay
         public readonly long ToTick;
         public readonly ReplayFrame[] Frames;
         public readonly Events.SimEvent[] Events;
+        /// <summary>
+        /// 083 FR-01: 구간 안 Header 이벤트(B = 기록 첫 번호 + 1)가 가리키는 071 경합 기록 묶음 (참여자별 도약·정점 서브스텝·점프 높이). 읽기 전용 사본, 없으면 빈 배열.
+        /// 하이라이트가 놓친 경합 점프 동작에 쓴다. 이벤트와는 <see cref="Actions.AerialDetail.GroupFirst"/> = B − 1로 잇는다.
+        /// </summary>
+        public readonly Actions.AerialDetail[] Aerials;
 
-        public ReplayClip(long from, long to, ReplayFrame[] frames, Events.SimEvent[] events)
+        public ReplayClip(long from, long to, ReplayFrame[] frames, Events.SimEvent[] events, Actions.AerialDetail[] aerials = null)
         {
             FromTick = from;
             ToTick = to;
             Frames = frames;
             Events = events;
+            Aerials = aerials ?? Array.Empty<Actions.AerialDetail>();
         }
     }
 }
