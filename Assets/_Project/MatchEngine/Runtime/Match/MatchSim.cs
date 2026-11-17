@@ -483,7 +483,9 @@ namespace RoadToPro.MatchEngine.Match
             sim.Recorder.Sink = sink;
             if (fromTick == 0 && (snap == null || snap.Tick == 0)) sink.OnFrame(sim.Recorder.InitialFrame);
             sim.RunUntilTick(toTick);
-            return new ReplayClip(fromTick, toTick, sink.Frames.ToArray(), _log.Range(fromTick, toTick - 1));
+            var events = _log.Range(fromTick, toTick - 1);
+            // 083 FR-01: 본 실행의 경합 기록을 읽기만 해서 붙인다 (재구성 포크가 아니라 원본 — 번호가 이벤트 B와 같다)
+            return new ReplayClip(fromTick, toTick, sink.Frames.ToArray(), events, _ctx.Actions.Details.Aerials.CollectGroups(events));
         }
 
         sealed class ClipSink : IReplayFrameSink

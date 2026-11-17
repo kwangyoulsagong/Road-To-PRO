@@ -202,6 +202,14 @@ namespace RoadToPro.Presentation.Players.Logic.Motion
                 for (int i = a.Count - 1; i >= 0; i--)
                 {
                     var p = a[i];
+                    // 083 T08b: 접촉 직후 시작하는 접지는 들어오는 램프(Ramp)가 접촉 순간 발을 끈다 — 램프가 접촉 뒤에 시작하게 민다
+                    if (p.T0 >= c.ContactAt && p.T0 < c.ContactAt + Ramp)
+                    {
+                        float t0 = c.ContactAt + Ramp;
+                        if (p.T1 - t0 < MinDuration) a.RemoveAt(i);
+                        else a[i] = new FootPlant(t0, p.T1, p.X, p.Z);
+                        continue;
+                    }
                     if (p.T1 <= limit || p.T0 >= c.ContactAt) continue;
                     if (limit - p.T0 < MinDuration) a.RemoveAt(i);
                     else a[i] = new FootPlant(p.T0, limit, p.X, p.Z);

@@ -43,6 +43,9 @@ namespace RoadToPro.MatchEngine.Actions
         public long Touches, StealChecks, Steals, TakeOns, TacklesResolved, TacklesWon, LateTackles, ShieldChecks, ShieldLosses, Contacts, GapReleases;
         /// <summary>081 T12a: GK가 잡은 이격 공 (진단 누계, 탈취 Steals와 별도).</summary>
         public long KeeperClaims;
+        /// <summary>083 FR-03 ⓐ 진단 누계 (해시 밖): 공이 도달 거리 밖이라 빗나감으로 바꾼 슬라이딩 · 이긴 슬라이딩 수 · 이긴 슬라이딩 판정 순간 태클러–공 최대 수평 거리(m).</summary>
+        public long SlideFarMiss, SlideWins;
+        public float MaxSlideWinBallDist;
         /// <summary>마지막 터치의 표본 거리 (진단·테스트, 상태 아님).</summary>
         public float LastTouchDist;
         /// <summary>마지막 탈취 판정 확률·고른 상대 (진단·테스트, 상태 아님).</summary>
@@ -562,6 +565,10 @@ namespace RoadToPro.MatchEngine.Actions
                 var result = TackleModel.Resolve(P, prob, sliding, Rng); // RNG 2 (무효·늦은 태클도 같게)
                 TacklesResolved++;
                 if (!owns || won) result = TackleResult.Miss;
+                // 083 FR-03 ⓐ (Q1 ③): 슬라이딩은 공까지도 도달 거리 안이어야 공을 따낸다 — 드리블 터치로 캐리어 앞 수 m에 나간 공은 닿지 않는다 (RNG 2는 위에서 이미 소비)
+                var ballDist = (ball.Position.XY - me.Position).Length();
+                if (sliding && result != TackleResult.Miss && ballDist > reach) { result = TackleResult.Miss; SlideFarMiss++; }
+                if (sliding && result != TackleResult.Miss) { SlideWins++; if (ballDist > MaxSlideWinBallDist) MaxSlideWinBallDist = ballDist; }
                 var lateness = voided ? 0f : TackleModel.Lateness(P, lateSec);
                 var at = owns ? ball.Position.XY : tg.Position;
                 var e = SimEvent.Make(SimEventKind.Tackle, Squad.TeamOfSlot(s), ctx.PlayerAtSlot(s), ctx.PlayerAtSlot(target));

@@ -384,6 +384,9 @@ namespace RoadToPro.Presentation.Players.Motion
                         _r.Add("slide", _pt, _actors[i], sl);
         }
 
+        /// <summary>머리 접촉 허용치 (054 FR-31 contactDistHead).</summary>
+        public float HeadLimit => _std.Max("contactDistHead");
+
         float DistanceLimit(BodyPart p) =>
             p switch
             {
@@ -393,6 +396,9 @@ namespace RoadToPro.Presentation.Players.Motion
                 BodyPart.Hand => _std.Max("contactDistHand"),
                 _ => _std.Max("contactDistFoot"),
             };
+
+        /// <summary>리그의 클립 접촉 부위 위치 (083 FR-04 진단: 놓친 경합 정점의 머리–공 거리).</summary>
+        public static Vec3 ContactPoint(PlayerRig rig, in ContactRule r) => RulePoint(rig, r);
 
         static Vec3 RulePoint(PlayerRig rig, in ContactRule r)
         {

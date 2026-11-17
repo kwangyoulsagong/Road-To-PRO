@@ -220,7 +220,9 @@ namespace RoadToPro.Presentation.Players.Logic
                 }
             p._scale = entityScale;
             p.BuildLocomotion(log);
+            p._yaw = new YawTrack(d); // 083 T08a: 이긴 슬라이딩 루트 맞춤이 화면 방향을 쓴다 (데이터만 읽는다 — 순서 무관)
             p.BuildActions(map, log);
+            p.BuildMissedJumps();
             p._keys = new ContactKeys(d);
             // 082 T07b: 보정 창은 앞 접촉 키 뒤에서 시작 (다음 터치 보정이 앞 접촉 프레임 화면 공을 끌지 않게)
             p._pullFrom = new float[p._ballPulls.Count];
@@ -228,7 +230,6 @@ namespace RoadToPro.Presentation.Players.Logic
             p._track = new MotionTrack(d);
             p._fault = new FaultFollower(d, p._track);
             p._interact = new InteractionPlanner(d, GoalPosts);
-            p._yaw = new YawTrack(d);
             p._posture = new PostureTrack(d, p._track);
             for (int e = 0; e < HighlightData.Entities; e++)
                 p._trans[e] = TransitionPlanner.Plan(lib, d, p._track, e, p._tl[e]).ToArray();
@@ -361,11 +362,10 @@ namespace RoadToPro.Presentation.Players.Logic
                     cands = _gateBuf;
                 }
                 bool header = HeaderMotion.IsHeader(ev) && !MissesBall(ev);
-                if (header) // 082 FR-01: 필요한 점프로 점프/서서 헤딩을 고른다 (후보에 있을 때만)
+                if (header) // 082 FR-01: 필요한 점프로 점프/서서 헤딩을 고른다. 083 T02d: 043 맵 Pass·Cross 후보에는 헤딩 클립이 없어(발 패스가 고르면 안 됨) 후보와 상관없이 쓴다
                 {
                     int hc = HeaderMotion.Choose(_lib, ev.BallPos.Y, ScaleOf(e));
-                    for (int i = 0; i < cands.Count; i++)
-                        if (cands[i] == hc) { _headerBuf.Clear(); _headerBuf.Add(hc); cands = _headerBuf; break; }
+                    if (hc >= 0) { _headerBuf.Clear(); _headerBuf.Add(hc); cands = _headerBuf; }
                 }
                 bool hit = ev.Kind == SimEventKind.Foul || ev.Kind == SimEventKind.Injury;
                 float t = ev.Time + (ev.Kind == SimEventKind.Goal ? CelebrateDelay : 0f);
@@ -386,7 +386,9 @@ namespace RoadToPro.Presentation.Players.Logic
                     float now = tl.EarliestStart(Math.Max(_d.StartTime, ev.Time - Lookahead), false);
                     now = Math.Max(now, tl.LastContactBefore(t));   // 앞 접촉이 끝나기 전에 시작하지 않는다 (043 FR-60, 054 FR-82)
                     float contact = Math.Max(t, now);
-                    var q = new ActionRequest(now, contact, _d.Pos(e, contact), _d.YawAt(e, contact), ev.BallPos, ev.BallVelOut,
+                    // 083 T08a: 이긴 슬라이딩은 접촉점이 루트 앞 1 m 이상이라 시뮬 방향 ↔ 화면 방향(YawTrack 평활) 몇 도 차가 발–공 ~10 cm가 된다 — 화면 방향으로 맞춘다
+                    float yawQ = simSlide && ev.Outcome == ActionOutcome.Win ? _yaw.At(e, contact) : _d.YawAt(e, contact);
+                    var q = new ActionRequest(now, contact, _d.Pos(e, contact), yawQ, ev.BallPos, ev.BallVelOut,
                         SpeedAt(e, contact - 0.3f), ev.Part, _kick[e], ScaleOf(e));
                     choice = ActionClipSelector.Select(_lib, cands, q);
                     if (MissesBall(ev)) choice = choice.WithRootOffset(Vec3.Zero);    // 닿지 않는 동작: 공에 맞추지 않는다 (054 FR-36·44·83)
@@ -396,7 +398,10 @@ namespace RoadToPro.Presentation.Players.Logic
                         var offset = choice.RootOffset;
                         float m = offset.Length();
                         bool hd = header && _lib.Get(choice.Clip).ContactPart == BodyPart.Head;
-                        float cap = hd ? HeaderMotion.RootCap(_lib.Get(choice.Clip).ContactPoint, ScaleOf(e)) : MotionDefaults.RootContactMax; // 082 FR-03 ③: 헤더만 headRadius + 이마 앞 거리까지
+                        bool slideWin = simSlide && ev.Outcome == ActionOutcome.Win; // 083 FR-03 ⓑ
+                        float cap = hd ? HeaderMotion.RootCap(_lib.Get(choice.Clip).ContactPoint, ScaleOf(e)) // 082 FR-03 ③: 헤더는 headRadius + 이마 앞 거리까지
+                                  : slideWin ? SlideMotion.RootCap(_lib.Get(choice.Clip).ContactPoint, ScaleOf(e)) // 083: 이긴 슬라이딩은 도달 거리 + 클립 접촉점까지
+                                  : MotionDefaults.RootContactMax;
                         var clamped = m > cap ? offset * (cap / m) : offset;
                         var residual = offset - clamped;
                         float clipY = _lib.Get(choice.Clip).ContactPoint.Y * ScaleOf(e);
@@ -412,7 +417,7 @@ namespace RoadToPro.Presentation.Players.Logic
                         var pull = residual * -1f + new Vec3(0, clipY + lift - ev.BallPos.Y, 0);
                         if (pull.LengthSq() > 1e-8f) _ballPulls.Add((choice.ContactAt, pull));
                         choice = choice.WithRootOffset(clamped);
-                        if (hd) choice = choice.WithHeader(lift, cap);
+                        if (hd || slideWin) choice = choice.WithRootCap(lift, cap);
                     }
                     // 082 FR-04: 빗나간 슬라이딩은 070 다운(act.tackle.slideDown)이 끝날 때까지 누운 자세(클립 시각 SlideHoldClipTime)로 멈췄다가 일어난다
                     if (simSlide && ev.Outcome == ActionOutcome.Fail)
@@ -452,6 +457,35 @@ namespace RoadToPro.Presentation.Players.Logic
                 default:
                     return false;
             }
+        }
+
+        readonly List<(long seq, int entity, string reason)> _jumpSkips = new List<(long, int, string)>();
+
+        /// <summary>
+        /// 083 FR-01·02: 놓친 공중볼 경합 점프. 이벤트 동작을 다 만든 뒤 넣는다 — Missed 이벤트는 정점보다 늦게 오므로,
+        /// 그사이 같은 선수의 수신 등 동작이 이미 타임라인에 있어야 겹침(FR-02)을 판정할 수 있다.
+        /// </summary>
+        void BuildMissedJumps()
+        {
+            foreach (var j in _d.AerialJumps)
+            {
+                if (j.Entity < 0 || j.Entity >= HighlightData.Players) continue;
+                if (j.Skip != null) { _jumpSkips.Add((j.Seq, j.Entity, j.Skip)); continue; }
+                int e = j.Entity;
+                float t = Math.Max(_d.StartTime, Math.Min(_d.EndTime, j.ApexAt));
+                _d.FrameAt(t, out var f, out var a);
+                var ball = _d.Ball[f] + (_d.Ball[Math.Min(f + 1, _d.Frames - 1)] - _d.Ball[f]) * a;
+                if (MissedJumpMotion.Plan(_lib, _tl[e], j, ScaleOf(e), _d.StartTime, _d.EndTime, _d.Pos(e, t), _d.YawAt(e, t), ball, out var choice, out var reason))
+                    _tl[e].Add(choice, false, MissedJumpMotion.SeqOf(j.Seq));
+                else _jumpSkips.Add((j.Seq, e, reason));
+            }
+        }
+
+        /// <summary>083 진단: 놓친 경합(Header 이벤트 번호) 참여자에게 점프를 넣지 않은 사유. 넣었거나 대상이 아니면 null.</summary>
+        public string MissedJumpSkipReason(long headerSeq, int entity)
+        {
+            foreach (var s in _jumpSkips) if (s.seq == headerSeq && s.entity == entity) return s.reason;
+            return null;
         }
 
         /// <summary>헤딩 경합 패자 (054 FR-43): 같이 뛰지만 정점이 늦어 공에 닿지 않는다. 지연 [제안] 0.07 s.</summary>

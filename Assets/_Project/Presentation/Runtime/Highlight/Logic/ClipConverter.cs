@@ -2,7 +2,10 @@ using System;
 using RoadToPro.Core.Math;
 using RoadToPro.Core.Pitch;
 using RoadToPro.MatchEngine.Match.Events;
+using HeaderOutcome = RoadToPro.MatchEngine.Actions.HeaderOutcome;
+using RoadToPro.MatchEngine.Match;
 using RoadToPro.MatchEngine.Match.Replay;
+using RoadToPro.MatchEngine.Match.Stages;
 using RoadToPro.Presentation.Players.Logic;
 
 namespace RoadToPro.Presentation.Highlight.Logic
@@ -80,7 +83,43 @@ namespace RoadToPro.Presentation.Highlight.Logic
                 data.Events.Add(new AnimEvent((float)time, ev.Seq, ev.Kind, entity, SlotOf(clip.Frames[frame], ev.OtherId), ev.Part,
                     outcome, EventBall(ev, data.Ball[frame], pitch), BallVelocityAfter(data, frame), (ev.A & 0x7FFF) | AnimEvent.FromSim | (ev.B << 16)));
             }
+            AddMissedJumps(clip, data, (float)halfL, pitch);
             return data;
+        }
+
+        /// <summary>
+        /// 083 FR-01: Missed 결과 Header 이벤트(B = 기록 첫 번호 + 1)마다 승자·가장 가까운 상대 참여자의 경합 기록을 재생 시각으로 옮긴다.
+        /// GK가 자기 박스 안이면(011 손 처리) 동작 없음 사유로, 기록이 클립에 없으면(넘침·창 밖) 기록 없음 사유로 남긴다.
+        /// </summary>
+        static void AddMissedJumps(ReplayClip clip, HighlightData data, float halfL, PitchSpec pitch)
+        {
+            const double dt = 0.01d; // 서브스텝 (EventTime과 같은 축)
+            foreach (var ev in clip.Events)
+            {
+                if (ev.Kind != SimEventKind.Header || ev.A != (int)HeaderOutcome.Missed || ev.B <= 0) continue;
+                int frame = FrameIndex(clip, EventTime(ev));
+                int win = SlotOf(clip.Frames[frame], ev.PlayerId);
+                int opp = ev.OtherId >= 0 ? SlotOf(clip.Frames[frame], ev.OtherId) : -1;
+                bool wf = win < 0, of = opp < 0;
+                foreach (var r in clip.Aerials)
+                {
+                    if (r.GroupFirst != ev.B - 1 || (r.Slot != win && r.Slot != opp)) continue;
+                    if (r.Slot == win) wf = true; else of = true;
+                    float apex = (float)(r.ApexSubstep * dt);
+                    string skip = Squad.IsKeeperSlot(r.Slot) && InPenaltyBox(data, r.Slot, apex, halfL) ? MissedJumpMotion.ReasonKeeperBox : null;
+                    data.AerialJumps.Add(new AerialJump(r.Slot, ev.Seq, (float)(r.JumpSubstep * dt), apex, (float)(r.LandSubstep * dt), r.ApexHeight, r.Won, skip));
+                }
+                float t = (float)EventTime(ev);
+                if (!wf) data.AerialJumps.Add(new AerialJump(win, ev.Seq, t, t, t, 0f, true, MissedJumpMotion.ReasonNoRecord));
+                if (!of) data.AerialJumps.Add(new AerialJump(opp, ev.Seq, t, t, t, 0f, false, MissedJumpMotion.ReasonNoRecord));
+            }
+        }
+
+        /// <summary>엔티티가 시각 t에 어느 쪽이든 페널티 박스 안인가 (GK는 상대 박스에 가지 않으므로 = 자기 박스). 좌표는 중앙 원점.</summary>
+        static bool InPenaltyBox(HighlightData d, int e, float t, float halfL)
+        {
+            var p = d.Pos(e, Math.Max(d.StartTime, Math.Min(d.EndTime, t)));
+            return Math.Abs(p.X) >= halfL - PhysicsStage.BoxDepth && Math.Abs(p.Z) <= PhysicsStage.BoxHalfWidth;
         }
 
         /// <summary>다이빙 시작 뒤 예정 접촉 시각(+2 서브스텝)까지 같은 GK의 접촉 이벤트(잡기·쳐내기·펀칭)가 있는가.</summary>

@@ -19,6 +19,16 @@ namespace RoadToPro.Verification.Samples.Highlight
         public const int TakeOnOk = 1, TakeOnLost = 2, TackleStand = 4, TackleSlide = 8, CutbackGoal = 16, HeaderShot = 32, Defensive = 64;
         /// <summary>specs/082 AC-05: 점프 헤딩슛 — 공 높이 ≥ 슈터 이마(캐스트 키 × act.aerial.headK) + <see cref="JumpMargin"/>.</summary>
         public const int HeaderJumpShot = 128;
+        /// <summary>specs/083 AC-05: 헤더 없이 끝난 공중볼 경합(071 Missed, 기록 있음) · 공을 따낸 슬라이딩 태클.</summary>
+        public const int MissedAerial = 256, SlideWin = 512;
+
+        /// <summary>083: 놓친 경합 Header 이벤트 (B = 경합 기록 첫 번호 + 1).</summary>
+        public static bool IsMissedAerial(in SimEvent e) =>
+            e.Kind == SimEventKind.Header && e.A == (int)HeaderOutcome.Missed && e.B > 0;
+
+        /// <summary>083: 이긴 슬라이딩 태클.</summary>
+        public static bool IsSlideWin(in SimEvent e) =>
+            e.Kind == SimEventKind.Tackle && (e.A & EventCodes.TackleSliding) != 0 && (e.A & EventCodes.TackleWon) != 0;
         /// <summary>점프가 화면에 분명히 보이는 여유(m) — 하이라이트 점프 경계(highlight.headerJumpMin 0.10 m)보다 크게.</summary>
         public const float JumpMargin = 0.2f;
 
@@ -55,6 +65,8 @@ namespace RoadToPro.Verification.Samples.Highlight
             if ((mask & HeaderShot) != 0) parts.Add("헤딩슛");
             if ((mask & HeaderJumpShot) != 0) parts.Add("점프 헤딩슛");
             if ((mask & Defensive) != 0) parts.Add("수비 장면");
+            if ((mask & MissedAerial) != 0) parts.Add("놓친 경합");
+            if ((mask & SlideWin) != 0) parts.Add("이긴 슬라이딩");
             return string.Join("·", parts);
         }
 
@@ -79,6 +91,8 @@ namespace RoadToPro.Verification.Samples.Highlight
                 foreach (var s in sel.Scenes) if (!s.IsReplay && t >= s.Start && t <= s.End) { inScene = true; break; }
                 if (!inScene) continue;
                 if (e.Kind == SimEventKind.Dribble) m |= (e.B & EventCodes.DribbleSuccess) != 0 ? TakeOnOk : TakeOnLost;
+                if (IsMissedAerial(e)) m |= MissedAerial;
+                if (IsSlideWin(e)) m |= SlideWin;
                 if (e.Kind == SimEventKind.Tackle)
                 {
                     if ((e.A & EventCodes.TackleSliding) == 0 && (e.A & EventCodes.TackleWon) != 0) m |= TackleStand;

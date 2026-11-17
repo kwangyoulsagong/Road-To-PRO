@@ -85,7 +85,8 @@ namespace RoadToPro.Presentation.Players.Logic
 
         public ActionChoice WithEnd(float end) => new ActionChoice(Clip, Start, Rate, ContactAt, end, StrideScale, RootOffset, Snap, Lift, RootMax, HoldAt, HoldFor);
         public ActionChoice WithRootOffset(Vec3 o) => new ActionChoice(Clip, Start, Rate, ContactAt, End, StrideScale, o, Snap, Lift, RootMax, HoldAt, HoldFor);
-        public ActionChoice WithHeader(float lift, float rootMax) => new ActionChoice(Clip, Start, Rate, ContactAt, End, StrideScale, RootOffset, Snap, lift, rootMax, HoldAt, HoldFor);
+        /// <summary>082 헤더·083 이긴 슬라이딩: 리프트와 이 액션 동안 루트 보정 상한.</summary>
+        public ActionChoice WithRootCap(float lift, float rootMax) => new ActionChoice(Clip, Start, Rate, ContactAt, End, StrideScale, RootOffset, Snap, lift, rootMax, HoldAt, HoldFor);
         /// <summary>정지 구간을 넣고 끝을 그만큼 늦춘다.</summary>
         public ActionChoice WithHold(float holdAt, float holdFor) =>
             new ActionChoice(Clip, Start, Rate, ContactAt, End + holdFor, StrideScale, RootOffset, Snap, Lift, RootMax, holdAt, holdFor);

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "083-aerial-slide",
+  "spec": "083",
+  "description": "083 AC-05 놓친 공중볼 경합 정점(두 선수 점프, 공은 머리에 안 닿음) · 이긴 슬라이딩 접촉 순간 (플레이어 빌드 768시드 탐색: 둘 다 있는 첫 시드 20261230)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261230
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-05"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay083"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze083.missed"
+    },
+    {
+      "type": "capture",
+      "name": "missed_jump",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "livePlay083slide"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze083.slide"
+    },
+    {
+      "type": "capture",
+      "name": "slide_win",
+      "kind": "3d"
+    }
+  ]
+}
