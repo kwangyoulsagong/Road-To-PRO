@@ -1,0 +1,403 @@
+{
+  "title": "007 로직 증거",
+  "spec": {
+    "id": "007",
+    "name": "007 — 피치 컨트롤 · 패스 판단 연결 (D19)",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "원 논문 모드 기본 파라미터(반응 0.7, 5 m/s, σ 0.45, λ 4.3, κ 1.0, λ_gk ×3, dt 0.04, 최대 10 s, 허용치 0.01)로 계산한 고정 배치 5개의 지점별 컨트롤 확률이 같은 수식을 독립 구현한 검증 스크립트의 값과 ±0.01 이내다."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "대칭 배치(양 팀 선수가 지점에서 같은 거리·같은 파라미터)에서 공격·수비 컨트롤이 같다."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "어떤 지점·궤적 질의에서도 4종(또는 3종) 확률 합 = 1 ± 1e-5, 각 값 0~1."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "한 선수만 지점으로 1 m 다가가면 그 팀 컨트롤 확률이 줄지 않는다 (고정 시드 무작위 1,000 케이스). 허용 = 적분 이산 오차 1e-3 (개정 T06: dt 0.04 적분은 가지치기 없이도 최대 ≈ 5e-4 감소)."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "궤적 질의: 수신자 앞을 상대가 가로막은 땅볼 패스는 상대 확률 > 0.5, 아무도 없는 공간으로 간 패스는 수신자 확률 > 0.9, 높이 > 2.5 m 구간에서는 필드 선수 컨트롤 증가가 0이다."
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "경계 · 예외 상황 목록 입력(0명 팀, 비수렴, 거리 0, 피치 밖, 라인 밖 궤적, 멈춘 궤적, 패서 제외, 퇴장 직후) 각각에서 NaN 0건, 인덱스 초과 0건, 규칙대로 처리된다."
+      },
+      {
+        "id": "AC-07",
+        "kind": "로직",
+        "text": "연결: 같은 배치에서 상대가 경로를 막은 패스 후보는 연결 뒤 판단 성공 확률이 연결 전보다 낮고, 막지 않은 후보는 0.05 넘게 떨어지지 않는다. 008 AC-02~05·20·22와 072 온볼 테스트가 연결 뒤에도 통과한다 (008 AC-24·010 AC-37 중 패스 경로 재확인)."
+      },
+      {
+        "id": "AC-08",
+        "kind": "로직",
+        "text": "연결 뒤 100경기 측정에서 패스 수 ≥ 550, 패스 성공률 ≥ 60 %, 판단 성공 확률 평균 − 실제 성공률 ≤ 0.10 (FR-24). 못 맞추면 FR-26대로 보류."
+      },
+      {
+        "id": "AC-09",
+        "kind": "로직",
+        "text": "같은 100경기에서 FR-25 회귀 감시 지표가 모두 범위 안이다."
+      },
+      {
+        "id": "AC-10",
+        "kind": "결정론",
+        "text": "고정 시드 경기 상태 1,000개에 대한 지점·궤적·그리드 질의 결과 해시가 2회 실행에서 같고, 선수 입력 순서를 섞어도 같다. 연결 뒤 고정 시드 경기 2회의 이벤트 로그·체크포인트 해시가 같다."
+      },
+      {
+        "id": "AC-11",
+        "kind": "결정론",
+        "text": "FR-27 진단 출력을 켠 실행과 끈 실행(같은 시드)의 이벤트 로그·체크포인트 해시가 같고, 끈 실행에서 진단용 할당은 0 B다."
+      },
+      {
+        "id": "AC-12",
+        "kind": "성능",
+        "text": "성능 예산 표 항목이 IL2CPP 벤치에서 예산 안, 할당 0 B. 조기 종료·먼 선수 건너뛰기 결과가 전체 적분과 고정 상태 1,000개에서 ≤ 1e-3 차이다. 풀 경기 1개(진단 끔) 동안 그리드 질의 호출 수가 0이다."
+      }
+    ],
+    "dir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/specs/007-pitch-control-xt"
+  },
+  "meta": {
+    "commit": "8e3b0d1cfed67662afdad697e44fd695f5f10262",
+    "branch": "feat/007-pitch-control-xt",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-18 18:10:31 +0900",
+    "durationSec": 886.922137260437,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 007 --scope auto",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 1832,
+    "passed": 1817,
+    "failed": 0,
+    "skipped": 14,
+    "duration": 877.5412245,
+    "compileErrors": [],
+    "failures": [],
+    "png": null,
+    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-181031-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 30.721306122448983,
+      "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-12",
+        "label": "010 결정 틱 평균 (Mono 회귀)",
+        "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
+        "value": 30.721306122448983,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "실경기 틱 GC 할당",
+        "metric": "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-12",
+        "label": "010 결정 틱 1회 평균 (081 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "value": 5.75359390693003,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "실경기 틱 1회 평균 (006 FR-80)",
+        "metric": "shot_match_tick_avg_us",
+        "value": 23.160394444444446,
+        "budget": 92,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "공 소유 선수 1명 결정 평균 (궤적 질의 K개 포함, 2026-11-18 T21 개정)",
+        "metric": "onball_owner_avg_us",
+        "value": 80.80761897380252,
+        "budget": 90,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "공 소유 선수 1명 결정 p95",
+        "metric": "onball_owner_p95_us",
+        "value": 110.6,
+        "budget": 130,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "지점 질의 1개 평균 (22명, 2026-11-18 T16 현실화)",
+        "metric": "pc_point_avg_us",
+        "value": 1.9830355,
+        "budget": 2.5,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "지점 질의 1개 최악 (최대 적분)",
+        "metric": "pc_point_worst_us",
+        "value": 3.76165,
+        "budget": 15,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "궤적 질의 1회 (3 s 궤적, 2026-11-18 T21 개정)",
+        "metric": "pc_traj_avg_us",
+        "value": 16.3128,
+        "budget": 18,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "32×20 그리드 1회",
+        "metric": "pc_grid_ms",
+        "value": 1.1025699999999998,
+        "budget": 4,
+        "unit": "ms",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "질의 GC 할당",
+        "metric": "pc_gc_bytes",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "가지치기 대 전체 적분 최대 차이 (FR-04)",
+        "metric": "pc_prune_maxdiff",
+        "value": 0.0008712410926818848,
+        "budget": 0.001,
+        "unit": "",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "궤적 TTI 보간 대 정확값 최대 차이 (T16)",
+        "metric": "pc_traj_interp_maxdiff",
+        "value": 0.009900152683258057,
+        "budget": 0.01,
+        "unit": "",
+        "ok": true
+      },
+      {
+        "ac": "AC-12",
+        "label": "궤적 가지치기 대 전체 적분 최대 차이 (tol 0.01 수렴 불연속 + 1e-3, T21)",
+        "metric": "pc_traj_prune_maxdiff",
+        "value": 0.009900093078613281,
+        "budget": 0.011,
+        "unit": "",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "shot_xg_eval_us": 0.02396725,
+      "shot_xg_eval_p95_us": 0.0247,
+      "shot_aim_us": 0.40263875,
+      "shot_aim_p95_us": 0.4124,
+      "aerial_contest_us": 0.053020000000000005,
+      "aerial_contest_p95_us": 0.056299999999999996,
+      "shot_gc_bytes_models": 0,
+      "shot_sink": 1,
+      "shot_match_tick_avg_us": 23.160394444444446,
+      "shot_match_tick_p95_us": 33,
+      "shot_match_ticks": 54000,
+      "shot_gc_bytes_per_tick": 0,
+      "shot_planned": 69,
+      "shot_blocks": 0,
+      "aerial_contests": 132,
+      "aerial_headers": 8,
+      "dec_tick_avg_us": 5.75359390693003,
+      "dec_tick_p95_us": 11.5,
+      "dec_match_s": 0.3437197,
+      "dec_ticks": 59740,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 1.2764981586876465,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.274795,
+      "dec_offball_p95_us": 0.5,
+      "onball_owner_avg_us": 80.80761897380252,
+      "onball_owner_p95_us": 110.6,
+      "onball_owner_samples": 12902,
+      "onball_owner_world_avg_us": 0.39214850410789026,
+      "onball_owner_decide_avg_us": 80.41547046969461,
+      "onball_owner_decide_p95_us": 110.2,
+      "onball_candidates_avg": 14.912339172221362,
+      "onball_pc_points_per_decision": 8.023174701596652,
+      "onball_pc_traj_per_decision": 3.13121996589676,
+      "onball_pc_samples_per_traj": 64.77573702319364,
+      "onball_pc_tti_per_decision": 1288.6080452643,
+      "onball_gc_bytes_per_decision": 0,
+      "onball_vision_avg_us": 0.0304223,
+      "onball_vision_p95_us": 0.038700000000000005,
+      "pc_point_avg_us": 1.9830355,
+      "pc_point_p95_us": 2.1180000000000003,
+      "pc_point_worst_us": 3.76165,
+      "pc_traj_avg_us": 16.3128,
+      "pc_traj_tti_per_query": 277.86243902439026,
+      "pc_traj_samples_per_query": 70.24097560975609,
+      "pc_traj_p95_us": 21.9,
+      "pc_grid_ms": 1.1025699999999998,
+      "pc_gc_bytes": 0,
+      "pc_prune_maxdiff": 0.0008712410926818848,
+      "pc_traj_interp_maxdiff": 0.009900152683258057,
+      "pc_traj_prune_maxdiff": 0.009900093078613281
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": false,
+    "durationSec": 14.7,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M5 Pro",
+    "development": false,
+    "commit": "25aa344496113c87540d51c28e97f471531f6456"
+  },
+  "requireAllAcs": true,
+  "deferred": {
+    "AC-08": "D19 패스 수·성공률·판단 보정도: 007 연결 + [대체] 보정 1회(동료 수신 가치 0.5 → 1.0) 뒤 7400 패스 424(≥ 550)·성공 56.5 %(≥ 60)·판단 xp − 실제 0.23(≤ 0.10) 미달, 8400 425·56.6 %. 2회차는 K 확대가 T16 결정 예산 초과·κ_def는 [제안] 값이라 FR-25 허용 밖. 남은 실패는 실행 쪽(인터셉트 17.6 %·첫 터치 루즈볼 9.8 %·공중 9.3 %) → FR-26 보류, README D19 결정 대기"
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "결정론 테스트 90/90 통과",
+        "ok": true
+      }
+    ],
+    "AC-11": [
+      {
+        "label": "결정론 테스트 90/90 통과",
+        "ok": true
+      }
+    ],
+    "AC-12": [
+      {
+        "label": "EditMode 성능 2/2 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 14/14 통과",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "deferred"
+}
