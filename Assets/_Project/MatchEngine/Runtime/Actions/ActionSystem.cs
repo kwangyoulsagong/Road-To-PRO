@@ -9,6 +9,7 @@ using RoadToPro.MatchEngine.Match.Events;
 using RoadToPro.MatchEngine.Match.Flow;
 using RoadToPro.MatchEngine.Match.Pipeline;
 using RoadToPro.MatchEngine.Match.Replay;
+using RoadToPro.MatchEngine.PitchControl;
 
 namespace RoadToPro.MatchEngine.Actions
 {
@@ -25,8 +26,11 @@ namespace RoadToPro.MatchEngine.Actions
         /// <summary>평가 입력 (틱마다 <see cref="Refresh"/>로 채운다).</summary>
         public readonly ActionWorld World = new ActionWorld();
         public readonly ActionDetailLog Details = new ActionDetailLog();
-        /// <summary>물리 xPass (키 모먼트·디버그용, 틱 기본 경로 아님).</summary>
-        public readonly PhysicsXPass Physics = new PhysicsXPass();
+        /// <summary>물리 xPass (키 모먼트·디버그용, 틱 기본 경로 아님) — 007 궤적 질의.</summary>
+        public readonly PhysicsXPass Physics;
+        /// <summary>007 피치 컨트롤 파라미터·질의 (경기당 1개, 008 수신 컨트롤·072 상위 K 재평가가 쓴다).</summary>
+        public readonly PitchControlParams PcParams;
+        public readonly PitchControlQuery PitchControl;
         /// <summary>FR-63 진단 싱크. null이면 호출 0.</summary>
         public IActionDiagnostics Diagnostics;
         /// <summary>070 결투 하위 시스템 (드리블 터치·테이크온·태클·몸싸움·접촉).</summary>
@@ -55,10 +59,14 @@ namespace RoadToPro.MatchEngine.Actions
         /// <summary>테스트·진단용 누계 (상태 아님).</summary>
         public long KicksExecuted, KicksCancelled, ControlChecks, FirstTouches;
 
-        public ActionSystem(ActionParams p, BallParams bp, MatchSetup setup)
+        public ActionSystem(ActionParams p, BallParams bp, MatchSetup setup, PitchControlParams pc = null)
         {
             P = p;
             _bp = bp;
+            PcParams = pc ?? PitchControlParams.Defaults;
+            PitchControl = new PitchControlQuery(PcParams);
+            Physics = new PhysicsXPass(PcParams);
+            World.SetPitchControl(PitchControl);
             Rng = RngStreams.Create(setup.Seed, RngStreamId.Action);
             foreach (var t in new[] { setup.Home, setup.Away })
                 if (t?.Players != null)

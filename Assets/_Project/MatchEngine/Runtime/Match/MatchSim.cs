@@ -42,6 +42,8 @@ namespace RoadToPro.MatchEngine.Match
         public Scenarios.ScenarioForceRequest ScenarioForce;
         /// <summary>판단 AI 진단 (specs/010 FR-60~62). 경기마다 새로 만드는 함수 — null이면 끔.</summary>
         public Func<UtilityAI.IDecisionDiagnostics> DecisionDiagnostics;
+        /// <summary>피치 컨트롤 진단 (specs/007 FR-27): 패스 후보 궤적 재평가. 경기마다 새로 만드는 함수 — null이면 끔(호출 0).</summary>
+        public Func<PitchControl.IPitchControlDiagnostics> PitchControlDiagnostics;
 
         public MatchSimOptions Clone() => new MatchSimOptions
         {
@@ -49,7 +51,7 @@ namespace RoadToPro.MatchEngine.Match
             LogCapacity = LogCapacity, KeepEventLog = KeepEventLog, PenaltyJudge = PenaltyJudge,
             ShapeInputs = ShapeInputs, ShapeTelemetry = ShapeTelemetry, ShapeDiagnostics = ShapeDiagnostics,
             ScenarioInputs = ScenarioInputs, ScenarioDiagnostics = ScenarioDiagnostics, ScenarioForce = ScenarioForce,
-            DecisionDiagnostics = DecisionDiagnostics,
+            DecisionDiagnostics = DecisionDiagnostics, PitchControlDiagnostics = PitchControlDiagnostics,
         };
     }
 
@@ -127,7 +129,7 @@ namespace RoadToPro.MatchEngine.Match
             if (tuning.Scenario == null)
             {
                 stages[(int)StageId.Shape] = new ShapeStage(p, catalog, inputs, setup, f0, f1, options?.ShapeTelemetry, options?.ShapeDiagnostics);
-                stages[(int)StageId.ScenarioOrUtility] = new UtilityDecisionStage(setup, tuning) { Diagnostics = options?.DecisionDiagnostics?.Invoke() }; // 010
+                stages[(int)StageId.ScenarioOrUtility] = WithPcDiagnostics(new UtilityDecisionStage(setup, tuning) { Diagnostics = options?.DecisionDiagnostics?.Invoke() }, options); // 010
                 return stages;
             }
 
@@ -137,8 +139,16 @@ namespace RoadToPro.MatchEngine.Match
             var shape = new ShapeStage(p, catalog, shapeInputs, setup, f0, f1, options?.ShapeTelemetry, options?.ShapeDiagnostics);
             runtime.BindRoles(new Scenarios.FormationRoleSource(shape));
             stages[(int)StageId.Shape] = new ScenarioShapeStage(shape, runtime);
-            stages[(int)StageId.ScenarioOrUtility] = new ScenarioStage(runtime, new UtilityDecisionStage(setup, tuning, runtime) { Diagnostics = options?.DecisionDiagnostics?.Invoke() }); // 013 선택 + 010 판단
+            stages[(int)StageId.ScenarioOrUtility] = new ScenarioStage(runtime, WithPcDiagnostics(new UtilityDecisionStage(setup, tuning, runtime) { Diagnostics = options?.DecisionDiagnostics?.Invoke() }, options)); // 013 선택 + 010 판단
             return stages;
+        }
+
+        /// <summary>007 FR-27: 온볼 판단의 궤적 재평가 진단을 붙인다 (null이면 그대로).</summary>
+        static UtilityDecisionStage WithPcDiagnostics(UtilityDecisionStage stage, MatchSimOptions options)
+        {
+            var d = options?.PitchControlDiagnostics?.Invoke();
+            if (d != null) stage.OnBall.PcDiagnostics = d;
+            return stage;
         }
 
         public static IMatchStage[] DefaultStages() => new IMatchStage[]
@@ -455,6 +465,7 @@ namespace RoadToPro.MatchEngine.Match
             o.ShapeDiagnostics = null;
             o.ScenarioDiagnostics = null;
             o.DecisionDiagnostics = null; // 010: 재구성 중복 보고 방지
+            o.PitchControlDiagnostics = null; // 007: 같은 이유
             var sim = new MatchSim(_setup, _tuning, o);
             for (int i = 0; i < _stages.Length; i++)
                 if (ReferenceEquals(sim._stages[i], _stages[i])) throw new InvalidOperationException($"단계 팩토리가 같은 인스턴스를 돌려준다 (단계 {i}) — 경기마다 새로 만들어야 한다 (리뷰 R1)");

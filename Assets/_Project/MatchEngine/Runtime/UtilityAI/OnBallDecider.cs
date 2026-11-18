@@ -43,6 +43,72 @@ namespace RoadToPro.MatchEngine.UtilityAI
         readonly OnBallCandidates _cands;
         readonly OnBallScorer _scorer;
         readonly UtilityChooser _chooser = new UtilityChooser();
+        readonly bool[] _refined = new bool[UtilityChooser.MaxCandidates];
+
+        /// <summary>마지막 결정에서 궤적 재평가한 패스 후보 수 (텔레메트리·테스트, 결과에 영향 없음).</summary>
+        public int LastRefined { get; private set; }
+
+        /// <summary>마지막 결정에서 후보 i가 궤적 재평가됐는가 (테스트·진단).</summary>
+        public bool Refined(int i) => _refined[i];
+
+        /// <summary>FR-23: 크로스는 재평가하지 않는다(071 담당). 일반·전진·전환·스루 패스만.</summary>
+        static bool Refinable(OnBallItem k) => OnBallItems.IsPass(k) && k != OnBallItem.Cross;
+
+        int BestPass(int n, bool includeRefined)
+        {
+            var best = -1;
+            for (int i = 0; i < n; i++)
+            {
+                ref var c = ref _cands[i];
+                if (!Refinable(c.Item) || c.Mult <= 0f || c.Target < 0) continue;
+                if (!includeRefined && _refined[i]) continue;
+                if (best < 0 || c.Utility > _cands[best].Utility) best = i; // 동점 = 생성 순서
+            }
+            return best;
+        }
+
+        /// <summary>
+        /// 007 FR-21: 선택 가능한 패스 후보 중 효용 상위 K개를 궤적 질의로 재평가(P = 수신자 + 동료 × 가치, 오프사이드 배수 유지)하고 다시 점수 낸다.
+        /// 그 뒤 패스 최고 효용이 아직 재평가 안 된 후보면 그것도 재평가(최대 refineExtra회) — 낙관적인 로지스틱 값이 선택되는 구멍 방지(플랜).
+        /// `pcm.legacy`·K = 0이면 아무것도 안 한다. RNG 없음.
+        /// </summary>
+        void RefinePasses(DecisionWorld w, ActionWorld aw, ActionParams ap, BallParams bp, int s, bool oneTouch, int n)
+        {
+            LastRefined = 0;
+            for (int i = 0; i < n; i++) _refined[i] = false;
+            var pc = aw.PitchControl.Params;
+            if (pc.LegacyOn || pc.RefineCount <= 0) return;
+            var from = w.Ball;
+            for (int r = 0; r < pc.RefineCount; r++)
+            {
+                var b = BestPass(n, false);
+                if (b < 0) break;
+                RefineOne(w, aw, ap, bp, s, oneTouch, from, b);
+            }
+            for (int e = 0; e < pc.RefineExtraCount; e++)
+            {
+                var b = BestPass(n, true);
+                if (b < 0 || _refined[b]) break;
+                RefineOne(w, aw, ap, bp, s, oneTouch, from, b);
+            }
+        }
+
+        void RefineOne(DecisionWorld w, ActionWorld aw, ActionParams ap, BallParams bp, int s, bool oneTouch, Vec2 from, int i)
+        {
+            ref var c = ref _cands[i];
+            var before = c.Pass.XPass;
+            var offside = before > 0f ? c.P / before : 0f;
+            var judged = PassModel.Refine(ap, bp, aw, s, c.Target, from, in c.Pass, out var traj);
+            PcDiagnostics?.OnPassRefined(w.Tick, s, c.Target, (byte)c.Item, before, in traj, judged);
+            c.Pass.XPass = judged;
+            c.P = judged * offside;
+            _scorer.Score(w, s, oneTouch, ref c);
+            _refined[i] = true;
+            LastRefined++;
+        }
+
+        /// <summary>007 FR-27 진단 (null이면 호출 0).</summary>
+        public PitchControl.IPitchControlDiagnostics PcDiagnostics;
         readonly UtilityChooser _full = new UtilityChooser();
         readonly float[] _u = new float[UtilityChooser.MaxCandidates];
         readonly float[] _uf = new float[UtilityChooser.MaxCandidates];
@@ -155,6 +221,9 @@ namespace RoadToPro.MatchEngine.UtilityAI
                     if (c.Mult <= 0f) { c.Mult = 1f; c.MultFull = 1f; c.Gain = c.GainBase; c.Utility = c.Gain - c.Loss; }
                 }
             }
+
+            // ④' 007 FR-21: 패스 후보 상위 K개(효용 순)는 궤적 질의로 성공 확률을 다시 정하고 다시 점수 (RNG 소비 없음)
+            RefinePasses(w, aw, ap, bp, s, oneTouch, n);
 
             // ⑤ 노이즈 (010 FR-21·26)
             var sigma = EvalNoise.UnderPressure(EvalNoise.Sigma(_p, DecisionAttributes.N(mind.Decisions), DecisionAttributes.N(mind.Vision)),

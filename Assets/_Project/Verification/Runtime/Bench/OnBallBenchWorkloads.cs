@@ -68,6 +68,8 @@ namespace RoadToPro.Verification.Bench
             var td = new long[maxTicks];
             var n = 0;
             long cands = 0, bytes = 0;
+            var q = act.PitchControl;
+            long pqs = 0, tqs = 0, sqs = 0, aqs = 0;
             for (int tick = 0; tick < maxTicks && !sim.IsFinished; tick++)
             {
                 sim.StepTick();
@@ -81,9 +83,11 @@ namespace RoadToPro.Verification.Bench
                 var t0 = Stopwatch.GetTimestamp();
                 act.Refresh(ctx);
                 var pressure = act.PressureOn(ctx, s);
+                long pq0 = q.PointCount, tq0 = q.TrajectoryCount, sq0 = q.SampleCount, aq0 = q.ArrivalCount;
                 var t1 = Stopwatch.GetTimestamp();
                 dec.Decide(stage.World, act.World, act.P, ctx.BallParams, s, ref st, rng, pressure, false, held);
                 var t2 = Stopwatch.GetTimestamp();
+                pqs += q.PointCount - pq0; tqs += q.TrajectoryCount - tq0; sqs += q.SampleCount - sq0; aqs += q.ArrivalCount - aq0;
                 t[n] = t2 - t0;
                 tw[n] = t1 - t0; // 008 월드 갱신(22명 TTI)·압박 — 틱당 1회 공유 비용
                 td[n] = t2 - t1; // 시야·후보(008 평가)·점수·선택
@@ -98,6 +102,11 @@ namespace RoadToPro.Verification.Bench
             m["onball_owner_decide_avg_us"] = Avg(td, n);
             m["onball_owner_decide_p95_us"] = P95(td, n);
             m["onball_candidates_avg"] = n > 0 ? (double)cands / n : 0;
+            // 007: 결정 1회당 피치 컨트롤 질의 (지점 = 008 수신 컨트롤, 궤적 = 상위 K 재평가)
+            m["onball_pc_points_per_decision"] = n > 0 ? (double)pqs / n : 0;
+            m["onball_pc_traj_per_decision"] = n > 0 ? (double)tqs / n : 0;
+            m["onball_pc_samples_per_traj"] = tqs > 0 ? (double)sqs / tqs : 0;
+            m["onball_pc_tti_per_decision"] = n > 0 ? (double)aqs / n : 0;
             m["onball_gc_bytes_per_decision"] = n > 0 ? (double)bytes / n : 0;
         }
 

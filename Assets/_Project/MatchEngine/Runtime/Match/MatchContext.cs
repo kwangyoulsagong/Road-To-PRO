@@ -93,7 +93,7 @@ namespace RoadToPro.MatchEngine.Match
             RefereeScript = referee;
             Recorder = new ReplayRecorder(this);
             Keepers = new Goalkeeper.GoalkeeperSystem(Goalkeeper.GoalkeeperParams.Create(tuning.Goalkeeper), BallParams, setup.Seed);
-            Actions = new Actions.ActionSystem(MatchEngine.Actions.ActionParams.Create(tuning.Action), BallParams, setup);
+            Actions = new Actions.ActionSystem(MatchEngine.Actions.ActionParams.Create(tuning.Action), BallParams, setup, MatchEngine.PitchControl.PitchControlParams.Create(tuning.Action));
             _ball = BallState.AtRest(new Vec2(Pitch.LengthM * 0.5f, Pitch.WidthM * 0.5f), BallParams.Radius);
             Flow = new MatchFlow(this);
         }
