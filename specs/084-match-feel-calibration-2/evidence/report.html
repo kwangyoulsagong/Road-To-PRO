@@ -1,0 +1,50 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>084 로직 증거</title><meta name="claude:viewport-fit-sides" content="cover"><style>
+:root{--bg:#f2f3f5;--card:#fff;--text:#191f28;--muted:#6b7684;--line:#e5e8eb;
+--accent:#3182f6;--pass:#12a150;--fail:#e5383b;--warn:#f59f00;--cand:#8b5cf6;--code:#f7f8fa;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101215;--card:#1b1e23;
+--text:#e8eaed;--muted:#9aa0a6;--line:#2c3036;--code:#15181c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101215;--card:#1b1e23;--text:#e8eaed;--muted:#9aa0a6;--line:#2c3036;--code:#15181c;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font:15px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+main{max-width:1100px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:22px;margin:4px 0 12px}h2{font-size:17px;margin:0 0 10px}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:0 0 12px;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.meta b{color:var(--text);font-weight:600}
+.verdict{display:inline-block;font-weight:700;font-size:15px;padding:4px 12px;border-radius:999px;color:#fff}
+.verdict.pass{background:var(--pass)}.verdict.fail{background:var(--fail)}
+.big{font-size:34px;font-weight:700;line-height:1.1}
+.stats{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:10px}
+.stats div{min-width:72px}.stats span{display:block;color:var(--muted);font-size:12px}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:6px;color:#fff}
+.tag.pass{background:var(--pass)}.tag.fail{background:var(--fail)}.tag.skip{background:var(--muted)}
+.tag.cand{background:var(--cand)}.tag.warn{background:var(--warn)}.tag.info{background:var(--accent)}
+.warnbar{background:var(--warn);color:#000;border-radius:12px;padding:10px 14px;margin:0 0 12px;font-weight:600}
+pre{background:var(--code);border-radius:10px;padding:10px;font:12px/1.45 ui-monospace,Menlo,monospace;
+overflow-x:auto;white-space:pre;margin:6px 0 0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.case{padding:10px 0;border-bottom:1px solid var(--line)}.case:last-child{border-bottom:0}
+.case .name{font-weight:600}.muted{color:var(--muted)}
+a{color:var(--accent)}
+
+.scroll table{width:max-content;min-width:100%}
+.scroll td,.scroll th{white-space:nowrap}
+.scroll td.wrap{white-space:normal;min-width:180px;max-width:360px}
+.grid td,.grid th{text-align:center;min-width:150px}
+.grid th[scope=row]{text-align:left;min-width:90px}
+.grid img{display:block;width:150px;height:auto;border-radius:8px;border:3px solid var(--line);margin:0 auto 4px}
+.grid .pass img{border-color:var(--pass)}.grid .fail img{border-color:var(--fail)}.grid .cand img{border-color:var(--cand)}
+details summary{cursor:pointer;list-style:none}details summary::-webkit-details-marker{display:none}
+.trio{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;text-align:left}
+.trio figure{margin:0}.trio img{width:220px;border:0;border-radius:6px}
+.trio figcaption{font-size:12px;color:var(--muted)}
+.summary-row{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+.verdict.deferred{background:var(--warn);color:#000}
+</style><script>
+addEventListener('load',function(){var d=document.documentElement;
+d.setAttribute('data-layout',d.scrollWidth<=innerWidth+1?'ok':'overflow:'+d.scrollWidth+'>'+innerWidth);});
+</script></head><body><main><h1>084 로직 증거</h1><div class="card"><div class="summary-row"><span class="verdict fail">실패</span><span class="muted">스펙 084 · 084 — 경기 양상 2차 보정 (GK 선방 · 패스 · 드리블 탈취 · 컷백)</span></div><p class="meta"><span>커밋 <b>2891aaea59</b></span><span>브랜치 <b>feat/084-match-feel-calibration-2</b></span><span>실행 <b>2026-11-18 10:28:50 +0900</b></span><span>걸린 시간 <b>535s</b></span><span>Unity <b>6000.3.27f2</b></span></p><p class="meta"><span>프로필 <b>mac-m1-1600p</b></span></p></div><div class="card" id="ac"><h2>수용 기준 ↔ 증거</h2><div class="scroll"><table><tr><th>AC</th><th>종류</th><th>판정</th><th>증거</th><th>조건</th></tr><tr><td><b>AC-01</b></td><td>로직</td><td><span class="tag fail">실패</span></td><td><span class="tag fail">실패</span> EditMode 테스트</td><td class="muted wrap">개정 뒤 100경기 측정에서 GK 선방률·슈팅 전환율이 FR-02 범위 안이고 011 높은 구석 선방 기준 테스트가 통과한다.</td></tr><tr><td><b>AC-02</b></td><td>로직</td><td><span class="tag fail">실패</span></td><td><span class="tag fail">실패</span> EditMode 테스트</td><td class="muted wrap">개정 뒤 100경기 측정에서 패스 수·성공률이 FR-03 범위 안.</td></tr><tr><td><b>AC-03</b></td><td>로직</td><td><span class="tag fail">실패</span></td><td><span class="tag fail">실패</span> EditMode 테스트</td><td class="muted wrap">개정 뒤 100경기 측정에서 드리블 터치당 탈취율이 FR-04 범위 안이고 072 AC-05 쌍둥이 테스트가 통과한다.</td></tr><tr><td><b>AC-04</b></td><td>로직</td><td><span class="tag fail">실패</span></td><td><span class="tag fail">실패</span> EditMode 테스트</td><td class="muted wrap">플레이어 빌드 256시드 탐색에서 컷백 슛 골이 FR-05 하한 이상.</td></tr><tr><td><b>AC-05</b></td><td>로직</td><td><span class="tag fail">실패</span></td><td><span class="tag fail">실패</span> EditMode 테스트</td><td class="muted wrap">081 FR-10 표에서 082 기준 범위 안이던 지표가 개정 뒤에도 범위 안 (FR-07).</td></tr><tr><td><b>AC-06</b></td><td>결정론</td><td><span class="tag pass">통과</span></td><td><span class="tag pass">통과</span> 결정론 테스트 77/77 통과</td><td class="muted wrap">같은 시드 90분 2회 해시 같음.</td></tr><tr><td><b>AC-07</b></td><td>성능</td><td><span class="tag fail">실패</span></td><td><span class="tag pass">통과</span> EditMode 성능 2/2 통과 (mac-m1-1600p)<br><span class="tag fail">실패</span> IL2CPP 벤치 결과 없음 (farm.py bench --spec, 생략하려면 --skip-bench &quot;사유&quot;)</td><td class="muted wrap">성능 예산 표 항목이 예산 안.</td></tr></table></div></div><div class="card"><h2>로직 테스트 <span class="tag fail">실패</span></h2><p class="meta"><span>합계 <b>1148</b></span><span>통과 <b>1133</b></span><span>실패 <b>3</b></span></p></div><div class="card"><h2>EditMode 성능 <span class="tag pass">통과</span></h2><p class="meta"><span>기기 <b>mac-m1-1600p</b></span><span>기준 프로필 <b>mac-m1-1600p</b></span><span>전원 <b>ac</b></span></p><div class="scroll"><table><tr><th>AC</th><th>항목</th><th>판정</th><th>측정</th><th>예산</th><th>기준 대비</th></tr><tr><td>AC-07</td><td>010 결정 틱 평균 (Mono 회귀)</td><td><span class="tag pass">통과</span></td><td>22.77 µs</td><td>≤ — µs</td><td>—</td></tr><tr><td>AC-07</td><td>실경기 틱 GC 할당</td><td><span class="tag pass">통과</span></td><td>0.00 B</td><td>≤ 0 B</td><td>—</td></tr></table></div></div><div class="card"><h2>로그</h2><p class="muted">에러·경고 0</p></div><div class="card"><h2>다시 실행하려면</h2><pre>python3 Tools/devicefarm/farm.py logic --spec 084 --scope auto</pre><p class="muted">플레이어 인자는 run.json의 combos[].args</p></div></main></body></html>

@@ -1,0 +1,168 @@
+{
+  "title": "084 로직 증거",
+  "spec": {
+    "id": "084",
+    "name": "084 — 경기 양상 2차 보정 (GK 선방 · 패스 · 드리블 탈취 · 컷백)",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "개정 뒤 100경기 측정에서 GK 선방률·슈팅 전환율이 FR-02 범위 안이고 011 높은 구석 선방 기준 테스트가 통과한다."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "개정 뒤 100경기 측정에서 패스 수·성공률이 FR-03 범위 안."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "개정 뒤 100경기 측정에서 드리블 터치당 탈취율이 FR-04 범위 안이고 072 AC-05 쌍둥이 테스트가 통과한다."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "플레이어 빌드 256시드 탐색에서 컷백 슛 골이 FR-05 하한 이상."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "081 FR-10 표에서 082 기준 범위 안이던 지표가 개정 뒤에도 범위 안 (FR-07)."
+      },
+      {
+        "id": "AC-06",
+        "kind": "결정론",
+        "text": "같은 시드 90분 2회 해시 같음."
+      },
+      {
+        "id": "AC-07",
+        "kind": "성능",
+        "text": "성능 예산 표 항목이 예산 안."
+      }
+    ],
+    "dir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/specs/084-match-feel-calibration-2"
+  },
+  "meta": {
+    "commit": "2891aaea59bac7eb48b15dff62221cac9bd673e8",
+    "branch": "feat/084-match-feel-calibration-2",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-18 10:28:50 +0900",
+    "durationSec": 534.9019169807434,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 084 --scope auto",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": false,
+    "total": 1148,
+    "passed": 1133,
+    "failed": 3,
+    "skipped": 12,
+    "duration": 524.2543398,
+    "compileErrors": [],
+    "failures": [
+      {
+        "name": "RestartMoveTests.ThrowIn_ApproachReadyKick",
+        "message": "ThrowIn: 공이 재시작 지점에 없음\n  Expected: less than or equal to 1.04999995f\n  But was:  1.52087152f"
+      },
+      {
+        "name": "LiveContactAuditTests.Headers_WithinDistanceAndTime_JumpOrStand",
+        "message": "Expected: <empty>\n  But was:  \"20261349#35 seq 3045 머리–공 24.2 cm\n\""
+      },
+      {
+        "name": "LiveContactAuditTests.SlideWins_FootWithin5cm_TimeWithinFrame",
+        "message": "측정된 이긴 슬라이딩\n  Expected: greater than 0\n  But was:  0"
+      }
+    ],
+    "png": null,
+    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-102850-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 22.77065889481424,
+      "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-07",
+        "label": "010 결정 틱 평균 (Mono 회귀)",
+        "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
+        "value": 22.77065889481424,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "실경기 틱 GC 할당",
+        "metric": "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": null,
+  "requireAllAcs": true,
+  "deferred": {},
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": false
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": false
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": false
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": false
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": false
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "결정론 테스트 77/77 통과",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 성능 2/2 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 결과 없음 (farm.py bench --spec, 생략하려면 --skip-bench \"사유\")",
+        "ok": false
+      }
+    ]
+  },
+  "verdict": "fail"
+}
