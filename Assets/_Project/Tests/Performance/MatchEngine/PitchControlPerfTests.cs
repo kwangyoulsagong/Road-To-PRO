@@ -60,6 +60,16 @@ namespace RoadToPro.Tests.Performance.MatchEngine
             Assert.LessOrEqual(diff, 0.01, "보간 오차는 판단에 의미 없는 크기여야 한다 (≤ 0.01)");
         }
 
+        [Test]
+        public void TrajectoryPrune_MaxDiff()
+        {
+            var diff = W().TrajPruneMaxDiff();
+            TestContext.WriteLine($"궤적 가지치기 대 전체 적분 최대 차이 {diff:E2}");
+            // 궤적 결과는 수렴 문턱(tol 0.01)에서 tol 크기 불연속이 있다(한 샘플 차이로 수렴/끝 지점 분배가 갈림) — 가지치기 자체 오차 1e-3을 그 위에 허용
+            var tol = RoadToPro.MatchEngine.PitchControl.PitchControlParams.Defaults.Tol;
+            Assert.LessOrEqual(diff, tol + 1e-3, "궤적 먼 선수 건너뛰기 차이 ≤ tol + 1e-3 (AC-12)");
+        }
+
         [Test, Timeout(600_000)]
         public void Match_NoGridQueries()
         {

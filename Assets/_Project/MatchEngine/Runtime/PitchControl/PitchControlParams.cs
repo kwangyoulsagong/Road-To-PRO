@@ -59,6 +59,8 @@ namespace RoadToPro.MatchEngine.PitchControl
         public readonly float TtiStride = 2f;
         /// <summary>궤적 TTI 보간 허용 거리 (m): 공이 선수에서 이보다 가까우면 정확값.</summary>
         public readonly float TtiNear = 6f;
+        /// <summary>궤적 질의 먼 선수 건너뛰기 (σ 배수, T21 성능 — 지점 질의는 FR-04 5σ).</summary>
+        public readonly float TrajPrune = 5f;
         /// <summary>FR-20 비교 모드: 1이면 008 수신 컨트롤은 기존 대체 로지스틱, 궤적 재평가 끔.</summary>
         public readonly float Legacy = 0f;
 
@@ -101,6 +103,7 @@ namespace RoadToPro.MatchEngine.PitchControl
             Legacy = G(t, Ids.Legacy, Legacy);
             TtiStride = G(t, Ids.TtiStride, TtiStride);
             TtiNear = G(t, Ids.TtiNear, TtiNear);
+            TrajPrune = G(t, Ids.TrajPrune, TrajPrune);
         }
 
         static float G(TuningBundle t, string id, float fallback) => t.Registry.TryGetIndex(id, out var i) ? t[i] : fallback;

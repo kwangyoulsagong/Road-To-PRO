@@ -90,6 +90,7 @@ namespace RoadToPro.Verification.Bench
             m["pc_gc_bytes"] = GcBytes();
             m["pc_prune_maxdiff"] = PruneMaxDiff();
             m["pc_traj_interp_maxdiff"] = InterpMaxDiff();
+            m["pc_traj_prune_maxdiff"] = TrajPruneMaxDiff();
             return m;
         }
 
@@ -202,6 +203,22 @@ namespace RoadToPro.Verification.Bench
                 _tr.Ground(_bp, pl.Pos[1], new Vec2(rng.Range(0f, 105f), rng.Range(0f, 68f)), rng.Range(10f, 24f), _p.Dt, _p.Horizon, 105f, 68f);
                 var a = _q.Trajectory(pl, _tr, 1, 2);
                 var b = _q.Trajectory(pl, _tr, 1, 2, true, 1);
+                worst = Math.Max(worst, Math.Max(Math.Max(Math.Abs(a.Receiver - b.Receiver), Math.Abs(a.Teammate - b.Teammate)), Math.Max(Math.Abs(a.Opponent - b.Opponent), Math.Abs(a.Out - b.Out))));
+            }
+            return worst;
+        }
+
+        /// <summary>⑧ 궤적 가지치기(`pcm.trajPrune`) 대 건너뛰기 없음(같은 보간)의 최대 차이 (4종 확률, 궤적 1,000개).</summary>
+        public double TrajPruneMaxDiff(int n = 1000)
+        {
+            var rng = new SeedRng(7021);
+            var worst = 0.0;
+            for (int k = 0; k < n; k++)
+            {
+                var pl = _states[k % States];
+                _tr.Ground(_bp, pl.Pos[1], new Vec2(rng.Range(0f, 105f), rng.Range(0f, 68f)), rng.Range(10f, 24f), _p.Dt, _p.Horizon, 105f, 68f);
+                var a = _q.Trajectory(pl, _tr, 1, 2, true, _p.TtiStrideCount);
+                var b = _q.Trajectory(pl, _tr, 1, 2, false, _p.TtiStrideCount);
                 worst = Math.Max(worst, Math.Max(Math.Max(Math.Abs(a.Receiver - b.Receiver), Math.Abs(a.Teammate - b.Teammate)), Math.Max(Math.Abs(a.Opponent - b.Opponent), Math.Abs(a.Out - b.Out))));
             }
             return worst;

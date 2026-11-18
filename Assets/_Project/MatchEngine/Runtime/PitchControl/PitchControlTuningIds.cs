@@ -31,5 +31,6 @@ namespace RoadToPro.MatchEngine.PitchControl
         public const string Legacy = "pcm.legacy";
         public const string TtiStride = "pcm.ttiStride";
         public const string TtiNear = "pcm.ttiNear";
+        public const string TrajPrune = "pcm.trajPrune";
     }
 }

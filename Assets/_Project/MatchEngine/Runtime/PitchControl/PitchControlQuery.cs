@@ -216,7 +216,7 @@ namespace RoadToPro.MatchEngine.PitchControl
             var sigma = Sigma;
             var c = PiOverSqrt3 / sigma;
             var dt = tr.Dt;
-            var slack = _p.Prune * sigma;
+            var slack = _p.TrajPrune * sigma; // 궤적은 `pcm.trajPrune`(T21 — 차이는 성능 테스트가 잰다, ≤ 1e-3)
             var cap = 1f - _p.Tol;
             for (int j = 0; j < N; j++)
             {
@@ -250,7 +250,7 @@ namespace RoadToPro.MatchEngine.PitchControl
             }
             for (int j = 0; j < N; j++) _tpc[j] = _pc[j];
             var left = 1f - total;
-            if (converged) r.End = EndConverged;
+            if (converged) r.End = EndConverged; // 남은 tol은 아웃 (수렴 문턱에서 tol 크기 불연속이 있다 — 성능 테스트 기준 tol + 1e-3)
             else if (tr.End == TrajectorySamples.EndOut || tr.Count == 0) { r.End = TrajectorySamples.EndOut; r.Out = left; left = 0f; }
             else
             {

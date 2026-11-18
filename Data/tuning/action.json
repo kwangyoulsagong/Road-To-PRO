@@ -278,6 +278,7 @@
     {"id": "pcm.mateValue", "default": 1.0, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "007: 신규 — specs/007 FR-21 다른 동료 수신 가치 [제안] 0.5 → 1.0 (T18 보정 1회: 연결 뒤 패스 452 → 411·드리블·크로스 쏠림, GK 선방 58 %·전환 19 % 범위 밖)"},
     {"id": "pcm.legacy", "default": 0, "min": 0, "max": 1, "unit": "bool", "tag": "[대체]", "source": "007: 신규 — specs/007 FR-20 비교 모드(1 = 기존 대체 로지스틱·재평가 끔)"},
     {"id": "pcm.ttiStride", "default": 2, "min": 1, "max": 8, "unit": "samples", "tag": "[대체]", "source": "007: 신규 — specs/007 T16 성능: 궤적 질의 정확한 TTI 간격(사이 선형 보간), 1 = 보간 없음"},
-    {"id": "pcm.ttiNear", "default": 6, "min": 0, "max": 30, "unit": "m", "tag": "[대체]", "source": "007: 신규 — specs/007 T16 성능: 궤적 TTI 보간 허용 거리(공이 선수에서 이보다 가까우면 정확값, 최근접 통과 꺾임). 결정론 리뷰 L2로 코드 상수에서 옮김"}
+    {"id": "pcm.ttiNear", "default": 6, "min": 0, "max": 30, "unit": "m", "tag": "[대체]", "source": "007: 신규 — specs/007 T16 성능: 궤적 TTI 보간 허용 거리(공이 선수에서 이보다 가까우면 정확값, 최근접 통과 꺾임). 결정론 리뷰 L2로 코드 상수에서 옮김"},
+    {"id": "pcm.trajPrune", "default": 5, "min": 1, "max": 10, "unit": "σ", "tag": "[대체]", "source": "007: 신규 — specs/007 T21 성능: 궤적 질의 먼 선수 건너뛰기 τ > t + 5σ (지점 질의 FR-04와 같음 — 4σ는 차이 0.0114로 기준 tol + 1e-3 초과). 차이는 PitchControlPerfTests.TrajectoryPrune_MaxDiff"}
   ]
 }

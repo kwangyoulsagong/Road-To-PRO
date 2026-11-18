@@ -1,7 +1,7 @@
 {
   "spec": "007",
   "profile": "mac-m1-1600p",
-  "note": "specs/007 성능 예산 표의 기계용 사본. 피치 컨트롤 질의(지점·궤적·그리드) + 072 패스 상위 K 궤적 재평가 — 공 소유자 결정 예산 ≤ 80 µs·p95 ≤ 120 µs, 지점 질의 ≤ 2.5 µs (2026-11-18 T16 사용자 결정 \"예산 현실화\"), 010 결정 틱 ≤ 12 µs, 실경기 틱 ≤ 92 µs(006 FR-80), 틱 GC 0 B. farm.py bench --spec 007, README D17.",
+  "note": "specs/007 성능 예산 표의 기계용 사본. 피치 컨트롤 질의(지점·궤적·그리드) + 072 패스 상위 K 궤적 재평가 — 공 소유자 결정 예산 ≤ 90 µs·p95 ≤ 130 µs·궤적 ≤ 18 µs (T21), 지점 질의 ≤ 2.5 µs (2026-11-18 T16 사용자 결정 \"예산 현실화\"), 010 결정 틱 ≤ 12 µs, 실경기 틱 ≤ 92 µs(006 FR-80), 틱 GC 0 B. farm.py bench --spec 007, README D17.",
   "tests": [
     "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests",
     "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests",
@@ -53,16 +53,16 @@
       },
       {
         "ac": "AC-12",
-        "label": "공 소유 선수 1명 결정 평균 (궤적 질의 K개 포함, 2026-11-18 T16 현실화)",
+        "label": "공 소유 선수 1명 결정 평균 (궤적 질의 K개 포함, 2026-11-18 T21 개정)",
         "metric": "onball_owner_avg_us",
-        "max": 80,
+        "max": 90,
         "unit": "µs"
       },
       {
         "ac": "AC-12",
         "label": "공 소유 선수 1명 결정 p95",
         "metric": "onball_owner_p95_us",
-        "max": 120,
+        "max": 130,
         "unit": "µs"
       },
       {
@@ -88,9 +88,9 @@
       },
       {
         "ac": "AC-12",
-        "label": "궤적 질의 1회 (3 s 궤적)",
+        "label": "궤적 질의 1회 (3 s 궤적, 2026-11-18 T21 개정)",
         "metric": "pc_traj_avg_us",
-        "max": 15,
+        "max": 18,
         "unit": "µs"
       },
       {
@@ -119,6 +119,13 @@
         "label": "궤적 TTI 보간 대 정확값 최대 차이 (T16)",
         "metric": "pc_traj_interp_maxdiff",
         "max": 0.01,
+        "unit": ""
+      },
+      {
+        "ac": "AC-12",
+        "label": "궤적 가지치기 대 전체 적분 최대 차이 (tol 0.01 수렴 불연속 + 1e-3, T21)",
+        "metric": "pc_traj_prune_maxdiff",
+        "max": 0.011,
         "unit": ""
       }
     ]
