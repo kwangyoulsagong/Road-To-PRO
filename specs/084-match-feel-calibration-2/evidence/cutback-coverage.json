@@ -1,0 +1,13 @@
+{
+  "spec": "084",
+  "ac": "AC-04",
+  "tool": "farm.py shot --scenario tool-feel-search (플레이어 빌드 macOS 개발 빌드, FeelSceneCoverage.Search 768시드, 시드 20261181 + i)",
+  "lowerBound": "256시드 중 3개 이상 [제안] (플랜 해석 3)",
+  "baseline": {"cutbackLine": 6, "note": "081·082 탐색 로그: 256시드 컷백 슛 골 0~1개 (081 T19: 20261267 하나, 7b577c7 뒤 없음)"},
+  "runs": [
+    {"cutbackLine": 16, "run": ".farm/runs/20261118-093905-shot", "seeds256": 1, "seeds512": 3, "seeds768": 6, "cutbackGoalSeeds": [20261328, 20261512, 20261608, 20261713, 20261825, 20261890]},
+    {"cutbackLine": 20, "run": ".farm/runs/20261118-095047-shot", "seeds256": 1, "seeds512": 3, "seeds768": 5, "cutbackGoalSeeds": [20261328, 20261512, 20261608, 20261825, 20261890]}
+  ],
+  "verdict": "보류 — 256시드 1개 < 3 (512시드 3·768시드 6 ≈ 0.8 %/경기). 16 m 상태 최종 측정에서 D18이 시드 8400 범위 밖이라 최종 6 m로 되돌림 (계수 변경 없음)",
+  "build": "작업 트리 커밋 전 (feat/084, main d7baad8 위 084 계수 변경)"
+}

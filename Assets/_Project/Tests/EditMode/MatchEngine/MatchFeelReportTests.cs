@@ -7,7 +7,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
 {
     /// <summary>
     /// specs/081 FR-01·02: 같은 시드 묶음(070·071 측정과 같은 7400 + i)·같은 경기 설정(010 전술 경기)으로 N경기 측정 → `.farm/feel-metrics.json`.
-    /// N 기본 100, `.farm/feel-n.txt`, 라벨 `.farm/feel-label.txt`(없으면 "measure"). 판정 없음 — 범위 판정은 /verify 리포트(AC-02).
+    /// N 기본 100, `.farm/feel-n.txt`, 시드 시작 `.farm/feel-seed.txt`(084, 기본 7400), 라벨 `.farm/feel-label.txt`(없으면 "measure"). 판정 없음 — 범위 판정은 /verify 리포트(AC-02).
     /// </summary>
     public class MatchFeelReportTests
     {
@@ -43,8 +43,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             var n = int.Parse(ReadOr(Path.Combine(farm, "feel-n.txt"), "100"));
             var label = ReadOr(Path.Combine(farm, "feel-label.txt"), "measure");
             var sw = System.Diagnostics.Stopwatch.StartNew();
-            var t = Run(n, FirstSeed);
-            var json = MatchFeelMetrics.ToJson(t, label, FirstSeed, ReadOr(Path.Combine(farm, "feel-commit.txt"), "-"));
+            var seed = ulong.Parse(ReadOr(Path.Combine(farm, "feel-seed.txt"), FirstSeed.ToString())); // 084: 경계값 재측정용 다른 시드 묶음
+            var t = Run(n, seed);
+            var json = MatchFeelMetrics.ToJson(t, label, seed, ReadOr(Path.Combine(farm, "feel-commit.txt"), "-"));
             File.WriteAllText(Path.Combine(farm, "feel-metrics.json"), json);
             TestContext.WriteLine($"{n}경기 {sw.Elapsed.TotalSeconds:F0}s\n{json}");
             Assert.Greater(t.Passes, 0);

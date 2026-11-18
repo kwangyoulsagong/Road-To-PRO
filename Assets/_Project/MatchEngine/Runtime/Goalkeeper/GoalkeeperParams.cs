@@ -10,7 +10,7 @@ namespace RoadToPro.MatchEngine.Goalkeeper
     /// </summary>
     public sealed class GoalkeeperParams
     {
-        public readonly float MapReactBase = 0.32f;
+        public readonly float MapReactBase = 0.26f;
         public readonly float MapReactSlope = 0.14f;
         public readonly float MapDiveBase = 3.0f;
         public readonly float MapDiveSlope = 1.6f;
@@ -36,7 +36,7 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         public readonly float ReachStandZ = 2.3f;
         public readonly float ReachHighZ = 1.5f;
         public readonly float ReachHighFade = 0.8f;
-        public readonly float ReachSReach = 0.15f;
+        public readonly float ReachSReach = 0.10f;
         public readonly float ReachBackSpeed = 2.0f;
         public readonly float SaveAlpha = 0.08f;
         public readonly float SaveBeta = 1.5f;

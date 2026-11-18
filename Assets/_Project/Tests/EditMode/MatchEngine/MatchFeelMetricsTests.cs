@@ -97,6 +97,61 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             Assert.AreEqual(1, t.PassFates[(int)MatchFeelMetrics.PassFate.LostLoose]);
         }
 
+        static void AddAt(SimEventLog log, SimEventKind kind, int team, long tick, float x, int a = 0, int b = 0)
+        {
+            var e = SimEvent.Make(kind, team, 1, -1);
+            e.Tick = tick;
+            e.X = x;
+            e.A = a;
+            e.B = b;
+            log.Append(ref e);
+        }
+
+        static void AddZ(SimEventLog log, SimEventKind kind, int team, long tick, float z)
+        {
+            var e = SimEvent.Make(kind, team, 1, -1);
+            e.Tick = tick;
+            e.Z = z;
+            log.Append(ref e);
+        }
+
+        static double Diag(MatchFeelMetrics.Totals t, string key)
+        {
+            foreach (var kv in MatchFeelMetrics.Diagnostics(t)) if (kv.Key == key) return kv.Value;
+            Assert.Fail("진단 칸 없음: " + key);
+            return 0;
+        }
+
+        /// <summary>084 T02: 조준 행별 선방률, 크로스 타입·골라인 거리, 컷백 골 정의 (고정 로그).</summary>
+        [Test]
+        public void MatchFeel_084Diagnostics_RowSaveAndCutback()
+        {
+            var log = new SimEventLog(64);
+            AddZ(log, SimEventKind.Shot, 0, 10, 0f);
+            AddZ(log, SimEventKind.Save, 1, 11, 0.3f);    // 낮음 → 선방
+            AddZ(log, SimEventKind.Shot, 0, 20, 0f);
+            AddZ(log, SimEventKind.Goal, 0, 21, 2.1f);    // 높음 → 골
+            AddZ(log, SimEventKind.Shot, 0, 30, 0f);
+            AddZ(log, SimEventKind.Catch, 1, 31, 1.9f);   // 높음 → 선방
+            var cut = ((int)CrossType.Cutback + 1) << ActionSystem.CrossTypeShift;
+            var lofted = ((int)CrossType.Lofted + 1) << ActionSystem.CrossTypeShift;
+            AddAt(log, SimEventKind.Cross, 0, 40, 101f / 105f, a: cut);       // 골라인 4 m, 컷백
+            AddAt(log, SimEventKind.PassReceived, 0, 41, 95f);
+            AddAt(log, SimEventKind.Shot, 0, 45, 95f);
+            AddAt(log, SimEventKind.Goal, 0, 60, 105f);                       // 컷백 골
+            AddAt(log, SimEventKind.Cross, 1, 70, 8f / 105f, a: lofted);      // 골라인 8 m (반대편), 띄운 크로스
+            var t = MatchFeelMetrics.Count(log);
+            Assert.AreEqual(0.5, Diag(t, "saveRateLow"), 1e-9);  // 낮음: 선방 1 + 컷백 골(Z 0) 1
+            Assert.AreEqual(0.5, Diag(t, "saveRateHigh"), 1e-9);
+            Assert.AreEqual(0.0, Diag(t, "onTargetMid"), 1e-9);
+            Assert.AreEqual(1, Diag(t, "crossCutback"));
+            Assert.AreEqual(1, Diag(t, "crossLofted"));
+            Assert.AreEqual(1, Diag(t, "crossNear6"));
+            Assert.AreEqual(2, Diag(t, "crossNear10"));
+            Assert.AreEqual(1, Diag(t, "cutbackGoals"));
+            StringAssert.Contains("\"diag\"", MatchFeelMetrics.ToJson(t, "t", 7400, "abc"));
+        }
+
         [Test]
         public void MatchFeel_Sequences_AverageSeconds()
         {

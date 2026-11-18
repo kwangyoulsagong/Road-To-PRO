@@ -345,6 +345,18 @@ namespace RoadToPro.Verification.Samples.Highlight
                 if (slideWin < 0 && (masks[i] & FeelSceneCoverage.SlideWin) != 0) slideWin = i;
                 if (both < 0 && (masks[i] & FeelSceneCoverage.MissedAerial) != 0 && (masks[i] & FeelSceneCoverage.SlideWin) != 0) both = i;
             }
+            // 084 T13 (AC-04): 컷백 슛 골 시드 수 — 앞 256·512·768시드 (FR-05 하한 판정)
+            int c256 = 0, c512 = 0, c768 = 0;
+            var cutSeeds = new System.Text.StringBuilder();
+            for (int i = 0; i < masks.Length; i++)
+            {
+                if ((masks[i] & FeelSceneCoverage.CutbackGoal) == 0) continue;
+                if (i < 256) c256++;
+                if (i < 512) c512++;
+                c768++;
+                cutSeeds.Append(FeelSceneCoverage.FirstSeed + (ulong)i).Append(' ');
+            }
+            Debug.Log($"[highlight] 084 컷백 슛 골: 256시드 {c256} · 512시드 {c512} · {masks.Length}시드 {c768} — {cutSeeds}");
             Debug.Log($"[highlight] 081 탐색: A {S(best)} · 늦은 슬라이딩 {S(slide)} · 헤딩슛 {S(head)} · 컷백 슛 골 {S(cut)} · 082 점프 헤딩슛 {S(jump)} · 083 놓친 경합 {S(missed)} · 이긴 슬라이딩 {S(slideWin)} · 둘 다 {S(both)}");
         }
 

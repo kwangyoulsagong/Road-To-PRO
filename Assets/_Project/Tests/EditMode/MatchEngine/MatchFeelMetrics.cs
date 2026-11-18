@@ -22,6 +22,14 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             public double Matches, Goals, Shots, ShotXg, HeaderShots, HeaderGoals, Saves, ShotOnTarget, ShotGoals, OwnGoals, Passes, Received, TakeOns, TakeOnOk, Tackles, TacklesWon,
                 Interceptions, Contacts, Possessions, SeqTicks, SeqCount, Touches, Steals, Crosses, CrossOk, Contests, BothTeamContests, EmptyContests, Headers;
             public readonly double[] PassFates = new double[9];
+            /// <summary>084 진단: 결과 높이 구간(0 낮음 &lt; 0.6 m·1 중간 &lt; 1.6 m·2 높음)별 유효 슈팅·슈팅 골.</summary>
+            public readonly double[] RowOnTarget = new double[3], RowGoals = new double[3];
+            /// <summary>084 진단: 크로스 타입(071 Early·Driven·Lofted·Cutback)별 수, 크로서–골라인 거리 ≤ 6 m·≤ 10 m 크로스, 컷백 뒤 같은 팀 골.</summary>
+            public readonly double[] CrossTypes = new double[4];
+            public double CrossNear6, CrossNear10, CutbackGoals;
+            /// <summary>084 진단: 패스 xPass(이벤트 F1) 합, xPass 구간(&lt; 0.5·0.5~0.8·≥ 0.8)별 패스 수·받음 수 — 평가 보정(D19).</summary>
+            public double PassXpSum, StealChecks, StealProbSum, StealGapSum;
+            public readonly double[] XpBin = new double[3], XpBinOk = new double[3];
 
             public void Add(Totals o)
             {
@@ -31,11 +39,16 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 Touches += o.Touches; Steals += o.Steals; Crosses += o.Crosses; CrossOk += o.CrossOk; Contests += o.Contests; BothTeamContests += o.BothTeamContests;
                 EmptyContests += o.EmptyContests; Headers += o.Headers;
                 for (int i = 0; i < PassFates.Length; i++) PassFates[i] += o.PassFates[i];
+                for (int i = 0; i < 3; i++) { RowOnTarget[i] += o.RowOnTarget[i]; RowGoals[i] += o.RowGoals[i]; }
+                for (int i = 0; i < 4; i++) CrossTypes[i] += o.CrossTypes[i];
+                CrossNear6 += o.CrossNear6; CrossNear10 += o.CrossNear10; CutbackGoals += o.CutbackGoals;
+                PassXpSum += o.PassXpSum; StealChecks += o.StealChecks; StealProbSum += o.StealProbSum; StealGapSum += o.StealGapSum;
+                for (int i = 0; i < 3; i++) { XpBin[i] += o.XpBin[i]; XpBinOk[i] += o.XpBinOk[i]; }
             }
         }
 
         /// <summary>경기 1개의 이벤트 로그를 센다 (득점 = Goal 이벤트). 경합·드리블 터치 카운터는 <see cref="AddCounters"/>.</summary>
-        public static Totals Count(SimEventLog log)
+        public static Totals Count(SimEventLog log, float pitchLength = 105f)
         {
             var t = new Totals { Matches = 1 };
             long lastPossTick = -1;
@@ -56,18 +69,37 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                         var so = ShotOutcomeOf(log, k);
                         if (so != ShotOutcome.Off) t.ShotOnTarget++;
                         if (so == ShotOutcome.Goal) { t.ShotGoals++; if (head) t.HeaderGoals++; }
+                        if (so != ShotOutcome.Off)
+                        {
+                            // 실제 높이: 결과 사건(골·GK 처리)의 공 높이 Z, 구간 = 011 FR-17 다이빙 높이 경계 0.6 · 1.6 m
+                            var z = OutcomeZ(log, k);
+                            var row = z < 0.6f ? 0 : z < 1.6f ? 1 : 2;
+                            t.RowOnTarget[row]++;
+                            if (so == ShotOutcome.Goal) t.RowGoals[row]++;
+                        }
                         break;
                     case SimEventKind.Save:
                     case SimEventKind.Catch:
                     case SimEventKind.Parry: t.Saves++; break;
                     case SimEventKind.Pass:
                         t.Passes++;
-                        t.PassFates[(int)FateOf(log, k)]++;
+                        var pf = FateOf(log, k);
+                        t.PassFates[(int)pf]++;
+                        t.PassXpSum += e.F1;
+                        var xb = e.F1 < 0.5f ? 0 : e.F1 < 0.8f ? 1 : 2;
+                        t.XpBin[xb]++;
+                        if (pf == PassFate.Received) t.XpBinOk[xb]++;
                         break;
                     case SimEventKind.Cross:
                         t.Crosses++;
                         var f = FateOf(log, k);
                         if (f == PassFate.Received || f == PassFate.KeptLoose || (f == PassFate.Aerial && AerialWonBy(log, k))) t.CrossOk++;
+                        var ct = (e.A >> ActionSystem.CrossTypeShift) - 1;
+                        if (ct >= 0 && ct < 4) t.CrossTypes[ct]++;
+                        var toLine = System.Math.Min(e.X, 1f - e.X) * pitchLength; // 이벤트 X = 피치 길이 정규화 (MatchContext.SetPosition)
+                        if (toLine <= 6f) t.CrossNear6++;
+                        if (toLine <= 10f) t.CrossNear10++;
+                        if (ct == (int)CrossType.Cutback && CutbackGoalAfter(log, k)) t.CutbackGoals++;
                         break;
                     case SimEventKind.PassReceived: t.Received++; break;
                     case SimEventKind.Dribble: t.TakeOns++; if ((e.B & EventCodes.DribbleSuccess) != 0) t.TakeOnOk++; break;
@@ -94,6 +126,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             t.Headers += a.Headers;
             t.Touches += ctx.Actions.Duels.Touches;
             t.Steals += ctx.Actions.Duels.Steals;
+            t.StealChecks += ctx.Actions.Duels.StealChecks;
+            t.StealProbSum += ctx.Actions.Duels.StealProbSum;
+            t.StealGapSum += ctx.Actions.Duels.StealGapSum;
         }
 
         public enum ShotOutcome { Goal, Saved, Off }
@@ -126,6 +161,18 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 if ((int)e.Kind >= 100) return ShotOutcome.Off;
             }
             return ShotOutcome.Off;
+        }
+
+        /// <summary>슈팅(k)의 첫 결과 사건(골·GK 처리)의 공 높이 (m). 못 찾으면 0.</summary>
+        static float OutcomeZ(SimEventLog log, int k)
+        {
+            for (int j = k + 1; j < log.Count; j++)
+            {
+                var kind = log[j].Kind;
+                if (kind == SimEventKind.Goal || kind == SimEventKind.Save || kind == SimEventKind.Catch || kind == SimEventKind.Parry
+                    || kind == SimEventKind.Punch || kind == SimEventKind.Smother) return log[j].Z;
+            }
+            return 0f;
         }
 
         /// <summary>패스·크로스(인덱스 k) 다음의 첫 결과 사건으로 분류한다.</summary>
@@ -163,6 +210,54 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 }
             }
             return PassFate.Other;
+        }
+
+        /// <summary>컷백 크로스(k) 뒤 같은 팀 슈팅 → 50틱 안 같은 팀 골 (Verification `FeelSceneCoverage` CutbackGoal과 같은 정의).</summary>
+        static bool CutbackGoalAfter(SimEventLog log, int k)
+        {
+            var team = log[k].Team;
+            for (int j = k + 1; j < log.Count; j++)
+            {
+                ref readonly var e = ref log[j];
+                if (e.Kind == SimEventKind.Cross || e.Kind == SimEventKind.PossessionChange && e.Team != team) return false;
+                if (e.Kind != SimEventKind.Shot || e.Team != team) continue;
+                for (int g = j + 1; g < log.Count && log[g].Tick - e.Tick <= 50; g++)
+                    if (log[g].Kind == SimEventKind.Goal && log[g].Team == team) return true;
+                return false;
+            }
+            return false;
+        }
+
+        /// <summary>084 진단 칸 (판정 없음): 조준 행별 선방률, 크로스 타입 비율, 골라인 가까운 크로스, 컷백 골 (경기당).</summary>
+        public static List<KeyValuePair<string, double>> Diagnostics(Totals t)
+        {
+            var n = t.Matches > 0 ? t.Matches : 1;
+            return new List<KeyValuePair<string, double>>
+            {
+                new("saveRateLow", Div(t.RowOnTarget[0] - t.RowGoals[0], t.RowOnTarget[0])),
+                new("saveRateMid", Div(t.RowOnTarget[1] - t.RowGoals[1], t.RowOnTarget[1])),
+                new("saveRateHigh", Div(t.RowOnTarget[2] - t.RowGoals[2], t.RowOnTarget[2])),
+                new("onTargetLow", t.RowOnTarget[0] / n),
+                new("onTargetMid", t.RowOnTarget[1] / n),
+                new("onTargetHigh", t.RowOnTarget[2] / n),
+                new("crossEarly", t.CrossTypes[(int)CrossType.Early] / n),
+                new("crossDriven", t.CrossTypes[(int)CrossType.Driven] / n),
+                new("crossLofted", t.CrossTypes[(int)CrossType.Lofted] / n),
+                new("crossCutback", t.CrossTypes[(int)CrossType.Cutback] / n),
+                new("crossNear6", t.CrossNear6 / n),
+                new("crossNear10", t.CrossNear10 / n),
+                new("cutbackGoals", t.CutbackGoals / n),
+                new("stealChecksPerTouch", Div(t.StealChecks, t.Touches)),
+                new("stealProbMean", Div(t.StealProbSum, t.StealChecks)),
+                new("stealGapMean", Div(t.StealGapSum, t.StealChecks)),
+                new("passXpMean", Div(t.PassXpSum, t.Passes)),
+                new("xpLoShare", Div(t.XpBin[0], t.Passes)),
+                new("xpMidShare", Div(t.XpBin[1], t.Passes)),
+                new("xpHiShare", Div(t.XpBin[2], t.Passes)),
+                new("xpLoReceived", Div(t.XpBinOk[0], t.XpBin[0])),
+                new("xpMidReceived", Div(t.XpBinOk[1], t.XpBin[1])),
+                new("xpHiReceived", Div(t.XpBinOk[2], t.XpBin[2])),
+            };
         }
 
         static bool AerialWonBy(SimEventLog log, int k)
@@ -234,6 +329,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             sb.Append("  },\n  \"passFate\": {\n");
             var f = PassFateShares(t);
             for (int i = 0; i < f.Count; i++) sb.Append("    \"").Append(f[i].Key).Append("\": ").Append(f[i].Value.ToString("0.####", c)).Append(i + 1 < f.Count ? ",\n" : "\n");
+            sb.Append("  },\n  \"diag\": {\n");
+            var d = Diagnostics(t);
+            for (int i = 0; i < d.Count; i++) sb.Append("    \"").Append(d[i].Key).Append("\": ").Append(d[i].Value.ToString("0.####", c)).Append(i + 1 < d.Count ? ",\n" : "\n");
             sb.Append("  }\n}\n");
             return sb.ToString();
         }
