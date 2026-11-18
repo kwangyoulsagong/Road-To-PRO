@@ -51,6 +51,8 @@ namespace RoadToPro.MatchEngine.Actions
         /// <summary>마지막 탈취 판정 확률·고른 상대 (진단·테스트, 상태 아님).</summary>
         public float LastStealProb;
         public int LastStealCandidate = -1;
+        /// <summary>084 진단 누계 (해시 밖): 탈취 판정 확률 합 · 판정 순간 (소유자 TTI − 상대 반응) 합 (s).</summary>
+        public double StealProbSum, StealGapSum;
 
         public DuelSystem(ActionSystem a, BallParams bp)
         {
@@ -124,6 +126,8 @@ namespace RoadToPro.MatchEngine.Actions
                         LastStealProb = prob;
                         LastStealCandidate = ch;
                         StealChecks++;
+                        StealProbSum += prob;
+                        StealGapSum += tOwn - w.Tti[ch].Reaction;
                         if (_d.StealU < prob)
                         {
                             Steal(ctx, abs, sub, owner, ch, bp);

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "definitions": [
-    {"id": "gk.map.react.base", "default": 0.32, "min": 0.1, "max": 0.6, "unit": "s", "tag": "[설계]", "source": "specs/011 FR-70 Reflexes → t_react = 0.32 − 0.14·n (리서치 04 § A7)"},
+    {"id": "gk.map.react.base", "default": 0.26, "min": 0.1, "max": 0.6, "unit": "s", "tag": "[설계]", "source": "specs/011 FR-70 Reflexes → t_react = 0.32 − 0.14·n (리서치 04 § A7) | 084: 0.32 → 0.26 (T10: 100경기 선방률 57.1 → 61.3 %·전환율 18.7 → 17.5 % (sReach 0.10과 함께, 시드 8400: 60.6 %·17.8 %), 011 높은 구석 14.7 → 6.6 %)"},
     {"id": "gk.map.react.slope", "default": 0.14, "min": 0, "max": 0.3, "unit": "s", "tag": "[설계]", "source": "specs/011 FR-70 (리서치 04 § A7)"},
     {"id": "gk.map.dive.base", "default": 3.0, "min": 1, "max": 6, "unit": "m/s", "tag": "[설계]", "source": "specs/011 FR-70 Diving → v_dive = 3.0 + 1.6·n (리서치 04 § A7)"},
     {"id": "gk.map.dive.slope", "default": 1.6, "min": 0, "max": 4, "unit": "m/s", "tag": "[설계]", "source": "specs/011 FR-70 (리서치 04 § A7)"},
@@ -28,7 +28,7 @@
     {"id": "gk.reach.standZ", "default": 2.3, "min": 1.5, "max": 3.2, "unit": "m", "tag": "[대체]", "source": "specs/011 FR-03 손 도달 높이(서서 팔 뻗음, 기준 키) — 높은 구석 감쇄 시작점"},
     {"id": "gk.reach.highZ", "default": 1.5, "min": 0.5, "max": 3, "unit": "m", "tag": "[대체]", "source": "specs/011 FR-03 높은 구석 감쇄 [미정 형태] — 이 높이부터 r_max·v_dive 감쇄"},
     {"id": "gk.reach.highFade", "default": 0.8, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "specs/011 FR-03 높은 구석 감쇄량(크로스바 높이에서 r_max에 곱하는 1 − 값)"},
-    {"id": "gk.reach.sReach", "default": 0.15, "min": 0.01, "max": 1, "unit": "m", "tag": "[대체]", "source": "specs/011 FR-10 s_reach [미정] — 017 보정 (리서치 04 § A7 보정 절차 2)"},
+    {"id": "gk.reach.sReach", "default": 0.10, "min": 0.01, "max": 1, "unit": "m", "tag": "[대체]", "source": "specs/011 FR-10 s_reach [미정] — 017 보정 (리서치 04 § A7 보정 절차 2) | 084: 0.15 → 0.10 (T10 3회차: 도달 확률 곡선을 가파르게 — r0 0.95는 높은 구석 17.4 %로 기준 위반이라 대신 씀. 선방 61.3 %·높은 구석 6.6 %)"},
     {"id": "gk.reach.backSpeed", "default": 2.0, "min": 0.5, "max": 6, "unit": "m/s", "tag": "[대체]", "source": "specs/011 FR-03 뒤로 물러나며 막는 속도(칩슛, 다이빙보다 느림) — 011 플랜 시작값"},
 
     {"id": "gk.save.alpha", "default": 0.08, "min": 0, "max": 1, "unit": "", "tag": "[대체]", "source": "specs/011 FR-10 난이도 α·v_ball [미정]"},

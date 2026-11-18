@@ -31,8 +31,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Goalkeeper
         [Test]
         public void Mapping_FormulasAtBounds()
         {
-            Assert.AreEqual(0.32f, KeeperMapping.ReactTime(P, 0f), 1e-6f);
-            Assert.AreEqual(0.18f, KeeperMapping.ReactTime(P, 1f), 1e-6f);
+            // 084 개정(011 FR-70 t_react 절편 0.32 → 0.26): 반응 시간은 튜닝 값으로 확인 — 기울기 0.14는 그대로
+            Assert.AreEqual(P.MapReactBase, KeeperMapping.ReactTime(P, 0f), 1e-6f);
+            Assert.AreEqual(P.MapReactBase - 0.14f, KeeperMapping.ReactTime(P, 1f), 1e-6f);
             Assert.AreEqual(3.0f, KeeperMapping.DiveSpeed(P, 0f), 1e-6f);
             Assert.AreEqual(4.6f, KeeperMapping.DiveSpeed(P, 1f), 1e-6f);
             Assert.AreEqual(2f, KeeperMapping.HandlingA(P, 0f), 1e-6f);
@@ -59,8 +60,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Goalkeeper
         public void Mapping_MidValue_IsBetween()
         {
             var mid = KeeperMapping.ReactTime(P, 0.5f);
-            Assert.That(mid, Is.InRange(0.18f, 0.32f));
-            Assert.AreEqual(0.25f, mid, 1e-6f);
+            Assert.That(mid, Is.InRange(P.MapReactBase - 0.14f, P.MapReactBase));
+            Assert.AreEqual(P.MapReactBase - 0.07f, mid, 1e-6f);
         }
 
         [Test]
@@ -95,7 +96,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Goalkeeper
         public void Profile_FromLeagueAverage()
         {
             var prof = KeeperProfile.From(P, KeeperAttributes.Uniform(10.5f));
-            Assert.AreEqual(0.25f, prof.ReactTime, 1e-4f);
+            Assert.AreEqual(P.MapReactBase - 0.07f, prof.ReactTime, 1e-4f); // 리그 평균 n = 0.5 (084 개정 전 0.25)
             Assert.AreEqual(3.8f, prof.DiveSpeed, 1e-4f);
             Assert.AreEqual(4.5f, prof.SpillMean, 1e-4f);
         }

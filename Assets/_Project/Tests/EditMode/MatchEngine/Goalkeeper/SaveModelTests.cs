@@ -248,14 +248,17 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Goalkeeper
             var m = Model();
             var origin = new Vec3(17f, 30f, 0.11f);
             var gk = At(Optimal(m, new Vec2(17f, 30f)));
-            // 실점 확률이 극단이 아닌 첫 셀을 고정 픽스처로 (셀 순서 고정 → 결정론)
+            // 실점 확률이 0.5에 가장 가까운 셀을 고정 픽스처로 (셀 순서 고정, 동률 = 앞 셀 → 결정론).
+            // 084: s_reach 0.15 → 0.10으로 곡선이 가팔라져 (0.2, 0.8) 안 셀이 없어짐 — "극단이 아닌 셀" 의도는 (0.05, 0.95)로 유지
             int cell = -1;
-            for (int c = 0; c < GoalGrid.Cells && cell < 0; c++)
+            var bestGap = float.MaxValue;
+            for (int c = 0; c < GoalGrid.Cells; c++)
             {
                 var b = m.BeatProbability(origin, c, 25f, in gk, Avg, Ctx(), Bp);
-                if (b > 0.2f && b < 0.8f) cell = c;
+                var gap = System.Math.Abs(b - 0.5f);
+                if (gap < bestGap) { bestGap = gap; cell = c; }
             }
-            Assert.GreaterOrEqual(cell, 0, "중간 확률 셀 없음");
+            Assert.Less(bestGap, 0.45f, "중간 확률 셀 없음");
             var s = m.AimedShot(origin, cell, 25f, Goal, Bp);
             var probe = new SeedRng(99UL);
             var before = probe.SaveState();
