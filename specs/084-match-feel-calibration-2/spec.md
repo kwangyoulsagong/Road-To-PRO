@@ -1,6 +1,6 @@
 # 084 — 경기 양상 2차 보정 (GK 선방 · 패스 · 드리블 탈취 · 컷백)
 
-상태: 승인됨 — 보류 (2026-11-18 T17 검증): AC-01·05·06·07 통과, AC-02·03·04 보류(D19·D20·D22 결정 대기). 보류가 풀리기 전에는 `완료` 아님. 리포트 https://claude.ai/artifact/VzT2AL31mctCDn6MZRyBPa (스펙 승인 2026-11-17)
+상태: 완료 (2026-11-18 T17 검증): AC-01·05·06·07 통과, AC-02·03·04 보류(D19·D20·D22 결정 대기) — 스펙 Q3(2026-11-17 사용자 결정)대로 보류 AC는 완료 조건에서 뺌. 리포트 https://claude.ai/artifact/VzT2AL31mctCDn6MZRyBPa (스펙 승인 2026-11-17)
 브랜치: feat/084-match-feel-calibration-2
 기획 출처: specs/README D18·D19·D20·D22 (081 범위 밖, 2026-11-16) / specs/081 FR-10(1차 범위 표)·FR-11([대체]만 보정 — 이 스펙은 [설계] 개정을 다룬다)·evidence/measure-iter3.json / specs/082 evidence/measure-after.json / specs/011(GK 도달·선방 모델) / specs/008(패스 실행·수신) / specs/010(오프볼 지원) / specs/007(피치 컨트롤) / specs/070 FR-01~05(드리블 터치·이격 탈취) / specs/071·072(크로스 타입·컷백 선택) / specs/017(대량 시뮬 밸런스 목표) / docs/index.html § 매치 엔진
 
