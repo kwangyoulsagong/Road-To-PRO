@@ -1,6 +1,6 @@
 # 085 — 놓친 공중볼 경합 점프 시각 보정 · 082 E2E 장면 재확인 · 태스크
 
-상태: 승인됨 (2026-11-18)
+상태: 완료 (2026-11-18) — 추가 태스크 T07a
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트를 먼저 쓰는 태스크는 같은 블록의 구현과 한 Unity 배치로 돌린다(실패 확인 → 구현 → 통과).
@@ -25,4 +25,4 @@
 
 ## E. 마무리
 - [x] T07a (추가) 성능 증거 설정 — 파일: `Data/perf/085-missed-aerial-apex.json`(083 사본, AC-08) — 사유: T08 첫 logic에서 AC-08 "증거 없음"(성능 예산 JSON 누락, 템플릿 검증 준비 체크). 085는 틱 경로 변경 없음 → IL2CPP 벤치는 `--skip-bench`로 생략하고 사유를 증거에 남김 — 결과: 아래 T08 재실행
-- [ ] T08 `/verify 085` — 커밋 → `farm.py logic --spec 085 --scope auto`(Presentation·Verification 변경 → `presentation`·`verification` 범위) 1회 → T07 스크린샷 사용자 육안 승인 → `E/report.html`(AC-01~08 판정 표, MatchEngine·Core diff 없음 기록 = AC-07, 058 하이라이트 Performance 테스트·개발 맥 프레임 기록 = AC-08, "틱 경로 변경 없음") 아티팩트 발행 → 증거 커밋 1번. 실패 0·콘솔 에러·경고 0
+- [x] T08 `/verify 085` — 커밋 → `farm.py logic --spec 085 --scope auto`(Presentation·Verification 변경 → `presentation`·`verification` 범위) 1회 → T07 스크린샷 사용자 육안 승인 → `E/report.html`(AC-01~08 판정 표, MatchEngine·Core diff 없음 기록 = AC-07, 058 하이라이트 Performance 테스트·개발 맥 프레임 기록 = AC-08, "틱 경로 변경 없음") 아티팩트 발행 → 증거 커밋 1번. 실패 0·콘솔 에러·경고 0 — 결과: 커밋 dae5387 → logic 1회(1738/1724/실패 0, AC-08 증거 없음 → T07a) → d4be126 → `logic --scope auto --skip-bench`(presentation·verification·match 범위) **1742/통과 1728/실패 0/건너뜀 14(Explicit)**, 결정론 88/88, EditMode 성능 2/2, 콘솔 에러·경고 0 → `shot --spec 085` 3장 → 사용자 육안 승인(2026-11-18, `E/approval.md`) → 리포트 발행 https://claude.ai/artifact/Kw1YaSxshvE7M9pmd6q3PR

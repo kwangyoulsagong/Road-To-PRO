@@ -1,0 +1,420 @@
+{
+  "title": "085 장면 스크린샷 (shot)",
+  "spec": {
+    "id": "085",
+    "name": "085 — 놓친 공중볼 경합 점프 시각 보정 · 082 E2E 장면 재확인 (083 후속)",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "공이 선수 머리 위로 내려오며 지나는 놓친 경합 입력이면 점프 정점이 그 통과 순간(±1 기록 프레임)이고, 그 순간 머리–공 거리가 머리 접촉 허용치보다 크다 (FR-01)."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "FR-01 구간에서 공이 머리 높이 위로 지나지 않는 입력이면 점프가 없고 사유가 남는다 (FR-02)."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "경계 · 예외 상황 목록(두 번 통과·장면 밖·다음 동작과 겹침·선수별 머리 높이 다름) 입력 각각에서 규칙대로 동작하고 예외·NaN 0건 (FR-03)."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "실경기 고정 시드 묶음(082 10 + 083 6경기)의 점프한 놓친 경합 참여자 전부에서 정점 순간 공 높이 ≥ 서서 이마 높이, 머리–공 > 허용치 (FR-04)."
+      },
+      {
+        "id": "AC-05",
+        "kind": "E2E",
+        "text": "시나리오 `e2e/085-aerial-reshoot`의 놓친 경합 장면에서 공이 두 선수 머리 위에 있고 둘이 뛰어올라 있다 (mac-m1-1600p) — 육안 승인 (FR-05)."
+      },
+      {
+        "id": "AC-06",
+        "kind": "E2E",
+        "text": "시나리오 `e2e/085-aerial-reshoot`에서 FR-06 시드(갱신 시 새 시드)의 점프 헤딩슛 접촉 순간·늦은 슬라이딩 장면이 나온다 (mac-m1-1600p) — 육안 승인 (FR-06)."
+      },
+      {
+        "id": "AC-07",
+        "kind": "결정론",
+        "text": "같은 시드 90분 2회 해시 같음, main(087 머지 뒤) 대비 시뮬 해시 불변, 같은 장면 동작 계획 2회 같음."
+      },
+      {
+        "id": "AC-08",
+        "kind": "성능",
+        "text": "성능 예산 표 항목이 예산 안."
+      }
+    ],
+    "dir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/specs/085-missed-aerial-apex"
+  },
+  "meta": {
+    "commit": "d4be126c871b7cee93a97e42ae25b3fb946162b0",
+    "branch": "feat/085-missed-aerial-apex",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-18 16:24:43 +0900",
+    "durationSec": 45.97704720497131,
+    "command": "python3 Tools/devicefarm/farm.py shot --spec 085 --scenario 085-aerial-reshoot",
+    "profiles": [
+      "mac-m1-1600p-light-ko"
+    ],
+    "buildCached": false,
+    "builds": [
+      "development"
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario": "085-aerial-reshoot",
+      "description": "085 AC-05 놓친 공중볼 경합 정점(공이 두 선수 머리 위를 지나는 순간, 계획된 점프 접촉 시각) · AC-06 점프 헤딩슛 접촉 순간 · 늦은 슬라이딩 누운 자세 (087 엔진 뒤 플레이어 빌드 768시드 탐색: 놓친 경합 20261181 · 점프 헤딩슛 20261273 · 늦은 슬라이딩 20261187 — 기존 20261230·20261264·20261192는 장면 없음)",
+      "combos": [
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 37.3,
+          "outDir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-162405-shot/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-162405-shot/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/Data/e2e/085-aerial-reshoot.json",
+            "-farmOut",
+            "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-162405-shot/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261181",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 6616.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 4470.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 29.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "missed_jump",
+              "status": "passed",
+              "ms": 207.9,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/missed_jump.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 6508.7,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 3800,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 32.4,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "header_jump",
+              "status": "passed",
+              "ms": 160.5,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/header_jump.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 8,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 6507,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 9,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 3851.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 10,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 32.1,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 11,
+              "type": "capture",
+              "name": "tackle_slide",
+              "status": "passed",
+              "ms": 225.7,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/tackle_slide.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "missed_jump",
+              "current": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-162405-shot/mac-m1-1600p-light-ko/captures/missed_jump.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "085-aerial-reshoot",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "header_jump",
+              "current": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-162405-shot/mac-m1-1600p-light-ko/captures/header_jump.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "085-aerial-reshoot",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "tackle_slide",
+              "current": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-162405-shot/mac-m1-1600p-light-ko/captures/tackle_slide.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "085-aerial-reshoot",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": [
+              {
+                "type": "Warning",
+                "message": "[RoadToPro] [anim] 속도 점프 6.00 → 3.36 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=판단",
+                "reason": "판단 원인(008·010 대체 행동 모델)의 목표 속도 15 m/s 미만 순간 가감속만 임시 무시. 058에서 경고에 원인 표시(FR-12)를 붙였고 배치·기록 원인(순간이동·클립 프레임 누락)은 무시하지 않는다 — AC-13. 008·010 연결 때 항목을 지우고 재확인. 2026-11-09 사용자 승인 (041), 2026-11-11 058 범위 축소",
+                "pattern": "^\\[RoadToPro\\] \\[anim\\] 속도 점프 \\d+\\.\\d+ → (\\d|1[0-4])\\.\\d+ m/s .*원인=판단$",
+                "count": 13067
+              }
+            ]
+          },
+          "checkpoints": [],
+          "motion": null,
+          "verdict": "candidate"
+        }
+      ],
+      "determinism": null,
+      "verdict": "candidate",
+      "build": "development"
+    }
+  ],
+  "acEvidence": {
+    "AC-05": [
+      {
+        "label": "085-aerial-reshoot (shot) review",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "085-aerial-reshoot (shot) review",
+        "ok": true
+      }
+    ],
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "결정론 테스트 88/88 통과",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "EditMode 성능 2/2 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 생략 — 시뮬 틱 경로 변경 없음 — 085는 하이라이트 동작 계획만 바꿈(MatchEngine·Core diff 0)",
+        "ok": true
+      }
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 1742,
+    "passed": 1728,
+    "failed": 0,
+    "skipped": 13,
+    "duration": 554.933158,
+    "compileErrors": [],
+    "failures": [],
+    "png": null,
+    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-161431-logic/logic.html"
+  },
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 22.02128741496599,
+      "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-08",
+        "label": "010 결정 틱 평균 (Mono 회귀)",
+        "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
+        "value": 22.02128741496599,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-08",
+        "label": "실경기 틱 GC 할당",
+        "metric": "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "deferred": {},
+  "requireAllAcs": true,
+  "verdict": "candidate"
+}

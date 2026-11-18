@@ -1,6 +1,6 @@
 # 085 — 놓친 공중볼 경합 점프 시각 보정 · 082 E2E 장면 재확인 (083 후속)
 
-상태: 승인됨 (2026-11-18, Q1~Q4 추천안)
+상태: 완료 (2026-11-18)
 브랜치: feat/085-missed-aerial-apex (main 위 — 083·086·087 머지 뒤, 2026-11-18)
 기획 출처: specs/README D25 (083 E2E 육안 검토, 2026-11-17) / specs/083 FR-01·02·05, evidence/approval.md / specs/071 FR-06(경합 기록: 도약·정점 시각 = 도착 시간을 착지 ± 0.5 s로 자름, `act.aerial.jumpLead` 0.35 s) / specs/054 FR-43(경합 패자는 공에 닿지 않음) / specs/082 FR-06(E2E `082-header-slide`) / docs/index.html § 경기 화면(하이라이트만 3D)
 
