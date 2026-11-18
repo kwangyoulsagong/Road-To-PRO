@@ -8,6 +8,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
     /// specs/081 AC-03·12 (FR-11·12): 보정은 [대체] 계수만 바꾸고, 바꾼 계수는 출처 칸에 081 기록(이전 → 새·근거)이 있다. [설계] 값은 main과 같다.
     /// 084(2026-11-18): 출처에 "084:" 기록이 있는 계수는 081 비교에서 뺀다([설계] 개정 스펙 — `Tuning084_ChangedIds_HaveSource`).
     /// 087(2026-11-18): "087:" 기록이 있는 계수도 081·084 비교에서 뺀다(`Tuning087_ChangedIds_HaveSource`).
+    /// 007(2026-11-18): "007:" 기록이 있는 계수도 081·084·087 비교에서 뺀다(`Tuning007_ChangedIds_HaveSource`).
     /// 기준 = `specs/081-match-feel-calibration/evidence/tuning-main.json` (main 60f53c7 `Data/tuning/*.json` 합본). 081에서 새로 만든 계수는 비교 대상이 아니다.
     /// </summary>
     public class TuningProvenanceTests
@@ -30,7 +31,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 {
                     if (!main.TryGetIndex(d.Id, out var i)) continue; // 081 신규 계수
                     seen++;
-                    if (Revised084(d.Source) || Revised087(d.Source)) continue; // 084·087 개정 — 각 스펙 테스트가 본다
+                    if (Revised084(d.Source) || Revised087(d.Source) || Revised007(d.Source)) continue; // 084·087·007 개정 — 각 스펙 테스트가 본다
                     var m = main.Definitions[i];
                     Assert.AreEqual(m.Tag, d.Tag, $"{d.Id}: 태그가 바뀌면 안 된다");
                     if (System.Math.Abs(m.Default - d.Default) <= 1e-6f) continue;
@@ -63,7 +64,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 {
                     if (!before.TryGetIndex(d.Id, out var i)) continue;
                     seen++;
-                    if (Revised087(d.Source)) continue; // 087 개정 — 087 테스트가 본다
+                    if (Revised087(d.Source) || Revised007(d.Source)) continue; // 087·007 개정 — 각 스펙 테스트가 본다
                     var b = before.Definitions[i];
                     Assert.AreEqual(b.Tag, d.Tag, $"{d.Id}: 태그가 바뀌면 안 된다");
                     if (System.Math.Abs(b.Default - d.Default) <= 1e-6f) continue;
@@ -100,12 +101,46 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                     Assert.AreEqual(b.Tag, d.Tag, $"{d.Id}: 태그가 바뀌면 안 된다");
                     var same = System.Math.Abs(b.Default - d.Default) <= 1e-6f && System.Math.Abs(b.Min - d.Min) <= 1e-6f && System.Math.Abs(b.Max - d.Max) <= 1e-6f;
                     if (same) continue;
+                    if (Revised007(d.Source)) continue; // 007 개정 — 007 테스트가 본다
                     changed++;
                     Assert.IsTrue(Revised087(d.Source), $"{d.Id}: 출처 칸에 '087:' 개정 기록이 있어야 한다 (FR-08) — {b.Default} [{b.Min}, {b.Max}] → {d.Default} [{d.Min}, {d.Max}]");
                     Assert.That(d.Default, Is.InRange(d.Min, d.Max), $"{d.Id}: min·max 안이어야 한다");
                 }
             Assert.AreEqual(before.Count, seen, "087 시작 계수가 사라지지 않았다");
             TestContext.WriteLine($"087 시작 대비 바뀐 계수 {changed}개");
+        }
+
+        /// <summary>specs/007 FR-25: 007이 개정한 계수는 출처 칸에 "007:" 기록(이전 → 새·근거)이 있다.</summary>
+        static bool Revised007(string source) => source != null && source.Contains("007:");
+
+        static TuningRegistry Baseline007() =>
+            TuningLoader.LoadDefinitionsFile(Path.Combine(Root, "specs", "007-pitch-control-xt", "evidence", "tuning-before.json"));
+
+        /// <summary>
+        /// specs/007 FR-25 (087 방식): 007 시작 main 합본 대비 값 또는 범위가 바뀐 계수는 출처 칸에 "007:" 기록이 있고, 태그는 그대로이며 값은 min·max 안이다.
+        /// 계수가 사라지지 않는다. 007 신규 계수(`pcm.*`)는 비교 대상이 아니다.
+        /// </summary>
+        [Test]
+        public void Tuning007_ChangedIds_HaveSource()
+        {
+            var before = Baseline007();
+            var changed = 0;
+            var seen = 0;
+            foreach (var f in Files())
+                foreach (var d in TuningLoader.LoadDefinitionsFile(f).Definitions)
+                {
+                    if (!before.TryGetIndex(d.Id, out var i)) continue;
+                    seen++;
+                    var b = before.Definitions[i];
+                    Assert.AreEqual(b.Tag, d.Tag, $"{d.Id}: 태그가 바뀌면 안 된다");
+                    var same = System.Math.Abs(b.Default - d.Default) <= 1e-6f && System.Math.Abs(b.Min - d.Min) <= 1e-6f && System.Math.Abs(b.Max - d.Max) <= 1e-6f;
+                    if (same) continue;
+                    changed++;
+                    Assert.IsTrue(Revised007(d.Source), $"{d.Id}: 출처 칸에 '007:' 개정 기록이 있어야 한다 (FR-25) — {b.Default} [{b.Min}, {b.Max}] → {d.Default} [{d.Min}, {d.Max}]");
+                    Assert.That(d.Default, Is.InRange(d.Min, d.Max), $"{d.Id}: min·max 안이어야 한다");
+                }
+            Assert.AreEqual(before.Count, seen, "007 시작 계수가 사라지지 않았다");
+            TestContext.WriteLine($"007 시작 대비 바뀐 계수 {changed}개");
         }
 
         [Test]

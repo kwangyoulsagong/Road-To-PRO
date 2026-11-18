@@ -1,0 +1,136 @@
+{
+  "spec": "007",
+  "profile": "mac-m1-1600p",
+  "note": "specs/007 성능 예산 표의 기계용 사본. 피치 컨트롤 질의(지점·궤적·그리드) + 072 패스 상위 K 궤적 재평가 — 공 소유자 결정 예산 ≤ 90 µs·p95 ≤ 130 µs·궤적 ≤ 18 µs (T21), 지점 질의 ≤ 2.5 µs (2026-11-18 T16 사용자 결정 \"예산 현실화\"), 010 결정 틱 ≤ 12 µs, 실경기 틱 ≤ 92 µs(006 FR-80), 틱 GC 0 B. farm.py bench --spec 007, README D17.",
+  "tests": [
+    "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests",
+    "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests",
+    "RoadToPro.Tests.Performance.MatchEngine.PitchControlPerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-12",
+      "label": "010 결정 틱 평균 (Mono 회귀)",
+      "test": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase",
+      "group": "dec_tick_avg_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-12",
+      "label": "실경기 틱 GC 할당",
+      "test": "MatchFeelPerfTests.Perf_Tick_ZeroGc",
+      "group": "shot_gc_bytes_per_tick",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    }
+  ],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-12",
+        "label": "010 결정 틱 1회 평균 (081 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "max": 12,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-12",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-12",
+        "label": "실경기 틱 1회 평균 (006 FR-80)",
+        "metric": "shot_match_tick_avg_us",
+        "max": 92,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-12",
+        "label": "공 소유 선수 1명 결정 평균 (궤적 질의 K개 포함, 2026-11-18 T21 개정)",
+        "metric": "onball_owner_avg_us",
+        "max": 90,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-12",
+        "label": "공 소유 선수 1명 결정 p95",
+        "metric": "onball_owner_p95_us",
+        "max": 130,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-12",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-12",
+        "label": "지점 질의 1개 평균 (22명, 2026-11-18 T16 현실화)",
+        "metric": "pc_point_avg_us",
+        "max": 2.5,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-12",
+        "label": "지점 질의 1개 최악 (최대 적분)",
+        "metric": "pc_point_worst_us",
+        "max": 15,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-12",
+        "label": "궤적 질의 1회 (3 s 궤적, 2026-11-18 T21 개정)",
+        "metric": "pc_traj_avg_us",
+        "max": 18,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-12",
+        "label": "32×20 그리드 1회",
+        "metric": "pc_grid_ms",
+        "max": 4,
+        "unit": "ms"
+      },
+      {
+        "ac": "AC-12",
+        "label": "질의 GC 할당",
+        "metric": "pc_gc_bytes",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-12",
+        "label": "가지치기 대 전체 적분 최대 차이 (FR-04)",
+        "metric": "pc_prune_maxdiff",
+        "max": 0.001,
+        "unit": ""
+      },
+      {
+        "ac": "AC-12",
+        "label": "궤적 TTI 보간 대 정확값 최대 차이 (T16)",
+        "metric": "pc_traj_interp_maxdiff",
+        "max": 0.01,
+        "unit": ""
+      },
+      {
+        "ac": "AC-12",
+        "label": "궤적 가지치기 대 전체 적분 최대 차이 (tol 0.01 수렴 불연속 + 1e-3, T21)",
+        "metric": "pc_traj_prune_maxdiff",
+        "max": 0.011,
+        "unit": ""
+      }
+    ]
+  },
+  "deferred": {
+    "AC-08": "D19 패스 수·성공률·판단 보정도: 007 연결 + [대체] 보정 1회(동료 수신 가치 0.5 → 1.0) 뒤 7400 패스 424(≥ 550)·성공 56.5 %(≥ 60)·판단 xp − 실제 0.23(≤ 0.10) 미달, 8400 425·56.6 %. 2회차는 K 확대가 T16 결정 예산 초과·κ_def는 [제안] 값이라 FR-25 허용 밖. 남은 실패는 실행 쪽(인터셉트 17.6 %·첫 터치 루즈볼 9.8 %·공중 9.3 %) → FR-26 보류, README D19 결정 대기"
+  }
+}

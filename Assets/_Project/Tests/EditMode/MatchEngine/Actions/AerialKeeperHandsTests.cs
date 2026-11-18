@@ -25,7 +25,17 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
         /// <summary>1 서브스텝 낙하 여유 (082 AerialHeadReachTests와 같은 5 cm).</summary>
         const float Slack = 0.05f;
 
-        static float HeightOf(MatchContext ctx, int playerId) => ctx.Actions.World.HeightCm[ctx.Squad.SlotOf(playerId)];
+        /// <summary>선수 키 (cm). 경기 끝에 교체·퇴장으로 슬롯이 없는 선수(SlotOf = −1)는 경기 설정의 기술 능력치에서 — 007 T21: 패스 판단이 바뀌어 헤더 뒤 교체된 선수가 처음 나옴.</summary>
+        static float HeightOf(MatchContext ctx, int playerId)
+        {
+            var slot = ctx.Squad.SlotOf(playerId);
+            if (slot >= 0) return ctx.Actions.World.HeightCm[slot];
+            foreach (var t in new[] { ctx.Setup.Home, ctx.Setup.Away })
+                if (t?.Players != null)
+                    foreach (var mp in t.Players)
+                        if (mp.Id == playerId) return mp.Technical.OrAverage().HeightCm;
+            return TechnicalAttributes.Average.HeightCm;
+        }
 
         static bool IsExecuted(int outcome) =>
             outcome == (int)HeaderOutcome.Shot || outcome == (int)HeaderOutcome.Pass || outcome == (int)HeaderOutcome.Clear;

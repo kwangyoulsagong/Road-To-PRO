@@ -94,6 +94,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.UtilityAI
         [Test]
         public void Twin_CrossMachine_MoreCrosses_BoxPoints()
         {
+            // 007 T21: 동료 패스가 궤적 재평가로 내려가 이 장면의 크로스 기본 비율이 ~90 %(천장 근처)라 1,000회로는 검정력이 모자람(898 → 918, Z 1.55) → 4,000회 (방향 그대로)
+            const int N = 4000;
             var a = WideNoMateInBox().Distribution(6, 181, N);
             var b = WideNoMateInBox(PlayStyle.Neutral().WithHabit(Habit.CrossMachine, 1)).Distribution(6, 181, N);
             TestContext.WriteLine($"크로스 A {a[(int)OnBallItem.Cross]} B {b[(int)OnBallItem.Cross]}");

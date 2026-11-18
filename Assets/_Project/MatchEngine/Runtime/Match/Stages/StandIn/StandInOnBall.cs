@@ -362,7 +362,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
         /// <summary>
         /// 대체 패스 선택 (072 자리, specs/008 T14): 동료마다 008 평가(로지스틱 xPass, 속도 후보·스루볼 lead)를 내고
         /// 점수 = xPass × max(floor, 1 + xtK·ΔxT + gainK·전진 거리) + 잡음 U(0, noise) [대체, act.standin.*]가 가장 큰 패스를 의도로 낸다(실행 오차는 접촉 순간 008).
-        /// 킥오프는 가까운 동료. 결정 RNG 소비는 후보당 1회(이전과 같은 규칙).
+        /// 킥오프는 가까운 동료. 결정 RNG 소비는 후보당 1회(이전과 같은 규칙). 007 FR-21: 킥오프가 아니면 점수 상위 K개를 궤적 질의로 재평가.
         /// </summary>
         bool Pass(MatchContext ctx, int s, int team, bool restart, bool kickoff)
         {
@@ -375,6 +375,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             float bestScore = float.MinValue;
             var bestOpt = default(Actions.PassOption);
             var press = act.PressureOn(ctx, s); // 패서 압박은 후보와 무관 — 1회
+            var n = 0;
             for (int o = team * Squad.SlotsPerTeam; o < (team + 1) * Squad.SlotsPerTeam; o++)
             {
                 if (o == s || !ctx.IsSlotControllable(o)) continue;
@@ -389,10 +390,31 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                     if (th.Valid && th.XPass * DMath.Max(act.P.StandInFloor, 1f + act.P.StandInXtK * dxt2) > opt.XPass * DMath.Max(act.P.StandInFloor, 1f + act.P.StandInXtK * dxt)) { opt = th; dxt = dxt2; }
                 }
                 if (!opt.Valid) continue;
-                var gain = (opt.Aim.X - from.X) * dir;
-                var score = kickoff ? -dist + noise : opt.XPass * DMath.Max(act.P.StandInFloor, 1f + act.P.StandInXtK * dxt + act.P.StandInGainK * gain) + noise;
-                act.Diagnostics?.OnPassCandidate(ctx.Tick, s, o, in opt, dxt, press, score);
-                if (score > bestScore) { bestScore = score; best = o; bestOpt = opt; }
+                _cTarget[n] = o; _cOpt[n] = opt; _cDxt[n] = dxt; _cNoise[n] = noise; _cDist[n] = dist; _cRefined[n] = false;
+                _cScore[n] = StandInScore(act, kickoff, from, dir, in opt, dxt, dist, noise);
+                n++;
+            }
+            // 007 FR-21: 점수 상위 K개(킥오프 제외)는 궤적 질의로 xPass를 다시 정하고 다시 점수, 뒤이어 최고가 미질의면 그것도 (최대 refineExtra회)
+            var pc = act.PcParams;
+            if (!kickoff && !pc.LegacyOn && pc.RefineCount > 0)
+            {
+                for (int r = 0; r < pc.RefineCount; r++)
+                {
+                    var b = BestStandIn(n, false);
+                    if (b < 0) break;
+                    RefineStandIn(act, ctx.BallParams, from, s, b, kickoff, dir);
+                }
+                for (int e = 0; e < pc.RefineExtraCount; e++)
+                {
+                    var b = BestStandIn(n, true);
+                    if (b < 0 || _cRefined[b]) break;
+                    RefineStandIn(act, ctx.BallParams, from, s, b, kickoff, dir);
+                }
+            }
+            for (int i = 0; i < n; i++)
+            {
+                act.Diagnostics?.OnPassCandidate(ctx.Tick, s, _cTarget[i], in _cOpt[i], _cDxt[i], press, _cScore[i]);
+                if (_cScore[i] > bestScore) { bestScore = _cScore[i]; best = _cTarget[i]; bestOpt = _cOpt[i]; }
             }
             if (best < 0) return false;
             LastPassTarget = best;
@@ -404,6 +426,36 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             a.IsKickoff = kickoff;
             ctx.Board.SetBallAction(a);
             return true;
+        }
+
+        // 대체 패스 후보 버퍼 (동료 최대 10명, 재사용)
+        readonly int[] _cTarget = new int[Squad.SlotsPerTeam];
+        readonly Actions.PassOption[] _cOpt = new Actions.PassOption[Squad.SlotsPerTeam];
+        readonly float[] _cDxt = new float[Squad.SlotsPerTeam], _cNoise = new float[Squad.SlotsPerTeam], _cDist = new float[Squad.SlotsPerTeam], _cScore = new float[Squad.SlotsPerTeam];
+        readonly bool[] _cRefined = new bool[Squad.SlotsPerTeam];
+
+        static float StandInScore(Actions.ActionSystem act, bool kickoff, Vec2 from, int dir, in Actions.PassOption opt, float dxt, float dist, float noise)
+        {
+            var gain = (opt.Aim.X - from.X) * dir;
+            return kickoff ? -dist + noise : opt.XPass * DMath.Max(act.P.StandInFloor, 1f + act.P.StandInXtK * dxt + act.P.StandInGainK * gain) + noise;
+        }
+
+        int BestStandIn(int n, bool includeRefined)
+        {
+            var best = -1;
+            for (int i = 0; i < n; i++)
+            {
+                if (!includeRefined && _cRefined[i]) continue;
+                if (best < 0 || _cScore[i] > _cScore[best]) best = i;
+            }
+            return best;
+        }
+
+        void RefineStandIn(Actions.ActionSystem act, BallParams bp, Vec2 from, int s, int i, bool kickoff, int dir)
+        {
+            _cOpt[i].XPass = Actions.PassModel.Refine(act.P, bp, act.World, s, _cTarget[i], from, in _cOpt[i]);
+            _cScore[i] = StandInScore(act, kickoff, from, dir, in _cOpt[i], _cDxt[i], _cDist[i], _cNoise[i]);
+            _cRefined[i] = true;
         }
 
         static void ClearForward(MatchContext ctx, int s, int team) => ClearForward(ctx, s, team, true);

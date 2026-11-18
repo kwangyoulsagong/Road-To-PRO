@@ -1,5 +1,6 @@
 using RoadToPro.Core.Math;
 using RoadToPro.MatchEngine.Kinematics;
+using RoadToPro.MatchEngine.PitchControl;
 
 namespace RoadToPro.MatchEngine.Actions
 {
@@ -60,6 +61,48 @@ namespace RoadToPro.MatchEngine.Actions
         public const float PruneSlack = 1e-4f;
         readonly float[] _lb = new float[PerTeam];
         readonly int[] _lbSlot = new int[PerTeam];
+
+        /// <summary>
+        /// 007 피치 컨트롤 입력 뷰 (specs/007 T07): 이 월드의 Active·Pos·Vel·Tti·FirstTouch·Tackling 배열을 그대로 공유한다(복사 없음).
+        /// 피치 크기는 질의 직전에 <see cref="ControlPlayersView"/>가 맞춘다.
+        /// </summary>
+        readonly ControlPlayers _control;
+
+        public ActionWorld()
+        {
+            _control = new ControlPlayers(Active, Pos, Vel, Tti, FirstTouch, Tackling);
+            PitchControl = new PitchControlQuery(PitchControlParams.Defaults);
+        }
+
+        /// <summary>007 질의 (기본 = 코드 기본값 질의, 경기에서는 ActionSystem이 자기 질의로 바꾼다). 008 수신 컨트롤·072 상위 K 재평가가 쓴다.</summary>
+        public PitchControlQuery PitchControl { get; private set; }
+        /// <summary>궤적 질의 샘플 버퍼 (재평가용, 재사용).</summary>
+        public readonly TrajectorySamples Trajectory = new TrajectorySamples();
+
+        public void SetPitchControl(PitchControlQuery q) => PitchControl = q ?? new PitchControlQuery(PitchControlParams.Defaults);
+
+        /// <summary>
+        /// FR-20 수신 지점 컨트롤 (008 FR-11 receiverPC): 007 지점 질의의 수신자 팀 컨트롤 — 공 도착 = 패서 위치(from)에서 직선 거리 / gridBallSpeed (FR-05 그리드 모드),
+        /// 패서는 빼고 엔진 모드(005 TTI). `pcm.legacy`면 007 전 대체 로지스틱(<see cref="Control"/>, 비교용).
+        /// </summary>
+        public float ReceiverControl(ActionParams p, int receiver, Vec2 aim, Vec2 from, int passer)
+        {
+            var q = PitchControl;
+            if (q.Params.LegacyOn) return Control(p, receiver, aim);
+            var tb = (aim - from).Length() / DMath.Max(q.Params.GridBallSpeed, 0.1f);
+            return q.Point(ControlPlayersView, TeamOf(receiver), aim, tb, true, passer).Att;
+        }
+
+        /// <summary>007 질의용 뷰 (피치 크기 동기화 포함).</summary>
+        public ControlPlayers ControlPlayersView
+        {
+            get
+            {
+                _control.PitchL = PitchL;
+                _control.PitchW = PitchW;
+                return _control;
+            }
+        }
 
         public static int TeamOf(int slot) => slot / PerTeam;
         public static bool IsKeeper(int slot) => slot % PerTeam == 0;
@@ -124,7 +167,7 @@ namespace RoadToPro.MatchEngine.Actions
         }
 
         /// <summary>
-        /// 007 전 대체 피치 컨트롤 (010 <c>StandInSpace.Control</c>과 같은 식): 로지스틱((상대 최단 도달 시간 − 내 도달 시간)/척도).
+        /// 007 전 대체 피치 컨트롤 (010 <c>StandInSpace.Control</c>과 같은 식) — 007 뒤에는 `pcm.legacy` 비교 모드에서만(<see cref="ReceiverControl"/>): 로지스틱((상대 최단 도달 시간 − 내 도달 시간)/척도).
         /// 상대 0명이면 1.
         /// </summary>
         public float Control(ActionParams p, int s, Vec2 point)

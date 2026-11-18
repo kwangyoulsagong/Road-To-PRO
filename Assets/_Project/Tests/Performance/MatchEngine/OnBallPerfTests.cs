@@ -22,6 +22,7 @@ namespace RoadToPro.Tests.Performance.MatchEngine
         {
             var d = new Dictionary<string, double>();
             W().Owner(d, 18_000);
+            TestContext.WriteLine($"007 진단: 결정당 지점 {d["onball_pc_points_per_decision"]:F1} · 궤적 {d["onball_pc_traj_per_decision"]:F2} · 궤적당 샘플 {d["onball_pc_samples_per_traj"]:F1} · 결정당 TTI {d["onball_pc_tti_per_decision"]:F0} · 결정 {d["onball_owner_decide_avg_us"]:F1} µs");
             Record(d, "onball_owner_avg_us", SampleUnit.Microsecond);
             Record(d, "onball_owner_p95_us", SampleUnit.Microsecond);
             Record(d, "onball_candidates_avg", SampleUnit.Undefined);

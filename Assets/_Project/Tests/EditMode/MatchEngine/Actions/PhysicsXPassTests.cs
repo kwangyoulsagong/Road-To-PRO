@@ -65,8 +65,21 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
             ActionTestKit.Put(w, 1, new Vec2(30f, 34f));
             ActionTestKit.Put(w, 2, new Vec2(landX, 34f));
             ActionTestKit.Put(w, 12, new Vec2(50f, 34f), default, 10, 1); // 정점 아래, 느린 수비수 — 착지 전에 착지점에 못 감
+            // 007 T10: 물리 xPass = 007 궤적 질의(Spearman 확률 도달, σ 0.45 s). 착지 직전 2.5 m 아래 구간·튀는 공 경합에서는 정점 아래 느린 수비수도
+            // 일부를 얻는다(전체 0.14) — 예전 근사(첫 도달 = 착지 지점 수신자 전부)와 다른 의도된 변화. 판정은 008 AC-03의 높이 규칙:
+            // 공이 2.5 m 위에 있는 첫 비행 구간에서 필드 선수 컨트롤 증가 0. 전체 경로 값은 참고로 출력.
             var r = new PhysicsXPass().Evaluate(P, bp, w, 1, 2, start);
-            Assert.AreEqual(0f, r.Opponent, 1e-6f, "2.5 m 위 구간에서 필드 선수 인터셉트 0");
+            var pc = RoadToPro.MatchEngine.PitchControl.PitchControlParams.Defaults;
+            var tr = new RoadToPro.MatchEngine.PitchControl.TrajectorySamples();
+            tr.Step(bp, in start, pc.Dt, pc.Horizon);
+            var n = 0;
+            while (n < tr.Count && (tr.Z[n] > pc.AirZ || tr.X[n] < 50f)) n++; // 정점을 지나 2.5 m 아래로 내려오기 전까지
+            tr.Count = n;
+            tr.End = RoadToPro.MatchEngine.PitchControl.TrajectorySamples.EndOut;
+            var flight = new RoadToPro.MatchEngine.PitchControl.PitchControlQuery(pc).Trajectory(w.ControlPlayersView, tr, 1, 2);
+            TestContext.WriteLine($"전체 경로: 수신 {r.Receiver:F3} 상대 {r.Opponent:F3} / 첫 비행: 수신 {flight.Receiver:F3} 상대 {flight.Opponent:F3}");
+            Assert.AreEqual(0f, flight.Opponent, 1e-6f, "2.5 m 위 구간에서 필드 선수 인터셉트 0");
+            Assert.AreEqual(1f, r.Receiver + r.Teammate + r.Opponent + r.Out, 1e-4f);
             Assert.AreEqual(0f, BallControl.Prob(P, 0f, 10f, 2.6f, 1f, 0f, true, false));
         }
     }

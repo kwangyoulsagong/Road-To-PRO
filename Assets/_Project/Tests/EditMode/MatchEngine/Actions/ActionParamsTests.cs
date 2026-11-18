@@ -22,7 +22,10 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
                 Assert.AreEqual((float)f.GetValue(ActionParams.Defaults), (float)f.GetValue(fromFile), f.Name);
                 n++;
             }
-            Assert.AreEqual(bundle.Registry.Count, n, "튜닝 정의 수 = 코드 필드 수");
+            // 007: action.json의 피치 컨트롤 계수(`pcm.*`)는 PitchControlParams 몫 — PitchControlParamsTests가 본다
+            var pcm = 0;
+            foreach (var d in bundle.Registry.Definitions) if (d.Id.StartsWith(RoadToPro.MatchEngine.PitchControl.PitchControlTuningIds.Prefix)) pcm++;
+            Assert.AreEqual(bundle.Registry.Count - pcm, n, "튜닝 정의 수(pcm.* 제외) = 코드 필드 수");
         }
 
         [Test]

@@ -150,7 +150,7 @@ namespace RoadToPro.MatchEngine.Actions
             var team = ActionWorld.TeamOf(passer);
             var dist = (aim - from).Length();
             var lane = LanePressure(p, w, team, from, aim);
-            var pc = w.Control(p, receiver, aim);
+            var pc = w.ReceiverControl(p, receiver, aim, from, passer); // 007 FR-20
             var fwd = Forwardness(from, aim, w.AttackDir[team]);
             var baseNoLane = Logit(p, dist, pressOnPasser, 0f, pc, fwd, w.Passing[passer], w.Vision[passer]);
             var refTime = dist / DMath.Max(p.LaneRefSpeed, Eps);
@@ -197,6 +197,34 @@ namespace RoadToPro.MatchEngine.Actions
             }
             if (best.Valid) best.XPass = ActionMath.Prob(best.Logit, p);
             return best;
+        }
+
+        /// <summary>
+        /// 007 FR-21·22 궤적 재평가: 후보 o(조준점·초속·발사각)의 명목 궤적(실행 오차 없음)을 007 궤적 질의로 적분해
+        /// 판단 성공 확률 = 수신자 + 다른 동료 × mateValue (확률 자르기 ProbMin~Max). 땅볼 = 구름 표, 뜬공 = 004 스테퍼. RNG 없음, 할당 0(월드 버퍼).
+        /// </summary>
+        public static float Refine(ActionParams p, BallParams bp, ActionWorld w, int passer, int receiver, Vec2 from, in PassOption o)
+            => Refine(p, bp, w, passer, receiver, from, in o, out _);
+
+        /// <summary>궤적 질의 결과도 낸다 (FR-27 진단).</summary>
+        public static float Refine(ActionParams p, BallParams bp, ActionWorld w, int passer, int receiver, Vec2 from, in PassOption o, out PitchControl.TrajectoryControl traj)
+        {
+            var q = w.PitchControl;
+            var pc = q.Params;
+            var tr = w.Trajectory;
+            if (o.Lofted)
+            {
+                var d = o.Aim - from;
+                var len = d.Length();
+                var u = len > Eps ? d / len : new Vec2(1f, 0f);
+                var c = DMath.Cos(o.Elevation);
+                var start = BallState.InAir(new Vec3(from, bp.Radius), new Vec3(u.X * o.Speed * c, u.Y * o.Speed * c, o.Speed * DMath.Sin(o.Elevation)), Vec3.Zero);
+                tr.Step(bp, in start, pc.Dt, pc.Horizon);
+            }
+            else tr.Ground(bp, from, o.Aim, o.Speed, pc.Dt, pc.Horizon, w.PitchL, w.PitchW);
+            var r = q.Trajectory(w.ControlPlayersView, tr, passer, receiver);
+            traj = r;
+            return ActionMath.ClampProb(r.Receiver + pc.MateValue * r.Teammate, p.ProbMin, p.ProbMax);
         }
 
         /// <summary>
