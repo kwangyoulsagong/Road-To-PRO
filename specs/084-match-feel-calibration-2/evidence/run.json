@@ -43,41 +43,28 @@
     "dir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/specs/084-match-feel-calibration-2"
   },
   "meta": {
-    "commit": "2891aaea59bac7eb48b15dff62221cac9bd673e8",
-    "branch": "feat/084-match-feel-calibration-2",
+    "commit": "de2b5f35c16c6697f7bc4e8385df1fc4a9ec12ea",
+    "branch": "feat/084-verify",
     "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-18 10:28:50 +0900",
-    "durationSec": 534.9019169807434,
-    "command": "python3 Tools/devicefarm/farm.py logic --spec 084 --scope auto",
+    "time": "2026-11-18 13:21:30 +0900",
+    "durationSec": 548.1847710609436,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 084 --scope match",
     "profiles": [
       "mac-m1-1600p"
     ]
   },
   "logic": {
-    "ok": false,
-    "total": 1148,
-    "passed": 1133,
-    "failed": 3,
-    "skipped": 12,
-    "duration": 524.2543398,
+    "ok": true,
+    "total": 1125,
+    "passed": 1115,
+    "failed": 0,
+    "skipped": 9,
+    "duration": 538.3298512,
     "compileErrors": [],
-    "failures": [
-      {
-        "name": "RestartMoveTests.ThrowIn_ApproachReadyKick",
-        "message": "ThrowIn: 공이 재시작 지점에 없음\n  Expected: less than or equal to 1.04999995f\n  But was:  1.52087152f"
-      },
-      {
-        "name": "LiveContactAuditTests.Headers_WithinDistanceAndTime_JumpOrStand",
-        "message": "Expected: <empty>\n  But was:  \"20261349#35 seq 3045 머리–공 24.2 cm\n\""
-      },
-      {
-        "name": "LiveContactAuditTests.SlideWins_FootWithin5cm_TimeWithinFrame",
-        "message": "측정된 이긴 슬라이딩\n  Expected: greater than 0\n  But was:  0"
-      }
-    ],
+    "failures": [],
     "png": null,
-    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-102850-logic/logic.html"
+    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-132130-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -86,7 +73,7 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 22.77065889481424,
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 21.11927685516082,
       "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0
     },
     "budget": [
@@ -94,7 +81,7 @@
         "ac": "AC-07",
         "label": "010 결정 틱 평균 (Mono 회귀)",
         "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
-        "value": 22.77065889481424,
+        "value": 21.11927685516082,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -111,40 +98,117 @@
     ],
     "regression": [],
     "host": "mac-m1-1600p",
-    "power": "ac"
+    "power": "battery"
   },
-  "benchPerf": null,
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-07",
+        "label": "010 결정 틱 1회 평균 (084 계수 개정 뒤, 081 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "value": 3.6729633219405198,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "공 소유 선수 1명 결정 평균 (072 예산)",
+        "metric": "onball_owner_avg_us",
+        "value": 5.322764227642276,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "shot_xg_eval_us": 0.024414,
+      "shot_xg_eval_p95_us": 0.0264,
+      "shot_aim_us": 0.403743,
+      "shot_aim_p95_us": 0.42319999999999997,
+      "aerial_contest_us": 0.057679499999999995,
+      "aerial_contest_p95_us": 0.0668,
+      "shot_gc_bytes_models": 0,
+      "shot_sink": 1,
+      "shot_match_tick_avg_us": 20.82058148148148,
+      "shot_match_tick_p95_us": 30.2,
+      "shot_match_ticks": 54000,
+      "shot_gc_bytes_per_tick": 0,
+      "shot_planned": 74,
+      "shot_blocks": 1,
+      "aerial_contests": 127,
+      "aerial_headers": 11,
+      "dec_tick_avg_us": 3.6729633219405198,
+      "dec_tick_p95_us": 9.8,
+      "dec_match_s": 0.2160033,
+      "dec_ticks": 58809,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 1.2831029264228264,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.1733,
+      "dec_offball_p95_us": 0.30000000000000004,
+      "onball_owner_avg_us": 5.322764227642276,
+      "onball_owner_p95_us": 9.9,
+      "onball_owner_samples": 13284,
+      "onball_owner_world_avg_us": 0.3806458897922313,
+      "onball_owner_decide_avg_us": 4.9421183378500455,
+      "onball_owner_decide_p95_us": 9.5,
+      "onball_candidates_avg": 14.968081903041252,
+      "onball_gc_bytes_per_decision": 0,
+      "onball_vision_avg_us": 0.0334986,
+      "onball_vision_p95_us": 0.0414
+    },
+    "host": "mac-m1-1600p",
+    "power": "battery",
+    "buildCached": false,
+    "durationSec": 12.0,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M5 Pro",
+    "development": false,
+    "commit": "de2b5f35c16c6697f7bc4e8385df1fc4a9ec12ea"
+  },
   "requireAllAcs": true,
-  "deferred": {},
+  "deferred": {
+    "AC-02": "D19 패스 보정 3회 미달(T08: xPass b0·수신 컨트롤·지원 거리 — 성공률 54~55 %, 목표 ≥ 60 %) → 계수 되돌림. 007 피치 컨트롤 연결 스펙 제안, README D19 결정 대기 (2026-11-18 사용자 승인)",
+    "AC-03": "D20 드리블 탈취 보정 3회 미달(T05: stealK·터치 거리·minSpeed — 14.6~17.3 %, 목표 ≤ 12 %) → 계수 되돌림. 070 FR-03 개정 제안(소유자 TTI 반응 시간), README D20 결정 대기 (2026-11-18 사용자 승인)",
+    "AC-04": "D22 컷백 하한 [미정] · 16 m 시도 시 256시드 1개(하한 제안 3 미달)이고 D18을 범위 밖으로 밀어 6 m로 되돌림(T12·T13). README D22 결정 대기 (2026-11-18 사용자 승인)"
+  },
   "acEvidence": {
     "AC-01": [
       {
         "label": "EditMode 테스트",
-        "ok": false
-      }
-    ],
-    "AC-02": [
-      {
-        "label": "EditMode 테스트",
-        "ok": false
-      }
-    ],
-    "AC-03": [
-      {
-        "label": "EditMode 테스트",
-        "ok": false
-      }
-    ],
-    "AC-04": [
-      {
-        "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-05": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-06": [
@@ -159,10 +223,10 @@
         "ok": true
       },
       {
-        "label": "IL2CPP 벤치 결과 없음 (farm.py bench --spec, 생략하려면 --skip-bench \"사유\")",
-        "ok": false
+        "label": "IL2CPP 벤치 4/4 통과",
+        "ok": true
       }
     ]
   },
-  "verdict": "fail"
+  "verdict": "deferred"
 }
