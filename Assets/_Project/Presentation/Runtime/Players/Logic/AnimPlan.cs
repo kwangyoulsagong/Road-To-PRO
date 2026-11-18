@@ -468,6 +468,7 @@ namespace RoadToPro.Presentation.Players.Logic
         }
 
         readonly List<(long seq, int entity, string reason)> _jumpSkips = new List<(long, int, string)>();
+        readonly List<(long seq, int entity, float pass)> _jumpPass = new List<(long, int, float)>();
 
         /// <summary>
         /// 083 FR-01·02: 놓친 공중볼 경합 점프. 이벤트 동작을 다 만든 뒤 넣는다 — Missed 이벤트는 정점보다 늦게 오므로,
@@ -480,13 +481,28 @@ namespace RoadToPro.Presentation.Players.Logic
                 if (j.Entity < 0 || j.Entity >= HighlightData.Players) continue;
                 if (j.Skip != null) { _jumpSkips.Add((j.Seq, j.Entity, j.Skip)); continue; }
                 int e = j.Entity;
-                float t = Math.Max(_d.StartTime, Math.Min(_d.EndTime, j.ApexAt));
+                // 085 FR-01: 정점 = 공이 이 선수 점프 머리 높이 + 여유를 내려오며 지나는 순간 (기록 정점 ± Window 안). 없으면 사유(FR-02)
+                float target = MissedJumpMotion.TargetHeadY(_lib, j.JumpHeight, ScaleOf(e));
+                if (float.IsNaN(target)) { _jumpSkips.Add((j.Seq, e, MissedJumpMotion.ReasonNoClip)); continue; }
+                if (!MissedJumpMotion.FindPassTime(_d, target, j.ApexAt, MissedJumpMotion.Window, out var pass, out var why)) { _jumpSkips.Add((j.Seq, e, why)); continue; }
+                var jp = j.WithApex(pass);
+                float t = pass;
                 _d.FrameAt(t, out var f, out var a);
                 var ball = _d.Ball[f] + (_d.Ball[Math.Min(f + 1, _d.Frames - 1)] - _d.Ball[f]) * a;
-                if (MissedJumpMotion.Plan(_lib, _tl[e], j, ScaleOf(e), _d.StartTime, _d.EndTime, _d.Pos(e, t), _d.YawAt(e, t), ball, out var choice, out var reason))
+                if (MissedJumpMotion.Plan(_lib, _tl[e], jp, ScaleOf(e), _d.StartTime, _d.EndTime, _d.Pos(e, t), _d.YawAt(e, t), ball, out var choice, out var reason))
+                {
                     _tl[e].Add(choice, false, MissedJumpMotion.SeqOf(j.Seq));
+                    _jumpPass.Add((j.Seq, e, pass));
+                }
                 else _jumpSkips.Add((j.Seq, e, reason));
             }
+        }
+
+        /// <summary>085 진단: 놓친 경합 참여자의 정점(공 통과 시각, 재생 초). 점프를 넣지 않았으면 NaN.</summary>
+        public float MissedJumpPassTime(long headerSeq, int entity)
+        {
+            foreach (var s in _jumpPass) if (s.seq == headerSeq && s.entity == entity) return s.pass;
+            return float.NaN;
         }
 
         /// <summary>083 진단: 놓친 경합(Header 이벤트 번호) 참여자에게 점프를 넣지 않은 사유. 넣었거나 대상이 아니면 null.</summary>

@@ -49,6 +49,8 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
             public string Reason;
             /// <summary>083 MissedJump: 기록 정점 시각(재생 초, 없으면 NaN)과 점프 접촉 시각 차(s).</summary>
             public float ApexTime = float.NaN, ApexError = float.NaN;
+            /// <summary>085 FR-04 MissedJump: 점프 정점(계획이 찾은 공 통과 시각, 재생 초) · 그 순간 화면 공 높이(m) · 공 Y − 머리(클립 접촉점) Y(m) · 서서 이마 높이(서서 헤딩 클립 접촉점 Y × 배율, m).</summary>
+            public float PassTime = float.NaN, BallHeightAtApex = float.NaN, BallHeadGap = float.NaN, StandForehead = float.NaN;
             /// <summary>083 SlideWin: 접근 구간(접촉 − 0.9 s ~ 접촉) 화면 루트 수평 속도의 프레임당 최대 변화(m/s, 60 fps).</summary>
             public float MaxSpeedDelta = float.NaN;
             /// <summary>083 T02 원인 표: 사건 시각 시뮬 선수 위치–이벤트 공 수평 거리(m), 같은 시각 화면 공(30 Hz 프레임)–이벤트 공 거리(m), 루트 보정 크기(m).</summary>
@@ -279,11 +281,19 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
                 var c = kit.Plan.Library.Get(a.Clip);
                 r.Clip = c.Id;
                 r.Lift = a.Lift;
-                r.ApexError = float.IsNaN(r.ApexTime) ? float.NaN : Math.Abs(a.ContactAt - r.ApexTime);
+                // 085 FR-04: 정점 오차는 기록 정점이 아니라 공 통과 시각(계획이 찾은 정점) 기준
+                r.PassTime = kit.Plan.MissedJumpPassTime(r.Seq, r.Entity);
+                r.ApexError = float.IsNaN(r.PassTime) ? float.NaN : Math.Abs(a.ContactAt - r.PassTime);
                 kit.System.ApplyAt(a.ContactAt);
                 var cp = MotionMeter.ContactPoint(kit.Rigs[r.Entity], c.Rule);
-                r.DistanceAtContact = (cp - kit.Plan.BallVisual(a.ContactAt)).Length();
+                var ball = kit.Plan.BallVisual(a.ContactAt);
+                r.DistanceAtContact = (cp - ball).Length();
                 r.DistanceLimit = meter.HeadLimit;
+                // 085 FR-04: 정점 순간 공 높이 · 공–머리 높이 차 · 서서 이마 높이
+                r.BallHeightAtApex = ball.Y;
+                r.BallHeadGap = ball.Y - cp.Y;
+                int stand = kit.Plan.Library.IndexOf(HeaderMotion.StandClip);
+                if (stand >= 0) r.StandForehead = kit.Plan.Library.Get(stand).ContactPoint.Y * r.Scale;
                 break;
             }
             if (r.Clip == null && r.Reason == null) r.Reason = SkipReason(kit.Plan, r) ?? "점프 없음";
@@ -327,7 +337,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
                   .Append($"\"seed\": {r.Seed}, \"scene\": {r.Scene}, \"seq\": {r.Seq}, \"kind\": \"{r.Kind}\", \"simKind\": \"{r.SimKind}\", \"entity\": {r.Entity}, ")
                   .Append($"\"time\": {F(r.Time)}, \"clip\": {(r.Clip == null ? "null" : "\"" + r.Clip + "\"")}, \"ballHeight\": {F(r.BallHeight)}, \"scale\": {F(r.Scale)}, ")
                   .Append($"\"distance\": {F(r.Distance)}, \"distanceAtContact\": {F(r.DistanceAtContact)}, \"distanceRaw\": {F(r.DistanceRaw)}, \"timeError\": {F(r.TimeError)}, ")
-                  .Append($"\"apexTime\": {F(r.ApexTime)}, \"apexError\": {F(r.ApexError)}, \"maxSpeedDelta\": {F(r.MaxSpeedDelta)}, \"simReach\": {F(r.SimReach)}, \"frameBallGap\": {F(r.FrameBallGap)}, \"rootOffset\": {F(r.RootOffset)}, \"planVsEval\": {F(r.PlanOffset)}, \"stride\": {F(r.Stride)}, \"actionsNear\": {F(r.ActionsNear)}, \"neighbors\": \"{r.Neighbors}\", \"poseGap\": {F(r.PoseGap)}, \"yawDiffDeg\": {F(r.YawDiffDeg)}, ")
+                  .Append($"\"apexTime\": {F(r.ApexTime)}, \"apexError\": {F(r.ApexError)}, \"passTime\": {F(r.PassTime)}, \"ballHeightAtApex\": {F(r.BallHeightAtApex)}, \"ballHeadGap\": {F(r.BallHeadGap)}, \"standForehead\": {F(r.StandForehead)}, \"maxSpeedDelta\": {F(r.MaxSpeedDelta)}, \"simReach\": {F(r.SimReach)}, \"frameBallGap\": {F(r.FrameBallGap)}, \"rootOffset\": {F(r.RootOffset)}, \"planVsEval\": {F(r.PlanOffset)}, \"stride\": {F(r.Stride)}, \"actionsNear\": {F(r.ActionsNear)}, \"neighbors\": \"{r.Neighbors}\", \"poseGap\": {F(r.PoseGap)}, \"yawDiffDeg\": {F(r.YawDiffDeg)}, ")
                   .Append($"\"missed\": {(r.Missed ? "true" : "false")}, \"outcome\": \"{r.Outcome}\", \"lift\": {F(r.Lift)}, \"downUntil\": {F(r.DownUntil)}, \"excluded\": {(r.Excluded ? "true" : "false")}, \"reason\": {(r.Reason == null ? "null" : "\"" + r.Reason + "\"")}")
                   .Append(i + 1 < rows.Count ? "},\n" : "}\n");
             }
@@ -341,7 +351,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
             var sb = new StringBuilder();
             foreach (var r in rows)
                 sb.AppendLine($"{r.Seed}#{r.Scene} seq {r.Seq} {r.Kind}/{r.SimKind} e{r.Entity} t {r.Time:0.00} clip {r.Clip ?? "-"} ballY {r.BallHeight:0.00} " +
-                              $"apexErr {r.ApexError * 1000:0} ms dv {r.MaxSpeedDelta:0.00} reach {r.SimReach:0.00} gap {r.FrameBallGap:0.00} root {r.RootOffset:0.00} planVsEval {r.PlanOffset * 100:0.0} cm stride {r.Stride:0.00} near {r.ActionsNear} d {r.Distance * 100:0.0} dC {r.DistanceAtContact * 100:0.0} dRaw {r.DistanceRaw * 100:0.0} cm dt {r.TimeError * 1000:0} ms miss {r.Missed} {r.Reason}");
+                              $"apexErr {r.ApexError * 1000:0} ms apexBallY {r.BallHeightAtApex:0.00} gap {r.BallHeadGap:0.00} forehead {r.StandForehead:0.00} dv {r.MaxSpeedDelta:0.00} reach {r.SimReach:0.00} gap {r.FrameBallGap:0.00} root {r.RootOffset:0.00} planVsEval {r.PlanOffset * 100:0.0} cm stride {r.Stride:0.00} near {r.ActionsNear} d {r.Distance * 100:0.0} dC {r.DistanceAtContact * 100:0.0} dRaw {r.DistanceRaw * 100:0.0} cm dt {r.TimeError * 1000:0} ms miss {r.Missed} {r.Reason}");
             return sb.ToString();
         }
     }
