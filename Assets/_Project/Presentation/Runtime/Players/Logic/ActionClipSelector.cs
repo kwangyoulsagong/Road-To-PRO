@@ -283,7 +283,9 @@ namespace RoadToPro.Presentation.Players.Logic
             for (int i = 0; i < _e.Count; i++)
             {
                 var e = _e[i];
-                if (e.A.End <= newStart || e.A.Start >= newStart) continue;
+                // 086 FR-03 (Q2 ⓓ): 시작이 새 시작과 같은 앞 동작도 자른다 — 새 시작은 LastContactBefore로 앞 접촉(= 시작인 동작)에 맞춰질 수 있다.
+                // 전에는 `Start >= newStart`로 건너뛰어 앞 동작이 접촉 순간 가중치를 다 가져갔다 (084 T15b ③ shoulder_duel → tackle_slide_r)
+                if (e.A.End <= newStart || e.A.Start > newStart) continue;
                 float end = Math.Max(e.A.ContactAt + 1e-3f, Math.Min(newStart + AnimPlan.ActionFadeOut, newContact));
                 if (end < e.A.End) _e[i] = new Entry(e.A.WithEnd(end), e.Hit, e.Seq);
             }

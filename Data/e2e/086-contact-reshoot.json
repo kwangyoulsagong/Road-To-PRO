@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "086-contact-reshoot",
+  "spec": "086",
+  "description": "086 AC-06 헤딩 접촉(점프 헤딩슛 접촉 순간) · 이긴 슬라이딩 접촉 순간 — 재시작 잡기·GK 잡기 판정 수정 뒤 플레이어 빌드 768시드 탐색(점프 헤딩슛 20261264, 이긴 슬라이딩 20261243)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261264
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-06"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay086"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze082.header"
+    },
+    {
+      "type": "capture",
+      "name": "header_contact",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "livePlay086slide"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze083.slide"
+    },
+    {
+      "type": "capture",
+      "name": "slide_win_contact",
+      "kind": "3d"
+    }
+  ]
+}

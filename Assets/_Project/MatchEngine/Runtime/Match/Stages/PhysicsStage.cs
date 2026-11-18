@@ -50,25 +50,35 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 if (ball.Phase == BallPhase.Controlled && ball.OwnerId >= 0 && ball.OwnerId < Squad.Slots)
                 {
                     ref readonly var o = ref k.State(ball.OwnerId);
-                    // 081 T12a: GK가 자기 박스에서 손으로 든 공은 몸 위치 (발밑 오프셋을 쓰면 골라인에서 골문 쪽을 볼 때 공이 라인을 넘어 자책골이 됐다)
-                    var held = Squad.IsKeeperSlot(ball.OwnerId) && InOwnBox(ctx, Squad.TeamOfSlot(ball.OwnerId), new Vec3(o.Position.X, o.Position.Y, 0f));
-                    var bp = held ? o.Position : o.Position + o.Facing * BallCarryOffset;
-                    if (held)
+                    var flow = ctx.Flow;
+                    if (flow.State == Flow.FlowState.DeadBall && ball.OwnerId == flow.RestartTaker)
                     {
-                        // 손에 든 공은 골라인 안쪽 (캐치 뒤 탄력으로 GK가 라인 뒤로 밀려도 공은 라인을 넘지 않는다 — 자책골 방지)
-                        var lim = ctx.BallParams.Radius;
-                        bp = new Vec2(bp.X < lim ? lim : (bp.X > ctx.Pitch.LengthM - lim ? ctx.Pitch.LengthM - lim : bp.X), bp.Y);
+                        // 086 FR-01 ⓑ: 데드볼 중 키커가 가진 공은 재시작 지점에 둔다 — 발 앞 캐리 위치로 옮기면 잡는 순간 공이 순간이동한다
+                        // (084 T15b ①). GK 손 규칙(081 T12a)보다 먼저 — 골킥 공도 지점에 있다. 킥은 이 위치에서 나간다
+                        BallCommands.SetControlledPosition(ref ball, new Vec3(flow.RestartSpot.X, flow.RestartSpot.Y, ctx.BallParams.Radius));
                     }
-                    var target = new Vec3(bp.X, bp.Y, ctx.BallParams.Radius);
-                    if (ctx.Keepers.IsBusySlot(ball.OwnerId))
+                    else
                     {
-                        // 011: 다이빙 중 잡은 공은 손 위치로 서브스텝당 최대 KeeperHoldStep만 옮긴다 (순간이동 금지)
-                        var d = target - ball.Position;
-                        var len = d.Length();
-                        if (len > KeeperHoldStep) target = ball.Position + d * (KeeperHoldStep / len);
+                        // 081 T12a: GK가 자기 박스에서 손으로 든 공은 몸 위치 (발밑 오프셋을 쓰면 골라인에서 골문 쪽을 볼 때 공이 라인을 넘어 자책골이 됐다)
+                        var held = Squad.IsKeeperSlot(ball.OwnerId) && InOwnBox(ctx, Squad.TeamOfSlot(ball.OwnerId), new Vec3(o.Position.X, o.Position.Y, 0f));
+                        var bp = held ? o.Position : o.Position + o.Facing * BallCarryOffset;
+                        if (held)
+                        {
+                            // 손에 든 공은 골라인 안쪽 (캐치 뒤 탄력으로 GK가 라인 뒤로 밀려도 공은 라인을 넘지 않는다 — 자책골 방지)
+                            var lim = ctx.BallParams.Radius;
+                            bp = new Vec2(bp.X < lim ? lim : (bp.X > ctx.Pitch.LengthM - lim ? ctx.Pitch.LengthM - lim : bp.X), bp.Y);
+                        }
+                        var target = new Vec3(bp.X, bp.Y, ctx.BallParams.Radius);
+                        if (ctx.Keepers.IsBusySlot(ball.OwnerId))
+                        {
+                            // 011: 다이빙 중 잡은 공은 손 위치로 서브스텝당 최대 KeeperHoldStep만 옮긴다 (순간이동 금지)
+                            var d = target - ball.Position;
+                            var len = d.Length();
+                            if (len > KeeperHoldStep) target = ball.Position + d * (KeeperHoldStep / len);
+                        }
+                        else if (ctx.Actions.Duels.ControlledBallPosition(ctx, abs, target, out var dp)) target = dp; // 070: 이격 중 굴림 위치·되돌아가기
+                        BallCommands.SetControlledPosition(ref ball, target);
                     }
-                    else if (ctx.Actions.Duels.ControlledBallPosition(ctx, abs, target, out var dp)) target = dp; // 070: 이격 중 굴림 위치·되돌아가기
-                    BallCommands.SetControlledPosition(ref ball, target);
                 }
                 ctx.BallEvents.Clear();
                 BallStepper.Step(ref ball, ctx.BallParams, ctx.BallEvents, out _);

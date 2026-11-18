@@ -27,6 +27,25 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             }
         }
 
+        /// <summary>086 T07b: 다음 접촉(until)이 있으면 앞 액션 보정은 그 시각에 0 — 접촉 뒤 단조 감소, until 전에는 기존보다 빨리 빠진다.</summary>
+        [Test]
+        public void Ramp_EndsBeforeNextContact()
+        {
+            var a = new ActionChoice(0, 2f, 1f, 2.4f, 2.8f, 1f, new Vec3(0.2f, 0, 0), false);
+            const float next = 2.56f;
+            Assert.AreEqual(1f, RootCorrection.Ramp(a, 2.4f, float.NegativeInfinity, next), 1e-5f);
+            Assert.AreEqual(0f, RootCorrection.Ramp(a, next, float.NegativeInfinity, next));
+            Assert.Greater(RootCorrection.Ramp(a, next), 0f, "until 없으면 꼬리가 남는다 (기존)");
+            float prev = 1f;
+            for (float t = 2.4f; t <= next; t += 0.01f)
+            {
+                float r = RootCorrection.Ramp(a, t, float.NegativeInfinity, next);
+                Assert.LessOrEqual(r, prev + 1e-6f, "빠질 때 단조 감소");
+                prev = r;
+            }
+            Assert.AreEqual(RootCorrection.Ramp(a, 2.6f), RootCorrection.Ramp(a, 2.6f, float.NegativeInfinity, 2.3f), 1e-6f, "접촉 전 until은 무시");
+        }
+
         [Test]
         public void Clamp_Max03()
         {

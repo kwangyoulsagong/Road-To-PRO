@@ -19,6 +19,7 @@
     {"id": "standin.passRange", "default": 35, "min": 5, "max": 70, "unit": "m", "tag": "[대체]", "source": "대체 단계 전용: 패스 대상 최대 거리"},
     {"id": "standin.passExtraSpeed", "default": 3, "min": 0, "max": 15, "unit": "m/s", "tag": "[대체]", "source": "대체 단계 전용: 땅볼 역산 잔여 속도"},
     {"id": "standin.claimRadius", "default": 1.0, "min": 0.3, "max": 3, "unit": "m", "tag": "[대체]", "source": "대체 단계 전용: 느슨한 공 잡는 거리"},
+    {"id": "standin.restartTakeMaxSpeed", "default": 0.5, "min": 0.1, "max": 3, "unit": "m/s", "tag": "[제안]", "source": "086 FR-01: 재시작·킥오프 키커는 이 속도 이하로 멈춘 뒤 공을 잡는다 (058 FR-08 공 멈춤 기준과 같은 값, 2026-11-18 사용자 승인)"},
     {"id": "standin.claimMaxZ", "default": 1.9, "min": 0.2, "max": 3, "unit": "m", "tag": "[대체]", "source": "대체 단계 전용: 잡을 수 있는 공 높이"},
     {"id": "standin.claimMaxSpeed", "default": 22, "min": 1, "max": 40, "unit": "m/s", "tag": "[대체]", "source": "대체 단계 전용: 잡을 수 있는 공 속도"},
     {"id": "standin.tackleRange", "default": 1.2, "min": 0.3, "max": 3, "unit": "m", "tag": "[대체]", "source": "대체 단계 전용"},

@@ -18,6 +18,8 @@ namespace RoadToPro.MatchEngine.Match
         public readonly long GoalCelebrationTicks, SubDelayTicks, RestartDelayTicks, KickoffDelayTicks, HoldTicks;
         public readonly float ShotRange, ShotProb, ShotSpeed, PassRange, PassExtraSpeed;
         public readonly float ClaimRadius, ClaimMaxZ, ClaimMaxSpeed, TackleRange, TackleProb;
+        /// <summary>specs/086 FR-01 (Q1 ①): 재시작·킥오프 키커가 공을 잡을 수 있는 최고 속도 (m/s). 058 FR-08 공 멈춤 기준과 같은 값.</summary>
+        public readonly float RestartTakeMaxSpeed;
         public readonly float ShapeShiftX, ShapeShiftY, PenaltyScoreProb, CarrySpeedRatio;
         /// <summary>specs/058 데드볼 이동: 세리머니 단계·재시작 대기 상한·재배치 대기 상한 (틱).</summary>
         public readonly long CelebrationTicks, RestartWaitMaxTicks, RelocateMaxWaitTicks;
@@ -44,6 +46,7 @@ namespace RoadToPro.MatchEngine.Match
             PassRange = t.Get(T.PassRange);
             PassExtraSpeed = t.Get(T.PassExtraSpeed);
             ClaimRadius = t.Get(T.ClaimRadius);
+            RestartTakeMaxSpeed = t.Get(T.RestartTakeMaxSpeed);
             ClaimMaxZ = t.Get(T.ClaimMaxZ);
             ClaimMaxSpeed = t.Get(T.ClaimMaxSpeed);
             TackleRange = t.Get(T.TackleRange);
