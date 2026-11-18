@@ -24,4 +24,5 @@
 - [x] T07 E2E 시나리오 — 파일: `Data/e2e/085-aerial-reshoot.json`(놓친 경합 `live.freeze083.missed` · 점프 헤딩슛 `live.freeze082.header` · 늦은 슬라이딩 `live.freeze082.tackle_slide`, `mac-m1-1600p`) — 검증: `farm.py shot --scenario 085-aerial-reshoot` 1회, 3장 직접 열어 확인(공이 두 선수 머리 위·둘 다 떠 있음 / 헤딩 접촉 / 누운 슬라이딩) — 결과: `farm.py shot --scenario 085-aerial-reshoot` 50 s, 판정 candidate, 3장 직접 확인 — 놓친 경합(정지 점수 1.44: 두 선수 계획 점프·공 높이 조건 충족, 공이 빨강 8·파랑 2 머리 위, 둘 다 팔 들고 떠 있음) / 점프 헤딩슛(공이 머리에 붙음 — 단 플레이어 로그 머리–공 1.361 m는 화면과 어긋남, 로그 도구가 `Ball` 오브젝트를 이름으로 찾는 081 진단이라 기록만) / 늦은 슬라이딩(몸 던진 자세)
 
 ## E. 마무리
+- [x] T07a (추가) 성능 증거 설정 — 파일: `Data/perf/085-missed-aerial-apex.json`(083 사본, AC-08) — 사유: T08 첫 logic에서 AC-08 "증거 없음"(성능 예산 JSON 누락, 템플릿 검증 준비 체크). 085는 틱 경로 변경 없음 → IL2CPP 벤치는 `--skip-bench`로 생략하고 사유를 증거에 남김 — 결과: 아래 T08 재실행
 - [ ] T08 `/verify 085` — 커밋 → `farm.py logic --spec 085 --scope auto`(Presentation·Verification 변경 → `presentation`·`verification` 범위) 1회 → T07 스크린샷 사용자 육안 승인 → `E/report.html`(AC-01~08 판정 표, MatchEngine·Core diff 없음 기록 = AC-07, 058 하이라이트 Performance 테스트·개발 맥 프레임 기록 = AC-08, "틱 경로 변경 없음") 아티팩트 발행 → 증거 커밋 1번. 실패 0·콘솔 에러·경고 0
