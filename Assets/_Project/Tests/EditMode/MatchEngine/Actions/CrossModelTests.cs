@@ -70,5 +70,31 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
             var only = new float[4]; only[(int)CrossType.Driven] = 1f;
             Assert.AreEqual(CrossType.Driven, CrossModel.Pick(only, 0.999f));
         }
+
+        /// <summary>specs/087 FR-04 · AC-03: 컷백 타입 가중치는 튜닝 값(`act.cross.cutbackW`), 기본 3(071 [대체] 상수와 같음), 올리면 컷백 선택 비율이 오른다.</summary>
+        [Test]
+        public void CutbackWeight_Tunable_DefaultSame_HigherPicksMore()
+        {
+            var w = new float[CrossModel.Types];
+            CrossModel.Weights(P, 3f, 10f, 0, w);
+            Assert.AreEqual(3f, w[(int)CrossType.Cutback], "기본값 = 이전 코드 상수 3");
+            Assert.AreEqual(3f, P.CrossCutbackW);
+            var hi = ActionParams.Create(DuelFixture.TuningWithAction("{\"act.cross.cutbackW\": 9}").Action);
+            Assert.AreEqual(9f, hi.CrossCutbackW);
+            double Share(ActionParams p)
+            {
+                var ww = new float[CrossModel.Types];
+                CrossModel.Weights(p, 3f, 10f, 0, ww);
+                int n = 0;
+                for (int i = 0; i < 1000; i++) if (CrossModel.Pick(ww, (i + 0.5f) / 1000f) == CrossType.Cutback) n++;
+                return n / 1000.0;
+            }
+            var s0 = Share(P);
+            var s1 = Share(hi);
+            TestContext.WriteLine($"컷백 선택 비율 기본 {s0:P1} → 9 {s1:P1}");
+            Assert.Greater(s1, s0);
+            CrossModel.Weights(hi, 20f, 8f, 0, w);
+            Assert.AreEqual(0f, w[(int)CrossType.Cutback], "조건(골라인 거리) 밖이면 가중치와 무관하게 0");
+        }
     }
 }

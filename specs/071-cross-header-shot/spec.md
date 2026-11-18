@@ -35,7 +35,7 @@
 ## 요구사항
 
 ### 크로스 · 공중볼 · 헤더 (리서치 02 §2) — 원래 008 FR-20~24·69
-- FR-01: 타입 파라미터 [설계값]: Early 20~24 m/s·최고 1.5~3 m·completion 목표 20% / Driven 22~28 m/s·0.5~1.5 m·22% / Lofted 15~19 m/s·4~8 m·18% / Cutback 12~16 m/s 땅볼·35~45%. (원래 008 FR-20)
+- FR-01: 타입 파라미터 [설계값]: Early 20~24 m/s·최고 1.5~3 m·completion 목표 20% / Driven 22~28 m/s·0.5~1.5 m·22% / Lofted 15~19 m/s·4~8 m·18% / Cutback 12~16 m/s 땅볼·35~45%. (원래 008 FR-20) (087 개정 2026-11-18: 타입 선택의 컷백 가중치를 튜닝 `act.cross.cutbackW`로 뺌 — 기본 3 그대로, 근거·시도는 071 plan.md 크로스 항목과 specs/087 T09)
 - FR-02: 착지 오차 `σ_landing(m) = lerp(4.5, 1.2, a_Crossing) × (1 + 0.6·pressure)`. 땅볼·Driven은 008 패스 모델(008 FR-10)로, 뜬공은 착지점 반경 2 m 경합으로 처리. (원래 008 FR-21)
 - FR-03: 공중볼 경합 [설계값]: 참여 조건 `TTI ≤ t_land + 0.3 s`. `reach = 키(cm)×1.33/100 + jumpH`, `jumpH = lerp(0.35, 0.70, a_Jumping) × runUpBonus(1.0~1.15) × staminaFactor`, `timing = 1 − |t_arrive − t_land|/0.5`(0..1로 자름), `S = 4.0·reach + 1.5·timing + 0.8·a_Strength + 0.3·a_Heading·0.3 + 0.6·a_Positioning`, `P(win) = softmax(S)`. GK는 reach + 0.6 m (경합 참여만; 잡기·펀칭 판정은 011·073). (원래 008 FR-22)
 - FR-04: 키는 단독 결정 변수가 아니다 (리서치 02 §2.3 연구 결과). reach·timing·positioning을 함께 쓴다. (원래 008 FR-23)

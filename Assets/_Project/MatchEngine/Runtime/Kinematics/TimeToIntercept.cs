@@ -90,6 +90,33 @@ namespace RoadToPro.MatchEngine.Kinematics
             return k.Reaction + extra + RunTime(d, u, k.Vm, k.InvVm, k.Tau, k.InvTau);
         }
 
+        /// <summary>
+        /// specs/087 FR-02 (070 FR-03 개정): 이미 그 방향으로 움직이는 중인 선수(공을 쫓는 드리블 소유자)의 도달 시간 — 반응 시간을 다시 내지 않는다.
+        /// <see cref="Estimate(in Context, float, float)"/>와 같은 식이되 반응 시간 외삽(시작점 = 위치 + 속도·반응) 없이 현재 위치에서, 반응 0.
+        /// <see cref="Estimate(in Context, float, float)"/>의 산술 순서를 건드리지 않으려고 본문을 따로 둔다(기존 결과 비트 동일).
+        /// </summary>
+        public static float EstimateNoReaction(in Context k, float targetX, float targetY)
+        {
+            var rx = targetX - (k.StartX - k.VelX * k.Reaction);
+            var ry = targetY - (k.StartY - k.VelY * k.Reaction);
+            var dSq = rx * rx + ry * ry;
+            if (dSq < 1e-8f) return 0f;
+            var d = DMath.Sqrt(dSq);
+            var invD = 1f / d;
+            var u = (k.VelX * rx + k.VelY * ry) * invD;
+            var side = (k.VelX * ry - k.VelY * rx) * invD;
+            if (side < 0f) side = -side;
+            var extra = side * k.TurnCostPerSpeed;
+            if (u < 0f)
+            {
+                extra -= u / k.MaxDecel;
+                d += u * u * k.InvTwoDecel;
+                u = 0f;
+            }
+            if (u > k.Vm) u = k.Vm;
+            return extra + RunTime(d, u, k.Vm, k.InvVm, k.Tau, k.InvTau);
+        }
+
         /// <summary>속력 u에서 출발해 거리 d를 가는 시간 (모노-지수).</summary>
         public static float RunTime(float d, float u, float vm, float tau) => RunTime(d, u, vm, 1f / vm, tau, 1f / tau);
 

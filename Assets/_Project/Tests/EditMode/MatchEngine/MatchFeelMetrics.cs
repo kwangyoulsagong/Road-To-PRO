@@ -28,7 +28,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             public readonly double[] CrossTypes = new double[4];
             public double CrossNear6, CrossNear10, CutbackGoals;
             /// <summary>084 진단: 패스 xPass(이벤트 F1) 합, xPass 구간(&lt; 0.5·0.5~0.8·≥ 0.8)별 패스 수·받음 수 — 평가 보정(D19).</summary>
-            public double PassXpSum, StealChecks, StealProbSum, StealGapSum;
+            public double PassXpSum, StealChecks, StealProbSum, StealGapSum, StealChasing;
             public readonly double[] XpBin = new double[3], XpBinOk = new double[3];
 
             public void Add(Totals o)
@@ -42,7 +42,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 for (int i = 0; i < 3; i++) { RowOnTarget[i] += o.RowOnTarget[i]; RowGoals[i] += o.RowGoals[i]; }
                 for (int i = 0; i < 4; i++) CrossTypes[i] += o.CrossTypes[i];
                 CrossNear6 += o.CrossNear6; CrossNear10 += o.CrossNear10; CutbackGoals += o.CutbackGoals;
-                PassXpSum += o.PassXpSum; StealChecks += o.StealChecks; StealProbSum += o.StealProbSum; StealGapSum += o.StealGapSum;
+                PassXpSum += o.PassXpSum; StealChecks += o.StealChecks; StealProbSum += o.StealProbSum; StealGapSum += o.StealGapSum; StealChasing += o.StealChasing;
                 for (int i = 0; i < 3; i++) { XpBin[i] += o.XpBin[i]; XpBinOk[i] += o.XpBinOk[i]; }
             }
         }
@@ -129,6 +129,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             t.StealChecks += ctx.Actions.Duels.StealChecks;
             t.StealProbSum += ctx.Actions.Duels.StealProbSum;
             t.StealGapSum += ctx.Actions.Duels.StealGapSum;
+            t.StealChasing += ctx.Actions.Duels.StealChasing; // 087 FR-02
         }
 
         public enum ShotOutcome { Goal, Saved, Off }
@@ -250,6 +251,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 new("stealChecksPerTouch", Div(t.StealChecks, t.Touches)),
                 new("stealProbMean", Div(t.StealProbSum, t.StealChecks)),
                 new("stealGapMean", Div(t.StealGapSum, t.StealChecks)),
+                new("stealChasingShare", Div(t.StealChasing, t.StealChecks)),
                 new("passXpMean", Div(t.PassXpSum, t.Passes)),
                 new("xpLoShare", Div(t.XpBin[0], t.Passes)),
                 new("xpMidShare", Div(t.XpBin[1], t.Passes)),

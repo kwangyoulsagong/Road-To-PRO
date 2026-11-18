@@ -60,6 +60,12 @@ namespace RoadToPro.MatchEngine.Actions
             return t;
         }
 
+        /// <summary>
+        /// specs/087 FR-02 (070 FR-03 개정, Q1 ⓐ): 이격 탈취 판정 순간 소유자가 공을 쫓는 중인가 — 소유자에게 예약된 킥(패스·슈팅·크로스)이 없고
+        /// 속도 ≥ 드리블 최소 속도(새 터치 조건과 같은 기준). 쫓는 중이면 소유자 도달 시간에 반응 시간을 넣지 않는다.
+        /// </summary>
+        public static bool OwnerChasing(ActionParams p, float ownerSpeed, bool pendingKick) => !pendingKick && ownerSpeed >= p.DribMinSpeed;
+
         /// <summary>FR-03 이격 중 탈취 확률: sigmoid(k·(TTI_소유자 − TTI_상대 − 여유)). 상대가 먼저 닿을수록 큼. RNG 없음.</summary>
         public static float StealProb(ActionParams p, float ttiOwner, float ttiOpponent)
             => ActionMath.Prob(p.DribStealK * (ttiOwner - ttiOpponent - p.DribStealMargin), p);
