@@ -35,6 +35,9 @@ namespace RoadToPro.Presentation.Players.Logic
             Won = won;
             Skip = skip;
         }
+
+        /// <summary>정점 시각만 바꾼 사본 (specs/085 FR-01: 공이 머리 위를 지나는 순간으로 옮긴 정점).</summary>
+        public AerialJump WithApex(float apexAt) => new AerialJump(Entity, Seq, JumpAt, apexAt, LandAt, JumpHeight, Won, Skip);
     }
 
     public readonly struct AnimEvent

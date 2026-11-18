@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "id": "085-aerial-reshoot",
+  "spec": "085",
+  "description": "085 AC-05 놓친 공중볼 경합 정점(공이 두 선수 머리 위를 지나는 순간, 계획된 점프 접촉 시각) · AC-06 점프 헤딩슛 접촉 순간 · 늦은 슬라이딩 누운 자세 (087 엔진 뒤 플레이어 빌드 768시드 탐색: 놓친 경합 20261181 · 점프 헤딩슛 20261273 · 늦은 슬라이딩 20261187 — 기존 20261230·20261264·20261192는 장면 없음)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261181
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-05",
+    "AC-06"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay085"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze083.missed"
+    },
+    {
+      "type": "capture",
+      "name": "missed_jump",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "livePlay085header"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze082.header"
+    },
+    {
+      "type": "capture",
+      "name": "header_jump",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "livePlay085slide"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze082.tackle_slide"
+    },
+    {
+      "type": "capture",
+      "name": "tackle_slide",
+      "kind": "3d"
+    }
+  ]
+}

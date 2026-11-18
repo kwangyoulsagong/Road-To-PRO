@@ -130,6 +130,8 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
                 if (r.Clip != HeaderMotion.JumpClip) { fails.AppendLine($"{at} 점프 없음 ({r.Clip ?? "-"}, {r.Reason})"); continue; }
                 if (!(r.ApexError <= Frame)) fails.AppendLine($"{at} 정점 시각 차 {r.ApexError * 1000:0} ms");
                 if (!(r.DistanceAtContact > r.DistanceLimit)) fails.AppendLine($"{at} 머리–공 {r.DistanceAtContact * 100:0.0} cm ≤ 허용치 {r.DistanceLimit * 100:0.0} cm");
+                // 085 AC-04 (FR-04): 정점 순간 공 높이 ≥ 서서 이마 높이
+                if (!(r.BallHeightAtApex >= r.StandForehead)) fails.AppendLine($"{at} 정점 공 높이 {r.BallHeightAtApex:0.00} m < 서서 이마 {r.StandForehead:0.00} m");
             }
             TestContext.WriteLine(LiveContactAudit.Summary(rows));
             Assert.Greater(n, 0, "측정된 놓친 경합 참여자");
