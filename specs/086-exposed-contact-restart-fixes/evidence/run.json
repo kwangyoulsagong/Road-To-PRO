@@ -1,0 +1,445 @@
+{
+  "title": "086 장면 스크린샷 (shot)",
+  "spec": {
+    "id": "086",
+    "name": "086 — 084 계수 개정으로 드러난 숨은 실패 3건 (재시작 키커 잡기 · 실경기 헤더 · 이긴 슬라이딩 접촉)",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "058 재시작 6종 테스트(`RestartMoveTests`) 기준 시드에서 통과하고, 키커가 공 옆을 지나가며 잡는 고정 상황에서 잡는 순간·준비 순간 공–재시작 지점 거리가 FR-01 허용치 안이다."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "실경기 진단 고정 시드 묶음(FR-04)의 헤더 전부 FR-02 기준 통과(위반 0)."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "같은 묶음의 이긴 슬라이딩 전부 FR-03 기준 통과(위반 0), 이긴 슬라이딩 최소 5건(083 FR-04)."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "084 logic 범위 실패 0 (FR-05)."
+      },
+      {
+        "id": "AC-05",
+        "kind": "결정론",
+        "text": "같은 시드 90분 2회 해시 같음."
+      },
+      {
+        "id": "AC-06",
+        "kind": "E2E",
+        "text": "시나리오 `e2e/086-contact-reshoot`(082 점프 헤딩슛·083 이긴 슬라이딩 장면)를 플레이어 빌드에서 찍어 헤딩 접촉·이긴 슬라이딩 접촉이 보인다 — 장면이 없어졌으면 플레이어 안 탐색으로 시드를 다시 고른다(081 방식) — 육안 승인."
+      },
+      {
+        "id": "AC-07",
+        "kind": "성능",
+        "text": "시뮬 틱 경로를 바꾸면 성능 예산 표 항목이 예산 안."
+      }
+    ],
+    "dir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/specs/086-exposed-contact-restart-fixes"
+  },
+  "meta": {
+    "commit": "24f1c09bf445202a8a5b9b1e8859377a01c78b9e",
+    "branch": "feat/086-exposed-contact-restart-fixes",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-18 13:04:37 +0900",
+    "durationSec": 49.87220811843872,
+    "command": "python3 Tools/devicefarm/farm.py shot --spec 086",
+    "profiles": [
+      "mac-m1-1600p-light-ko"
+    ],
+    "buildCached": false,
+    "builds": [
+      "development"
+    ]
+  },
+  "scenarios": [
+    {
+      "scenario": "086-contact-reshoot",
+      "description": "086 AC-06 헤딩 접촉(점프 헤딩슛 접촉 순간) · 이긴 슬라이딩 접촉 순간 — 재시작 잡기·GK 잡기 판정 수정 뒤 플레이어 빌드 768시드 탐색(점프 헤딩슛 20261264, 이긴 슬라이딩 20261243)",
+      "combos": [
+        {
+          "key": "mac-m1-1600p-light-ko",
+          "profile": "mac-m1-1600p",
+          "theme": "light",
+          "lang": "ko",
+          "label": "",
+          "status": "passed",
+          "reason": "",
+          "exitCode": 0,
+          "durationSec": 27.9,
+          "outDir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-130409-shot/mac-m1-1600p-light-ko",
+          "args": [
+            "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/Builds/Farm/RoadToProFarm.app/Contents/MacOS/Road To PRO",
+            "-screen-fullscreen",
+            "0",
+            "-screen-width",
+            "960",
+            "-screen-height",
+            "600",
+            "-logFile",
+            "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-130409-shot/mac-m1-1600p-light-ko/player.log",
+            "-farmScenario",
+            "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/Data/e2e/086-contact-reshoot.json",
+            "-farmOut",
+            "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-130409-shot/mac-m1-1600p-light-ko",
+            "-farmSeed",
+            "20261264",
+            "-farmProfile",
+            "mac-m1-1600p",
+            "-farmWidth",
+            "2560",
+            "-farmHeight",
+            "1600",
+            "-farmUiScale",
+            "2.0",
+            "-farmQuality",
+            "Medium",
+            "-farmUnityQuality",
+            "Mobile",
+            "-farmRenderScale",
+            "0.75",
+            "-farmTargetFps",
+            "60",
+            "-farmTheme",
+            "light",
+            "-farmLang",
+            "ko"
+          ],
+          "steps": [
+            {
+              "index": 0,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 6799.9,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 1,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 4170.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 2,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 29.4,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 3,
+              "type": "capture",
+              "name": "header_contact",
+              "status": "passed",
+              "ms": 167.6,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/header_contact.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            },
+            {
+              "index": 4,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 6866.6,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 5,
+              "type": "waitFor",
+              "name": null,
+              "status": "passed",
+              "ms": 4816.5,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 6,
+              "type": "goto",
+              "name": null,
+              "status": "passed",
+              "ms": 32.4,
+              "message": "",
+              "timedOut": false
+            },
+            {
+              "index": 7,
+              "type": "capture",
+              "name": "slide_win_contact",
+              "status": "passed",
+              "ms": 188.8,
+              "message": "",
+              "timedOut": false,
+              "capture": {
+                "file": "captures/slide_win_contact.png",
+                "width": 2560,
+                "height": 1600,
+                "masks": [],
+                "kind": "3d"
+              }
+            }
+          ],
+          "captures": [
+            {
+              "step": "header_contact",
+              "current": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-130409-shot/mac-m1-1600p-light-ko/captures/header_contact.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "086-contact-reshoot",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            },
+            {
+              "step": "slide_win_contact",
+              "current": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-130409-shot/mac-m1-1600p-light-ko/captures/slide_win_contact.png",
+              "baseline": null,
+              "diff": null,
+              "scenario": "086-contact-reshoot",
+              "combo": "mac-m1-1600p-light-ko",
+              "status": "candidate",
+              "reason": "기준 이미지 없음 — 기준 후보",
+              "diffPixels": 0,
+              "diffRatio": 0.0,
+              "bbox": null
+            }
+          ],
+          "failCaptures": [],
+          "perf": [],
+          "imageChecks": [],
+          "logs": {
+            "ok": true,
+            "errors": [],
+            "warnings": [],
+            "ignored": [
+              {
+                "type": "Warning",
+                "message": "[RoadToPro] [anim] 속도 점프 4.87 → 2.28 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=판단",
+                "reason": "판단 원인(008·010 대체 행동 모델)의 목표 속도 15 m/s 미만 순간 가감속만 임시 무시. 058에서 경고에 원인 표시(FR-12)를 붙였고 배치·기록 원인(순간이동·클립 프레임 누락)은 무시하지 않는다 — AC-13. 008·010 연결 때 항목을 지우고 재확인. 2026-11-09 사용자 승인 (041), 2026-11-11 058 범위 축소",
+                "pattern": "^\\[RoadToPro\\] \\[anim\\] 속도 점프 \\d+\\.\\d+ → (\\d|1[0-4])\\.\\d+ m/s .*원인=판단$",
+                "count": 9014
+              }
+            ]
+          },
+          "checkpoints": [],
+          "motion": null,
+          "verdict": "candidate"
+        }
+      ],
+      "determinism": null,
+      "verdict": "candidate",
+      "build": "development"
+    }
+  ],
+  "acEvidence": {
+    "AC-06": [
+      {
+        "label": "086-contact-reshoot (shot) review",
+        "ok": true
+      }
+    ],
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "결정론 테스트 88/88 통과",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 성능 2/2 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 4/4 통과",
+        "ok": true
+      }
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 1730,
+    "passed": 1716,
+    "failed": 0,
+    "skipped": 13,
+    "duration": 540.0893472,
+    "compileErrors": [],
+    "failures": [],
+    "png": null,
+    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-125438-logic/logic.html"
+  },
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 21.315767991030768,
+      "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-07",
+        "label": "010 결정 틱 평균 (Mono 회귀)",
+        "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
+        "value": 21.315767991030768,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "실경기 틱 GC 할당",
+        "metric": "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-07",
+        "label": "010 결정 틱 1회 평균 (086 재시작·헤더 게이트 수정 뒤, 081 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "value": 3.7097485078814465,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "공 소유 선수 1명 결정 평균 (072 예산)",
+        "metric": "onball_owner_avg_us",
+        "value": 5.408928033724781,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "shot_xg_eval_us": 0.024985499999999997,
+      "shot_xg_eval_p95_us": 0.0251,
+      "shot_aim_us": 0.43749825,
+      "shot_aim_p95_us": 0.5087,
+      "aerial_contest_us": 0.05751825,
+      "aerial_contest_p95_us": 0.0578,
+      "shot_gc_bytes_models": 0,
+      "shot_sink": 1,
+      "shot_match_tick_avg_us": 21.98247222222222,
+      "shot_match_tick_p95_us": 31.2,
+      "shot_match_ticks": 54000,
+      "shot_gc_bytes_per_tick": 0,
+      "shot_planned": 74,
+      "shot_blocks": 1,
+      "aerial_contests": 127,
+      "aerial_headers": 11,
+      "dec_tick_avg_us": 3.7097485078814465,
+      "dec_tick_p95_us": 9.8,
+      "dec_match_s": 0.2181666,
+      "dec_ticks": 58809,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 1.2831029264228264,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.17834000000000003,
+      "dec_offball_p95_us": 0.30000000000000004,
+      "onball_owner_avg_us": 5.408928033724781,
+      "onball_owner_p95_us": 10.1,
+      "onball_owner_samples": 13284,
+      "onball_owner_world_avg_us": 0.38883619391749474,
+      "onball_owner_decide_avg_us": 5.020091839807287,
+      "onball_owner_decide_p95_us": 9.7,
+      "onball_candidates_avg": 14.968081903041252,
+      "onball_gc_bytes_per_decision": 0,
+      "onball_vision_avg_us": 0.033524099999999994,
+      "onball_vision_p95_us": 0.041299999999999996
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": false,
+    "durationSec": 12.1,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M5 Pro",
+    "development": false,
+    "commit": "24f1c09bf445202a8a5b9b1e8859377a01c78b9e"
+  },
+  "deferred": {},
+  "requireAllAcs": true,
+  "verdict": "candidate"
+}

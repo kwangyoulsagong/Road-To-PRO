@@ -1,6 +1,6 @@
 # 086 — 084 계수 개정으로 드러난 숨은 실패 3건 · 태스크
 
-상태: 승인됨 (2026-11-18)
+상태: 완료 (2026-11-18)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크(실패 먼저)를 구현 태스크보다 앞에 둔다.
@@ -33,7 +33,7 @@
 - [x] T09 고정 해시·고정 수치 갱신 + 084 지표 재확인 — 파일: 기대값이 바뀐 테스트들, `E/measure-after.json`(`MatchFeelReportTests.Report_100Matches` 1회, 백그라운드) — 검증: `MatchFeelDeterminismTests`·고정값 테스트 필터 통과, 084 AC-01(선방·전환)·AC-05(기준 범위 8개) 유지 판정 표. 벗어나면 멈추고 보고. 갱신 목록(이전/새 값·사유)을 결과 줄에. `determinism-reviewer` 리뷰(StandInOnBall·PhysicsStage·AerialSystem) — 결과: 첫 측정(T03a 전)에서 패스 111·슈팅 11.3·시퀀스 35 s로 붕괴 → 원인 조사(GK 판정 되돌림 측정은 같음 → 재시작 쪽, 임시 진단으로 키커 이탈·킥 취소 확인) → T03a 추가. 최종 `E/measure-after.json`(T03a 뒤, 7400~7499): **084 AC-01** 선방 63.0 %(60~80)·전환 16.4 %(≤ 18) 통과, **AC-05** 기준 범위 8개 유지(시퀀스 17.5 s·테이크온 20.4·성공 41.3 %·유효 슈팅 44.2 %·xG 0.076·크로스 성공 26.5 %·양 팀 경합 36.1·헤더 11.2), 패스 456.0(084 456.5)·득점 8.93(9.23, 기록만). 결정론: `MatchFeelDeterminismTests` 통과(T03a 뒤 배치). `determinism-reviewer`: H 없음, M 1(키커가 끝내 못 멈추면 잡기 없음 → 058 FR-09 대기 상한 뒤 속도 조건 해제 `SlowEnoughToTake`로 반영), L 3(0.05 상수 → `TakerNearSlack`, 외부 입력 있는 키커는 덮어쓰지 않음 반영, 공 멈춤 기준 중복·GK 착지점 기준은 기록만). 리뷰 권장 '지점 1 m 안 상대' 픽스처는 넣지 않음(상한 해제가 무한 대기를 구조적으로 막음). 고정 해시·고정 수치 갱신 목록은 T11 logic에서 확정
 
 ## G. 화면 (AC-06)
-- [ ] T10 E2E 장면 `e2e/086-contact-reshoot` — 파일: `Data/e2e/086-contact-reshoot.json`, `Assets/_Project/Verification/Runtime/Samples/Highlight/FeelSceneCoverage.cs`·`HighlightScreen.cs`(082 점프 헤딩슛·083 이긴 슬라이딩 정지 재사용, 장면이 사라졌으면 플레이어 빌드 안 시드 재탐색) — 검증: `farm.py shot --scenario 086-contact-reshoot`(mac-m1-1600p) 1회, 스크린샷 직접 확인 → 사용자 육안 승인
+- [x] T10 E2E 장면 `e2e/086-contact-reshoot` — 파일: `Data/e2e/086-contact-reshoot.json`, `Assets/_Project/Verification/Runtime/Samples/Highlight/FeelSceneCoverage.cs`·`HighlightScreen.cs`(082 점프 헤딩슛·083 이긴 슬라이딩 정지 재사용, 장면이 사라졌으면 플레이어 빌드 안 시드 재탐색) — 검증: `farm.py shot --scenario 086-contact-reshoot`(mac-m1-1600p) 1회, 스크린샷 직접 확인 → 사용자 육안 승인 — 결과: 플레이어 안 768시드 탐색(`tool-feel-search`, farm은 시나리오 600 s 초과로 fail 표시했지만 탐색 로그는 끝까지 남음) → 점프 헤딩슛 20261264·이긴 슬라이딩 20261243. `HighlightScreen`에 `livePlay086`·`livePlay086slide`(정지 화면은 082·083 것 재사용). `farm.py shot --spec 086` 캡처 2장 직접 확인 → 2026-11-18 사용자 육안 승인(`E/approval.md`, `E/approved/`). 참고: 같은 탐색에서 768시드 중 컷백 슛 골 0건(084 AC-04 몫, 기록만)
 
 ## H. 완료
-- [ ] T11 `/verify 086` — 커밋 → `farm.py logic --spec 086 --scope auto`(MatchEngine·Presentation 변경 → 범위 자동) 1회 + `farm.py bench --spec 086`(시뮬 틱 경로 변경) 1회 → `E/report.html`(원인 3건, 진단 전후 표, 해시 갱신 목록, 084 지표 표, 벤치, 스크린샷) 아티팩트 발행. 실패 0·콘솔 에러·경고 0·결정 틱 ≤ 12 µs·틱 GC 0 B. 그 뒤 084 T17 재실행 조건 충족을 084 tasks에 적는다
+- [x] T11 `/verify 086` — 커밋 → `farm.py logic --spec 086 --scope auto`(MatchEngine·Presentation 변경 → 범위 자동) 1회 + `farm.py bench --spec 086`(시뮬 틱 경로 변경) 1회 → `E/report.html`(원인 3건, 진단 전후 표, 해시 갱신 목록, 084 지표 표, 벤치, 스크린샷) 아티팩트 발행. 실패 0·콘솔 에러·경고 0·결정 틱 ≤ 12 µs·틱 GC 0 B. 그 뒤 084 T17 재실행 조건 충족을 084 tasks에 적는다 — 결과: 커밋 24f1c09 → `farm.py logic --spec 086 --scope auto`(범위 Core·Architecture·MatchEngine·Presentation·Verification + 성능 2) 합계 1730·통과 1716·**실패 0**·컴파일 에러 0 → `bench --spec 086`(il2cpp) 결정 틱 **3.71 µs**(≤ 12)·틱 GC 0 B·온볼 5.41 µs·GC 0 B 통과 → logic 재실행(벤치 결과는 logic이 리포트에 합침 — 순서 bench → logic → shot) → `shot --spec 086` 캡처 2장 = 승인본과 같음. AC-01~07 전부 통과, 고정 해시 갱신 필요 테스트 없음, 콘솔 에러 0(무시 목록 '속도 점프 원인=판단'만). 리포트에 086 요약 카드(원인·전후·084 지표) 덧붙여 발행: https://claude.ai/artifact/RE24xdEkB4WFHytEXPMmSf. 084 tasks에 T17 재실행 조건 충족 기록
