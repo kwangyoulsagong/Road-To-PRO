@@ -1,0 +1,109 @@
+{
+  "results": [
+    {
+      "name": "DeadBallPerfTests.LiveSceneSelector_ms",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.LiveSceneSelector_ms",
+      "groups": {
+        "scene_select_ms": {
+          "median": 0.30280000000000007,
+          "min": 0.2996000000000001,
+          "max": 0.31099999999999994,
+          "avg": 0.30424,
+          "unit": "ms",
+          "samples": 10
+        }
+      }
+    },
+    {
+      "name": "DeadBallPerfTests.TickGc_GoalDeadBall_Zero",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.TickGc_GoalDeadBall_Zero",
+      "groups": {
+        "gc_alloc_count_deadball": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase",
+      "groups": {
+        "dec_tick_avg_us": {
+          "median": 21.315767991030768,
+          "min": 21.315767991030768,
+          "max": 21.315767991030768,
+          "avg": 21.315767991030768,
+          "unit": "us",
+          "samples": 1
+        },
+        "dec_tick_p95_us": {
+          "median": 55.5,
+          "min": 55.5,
+          "max": 55.5,
+          "avg": 55.5,
+          "unit": "us",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "MatchFeelPerfTests.Perf_Tick_ZeroGc",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests.Perf_Tick_ZeroGc",
+      "groups": {
+        "shot_gc_bytes_per_tick": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "bytes",
+          "samples": 1
+        },
+        "shot_match_tick_avg_us": {
+          "median": 98.674575,
+          "min": 98.674575,
+          "max": 98.674575,
+          "avg": 98.674575,
+          "unit": "us",
+          "samples": 1
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 21.315767991030768,
+      "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-07",
+        "label": "010 결정 틱 평균 (Mono 회귀)",
+        "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
+        "value": 21.315767991030768,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "실경기 틱 GC 할당",
+        "metric": "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}

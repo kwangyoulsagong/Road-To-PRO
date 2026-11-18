@@ -242,6 +242,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     var hadAction = hasAction;
                     if (_runtime == null || _x.InputOf(s) != default || flow.DeadBall.Pending || !_runtime.TryDecide(ctx, s, ref hasAction, out d))
                         d = _x.Decide(ctx, s, ref hasAction);
+                    if (!inPlay && _x.InputOf(s) == default && StandInOnBall.HoldsDeadBall(ctx, s)) d = StandInOnBall.TakerAtBall(ctx, s); // 086 T03a: 세트피스 시나리오가 키커를 고정된 공에서 떼지 않게
                     if (_p.DeadBallCap > 0f && !inPlay && d.Kind == DecisionKind.HoldShape && d.MaxSpeed <= 0f && _w.Active[s]) d.MaxSpeed = DeadBallShapeSpeed(s); // FR-70: 데드볼 형태 정렬도 강도 상한
                     Other(s, inPlay ? DecisionSource.OnBall : DecisionSource.DeadBall, ctx.Tick);
                     if (!hadAction && hasAction) RememberPass(ctx, s);

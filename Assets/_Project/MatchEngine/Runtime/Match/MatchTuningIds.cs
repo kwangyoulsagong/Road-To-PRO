@@ -21,6 +21,7 @@ namespace RoadToPro.MatchEngine.Match
         public const string PassRange = "standin.passRange";
         public const string PassExtraSpeed = "standin.passExtraSpeed";
         public const string ClaimRadius = "standin.claimRadius";
+        public const string RestartTakeMaxSpeed = "standin.restartTakeMaxSpeed";
         public const string ClaimMaxZ = "standin.claimMaxZ";
         public const string ClaimMaxSpeed = "standin.claimMaxSpeed";
         public const string TackleRange = "standin.tackleRange";

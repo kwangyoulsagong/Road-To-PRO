@@ -49,6 +49,7 @@ namespace RoadToPro.Verification.Samples.Highlight
         /// <summary>specs/083 AC-05: 놓친 공중볼 경합 점프 · 이긴 슬라이딩 접촉 (083 엔진 뒤 플레이어 768시드 탐색 `tool-feel-search`).</summary>
         const ulong Seed083 = 20261230UL, Seed083Slide = 20261230UL; // 2026-11-17 083 엔진 뒤 플레이어 768시드 탐색: 놓친 경합 + 이긴 슬라이딩 둘 다 있는 첫 시드
         const ulong Seed082 = 20261224UL, Seed082Slide = 20261192UL; // 2026-11-17 082 엔진(M-1 반영) 뒤 플레이어 768시드 탐색
+        const ulong Seed086 = 20261264UL, Seed086Slide = 20261243UL; // 2026-11-18 086 엔진(재시작 잡기·GK 잡기 판정) 뒤 플레이어 768시드 탐색: 082 점프 헤딩슛 · 083 이긴 슬라이딩 첫 시드
 
         static void PlayFeelSeed(ulong seed)
         {
@@ -305,6 +306,8 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["livePlay082slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed082Slide); Play(false); };
             FarmContext.Screens["livePlay083"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed083); Play(false); };
             FarmContext.Screens["livePlay083slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed083Slide); Play(false); };
+            FarmContext.Screens["livePlay086"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed086); Play(false); }; // 086 AC-06 헤딩 접촉
+            FarmContext.Screens["livePlay086slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed086Slide); Play(false); }; // 086 AC-06 이긴 슬라이딩 접촉
             FarmContext.Screens["live.freeze083.missed"] = () => FreezeMissedAerial("missed_jump"); // 놓친 경합 기록 정점
             FarmContext.Screens["live.freeze083.slide"] = () => FreezeEvent(e => FeelSceneCoverage.IsSlideWin(e), null, "slide_win", 0d); // 이긴 슬라이딩 접촉 순간
             FarmContext.Screens["live.freeze082.header"] = () => { FreezeEvent(e => FeelSceneCoverage.IsJumpHeader(e), null, "header_jump", 0d); StartCoroutine(LogHeadBall()); }; // 접촉 순간

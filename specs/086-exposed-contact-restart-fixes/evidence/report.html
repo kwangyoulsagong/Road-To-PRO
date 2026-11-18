@@ -1,0 +1,65 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>086 장면 스크린샷 (shot)</title><meta name="claude:viewport-fit-sides" content="cover"><style>
+:root{--bg:#f2f3f5;--card:#fff;--text:#191f28;--muted:#6b7684;--line:#e5e8eb;
+--accent:#3182f6;--pass:#12a150;--fail:#e5383b;--warn:#f59f00;--cand:#8b5cf6;--code:#f7f8fa;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101215;--card:#1b1e23;
+--text:#e8eaed;--muted:#9aa0a6;--line:#2c3036;--code:#15181c;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101215;--card:#1b1e23;--text:#e8eaed;--muted:#9aa0a6;--line:#2c3036;--code:#15181c;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font:15px/1.5 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+main{max-width:1100px;margin:0 auto;padding-block:20px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1{font-size:22px;margin:4px 0 12px}h2{font-size:17px;margin:0 0 10px}
+.card{background:var(--card);border-radius:16px;padding:16px;margin:0 0 12px;overflow-wrap:anywhere}
+.meta{color:var(--muted);font-size:13px;display:flex;flex-wrap:wrap;gap:4px 14px}
+.meta b{color:var(--text);font-weight:600}
+.verdict{display:inline-block;font-weight:700;font-size:15px;padding:4px 12px;border-radius:999px;color:#fff}
+.verdict.pass{background:var(--pass)}.verdict.fail{background:var(--fail)}
+.big{font-size:34px;font-weight:700;line-height:1.1}
+.stats{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:10px}
+.stats div{min-width:72px}.stats span{display:block;color:var(--muted);font-size:12px}
+.tag{display:inline-block;font-size:12px;font-weight:600;padding:1px 8px;border-radius:6px;color:#fff}
+.tag.pass{background:var(--pass)}.tag.fail{background:var(--fail)}.tag.skip{background:var(--muted)}
+.tag.cand{background:var(--cand)}.tag.warn{background:var(--warn)}.tag.info{background:var(--accent)}
+.warnbar{background:var(--warn);color:#000;border-radius:12px;padding:10px 14px;margin:0 0 12px;font-weight:600}
+pre{background:var(--code);border-radius:10px;padding:10px;font:12px/1.45 ui-monospace,Menlo,monospace;
+overflow-x:auto;white-space:pre;margin:6px 0 0}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600}
+.case{padding:10px 0;border-bottom:1px solid var(--line)}.case:last-child{border-bottom:0}
+.case .name{font-weight:600}.muted{color:var(--muted)}
+a{color:var(--accent)}
+
+.scroll table{width:max-content;min-width:100%}
+.scroll td,.scroll th{white-space:nowrap}
+.scroll td.wrap{white-space:normal;min-width:180px;max-width:360px}
+.grid td,.grid th{text-align:center;min-width:150px}
+.grid th[scope=row]{text-align:left;min-width:90px}
+.grid img{display:block;width:150px;height:auto;border-radius:8px;border:3px solid var(--line);margin:0 auto 4px}
+.grid .pass img{border-color:var(--pass)}.grid .fail img{border-color:var(--fail)}.grid .cand img{border-color:var(--cand)}
+details summary{cursor:pointer;list-style:none}details summary::-webkit-details-marker{display:none}
+.trio{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;text-align:left}
+.trio figure{margin:0}.trio img{width:220px;border:0;border-radius:6px}
+.trio figcaption{font-size:12px;color:var(--muted)}
+.summary-row{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center}
+.verdict.deferred{background:var(--warn);color:#000}
+</style><script>
+addEventListener('load',function(){var d=document.documentElement;
+d.setAttribute('data-layout',d.scrollWidth<=innerWidth+1?'ok':'overflow:'+d.scrollWidth+'>'+innerWidth);});
+</script></head><body><main><h1>086 장면 스크린샷 (shot)</h1><div class="card"><div class="summary-row"><span class="verdict fail">기준 후보 대기</span><span class="muted">스펙 086 · 086 — 084 계수 개정으로 드러난 숨은 실패 3건 (재시작 키커 잡기 · 실경기 헤더 · 이긴 슬라이딩 접촉)</span></div><p class="meta"><span>커밋 <b>24f1c09bf4</b></span><span>브랜치 <b>feat/086-exposed-contact-restart-fixes</b></span><span>실행 <b>2026-11-18 13:04:37 +0900</b></span><span>걸린 시간 <b>50s</b></span><span>Unity <b>6000.3.27f2</b></span></p><p class="meta"><span>프로필 <b>mac-m1-1600p-light-ko</b></span></p></div><div class="card" id="summary"><h2>086 요약 <span class="tag pass">육안 승인 2026-11-18</span></h2>
+<p class="muted">상단 배지 "기준 후보 대기"는 farm이 기준 이미지가 없을 때 붙이는 표시다. 기준 이미지 비교는 2026-11-11 폐지됐고, AC-06은 사용자 육안 승인으로 판정한다(<code>evidence/approval.md</code>).</p>
+<div class="scroll"><table><tr><th>실패 (084 T15b)</th><th>원인</th><th>수정</th><th>전 → 후</th></tr>
+<tr><td>① 스로인 공이 1.5 m 튐</td><td class="wrap">키커가 지나가며 공을 잡았고, 잡은 뒤 공이 발 앞 캐리 위치로 옮겨짐</td><td class="wrap">멈춘 뒤(≤ 0.5 m/s, 대기 상한 뒤 해제)에만 잡기 · 데드볼 동안 공은 재시작 지점에 고정 · 키커는 공 곁에(T03a)</td><td>위반 → 기준 시드 잡기 94회 위반 0</td></tr>
+<tr><td>② 실경기 헤더 머리–공 24 cm</td><td class="wrap">GK 손 처리는 착지점 기준인데, GK 잡기 판정은 결정 순간 공중 공 위치 기준이라 GK가 손 기준 높이(공 1.29 m)로 헤더</td><td class="wrap">GK 잡기 판정을 착지점 기준으로 통일 (시뮬)</td><td>24.1 cm → 위반 0 (헤더 0.0 cm)</td></tr>
+<tr><td>③ 이긴 슬라이딩 발–공 60 cm</td><td class="wrap">시작이 같은 앞 동작(shoulder_duel)을 자르지 않아 접촉 순간 슬라이딩 가중치 0</td><td class="wrap"><code>EndBefore</code> 조건 수정 + 재탐색 시드에서 발견한 장면 첫 순간 페이드인(T07a)·앞 동작 루트 보정 꼬리(T07b)</td><td>59.6 cm → 이긴 슬라이딩 6사건 0.3~0.5 cm</td></tr></table></div>
+<h2 style="margin-top:14px">084 지표 재확인 (100경기, 시드 7400~)</h2>
+<div class="scroll"><table><tr><th>지표</th><th>084 최종</th><th>086 뒤</th><th>범위</th></tr>
+<tr><td>GK 선방률</td><td>61.3 %</td><td>63.0 %</td><td>60~80 %</td></tr>
+<tr><td>슈팅 전환율</td><td>17.5 %</td><td>16.4 %</td><td>≤ 18 %</td></tr>
+<tr><td>시퀀스 평균</td><td>18.0 s</td><td>17.5 s</td><td>≥ 6 s</td></tr>
+<tr><td>테이크온 시도 · 성공률</td><td>20.6 · 39.2 %</td><td>20.4 · 41.3 %</td><td>15~30 · 30~45 %</td></tr>
+<tr><td>유효 슈팅 · 슈팅당 xG</td><td>45.2 % · 0.078</td><td>44.2 % · 0.076</td><td>30~50 % · 0.07~0.14</td></tr>
+<tr><td>크로스 성공률 · 양 팀 경합 · 헤더</td><td>28.1 % · 34.7 · 11.3</td><td>26.5 % · 36.1 · 11.2</td><td>10~35 % · ≥ 10 · ≥ 8</td></tr>
+<tr><td>패스 · 득점 (기록만)</td><td>456.5 · 9.23</td><td>456.0 · 8.93</td><td>—</td></tr></table></div>
+<p class="muted">진단 표: <code>audit-before.json</code>(플랜 진단) · <code>audit-after.json</code>(최종 15경기). 083 이긴 슬라이딩 시드는 시뮬 변경으로 재선택(20261302·304·317·349·365), 20261349는 회귀 시드. 결정론 리뷰: H 없음, M 1·L 2 반영. 고정 해시 갱신이 필요한 테스트 없음.</p></div><div class="card" id="ac"><h2>수용 기준 ↔ 증거</h2><div class="scroll"><table><tr><th>AC</th><th>종류</th><th>판정</th><th>증거</th><th>조건</th></tr><tr><td><b>AC-01</b></td><td>로직</td><td><span class="tag pass">통과</span></td><td><span class="tag pass">통과</span> EditMode 테스트</td><td class="muted wrap">058 재시작 6종 테스트(`RestartMoveTests`) 기준 시드에서 통과하고, 키커가 공 옆을 지나가며 잡는 고정 상황에서 잡는 순간·준비 순간 공–재시작 지점 거리가 FR-01 허용치 안이다.</td></tr><tr><td><b>AC-02</b></td><td>로직</td><td><span class="tag pass">통과</span></td><td><span class="tag pass">통과</span> EditMode 테스트</td><td class="muted wrap">실경기 진단 고정 시드 묶음(FR-04)의 헤더 전부 FR-02 기준 통과(위반 0).</td></tr><tr><td><b>AC-03</b></td><td>로직</td><td><span class="tag pass">통과</span></td><td><span class="tag pass">통과</span> EditMode 테스트</td><td class="muted wrap">같은 묶음의 이긴 슬라이딩 전부 FR-03 기준 통과(위반 0), 이긴 슬라이딩 최소 5건(083 FR-04).</td></tr><tr><td><b>AC-04</b></td><td>로직</td><td><span class="tag pass">통과</span></td><td><span class="tag pass">통과</span> EditMode 테스트</td><td class="muted wrap">084 logic 범위 실패 0 (FR-05).</td></tr><tr><td><b>AC-05</b></td><td>결정론</td><td><span class="tag pass">통과</span></td><td><span class="tag pass">통과</span> 결정론 테스트 88/88 통과</td><td class="muted wrap">같은 시드 90분 2회 해시 같음.</td></tr><tr><td><b>AC-06</b></td><td>E2E</td><td><span class="tag pass">통과</span></td><td><span class="tag pass">통과</span> 086-contact-reshoot (shot) review</td><td class="muted wrap">시나리오 `e2e/086-contact-reshoot`(082 점프 헤딩슛·083 이긴 슬라이딩 장면)를 플레이어 빌드에서 찍어 헤딩 접촉·이긴 슬라이딩 접촉이 보인다 — 장면이 없어졌으면 플레이어 안 탐색으로 시드를 다시 고른다(081 방식) — 육안 승인.</td></tr><tr><td><b>AC-07</b></td><td>성능</td><td><span class="tag pass">통과</span></td><td><span class="tag pass">통과</span> EditMode 성능 2/2 통과 (mac-m1-1600p)<br><span class="tag pass">통과</span> IL2CPP 벤치 4/4 통과</td><td class="muted wrap">시뮬 틱 경로를 바꾸면 성능 예산 표 항목이 예산 안.</td></tr></table></div></div><div class="card"><h2>로직 테스트 <span class="tag pass">통과</span></h2><p class="meta"><span>합계 <b>1730</b></span><span>통과 <b>1716</b></span><span>실패 <b>0</b></span></p></div><div class="card"><h2>EditMode 성능 <span class="tag pass">통과</span></h2><p class="meta"><span>기기 <b>mac-m1-1600p</b></span><span>기준 프로필 <b>mac-m1-1600p</b></span><span>전원 <b>ac</b></span></p><div class="scroll"><table><tr><th>AC</th><th>항목</th><th>판정</th><th>측정</th><th>예산</th><th>기준 대비</th></tr><tr><td>AC-07</td><td>010 결정 틱 평균 (Mono 회귀)</td><td><span class="tag pass">통과</span></td><td>21.32 µs</td><td>≤ — µs</td><td>—</td></tr><tr><td>AC-07</td><td>실경기 틱 GC 할당</td><td><span class="tag pass">통과</span></td><td>0.00 B</td><td>≤ 0 B</td><td>—</td></tr></table></div></div><div class="card"><h2>시뮬 벤치 (il2cpp) <span class="tag pass">통과</span></h2><p class="meta"><span>기기 <b>mac-m1-1600p</b></span><span>CPU <b>Apple M5 Pro</b></span><span>전원 <b>ac</b></span><span>커밋 <b>24f1c09bf445202a8a5b9b1e8859377a01c78b9e</b></span></p><p class="meta"></p><div class="scroll"><table><tr><th>AC</th><th>항목</th><th>판정</th><th>측정</th><th>예산</th><th>기준 대비</th></tr><tr><td>AC-07</td><td>010 결정 틱 1회 평균 (086 재시작·헤더 게이트 수정 뒤, 081 예산 그대로)</td><td><span class="tag pass">통과</span></td><td>3.71 µs</td><td>≤ 12 µs</td><td>—</td></tr><tr><td>AC-07</td><td>실경기 틱당 GC 할당</td><td><span class="tag pass">통과</span></td><td>0 B</td><td>≤ 0 B</td><td>—</td></tr><tr><td>AC-07</td><td>공 소유 선수 1명 결정 평균 (072 예산)</td><td><span class="tag pass">통과</span></td><td>5.41 µs</td><td>≤ 12 µs</td><td>—</td></tr><tr><td>AC-07</td><td>온볼 결정 GC 할당</td><td><span class="tag pass">통과</span></td><td>0 B</td><td>≤ 0 B</td><td>—</td></tr></table></div></div><div class="card"><h2>화면 격자 · 086-contact-reshoot <span class="tag cand">기준 후보</span></h2><p class="muted">086 AC-06 헤딩 접촉(점프 헤딩슛 접촉 순간) · 이긴 슬라이딩 접촉 순간 — 재시작 잡기·GK 잡기 판정 수정 뒤 플레이어 빌드 768시드 탐색(점프 헤딩슛 20261264, 이긴 슬라이딩 20261243) · 칸을 누르면 기준·현재·차이</p><div class="scroll"><table class="grid"><tr><th></th><th scope="col">mac-m1-1600p-light-ko<br><span class="tag pass">통과</span></th></tr><tr><th scope="row">header_contact</th><td class="cand"><details><summary><img src="assets/00-086-contact-reshoot/mac-m1-1600p-light-ko/header_contact-cur.jpg" alt="header_contact"><span class="tag cand">기준 후보</span> <span class="muted">0.000%</span></summary><div class="trio"><figure><img src="assets/00-086-contact-reshoot/mac-m1-1600p-light-ko/header_contact-cur.jpg" alt="현재"><figcaption>현재</figcaption></figure></div><p class="muted">기준 이미지 없음 — 기준 후보</p></details></td></tr><tr><th scope="row">slide_win_contact</th><td class="cand"><details><summary><img src="assets/00-086-contact-reshoot/mac-m1-1600p-light-ko/slide_win_contact-cur.jpg" alt="slide_win_contact"><span class="tag cand">기준 후보</span> <span class="muted">0.000%</span></summary><div class="trio"><figure><img src="assets/00-086-contact-reshoot/mac-m1-1600p-light-ko/slide_win_contact-cur.jpg" alt="현재"><figcaption>현재</figcaption></figure></div><p class="muted">기준 이미지 없음 — 기준 후보</p></details></td></tr></table></div></div><div class="card"><h2>로그</h2><div class="scroll"><table><tr><th>조합</th><th>종류</th><th>내용</th></tr><tr><td>mac-m1-1600p-light-ko</td><td><span class="tag skip">무시</span></td><td class="wrap">[RoadToPro] [anim] 속도 점프 4.87 → 2.28 m/s (0.033 s) — 시뮬 오류 의심, 블렌드 제한 적용 원인=판단 (외 9013건)<br><span class="muted">사유: 판단 원인(008·010 대체 행동 모델)의 목표 속도 15 m/s 미만 순간 가감속만 임시 무시. 058에서 경고에 원인 표시(FR-12)를 붙였고 배치·기록 원인(순간이동·클립 프레임 누락)은 무시하지 않는다 — AC-13. 008·010 연결 때 항목을 지우고 재확인. 2026-11-09 사용자 승인 (041), 2026-11-11 058 범위 축소</span></td></tr></table></div></div><div class="card"><h2>다시 실행하려면</h2><pre>python3 Tools/devicefarm/farm.py shot --spec 086</pre><p class="muted">플레이어 인자는 run.json의 combos[].args</p></div></main></body></html>

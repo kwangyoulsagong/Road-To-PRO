@@ -145,7 +145,8 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                         : new Decision { Kind = DecisionKind.HoldShape, TargetSlot = -1 };
                 if (!(ball.Phase == BallPhase.Controlled && ball.OwnerId == s))
                 {
-                    if (flow.DeadBall.Relocated && (me.Position - flow.RestartSpot).LengthSq() <= p.ClaimRadius * p.ClaimRadius) // 058 FR-08: 공이 지점에 놓인 뒤
+                    // 058 FR-08: 공이 지점에 놓인 뒤. 086 FR-01 (Q1 ①): 지나가며 잡지 않는다 — 멈춘 뒤(속도 ≤ restartTakeMaxSpeed)에만, 아니면 계속 지점으로
+                    if (flow.DeadBall.Relocated && (me.Position - flow.RestartSpot).LengthSq() <= p.ClaimRadius * p.ClaimRadius && SlowEnoughToTake(ctx, me))
                     {
                         BallCommands.TakeControl(ref ball, s, new Vec3(flow.RestartSpot.X, flow.RestartSpot.Y, ctx.BallParams.Radius), ctx.BallEvents);
                         ctx.PossessionStartTick = ctx.Tick;
@@ -160,7 +161,7 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                     if (flow.Restart == RestartKind.Penalty) Shoot(ctx, s, team, true, true);
                     else if (!Pass(ctx, s, team, true, flow.Restart == RestartKind.Kickoff)) ClearForward(ctx, s, team);
                 }
-                return new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
+                return TakerAtBall(ctx, s); // 086 T03a
             }
             if (flow.State != FlowState.InPlay) return new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
 
@@ -249,9 +250,10 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                         _restartKickTick = ctx.Tick;
                         if (!Pass(ctx, s, Squad.TeamOfSlot(s), true, true)) ClearForward(ctx, s, Squad.TeamOfSlot(s));
                     }
-                    return Stand();
+                    return TakerAtBall(ctx, s); // 086 T03a
                 }
-                if (db.Relocated && ball.Phase != BallPhase.Controlled && (me.Position - flow.RestartSpot).LengthSq() <= p.ClaimRadius * p.ClaimRadius)
+                if (db.Relocated && ball.Phase != BallPhase.Controlled && (me.Position - flow.RestartSpot).LengthSq() <= p.ClaimRadius * p.ClaimRadius
+                    && SlowEnoughToTake(ctx, me)) // 086 FR-01: 킥오프도 멈춘 뒤 잡는다
                 {
                     BallCommands.TakeControl(ref ball, s, new Vec3(flow.RestartSpot.X, flow.RestartSpot.Y, ctx.BallParams.Radius), ctx.BallEvents);
                     ctx.PossessionStartTick = ctx.Tick;
@@ -264,6 +266,38 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
         }
 
         public static Decision Stand() => new Decision { Kind = DecisionKind.Stand, TargetSlot = -1 };
+
+        /// <summary>
+        /// 086 FR-01 (Q1 ①): 키커가 멈췄다 (속도 ≤ restartTakeMaxSpeed). 결정론 리뷰 M: 밀어내기(separation)와 도착이 진동해 끝내 못 멈추면
+        /// 데드볼이 끝나지 않으므로, 058 FR-09 대기 상한(RestartWaitMaxTicks)이 지나면 속도 조건 없이 잡는다(공은 지점에 고정 — FR-01 ⓑ).
+        /// </summary>
+        static bool SlowEnoughToTake(MatchContext ctx, in RoadToPro.MatchEngine.Kinematics.PlayerMotionState me)
+        {
+            var p = ctx.Params;
+            return me.Velocity.LengthSq() <= p.RestartTakeMaxSpeed * p.RestartTakeMaxSpeed
+                || ctx.Tick - ctx.Flow.DeadBall.PhaseStartTick >= p.RestartWaitMaxTicks;
+        }
+
+        /// <summary>데드볼 키커가 공 곁에 섰다고 보는 캐리 거리 여유 (m, 086 T03a). 킥 도달 거리(act.kick.reach 0.9)보다 충분히 안쪽.</summary>
+        public const float TakerNearSlack = 0.05f;
+
+        /// <summary>데드볼 중 재시작 키커가 공을 가졌다 (086 FR-01 ⓑ: 이 동안 공은 재시작 지점에 고정).</summary>
+        public static bool HoldsDeadBall(MatchContext ctx, int s) =>
+            ctx.Flow.State == FlowState.DeadBall && s == ctx.Flow.RestartTaker && ctx.Ball.Phase == BallPhase.Controlled && ctx.Ball.OwnerId == s;
+
+        /// <summary>
+        /// 086 T03a: 공을 가진 데드볼 키커는 공 곁에 있는다 — 캐리 거리(+ 5 cm)보다 멀면 공(재시작 지점)으로 돌아가고, 아니면 선다.
+        /// 공이 지점에 고정되므로(FR-01 ⓑ) 준비 뒤 시나리오가 키커를 옮기면 킥 도달 거리(act.kickReach) 밖이 되어 예약 킥이 계속 취소됐다.
+        /// 킥은 판단 보드의 공 동작으로 따로 나가므로 이동 결정만 바꾼다.
+        /// </summary>
+        public static Decision TakerAtBall(MatchContext ctx, int s)
+        {
+            var spot = ctx.Flow.RestartSpot;
+            var near = PhysicsStage.BallCarryOffset + TakerNearSlack;
+            return (ctx.SlotState(s).Position - spot).LengthSq() > near * near
+                ? new Decision { Kind = DecisionKind.MoveTo, Point = spot, TargetSlot = -1 }
+                : Stand();
+        }
 
         /// <summary>인플레이·공을 안 가진 GK·외부 입력 없음 → GK 고유 결정 (011 FR-16·94).</summary>
         public bool KeeperDecides(MatchContext ctx, int s)

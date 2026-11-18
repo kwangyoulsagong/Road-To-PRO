@@ -89,6 +89,48 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Flow
             }
         }
 
+        /// <summary>
+        /// specs/086 FR-01·AC-01 (Q1 ①): 기준 시드 90분의 모든 재시작·킥오프에서 키커는 멈춘 뒤(직전 틱 끝 속도 ≤ restartTakeMaxSpeed) 공을 잡고,
+        /// 잡은 뒤 킥까지 공은 재시작 지점(≤ claimRadius + 0.05)에서 움직이지 않는다(≤ 1 cm — 순간이동 0).
+        /// 084 T15b ①: 기준 시드 스로인에서 지나가던 키커가 잡아 공이 발 앞으로 1.52 m 옮겨졌다.
+        /// 플랜의 "고정 상황(0.8 m 옆 6 m/s)"은 같은 경우가 기준 시드 실경기에 있어 그 경기 전체 재시작으로 대신했다(086 T02 결과 줄).
+        /// </summary>
+        [Test]
+        public void Restart_KickerPassingBy_TakesOnlyAfterStop_BallStaysAtSpot()
+        {
+            var sim = Sim(ReferenceSeed);
+            var ctx = sim.Context;
+            var failures = new List<string>();
+            var prevSpeed = new float[Squad.Slots];
+            bool holding = false, reported = false;
+            int takes = 0;
+            while (sim.StepTick())
+            {
+                var flow = ctx.Flow;
+                ref readonly var ball = ref ctx.Ball;
+                var taker = flow.RestartTaker;
+                var owned = flow.State == FlowState.DeadBall && taker >= 0 && ball.Phase == BallPhase.Controlled && ball.OwnerId == taker;
+                if (owned && !holding)
+                {
+                    takes++;
+                    reported = false;
+                    var periodStart = ctx.Tick - flow.PeriodStartTick <= 1; // 기간 시작 킥오프는 배치로 공을 준다(058 기간 시작 예외) — 잡기 아님
+                    if (!periodStart && prevSpeed[taker] > P.RestartTakeMaxSpeed + 1e-4f) failures.Add($"틱 {ctx.Tick} {flow.Restart}: 키커 {taker} 속도 {prevSpeed[taker]:0.00} m/s에서 잡음");
+                }
+                if (owned && !reported)
+                {
+                    // 잡은 순간부터 킥 전까지 공은 재시작 지점 그대로 (FR-01: 허용치 claimRadius + 0.05, 순간이동 0 → 1 cm)
+                    var toSpot = (ball.Position.XY - flow.RestartSpot).Length();
+                    if (toSpot > 0.01f) { failures.Add($"틱 {ctx.Tick} {flow.Restart}: 잡은 뒤 공–지점 {toSpot:0.00} m (허용 {P.ClaimRadius + 0.05f:0.00}, 순간이동 0 기준 0.01)"); reported = true; }
+                }
+                holding = owned;
+                for (int s = 0; s < Squad.Slots; s++) prevSpeed[s] = ctx.SlotState(s).Velocity.Length();
+            }
+            Assert.That(failures, Is.Empty, $"잡기 {takes}회 중 위반 {failures.Count}건\n" + string.Join("\n", failures));
+            Assert.That(takes, Is.GreaterThan(10), "재시작 잡기가 너무 적음");
+            Assert.That(failures, Is.Empty, string.Join("\n", failures));
+        }
+
         [Test] public void ThrowIn_ApproachReadyKick() => Check(Get("ref", null, 20_000), SimEventKind.ThrowIn);
         [Test] public void GoalKick_ApproachReadyKick() => Check(Get("ref-full", null, -1), SimEventKind.GoalKick);
         [Test] public void Corner_ApproachReadyKick() => Check(Get("ref-full", null, -1), SimEventKind.Corner);

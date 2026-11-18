@@ -219,7 +219,9 @@ namespace RoadToPro.MatchEngine.Actions
                 var d = (w.Pos[_slot[i]] - w.Pos[_winner]).LengthSq();
                 if (d < bestD) { bestD = d; _nearestOpp = _slot[i]; }
             }
-            if (Squad.IsKeeperSlot(_winner) && Match.Stages.PhysicsStage.InOwnBox(ctx, winTeam, ctx.Ball.Position))
+            // 086 FR-02 (Q2 ⓐ): GK 잡기 판정은 손 처리(Gather의 hands)와 같은 기준 = 착지점이 자기 박스 안. 전에는 결정 순간 공중의 공 위치라
+            // 박스 안에 떨어지는 공을 GK가 잡지 않고 손 기준 높이(머리 최저 0)로 헤더 실행 → 하이라이트 머리–공 24 cm (084 T15b ②)
+            if (Squad.IsKeeperSlot(_winner) && Match.Stages.PhysicsStage.InOwnBox(ctx, winTeam, new Vec3(landing.X, landing.Y, 0f)))
             {
                 KeeperWins++;
                 _outcome = HeaderOutcome.Keeper;

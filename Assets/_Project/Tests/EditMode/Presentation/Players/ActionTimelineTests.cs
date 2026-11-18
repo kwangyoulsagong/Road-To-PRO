@@ -38,6 +38,23 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             Assert.AreEqual(5, tl.Get(1).Clip);
         }
 
+        /// <summary>
+        /// specs/086 FR-03·AC-03 (Q2 ⓓ): 앞 동작의 시작 = 접촉 = 새 동작 시작이어도(새 시작이 LastContactBefore로 앞 접촉에 맞춰짐) 054 FR-82대로
+        /// 앞 동작을 새 접촉 전에 끝낸다. 084 T15b ③: 시드 20261324 `shoulder_duel`(−0.14/−0.14/+0.66)이 잘리지 않아
+        /// 접촉 순간 `tackle_slide_r` 가중치 0 → 발–공 60 cm. 끝 ≤ 새 접촉이면 AnimPlan.ActionWeight가 그 시각에 0이다.
+        /// </summary>
+        [Test]
+        public void EndBefore_SameStartAsPrevContact_PrevWeightZeroAtNewContact()
+        {
+            var tl = new ActionTimeline();
+            tl.Add(A(1, 1.00f, 1.00f, 1.80f), false, 1);
+            tl.EndBefore(1.00f, 1.14f);
+            tl.Add(A(2, 1.00f, 1.14f, 2.20f), false, 2);
+            int prev = tl.Get(0).Clip == 1 ? 0 : 1;
+            Assert.That(tl.Get(prev).End, Is.LessThanOrEqualTo(1.14f + 1e-6f), "앞 동작이 새 접촉 전에 끝나야 한다");
+            Assert.That(tl.Get(prev).End, Is.GreaterThan(tl.Get(prev).ContactAt), "앞 동작 접촉은 남긴다");
+        }
+
         [Test]
         public void ActiveAt_ReturnsLatestStarted()
         {

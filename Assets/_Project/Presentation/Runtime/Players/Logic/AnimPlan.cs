@@ -98,13 +98,21 @@ namespace RoadToPro.Presentation.Players.Logic
         public static float Ramp(in ActionChoice a, float t) => Ramp(a, t, float.NegativeInfinity);
 
         /// <summary>from = 같은 선수 앞 액션의 접촉 시각(082 T07b ③): 보정은 그 뒤에서 들어온다 — 다음 동작 보정이 앞 접촉 위치를 끌지 않게.</summary>
-        public static float Ramp(in ActionChoice a, float t, float from)
+        public static float Ramp(in ActionChoice a, float t, float from) => Ramp(a, t, from, float.PositiveInfinity);
+
+        /// <summary>
+        /// until = 같은 선수 다음 액션의 접촉 시각(086 T07b): 보정은 그 전에 다 빠진다 — 앞 접촉 보정 꼬리가 다음 접촉 위치를 끌지 않게
+        /// (082 T07b ③의 반대쪽. 시드 20261304 트래핑 → 0.16 s 뒤 이긴 슬라이딩에서 6.6 cm).
+        /// </summary>
+        public static float Ramp(in ActionChoice a, float t, float from, float until)
         {
             float a0 = Math.Min(a.Start - ActionClipSelector.ApproachWindow, a.ContactAt - MinRamp);
             if (from < a.ContactAt && from > a0) a0 = from;
-            if (t <= a0 || t >= a.End + Release) return 0f;
+            float a1 = a.End + Release;
+            if (until > a.ContactAt && until < a1) a1 = until;
+            if (t <= a0 || t >= a1) return 0f;
             if (t < a.ContactAt) return Smooth((t - a0) / Math.Max(1e-4f, a.ContactAt - a0));
-            return 1f - Smooth((t - a.ContactAt) / Math.Max(1e-4f, a.End + Release - a.ContactAt));
+            return 1f - Smooth((t - a.ContactAt) / Math.Max(1e-4f, a1 - a.ContactAt));
         }
 
         public static Vec3 Clamp(Vec3 o) => Clamp(o, MaxOffset);
@@ -515,6 +523,9 @@ namespace RoadToPro.Presentation.Players.Logic
         {
             if (t < a.Start || t >= a.End) return 0f;
             float fin = hit ? HitFadeIn : ActionFadeIn;
+            // 086 T07a: 장면 첫 순간에 시작하는 동작은 섞어 들어올 앞 포즈가 없다 — 처음부터 온전히 (전에는 접촉이 장면 시작 0.05 s 뒤인
+            // 이긴 슬라이딩이 페이드인 중이라 가중치 ≈ 0.5 → 발–공 63 cm, 시드 20261317)
+            if (a.Start <= _d.StartTime + 1e-4f) fin = 1e-4f;
             // 접촉이 끝나기 전에 빠지지 않는다: 다음 접촉이 바로 오면(FR-82) 접촉 뒤 남은 시간 안에 빠진다
             float fout = hit ? ActionFadeOut : Math.Min(ActionFadeOut, Math.Max(1e-3f, a.End - a.ContactAt));
             return Smooth((t - a.Start) / fin) * Smooth((a.End - t) / fout);
@@ -548,7 +559,14 @@ namespace RoadToPro.Presentation.Players.Logic
             for (int k = 0; k < tl.Count; k++)
             {
                 var ac = tl.Get(k);
-                float ramp = RootCorrection.Ramp(ac, t, prevContact);
+                float nextContact = float.PositiveInfinity; // 086 T07b: 이 액션 뒤 첫 접촉 (히트 제외)
+                for (int k2 = 0; k2 < tl.Count; k2++)
+                {
+                    if (k2 == k || tl.IsHit(k2)) continue;
+                    float c2 = tl.Get(k2).ContactAt;
+                    if (c2 > ac.ContactAt && c2 < nextContact) nextContact = c2;
+                }
+                float ramp = RootCorrection.Ramp(ac, t, prevContact, nextContact);
                 if (ac.ContactAt > prevContact) prevContact = ac.ContactAt;
                 off += ac.RootOffset * ramp;
                 if (ac.Lift != 0f) lift += ac.Lift * HeaderMotion.LiftWeight(ac.Start, ac.ContactAt, t); // 082 FR-03 ②
