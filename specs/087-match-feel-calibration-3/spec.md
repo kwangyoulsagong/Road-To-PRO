@@ -1,6 +1,6 @@
 # 087 — 경기 양상 3차 보정 (드리블 탈취 판정 개정 · 컷백 선택 가중)
 
-상태: 승인됨 (2026-11-18 사용자 "추천안으로 승인": Q1 ⓐ · Q2 ⓐ · [제안] 수치 그대로)
+상태: 완료 (2026-11-18 T13 검증): AC-01·02·03·05·06·07 통과, AC-04 보류(D22 결정 대기) — 스펙 경계 규칙(3회 안 미달 → 보류)대로 완료 조건에서 뺌. 리포트 https://claude.ai/artifact/3eewsDVb3Fycx1mqSBoSnB (스펙 승인 2026-11-18)
 브랜치: feat/087-match-feel-calibration-3
 기획 출처: specs/README D20·D22 (084 보류, 2026-11-18) / specs/084 T05(D20 진단)·T12·T13(D22 시도)·evidence/measure-*.json·cutback-coverage.json / specs/086 evidence/measure-after.json(현재 기준) / specs/081 FR-10(1차 범위 표) / specs/070 FR-02·03(터치 이격·이격 탈취) / specs/071 FR-01·20, plan.md(크로스 타입 선택 [대체]) / specs/072 AC-05·07 / docs/index.html § 매치 엔진
 

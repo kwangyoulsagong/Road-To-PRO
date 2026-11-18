@@ -1,6 +1,6 @@
 # 087 — 경기 양상 3차 보정 (드리블 탈취 판정 개정 · 컷백 선택 가중) · 태스크
 
-상태: 승인됨 (2026-11-18 사용자 "추천안으로 승인")
+상태: 완료 (2026-11-18 T13 검증): AC-01·02·03·05·06·07 통과, AC-04 보류(D22 결정 대기) — 스펙 경계 규칙(3회 안 미달 → 보류)대로 완료 조건에서 뺌. 리포트 https://claude.ai/artifact/3eewsDVb3Fycx1mqSBoSnB (태스크 승인 2026-11-18)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 보정 회차는 "계수 변경(튜닝 JSON + 코드 기본값 + source `087:`) → 100경기 측정(백그라운드) → FR-07 보호 지표 확인", 항목당 최대 3회. 못 맞추면 그 AC는 보류(사유·측정값)로 쓰고 다음 블록으로.
@@ -29,4 +29,4 @@
 - [x] T11 최종 측정 · 회귀 — 파일: `E/measure-after.json`, `E/measure-after-8400.json`, 고정 해시·수치 테스트 갱신 목록 — 검증: `Report_100Matches` 7400·8400, AC-01~05 판정 표, `MatchFeelDeterminismTests`(AC-06), `determinism-reviewer` 리뷰 — 결과: 최종 = 070 FR-03 판정 식 + `stealMargin` 0.4 + `cutbackW` 3(튜닝화). `measure-after`(7400) = `d20-1`과 같은 설정(T08에서 비트 동일 확인)이라 그 파일 사본: 탈취 **10.5 %**·선방 61.1 %·전환 17.0 %. `measure-after-8400`: 탈취 **10.7 %**·선방 **61.4 %**·전환 **17.98 %**(상한 18 % 근접 — 086 기준 16.4 %에서 D20 개정으로 +1.6 %p). **AC-02·05 통과(두 묶음)**, AC-03 통과, AC-04 보류. FR-07 보호 8개(8400): 시퀀스 21.2 s·테이크온 20.7·성공 40 %·유효 46.6 %·xG 0.076·크로스 성공 28.8 %·양 팀 경합 34.6·헤더 10.2 전부 범위 안. 득점 기록만(7400 8.9·8400 9.56). 결정론 `MatchFeelDeterminismTests` 통과(배치 45/45). `determinism-reviewer`: 문제 없음(RNG 순서·할당·진단 해시 밖·기존 Estimate 비트 동일·기본값 일치; 참고 — 시작점 역산은 위치와 1 ulp 차이 가능하나 결정론적). 고정 해시·고정 수치 테스트 갱신 없음(배치 범위 안)
 - [x] T12 README 정리 — 파일: `specs/README.md`(087 상태, D20·D22 결과) — 검증: `spec-lint.py` — 결과: 087 행 상태, D20 "087 완료", D22 "결정 대기"(시도·후보). `spec-lint.py` 087 ok (전체 오류 16개는 이 스펙 전부터)
 - [x] T13a 083 이긴 슬라이딩 시드 재선택 (T13 logic 실패 대응, 플랜 위험 항목 — 084 T15a와 같은 절차) — 파일: `Data/e2e/seeds/083-live-seeds.json` — 검증: `LiveContactAuditTests.SearchSlideWinSeeds`(Explicit) → `LiveContactAuditTests` 전체 — 결과: T13 첫 logic 1157/통과 1143/**실패 1**(`SlideWins_FootWithin5cm_TimeWithinFrame`: 측정된 이긴 슬라이딩 0 — 판정 식 개정으로 경기 흐름이 바뀜). 재탐색 160경기 중 5경기·각 1건(20261315·319·331·439·459)으로 교체, 20261349(086 헤더 회귀 시드) 유지 → 6경기. `LiveContactAuditTests` 9/9
-- [ ] T13 `/verify 087` — 커밋 → `farm.py bench --spec 087` 1회 → `farm.py logic --spec 087 --scope auto`(MatchEngine·튜닝 → `match`) 1회 → `E/report.html` 아티팩트 발행. 실패 0·콘솔 에러·경고 0·결정 틱 ≤ 12 µs·틱 GC 0 B. E2E 없음
+- [x] T13 `/verify 087` — 커밋 → `farm.py bench --spec 087` 1회 → `farm.py logic --spec 087 --scope auto`(MatchEngine·튜닝 → `match`) 1회 → `E/report.html` 아티팩트 발행. 실패 0·콘솔 에러·경고 0·결정 틱 ≤ 12 µs·틱 GC 0 B. E2E 없음 — 결과: 커밋 c680ceb → `bench --spec 087` **IL2CPP 4/4**(결정 틱 3.99 µs ≤ 12·온볼 5.24 µs·GC 0 B) → `logic --scope auto`(→ `match` 범위) 첫 실행 실패 1(T13a) → 시드 교체 커밋 5740761 뒤 재실행 **1157/통과 1144/실패 0/건너뜀 13(Explicit)**, 결정론 77/77, EditMode 성능 2/2, 콘솔 에러·경고 0. farm 판정 "보류 — 나머지 AC 통과"(AC-04 `deferred`). 리포트에 087 요약·측정 표 추가 후 발행: https://claude.ai/artifact/3eewsDVb3Fycx1mqSBoSnB

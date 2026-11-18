@@ -5,10 +5,10 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.LiveSceneSelector_ms",
       "groups": {
         "scene_select_ms": {
-          "median": 0.31004999999999994,
-          "min": 0.3054000000000001,
-          "max": 0.3259000000000001,
-          "avg": 0.31138999999999994,
+          "median": 0.30520000000000014,
+          "min": 0.3024,
+          "max": 0.3177000000000001,
+          "avg": 0.3077700000000001,
           "unit": "ms",
           "samples": 10
         }
@@ -33,18 +33,18 @@
       "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase",
       "groups": {
         "dec_tick_avg_us": {
-          "median": 21.97132823129252,
-          "min": 21.97132823129252,
-          "max": 21.97132823129252,
-          "avg": 21.97132823129252,
+          "median": 21.707333333333334,
+          "min": 21.707333333333334,
+          "max": 21.707333333333334,
+          "avg": 21.707333333333334,
           "unit": "us",
           "samples": 1
         },
         "dec_tick_p95_us": {
-          "median": 56.400000000000006,
-          "min": 56.400000000000006,
-          "max": 56.400000000000006,
-          "avg": 56.400000000000006,
+          "median": 55.900000000000006,
+          "min": 55.900000000000006,
+          "max": 55.900000000000006,
+          "avg": 55.900000000000006,
           "unit": "us",
           "samples": 1
         }
@@ -63,10 +63,10 @@
           "samples": 1
         },
         "shot_match_tick_avg_us": {
-          "median": 102.55236666666669,
-          "min": 102.55236666666669,
-          "max": 102.55236666666669,
-          "avg": 102.55236666666669,
+          "median": 101.900775,
+          "min": 101.900775,
+          "max": 101.900775,
+          "avg": 101.900775,
           "unit": "us",
           "samples": 1
         }
@@ -79,7 +79,7 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 21.97132823129252,
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 21.707333333333334,
       "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0
     },
     "budget": [
@@ -87,7 +87,7 @@
         "ac": "AC-07",
         "label": "010 결정 틱 평균 (Mono 회귀)",
         "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
-        "value": 21.97132823129252,
+        "value": 21.707333333333334,
         "budget": "—",
         "unit": "µs",
         "ok": true

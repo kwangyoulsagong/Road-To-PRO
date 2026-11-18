@@ -43,33 +43,28 @@
     "dir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/specs/087-match-feel-calibration-3"
   },
   "meta": {
-    "commit": "c680cebfedf99a347b86177d1ac18e395a132fbe",
+    "commit": "574076105e11c235b5acb3eed6bbb7da660e79cd",
     "branch": "feat/087-match-feel-calibration-3",
     "dirty": false,
     "unity": "6000.3.27f2",
-    "time": "2026-11-18 14:32:23 +0900",
-    "durationSec": 550.5383179187775,
+    "time": "2026-11-18 14:55:37 +0900",
+    "durationSec": 552.8679988384247,
     "command": "python3 Tools/devicefarm/farm.py logic --spec 087 --scope auto",
     "profiles": [
       "mac-m1-1600p"
     ]
   },
   "logic": {
-    "ok": false,
+    "ok": true,
     "total": 1157,
-    "passed": 1143,
-    "failed": 1,
+    "passed": 1144,
+    "failed": 0,
     "skipped": 12,
-    "duration": 539.8762777,
+    "duration": 541.7063673,
     "compileErrors": [],
-    "failures": [
-      {
-        "name": "LiveContactAuditTests.SlideWins_FootWithin5cm_TimeWithinFrame",
-        "message": "측정된 이긴 슬라이딩\n  Expected: greater than 0\n  But was:  0"
-      }
-    ],
+    "failures": [],
     "png": null,
-    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-143223-logic/logic.html"
+    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-145537-logic/logic.html"
   },
   "scenarios": [],
   "editmodePerf": {
@@ -78,7 +73,7 @@
     "note": "",
     "profile": "mac-m1-1600p",
     "metrics": {
-      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 21.97132823129252,
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 21.707333333333334,
       "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0
     },
     "budget": [
@@ -86,7 +81,7 @@
         "ac": "AC-07",
         "label": "010 결정 틱 평균 (Mono 회귀)",
         "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
-        "value": 21.97132823129252,
+        "value": 21.707333333333334,
         "budget": "—",
         "unit": "µs",
         "ok": true
@@ -205,25 +200,25 @@
     "AC-01": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-02": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-03": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-05": [
       {
         "label": "EditMode 테스트",
-        "ok": false
+        "ok": true
       }
     ],
     "AC-06": [
@@ -243,5 +238,5 @@
       }
     ]
   },
-  "verdict": "fail"
+  "verdict": "deferred"
 }
