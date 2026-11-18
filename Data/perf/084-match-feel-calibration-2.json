@@ -2,7 +2,11 @@
   "spec": "084",
   "profile": "mac-m1-1600p",
   "note": "specs/084 성능 예산 표의 기계용 사본. 계수 개정(011·008·010·070·071)만 — 010 결정 틱은 081 IL2CPP 예산 그대로(≤ 12 µs), 틱 GC 0 B. farm.py bench --spec 084, README D17.",
-  "deferred": {},
+  "deferred": {
+    "AC-02": "D19 패스 보정 3회 미달(T08: xPass b0·수신 컨트롤·지원 거리 — 성공률 54~55 %, 목표 ≥ 60 %) → 계수 되돌림. 007 피치 컨트롤 연결 스펙 제안, README D19 결정 대기 (2026-11-18 사용자 승인)",
+    "AC-03": "D20 드리블 탈취 보정 3회 미달(T05: stealK·터치 거리·minSpeed — 14.6~17.3 %, 목표 ≤ 12 %) → 계수 되돌림. 070 FR-03 개정 제안(소유자 TTI 반응 시간), README D20 결정 대기 (2026-11-18 사용자 승인)",
+    "AC-04": "D22 컷백 하한 [미정] · 16 m 시도 시 256시드 1개(하한 제안 3 미달)이고 D18을 범위 밖으로 밀어 6 m로 되돌림(T12·T13). README D22 결정 대기 (2026-11-18 사용자 승인)"
+  },
   "tests": [
     "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests",
     "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests"
