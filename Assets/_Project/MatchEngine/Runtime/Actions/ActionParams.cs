@@ -114,7 +114,7 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly float DribMinSpeed = 2.0f;
         public readonly float DribSpeedNormMax = 9.0f;
         public readonly float DribStealK = 9.0f;
-        public readonly float DribStealMargin = 1.0f;
+        public readonly float DribStealMargin = 0.4f;
         public readonly float TakeOnRange = 3.0f;
         public readonly float TakeOnLaneHalf = 2.0f;
         public readonly float TakeOnC0 = -0.55f;
@@ -226,6 +226,8 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly float CrossPressK = 0.6f;
         public readonly float CrossCutbackLine = 6.0f;
         public readonly float CrossStyleK = 0.3f;
+        /// <summary>087 FR-04: 컷백 타입 가중치 (071 타입 선택 [대체], 이전 코드 상수 3).</summary>
+        public readonly float CrossCutbackW = 3.0f;
         public readonly float AerialRadius = 2.0f;
         public readonly float AerialTtiSlack = 0.3f;
         public readonly float AerialHeightK = 1.33f;
@@ -485,6 +487,7 @@ namespace RoadToPro.MatchEngine.Actions
             CrossPressK = t.Get(Ids.CrossPressK);
             CrossCutbackLine = t.Get(Ids.CrossCutbackLine);
             CrossStyleK = t.Get(Ids.CrossStyleK);
+            CrossCutbackW = t.Get(Ids.CrossCutbackW);
             AerialRadius = t.Get(Ids.AerialRadius);
             AerialTtiSlack = t.Get(Ids.AerialTtiSlack);
             AerialHeightK = t.Get(Ids.AerialHeightK);

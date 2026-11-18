@@ -85,13 +85,13 @@ namespace RoadToPro.MatchEngine.Actions
         }
 
         /// <summary>
-        /// 타입 가중치 (FR-01·20, [대체]): 크로서가 골라인 cutbackLine 안이고 받는 선수가 더 뒤(골라인에서 2 m 이상 멀다) → 컷백 3.
+        /// 타입 가중치 (FR-01·20, [대체]): 크로서가 골라인 cutbackLine 안이고 받는 선수가 더 뒤(골라인에서 2 m 이상 멀다) → 컷백 `act.cross.cutbackW`(087 FR-04: 이전 코드 상수 3).
         /// 받는 선수가 골라인 11 m 안 → Driven 1.0(아니면 0.4). 크로서가 골라인에서 18 m 이상 → Early 1.0(아니면 0.3). Lofted 1.0.
         /// 성향 대체: 크로스 머신 레벨 × styleK를 Lofted·Early에 더한다(FR-20 매핑 [미정]). 거리·라인 = 공격 방향 골라인까지 x 거리.
         /// </summary>
         public static void Weights(ActionParams p, float crosserToLine, float receiverToLine, byte crossLevel, float[] w)
         {
-            w[(int)CrossType.Cutback] = crosserToLine <= p.CrossCutbackLine && receiverToLine >= crosserToLine + 2f ? 3f : 0f;
+            w[(int)CrossType.Cutback] = crosserToLine <= p.CrossCutbackLine && receiverToLine >= crosserToLine + 2f ? p.CrossCutbackW : 0f;
             w[(int)CrossType.Driven] = receiverToLine <= 11f ? 1f : 0.4f;
             w[(int)CrossType.Early] = (crosserToLine >= 18f ? 1f : 0.3f) + p.CrossStyleK * crossLevel;
             w[(int)CrossType.Lofted] = 1f + p.CrossStyleK * crossLevel;

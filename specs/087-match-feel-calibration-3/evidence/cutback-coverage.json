@@ -1,0 +1,63 @@
+{
+  "spec": "087",
+  "ac": "AC-04",
+  "tool": "farm.py shot --scenario tool-feel-search (플레이어 빌드 macOS 개발 빌드, FeelSceneCoverage.Search 768시드, 시드 20261181 + i — tool 시나리오라 600 s 타임아웃 종료가 정상)",
+  "lowerBound": "768시드 중 5개 이상 [제안] (스펙 FR-05)",
+  "runs": [
+    {
+      "label": "기준 (D20 개정 뒤)",
+      "cutbackW": 3,
+      "cutbackLine": 6,
+      "run": ".farm/runs/20261118-135236-shot",
+      "seeds256": 0,
+      "seeds512": 0,
+      "seeds768": 0,
+      "cutbackGoalSeeds": [],
+      "editorCutbackPerMatch": 0.02
+    },
+    {
+      "label": "d22-1",
+      "cutbackW": 20,
+      "cutbackLine": 6,
+      "run": null,
+      "note": "에디터 측정에서 컷백 0.02/경기 그대로(조건 충족이 병목) → 플레이어 탐색 생략",
+      "editorCutbackPerMatch": 0.02
+    },
+    {
+      "label": "d22-2",
+      "cutbackW": 20,
+      "cutbackLine": 12,
+      "run": ".farm/runs/20261118-140509-shot",
+      "seeds256": 0,
+      "seeds512": 1,
+      "seeds768": 2,
+      "cutbackGoalSeeds": [
+        20261645,
+        20261700
+      ],
+      "editorCutbackPerMatch": 0.31
+    },
+    {
+      "label": "d22-3",
+      "cutbackW": 20,
+      "cutbackLine": 16,
+      "run": ".farm/runs/20261118-141742-shot",
+      "seeds256": 1,
+      "seeds512": 3,
+      "seeds768": 4,
+      "cutbackGoalSeeds": [
+        20261402,
+        20261608,
+        20261645,
+        20261700
+      ],
+      "editorCutbackPerMatch": 0.59,
+      "d18_8400": {
+        "gkSaveRate": 0.6061,
+        "conversion": 0.1801
+      }
+    }
+  ],
+  "verdict": "보류 — 3회 모두 768시드 5개 미만(최대 4), 16 m는 시드 8400 전환율 18.01 %로 FR-06 밖 → 가중 3·조건 6 m로 되돌림(튜닝화만 유지)",
+  "build": "작업 트리 커밋 전 (feat/087, main 1e27816 위 087 변경)"
+}

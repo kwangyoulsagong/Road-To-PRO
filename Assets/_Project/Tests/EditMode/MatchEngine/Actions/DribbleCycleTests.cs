@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using RoadToPro.Core.Math;
+using RoadToPro.MatchEngine.Actions;
 using RoadToPro.MatchEngine.Ball;
 using RoadToPro.MatchEngine.Match.Events;
 
@@ -137,6 +138,54 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
             f.Tick();
             Assert.AreEqual(5, f.Duels.Dribble.Owner);
             Assert.IsFalse(f.Duels.Dribble.Open);
+        }
+
+        // ── specs/087 FR-02 (AC-01): 쫓는 소유자 판정 ──
+
+        [Test]
+        public void OwnerChasing_SpeedAndNoPendingKick()
+        {
+            var P = new DuelFixture().Ctx.Actions.P;
+            Assert.IsTrue(DribbleModel.OwnerChasing(P, P.DribMinSpeed + 1f, false), "드리블 속도로 달리는 중 = 쫓는 중");
+            Assert.IsFalse(DribbleModel.OwnerChasing(P, P.DribMinSpeed + 1f, true), "패스·슈팅 킥이 예약됨 = 다른 행동");
+            Assert.IsFalse(DribbleModel.OwnerChasing(P, P.DribMinSpeed * 0.5f, false), "멈춤(최소 속도 미만) = 지금처럼 반응 시간 포함");
+        }
+
+        [Test]
+        public void StealCheck_ChasingOwner_NoReaction()
+        {
+            // 앞을 가로지르는 상대 (StealRate 4 m 픽스처 — 짧은 터치는 판정 자체가 거의 없다): 판정 순간 소유자가 달리는 중이면 도달 시간 = EstimateNoReaction, 반응 시간 포함 값보다 작다
+            var f = new DuelFixture(7072UL, "{\"act.drib.touchLo\": 4, \"act.drib.touchHi\": 4, \"act.drib.skillLo\": 1, \"act.drib.skillHi\": 1, \"act.drib.distSigma\": 0}");
+            int checks = 0, chasing = 0;
+            for (int i = 0; i < 200 && checks < 20; i++)
+            {
+                f.ClearPitch();
+                f.Put(9, new Vec2(30f, 34f), new Vec2(1f, 0f));
+                f.Put(13, new Vec2(36f, 37f), new Vec2(0f, -1f));
+                f.Own(9);
+                f.SeekAndChase(9, new Vec2(100f, 34f), 7f);
+                f.Seek(13, new Vec2(37f, 31f));
+                for (int t = 0; t < 30; t++)
+                {
+                    var c0 = f.Duels.StealChecks;
+                    f.Tick();
+                    if (f.Duels.StealChecks > c0)
+                    {
+                        checks++;
+                        if (f.Duels.LastStealChasing)
+                        {
+                            chasing++;
+                            Assert.That(f.Duels.LastStealOwnerTime, Is.LessThan(f.Duels.LastStealOwnerTimeWithReaction), "반응 시간이 빠진다");
+                        }
+                        else Assert.AreEqual(f.Duels.LastStealOwnerTimeWithReaction, f.Duels.LastStealOwnerTime, "쫓는 중이 아니면 지금 계산 그대로");
+                        break;
+                    }
+                    if (f.Ctx.Ball.Phase != BallPhase.Controlled || f.Ctx.Ball.OwnerId != 9) break;
+                }
+            }
+            TestContext.WriteLine($"판정 {checks}, 쫓는 중 {chasing}");
+            Assert.Greater(checks, 0);
+            Assert.Greater(chasing, 0, "달리는 드리블의 판정은 쫓는 중으로 계산된다");
         }
     }
 }

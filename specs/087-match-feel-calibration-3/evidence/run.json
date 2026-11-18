@@ -1,0 +1,242 @@
+{
+  "title": "087 로직 증거",
+  "spec": {
+    "id": "087",
+    "name": "087 — 경기 양상 3차 보정 (드리블 탈취 판정 개정 · 컷백 선택 가중)",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "고정 상황에서 이격 중 공을 쫓는 소유자의 도달 시간에는 반응 시간이 들어가지 않고, 멈췄거나 다른 행동으로 바뀐 소유자는 지금처럼 들어간다(FR-02). 070 AC-06(4 m 묶음 탈취율 > 1 m 묶음) 테스트가 통과한다."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "개정 뒤 100경기 측정(시드 7400~)에서 드리블 터치당 탈취율 ≤ 12 %이고 072 AC-05 쌍둥이 테스트가 통과한다(FR-03)."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "컷백 가중치가 튜닝 값이고, 기본값에서 경기 해시가 개정 전과 같으며, 값을 올리면 고정 상황 컷백 선택 비율이 오른다(FR-04)."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "플레이어 빌드 768시드 탐색에서 컷백 슛 골 ≥ 5개 [제안](FR-05). 256·512시드 수 기록."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "개정 뒤 GK 선방률·슈팅 전환율이 시드 7400·8400 두 묶음 모두 084 AC-01 범위 안이고(FR-06), 084 FR-07 보호 지표가 범위 안이다(FR-07)."
+      },
+      {
+        "id": "AC-06",
+        "kind": "결정론",
+        "text": "같은 시드 90분 2회 해시 같음."
+      },
+      {
+        "id": "AC-07",
+        "kind": "성능",
+        "text": "성능 예산 표 항목이 예산 안."
+      }
+    ],
+    "dir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/specs/087-match-feel-calibration-3"
+  },
+  "meta": {
+    "commit": "574076105e11c235b5acb3eed6bbb7da660e79cd",
+    "branch": "feat/087-match-feel-calibration-3",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-18 14:55:37 +0900",
+    "durationSec": 552.8679988384247,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 087 --scope auto",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 1157,
+    "passed": 1144,
+    "failed": 0,
+    "skipped": 12,
+    "duration": 541.7063673,
+    "compileErrors": [],
+    "failures": [],
+    "png": null,
+    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261118-145537-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 21.707333333333334,
+      "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-07",
+        "label": "010 결정 틱 평균 (Mono 회귀)",
+        "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
+        "value": 21.707333333333334,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "실경기 틱 GC 할당",
+        "metric": "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-07",
+        "label": "010 결정 틱 1회 평균 (087 판정 식 개정 뒤, 081 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "value": 3.987829749103943,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "공 소유 선수 1명 결정 평균 (072 예산)",
+        "metric": "onball_owner_avg_us",
+        "value": 5.23879754772189,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-07",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "shot_xg_eval_us": 0.026916250000000003,
+      "shot_xg_eval_p95_us": 0.0295,
+      "shot_aim_us": 0.405514,
+      "shot_aim_p95_us": 0.4215,
+      "aerial_contest_us": 0.0592035,
+      "aerial_contest_p95_us": 0.06620000000000001,
+      "shot_gc_bytes_models": 0,
+      "shot_sink": 1,
+      "shot_match_tick_avg_us": 21.725096590909093,
+      "shot_match_tick_p95_us": 30.6,
+      "shot_match_ticks": 52800,
+      "shot_gc_bytes_per_tick": 0,
+      "shot_planned": 74,
+      "shot_blocks": 0,
+      "aerial_contests": 133,
+      "aerial_headers": 9,
+      "dec_tick_avg_us": 3.987829749103943,
+      "dec_tick_p95_us": 10.100000000000001,
+      "dec_match_s": 0.22252090000000002,
+      "dec_ticks": 55800,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 1.45752688172043,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.35455000000000003,
+      "dec_offball_p95_us": 0.4,
+      "onball_owner_avg_us": 5.23879754772189,
+      "onball_owner_p95_us": 9.8,
+      "onball_owner_samples": 14354,
+      "onball_owner_world_avg_us": 0.38539083182388184,
+      "onball_owner_decide_avg_us": 4.853406715898007,
+      "onball_owner_decide_p95_us": 9.4,
+      "onball_candidates_avg": 14.9586178068831,
+      "onball_gc_bytes_per_decision": 0,
+      "onball_vision_avg_us": 0.03077985,
+      "onball_vision_p95_us": 0.0373
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": false,
+    "durationSec": 12.2,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M5 Pro",
+    "development": false,
+    "commit": "c680cebfedf99a347b86177d1ac18e395a132fbe"
+  },
+  "requireAllAcs": true,
+  "deferred": {
+    "AC-04": "D22 컷백 골 보정 3회 미달(T09: 가중 20 단독 변화 없음, + cutbackLine 12·16 m — 플레이어 768시드 2·4개 < 5 [제안], 16 m는 시드 8400 전환율 18.01 %로 FR-06 밖) → 가중 3·조건 6 m 유지, 튜닝화만. 스펙 경계 규칙(3회 안 미달 → 보류)"
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "결정론 테스트 77/77 통과",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 성능 2/2 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 4/4 통과",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "deferred"
+}

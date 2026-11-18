@@ -53,6 +53,10 @@ namespace RoadToPro.MatchEngine.Actions
         public int LastStealCandidate = -1;
         /// <summary>084 진단 누계 (해시 밖): 탈취 판정 확률 합 · 판정 순간 (소유자 TTI − 상대 반응) 합 (s).</summary>
         public double StealProbSum, StealGapSum;
+        /// <summary>087 FR-02 진단 (해시 밖): 쫓는 소유자로 계산한 판정 수 · 마지막 판정의 쫓는 중 여부 · 쓴 소유자 도달 시간 · 반응 시간 포함 값(s).</summary>
+        public long StealChasing;
+        public bool LastStealChasing;
+        public float LastStealOwnerTime, LastStealOwnerTimeWithReaction;
 
         public DuelSystem(ActionSystem a, BallParams bp)
         {
@@ -121,7 +125,15 @@ namespace RoadToPro.MatchEngine.Actions
                         _a.Refresh(ctx);
                         var w = _a.World;
                         // 상대는 이미 컨트롤 반경 안 = 도달 시간은 반응 시간만, 소유자는 005 TTI(반응 + 이동). 여유(stealMargin) = 소유자가 다시 발을 대는 데 걸리는 시간
-                        var tOwn = TimeToIntercept.Estimate(in w.Tti[owner], bp.X, bp.Y);
+                        // 087 FR-02: 소유자가 공을 쫓는 중(예약 킥 없음 + 드리블 최소 속도 이상)이면 반응 시간을 다시 내지 않는다
+                        ref readonly var pkc = ref _a.Pending;
+                        var chasing = DribbleModel.OwnerChasing(P, o.Velocity.Length(), pkc.Active && pkc.Action.KickerSlot == owner);
+                        var tWithReaction = TimeToIntercept.Estimate(in w.Tti[owner], bp.X, bp.Y);
+                        var tOwn = chasing ? TimeToIntercept.EstimateNoReaction(in w.Tti[owner], bp.X, bp.Y) : tWithReaction;
+                        LastStealChasing = chasing;
+                        LastStealOwnerTime = tOwn;
+                        LastStealOwnerTimeWithReaction = tWithReaction;
+                        if (chasing) StealChasing++;
                         var prob = DribbleModel.StealProb(P, tOwn, w.Tti[ch].Reaction);
                         LastStealProb = prob;
                         LastStealCandidate = ch;

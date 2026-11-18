@@ -219,6 +219,7 @@ namespace RoadToPro.MatchEngine.Actions
         public const string CrossPressK = "act.cross.pressK";
         public const string CrossCutbackLine = "act.cross.cutbackLine";
         public const string CrossStyleK = "act.cross.styleK";
+        public const string CrossCutbackW = "act.cross.cutbackW";
         public const string AerialRadius = "act.aerial.radius";
         public const string AerialTtiSlack = "act.aerial.ttiSlack";
         public const string AerialHeightK = "act.aerial.heightK";
