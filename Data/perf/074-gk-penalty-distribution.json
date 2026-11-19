@@ -1,7 +1,7 @@
 {
   "spec": "074",
   "profile": "mac-m1-1600p",
-  "note": "specs/074 성능 예산 표의 기계용 사본. GK PK 전략·배급·손 보유 시간 실경기 연결 — 기존 결정 틱·온볼·틱 GC 예산 그대로(회귀 확인) + 워크로드 2개(배급 대상 선택 1회 후보 ≤ 10 × 방식 6 ≤ 10 µs, PK GK 전략 1회 ≤ 1 µs, p95 [제안]). farm.py bench --spec 074, README D17.",
+  "note": "specs/074 성능 예산 표의 기계용 사본. GK PK 전략·배급·손 보유 시간 실경기 연결 — 기존 결정 틱·온볼·틱 GC 예산 그대로(회귀 확인) + 워크로드 2개(배급 대상 선택 1회 후보 ≤ 10 × 방식 6 ≤ 20 µs (2026-11-19 개정, 이전 10), PK GK 전략 1회 ≤ 1 µs, p95 [제안]). farm.py bench --spec 074, README D17.",
   "tests": [
     "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests",
     "RoadToPro.Tests.Performance.MatchEngine.PenaltyDistributionPerfTests"
@@ -88,9 +88,9 @@
       },
       {
         "ac": "AC-05",
-        "label": "배급 대상 선택 1회 p95 (후보 ≤ 10 × 방식 6)",
+        "label": "배급 대상 선택 1회 p95 (후보 ≤ 10 × 방식 6) — 2026-11-19 사용자 결정 10 → 20 µs (008 패스 평가·007 수신 질의 비용)",
         "metric": "pd_dist_p95_us",
-        "max": 10,
+        "max": 20,
         "unit": "µs"
       },
       {

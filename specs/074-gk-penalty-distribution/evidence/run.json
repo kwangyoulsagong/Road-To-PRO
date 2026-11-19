@@ -1,0 +1,335 @@
+{
+  "title": "074 로직 증거",
+  "spec": {
+    "id": "074",
+    "name": "074 — 골키퍼: 페널티킥 · 배급 · 손 보유 시간",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "페널티 1만 회(리그 평균 키커·GK): PK 방어 불가 면적이 골문의 28% ± 3%p. (PK 성공률 조건은 017 FR-20 목표가 정해질 때까지 보류 — 017에서 [미정]) (원래 011 AC-10)"
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "배급: 캐치 직후 상대 미정렬(상대 라인 뒤 인원 < 4) + 비어 있는 풀백이 있으면 오버암 던지기가 상위 후보다. 압박 높음 + 짧은 패스 대상 성공 확률 낮음이면 롱 배급이 선택된다. 모든 배급의 거리가 방식별 사거리 범위 안이다. (원래 011 AC-11)"
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "GK 손 보유 시간이 SimEvent에 기록되고, 리그 평균 GK 10,000회 캐치 중 8 s를 넘는 비율이 0.5% [제안] 이하다. 8.0 s·7.99 s 경계 값이 006 시계로 정확히 기록된다. (원래 011 AC-12)"
+      },
+      {
+        "id": "AC-04",
+        "kind": "결정론",
+        "text": "같은 시드로 승부차기 10라운드 픽스처를 2회 돌리면 GK 방향·조기 움직임 시각·결과·이전 방향 기억 해시가 같다. 같은 시드 배급 픽스처 1,000회 해시도 같다."
+      },
+      {
+        "id": "AC-05",
+        "kind": "성능",
+        "text": "성능 예산 표 항목이 예산 안, GC 0 B."
+      },
+      {
+        "id": "AC-06",
+        "kind": "E2E",
+        "text": "041 하이라이트(실제 경기, 058 경로)에서 고정 시드 2장면(PK 조기 다이빙 후 반대편 실점, 캐치 직후 오버암 던지기 역습)을 캡처해 기준 이미지와 비교한다. 시나리오 `e2e/074-gk-pk-distribution`, 프로필: smoke (mac-m1-1600p) — 육안 승인."
+      },
+      {
+        "id": "AC-07",
+        "kind": "로직",
+        "text": "(연결 때 재확인) 007·071·012·017이 구현되면 대체 입력을 바꿔 AC-01~03을 다시 실행해 통과하고, 012 재차기·8초 판정 테스트가 FR-03·14 기록을 읽어 통과한다. 그 전에는 \"보류\"."
+      },
+      {
+        "id": "AC-08",
+        "kind": "로직",
+        "text": "Distribution만 다른 GK(1 대 20)의 롱 배급 각도 오차 표준편차가 6.0° / 1.5° ±3%이고, 20 쪽 롱 배급 성공률이 높다(이항 p < 0.01)."
+      },
+      {
+        "id": "AC-09",
+        "kind": "로직",
+        "text": "승부차기 상황(BigMatch 낮음·Composure 낮음)의 GK 방향 선택 노이즈가 일반 경기 PK보다 크다(F 검정 p < 0.01) (FR-04)."
+      }
+    ],
+    "dir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/specs/074-gk-penalty-distribution"
+  },
+  "meta": {
+    "commit": "2fd3b65d060c3c80c43df49d45a98fdd56bae0fc",
+    "branch": "feat/074-gk-penalty-distribution",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-19 16:34:10 +0900",
+    "durationSec": 1006.060487985611,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 074 --scope auto",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": false,
+    "total": 1960,
+    "passed": 1941,
+    "failed": 3,
+    "skipped": 15,
+    "duration": 996.1991624,
+    "compileErrors": [],
+    "failures": [
+      {
+        "name": "ScenarioRuntimeTests.Pass_Completes_ToReceiver",
+        "message": "종료 사유 3, 배역 0:10,1:7, 해제 \n  Expected: greater than or equal to 1\n  But was:  0"
+      },
+      {
+        "name": "LiveContactAuditTests.SlideWins_FootWithin5cm_TimeWithinFrame",
+        "message": "측정된 이긴 슬라이딩\n  Expected: greater than 0\n  But was:  0"
+      },
+      {
+        "name": "ContactAccuracyTests.ThirtyScenes_ContactFrameAndBall",
+        "message": "장면 4 throw_in: 접촉점 (-12.74354, 1.556085, 2.035536) vs 공 (-12.76153, 0.2599028, 1.996873) (129.7 cm), 루트 보정 (-0.03977436, 0, -0.09174965)\n  Expected: less than or equal to 0.100000001f\n  But was:  1.29688346f"
+      }
+    ],
+    "png": null,
+    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261119-163410-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 28.77044982078853,
+      "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0,
+      "PenaltyDistributionPerfTests.Perf_PenaltyDistribution/pd_dist_p95_us/max": 43.59,
+      "PenaltyDistributionPerfTests.Perf_PenaltyDistribution/pd_pk_p95_us/max": 0.09300000000000001,
+      "PenaltyDistributionPerfTests.Perf_PenaltyDistribution/pd_gc_bytes/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-05",
+        "label": "010 결정 틱 평균 (Mono 회귀)",
+        "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
+        "value": 28.77044982078853,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-05",
+        "label": "실경기 틱 GC 할당",
+        "metric": "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-05",
+        "label": "배급 대상 선택 1회 p95 (Mono 회귀)",
+        "metric": "PenaltyDistributionPerfTests.Perf_PenaltyDistribution/pd_dist_p95_us/max",
+        "value": 43.59,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-05",
+        "label": "PK GK 전략 1회 p95 (Mono 회귀)",
+        "metric": "PenaltyDistributionPerfTests.Perf_PenaltyDistribution/pd_pk_p95_us/max",
+        "value": 0.09300000000000001,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-05",
+        "label": "배급·PK 판단 GC 할당",
+        "metric": "PenaltyDistributionPerfTests.Perf_PenaltyDistribution/pd_gc_bytes/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": false,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-05",
+        "label": "010 결정 틱 1회 평균 (074 배급·PK 연결 뒤, 081 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "value": 5.5045601374570445,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-05",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-05",
+        "label": "공 소유 선수 1명 결정 평균 (007 T21 개정 예산 — 궤적 질의 K개 포함)",
+        "metric": "onball_owner_avg_us",
+        "value": 78.37060312472725,
+        "budget": 90,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-05",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-05",
+        "label": "배급 대상 선택 1회 p95 (후보 ≤ 10 × 방식 6)",
+        "metric": "pd_dist_p95_us",
+        "value": 12.42,
+        "budget": 10,
+        "unit": "µs",
+        "ok": false
+      },
+      {
+        "ac": "AC-05",
+        "label": "PK GK 전략 1회 p95",
+        "metric": "pd_pk_p95_us",
+        "value": 0.025,
+        "budget": 1,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-05",
+        "label": "배급·PK 판단 GC 할당",
+        "metric": "pd_gc_bytes",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "shot_xg_eval_us": 0.02389825,
+      "shot_xg_eval_p95_us": 0.024,
+      "shot_aim_us": 0.4027845,
+      "shot_aim_p95_us": 0.414,
+      "aerial_contest_us": 0.05775475,
+      "aerial_contest_p95_us": 0.060200000000000004,
+      "shot_gc_bytes_models": 0,
+      "shot_sink": 1,
+      "shot_match_tick_avg_us": 23.126612962962962,
+      "shot_match_tick_p95_us": 34.6,
+      "shot_match_ticks": 54000,
+      "shot_gc_bytes_per_tick": 0,
+      "shot_planned": 56,
+      "shot_blocks": 0,
+      "aerial_contests": 132,
+      "aerial_headers": 10,
+      "dec_tick_avg_us": 5.5045601374570445,
+      "dec_tick_p95_us": 12.700000000000001,
+      "dec_match_s": 0.3203654,
+      "dec_ticks": 58200,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 1.124914089347079,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.348045,
+      "dec_offball_p95_us": 0.4,
+      "onball_owner_avg_us": 78.37060312472725,
+      "onball_owner_p95_us": 109.8,
+      "onball_owner_samples": 11457,
+      "onball_owner_world_avg_us": 0.39115824386837744,
+      "onball_owner_decide_avg_us": 77.97944488085886,
+      "onball_owner_decide_p95_us": 109.4,
+      "onball_candidates_avg": 14.722876843850921,
+      "onball_pc_points_per_decision": 7.7849349742515495,
+      "onball_pc_traj_per_decision": 3.1396526141223706,
+      "onball_pc_samples_per_traj": 64.0317755970087,
+      "onball_pc_tti_per_decision": 1259.3688574670507,
+      "onball_gc_bytes_per_decision": 0,
+      "onball_vision_avg_us": 0.03404935,
+      "onball_vision_p95_us": 0.0422,
+      "pd_dist_p95_us": 12.42,
+      "pd_pk_p95_us": 0.025,
+      "pd_gc_bytes": 0
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": false,
+    "durationSec": 14.0,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M5 Pro",
+    "development": false,
+    "commit": "2fd3b65d060c3c80c43df49d45a98fdd56bae0fc"
+  },
+  "requireAllAcs": true,
+  "deferred": {
+    "AC-07": "PK 성공률 조건(017 FR-20) — 017 하네스 전까지 보류 (2026-11-19 플랜 Q2)"
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": false
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": false
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": false
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "결정론 테스트 101/101 통과",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 성능 5/5 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 6/7 통과",
+        "ok": false
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "EditMode 테스트",
+        "ok": false
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "EditMode 테스트",
+        "ok": false
+      }
+    ]
+  },
+  "verdict": "fail"
+}
