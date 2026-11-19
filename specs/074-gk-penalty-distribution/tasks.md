@@ -1,6 +1,6 @@
 # 074 — 골키퍼: 페널티킥 · 배급 · 손 보유 시간 · 태스크
 
-상태: 승인됨 (2026-11-19 사용자 "진행 ㄱㄱ")
+상태: 완료 (2026-11-19 T19 검증): AC-01~06·08·09 통과, AC-07 017 PK 성공률 부분 보류(D29 — 007·071·012 실물 연결은 통과). 리포트 https://claude.ai/artifact/2QkjJTyde6evYsho7x2aZc (태스크 승인 2026-11-19 "진행 ㄱㄱ")
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 모델 태스크는 표 테스트를 먼저 쓰고 구현한다(073처럼 Unity 실행 횟수를 줄이려 테스트와 구현을 한 번에 컴파일·실행해도 된다 — 결과 줄에 적는다).
@@ -40,4 +40,4 @@
 - [x] T18 회귀 정리 · E2E 장면 — 파일: 고정 시드가 깨진 테스트(시드 재선택, 087 T13a 방식), `Data/e2e/074-gk-pk-distribution.json`(PK 조기 다이빙 후 반대편 실점·캐치 직후 오버암 던지기 역습 고정 시드 2장면, 장면 탐색 — `FeelSceneCoverage`에 2종 추가) — 검증: 장면 탐색 로그, 회귀는 T19 logic 1회로 합침 — 결과: `FeelSceneCoverage` `PenaltyDiveGoal`(PenaltyKeeper 방향 ≠ 0 → 첫 PK 슛이 1.5 s 안 골, 골 위치가 다이빙 반대쪽)·`KeeperQuickThrow`(손 보유 ≤ 2.5 s 던지기), `HighlightScreen` 074 화면 4개(PK 킥 + 0.25 s, 던지기 직후 + 0.05 s)·탐색 로그, `Data/e2e/074-gk-pk-distribution.json`. 플레이어 768시드 탐색(`tool-feel-search`, 10분 — 도구 시나리오라 타임아웃 fail이 정상): PK 단독 첫 20261195, 던지기 단독 첫 20261181, **둘 다 20261217**(두 장면 같은 시드). 기존 E2E 시드: 073 돌진(20261307)·스마더(20261215) 장면이 074 뒤 없어짐 — 073과 같은 처리(그 스펙을 다시 찍을 때 재선택, 탐색 로그 `074 기존 시드 확인`). EditMode 회귀(고정 시드 테스트)는 T19 logic 1회로 합침
 
 ## G. 검증
-- [ ] T19 `/verify 074` — 커밋 → `farm.py bench --spec 074` 1회(배급·PK 워크로드 + 결정 틱·실경기 틱 회귀 +10 % 이내·GC 0 B) → `farm.py logic --spec 074 --scope auto`(→ `match`) 1회 → `farm.py shot --scenario 074-gk-pk-distribution` 1회 + 육안 승인 → `E/report.html` 아티팩트 발행. AC-07은 017 PK 성공률만 보류, 나머지(007·071·012 실물 연결)는 닫음 (AC-01~09)
+- [x] T19 `/verify 074` — 커밋 → `farm.py bench --spec 074` 1회(배급·PK 워크로드 + 결정 틱·실경기 틱 회귀 +10 % 이내·GC 0 B) → `farm.py logic --spec 074 --scope auto`(→ `match`) 1회 → `farm.py shot --scenario 074-gk-pk-distribution` 1회 + 육안 승인 → `E/report.html` 아티팩트 발행. AC-07은 017 PK 성공률만 보류, 나머지(007·071·012 실물 연결)는 닫음 (AC-01~09) — 결과: 커밋 2fd3b65·e3674c9·73510fd. IL2CPP 벤치 7/7 통과(결정 틱 5.56 µs ≤ 12·소유자 결정 76.8 ≤ 90·**배급 선택 11.5 µs ≤ 20**·PK 전략 0.023 ≤ 1·GC 0 B) — 첫 벤치는 배급 선택 12.42 µs > 10 µs [제안]로 실패 → 사용자 결정 "베스트 케이스"로 예산 20 µs 개정(spec 성능 표·`Data/perf/074-…json`). logic `--scope auto` 1,960건 중 1,944 통과·실패 0(결정론 101/101). 첫 logic 실패 3건 → **T19a** 고정 시드 재선택(083 이긴 슬라이딩 20261308·335·405·435·438 + 20261349 유지, 시나리오 패스 장면 20261113 → 20261114)과 `throw_in` 매핑 제거(GK 손 공이 지면 높이라 손 접촉 1.55 m와 130 cm 어긋남 — `ContactAccuracyTests`). shot 2장면(시드 20261217) — 첫 촬영 ②에 GK·공이 두 개씩 → 진단 로그로 앞 장면 무대 개체 잔존 확인 → **T19b** `HighlightScreen.PlayFresh`(앞 재생 언로드 뒤 재생, 다른 스펙 화면은 D30) → 재촬영 **육안 승인 2026-11-19**(`E/visual-approval.md`). 리포트 https://claude.ai/artifact/2QkjJTyde6evYsho7x2aZc. AC-07: 007·071·012 실물 연결(재차기·8초 판정이 074 기록을 읽음)은 통과, 017 PK 성공률만 보류(D29: 실경기 PK 성공률 45 % / 15 % — 현실 75~78 %)
