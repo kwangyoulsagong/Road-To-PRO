@@ -161,6 +161,7 @@ namespace RoadToPro.MatchEngine.Actions
                 var cutIn = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.CutInMaster] : (byte)0;
                 var crossM = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.CrossMachine] : (byte)0;
                 World.SetFinish(s, mp.Technical.OrAverage(), in mp.Attributes, cutIn, crossM);
+                World.BigMatchLevel[s] = mp.Style != null ? mp.Style.HabitLevels[(int)UtilityAI.Habit.BigMatch] : (byte)0; // 074 FR-04
             }
             else
             {
@@ -168,6 +169,7 @@ namespace RoadToPro.MatchEngine.Actions
                 var avg = Kinematics.KinematicAttributes.Uniform(10);
                 World.SetDuel(s, TechnicalAttributes.Average, in avg, 50f, 0);
                 World.SetFinish(s, TechnicalAttributes.Average, in avg, 0, 0);
+                World.BigMatchLevel[s] = 0;
             }
         }
 
@@ -289,6 +291,11 @@ namespace RoadToPro.MatchEngine.Actions
             if (tackle) plan.Windup = P.WindupOutside; // 대체 태클(070 전): 짧은 찌르기
             var dt = _bp.Dt;
             var n = (long)DMath.Max(1f, DMath.Floor(plan.Windup / dt + 0.999f));
+            if (a.IsPenalty && Duels.Enabled) // 074 FR-01: PK 도움닫기 — GK 조기 움직임(최대 350 ms)이 킥 전에 들어가게 (006 대체 파이프라인은 그대로)
+            {
+                var runUp = (long)DMath.Floor(P.PenRunUp / dt + 0.999f);
+                if (runUp > n) n = runUp;
+            }
             _pending = new PendingKick
             {
                 Active = true, Action = a, Victim = tackle ? ball.OwnerId : -1, Plan = plan,
@@ -342,7 +349,8 @@ namespace RoadToPro.MatchEngine.Actions
             var tackle = pk.Victim >= 0;
             var victim = pk.Victim;
             var team = Squad.TeamOfSlot(a.KickerSlot);
-            var velocity = a.HasShot ? Shots.ExecuteVelocity(ctx, ref a, in pk.Plan)
+            var velocity = a.DistKind != 0 ? DistributionVelocity(ctx, in pk) // 074: GK 배급 — Distribution 매핑 σ
+                : a.HasShot ? Shots.ExecuteVelocity(ctx, ref a, in pk.Plan)
                 : a.CrossType != 0 && CrossModel.IsAerial((CrossType)(a.CrossType - 1)) ? CrossVelocity(ctx, in pk) // 071 FR-02: 뜬 크로스 착지 오차
                 : (a.HasIntent ? IntentVelocity(ctx, in pk) : a.Velocity);
             var detail = -1;
@@ -362,6 +370,7 @@ namespace RoadToPro.MatchEngine.Actions
                 tackle ? ctx.PlayerAtSlot(victim) : (a.TargetSlot >= 0 ? ctx.PlayerAtSlot(a.TargetSlot) : -1));
             e.Substep = (sbyte)sub;
             e.Part = tackle || !a.HasIntent ? (a.Part == BodyPart.None ? pk.Plan.Foot : a.Part) : pk.Plan.Foot;
+            if (a.DistKind != 0 && a.Part == BodyPart.Hand) e.Part = BodyPart.Hand; // 074: 굴리기·던지기
             e.BallPhase = ball.Phase;
             e.F0 = velocity.Length();
             if (a.Kind == BallActionKind.Pass)
@@ -379,6 +388,8 @@ namespace RoadToPro.MatchEngine.Actions
             else e.A = a.IsPenalty ? 1 : 0;
             ctx.SetPosition(ref e, ball.Position);
             ctx.Emit(e);
+            if (a.DistKind != 0) ctx.Keepers.OnDistributed(ctx, in a, abs, sub); // 074: Distribution(308) · 손 보유 시계 끝
+            if (a.IsPenalty) ctx.Keepers.OnPenaltyKicked(ctx, a.KickerSlot, abs); // 074 FR-03: 이 PK 킥의 서브스텝
             _flightTarget = a.Kind == BallActionKind.Pass ? a.TargetSlot : -1;
             ctx.LastKickSlot = a.KickerSlot;
             ctx.LastKickSubstep = abs;
@@ -424,6 +435,44 @@ namespace RoadToPro.MatchEngine.Actions
             var habit = PassExecution.HabitMul(P, a.IsOneTouch, World.OneTouchLevel[k]);
             var sa = PassExecution.SigmaAngleDeg(P, World.Passing[k], pressure, World.Composure[k], pk.Plan.SigmaMul, habit);
             var ss = PassExecution.SigmaSpeed(P, World.Passing[k], pk.Plan.SigmaMul, habit);
+            return PassExecution.Apply(v, sa, ss, Rng, out _, out _);
+        }
+
+        /// <summary>
+        /// 074 FR-10·13 GK 배급 실행 초속: σ_angle = (6° − 4.5°·n_Distribution) × 방식 배수. 롱 계열(롱 골킥·펀트·드롭킥)은 조준점을 각도·거리 오차로 흔든 뒤
+        /// 004 역산(RNG 정규 2), 짧은 계열은 지금 공 위치에서 다시 겨눈 의도 초속에 008 실행 오차(<see cref="PassExecution.Apply"/>)를 GK σ로.
+        /// </summary>
+        Vec3 DistributionVelocity(MatchContext ctx, in PendingKick pk)
+        {
+            var a = pk.Action;
+            var k = (Goalkeeper.DistributionKind)(a.DistKind - 1);
+            var keepers = ctx.Keepers;
+            var gp = keepers.Params;
+            var n = keepers.Profile(ctx, Squad.TeamOfSlot(a.KickerSlot)).DistributionN;
+            var from = ctx.Ball.Position.XY;
+            var sa = Goalkeeper.DistributionExecution.SigmaAngleDeg(gp, keepers.Distribution, k, n);
+            if (Goalkeeper.DistributionModel.IsLong(k))
+            {
+                var aim = Goalkeeper.DistributionExecution.PerturbAim(from, a.Aim, sa, Goalkeeper.DistributionExecution.SigmaDist(gp, n), Rng, out _, out _);
+                var d = aim - from;
+                var dist = d.Length();
+                var dir = dist > 1e-5f ? d / dist : ctx.SlotState(a.KickerSlot).Facing;
+                var inv = BallInverse.LoftedSpeedFor(_bp, dist, a.Elevation, Vec3.Zero, P.LoftMaxApex, _scratch);
+                var sp = inv.Status == BallInverseStatus.Unreachable ? a.Speed : inv.Speed;
+                return new Vec3(dir.X * sp * DMath.Cos(a.Elevation), dir.Y * sp * DMath.Cos(a.Elevation), sp * DMath.Sin(a.Elevation));
+            }
+            var d2 = a.Aim - from;
+            var dist2 = d2.Length();
+            var dir2 = dist2 > 1e-5f ? d2 / dist2 : ctx.SlotState(a.KickerSlot).Facing;
+            Vec3 v;
+            if (a.Elevation > 0f && dist2 > 0.5f)
+            {
+                var inv = BallInverse.LoftedSpeedFor(_bp, dist2, a.Elevation, Vec3.Zero, P.LoftMaxApex, _scratch);
+                var sp = inv.Status == BallInverseStatus.Unreachable ? a.Speed : inv.Speed;
+                v = new Vec3(dir2.X * sp * DMath.Cos(a.Elevation), dir2.Y * sp * DMath.Cos(a.Elevation), sp * DMath.Sin(a.Elevation));
+            }
+            else v = new Vec3(dir2.X * a.Speed, dir2.Y * a.Speed, 0f);
+            var ss = PassExecution.SigmaSpeed(P, n, 1f, 1f);
             return PassExecution.Apply(v, sa, ss, Rng, out _, out _);
         }
 
@@ -597,7 +646,7 @@ namespace RoadToPro.MatchEngine.Actions
             if (ctx.Flow.PenaltyKickTick >= 0) ctx.Flow.ClearPenalty();
             if (!hands) SlowAfterTouch(ctx, s, abs);
             ResetAttempts();
-            ctx.Keepers.OnKeeperClaim(ctx, s, sub, pos, hands); // 073: 스마더 이벤트 · 돌진 박스 밖 소유
+            ctx.Keepers.OnKeeperClaim(ctx, s, sub, pos, hands, abs); // 073: 스마더 이벤트 · 돌진 박스 밖 소유, 074: 손 보유 시계
             Diagnostics?.OnContact(ctx.Tick, sub, s, kind, touch.Distance);
         }
 

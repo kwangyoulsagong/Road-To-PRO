@@ -273,7 +273,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Scenarios
         }
 
         /// <summary>장면 시드 (007 T21: 패스 판단 연결 뒤 기본 20261110은 장면 진입 직전 태클 터치가 공을 발에서 떼어 놓아 킥 예약이 실행되지 않음 → 재선택).</summary>
-        const ulong PassSeed = 20261113UL; // SearchPassSeeds 20개 중 단계 완주(사유 0)인 첫 시드
+        const ulong PassSeed = 20261114UL; // SearchPassSeeds 20개 중 단계 완주인 첫 시드 (074 T19: GK 배급 연결 뒤 20261113은 사유 3 → 재선택)
 
         [Test]
         public void Pass_Completes_ToReceiver()

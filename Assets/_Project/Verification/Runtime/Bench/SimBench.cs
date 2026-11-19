@@ -28,7 +28,7 @@ namespace RoadToPro.Verification.Bench
             }
             try
             {
-                if (spec != "006" && spec != "008" && spec != "009" && spec != "010" && spec != "011" && spec != "013" && spec != "058" && spec != "072" && spec != "070" && spec != "071" && spec != "081" && spec != "082" && spec != "083" && spec != "084" && spec != "086" && spec != "087" && spec != "007" && spec != "012" && spec != "073") throw new ArgumentException($"벤치 없는 스펙: {spec}");
+                if (spec != "006" && spec != "008" && spec != "009" && spec != "010" && spec != "011" && spec != "013" && spec != "058" && spec != "072" && spec != "070" && spec != "071" && spec != "081" && spec != "082" && spec != "083" && spec != "084" && spec != "086" && spec != "087" && spec != "007" && spec != "012" && spec != "073" && spec != "074") throw new ArgumentException($"벤치 없는 스펙: {spec}");
                 if (string.IsNullOrEmpty(data) || !Directory.Exists(data)) throw new ArgumentException($"-simBenchData 폴더 없음: {data}");
                 Directory.CreateDirectory(outDir);
                 var metrics = spec == "013" ? new ScenarioBenchWorkloads(data).RunAll() : spec == "009" ? new ShapeBenchWorkloads(data).RunAll()
@@ -42,6 +42,7 @@ namespace RoadToPro.Verification.Bench
                     : spec == "007" ? Merge(Merge(new ShotAerialBenchWorkloads(data).RunAll(), new OnBallBenchWorkloads(data).RunAll()), new PitchControlBenchWorkloads(data).RunAll()) // 007: 실경기 틱·결정 틱·소유자 결정(궤적 재평가 포함) + 피치 컨트롤 질의 단건
                     : spec == "012" ? Merge(Merge(new ShotAerialBenchWorkloads(data).RunAll(), new OnBallBenchWorkloads(data).RunAll()), new RefereeBenchWorkloads(data).RunAll()) // 012: 실경기 틱·결정 틱·소유자 결정(심판 단계 연결 뒤 회귀) + 심판 판정 단건
                     : spec == "073" ? Merge(Merge(new ShotAerialBenchWorkloads(data).RunAll(), new OnBallBenchWorkloads(data).RunAll()), new KeeperLeaveBenchWorkloads(data).RunAll()) // 073: 실경기 틱·결정 틱·소유자 결정(GK 이탈 판단 연결 뒤 회귀) + GK 판단 단건
+                    : spec == "074" ? Merge(Merge(new ShotAerialBenchWorkloads(data).RunAll(), new OnBallBenchWorkloads(data).RunAll()), new PenaltyDistributionBenchWorkloads(data).RunAll()) // 074: 실경기 틱·결정 틱·소유자 결정(배급·PK 연결 뒤 회귀) + 배급·PK 판단 단건
                     : spec == "058" ? new MatchBenchWorkloads(data).RunLiveHighlight() : new MatchBenchWorkloads(data).RunAll();
                 var doc = new Dictionary<string, object>
                 {

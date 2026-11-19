@@ -141,5 +141,47 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         public const string OneOnOneSpreadDist = "gk.oneOnOne.spreadDist";
         public const string OneOnOneSpreadR0 = "gk.oneOnOne.spreadR0";
         public const string OneOnOneSpreadDive = "gk.oneOnOne.spreadDive";
+        // 074 페널티킥 · 배급 · 손 보유 시간
+        public const string PkLeadMin = "gk.pk.leadMin";
+        public const string PkLeadMax = "gk.pk.leadMax";
+        public const string PkNaturalBias = "gk.pk.naturalBias";
+        public const string PkSigmaDir = "gk.pk.sigmaDir";
+        public const string PkCenterBand = "gk.pk.centerBand";
+        public const string PkOffLineP = "gk.pk.offLineP";
+        public const string PkShootoutMul = "gk.pk.shootoutMul";
+        public const string PkMemoryWeight = "gk.pk.memoryWeight";
+        public const string PkFatigueDive = "gk.pk.fatigueDive";
+        public const string PkCommitY = "gk.pk.commitY";
+        public const string DistRollMin = "gk.dist.rollMin";
+        public const string DistRollMax = "gk.dist.rollMax";
+        public const string DistThrowMin = "gk.dist.throwMin";
+        public const string DistThrowMax = "gk.dist.throwMax";
+        public const string DistShortMin = "gk.dist.shortMin";
+        public const string DistShortMax = "gk.dist.shortMax";
+        public const string DistLongMin = "gk.dist.longMin";
+        public const string DistLongMax = "gk.dist.longMax";
+        public const string DistDropMin = "gk.dist.dropMin";
+        public const string DistDropMax = "gk.dist.dropMax";
+        public const string DistSigmaRoll = "gk.dist.sigmaRoll";
+        public const string DistSigmaThrow = "gk.dist.sigmaThrow";
+        public const string DistSigmaShort = "gk.dist.sigmaShort";
+        public const string DistSigmaDist = "gk.dist.sigmaDist";
+        public const string DistElevLong = "gk.dist.elevLong";
+        public const string DistElevPunt = "gk.dist.elevPunt";
+        public const string DistElevDrop = "gk.dist.elevDrop";
+        public const string DistQuickBonus = "gk.dist.quickBonus";
+        public const string DistShortBonus = "gk.dist.shortBonus";
+        public const string DistLongBonus = "gk.dist.longBonus";
+        public const string DistUnsetCount = "gk.dist.unsetCount";
+        public const string DistPressHigh = "gk.dist.pressHigh";
+        public const string DistDirectnessK = "gk.dist.directnessK";
+        public const string DistRoleSweeperShort = "gk.dist.roleSweeperShort";
+        public const string DistRoleTraditionalLong = "gk.dist.roleTraditionalLong";
+        public const string HoldTarget = "gk.hold.target";
+        public const string HoldSigma = "gk.hold.sigma";
+        public const string HoldSettle = "gk.hold.settle";
+        public const string HoldGoEu = "gk.hold.goEu";
+        public const string HoldBoxInset = "gk.hold.boxInset";
+        public const string HoldWalkSpeed = "gk.hold.walkSpeed";
     }
 }

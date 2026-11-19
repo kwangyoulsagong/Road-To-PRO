@@ -47,6 +47,8 @@ namespace RoadToPro.MatchEngine.Goalkeeper
     {
         public float ReactTime, DiveSpeed, MaxReach, StandReachZ, HandlingA, SpillMean, PositionSigma, Temperature;
         public float HandlingN, PositioningN, DecisionsN;
+        /// <summary>074: Distribution 정규화 n(배급 σ_angle·σ_dist)·Composure 정규화 n(승부차기 압박 노이즈).</summary>
+        public float DistributionN, ComposureN;
         public int Candidates;
         /// <summary>073: 스위퍼 마진 m(s)·결단 지연(s)·점프 보정(m)·1v1 정지 오차 σ_t(s)와 정규화 n.</summary>
         public float SweepMargin, CommandDelay, JumpBonus, OneOnOneSigma, CommandN, OneOnOneN, SweepingN;
@@ -73,6 +75,8 @@ namespace RoadToPro.MatchEngine.Goalkeeper
                 HandlingN = handling,
                 PositioningN = positioning,
                 DecisionsN = decisions,
+                DistributionN = KeeperAttributes.N(a.Distribution),
+                ComposureN = KeeperAttributes.N(a.Composure),
                 Candidates = KeeperMapping.CandidateCount(p, positioning),
                 SweepMargin = KeeperMapping.SweepMargin(p, KeeperAttributes.N(a.Sweeping)),
                 CommandDelay = KeeperMapping.CommandDelay(p, KeeperAttributes.N(a.CommandArea)),

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "074-gk-pk-distribution",
+  "spec": "074",
+  "description": "실제 경기(058 경로, 074 GK PK·배급) 고정 시드 20261217 2장면: PK 조기 다이빙 후 반대편 실점(PK 킥 + 0.25 s — GK는 이미 한쪽으로 날고 공은 반대쪽으로 비행), 캐치 직후 오버암 던지기 역습(손 보유 ≤ 2.5 s 던지기 직후). GK 던지기 전용 클립은 080 범위 — throw_in 대체 클립, 장면이 읽히는지 육안 승인 (AC-06)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261217
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-06"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay074pk"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze074.pk"
+    },
+    {
+      "type": "capture",
+      "name": "gk_pk_dive",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "livePlay074throw"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze074.throw"
+    },
+    {
+      "type": "capture",
+      "name": "gk_throw",
+      "kind": "3d"
+    }
+  ]
+}

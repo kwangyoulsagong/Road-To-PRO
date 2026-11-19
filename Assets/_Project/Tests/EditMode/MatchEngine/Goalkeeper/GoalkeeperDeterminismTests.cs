@@ -108,6 +108,40 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Goalkeeper
             Assert.AreEqual(2, b.FlightSeq);
         }
 
+        /// <summary>specs/074 AC-04: PK 전략·손 보유 시계 Write→Read→해시 동일, 시스템 상태 왕복.</summary>
+        [Test]
+        public void StateRoundTrip_WithPenaltyAndHold()
+        {
+            var pk = new PenaltyPlan { Active = true, KickDue = 4321, Dir = -1, Lean = -0.73f, Lead = 0.21f, DiveAbs = 4300, Started = true, StartPos = new Vec2(0.4f, 34.1f), OffLine = true, Kicked = true };
+            var w = new RoadToPro.Core.Serialization.StateWriter();
+            pk.Write(w);
+            var pk2 = PenaltyPlan.Read(new RoadToPro.Core.Serialization.StateReader(w.ToArray()));
+            var ha = StableHasher.Create(); pk.AddTo(ref ha);
+            var hb = StableHasher.Create(); pk2.AddTo(ref hb);
+            Assert.AreEqual(ha.Value, hb.Value);
+            Assert.AreEqual(pk.DiveAbs, pk2.DiveAbs);
+            Assert.AreEqual(pk.Dir, pk2.Dir);
+
+            var hc = new HoldClock { Active = true, StartAbs = 800, DeadlineAbs = 1400, Quick = true };
+            var w2 = new RoadToPro.Core.Serialization.StateWriter();
+            hc.Write(w2);
+            var hc2 = HoldClock.Read(new RoadToPro.Core.Serialization.StateReader(w2.ToArray()));
+            var hd = StableHasher.Create(); hc.AddTo(ref hd);
+            var he = StableHasher.Create(); hc2.AddTo(ref he);
+            Assert.AreEqual(hd.Value, he.Value);
+            Assert.AreEqual(hc.DeadlineAbs, hc2.DeadlineAbs);
+
+            var bp = BallTestKit.Params();
+            var a = new GoalkeeperSystem(GoalkeeperParams.Defaults, bp, 74UL);
+            var sw = new RoadToPro.Core.Serialization.StateWriter();
+            a.Write(sw);
+            var b = new GoalkeeperSystem(GoalkeeperParams.Defaults, bp, 2UL);
+            b.Read(new RoadToPro.Core.Serialization.StateReader(sw.ToArray()));
+            var h1 = StableHasher.Create(); a.AddTo(ref h1);
+            var h2 = StableHasher.Create(); b.AddTo(ref h2);
+            Assert.AreEqual(h1.Value, h2.Value);
+        }
+
         /// <summary>specs/073 AC-05: 스루패스·크로스·1v1 고정 상황 각 100개를 2회 처리 — 결정(선택 RNG 포함)·지연·정지 오차 해시 동일.</summary>
         [Test]
         public void LeaveGoal_Fixtures100x3_TwiceSameHash() => Assert.AreEqual(LeaveGoalHash(), LeaveGoalHash());
@@ -180,6 +214,84 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Goalkeeper
             a.RunUntilTick(30_000);
             var b = Make();
             b.RunUntilTick(30_000);
+            Assert.AreEqual(a.Log.Hash, b.Log.Hash);
+            Assert.AreEqual(a.StateHash(), b.StateHash());
+            var snap = a.Capture();
+            var fork = a.Fork();
+            fork.Restore(snap, a.Log, a.Checkpoints);
+            Assert.AreEqual(a.StateHash(), fork.StateHash(), "복원 직후");
+            a.StepTicks(6_000);
+            fork.StepTicks(6_000);
+            Assert.AreEqual(a.StateHash(), fork.StateHash(), "복원 뒤 6,000틱");
+            Assert.AreEqual(a.Log.Hash, fork.Log.Hash);
+        }
+
+        /// <summary>specs/074 AC-04 ①: 같은 시드 승부차기 10라운드(킥 20) 2회 — GK 방향·조기 시각·기울기·결과·기억(방향 합·다이빙 수) 해시 동일.</summary>
+        [Test]
+        public void Shootout10Rounds_TwiceSameHash() => Assert.AreEqual(ShootoutHash(), ShootoutHash());
+
+        static ulong ShootoutHash()
+        {
+            var sim = PenaltyShootoutSimTests.Ready(10.5f);
+            var ctx = sim.Context;
+            var judge = new RoadToPro.MatchEngine.Match.Flow.SimPenaltyJudge();
+            var h = StableHasher.Create();
+            for (int r = 0; r < 10; r++)
+                for (int t = 0; t < 2; t++)
+                {
+                    var kicker = ctx.Setup.Team(t).Starters[1 + r];
+                    var o = judge.Kick(ctx, t, kicker, ctx.Setup.Team(1 - t).Starters[0]);
+                    h.Add(o.Scored); h.Add(o.KeeperDir); h.Add(o.Lead); h.Add(o.Lean);
+                    var m = judge.Memory(1 - t);
+                    h.Add(m.Balance); h.Add(m.Dives);
+                }
+            return h.Value;
+        }
+
+        /// <summary>specs/074 AC-04 ②: 같은 시드 배급 픽스처 1,000회(평가·선택·롱 조준 오차) 2회 해시 동일.</summary>
+        [Test]
+        public void Distribution_Fixture1000_TwiceSameHash() => Assert.AreEqual(DistributionHash(), DistributionHash());
+
+        static ulong DistributionHash()
+        {
+            var p = GoalkeeperParams.Defaults;
+            var ap = RoadToPro.Tests.EditMode.MatchEngine.Actions.ActionTestKit.P;
+            var bp = RoadToPro.Tests.EditMode.MatchEngine.Actions.ActionTestKit.Ball;
+            var m = new DistributionModel(p);
+            var layout = new SeedRng(740UL);
+            var rng = new SeedRng(741UL);
+            var gk = new Vec2(6f, 34f);
+            var h = StableHasher.Create();
+            for (int i = 0; i < 1000; i++)
+            {
+                var w = RoadToPro.Tests.EditMode.MatchEngine.Actions.ActionTestKit.World();
+                w.PrepareRoll(ap, bp);
+                RoadToPro.Tests.EditMode.MatchEngine.Actions.ActionTestKit.Put(w, 0, gk);
+                for (int sl = 1; sl < 22; sl++) RoadToPro.Tests.EditMode.MatchEngine.Actions.ActionTestKit.Put(w, sl, new Vec2(layout.Range(8f, 100f), layout.Range(3f, 65f)));
+                var c = new DistributionContext { Source = (DistributionSource)(i % 3), Quick = i % 4 == 0, HighPress = i % 5 == 0, Directness = 0.5f, DecisionsN = 0.5f };
+                var n = m.Evaluate(w, ap, bp, 0, gk, 0.3f, in c);
+                var pick = n == 0 ? m.Forced(w, bp, 0, gk, c.Source) : m.Candidate(m.Choose(in c, rng));
+                var aim = DistributionExecution.PerturbAim(gk, pick.Aim, DistributionExecution.SigmaAngleDeg(p, m, pick.Kind, 0.5f), DistributionExecution.SigmaDist(p, 0.5f), rng, out _, out _);
+                h.Add(n); h.Add((byte)pick.Kind); h.Add(pick.Target); h.Add(pick.Eu); h.Add(aim.X); h.Add(aim.Y);
+            }
+            return h.Value;
+        }
+
+        /// <summary>specs/074 AC-04 ③: PK·배급·손 보유가 들어간 010 실경기 같은 시드 2회 + PK 직후 스냅샷 복원 뒤 6,000틱 해시 동일.</summary>
+        [Test]
+        public void PenaltyDistribution_LiveMatch_TwiceSameHash_SnapshotRestore()
+        {
+            MatchSim Make()
+            {
+                var script = new RoadToPro.MatchEngine.Match.Input.RefereeScript();
+                script.Add(new RoadToPro.MatchEngine.Match.Input.RefereeAction(3_000, RoadToPro.MatchEngine.Match.Input.RefereeActionKind.AwardPenalty, 0));
+                script.Add(new RoadToPro.MatchEngine.Match.Input.RefereeAction(12_000, RoadToPro.MatchEngine.Match.Input.RefereeActionKind.AwardPenalty, 1));
+                return new MatchSim(RoadToPro.Tests.EditMode.MatchEngine.Tactics.ShapeTestKit.Setup(seed: 7401UL), RoadToPro.Tests.EditMode.MatchEngine.Tactics.ShapeTestKit.TuningWithShape(), new MatchSimOptions { Referee = script });
+            }
+            var a = Make();
+            a.RunUntilTick(12_030); // 두 번째 PK 준비 중
+            var b = Make();
+            b.RunUntilTick(12_030);
             Assert.AreEqual(a.Log.Hash, b.Log.Hash);
             Assert.AreEqual(a.StateHash(), b.StateHash());
             var snap = a.Capture();

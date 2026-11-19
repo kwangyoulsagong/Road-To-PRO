@@ -23,6 +23,29 @@ namespace RoadToPro.Verification.Samples.Highlight
         public const int MissedAerial = 256, SlideWin = 512;
         /// <summary>specs/073 AC-07: GK 돌진(KeeperRush) · 크로스 잡기(071 경합 GK 승리 → 손 잡기) · 1v1 스마더.</summary>
         public const int KeeperRush = 1024, KeeperClaim = 2048, KeeperSmother = 4096;
+        /// <summary>specs/074 AC-06: PK 조기 다이빙 후 반대편 실점 · 캐치 직후(2.5 s 안) 오버암 던지기.</summary>
+        public const int PenaltyDiveGoal = 8192, KeeperQuickThrow = 16384;
+
+        /// <summary>074: 캐치 직후 오버암 던지기 — 손 배급(B = 보유 서브스텝 ≥ 0)이 던지기이고 보유 ≤ 2.5 s.</summary>
+        public static bool IsQuickThrow(in SimEvent e) => e.Kind == SimEventKind.Distribution && e.A == 1 && e.B >= 0 && e.B <= 250;
+
+        /// <summary>
+        /// 074: PK 조기 다이빙 후 반대편 실점 — PenaltyKeeper(방향 ≠ 0) 뒤 첫 PK 슛이 1.5 s 안에 골이 되고 골 위치가 다이빙 반대쪽(골문 y 부호).
+        /// 해당 PK 슛 이벤트 인덱스, 없으면 −1.
+        /// </summary>
+        public static int PenaltyDiveGoalShot(SimEvent[] log, int keeperIndex)
+        {
+            var pk = log[keeperIndex];
+            if (pk.Kind != SimEventKind.PenaltyKeeper || pk.A == 0) return -1;
+            for (int k = keeperIndex + 1; k < log.Length && log[k].Tick <= pk.Tick + 10; k++)
+            {
+                if (log[k].Kind != SimEventKind.Shot || (log[k].A & 1) == 0) continue;
+                for (int g = k + 1; g < log.Length && log[g].Tick <= log[k].Tick + 15; g++)
+                    if (log[g].Kind == SimEventKind.Goal) return (log[g].Y - 0.5f) * pk.A < 0f ? k : -1;
+                return -1;
+            }
+            return -1;
+        }
 
         /// <summary>073: 크로스 잡기 — GK가 공중볼 경합을 손으로 이김 (Header A = Keeper, 착지 약 1 s 전 판정).</summary>
         public static bool IsKeeperClaim(in SimEvent e) => e.Kind == SimEventKind.Header && e.A == (int)HeaderOutcome.Keeper;
@@ -89,6 +112,8 @@ namespace RoadToPro.Verification.Samples.Highlight
             if ((mask & KeeperRush) != 0) parts.Add("GK 돌진");
             if ((mask & KeeperClaim) != 0) parts.Add("크로스 잡기");
             if ((mask & KeeperSmother) != 0) parts.Add("스마더");
+            if ((mask & PenaltyDiveGoal) != 0) parts.Add("PK 조기 다이빙 반대편 실점");
+            if ((mask & KeeperQuickThrow) != 0) parts.Add("캐치 직후 던지기");
             return string.Join("·", parts);
         }
 
@@ -118,6 +143,8 @@ namespace RoadToPro.Verification.Samples.Highlight
                 if (IsVisibleRush(e)) m |= KeeperRush;
                 if (IsKeeperClaim(e)) m |= KeeperClaim;
                 if (IsVisibleSmother(e)) m |= KeeperSmother;
+                if (IsQuickThrow(e)) m |= KeeperQuickThrow;
+                if (e.Kind == SimEventKind.PenaltyKeeper && PenaltyDiveGoalShot(log, k) >= 0) m |= PenaltyDiveGoal;
                 if (e.Kind == SimEventKind.Tackle)
                 {
                     if ((e.A & EventCodes.TackleSliding) == 0 && (e.A & EventCodes.TackleWon) != 0) m |= TackleStand;

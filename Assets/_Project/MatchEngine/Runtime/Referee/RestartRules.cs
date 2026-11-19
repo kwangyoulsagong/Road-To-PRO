@@ -82,6 +82,10 @@ namespace RoadToPro.MatchEngine.Referee
         /// FR-63: GK 손 보유 초과 (&gt; 기준, 정확히 기준 = 위반 아님). 규칙 세트가 코너면 상대 코너(GK 쪽 가까운 코너), 아니면 상대 간접 FK(GK 위치).
         /// </summary>
         public static bool KeeperHoldViolation(float seconds, float max) => seconds > max;
+        /// <summary>074 FR-14: 서브스텝 정수 판정 한계 = round(max / dt) (8 s · 0.01 s → 800).</summary>
+        public static long KeeperHoldLimit(float max, float dt) => (long)DMath.Floor(max / dt + 0.5f);
+        /// <summary>074 FR-14: 보유 서브스텝이 한계를 넘었나 (정확히 800 = 8.00 s는 위반 아님).</summary>
+        public static bool KeeperHoldViolation(long heldSubsteps, long limit) => heldSubsteps > limit;
 
         public static RestartDecision KeeperHold(RuleSet rules, int keeperTeam, Vec2 keeperPos, Vec2 ownGoal, int keeperAttackDir, float pitchL, float pitchW)
         {

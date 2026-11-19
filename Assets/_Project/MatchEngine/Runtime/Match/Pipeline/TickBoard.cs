@@ -83,6 +83,8 @@ namespace RoadToPro.MatchEngine.Match.Pipeline
         public float ShotXg;
         /// <summary>071 크로스 타입 (0 = 크로스 아님, <c>Actions.CrossType</c> + 1).</summary>
         public byte CrossType;
+        /// <summary>074 GK 배급 방식 (0 = 배급 아님, <c>Goalkeeper.DistributionKind</c> + 1). 실행 오차는 GK Distribution 매핑(σ_angle·σ_dist).</summary>
+        public byte DistKind;
     }
 
     public enum BallActionKind : byte
