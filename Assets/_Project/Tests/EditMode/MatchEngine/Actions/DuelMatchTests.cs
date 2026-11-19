@@ -43,13 +43,14 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Actions
                         var e = log[k];
                         if (e.Kind != SimEventKind.Tackle) continue;
                         total[i]++;
-                        var s = ctx.Squad.SlotOf(e.PlayerId);
+                        var s = ctx.Squad.Has(e.PlayerId) ? ctx.Squad.SlotOf(e.PlayerId) : -1;
                         var t = e.OtherId >= 0 && ctx.Squad.Has(e.OtherId) ? ctx.Squad.SlotOf(e.OtherId) : -1;
-                        if (s < 0 || t < 0) { bad[i]++; continue; }
-                        var d = (ctx.SlotState(s).Position - ctx.SlotState(t).Position).Length();
                         var reach = TackleModel.Reach(p, (e.A & EventCodes.TackleSliding) != 0);
-                        if (d > far[i]) far[i] = d;
                         if (!(e.F1 <= reach + 1e-3f)) bad[i]++;
+                        // 012: 같은 틱 심판 단계에서 퇴장당한 선수는 틱 끝 스쿼드에 없다 — 참고 거리만 건너뛴다 (판정은 F1)
+                        if (s < 0 || t < 0) continue;
+                        var d = (ctx.SlotState(s).Position - ctx.SlotState(t).Position).Length();
+                        if (d > far[i]) far[i] = d;
                     }
                     from = log.Count;
                 }

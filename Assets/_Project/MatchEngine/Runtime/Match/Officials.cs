@@ -5,7 +5,8 @@ using RoadToPro.Core.Serialization;
 namespace RoadToPro.MatchEngine.Match
 {
     /// <summary>
-    /// 심판 3명 위치 (리플레이 스냅샷 대상, FR-50). 012 전까지 대체: 목표점으로 서브스텝마다 최대 7 m/s 이동.
+    /// 심판 3명 위치 (리플레이 스냅샷 대상, FR-50). 목표점으로 서브스텝마다 최대 속도로 이동 — 기본 7 m/s(대체),
+    /// 012 실경기는 경기 생성 때 심판 체력으로 정한다(<see cref="SetMaxSpeed"/>, 012 FR-80 — 경기 중 바뀌지 않아 직렬화하지 않는다).
     /// 0 주심, 1·2 부심(터치라인 밖).
     /// </summary>
     public sealed class Officials
@@ -16,6 +17,7 @@ namespace RoadToPro.MatchEngine.Match
         readonly Vec2[] _pos = new Vec2[Count];
         readonly Vec2[] _facing = new Vec2[Count];
         readonly Vec2[] _target = new Vec2[Count];
+        readonly float[] _maxSpeed = { MaxSpeed, MaxSpeed, MaxSpeed };
 
         public Officials(float length, float width)
         {
@@ -29,12 +31,17 @@ namespace RoadToPro.MatchEngine.Match
         public Vec2 Facing(int i) => _facing[i];
 
         public void SetTarget(int i, Vec2 t) => _target[i] = t;
+        public Vec2 Target(int i) => _target[i];
+
+        /// <summary>012 FR-80: 심판별 최대 속도 (경기 생성 때 한 번).</summary>
+        public void SetMaxSpeed(int i, float v) => _maxSpeed[i] = v > 0f ? v : MaxSpeed;
+        public float MaxSpeedOf(int i) => _maxSpeed[i];
 
         public void Step(float dt)
         {
-            var max = MaxSpeed * dt;
             for (int i = 0; i < Count; i++)
             {
+                var max = _maxSpeed[i] * dt;
                 var d = _target[i] - _pos[i];
                 var l = d.Length();
                 if (l < 1e-4f) continue;

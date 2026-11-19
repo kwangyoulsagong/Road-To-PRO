@@ -76,16 +76,25 @@ namespace RoadToPro.MatchEngine.Match.Events
         /// <summary>다이빙 뒤 일어나기 끝 (011 FR-17·92).</summary>
         KeeperRecovered = 309,
 
-        // 012 (400~): 심판 · 재시작
+        // 012 (400~): 심판 · 재시작 — 데이터 규약은 specs/012 plan "SimEvent 데이터 규약" (FR-95)
+        /// <summary>
+        /// 휘슬 분 반칙 (012 FR-21·31). PlayerId = 반칙한 선수, OtherId = 당한 선수, A = 내린 판정 × 10 + 진짜 판정(<see cref="EventCodes"/>.Decision*),
+        /// B = 판정 플래그(<see cref="EventCodes"/>.Ref*), F0 = 진짜 파울 점수, F1 = 시야 품질. 위치 = 반칙 지점.
+        /// </summary>
         Foul = 400,
+        /// <summary>카드. A = 색(<see cref="EventCodes.CardYellow"/>·<see cref="EventCodes.CardRed"/>), B = 사유(<see cref="EventCodes"/>.Reason*), PlayerId = 받은 선수(감독 퇴장이면 −1, Team만).</summary>
         Card = 401,
+        /// <summary>오프사이드 (012 FR-01~10). PlayerId = 관여 선수, A = 관여 유형(1 플레이 · 2 상대 · 3 이득), B = 플래그(<see cref="EventCodes"/>.Off*), F0 = 실제 d, F1 = 지각 d. 위치 = 관여 지점.</summary>
         Offside = 402,
         ThrowIn = 403,
         GoalKick = 404,
         Corner = 405,
+        /// <summary>프리킥 재시작. A = 1 직접 · 2 간접.</summary>
         FreeKick = 406,
         Penalty = 407,
+        /// <summary>VAR 체크 (012 FR-71·73). A = 사안(<see cref="EventCodes"/>.Var*Incident), B = 체크 정지 틱, F0 = 오류 크기.</summary>
         VarCheck = 408,
+        /// <summary>VAR 번복 (012 FR-74). A = 결과 유형(<see cref="EventCodes"/>.VarResult*, 0 = 골 취소 — 대체 스크립트 호환).</summary>
         VarOverturn = 409,
         PlayersBelowMinimum = 410,
         Stoppage = 411,
@@ -99,6 +108,20 @@ namespace RoadToPro.MatchEngine.Match.Events
         PlayerLeftPitch = 415,
         /// <summary>specs/058 FR-61: 교체 투입 선수가 터치라인에서 들어오기 시작했다. OtherId = 나간 선수.</summary>
         PlayerEntered = 416,
+        /// <summary>012 FR-40: 어드밴티지 선언 (보류 반칙). PlayerId = 반칙한 선수, OtherId = 당한 선수, F0 = 이득 점수. 위치 = 반칙 지점.</summary>
+        AdvantagePlayed = 417,
+        /// <summary>012 FR-41: 보류 끝. A = 1 이득 유지(해제) · 2 이득 소멸(원래 지점 FK) · 3 골.</summary>
+        AdvantageEnd = 418,
+        /// <summary>012 FR-50·51: 핸드볼 반칙. PlayerId = 반칙한 선수, A = 내린 판정 × 10 + 진짜 판정, B = 판정 플래그, F0 = 핸드볼 점수, F1 = 시야 품질.</summary>
+        HandballOffence = 419,
+        /// <summary>012 FR-66: PK 재차기. A = 사유(1 GK 조기 이탈 · 2 침범).</summary>
+        PenaltyRetake = 420,
+        /// <summary>012 FR-63: GK 손 보유 초과. PlayerId = GK, F0 = 보유 시간(s).</summary>
+        KeeperHoldViolation = 421,
+        /// <summary>012: 이미 낸 재시작 취소 (VAR 번복 등). A = 취소한 재시작 이벤트 종류.</summary>
+        RestartCancelled = 422,
+        /// <summary>012 경계 조건: 접촉 입력 값이 범위 밖이라 잘랐다. A = 필드 번호.</summary>
+        ContactInputClamped = 423,
 
         // 027 (500~): 부상
         Injury = 500,
@@ -176,6 +199,61 @@ namespace RoadToPro.MatchEngine.Match.Events
         // 카드 (SimEvent.A)
         public const int CardYellow = 1;
         public const int CardRed = 2;
+
+        // 판정 단계 (012, Foul·HandballOffence의 A = 내린 × 10 + 진짜)
+        public const int DecisionNone = 0;
+        public const int DecisionFoul = 1;
+        public const int DecisionYellow = 2;
+        public const int DecisionRed = 3;
+
+        // 카드 사유 (012 FR-22·26, Card의 B)
+        public const int ReasonReckless = 1;
+        public const int ReasonSeriousFoulPlay = 2;
+        public const int ReasonSecondYellow = 3;
+        public const int ReasonDogso = 4;
+        public const int ReasonSpa = 5;
+        public const int ReasonRepeatedFouls = 6;
+        public const int ReasonSimulation = 7;
+        public const int ReasonDissent = 8;
+        public const int ReasonDelay = 9;
+        public const int ReasonShirtOff = 10;
+        public const int ReasonViolentConduct = 11;
+        public const int ReasonHandball = 12;
+        public const int ReasonKeeperEncroach = 13;
+        public const int ReasonBench = 14;
+        public const int ReasonEnterWithoutPermission = 15;
+
+        // 판정 플래그 (012, Foul·HandballOffence의 B)
+        public const int RefError = 1;
+        public const int RefAdvantage = 2;
+        public const int RefInBox = 4;
+        public const int RefDogso = 8;
+        public const int RefSpa = 16;
+        public const int RefSliding = 32;
+        public const int RefVarReviewable = 64;
+        public const int RefDive = 128;
+        public const int RefHomeVictim = 256;
+
+        // 오프사이드 플래그 (012, Offside의 B)
+        public const int OffTight = 1;
+        public const int OffLateFlag = 2;
+        public const int OffAssistantError = 4;
+        public const int OffVarCorrected = 8;
+
+        // VAR 사안 (012 FR-71, VarCheck의 A)
+        public const int VarGoalIncident = 1;
+        public const int VarPenaltyIncident = 2;
+        public const int VarRedIncident = 3;
+        public const int VarIdentityIncident = 4;
+
+        // VAR 결과 (012 FR-74, VarOverturn의 A; VarCheck 결과 유지는 VarOverturn 없음)
+        public const int VarResultGoalDisallowed = 0;
+        public const int VarResultPenaltyOverturned = 1;
+        public const int VarResultRedUpgrade = 2;
+        public const int VarResultRetroRed = 3;
+        public const int VarResultSimulationCaution = 4;
+        public const int VarResultPenaltyAwarded = 5;
+        public const int VarResultRedDowngrade = 6;
 
         // 정지 요인 (SimEvent.A on Stoppage, StoppageClock)
         public const int StopGoal = 0;

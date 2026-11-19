@@ -192,5 +192,21 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             Assert.AreEqual(MatchFeelMetrics.ToJson(a, "x", 7400, "-"), MatchFeelMetrics.ToJson(b, "x", 7400, "-"));
             Assert.Greater(a.Passes, 0);
         }
+
+        /// <summary>specs/012 T27: 판정 지표가 JSON "referee" 구역에 고정 순서로 나간다.</summary>
+        [Test]
+        public void RefereeSection_KeysInJson()
+        {
+            var t = new MatchFeelMetrics.Totals { Matches = 2, RefFouls = 40, RefYellows = 8, RefReds = 2, RefSecondYellows = 1, RefMajor = 10, RefMajorCorrect = 9, RefStandTackles = 100, RefStandFouls = 12 };
+            var r = MatchFeelMetrics.Referee(t);
+            Assert.AreEqual("fouls", r[0].Key);
+            Assert.AreEqual(20.0, r[0].Value, 1e-9);
+            Assert.AreEqual(0.5, r.Find(kv => kv.Key == "secondYellowShareOfReds").Value, 1e-9);
+            Assert.AreEqual(0.9, r.Find(kv => kv.Key == "majorAccuracyPreVar").Value, 1e-9);
+            Assert.AreEqual(0.12, r.Find(kv => kv.Key == "standingTackleFoulRate").Value, 1e-9);
+            var json = MatchFeelMetrics.ToJson(t, "x", 1, "-");
+            StringAssert.Contains("\"referee\": {", json);
+            StringAssert.Contains("\"penalties\":", json);
+        }
     }
 }

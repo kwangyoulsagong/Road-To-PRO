@@ -1,0 +1,187 @@
+{
+  "results": [
+    {
+      "name": "DeadBallPerfTests.LiveSceneSelector_ms",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.LiveSceneSelector_ms",
+      "groups": {
+        "scene_select_ms": {
+          "median": 0.3138500000000004,
+          "min": 0.3051999999999993,
+          "max": 9.2179,
+          "avg": 1.20783,
+          "unit": "ms",
+          "samples": 10
+        }
+      }
+    },
+    {
+      "name": "DeadBallPerfTests.TickGc_GoalDeadBall_Zero",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests.TickGc_GoalDeadBall_Zero",
+      "groups": {
+        "gc_alloc_count_deadball": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase",
+      "groups": {
+        "dec_tick_avg_us": {
+          "median": 28.104601506393415,
+          "min": 28.104601506393415,
+          "max": 28.104601506393415,
+          "avg": 28.104601506393415,
+          "unit": "us",
+          "samples": 1
+        },
+        "dec_tick_p95_us": {
+          "median": 58.6,
+          "min": 58.6,
+          "max": 58.6,
+          "avg": 58.6,
+          "unit": "us",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "MatchFeelPerfTests.Perf_Tick_ZeroGc",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests.Perf_Tick_ZeroGc",
+      "groups": {
+        "shot_gc_bytes_per_tick": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "bytes",
+          "samples": 1
+        },
+        "shot_match_tick_avg_us": {
+          "median": 102.72393333333336,
+          "min": 102.72393333333336,
+          "max": 102.72393333333336,
+          "avg": 102.72393333333336,
+          "unit": "us",
+          "samples": 1
+        }
+      }
+    },
+    {
+      "name": "RefereePerfTests.Perf_Referee",
+      "fullName": "RoadToPro.Tests.Performance.MatchEngine.RefereePerfTests.Perf_Referee",
+      "groups": {
+        "ref_contact_p95_us": {
+          "median": 0.447,
+          "min": 0.446,
+          "max": 0.456,
+          "avg": 0.4496666666666667,
+          "unit": "us",
+          "samples": 3
+        },
+        "ref_offside_p95_us": {
+          "median": 0.218,
+          "min": 0.217,
+          "max": 0.219,
+          "avg": 0.218,
+          "unit": "us",
+          "samples": 3
+        },
+        "ref_officials_p95_us": {
+          "median": 0.4720000000000001,
+          "min": 0.4710000000000001,
+          "max": 0.474,
+          "avg": 0.4723333333333333,
+          "unit": "us",
+          "samples": 3
+        },
+        "ref_gc_bytes": {
+          "median": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "avg": 0.0,
+          "unit": "bytes",
+          "samples": 1
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 28.104601506393415,
+      "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0,
+      "RefereePerfTests.Perf_Referee/ref_contact_p95_us/max": 0.456,
+      "RefereePerfTests.Perf_Referee/ref_offside_p95_us/max": 0.219,
+      "RefereePerfTests.Perf_Referee/ref_officials_p95_us/max": 0.474,
+      "RefereePerfTests.Perf_Referee/ref_gc_bytes/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-21",
+        "label": "010 결정 틱 평균 (Mono 회귀)",
+        "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
+        "value": 28.104601506393415,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "실경기 틱 GC 할당",
+        "metric": "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "심판 접촉 판정 1회 p95 (Mono 회귀)",
+        "metric": "RefereePerfTests.Perf_Referee/ref_contact_p95_us/max",
+        "value": 0.456,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "오프사이드 판정 1회 p95 (Mono 회귀)",
+        "metric": "RefereePerfTests.Perf_Referee/ref_offside_p95_us/max",
+        "value": 0.219,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "심판 위치+시야 1틱 p95 (Mono 회귀)",
+        "metric": "RefereePerfTests.Perf_Referee/ref_officials_p95_us/max",
+        "value": 0.474,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "심판 판정 GC 할당",
+        "metric": "RefereePerfTests.Perf_Referee/ref_gc_bytes/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}
