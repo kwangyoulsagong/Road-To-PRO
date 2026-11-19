@@ -1,0 +1,135 @@
+{
+  "spec": "012",
+  "profile": "mac-m1-1600p",
+  "note": "specs/012 성능 예산 표의 기계용 사본. 심판 단계(012) 실경기 연결 — 기존 결정 틱·온볼·틱 GC 예산 그대로(회귀 확인) + 심판 판정 워크로드 3개(접촉 판정 ≤ 5 µs·오프사이드 ≤ 3 µs·심판 위치+시야 ≤ 10 µs, p95 [제안]). farm.py bench --spec 012, README D17.",
+  "tests": [
+    "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests",
+    "RoadToPro.Tests.Performance.MatchEngine.DeadBallPerfTests",
+    "RoadToPro.Tests.Performance.MatchEngine.RefereePerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-21",
+      "label": "010 결정 틱 평균 (Mono 회귀)",
+      "test": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase",
+      "group": "dec_tick_avg_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-21",
+      "label": "실경기 틱 GC 할당",
+      "test": "MatchFeelPerfTests.Perf_Tick_ZeroGc",
+      "group": "shot_gc_bytes_per_tick",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    },
+    {
+      "ac": "AC-21",
+      "label": "심판 접촉 판정 1회 p95 (Mono 회귀)",
+      "test": "RefereePerfTests.Perf_Referee",
+      "group": "ref_contact_p95_us",
+      "stat": "max",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-21",
+      "label": "오프사이드 판정 1회 p95 (Mono 회귀)",
+      "test": "RefereePerfTests.Perf_Referee",
+      "group": "ref_offside_p95_us",
+      "stat": "max",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-21",
+      "label": "심판 위치+시야 1틱 p95 (Mono 회귀)",
+      "test": "RefereePerfTests.Perf_Referee",
+      "group": "ref_officials_p95_us",
+      "stat": "max",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-21",
+      "label": "심판 판정 GC 할당",
+      "test": "RefereePerfTests.Perf_Referee",
+      "group": "ref_gc_bytes",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    }
+  ],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-21",
+        "label": "010 결정 틱 1회 평균 (012 심판 연결 뒤, 081 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "max": 12,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-21",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-21",
+        "label": "공 소유 선수 1명 결정 평균 (072 예산)",
+        "metric": "onball_owner_avg_us",
+        "max": 12,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-21",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-21",
+        "label": "심판 접촉 판정 1회 p95",
+        "metric": "ref_contact_p95_us",
+        "max": 5,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-21",
+        "label": "오프사이드 위치 판정 1회 p95 (22명)",
+        "metric": "ref_offside_p95_us",
+        "max": 3,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-21",
+        "label": "결정 틱당 심판 3인 위치 갱신 + 시야 품질 p95",
+        "metric": "ref_officials_p95_us",
+        "max": 10,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-21",
+        "label": "심판 판정 GC 할당",
+        "metric": "ref_gc_bytes",
+        "max": 0,
+        "unit": "B"
+      }
+    ]
+  },
+  "deferred": {
+    "AC-17": "1,000경기 판정 지표 — 017 하네스 전까지 보류(100경기 측정값 기록)",
+    "AC-18": "주요 판정 정확도 — 017 전까지 보류",
+    "AC-22": "2D 디버그 오버레이 — 040 전까지 보류"
+  }
+}

@@ -44,6 +44,8 @@ namespace RoadToPro.MatchEngine.Match
         public Func<UtilityAI.IDecisionDiagnostics> DecisionDiagnostics;
         /// <summary>피치 컨트롤 진단 (specs/007 FR-27): 패스 후보 궤적 재평가. 경기마다 새로 만드는 함수 — null이면 끔(호출 0).</summary>
         public Func<PitchControl.IPitchControlDiagnostics> PitchControlDiagnostics;
+        /// <summary>012 FR-97: 심판 진단 출력 (null이면 호출·할당 0).</summary>
+        public Func<RoadToPro.MatchEngine.Referee.IRefereeDiagnostics> RefereeDiagnostics;
 
         public MatchSimOptions Clone() => new MatchSimOptions
         {
@@ -51,7 +53,7 @@ namespace RoadToPro.MatchEngine.Match
             LogCapacity = LogCapacity, KeepEventLog = KeepEventLog, PenaltyJudge = PenaltyJudge,
             ShapeInputs = ShapeInputs, ShapeTelemetry = ShapeTelemetry, ShapeDiagnostics = ShapeDiagnostics,
             ScenarioInputs = ScenarioInputs, ScenarioDiagnostics = ScenarioDiagnostics, ScenarioForce = ScenarioForce,
-            DecisionDiagnostics = DecisionDiagnostics, PitchControlDiagnostics = PitchControlDiagnostics,
+            DecisionDiagnostics = DecisionDiagnostics, PitchControlDiagnostics = PitchControlDiagnostics, RefereeDiagnostics = RefereeDiagnostics,
         };
     }
 
@@ -105,6 +107,7 @@ namespace RoadToPro.MatchEngine.Match
                 if (_stages[i] == null || (int)_stages[i].Id != i) throw new ArgumentException($"단계 {i} 자리에 {_stages[i]?.Id} — FR-01 순서와 다르다");
             _scheduler = _options.Scheduler != null ? _options.Scheduler()
                 : (_stages[(int)StageId.ScenarioOrUtility] as IDecisionSchedulerProvider)?.Scheduler ?? new FixedPeriodScheduler(1); // 010: 결정 단계의 LOD
+            (_stages[(int)StageId.Referee] as RefereeStage)?.ConfigureOfficials(_ctx.Officials); // 012 FR-80: 심판 체력 → 속도 (경기 생성 때 한 번)
             if (_options.PenaltyJudge != null) _ctx.Flow.PenaltyJudge = _options.PenaltyJudge();
             _ctx.Flow.Start();
             _ctx.Recorder.EmitInitialFrame();
@@ -126,6 +129,7 @@ namespace RoadToPro.MatchEngine.Match
             var stages = DefaultStages();
             stages[(int)StageId.TeamTactics] = new TacticsStage(setup, catalog.Count, f0, f1);
             stages[(int)StageId.Phase] = new PhaseStage(p);
+            stages[(int)StageId.Referee] = new RefereeStage(setup, tuning) { Diagnostics = options?.RefereeDiagnostics?.Invoke() }; // 012 실제 심판 (대체 단계는 006 계약 테스트용 DefaultStages()만)
             if (tuning.Scenario == null)
             {
                 stages[(int)StageId.Shape] = new ShapeStage(p, catalog, inputs, setup, f0, f1, options?.ShapeTelemetry, options?.ShapeDiagnostics);
@@ -466,6 +470,7 @@ namespace RoadToPro.MatchEngine.Match
             o.ScenarioDiagnostics = null;
             o.DecisionDiagnostics = null; // 010: 재구성 중복 보고 방지
             o.PitchControlDiagnostics = null; // 007: 같은 이유
+            o.RefereeDiagnostics = null; // 012: 같은 이유 (결정론 리뷰 F2)
             var sim = new MatchSim(_setup, _tuning, o);
             for (int i = 0; i < _stages.Length; i++)
                 if (ReferenceEquals(sim._stages[i], _stages[i])) throw new InvalidOperationException($"단계 팩토리가 같은 인스턴스를 돌려준다 (단계 {i}) — 경기마다 새로 만들어야 한다 (리뷰 R1)");

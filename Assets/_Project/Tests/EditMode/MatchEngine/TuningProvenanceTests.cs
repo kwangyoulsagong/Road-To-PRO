@@ -143,6 +143,25 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             TestContext.WriteLine($"007 시작 대비 바뀐 계수 {changed}개");
         }
 
+        /// <summary>
+        /// specs/012 (플랜 P1~P10): 012가 새로 만든 심판 계수(`ref.*`)는 출처 칸에 "012" 기록이 있고 값은 min·max 안이다.
+        /// 012는 기존 계수를 바꾸지 않는다(경계 규칙 — 플랜 위험 1). 보정(T29)으로 바꾼 값은 "012:" 기록을 덧붙인다.
+        /// </summary>
+        [Test]
+        public void Tuning012_RefereeIds_HaveSource()
+        {
+            var n = 0;
+            foreach (var f in Files())
+                foreach (var d in TuningLoader.LoadDefinitionsFile(f).Definitions)
+                {
+                    if (!d.Id.StartsWith("ref.")) continue;
+                    n++;
+                    StringAssert.Contains("012", d.Source, $"{d.Id}: 출처 칸에 012 기록이 있어야 한다");
+                    Assert.That(d.Default, Is.InRange(d.Min, d.Max), $"{d.Id}: min·max 안이어야 한다");
+                }
+            TestContext.WriteLine($"012 심판 계수 {n}개");
+        }
+
         [Test]
         public void ShotAimDesignCoefficients_Unchanged()
         {

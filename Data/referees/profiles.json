@@ -1,0 +1,216 @@
+{
+ "version": 1,
+ "note": "specs/012 FR-30·34 가상 심판 프로필 (플랜 데이터 [제안]). 실명·이름 없음 — 표시 이름은 051. 첫 항목 = 리그 평균(FR-96 보정 기준), 2·3번째 = 엄격 상·하위 예시(AC-17).",
+ "profiles": [
+  {
+   "id": "ref-league-average",
+   "strictness": 0.5,
+   "foulThreshold": 0.5,
+   "advantage": 0.5,
+   "consistency": 0.5,
+   "homeBias": 0.2,
+   "fitness": 0.5,
+   "pressureResistance": 0.5
+  },
+  {
+   "id": "ref-strict-high",
+   "strictness": 0.95,
+   "foulThreshold": 0.35,
+   "advantage": 0.35,
+   "consistency": 0.6,
+   "homeBias": 0.1,
+   "fitness": 0.6,
+   "pressureResistance": 0.6
+  },
+  {
+   "id": "ref-strict-low",
+   "strictness": 0.05,
+   "foulThreshold": 0.65,
+   "advantage": 0.7,
+   "consistency": 0.6,
+   "homeBias": 0.1,
+   "fitness": 0.6,
+   "pressureResistance": 0.6
+  },
+  {
+   "id": "ref-003",
+   "strictness": 0.24,
+   "foulThreshold": 0.54,
+   "advantage": 0.45,
+   "consistency": 0.41,
+   "fitness": 0.67,
+   "pressureResistance": 0.51,
+   "homeBias": 0.16
+  },
+  {
+   "id": "ref-004",
+   "strictness": 0.6,
+   "foulThreshold": 0.24,
+   "advantage": 0.32,
+   "consistency": 0.36,
+   "fitness": 0.45,
+   "pressureResistance": 0.41,
+   "homeBias": 0.26
+  },
+  {
+   "id": "ref-005",
+   "strictness": 0.7,
+   "foulThreshold": 0.83,
+   "advantage": 0.81,
+   "consistency": 0.62,
+   "fitness": 0.74,
+   "pressureResistance": 0.62,
+   "homeBias": 0.2
+  },
+  {
+   "id": "ref-006",
+   "strictness": 0.21,
+   "foulThreshold": 0.7,
+   "advantage": 0.56,
+   "consistency": 0.51,
+   "fitness": 0.68,
+   "pressureResistance": 0.39,
+   "homeBias": 0.05
+  },
+  {
+   "id": "ref-007",
+   "strictness": 0.93,
+   "foulThreshold": 0.46,
+   "advantage": 0.64,
+   "consistency": 0.62,
+   "fitness": 0.6,
+   "pressureResistance": 0.62,
+   "homeBias": 0.37
+  },
+  {
+   "id": "ref-008",
+   "strictness": 0.64,
+   "foulThreshold": 0.74,
+   "advantage": 0.6,
+   "consistency": 0.53,
+   "fitness": 0.57,
+   "pressureResistance": 0.33,
+   "homeBias": 0.25
+  },
+  {
+   "id": "ref-009",
+   "strictness": 0.33,
+   "foulThreshold": 0.38,
+   "advantage": 0.47,
+   "consistency": 0.53,
+   "fitness": 0.43,
+   "pressureResistance": 0.03,
+   "homeBias": 0.59
+  },
+  {
+   "id": "ref-010",
+   "strictness": 0.41,
+   "foulThreshold": 0.36,
+   "advantage": 0.32,
+   "consistency": 0.71,
+   "fitness": 0.46,
+   "pressureResistance": 0.42,
+   "homeBias": 0.14
+  },
+  {
+   "id": "ref-011",
+   "strictness": 0.36,
+   "foulThreshold": 0.66,
+   "advantage": 0.58,
+   "consistency": 0.3,
+   "fitness": 0.83,
+   "pressureResistance": 0.56,
+   "homeBias": 0.26
+  },
+  {
+   "id": "ref-012",
+   "strictness": 0.37,
+   "foulThreshold": 0.48,
+   "advantage": 0.34,
+   "consistency": 0.58,
+   "fitness": 0.51,
+   "pressureResistance": 0.42,
+   "homeBias": 0.33
+  },
+  {
+   "id": "ref-013",
+   "strictness": 0.62,
+   "foulThreshold": 0.75,
+   "advantage": 0.64,
+   "consistency": 0.53,
+   "fitness": 0.36,
+   "pressureResistance": 0.71,
+   "homeBias": 0.03
+  },
+  {
+   "id": "ref-014",
+   "strictness": 0.38,
+   "foulThreshold": 0.53,
+   "advantage": 0.46,
+   "consistency": 0.7,
+   "fitness": 0.7,
+   "pressureResistance": 0.45,
+   "homeBias": 0.57
+  },
+  {
+   "id": "ref-015",
+   "strictness": 0.7,
+   "foulThreshold": 0.86,
+   "advantage": 0.42,
+   "consistency": 0.59,
+   "fitness": 0.5,
+   "pressureResistance": 0.1,
+   "homeBias": 0.0
+  },
+  {
+   "id": "ref-016",
+   "strictness": 0.46,
+   "foulThreshold": 0.81,
+   "advantage": 0.43,
+   "consistency": 0.61,
+   "fitness": 0.55,
+   "pressureResistance": 0.5,
+   "homeBias": 0.37
+  },
+  {
+   "id": "ref-017",
+   "strictness": 1,
+   "foulThreshold": 0.43,
+   "advantage": 0.46,
+   "consistency": 0.5,
+   "fitness": 0.36,
+   "pressureResistance": 0.78,
+   "homeBias": 0.5
+  },
+  {
+   "id": "ref-018",
+   "strictness": 0.42,
+   "foulThreshold": 0.4,
+   "advantage": 0.3,
+   "consistency": 0.47,
+   "fitness": 0.4,
+   "pressureResistance": 0.4,
+   "homeBias": 0.57
+  },
+  {
+   "id": "ref-019",
+   "strictness": 0.58,
+   "foulThreshold": 0.43,
+   "advantage": 0.41,
+   "consistency": 0.85,
+   "fitness": 0.42,
+   "pressureResistance": 0.93,
+   "homeBias": 0.31
+  },
+  {
+   "id": "ref-020",
+   "strictness": 0.41,
+   "foulThreshold": 0.23,
+   "advantage": 0.53,
+   "consistency": 0.64,
+   "fitness": 0.49,
+   "pressureResistance": 0.77,
+   "homeBias": 0.42
+  }
+ ]
+}

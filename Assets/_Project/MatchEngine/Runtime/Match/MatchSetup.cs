@@ -106,8 +106,19 @@ namespace RoadToPro.MatchEngine.Match
         public PitchSpec Pitch { get; set; } = PitchSpec.Default;
         public PitchCondition Condition { get; set; } = PitchCondition.Dry;
         public CompetitionRules Rules { get; set; } = CompetitionRules.Default();
-        /// <summary>심판 성향 (012 자리, 대체 단계는 쓰지 않음).</summary>
+        /// <summary>심판 관대함 (006 호환 정수, 0 = 보통). <see cref="Referee"/>가 없으면 012가 엄격함으로 옮긴다(<see cref="RoadToPro.MatchEngine.Referee.RefereeProfile.FromLeniency"/>).</summary>
         public int RefereeLeniency { get; set; }
+        /// <summary>배정 심판 성향 (012 FR-30·34). null이면 <see cref="RefereeLeniency"/> → 리그 평균 기준 프로필.</summary>
+        public RoadToPro.MatchEngine.Referee.RefereeProfile Referee { get; set; }
+        /// <summary>시즌 규칙 세트 (012 FR-25·63, 플랜 P3). null이면 기본(2026/27).</summary>
+        public RoadToPro.MatchEngine.Referee.RuleSet RuleSet { get; set; }
+        /// <summary>VAR 사용 (012 FR-70 리그 설정 플래그). 리그 데이터(020)가 생기기 전 기본 true.</summary>
+        public bool VarEnabled { get; set; } = true;
+
+        /// <summary>실제로 쓸 심판 프로필 (FR-34): 지정 > 관대함 환산 > 리그 평균.</summary>
+        public RoadToPro.MatchEngine.Referee.RefereeProfile EffectiveReferee => Referee ?? RoadToPro.MatchEngine.Referee.RefereeProfile.FromLeniency(RefereeLeniency);
+        /// <summary>실제로 쓸 규칙 세트.</summary>
+        public RoadToPro.MatchEngine.Referee.RuleSet EffectiveRuleSet => RuleSet ?? RoadToPro.MatchEngine.Referee.RuleSet.Default;
         /// <summary>경기 중요도 (002 FR-61).</summary>
         public float Importance { get; set; } = 1f;
         public int MyPlayerId { get; set; } = -1;
@@ -118,7 +129,7 @@ namespace RoadToPro.MatchEngine.Match
         public MatchSetup Clone() => new MatchSetup
         {
             Seed = Seed, Home = Home?.Clone(), Away = Away?.Clone(), Pitch = Pitch, Condition = Condition,
-            Rules = Rules == null ? null : (CompetitionRules)Rules.MemberwiseCopy(), RefereeLeniency = RefereeLeniency, Importance = Importance, MyPlayerId = MyPlayerId,
+            Rules = Rules == null ? null : (CompetitionRules)Rules.MemberwiseCopy(), RefereeLeniency = RefereeLeniency, Referee = Referee, RuleSet = RuleSet, VarEnabled = VarEnabled, Importance = Importance, MyPlayerId = MyPlayerId,
         };
 
         public SurfaceCondition Surface => Condition switch

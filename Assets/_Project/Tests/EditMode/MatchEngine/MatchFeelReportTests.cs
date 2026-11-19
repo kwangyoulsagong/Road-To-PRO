@@ -13,12 +13,18 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
     {
         public const ulong FirstSeed = 7400UL;
 
+        /// <summary>specs/012 T27: 지정하면 모든 경기에 이 심판 (`.farm/feel-referee.txt` = 프로필 id).</summary>
+        public static RoadToPro.MatchEngine.Referee.RefereeProfile RefereeOverride;
+
         public static MatchFeelMetrics.Totals RunOne(ulong seed)
         {
-            var sim = new MatchSim(ShapeTestKit.Setup(seed: seed), ShapeTestKit.TuningWithShape());
+            var setup = ShapeTestKit.Setup(seed: seed);
+            if (RefereeOverride != null) setup.Referee = RefereeOverride; // specs/012 T27: 엄격 상·하위 심판 측정
+            var sim = new MatchSim(setup, ShapeTestKit.TuningWithShape());
             sim.RunToEnd();
             var t = MatchFeelMetrics.Count(sim.Log);
             MatchFeelMetrics.AddCounters(t, sim.Context);
+            MatchFeelMetrics.AddReferee(t, sim);
             return t;
         }
 
@@ -44,7 +50,13 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             var label = ReadOr(Path.Combine(farm, "feel-label.txt"), "measure");
             var sw = System.Diagnostics.Stopwatch.StartNew();
             var seed = ulong.Parse(ReadOr(Path.Combine(farm, "feel-seed.txt"), FirstSeed.ToString())); // 084: 경계값 재측정용 다른 시드 묶음
+            var refId = ReadOr(Path.Combine(farm, "feel-referee.txt"), "");
+            RefereeOverride = null;
+            if (refId.Length > 0)
+                foreach (var pr in RoadToPro.MatchEngine.Referee.RefereeProfile.ParseList(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "Data", "referees", "profiles.json"))))
+                    if (pr.Id == refId) RefereeOverride = pr;
             var t = Run(n, seed);
+            RefereeOverride = null;
             var json = MatchFeelMetrics.ToJson(t, label, seed, ReadOr(Path.Combine(farm, "feel-commit.txt"), "-"));
             File.WriteAllText(Path.Combine(farm, "feel-metrics.json"), json);
             TestContext.WriteLine($"{n}경기 {sw.Elapsed.TotalSeconds:F0}s\n{json}");

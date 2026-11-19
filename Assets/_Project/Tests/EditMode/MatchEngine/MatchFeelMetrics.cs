@@ -30,9 +30,16 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             /// <summary>084 진단: 패스 xPass(이벤트 F1) 합, xPass 구간(&lt; 0.5·0.5~0.8·≥ 0.8)별 패스 수·받음 수 — 평가 보정(D19).</summary>
             public double PassXpSum, StealChecks, StealProbSum, StealGapSum, StealChasing;
             public readonly double[] XpBin = new double[3], XpBinOk = new double[3];
+            /// <summary>specs/012 판정 지표 (017 FR-20·012 FR-96 대비 측정, AC-17·18 중간값).</summary>
+            public double RefFouls, RefYellows, RefReds, RefSecondYellows, RefPenalties, RefOffsides, RefVarChecks, RefVarOverturns, RefErrorsAfterVar,
+                RefMajor, RefMajorCorrect, RefDives, RefDiveCards, RefStandTackles, RefStandFouls, RefSlideTackles, RefSlideFouls, RefAdvantages, RefHandballs;
 
             public void Add(Totals o)
             {
+                RefFouls += o.RefFouls; RefYellows += o.RefYellows; RefReds += o.RefReds; RefSecondYellows += o.RefSecondYellows; RefPenalties += o.RefPenalties; RefOffsides += o.RefOffsides;
+                RefVarChecks += o.RefVarChecks; RefVarOverturns += o.RefVarOverturns; RefErrorsAfterVar += o.RefErrorsAfterVar; RefMajor += o.RefMajor; RefMajorCorrect += o.RefMajorCorrect;
+                RefDives += o.RefDives; RefDiveCards += o.RefDiveCards; RefStandTackles += o.RefStandTackles; RefStandFouls += o.RefStandFouls; RefSlideTackles += o.RefSlideTackles;
+                RefSlideFouls += o.RefSlideFouls; RefAdvantages += o.RefAdvantages; RefHandballs += o.RefHandballs;
                 Matches += o.Matches; Goals += o.Goals; ShotOnTarget += o.ShotOnTarget; ShotGoals += o.ShotGoals; OwnGoals += o.OwnGoals; Shots += o.Shots; ShotXg += o.ShotXg; HeaderShots += o.HeaderShots; HeaderGoals += o.HeaderGoals; Saves += o.Saves;
                 Passes += o.Passes; Received += o.Received; TakeOns += o.TakeOns; TakeOnOk += o.TakeOnOk; Tackles += o.Tackles; TacklesWon += o.TacklesWon;
                 Interceptions += o.Interceptions; Contacts += o.Contacts; Possessions += o.Possessions; SeqTicks += o.SeqTicks; SeqCount += o.SeqCount;
@@ -130,6 +137,43 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             t.StealProbSum += ctx.Actions.Duels.StealProbSum;
             t.StealGapSum += ctx.Actions.Duels.StealGapSum;
             t.StealChasing += ctx.Actions.Duels.StealChasing; // 087 FR-02
+        }
+
+        /// <summary>specs/012 T27: 심판 단계 누계 (전술 경기만 — 대체 단계면 0).</summary>
+        public static void AddReferee(Totals t, MatchSim sim)
+        {
+            if (!(sim.Stage(RoadToPro.MatchEngine.Match.Pipeline.StageId.Referee) is RoadToPro.MatchEngine.Match.Stages.RefereeStage st)) return;
+            var r = st.Telemetry;
+            t.RefFouls += r.Whistles; t.RefYellows += r.Yellows; t.RefReds += r.Reds; t.RefSecondYellows += r.SecondYellows; t.RefPenalties += r.PenaltiesAwarded;
+            t.RefOffsides += r.Offsides; t.RefVarChecks += r.VarChecks; t.RefVarOverturns += r.VarOverturns; t.RefErrorsAfterVar += r.ErrorsAfterVar;
+            t.RefMajor += r.MajorDecisions; t.RefMajorCorrect += r.MajorCorrect; t.RefDives += r.Dives; t.RefDiveCards += r.DiveCards;
+            t.RefStandTackles += r.StandingTackles; t.RefStandFouls += r.StandingTackleFouls; t.RefSlideTackles += r.SlidingTackles; t.RefSlideFouls += r.SlidingTackleFouls;
+            t.RefAdvantages += r.Advantages; t.RefHandballs += r.Handballs;
+        }
+
+        /// <summary>specs/012 판정 지표 (경기당·비율).</summary>
+        public static List<KeyValuePair<string, double>> Referee(Totals t)
+        {
+            var n = t.Matches > 0 ? t.Matches : 1;
+            return new List<KeyValuePair<string, double>>
+            {
+                new("fouls", t.RefFouls / n),
+                new("yellows", t.RefYellows / n),
+                new("reds", t.RefReds / n),
+                new("secondYellowShareOfReds", Div(t.RefSecondYellows, t.RefReds)),
+                new("penalties", t.RefPenalties / n),
+                new("offsides", t.RefOffsides / n),
+                new("varChecks", t.RefVarChecks / n),
+                new("varInterventions", t.RefVarOverturns / n),
+                new("errorsAfterVar", t.RefErrorsAfterVar / n),
+                new("majorAccuracyPreVar", Div(t.RefMajorCorrect, t.RefMajor)),
+                new("advantages", t.RefAdvantages / n),
+                new("dives", t.RefDives / n),
+                new("diveCards", t.RefDiveCards / n),
+                new("handballs", t.RefHandballs / n),
+                new("standingTackleFoulRate", Div(t.RefStandFouls, t.RefStandTackles)),
+                new("slidingTackleFoulRate", Div(t.RefSlideFouls, t.RefSlideTackles)),
+            };
         }
 
         public enum ShotOutcome { Goal, Saved, Off }
@@ -334,6 +378,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             sb.Append("  },\n  \"diag\": {\n");
             var d = Diagnostics(t);
             for (int i = 0; i < d.Count; i++) sb.Append("    \"").Append(d[i].Key).Append("\": ").Append(d[i].Value.ToString("0.####", c)).Append(i + 1 < d.Count ? ",\n" : "\n");
+            sb.Append("  },\n  \"referee\": {\n"); // specs/012 T27
+            var r = Referee(t);
+            for (int i = 0; i < r.Count; i++) sb.Append("    \"").Append(r[i].Key).Append("\": ").Append(r[i].Value.ToString("0.####", c)).Append(i + 1 < r.Count ? ",\n" : "\n");
             sb.Append("  }\n}\n");
             return sb.ToString();
         }
