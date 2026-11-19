@@ -151,6 +151,16 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         /// </summary>
         public KeeperActionKind Decide(MatchContext ctx, int team, in KeeperIntent intent, out Vec2 point)
         {
+            // 결정론 리뷰 L1 (073 T19): GK 판단이 액션 월드를 이 틱에 처음 채웠으면 끝나고 되돌린다 — 같은 틱 물리 단계(071 경합·070 결투)가
+            // 073 전과 같은 시점에 월드를 채우게 (안 그러면 결정 단계 위치로 고정돼 경합 참여자가 바뀐다, AerialChaseTests)
+            var borrowed = ctx.Actions.Duels.Enabled && !ctx.Actions.WorldFresh(ctx);
+            var kind = DecideCore(ctx, team, in intent, out point);
+            if (borrowed && ctx.Actions.WorldFresh(ctx)) ctx.Actions.InvalidateWorld();
+            return kind;
+        }
+
+        KeeperActionKind DecideCore(MatchContext ctx, int team, in KeeperIntent intent, out Vec2 point)
+        {
             var slot = team * Squad.SlotsPerTeam;
             var prof = Profile(ctx, team);
             ref readonly var me = ref ctx.SlotState(slot);

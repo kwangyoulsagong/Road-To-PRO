@@ -142,6 +142,9 @@ namespace RoadToPro.MatchEngine.Actions
             }
         }
 
+        /// <summary>이번 틱 월드를 이미 채웠다 (073: GK 판단이 빌려 쓴 뒤 되돌릴지 판단).</summary>
+        public bool WorldFresh(MatchContext ctx) => _worldTick == ctx.Tick;
+
         /// <summary>테스트·고정 상황: 같은 틱에 선수를 옮긴 뒤 월드를 다시 채우게 한다.</summary>
         public void InvalidateWorld() => _worldTick = long.MinValue;
 
