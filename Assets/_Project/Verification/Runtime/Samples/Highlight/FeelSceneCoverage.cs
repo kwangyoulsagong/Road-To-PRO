@@ -27,6 +27,20 @@ namespace RoadToPro.Verification.Samples.Highlight
         /// <summary>073: 크로스 잡기 — GK가 공중볼 경합을 손으로 이김 (Header A = Keeper, 착지 약 1 s 전 판정).</summary>
         public static bool IsKeeperClaim(in SimEvent e) => e.Kind == SimEventKind.Header && e.A == (int)HeaderOutcome.Keeper;
 
+        /// <summary>073 T19: 이벤트 위치의 자기 골라인에서 깊이 (m, 기간별 공격 방향). 골라인 위 돌진·스마더는 화면에서 GK가 거의 안 움직여 E2E 장면에서 뺀다.</summary>
+        public static float OwnGoalDepth(in SimEvent e)
+        {
+            var dir = ((e.Team == 0) ^ ((e.Period & 1) == 1)) ? 1f : -1f;
+            var x = e.X * 105f;
+            return dir > 0f ? x : 105f - x;
+        }
+
+        /// <summary>073 AC-07: 보이는 돌진 — 첫 접촉점이 골라인에서 8 m 이상.</summary>
+        public static bool IsVisibleRush(in SimEvent e) => e.Kind == SimEventKind.KeeperRush && OwnGoalDepth(e) >= 8f;
+
+        /// <summary>073 AC-07: 보이는 스마더 — 골라인에서 4 m 이상 나와 덮침.</summary>
+        public static bool IsVisibleSmother(in SimEvent e) => e.Kind == SimEventKind.Smother && OwnGoalDepth(e) >= 4f;
+
         /// <summary>083: 놓친 경합 Header 이벤트 (B = 경합 기록 첫 번호 + 1).</summary>
         public static bool IsMissedAerial(in SimEvent e) =>
             e.Kind == SimEventKind.Header && e.A == (int)HeaderOutcome.Missed && e.B > 0;
@@ -101,9 +115,9 @@ namespace RoadToPro.Verification.Samples.Highlight
                 if (e.Kind == SimEventKind.Dribble) m |= (e.B & EventCodes.DribbleSuccess) != 0 ? TakeOnOk : TakeOnLost;
                 if (IsMissedAerial(e)) m |= MissedAerial;
                 if (IsSlideWin(e)) m |= SlideWin;
-                if (e.Kind == SimEventKind.KeeperRush) m |= KeeperRush;
+                if (IsVisibleRush(e)) m |= KeeperRush;
                 if (IsKeeperClaim(e)) m |= KeeperClaim;
-                if (e.Kind == SimEventKind.Smother) m |= KeeperSmother;
+                if (IsVisibleSmother(e)) m |= KeeperSmother;
                 if (e.Kind == SimEventKind.Tackle)
                 {
                     if ((e.A & EventCodes.TackleSliding) == 0 && (e.A & EventCodes.TackleWon) != 0) m |= TackleStand;

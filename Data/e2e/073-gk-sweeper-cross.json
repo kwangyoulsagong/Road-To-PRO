@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "id": "073-gk-sweeper-cross",
   "spec": "073",
-  "description": "실제 경기(058 경로, 073 GK 골문 이탈) 고정 시드 3장면: GK 돌진(결정 + 0.8 s, 골문을 떠나 달리는 중), 크로스 잡기(공중볼 경합 판정 + 0.9 s, 잡기 직전), 1v1 스마더(덮치는 순간). 박스 밖 장면에서 GK 손 접촉 동작이 없다. 손–공 거리는 080 보류(011 AC-24·25와 같은 처리) — 장면이 읽히는지 육안 승인 (AC-07)",
+  "description": "실제 경기(058 경로, 073 GK 골문 이탈) 고정 시드 3장면(장면별 시드 20261307·20261186·20261215): GK 돌진(첫 접촉점 골라인 8 m 이상, 결정 + 1.0 s, 골문을 떠나 달리는 중), 크로스 잡기(공중볼 경합 판정 + 0.9 s, 잡기 직전), 1v1 스마더(골라인 4 m 이상, 덮치기 0.1 s 전). 박스 밖 장면에서 GK 손 접촉 동작이 없다. 손–공 거리는 080 보류(011 AC-24·25와 같은 처리) — 장면이 읽히는지 육안 승인 (AC-07)",
   "scene": "Highlight041",
   "fixture": {
     "save": null,
-    "seed": 20261481
+    "seed": 20261307
   },
   "profiles": [
     "mac-m1-1600p"
@@ -20,7 +20,7 @@
   "steps": [
     {
       "type": "goto",
-      "screen": "livePlay073"
+      "screen": "livePlay073rush"
     },
     {
       "type": "waitFor",
@@ -38,12 +38,30 @@
     },
     {
       "type": "goto",
+      "screen": "livePlay073claim"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
       "screen": "live.freeze073.claim"
     },
     {
       "type": "capture",
       "name": "gk_claim",
       "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "livePlay073smother"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
     },
     {
       "type": "goto",
