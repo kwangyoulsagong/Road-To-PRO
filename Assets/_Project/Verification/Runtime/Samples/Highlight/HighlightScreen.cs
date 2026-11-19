@@ -50,6 +50,8 @@ namespace RoadToPro.Verification.Samples.Highlight
         const ulong Seed083 = 20261230UL, Seed083Slide = 20261230UL; // 2026-11-17 083 엔진 뒤 플레이어 768시드 탐색: 놓친 경합 + 이긴 슬라이딩 둘 다 있는 첫 시드
         const ulong Seed082 = 20261224UL, Seed082Slide = 20261192UL; // 2026-11-17 082 엔진(M-1 반영) 뒤 플레이어 768시드 탐색
         const ulong Seed085 = 20261181UL, Seed085Header = 20261273UL, Seed085Slide = 20261187UL; // 085 FR-05·06: 087 엔진 뒤 플레이어 768시드 탐색 — 기존 083 20261230·086 20261264·082 20261192에 장면 없음 → 놓친 경합 · 점프 헤딩슛 · 늦은 슬라이딩 첫 시드
+        /// <summary>specs/073 AC-07: GK 돌진 · 크로스 잡기 · 스마더 (073 엔진 뒤 플레이어 768시드 탐색 `tool-feel-search`).</summary>
+        const ulong Seed073Rush = 20261307UL, Seed073Claim = 20261186UL, Seed073Smother = 20261215UL; // 2026-11-19 073 엔진(aca8c70) 뒤 플레이어 768시드 탐색: 보이는 돌진(첫 접촉점 골라인 8 m+)·크로스 잡기·보이는 스마더(4 m+) 각 첫 시드 (셋 다 있는 시드 없음)
         const ulong Seed086 = 20261264UL, Seed086Slide = 20261243UL; // 2026-11-18 086 엔진(재시작 잡기·GK 잡기 판정) 뒤 플레이어 768시드 탐색: 082 점프 헤딩슛 · 083 이긴 슬라이딩 첫 시드
 
         static void PlayFeelSeed(ulong seed)
@@ -312,6 +314,12 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["livePlay085"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed085); Play(false); }; // 085 AC-05 놓친 경합
             FarmContext.Screens["livePlay085header"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed085Header); Play(false); }; // 085 AC-06 점프 헤딩슛
             FarmContext.Screens["livePlay085slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed085Slide); Play(false); }; // 085 AC-06 늦은 슬라이딩
+            FarmContext.Screens["livePlay073rush"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed073Rush); Play(false); }; // 073 AC-07 GK 돌진
+            FarmContext.Screens["livePlay073claim"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed073Claim); Play(false); }; // 073 AC-07 크로스 잡기
+            FarmContext.Screens["livePlay073smother"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed073Smother); Play(false); }; // 073 AC-07 스마더
+            FarmContext.Screens["live.freeze073.rush"] = () => FreezeEvent(e => FeelSceneCoverage.IsVisibleRush(e), e => e.Kind == SimEventKind.KeeperRush, "gk_rush", 1.0d); // 돌진 결정 + 1.0 s: 골문을 떠나 달리는 중 (첫 접촉점 골라인 8 m 이상)
+            FarmContext.Screens["live.freeze073.claim"] = () => FreezeEvent(e => FeelSceneCoverage.IsKeeperClaim(e), null, "gk_claim", 0.9d); // 경합 판정 + 0.9 s: 잡기 직전 (착지 약 1 s 전 판정)
+            FarmContext.Screens["live.freeze073.smother"] = () => FreezeEvent(e => FeelSceneCoverage.IsVisibleSmother(e), e => e.Kind == SimEventKind.Smother, "gk_smother", -0.1d); // 덮치기 직전 (골라인 4 m 이상)
             FarmContext.Screens["live.freeze083.missed"] = () => FreezeMissedAerial("missed_jump"); // 놓친 경합 기록 정점
             FarmContext.Screens["live.freeze083.slide"] = () => FreezeEvent(e => FeelSceneCoverage.IsSlideWin(e), null, "slide_win", 0d); // 이긴 슬라이딩 접촉 순간
             FarmContext.Screens["live.freeze082.header"] = () => { FreezeEvent(e => FeelSceneCoverage.IsJumpHeader(e), null, "header_jump", 0d); StartCoroutine(LogHeadBall()); }; // 접촉 순간
@@ -369,6 +377,18 @@ namespace RoadToPro.Verification.Samples.Highlight
             var missedSeeds = new System.Text.StringBuilder();
             for (int i = 0, n = 0; i < masks.Length && n < 12; i++) if ((masks[i] & FeelSceneCoverage.MissedAerial) != 0) { missedSeeds.Append(FeelSceneCoverage.FirstSeed + (ulong)i).Append(' '); n++; }
             Debug.Log($"[highlight] 085 시드 확인: 놓친 경합 {At(Seed083)} · 점프 헤딩슛 {At(Seed086)} · 늦은 슬라이딩 {At(Seed082Slide)} · 놓친 경합 시드 {missedSeeds}");
+            // 073 T18: GK 장면 3종 첫 시드 + 셋 다 있는 첫 시드, 기존 E2E 시드가 아직 장면을 갖는지
+            int kRush = -1, kClaim = -1, kSm = -1, kAll = -1;
+            const int kMask = FeelSceneCoverage.KeeperRush | FeelSceneCoverage.KeeperClaim | FeelSceneCoverage.KeeperSmother;
+            for (int i = 0; i < masks.Length; i++)
+            {
+                if (kRush < 0 && (masks[i] & FeelSceneCoverage.KeeperRush) != 0) kRush = i;
+                if (kClaim < 0 && (masks[i] & FeelSceneCoverage.KeeperClaim) != 0) kClaim = i;
+                if (kSm < 0 && (masks[i] & FeelSceneCoverage.KeeperSmother) != 0) kSm = i;
+                if (kAll < 0 && (masks[i] & kMask) == kMask) kAll = i;
+            }
+            Debug.Log($"[highlight] 073 탐색: GK 돌진 {S(kRush)} · 크로스 잡기 {S(kClaim)} · 스마더 {S(kSm)} · 셋 다 {S(kAll)}");
+            Debug.Log($"[highlight] 073 기존 시드 확인: 082 {At(Seed082)} · 082s {At(Seed082Slide)} · 083 {At(Seed083)} · 085 {At(Seed085)} · 085h {At(Seed085Header)} · 085s {At(Seed085Slide)} · 086 {At(Seed086)} · 086s {At(Seed086Slide)} · 081 {At(Seed081)} · 081s {At(Seed081Slide)} · 081c {At(Seed081Cutback)}");
             Debug.Log($"[highlight] 081 탐색: A {S(best)} · 늦은 슬라이딩 {S(slide)} · 헤딩슛 {S(head)} · 컷백 슛 골 {S(cut)} · 082 점프 헤딩슛 {S(jump)} · 083 놓친 경합 {S(missed)} · 이긴 슬라이딩 {S(slideWin)} · 둘 다 {S(both)}");
         }
 
@@ -596,6 +616,7 @@ namespace RoadToPro.Verification.Samples.Highlight
                         if (s.IsReplay || t < s.Start || t > s.End) continue;
                         player.Sequencer.SeekAndPause(i, System.Math.Min(t + offset, s.End));
                         Debug.Log(pass == 0 ? $"[highlight] 결투·슈팅 장면 {label}: 장면 {s.Id} t={t:0.00}" : $"[highlight] 결투·슈팅 대체 장면 사용 ({label}): 장면 {s.Id}");
+                        if (label.StartsWith("gk_")) StartCoroutine(LogKeeperFrame(label, e, System.Math.Min(t + offset, s.End))); // 073 T19 진단: 이벤트 팀·위치 vs 화면 GK·공
                         return;
                     }
                 }
@@ -605,6 +626,21 @@ namespace RoadToPro.Verification.Samples.Highlight
             sb.Append(" | 장면:");
             for (int i = 0; i < scenes.Count; i++) sb.Append($" {scenes[i].Scene.Start:0}-{scenes[i].Scene.End:0}{(scenes[i].Scene.IsReplay ? "r" : "")}");
             Debug.LogError($"[highlight] 070 해당 이벤트 장면 없음 ({label}) 시드 {_matchSeed}{sb}");
+        }
+
+        /// <summary>073 T19 진단: 고정 화면의 이벤트(팀·선수·위치)와 그 순간 재생 데이터의 두 GK·공 위치 (피치 중심 기준 m).</summary>
+        System.Collections.IEnumerator LogKeeperFrame(string label, SimEvent e, double t)
+        {
+            yield return null;
+            yield return null;
+            if (player.Current == null) yield break;
+            var d = player.Current.Data;
+            float ft = (float)t;
+            var g0 = d.Pos(0, ft);
+            var g1 = d.Pos(11, ft);
+            d.FrameAt(ft, out var f, out var a);
+            var b = d.Ball[f];
+            Debug.Log($"[highlight] 073 진단 {label}: 이벤트 {e.Kind} 팀 {e.Team} 선수 {e.PlayerId} 위치 ({e.X * 105f - 52.5f:0.0}, {e.Y * 68f - 34f:0.0}) B {e.B} · 화면 t={t:0.00} GK0 ({g0.X:0.0}, {g0.Y:0.0}, {g0.Z:0.0}) GK1 ({g1.X:0.0}, {g1.Y:0.0}, {g1.Z:0.0}) 공 ({b.X:0.0}, {b.Y:0.0}, {b.Z:0.0}) [데이터 {d.StartTime:0.0}~{d.EndTime:0.0}]");
         }
 
         double _checkHalvesAt = double.NaN;

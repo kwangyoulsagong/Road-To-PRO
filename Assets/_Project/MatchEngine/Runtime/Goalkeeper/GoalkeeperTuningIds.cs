@@ -106,5 +106,40 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         public const string ChoiceWIntent = "gk.choice.wIntent";
         public const string ChoiceRIntent = "gk.choice.rIntent";
         public const string ChoiceThetaOpp = "gk.choice.thetaOpp";
+        // 073 골문 이탈 (스위퍼·크로스·1v1)
+        public const string SweepKappa = "gk.sweep.kappa";
+        public const string SweepSampleDt = "gk.sweep.sampleDt";
+        public const string SweepHorizon = "gk.sweep.horizon";
+        public const string SweepVClear = "gk.sweep.vClear";
+        public const string SweepFailScale = "gk.sweep.failScale";
+        public const string SweepEmptyXgBase = "gk.sweep.emptyXgBase";
+        public const string SweepEmptyXgSlope = "gk.sweep.emptyXgSlope";
+        public const string SweepRoleSweeper = "gk.sweep.roleSweeper";
+        public const string SweepRoleTraditional = "gk.sweep.roleTraditional";
+        public const string CrossK1 = "gk.cross.k1";
+        public const string CrossK2 = "gk.cross.k2";
+        public const string CrossK3 = "gk.cross.k3";
+        public const string CrossCrowdRadius = "gk.cross.crowdRadius";
+        public const string CrossJumpReach = "gk.cross.jumpReach";
+        public const string CrossClaimWin = "gk.cross.claimWin";
+        public const string CrossClaimFail = "gk.cross.claimFail";
+        public const string CrossPunchWin = "gk.cross.punchWin";
+        public const string CrossPunchFail = "gk.cross.punchFail";
+        public const string CrossPunchK0 = "gk.cross.punchK0";
+        public const string CrossDelayNoise = "gk.cross.delayNoise";
+        public const string SweepRange = "gk.sweep.range";
+        public const string OneOnOneCarrierGap = "gk.oneOnOne.carrierGap";
+        public const string OneOnOneMinSpeed = "gk.oneOnOne.minSpeed";
+        public const string OneOnOneRange = "gk.oneOnOne.range";
+        public const string OneOnOneCoverWidth = "gk.oneOnOne.coverWidth";
+        public const string OneOnOneSmotherMargin = "gk.oneOnOne.smotherMargin";
+        public const string OneOnOneSmotherFail = "gk.oneOnOne.smotherFail";
+        public const string OneOnOneSetBonus = "gk.oneOnOne.setBonus";
+        public const string OneOnOneAdvance = "gk.oneOnOne.advance";
+        public const string OneOnOneShootDist = "gk.oneOnOne.shootDist";
+        public const string OneOnOneCommitTime = "gk.oneOnOne.commitTime";
+        public const string OneOnOneSpreadDist = "gk.oneOnOne.spreadDist";
+        public const string OneOnOneSpreadR0 = "gk.oneOnOne.spreadR0";
+        public const string OneOnOneSpreadDive = "gk.oneOnOne.spreadDive";
     }
 }

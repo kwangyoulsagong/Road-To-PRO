@@ -321,6 +321,12 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
             {
                 case Goalkeeper.KeeperActionKind.Contest: return new Decision { Kind = DecisionKind.Chase, Point = point, TargetSlot = -1 };
                 case Goalkeeper.KeeperActionKind.MoveTo: return new Decision { Kind = DecisionKind.MoveTo, Point = point, TargetSlot = -1 };
+                // 073: 돌진·스마더 = 공 가로채기(첫 접촉점·공), 잡기·펀칭 = 착지점, 세트 = 전진점(정지 뒤엔 자기 위치)
+                case Goalkeeper.KeeperActionKind.Rush:
+                case Goalkeeper.KeeperActionKind.Smother: return new Decision { Kind = DecisionKind.Chase, Point = point, TargetSlot = -1 };
+                case Goalkeeper.KeeperActionKind.Claim:
+                case Goalkeeper.KeeperActionKind.Punch: return new Decision { Kind = DecisionKind.MoveTo, Point = point, TargetSlot = -1 };
+                case Goalkeeper.KeeperActionKind.Set: return new Decision { Kind = DecisionKind.MoveTo, Point = point, TargetSlot = -1 };
                 default: return new Decision { Kind = DecisionKind.HoldShape, TargetSlot = -1 };
             }
         }

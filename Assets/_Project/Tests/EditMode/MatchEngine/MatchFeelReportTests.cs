@@ -16,15 +16,20 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
         /// <summary>specs/012 T27: 지정하면 모든 경기에 이 심판 (`.farm/feel-referee.txt` = 프로필 id).</summary>
         public static RoadToPro.MatchEngine.Referee.RefereeProfile RefereeOverride;
 
+        /// <summary>specs/073 T17: 지정하면 팀별 GK 역할 (AC-04 역할 비교).</summary>
+        public static RoadToPro.MatchEngine.Goalkeeper.KeeperRole[] RolesOverride;
+
         public static MatchFeelMetrics.Totals RunOne(ulong seed)
         {
             var setup = ShapeTestKit.Setup(seed: seed);
             if (RefereeOverride != null) setup.Referee = RefereeOverride; // specs/012 T27: 엄격 상·하위 심판 측정
             var sim = new MatchSim(setup, ShapeTestKit.TuningWithShape());
+            if (RolesOverride != null) { sim.Context.Keepers.Roles[0] = RolesOverride[0]; sim.Context.Keepers.Roles[1] = RolesOverride[1]; }
             sim.RunToEnd();
             var t = MatchFeelMetrics.Count(sim.Log);
             MatchFeelMetrics.AddCounters(t, sim.Context);
             MatchFeelMetrics.AddReferee(t, sim);
+            MatchFeelMetrics.AddKeepers(t, sim);
             return t;
         }
 

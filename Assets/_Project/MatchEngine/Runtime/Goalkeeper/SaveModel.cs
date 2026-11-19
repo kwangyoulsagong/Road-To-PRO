@@ -175,7 +175,7 @@ namespace RoadToPro.MatchEngine.Goalkeeper
             float bestReq = 0f, bestReach = 0f;
             var n = _count;
             // 가지치기 (AC-17): margin ≤ reachMax − (수평 거리 − 몸 반폭)이므로 이 상한이 지금 최댓값보다 작은 샘플은 계산하지 않는다 (결과 동일)
-            var reachMax = DMath.Max(_p.ReachR0, k.MaxReach) - penalty + _p.ReachBodyHalf;
+            var reachMax = DMath.Max(_p.ReachR0 + k.R0Bonus, k.MaxReach) - penalty + _p.ReachBodyHalf;
             // 골 쪽(GK 근처)부터 거꾸로 돌아 가지치기가 일찍 걸리게 한다. 같은 마진이면 앞(이른) 샘플을 고른다(>=) — 정방향 결과와 같다
             for (int i = n - 1; i >= 0; i--)
             {

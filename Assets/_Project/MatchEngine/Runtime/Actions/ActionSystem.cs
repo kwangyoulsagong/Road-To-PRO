@@ -142,6 +142,9 @@ namespace RoadToPro.MatchEngine.Actions
             }
         }
 
+        /// <summary>이번 틱 월드를 이미 채웠다 (073: GK 판단이 빌려 쓴 뒤 되돌릴지 판단).</summary>
+        public bool WorldFresh(MatchContext ctx) => _worldTick == ctx.Tick;
+
         /// <summary>테스트·고정 상황: 같은 틱에 선수를 옮긴 뒤 월드를 다시 채우게 한다.</summary>
         public void InvalidateWorld() => _worldTick = long.MinValue;
 
@@ -594,6 +597,7 @@ namespace RoadToPro.MatchEngine.Actions
             if (ctx.Flow.PenaltyKickTick >= 0) ctx.Flow.ClearPenalty();
             if (!hands) SlowAfterTouch(ctx, s, abs);
             ResetAttempts();
+            ctx.Keepers.OnKeeperClaim(ctx, s, sub, pos, hands); // 073: 스마더 이벤트 · 돌진 박스 밖 소유
             Diagnostics?.OnContact(ctx.Tick, sub, s, kind, touch.Distance);
         }
 

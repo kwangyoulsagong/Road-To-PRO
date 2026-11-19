@@ -165,6 +165,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 _intentChanged[s] = key != _prevIntentKey[s];
                 _prevIntentKey[s] = key;
                 if (_intentChanged[s]) _due[s] = true; // FR-41·95: 의도 도착·해제 → 같은 틱 재결정
+                if (Squad.IsKeeperSlot(s) && ctx.Keepers.WantsDecision(ctx, Squad.TeamOfSlot(s))) _due[s] = true; // 073: 상대 킥 직후·결단 지연 끝 → GK 같은 틱 결정
                 _dueNormal[s] = _due[s];
                 if (!_keys.Has(s)) continue;
                 // 키 모먼트는 오프볼 결정만 덮어쓴다 — GK·소유자·데드볼·외부 입력이면 지운다 (결정론 리뷰 M1b)
@@ -177,7 +178,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 // 081 FR-24: 받는 선수(008 T14a)·소유자·이동 불가·조종 불가(걷는 선수 등)는 추격 대상에서 뺀다. 경합 승자 추격(071 T08a)은 판정 뒤라 겹치지 않는다
                 var flightTarget = ctx.Actions.FlightTarget;
                 for (int s = 0; s < N; s++)
-                    _chaseExcluded[s] = s == owner || s == flightTarget || ctx.Kinematics.IsImmobile(s) || !ctx.IsSlotControllable(s) || _x.InputOf(s) != default || ctx.Keepers.IsBusySlot(s); // GK 동작 중(011 FR-17)이면 011이 우선
+                    _chaseExcluded[s] = s == owner || s == flightTarget || ctx.Kinematics.IsImmobile(s) || !ctx.IsSlotControllable(s) || _x.InputOf(s) != default || ctx.Keepers.IsBusySlot(s) || (Squad.IsKeeperSlot(s) && ctx.Keepers.HandlesAerial(Squad.TeamOfSlot(s))); // GK 동작 중(011 FR-17)이면 011이 우선. 073: 크로스 결정을 확정한 비행은 GK 결정(잡기·펀칭·포기)이 한다
                 _aerialChase.Select(_p, _w, landing, kickerTeam, _chaseExcluded);
             }
             var hasAction = false;
@@ -225,7 +226,15 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     continue;
                 }
                 Decision d;
-                if (_x.KeeperDecides(ctx, s))
+                if (inPlay && s == owner && !hasAction && _x.InputOf(s) == default && ctx.Keepers.MustClear(ctx, s))
+                {
+                    // 073 FR-04: 돌진으로 박스 밖에서 공을 얻은 GK는 손을 쓰지 않고 바로 걷어낸다 (072 인플레이 걷어내기와 같은 동작)
+                    hasAction = true;
+                    StandInOnBall.ClearForward(ctx, s, Squad.TeamOfSlot(s), false);
+                    d = StandInOnBall.Stand();
+                    Other(s, DecisionSource.Keeper, ctx.Tick);
+                }
+                else if (_x.KeeperDecides(ctx, s))
                 {
                     d = _x.DecideKeeper(ctx, s, ref hasAction);
                     Other(s, DecisionSource.Keeper, ctx.Tick);
