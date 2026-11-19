@@ -30,7 +30,10 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Referee
             Assert.AreEqual(a.Log.Hash, b.Log.Hash, "전체 이벤트 로그 해시");
         }
 
-        /// <summary>같은 틱 동시 반칙 픽스처: 12경기에서 같은 틱 Foul 2건 이상이 생긴 경기를 같은 시드로 다시 돌려 같은 순서·해시인지.</summary>
+        /// <summary>
+        /// 같은 틱 동시 반칙 픽스처: 공유 12경기에서 한 틱에 Contact 2건 이상(로그에서 붙어 있지 않아도 — 같은 틱 안은 종류 순 정렬이라 사이에 다른 이벤트가 낀다)인
+        /// 경기를 같은 시드로 다시 돌려 심판 해시가 같은지.
+        /// </summary>
         [Test, Category("Determinism")]
         public void SimultaneousFouls_Fixture_Hash()
         {
@@ -38,20 +41,21 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Referee
             for (int m = 0; m < sims.Length; m++)
             {
                 var log = sims[m].Log;
-                for (int i = 1; i < log.Count; i++)
+                long tick = -1;
+                int n = 0;
+                for (int i = 0; i < log.Count; i++)
                 {
                     if (log[i].Kind != SimEventKind.Contact) continue;
-                    // 같은 틱 접촉 2건 이상 = 동시 반칙 후보
-                    if (log[i - 1].Kind == SimEventKind.Contact && log[i - 1].Tick == log[i].Tick)
-                    {
-                        var re = Run(LiveReferee.FirstSeed + (ulong)m);
-                        Assert.AreEqual(LiveReferee.RefereeHash(log), LiveReferee.RefereeHash(re.Log));
-                        TestContext.WriteLine($"시드 {LiveReferee.FirstSeed + (ulong)m} 틱 {log[i].Tick} 같은 틱 접촉 2건");
-                        return;
-                    }
+                    if (log[i].Tick == tick) n++;
+                    else { tick = log[i].Tick; n = 1; }
+                    if (n < 2) continue;
+                    var re = Run(LiveReferee.FirstSeed + (ulong)m);
+                    Assert.AreEqual(LiveReferee.RefereeHash(log), LiveReferee.RefereeHash(re.Log));
+                    TestContext.WriteLine($"시드 {LiveReferee.FirstSeed + (ulong)m} 틱 {tick} 같은 틱 접촉 2건");
+                    return;
                 }
             }
-            Assert.Inconclusive("12경기에 같은 틱 접촉이 없다");
+            Assert.Fail("공유 12경기에 같은 틱 접촉 2건이 없다 — 픽스처 시드를 다시 골라야 한다");
         }
 
         /// <summary>VAR 연출 길이는 시뮬 입력이 아니다: 연출 길이를 다르게 쓰는 구독자(화면 대역)를 붙여도 경기 해시가 같다.</summary>
