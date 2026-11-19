@@ -66,10 +66,11 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Match
         [Test]
         public void ExtractClip_DoesNotChangeHash()
         {
+            // 073 T19: 고정 9,000틱 대신 같은 시드 90분 경기의 첫 놓친 경합 + 20틱까지 (엔진 개정으로 경합 시각이 바뀌어도 의도 유지)
+            var ev = FirstMissed(LiveContactAudit.Played90(Seed).Result.EventLog);
             var sim = LiveContactAudit.NewSim(Seed);
-            sim.RunUntilTick(9000);
+            sim.RunUntilTick(ev.Tick + 20);
             var before = sim.StateHash();
-            var ev = FirstMissed(sim.Log.ToArray());
             sim.ExtractClip(ev.Tick - 30, ev.Tick + 10);
             Assert.AreEqual(before, sim.StateHash());
             sim.RunToEnd();
