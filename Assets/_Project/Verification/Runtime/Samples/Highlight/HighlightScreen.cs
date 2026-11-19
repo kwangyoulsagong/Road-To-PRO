@@ -51,7 +51,7 @@ namespace RoadToPro.Verification.Samples.Highlight
         const ulong Seed082 = 20261224UL, Seed082Slide = 20261192UL; // 2026-11-17 082 엔진(M-1 반영) 뒤 플레이어 768시드 탐색
         const ulong Seed085 = 20261181UL, Seed085Header = 20261273UL, Seed085Slide = 20261187UL; // 085 FR-05·06: 087 엔진 뒤 플레이어 768시드 탐색 — 기존 083 20261230·086 20261264·082 20261192에 장면 없음 → 놓친 경합 · 점프 헤딩슛 · 늦은 슬라이딩 첫 시드
         /// <summary>specs/073 AC-07: GK 돌진 · 크로스 잡기 · 스마더 (073 엔진 뒤 플레이어 768시드 탐색 `tool-feel-search`).</summary>
-        const ulong Seed073 = 20261801UL; // 2026-11-19 073 엔진 뒤 플레이어 768시드 탐색: GK 돌진·크로스 잡기·스마더 셋 다 있는 첫 시드
+        const ulong Seed073 = 20261481UL; // 2026-11-19 073 엔진(aca8c70) 뒤 플레이어 768시드 탐색: GK 돌진·크로스 잡기·스마더 셋 다 있는 첫 시드
         const ulong Seed086 = 20261264UL, Seed086Slide = 20261243UL; // 2026-11-18 086 엔진(재시작 잡기·GK 잡기 판정) 뒤 플레이어 768시드 탐색: 082 점프 헤딩슛 · 083 이긴 슬라이딩 첫 시드
 
         static void PlayFeelSeed(ulong seed)
