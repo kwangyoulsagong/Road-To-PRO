@@ -208,5 +208,20 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             StringAssert.Contains("\"referee\": {", json);
             StringAssert.Contains("\"penalties\":", json);
         }
+
+        /// <summary>specs/073 T17: GK 구역 키·경기당 값·야드 환산.</summary>
+        [Test]
+        public void KeeperSection_KeysInJson()
+        {
+            var t = new MatchFeelMetrics.Totals { Matches = 2, GkRushes = 6, GkClaims = 4 };
+            t.GkOutside[0] = 3; t.GkActs[0] = 10; t.GkActDist[0] = 10 * 0.9144 * 12;
+            var k = MatchFeelMetrics.Keeper(t);
+            Assert.AreEqual(1.5, k.Find(kv => kv.Key == "outsideActs90Team0").Value, 1e-9);
+            Assert.AreEqual(12.0, k.Find(kv => kv.Key == "avgActDistYdTeam0").Value, 1e-9);
+            Assert.AreEqual(3.0, k.Find(kv => kv.Key == "rushes").Value, 1e-9);
+            var json = MatchFeelMetrics.ToJson(t, "x", 1, "-");
+            StringAssert.Contains("\"keeper\": {", json);
+            StringAssert.Contains("\"crossClaims\":", json);
+        }
     }
 }

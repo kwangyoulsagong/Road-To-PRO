@@ -74,6 +74,124 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Goalkeeper
             Assert.AreEqual(a.StateHash(), b.StateHash());
         }
 
+        /// <summary>specs/073 T04: 골문 이탈 계획(모든 필드 채움) 쓰기 → 읽기 → 해시·필드 동일, GK 시스템 섹션 왕복 해시 동일.</summary>
+        [Test]
+        public void StateRoundTrip_WithPlans()
+        {
+            var p = new KeeperPlan
+            {
+                Flight = 7, Cross = CrossMode.Punch, CrossReadyTick = 1234, Landing = new Vec2(5.5f, 30.25f), ClaimFailed = true,
+                Rush = true, RushPoint = new Vec2(19f, 41f), RushOwned = true,
+                OneOnOne = OneOnOneMode.Set, Carrier = 14, SetPoint = new Vec2(4f, 33f), StopTick = 99,
+            };
+            var w = new RoadToPro.Core.Serialization.StateWriter();
+            p.Write(w);
+            var q = KeeperPlan.Read(new RoadToPro.Core.Serialization.StateReader(w.ToArray()));
+            var ha = StableHasher.Create(); p.AddTo(ref ha);
+            var hb = StableHasher.Create(); q.AddTo(ref hb);
+            Assert.AreEqual(ha.Value, hb.Value);
+            Assert.AreEqual(p.Cross, q.Cross);
+            Assert.AreEqual(p.Carrier, q.Carrier);
+            Assert.AreEqual(p.StopTick, q.StopTick);
+            Assert.AreEqual(KeeperPlan.Empty.Flight, -1);
+
+            var bp = BallTestKit.Params();
+            var a = new GoalkeeperSystem(GoalkeeperParams.Defaults, bp, 73UL);
+            a.NotifyFlight(); a.NotifyFlight();
+            var sw = new RoadToPro.Core.Serialization.StateWriter();
+            a.Write(sw);
+            var b = new GoalkeeperSystem(GoalkeeperParams.Defaults, bp, 1UL);
+            b.Read(new RoadToPro.Core.Serialization.StateReader(sw.ToArray()));
+            var h1 = StableHasher.Create(); a.AddTo(ref h1);
+            var h2 = StableHasher.Create(); b.AddTo(ref h2);
+            Assert.AreEqual(h1.Value, h2.Value);
+            Assert.AreEqual(2, b.FlightSeq);
+        }
+
+        /// <summary>specs/073 AC-05: 스루패스·크로스·1v1 고정 상황 각 100개를 2회 처리 — 결정(선택 RNG 포함)·지연·정지 오차 해시 동일.</summary>
+        [Test]
+        public void LeaveGoal_Fixtures100x3_TwiceSameHash() => Assert.AreEqual(LeaveGoalHash(), LeaveGoalHash());
+
+        static ulong LeaveGoalHash()
+        {
+            var p = GoalkeeperParams.Defaults;
+            var sweeper = new SweeperModel(p);
+            var cross = new CrossClaimModel(p);
+            var one = new OneOnOneModel(p);
+            var chooser = new KeeperChooser(p);
+            var cands = new KeeperCandidate[4];
+            var fx = new SeedRng(7350UL);
+            var rng = new SeedRng(7351UL);
+            var times = new float[30];
+            var pos = new Vec3[30];
+            var goal = KeeperLeaveKit.Goal;
+            var h = StableHasher.Create();
+            for (int i = 0; i < 100; i++)
+            {
+                var k = KeeperLeaveKit.Profile(fx.Range(0f, 100f), fx.Range(0f, 100f), fx.Range(0f, 100f), fx.Range(0f, 100f));
+                // 스루패스
+                var w = KeeperLeaveKit.World(new Vec2(fx.Range(3f, 20f), fx.Range(28f, 40f)));
+                RoadToPro.Tests.EditMode.MatchEngine.Actions.ActionTestKit.Put(w, 12, new Vec2(fx.Range(20f, 40f), fx.Range(20f, 48f)), new Vec2(fx.Range(-8f, 0f), fx.Range(-2f, 2f)));
+                var n = KeeperLeaveKit.StraightPath(new Vec2(fx.Range(40f, 55f), fx.Range(25f, 43f)), new Vec2(fx.Range(-16f, -8f), fx.Range(-3f, 3f)), times, pos);
+                var g = sweeper.Gate(w, 0, in k, (KeeperRole)(i % 3), goal, 1f, times, pos, n, 0f, 2.5f);
+                h.Add(g.Has); h.Add(g.Pass); h.Add(g.Point.X); h.Add(g.Point.Y); h.Add(g.Delta); h.Add(g.Margin);
+                cands[0] = new KeeperCandidate { Kind = KeeperActionKind.Position, Utility = p.ChoicePositionUtility };
+                var c = 1;
+                if (g.Pass) cands[c++] = new KeeperCandidate { Kind = KeeperActionKind.Rush, Point = g.Point, Utility = sweeper.Utility(fx.NextFloat(), 0.05f, sweeper.EmptyXg(g.Point, goal)) };
+                h.Add(chooser.Choose(cands, c, default, k.DecisionsN, rng));
+                // 크로스
+                var cw = KeeperLeaveKit.World(new Vec2(fx.Range(1f, 5f), fx.Range(30f, 38f)));
+                for (int s = 12; s < 12 + (int)(fx.NextFloat() * 6f); s++)
+                    RoadToPro.Tests.EditMode.MatchEngine.Actions.ActionTestKit.Put(cw, s, new Vec2(fx.Range(3f, 16f), fx.Range(24f, 44f)));
+                var landing = new Vec2(fx.Range(2f, 15f), fx.Range(26f, 42f));
+                var ce = cross.Evaluate(cw, 0, in k, 1.88f, goal, 1f, landing, fx.Range(0.8f, 2.2f), 2.5f, 0.3f);
+                h.Add(ce.Has); h.Add(ce.PClaim); h.Add(ce.PPunch); h.Add(ce.Crowd);
+                if (ce.Has)
+                {
+                    cands[1] = new KeeperCandidate { Kind = KeeperActionKind.Claim, Point = landing, Utility = ce.UClaim };
+                    cands[2] = new KeeperCandidate { Kind = KeeperActionKind.Punch, Point = landing, Utility = ce.UPunch };
+                    h.Add(chooser.Choose(cands, 3, default, k.DecisionsN, rng));
+                }
+                h.Add(cross.Delay(in k, rng));
+                // 1v1
+                var ow = KeeperLeaveKit.World(new Vec2(fx.Range(1f, 5f), fx.Range(31f, 37f)));
+                var cpos = new Vec2(fx.Range(8f, 22f), fx.Range(24f, 44f));
+                RoadToPro.Tests.EditMode.MatchEngine.Actions.ActionTestKit.Put(ow, 12, cpos, new Vec2(fx.Range(-7f, -2f), 0f));
+                var ball = cpos + new Vec2(-fx.Range(0f, 8f), 0f);
+                var oe = one.Evaluate(ow, 0, in k, goal, 1f, 12, ball, fx.NextFloat() < 0.5f);
+                h.Add(oe.Has); h.Add(oe.Smother); h.Add(oe.SetPoint.X); h.Add(oe.SetPoint.Y); h.Add(oe.TimeToShot);
+                h.Add(OneOnOneModel.StopError(in k, rng));
+            }
+            return h.Value;
+        }
+
+        /// <summary>specs/073 AC-05: 010 실경기(팀 0 스위퍼·팀 1 전통) 같은 시드 2회 → 로그·상태 해시 동일, 경기 중 스냅샷 복원 뒤 이어 돌려도 동일 (계획 포함).</summary>
+        [Test]
+        public void LeaveGoal_LiveMatch_TwiceSameHash_SnapshotRestore()
+        {
+            MatchSim Make()
+            {
+                var sim = new MatchSim(RoadToPro.Tests.EditMode.MatchEngine.Tactics.ShapeTestKit.Setup(seed: 7301UL), RoadToPro.Tests.EditMode.MatchEngine.Tactics.ShapeTestKit.TuningWithShape());
+                sim.Context.Keepers.Roles[0] = KeeperRole.Sweeper;
+                sim.Context.Keepers.Roles[1] = KeeperRole.Traditional;
+                return sim;
+            }
+            var a = Make();
+            a.RunUntilTick(30_000);
+            var b = Make();
+            b.RunUntilTick(30_000);
+            Assert.AreEqual(a.Log.Hash, b.Log.Hash);
+            Assert.AreEqual(a.StateHash(), b.StateHash());
+            var snap = a.Capture();
+            var fork = a.Fork();
+            fork.Restore(snap, a.Log, a.Checkpoints);
+            Assert.AreEqual(a.StateHash(), fork.StateHash(), "복원 직후");
+            a.StepTicks(6_000);
+            fork.StepTicks(6_000);
+            Assert.AreEqual(a.StateHash(), fork.StateHash(), "복원 뒤 6,000틱");
+            Assert.AreEqual(a.Log.Hash, fork.Log.Hash);
+        }
+
         [Test]
         public void Snapshot_RoundTrip_MidDive()
         {

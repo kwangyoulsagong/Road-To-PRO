@@ -50,6 +50,8 @@ namespace RoadToPro.Verification.Samples.Highlight
         const ulong Seed083 = 20261230UL, Seed083Slide = 20261230UL; // 2026-11-17 083 엔진 뒤 플레이어 768시드 탐색: 놓친 경합 + 이긴 슬라이딩 둘 다 있는 첫 시드
         const ulong Seed082 = 20261224UL, Seed082Slide = 20261192UL; // 2026-11-17 082 엔진(M-1 반영) 뒤 플레이어 768시드 탐색
         const ulong Seed085 = 20261181UL, Seed085Header = 20261273UL, Seed085Slide = 20261187UL; // 085 FR-05·06: 087 엔진 뒤 플레이어 768시드 탐색 — 기존 083 20261230·086 20261264·082 20261192에 장면 없음 → 놓친 경합 · 점프 헤딩슛 · 늦은 슬라이딩 첫 시드
+        /// <summary>specs/073 AC-07: GK 돌진 · 크로스 잡기 · 스마더 (073 엔진 뒤 플레이어 768시드 탐색 `tool-feel-search`).</summary>
+        const ulong Seed073 = 20261801UL; // 2026-11-19 073 엔진 뒤 플레이어 768시드 탐색: GK 돌진·크로스 잡기·스마더 셋 다 있는 첫 시드
         const ulong Seed086 = 20261264UL, Seed086Slide = 20261243UL; // 2026-11-18 086 엔진(재시작 잡기·GK 잡기 판정) 뒤 플레이어 768시드 탐색: 082 점프 헤딩슛 · 083 이긴 슬라이딩 첫 시드
 
         static void PlayFeelSeed(ulong seed)
@@ -312,6 +314,10 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["livePlay085"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed085); Play(false); }; // 085 AC-05 놓친 경합
             FarmContext.Screens["livePlay085header"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed085Header); Play(false); }; // 085 AC-06 점프 헤딩슛
             FarmContext.Screens["livePlay085slide"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed085Slide); Play(false); }; // 085 AC-06 늦은 슬라이딩
+            FarmContext.Screens["livePlay073"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed073); Play(false); }; // 073 AC-07 GK 돌진·크로스 잡기·스마더
+            FarmContext.Screens["live.freeze073.rush"] = () => FreezeEvent(e => e.Kind == SimEventKind.KeeperRush, null, "gk_rush", 0.8d); // 돌진 결정 + 0.8 s: 골문을 떠나 달리는 중
+            FarmContext.Screens["live.freeze073.claim"] = () => FreezeEvent(e => FeelSceneCoverage.IsKeeperClaim(e), null, "gk_claim", 0.9d); // 경합 판정 + 0.9 s: 잡기 직전 (착지 약 1 s 전 판정)
+            FarmContext.Screens["live.freeze073.smother"] = () => FreezeEvent(e => e.Kind == SimEventKind.Smother, null, "gk_smother", 0d); // 덮치는 순간
             FarmContext.Screens["live.freeze083.missed"] = () => FreezeMissedAerial("missed_jump"); // 놓친 경합 기록 정점
             FarmContext.Screens["live.freeze083.slide"] = () => FreezeEvent(e => FeelSceneCoverage.IsSlideWin(e), null, "slide_win", 0d); // 이긴 슬라이딩 접촉 순간
             FarmContext.Screens["live.freeze082.header"] = () => { FreezeEvent(e => FeelSceneCoverage.IsJumpHeader(e), null, "header_jump", 0d); StartCoroutine(LogHeadBall()); }; // 접촉 순간
@@ -369,6 +375,18 @@ namespace RoadToPro.Verification.Samples.Highlight
             var missedSeeds = new System.Text.StringBuilder();
             for (int i = 0, n = 0; i < masks.Length && n < 12; i++) if ((masks[i] & FeelSceneCoverage.MissedAerial) != 0) { missedSeeds.Append(FeelSceneCoverage.FirstSeed + (ulong)i).Append(' '); n++; }
             Debug.Log($"[highlight] 085 시드 확인: 놓친 경합 {At(Seed083)} · 점프 헤딩슛 {At(Seed086)} · 늦은 슬라이딩 {At(Seed082Slide)} · 놓친 경합 시드 {missedSeeds}");
+            // 073 T18: GK 장면 3종 첫 시드 + 셋 다 있는 첫 시드, 기존 E2E 시드가 아직 장면을 갖는지
+            int kRush = -1, kClaim = -1, kSm = -1, kAll = -1;
+            const int kMask = FeelSceneCoverage.KeeperRush | FeelSceneCoverage.KeeperClaim | FeelSceneCoverage.KeeperSmother;
+            for (int i = 0; i < masks.Length; i++)
+            {
+                if (kRush < 0 && (masks[i] & FeelSceneCoverage.KeeperRush) != 0) kRush = i;
+                if (kClaim < 0 && (masks[i] & FeelSceneCoverage.KeeperClaim) != 0) kClaim = i;
+                if (kSm < 0 && (masks[i] & FeelSceneCoverage.KeeperSmother) != 0) kSm = i;
+                if (kAll < 0 && (masks[i] & kMask) == kMask) kAll = i;
+            }
+            Debug.Log($"[highlight] 073 탐색: GK 돌진 {S(kRush)} · 크로스 잡기 {S(kClaim)} · 스마더 {S(kSm)} · 셋 다 {S(kAll)}");
+            Debug.Log($"[highlight] 073 기존 시드 확인: 082 {At(Seed082)} · 082s {At(Seed082Slide)} · 083 {At(Seed083)} · 085 {At(Seed085)} · 085h {At(Seed085Header)} · 085s {At(Seed085Slide)} · 086 {At(Seed086)} · 086s {At(Seed086Slide)} · 081 {At(Seed081)} · 081s {At(Seed081Slide)} · 081c {At(Seed081Cutback)}");
             Debug.Log($"[highlight] 081 탐색: A {S(best)} · 늦은 슬라이딩 {S(slide)} · 헤딩슛 {S(head)} · 컷백 슛 골 {S(cut)} · 082 점프 헤딩슛 {S(jump)} · 083 놓친 경합 {S(missed)} · 이긴 슬라이딩 {S(slideWin)} · 둘 다 {S(both)}");
         }
 

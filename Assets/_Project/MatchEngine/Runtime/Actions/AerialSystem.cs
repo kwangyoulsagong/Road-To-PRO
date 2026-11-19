@@ -21,6 +21,8 @@ namespace RoadToPro.MatchEngine.Actions
         None = 4,
         /// <summary>결정된 승자가 공에 못 닿음(놓침·라인·다른 터치·이탈) — 헤더 없이 일반 수신.</summary>
         Missed = 5,
+        /// <summary>073 FR-11: 펀칭 모드 GK가 이김 — 접촉 순간 손으로 쳐낸다 (Punch 302).</summary>
+        Punch = 6,
     }
 
     /// <summary>
@@ -223,6 +225,22 @@ namespace RoadToPro.MatchEngine.Actions
             // 박스 안에 떨어지는 공을 GK가 잡지 않고 손 기준 높이(머리 최저 0)로 헤더 실행 → 하이라이트 머리–공 24 cm (084 T15b ②)
             if (Squad.IsKeeperSlot(_winner) && Match.Stages.PhysicsStage.InOwnBox(ctx, winTeam, new Vec3(landing.X, landing.Y, 0f)))
             {
+                var mode = ctx.Keepers.AerialMode(winTeam);
+                if (mode == Goalkeeper.CrossMode.Punch)
+                {
+                    // 073 FR-11: 펀칭 — 헤더와 같은 접촉 흐름(손 도달 높이·머리 최저 0)으로 접촉 순간 쳐낸다
+                    KeeperWins++;
+                    _outcome = HeaderOutcome.Punch;
+                    _decided = true;
+                    return;
+                }
+                if (mode == Goalkeeper.CrossMode.Claim && !ctx.Keepers.RollClaim(ctx, winTeam, sub, new Vec3(_contact.X, _contact.Y, _headReach < _p.AerialContactZ ? _headReach : _p.AerialContactZ)))
+                {
+                    // 073 FR-11: 잡기 실패 — GK는 공을 놓치고(이 비행 손 잡기 제외) 공은 그대로 간다 → 일반 수신
+                    Missed++;
+                    EndWithoutHeader(ctx, sub, HeaderOutcome.Missed);
+                    return;
+                }
                 KeeperWins++;
                 _outcome = HeaderOutcome.Keeper;
                 EndWithoutHeader(ctx, sub, HeaderOutcome.Keeper); // 011 잡기 경로(Resolve hands)로 — 클레임·펀칭은 073
@@ -333,6 +351,7 @@ namespace RoadToPro.MatchEngine.Actions
             {
                 if (!w.Active[s] || !ctx.IsSlotControllable(s) || ctx.Kinematics.IsImmobile(s)) continue;
                 if (s == _kicker) continue;
+                if (ctx.Keepers.SkipsAerial(ctx, s)) continue; // 073 FR-11·12: 크로스 포기·결단 지연 중·잡기 실패한 GK는 경합에 없다
                 var pos = w.Pos[s];
                 var rel = pos - landing;
                 var dist = rel.Length();
@@ -485,6 +504,17 @@ namespace RoadToPro.MatchEngine.Actions
             var target = -1;
             switch (_outcome)
             {
+                case HeaderOutcome.Punch:
+                {
+                    // 073 FR-11 펀칭: 자기 골문 반대 방향으로 ±헤더 클리어 각·속도 (011 FR-10 펀칭과 같은 방향 원칙). 헤더 이벤트 대신 Punch(302)
+                    var away = new Vec2(ctx.AttackDir(team), 0f);
+                    var h = ActionMath.Rotate(away, _n1 * _p.HeaderClearAngle * ActionMath.DegToRad);
+                    var sp = ActionMath.Lerp(_p.HeaderClearLo, _p.HeaderClearHi, ActionMath.NormalCdf(_n2));
+                    v = new Vec3(h.X * sp, h.Y * sp, _p.HeaderClearVz);
+                    kind = SimEventKind.Punch;
+                    kick = BallActionKind.Clearance;
+                    break;
+                }
                 case HeaderOutcome.Shot:
                 {
                     var goal = ctx.OpponentGoal(team);
@@ -529,9 +559,11 @@ namespace RoadToPro.MatchEngine.Actions
             BallCommands.TakeControl(ref ball, s, from, _scratch);
             BallCommands.Kick(ref ball, v, Vec3.Zero, ctx.BallParams, _scratch);
             var detail = kick == BallActionKind.Pass ? _a.SnapshotOffside(ctx, s, team) : -1; // 헤딩 패스도 008 FR-15 오프사이드 스냅샷
+            var punch = _outcome == HeaderOutcome.Punch;
             var e = SimEvent.Make(kind, team, ctx.PlayerAtSlot(s), target >= 0 ? ctx.PlayerAtSlot(target) : -1);
             e.Substep = (sbyte)sub;
-            e.Part = BodyPart.Head;
+            e.Part = punch ? BodyPart.Hand : BodyPart.Head;
+            if (punch) e.A = (int)Goalkeeper.KeeperMotionKind.PunchTwoHands;
             e.BallPhase = ball.Phase;
             e.F0 = v.Length();
             if (kind == SimEventKind.Shot)
@@ -541,17 +573,21 @@ namespace RoadToPro.MatchEngine.Actions
                 e.F1 = _xg;
             }
             else if (kind == SimEventKind.Pass) e.B = detail + 1;
+            else if (punch) e.B = _detailFirst + 1; // 073: 펀칭 → 경합 묶음 연결 (Emit 전에 — 결정론 리뷰 M1)
             ctx.SetPosition(ref e, from);
             ctx.Emit(e);
-            var he = SimEvent.Make(SimEventKind.Header, team, ctx.PlayerAtSlot(s), _nearestOpp >= 0 ? ctx.PlayerAtSlot(_nearestOpp) : -1);
-            he.Substep = (sbyte)sub;
-            he.A = _outcome == HeaderOutcome.Pass && target < 0 ? (int)HeaderOutcome.Clear : (int)_outcome;
-            he.B = _detailFirst + 1;
-            he.F0 = _winProb;
-            he.F1 = _xg;
-            he.BallPhase = ball.Phase;
-            ctx.SetPosition(ref he, from);
-            ctx.Emit(he);
+            if (!punch) // 073: 펀칭은 헤더가 아니다 (Punch 이벤트 B = 경합 묶음 연결)
+            {
+                var he = SimEvent.Make(SimEventKind.Header, team, ctx.PlayerAtSlot(s), _nearestOpp >= 0 ? ctx.PlayerAtSlot(_nearestOpp) : -1);
+                he.Substep = (sbyte)sub;
+                he.A = _outcome == HeaderOutcome.Pass && target < 0 ? (int)HeaderOutcome.Clear : (int)_outcome;
+                he.B = _detailFirst + 1;
+                he.F0 = _winProb;
+                he.F1 = _xg;
+                he.BallPhase = ball.Phase;
+                ctx.SetPosition(ref he, from);
+                ctx.Emit(he);
+            }
             if (_nearestOpp >= 0)
             {
                 var attacking = team == Squad.TeamOfSlot(_kicker);

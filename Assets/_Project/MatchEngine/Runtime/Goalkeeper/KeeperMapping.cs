@@ -48,6 +48,10 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         public float ReactTime, DiveSpeed, MaxReach, StandReachZ, HandlingA, SpillMean, PositionSigma, Temperature;
         public float HandlingN, PositioningN, DecisionsN;
         public int Candidates;
+        /// <summary>073: 스위퍼 마진 m(s)·결단 지연(s)·점프 보정(m)·1v1 정지 오차 σ_t(s)와 정규화 n.</summary>
+        public float SweepMargin, CommandDelay, JumpBonus, OneOnOneSigma, CommandN, OneOnOneN, SweepingN;
+        /// <summary>073 FR-21 스프레드 r0 증가량(m). 매핑값은 0 — 스프레드 중에만 호출자가 복사본에 넣는다.</summary>
+        public float R0Bonus;
 
         public static KeeperProfile From(GoalkeeperParams p, in KeeperAttributes a)
         {
@@ -70,6 +74,13 @@ namespace RoadToPro.MatchEngine.Goalkeeper
                 PositioningN = positioning,
                 DecisionsN = decisions,
                 Candidates = KeeperMapping.CandidateCount(p, positioning),
+                SweepMargin = KeeperMapping.SweepMargin(p, KeeperAttributes.N(a.Sweeping)),
+                CommandDelay = KeeperMapping.CommandDelay(p, KeeperAttributes.N(a.CommandArea)),
+                JumpBonus = KeeperMapping.JumpBonus(p, KeeperAttributes.N(a.Jumping)),
+                OneOnOneSigma = KeeperMapping.OneOnOneSigma(p, KeeperAttributes.N(a.OneOnOne)),
+                CommandN = KeeperAttributes.N(a.CommandArea),
+                OneOnOneN = KeeperAttributes.N(a.OneOnOne),
+                SweepingN = KeeperAttributes.N(a.Sweeping),
             };
         }
     }

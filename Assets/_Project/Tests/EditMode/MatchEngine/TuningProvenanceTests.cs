@@ -162,6 +162,26 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             TestContext.WriteLine($"012 심판 계수 {n}개");
         }
 
+        /// <summary>
+        /// specs/073 (플랜 데이터 표): 073이 새로 만든 GK 이탈 계수(`gk.sweep.*`·`gk.cross.*`·`gk.oneOnOne.*`)는 출처 칸에 "073" 기록이 있고
+        /// 값은 min·max 안이다. 073은 기존 계수를 바꾸지 않는다(기존 테스트가 main 기준으로 본다).
+        /// </summary>
+        [Test]
+        public void Tuning073_KeeperLeaveIds_HaveSource()
+        {
+            var n = 0;
+            foreach (var f in Files())
+                foreach (var d in TuningLoader.LoadDefinitionsFile(f).Definitions)
+                {
+                    if (!d.Id.StartsWith("gk.sweep.") && !d.Id.StartsWith("gk.cross.") && !d.Id.StartsWith("gk.oneOnOne.")) continue;
+                    n++;
+                    StringAssert.Contains("073", d.Source, $"{d.Id}: 출처 칸에 073 기록이 있어야 한다");
+                    Assert.That(d.Default, Is.InRange(d.Min, d.Max), $"{d.Id}: min·max 안이어야 한다");
+                }
+            Assert.Greater(n, 0, "073 계수가 없다");
+            TestContext.WriteLine($"073 GK 이탈 계수 {n}개");
+        }
+
         [Test]
         public void ShotAimDesignCoefficients_Unchanged()
         {

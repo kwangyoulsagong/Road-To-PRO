@@ -594,6 +594,7 @@ namespace RoadToPro.MatchEngine.Actions
             if (ctx.Flow.PenaltyKickTick >= 0) ctx.Flow.ClearPenalty();
             if (!hands) SlowAfterTouch(ctx, s, abs);
             ResetAttempts();
+            ctx.Keepers.OnKeeperClaim(ctx, s, sub, pos, hands); // 073: 스마더 이벤트 · 돌진 박스 밖 소유
             Diagnostics?.OnContact(ctx.Tick, sub, s, kind, touch.Distance);
         }
 

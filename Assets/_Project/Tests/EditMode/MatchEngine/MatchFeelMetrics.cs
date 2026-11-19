@@ -33,6 +33,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             /// <summary>specs/012 판정 지표 (017 FR-20·012 FR-96 대비 측정, AC-17·18 중간값).</summary>
             public double RefFouls, RefYellows, RefReds, RefSecondYellows, RefPenalties, RefOffsides, RefVarChecks, RefVarOverturns, RefErrorsAfterVar,
                 RefMajor, RefMajorCorrect, RefDives, RefDiveCards, RefStandTackles, RefStandFouls, RefSlideTackles, RefSlideFouls, RefAdvantages, RefHandballs;
+            /// <summary>specs/073 GK 이탈 지표: 팀별 박스 밖 수비 행동·수비 행동 수·골라인에서 거리 합(m), 크로스 잡기·펀칭·잡기 실패·스마더·돌진.</summary>
+            public readonly double[] GkOutside = new double[2], GkActs = new double[2], GkActDist = new double[2];
+            public double GkClaims, GkPunches, GkClaimFails, GkSmothers, GkRushes, GkRushesOutside;
 
             public void Add(Totals o)
             {
@@ -40,6 +43,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 RefVarChecks += o.RefVarChecks; RefVarOverturns += o.RefVarOverturns; RefErrorsAfterVar += o.RefErrorsAfterVar; RefMajor += o.RefMajor; RefMajorCorrect += o.RefMajorCorrect;
                 RefDives += o.RefDives; RefDiveCards += o.RefDiveCards; RefStandTackles += o.RefStandTackles; RefStandFouls += o.RefStandFouls; RefSlideTackles += o.RefSlideTackles;
                 RefSlideFouls += o.RefSlideFouls; RefAdvantages += o.RefAdvantages; RefHandballs += o.RefHandballs;
+                for (int i = 0; i < 2; i++) { GkOutside[i] += o.GkOutside[i]; GkActs[i] += o.GkActs[i]; GkActDist[i] += o.GkActDist[i]; }
+                GkClaims += o.GkClaims; GkPunches += o.GkPunches; GkClaimFails += o.GkClaimFails; GkSmothers += o.GkSmothers; GkRushes += o.GkRushes; GkRushesOutside += o.GkRushesOutside;
                 Matches += o.Matches; Goals += o.Goals; ShotOnTarget += o.ShotOnTarget; ShotGoals += o.ShotGoals; OwnGoals += o.OwnGoals; Shots += o.Shots; ShotXg += o.ShotXg; HeaderShots += o.HeaderShots; HeaderGoals += o.HeaderGoals; Saves += o.Saves;
                 Passes += o.Passes; Received += o.Received; TakeOns += o.TakeOns; TakeOnOk += o.TakeOnOk; Tackles += o.Tackles; TacklesWon += o.TacklesWon;
                 Interceptions += o.Interceptions; Contacts += o.Contacts; Possessions += o.Possessions; SeqTicks += o.SeqTicks; SeqCount += o.SeqCount;
@@ -149,6 +154,73 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             t.RefMajor += r.MajorDecisions; t.RefMajorCorrect += r.MajorCorrect; t.RefDives += r.Dives; t.RefDiveCards += r.DiveCards;
             t.RefStandTackles += r.StandingTackles; t.RefStandFouls += r.StandingTackleFouls; t.RefSlideTackles += r.SlidingTackles; t.RefSlideFouls += r.SlidingTackleFouls;
             t.RefAdvantages += r.Advantages; t.RefHandballs += r.Handballs;
+        }
+
+        /// <summary>
+        /// specs/073 GK 이탈 누계. 수비 행동 = GK의 Catch·Punch·Parry·Smother·Clearance·Interception·Tackle·BallRecovered·ClaimFail + 상대 패스를 받은 PassReceived.
+        /// 박스 밖 = 이벤트 위치가 자기 페널티 박스 밖(리서치 04 § A4 스위퍼 분류: 박스 밖 수비 행동/90, 평균 수비 행동 거리). GK = 선발 GK 선수.
+        /// </summary>
+        public static void AddKeepers(Totals t, MatchSim sim)
+        {
+            var ctx = sim.Context;
+            var log = sim.Log;
+            var L = ctx.Pitch.LengthM;
+            var W = ctx.Pitch.WidthM;
+            var gk0 = ctx.Setup.Team(0).Starters[0];
+            var gk1 = ctx.Setup.Team(1).Starters[0];
+            for (int i = 0; i < log.Count; i++)
+            {
+                ref readonly var e = ref log[i];
+                switch (e.Kind)
+                {
+                    case SimEventKind.KeeperRush: t.GkRushes++; if (e.B == 1) t.GkRushesOutside++; break;
+                    case SimEventKind.ClaimFail: t.GkClaimFails++; break;
+                    case SimEventKind.Smother: t.GkSmothers++; break;
+                    case SimEventKind.Header: if (e.A == (int)RoadToPro.MatchEngine.Actions.HeaderOutcome.Keeper) t.GkClaims++; break;
+                    case SimEventKind.Punch: if (e.F0 > 1.5f) t.GkPunches++; break; // 071 경합 펀칭(F0 = 공 속도)
+                }
+                if (e.Team < 0 || e.Team > 1) continue;
+                if (e.PlayerId != (e.Team == 0 ? gk0 : gk1)) continue;
+                bool def;
+                switch (e.Kind)
+                {
+                    case SimEventKind.Catch: case SimEventKind.Punch: case SimEventKind.Parry: case SimEventKind.Smother: case SimEventKind.Clearance:
+                    case SimEventKind.Interception: case SimEventKind.Tackle: case SimEventKind.BallRecovered: case SimEventKind.ClaimFail:
+                        def = true; break;
+                    case SimEventKind.PassReceived:
+                        def = e.OtherId >= 0 && ctx.Setup.Team(1 - e.Team).TryGetPlayer(e.OtherId, out _); break;
+                    default: def = false; break;
+                }
+                if (!def) continue;
+                var dir = ((e.Team == 0) ^ ((e.Period & 1) == 1)) ? 1 : -1;
+                var goalX = dir > 0 ? 0f : L;
+                var depth = (e.X * L - goalX) * dir;
+                var outside = !(depth <= RoadToPro.MatchEngine.Match.Stages.PhysicsStage.BoxDepth
+                    && System.Math.Abs(e.Y * W - W * 0.5f) <= RoadToPro.MatchEngine.Match.Stages.PhysicsStage.BoxHalfWidth);
+                t.GkActs[e.Team]++;
+                t.GkActDist[e.Team] += depth > 0f ? depth : 0f;
+                if (outside) t.GkOutside[e.Team]++;
+            }
+        }
+
+        /// <summary>specs/073 GK 지표 (경기당). 팀 0·1을 따로 — 역할 비교(AC-04)는 팀마다 역할을 다르게 준다.</summary>
+        public static List<KeyValuePair<string, double>> Keeper(Totals t)
+        {
+            var n = t.Matches > 0 ? t.Matches : 1;
+            const double Yard = 0.9144;
+            return new List<KeyValuePair<string, double>>
+            {
+                new("outsideActs90Team0", t.GkOutside[0] / n),
+                new("outsideActs90Team1", t.GkOutside[1] / n),
+                new("avgActDistYdTeam0", t.GkActs[0] > 0 ? t.GkActDist[0] / t.GkActs[0] / Yard : 0),
+                new("avgActDistYdTeam1", t.GkActs[1] > 0 ? t.GkActDist[1] / t.GkActs[1] / Yard : 0),
+                new("rushes", t.GkRushes / n),
+                new("rushesOutside", t.GkRushesOutside / n),
+                new("crossClaims", t.GkClaims / n),
+                new("crossPunches", t.GkPunches / n),
+                new("claimFails", t.GkClaimFails / n),
+                new("smothers", t.GkSmothers / n),
+            };
         }
 
         /// <summary>specs/012 판정 지표 (경기당·비율).</summary>
@@ -381,6 +453,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             sb.Append("  },\n  \"referee\": {\n"); // specs/012 T27
             var r = Referee(t);
             for (int i = 0; i < r.Count; i++) sb.Append("    \"").Append(r[i].Key).Append("\": ").Append(r[i].Value.ToString("0.####", c)).Append(i + 1 < r.Count ? ",\n" : "\n");
+            sb.Append("  },\n  \"keeper\": {\n"); // specs/073 T17
+            var g = Keeper(t);
+            for (int i = 0; i < g.Count; i++) sb.Append("    \"").Append(g[i].Key).Append("\": ").Append(g[i].Value.ToString("0.####", c)).Append(i + 1 < g.Count ? ",\n" : "\n");
             sb.Append("  }\n}\n");
             return sb.ToString();
         }

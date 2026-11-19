@@ -25,6 +25,10 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         long _start, _react, _contact;
         SaveJudgement _j;
         float _psxg;
+        bool _spread;
+
+        /// <summary>073 FR-21: 추적 중인 슛에 스프레드를 적용했다 (시작 때 고정).</summary>
+        public bool Spread => _spread;
 
         /// <summary>마지막 실점용 표시 (심판 단계가 Goal 이벤트에 붙인다): 수비 팀, B 플래그, PSxG.</summary>
         public int PendingGoalTeam { get; private set; } = -1;
@@ -111,12 +115,13 @@ namespace RoadToPro.MatchEngine.Goalkeeper
             if (!_save.Predict(in ball, ctx.BallParams, goal, dirIn)) return;
 
             ref readonly var st = ref ctx.SlotState(slot);
-            var state = new KeeperState { Position = st.Position, Velocity = st.Velocity };
+            var state = new KeeperState { Position = st.Position, Velocity = gk.SaveVelocity(ctx, team, st.Velocity) }; // 073 FR-20·22: 1v1 세트면 정지 여부 = 정지 시각 오차
             var busy = gk.IsBusy(team);
             var extra = busy ? 10f : OcclusionDelay(ctx, slot, goal);
             var crowd = 0;
             var sctx = new SaveContext { Goal = goal, DirIn = dirIn, ExtraDelay = extra };
-            var prof = gk.Profile(ctx, team);
+            _spread = gk.SpreadActive(ctx, team); // 073 FR-21: 판정·다이빙·처리가 같은 스프레드 여부를 쓰게 시작 때 고정
+            var prof = gk.ProfileFor(ctx, team, _spread);
             var j = _save.Evaluate(in state, in prof, in sctx);
             if (j.ContactIndex < 0) return;
             crowd = Crowd(ctx, slot, j.ContactPoint);
@@ -207,7 +212,7 @@ namespace RoadToPro.MatchEngine.Goalkeeper
             var goal = ctx.OwnGoal(team);
             var dirIn = (float)ctx.AttackDir(team);
             var sctx = new SaveContext { Goal = goal, DirIn = dirIn };
-            var prof = gk.Profile(ctx, team);
+            var prof = gk.ProfileFor(ctx, team, _spread);
             var o = _save.Resolve(in _j, in prof, in sctx, gk.Rng);
             ref var ball = ref ctx.Ball;
             var pos = ball.Position;
@@ -316,7 +321,7 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         public void Write(StateWriter w)
         {
             w.Write(_epoch); w.Write(_seenEpoch); w.Write(_active); w.Write(_reactDone); w.Write(_team);
-            w.Write(_start); w.Write(_react); w.Write(_contact); w.Write(_psxg);
+            w.Write(_start); w.Write(_react); w.Write(_contact); w.Write(_psxg); w.Write(_spread);
             WriteJ(w, in _j);
             w.Write(PendingGoalTeam); w.Write(PendingGoalFlags); w.Write(PendingGoalPsxg);
         }
@@ -324,7 +329,7 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         public void Read(StateReader r)
         {
             _epoch = r.ReadInt(); _seenEpoch = r.ReadInt(); _active = r.ReadBool(); _reactDone = r.ReadBool(); _team = r.ReadInt();
-            _start = r.ReadLong(); _react = r.ReadLong(); _contact = r.ReadLong(); _psxg = r.ReadFloat();
+            _start = r.ReadLong(); _react = r.ReadLong(); _contact = r.ReadLong(); _psxg = r.ReadFloat(); _spread = r.ReadBool();
             _j = ReadJ(r);
             PendingGoalTeam = r.ReadInt(); PendingGoalFlags = r.ReadInt(); PendingGoalPsxg = r.ReadFloat();
         }
@@ -332,7 +337,7 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         public void AddTo(ref StableHasher h)
         {
             h.Add(_epoch); h.Add(_seenEpoch); h.Add(_active); h.Add(_reactDone); h.Add(_team);
-            h.Add(_start); h.Add(_react); h.Add(_contact); h.Add(_psxg);
+            h.Add(_start); h.Add(_react); h.Add(_contact); h.Add(_psxg); h.Add(_spread);
             AddJ(ref h, in _j);
             h.Add(PendingGoalTeam); h.Add(PendingGoalFlags); h.Add(PendingGoalPsxg);
         }

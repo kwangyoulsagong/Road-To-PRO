@@ -205,9 +205,10 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         /// <summary>반응 뒤 남은 시간 τ'로 본 도달거리 (선방 판정은 t_react_eff를 직접 뺀 τ'를 쓴다).</summary>
         public float ReachAfterReact(float tauAfter, float z, in KeeperProfile k)
         {
-            var r = _p.ReachR0 + k.DiveSpeed * (tauAfter > 0f ? tauAfter : 0f);
+            var r0 = _p.ReachR0 + k.R0Bonus; // 073 FR-21 스프레드 (매핑값 0 — 011과 같음)
+            var r = r0 + k.DiveSpeed * (tauAfter > 0f ? tauAfter : 0f);
             var rmax = k.MaxReach * HighFade(z);
-            if (rmax < _p.ReachR0) rmax = _p.ReachR0;
+            if (rmax < r0) rmax = r0;
             return r < rmax ? r : rmax;
         }
 

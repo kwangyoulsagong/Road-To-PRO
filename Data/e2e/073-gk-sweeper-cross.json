@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "073-gk-sweeper-cross",
+  "spec": "073",
+  "description": "실제 경기(058 경로, 073 GK 골문 이탈) 고정 시드 3장면: GK 돌진(결정 + 0.8 s, 골문을 떠나 달리는 중), 크로스 잡기(공중볼 경합 판정 + 0.9 s, 잡기 직전), 1v1 스마더(덮치는 순간). 박스 밖 장면에서 GK 손 접촉 동작이 없다. 손–공 거리는 080 보류(011 AC-24·25와 같은 처리) — 장면이 읽히는지 육안 승인 (AC-07)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261801
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-07"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay073"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze073.rush"
+    },
+    {
+      "type": "capture",
+      "name": "gk_rush",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze073.claim"
+    },
+    {
+      "type": "capture",
+      "name": "gk_claim",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze073.smother"
+    },
+    {
+      "type": "capture",
+      "name": "gk_smother",
+      "kind": "3d"
+    }
+  ]
+}

@@ -1,0 +1,149 @@
+{
+  "spec": "073",
+  "profile": "mac-m1-1600p",
+  "note": "specs/073 성능 예산 표의 기계용 사본. GK 골문 이탈 판단(스위퍼·크로스·1v1) 실경기 연결 — 기존 결정 틱·온볼·틱 GC 예산 그대로(회귀 확인) + GK 판단 워크로드 4개(스위퍼 게이트 ≤ 1 µs, 게이트 + 007 지점 질의 1회 ≤ 3.5 µs(2026-11-19 Q2 결정: 1 + 007 평균 2.5), 크로스 ≤ 1 µs, 1v1 ≤ 1 µs, p95 [제안]). farm.py bench --spec 073, README D17.",
+  "tests": [
+    "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests",
+    "RoadToPro.Tests.Performance.MatchEngine.KeeperLeavePerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-06",
+      "label": "010 결정 틱 평균 (Mono 회귀)",
+      "test": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase",
+      "group": "dec_tick_avg_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-06",
+      "label": "실경기 틱 GC 할당",
+      "test": "MatchFeelPerfTests.Perf_Tick_ZeroGc",
+      "group": "shot_gc_bytes_per_tick",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    },
+    {
+      "ac": "AC-06",
+      "label": "스위퍼 게이트 1회 p95 (Mono 회귀)",
+      "test": "KeeperLeavePerfTests.Perf_KeeperLeave",
+      "group": "kl_sweep_gate_p95_us",
+      "stat": "max",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-06",
+      "label": "스위퍼 게이트 + 지점 질의 1회 p95 (Mono 회귀)",
+      "test": "KeeperLeavePerfTests.Perf_KeeperLeave",
+      "group": "kl_sweep_query_p95_us",
+      "stat": "max",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-06",
+      "label": "크로스 판단 1회 p95 (Mono 회귀)",
+      "test": "KeeperLeavePerfTests.Perf_KeeperLeave",
+      "group": "kl_cross_p95_us",
+      "stat": "max",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-06",
+      "label": "1v1 판단 1회 p95 (Mono 회귀)",
+      "test": "KeeperLeavePerfTests.Perf_KeeperLeave",
+      "group": "kl_1v1_p95_us",
+      "stat": "max",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-06",
+      "label": "GK 판단 GC 할당",
+      "test": "KeeperLeavePerfTests.Perf_KeeperLeave",
+      "group": "kl_gc_bytes",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    }
+  ],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-06",
+        "label": "010 결정 틱 1회 평균 (073 GK 판단 연결 뒤, 081 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "max": 12,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-06",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-06",
+        "label": "공 소유 선수 1명 결정 평균 (007 T21 개정 예산 — 궤적 질의 K개 포함)",
+        "metric": "onball_owner_avg_us",
+        "max": 90,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-06",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-06",
+        "label": "스위퍼 판단 게이트 1회 p95 (침투 패스 1개, 첫 접촉점·마진)",
+        "metric": "kl_sweep_gate_p95_us",
+        "max": 1,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-06",
+        "label": "스위퍼 판단 게이트 + 007 지점 질의 1회 p95",
+        "metric": "kl_sweep_query_p95_us",
+        "max": 3.5,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-06",
+        "label": "크로스 처리 판단 1회 p95",
+        "metric": "kl_cross_p95_us",
+        "max": 1,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-06",
+        "label": "1v1 판단 1회 p95",
+        "metric": "kl_1v1_p95_us",
+        "max": 1,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-06",
+        "label": "GK 판단 GC 할당",
+        "metric": "kl_gc_bytes",
+        "max": 0,
+        "unit": "B"
+      }
+    ]
+  },
+  "deferred": {
+    "AC-04": "1,000경기 스위퍼 분류 — 017 하네스 전까지 보류(역할별 100경기 값으로 판정·기록, 2026-11-19 Q1 결정)"
+  }
+}

@@ -3,7 +3,7 @@ using RoadToPro.Core.Random;
 
 namespace RoadToPro.MatchEngine.Goalkeeper
 {
-    /// <summary>GK 행동 후보 종류 (specs/011 FR-16·94). 돌진·클레임(073)·배급(074)은 각 스펙이 추가한다.</summary>
+    /// <summary>GK 행동 후보 종류 (specs/011 FR-16·94, 073 FR-01·11·20). 번호는 세이브에 들어가므로 바꾸지 않는다. 배급(074)은 074가 추가한다.</summary>
     public enum KeeperActionKind : byte
     {
         /// <summary>위치 선정 목표로 (FR-01~07).</summary>
@@ -12,6 +12,16 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         Contest = 1,
         /// <summary>지점 이동 (시나리오 의도 지점 등).</summary>
         MoveTo = 2,
+        /// <summary>073 FR-01~03: 침투 패스 첫 접촉점으로 돌진.</summary>
+        Rush = 3,
+        /// <summary>073 FR-10~11: 크로스 나와서 잡기.</summary>
+        Claim = 4,
+        /// <summary>073 FR-11: 크로스 펀칭.</summary>
+        Punch = 5,
+        /// <summary>073 FR-20: 1v1 덮치기.</summary>
+        Smother = 6,
+        /// <summary>073 FR-20: 1v1 이등분선 전진 후 정지.</summary>
+        Set = 7,
     }
 
     /// <summary>후보 하나: 종류·목표 지점·기대효용.</summary>
