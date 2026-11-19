@@ -319,8 +319,8 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["livePlay073rush"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed073Rush); Play(false); }; // 073 AC-07 GK 돌진
             FarmContext.Screens["livePlay073claim"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed073Claim); Play(false); }; // 073 AC-07 크로스 잡기
             FarmContext.Screens["livePlay073smother"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed073Smother); Play(false); }; // 073 AC-07 스마더
-            FarmContext.Screens["livePlay074pk"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed074Penalty); Play(false); }; // 074 AC-06 PK 조기 다이빙 반대편 실점
-            FarmContext.Screens["livePlay074throw"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed074Throw); Play(false); }; // 074 AC-06 캐치 직후 던지기
+            FarmContext.Screens["livePlay074pk"] = () => StartCoroutine(PlayFresh(Seed074Penalty)); // 074 AC-06 PK 조기 다이빙 반대편 실점
+            FarmContext.Screens["livePlay074throw"] = () => StartCoroutine(PlayFresh(Seed074Throw)); // 074 AC-06 캐치 직후 던지기
             FarmContext.Screens["live.freeze074.pk"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && (e.A & 1) != 0 && e.Tick == PenaltyDiveGoalTick(), null, "gk_pk_dive", 0.25d); // PK 킥 + 0.25 s: GK는 이미 반대쪽으로 날고 공은 비행 중
             FarmContext.Screens["live.freeze074.throw"] = () => FreezeEvent(e => FeelSceneCoverage.IsQuickThrow(e), null, "gk_throw", 0.05d); // 던지기 직후 (공이 손을 떠남)
             FarmContext.Screens["live.freeze073.rush"] = () => FreezeEvent(e => FeelSceneCoverage.IsVisibleRush(e), e => e.Kind == SimEventKind.KeeperRush, "gk_rush", 1.0d); // 돌진 결정 + 1.0 s: 골문을 떠나 달리는 중 (첫 접촉점 골라인 8 m 이상)
@@ -669,6 +669,25 @@ namespace RoadToPro.Verification.Samples.Highlight
             d.FrameAt(ft, out var f, out var a);
             var b = d.Ball[f];
             Debug.Log($"[highlight] 073 진단 {label}: 이벤트 {e.Kind} 팀 {e.Team} 선수 {e.PlayerId} 위치 ({e.X * 105f - 52.5f:0.0}, {e.Y * 68f - 34f:0.0}) B {e.B} · 화면 t={t:0.00} GK0 ({g0.X:0.0}, {g0.Y:0.0}, {g0.Z:0.0}) GK1 ({g1.X:0.0}, {g1.Y:0.0}, {g1.Z:0.0}) 공 ({b.X:0.0}, {b.Y:0.0}, {b.Z:0.0}) [데이터 {d.StartTime:0.0}~{d.EndTime:0.0}]");
+            // 074 T19 진단: 장면 ②에 GK·공이 두 개씩 보임 — 데이터 개체(GK 12 m 안)와 실제 활성 오브젝트(공·선수 이름) 목록
+            var sb = new System.Text.StringBuilder();
+            for (int i = 0; i < HighlightData.Entities; i++)
+            {
+                var p = d.Pos(i, ft);
+                if ((new UnityEngine.Vector2(p.X - g0.X, p.Z - g0.Z)).magnitude <= 12f) sb.Append($" e{i}({p.X:0.0},{p.Y:0.0},{p.Z:0.0})");
+            }
+            var balls = new System.Text.StringBuilder();
+            var gks = new System.Text.StringBuilder();
+            foreach (var go in UnityEngine.Object.FindObjectsByType<UnityEngine.Transform>(UnityEngine.FindObjectsSortMode.None))
+            {
+                if (!go.gameObject.activeInHierarchy) continue;
+                var n = go.name;
+                var w = go.position;
+                if ((new UnityEngine.Vector2(w.x - g0.X, w.z - g0.Z)).magnitude > 12f) continue;
+                if (n.IndexOf("ball", System.StringComparison.OrdinalIgnoreCase) >= 0) balls.Append($" {n}@({w.x:0.0},{w.y:0.0},{w.z:0.0})/{(go.parent != null ? go.parent.name : "-")}");
+                if (n.IndexOf("keeper", System.StringComparison.OrdinalIgnoreCase) >= 0 || n.IndexOf("gk", System.StringComparison.OrdinalIgnoreCase) >= 0 || n.StartsWith("Player") || n.StartsWith("Cast")) gks.Append($" {n}@({w.x:0.0},{w.z:0.0})/{(go.parent != null ? go.parent.name : "-")}");
+            }
+            Debug.Log($"[highlight] 074 진단 {label}: 데이터 개체 GK 12 m 안{sb} · 공 오브젝트{balls} · 선수 오브젝트{gks}");
         }
 
         double _checkHalvesAt = double.NaN;
@@ -879,6 +898,20 @@ namespace RoadToPro.Verification.Samples.Highlight
             if (UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline is UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset urp)
                 urp.renderScale = scale;
             RenderQualityApplier.ResetHistory(cam);
+        }
+
+        /// <summary>
+        /// 074 T19: 앞 장면(정지 화면)의 재생을 끝내고 언로드를 기다린 뒤 새 시드 장면을 재생한다 — 그냥 Play하면 앞 장면 무대 개체(GK·공)가 남아
+        /// 두 개씩 보였다(진단: 던지기 화면에 PK 장면 Entity00·공이 그대로). 다른 스펙 화면(073 등)도 같은 문제 — 그 스펙을 다시 찍을 때 이 경로로.
+        /// </summary>
+        IEnumerator PlayFresh(ulong seed)
+        {
+            if (player.Sequencer != null) player.Sequencer.RequestSkipAll();
+            yield return null;
+            while (player.Sequencer != null && !player.IsUnloaded) yield return null;
+            HighlightCastStage.NightRequested = false;
+            PlayFeelSeed(seed);
+            Play(false);
         }
 
         IEnumerator Exit()
