@@ -1,0 +1,515 @@
+{
+  "title": "012 로직 증거",
+  "spec": {
+    "id": "012",
+    "name": "012 — 심판 · 규칙 판정 · 재시작",
+    "acs": [
+      {
+        "id": "AC-01",
+        "kind": "로직",
+        "text": "오프사이드 위치 표 테스트: 공격수 발끝이 두 번째 마지막 수비수보다 +0.01 m 앞 → 오프사이드 위치, 0 m → 온사이드, −0.01 m → 온사이드, 하프라인 정확히 위 → 온사이드, 자기 진영 → 온사이드, 팔만 앞 → 온사이드."
+      },
+      {
+        "id": "AC-02",
+        "kind": "로직",
+        "text": "스로인·골킥·코너킥에서 직접 받은 오프사이드 위치 선수는 반칙이 아니다. GK 스로는 손을 떠나는 순간 위치로 판정한다."
+      },
+      {
+        "id": "AC-03",
+        "kind": "로직",
+        "text": "관여 3유형 각각 반칙, 관여 없는 오프사이드 위치 선수는 반칙이 아니다. GK 시야 차단(OFF-09) 픽스처에서 반칙."
+      },
+      {
+        "id": "AC-04",
+        "kind": "로직",
+        "text": "수비수 의도적 플레이 후 받은 공은 오프사이드 리셋, 굴절·세이브 후는 유지. 리바운드(OFF-07)는 슛 순간 위치 기준이다."
+      },
+      {
+        "id": "AC-05",
+        "kind": "로직",
+        "text": "부심 지각 오차: |d| = 0.2 m 상황 10,000회에서 AR 정렬(1 m 이내) 시 오판율이 정렬 어긋남(5 m) 시보다 낮고, 오판 방향이 공격수 쪽(flash-lag)으로 치우친다."
+      },
+      {
+        "id": "AC-06",
+        "kind": "로직",
+        "text": "VAR 켠 리그에서 |d| < 0.10 m 오프사이드 골은 항상 실제 d대로 확정되고 \"근소\" 표시가 붙는다. VAR 끈 리그에서는 부심 판정이 그대로 남는다."
+      },
+      {
+        "id": "AC-07",
+        "kind": "로직",
+        "text": "진짜 판정 표 테스트: 공 먼저(1.0) + 낮은 강도 → 파울 아님, 뒤에서 + 발바닥 + 고강도 → 퇴장, 중간 강도 무모 태클 → 경고. 계수 확정 후 표 20행이 모두 기대값과 같다."
+      },
+      {
+        "id": "AC-08",
+        "kind": "로직",
+        "text": "DOGSO: 4요소 충족 + 박스 밖 → 퇴장, 박스 안 + 공을 향한 도전 → PK + 경고, 박스 안 + 잡기 → PK + 퇴장, 커버 수비수 1명 → DOGSO 아님. 어드밴티지 후 골(2026/27 규칙 세트) → 경고 없음."
+      },
+      {
+        "id": "AC-09",
+        "kind": "로직",
+        "text": "경고 1장 선수의 두 번째 경고 → 즉시 퇴장, 교체 불가, 필드 인원 1 감소 이벤트."
+      },
+      {
+        "id": "AC-10",
+        "kind": "로직",
+        "text": "어드밴티지: 이득 점수가 기준 초과 → 보류, 2.9 s 시점 공 상실 → 원래 지점 프리킥, 이득 유지 3 s 경과 → 보류 해제 + 다음 정지 때 경고 집행. 보류 창 안 골 → 골 인정 + 징계 집행."
+      },
+      {
+        "id": "AC-11",
+        "kind": "로직",
+        "text": "재시작 표 테스트: 터치라인 아웃(공격 마지막 터치) → 수비 팀 스로인, 골라인 아웃(공격 마지막 터치) → 골킥, (수비 마지막 터치) → 코너킥, GK 8.01 s 보유 → 상대 코너킥, 8.0 s → 위반 없음, 박스 안 직접 FK 반칙 → PK."
+      },
+      {
+        "id": "AC-12",
+        "kind": "로직",
+        "text": "공이 골라인을 99% 넘음 → 득점 아님, 100% → 득점. 득점 직전 핸드볼(공격 측 우연) → 취소."
+      },
+      {
+        "id": "AC-13",
+        "kind": "로직",
+        "text": "심판 인지 (같은 접촉 이벤트 10,000건): 일관성 0·시야 품질 0.2 심판의 오심률이 일관성 1·시야 1.0 심판보다 높고, 홈 편향 0.05 심판은 홈 팀 피해 파울 휘슬 비율이 편향 0 심판보다 높다 (각각 이항 검정 p < 0.01)."
+      },
+      {
+        "id": "AC-14",
+        "kind": "로직",
+        "text": "VAR: 진짜 퇴장인데 경고만 준 판정(명백한 오류) → 퇴장 격상, 경미한 차이(임계 미만) → 개입 없음, 4대 사안 아닌 판정(일반 파울) → 개입 없음. 체크 중 시뮬 상태가 변하지 않는다(체크 전후 상태 해시 같음)."
+      },
+      {
+        "id": "AC-15",
+        "kind": "로직",
+        "text": "정지 시간 데이터: VAR 1회 + 카드 지연 2회 픽스처에서 012가 낸 정지 이벤트의 시간 합이 판정 RNG로 정해진 값과 같고, 006 하프별 집계(006 AC-08)에 그대로 들어간다. 같은 시드면 VAR 체크 시간이 같다."
+      },
+      {
+        "id": "AC-16",
+        "kind": "로직",
+        "text": "퇴장으로 한 팀이 6명이 되는 순간 경기 중단 이벤트가 1개 나온다."
+      },
+      {
+        "id": "AC-17",
+        "kind": "로직",
+        "text": "1,000경기 헤드리스(017), 리그 평균 심판: 017 FR-20의 판정 지표(파울·경고·퇴장·PK 선언·오프사이드)와 FR-96 012 고유 지표가 모두 목표 범위 안. 엄격함 상·하위 심판 각 100경기의 경고 평균이 각각 6 이상 / 3 이하."
+      },
+      {
+        "id": "AC-18",
+        "kind": "로직",
+        "text": "주요 판정 정확도(VAR 전)가 90~95% 범위 안 (목표 미검증 표시 유지)."
+      },
+      {
+        "id": "AC-19",
+        "kind": "결정론",
+        "text": "같은 시드로 90분 경기 2회 실행 시 모든 판정 이벤트(종류, 틱, 카드, 오심 여부, VAR 결과) 해시가 같다. 같은 틱 동시 반칙 픽스처에서도 같다."
+      },
+      {
+        "id": "AC-20",
+        "kind": "결정론",
+        "text": "VAR 체크 지연(30~120 s)이 시뮬 결과에 영향을 주지 않는다 — VAR 연출 길이를 바꿔 실행해도 경기 이벤트 해시가 같다."
+      },
+      {
+        "id": "AC-21",
+        "kind": "성능",
+        "text": "접촉 판정, 오프사이드 판정, 심판 위치 갱신 p95와 GC 0 B가 예산 안이다."
+      },
+      {
+        "id": "AC-22",
+        "kind": "E2E",
+        "text": "(040 구현 후) 2D 탑뷰 디버그 오버레이에서 고정 시드 3장면(근소 오프사이드 패스 순간 라인, 어드밴티지 보류 표시, 주심 대각선 위치)이 캡처되고 기준 이미지와 일치한다. 프로필: smoke."
+      },
+      {
+        "id": "AC-23",
+        "kind": "로직",
+        "text": "평균 능력치 스탠딩 태클 10,000건의 파울 판정률이 FR-96 범위(10~14%) 안, 슬라이딩 파울률이 스탠딩의 2배 이상, 뒤에서 들어간 태클이 정면보다 높다 (계수 확정 후)."
+      },
+      {
+        "id": "AC-25",
+        "kind": "로직",
+        "text": "FR-68·69: 골라인 아웃 픽스처에서 경계 통과 뒤 재시작 전까지 공 위치가 004 물리로 연속이고(순간이동 0건, 058 FR-08 이동 1회 제외), 옆그물 바깥으로 향한 공은 그물 바깥 면에서 막혀 골대 안쪽으로 들어가지 않으며 골 판정 0건이다. 재시작 배치 이동은 058 AC-04 조건을 그대로 통과한다."
+      },
+      {
+        "id": "AC-24",
+        "kind": "결정론",
+        "text": "FR-97 진단 출력을 켠 실행과 끈 실행(같은 시드)의 이벤트 로그 해시와 체크포인트 해시가 모두 같다. 끈 실행에서 진단용 할당은 0 B다."
+      }
+    ],
+    "dir": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/specs/012-referee-rules"
+  },
+  "meta": {
+    "commit": "421b82f102d84e5bb0b7f2d184da5b714054bb23",
+    "branch": "feat/012-referee-rules",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-19 11:21:13 +0900",
+    "durationSec": 728.394819021225,
+    "command": "python3 Tools/devicefarm/farm.py logic --spec 012 --scope match,verification",
+    "profiles": [
+      "mac-m1-1600p"
+    ]
+  },
+  "logic": {
+    "ok": true,
+    "total": 1246,
+    "passed": 1232,
+    "failed": 0,
+    "skipped": 13,
+    "duration": 718.8272475,
+    "compileErrors": [],
+    "failures": [],
+    "png": null,
+    "html": "/Users/sagong-kwangyoul/Desktop/Road-To-PRO/.farm/runs/20261119-112113-logic/logic.html"
+  },
+  "scenarios": [],
+  "editmodePerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min": 28.104601506393415,
+      "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max": 0.0,
+      "RefereePerfTests.Perf_Referee/ref_contact_p95_us/max": 0.456,
+      "RefereePerfTests.Perf_Referee/ref_offside_p95_us/max": 0.219,
+      "RefereePerfTests.Perf_Referee/ref_officials_p95_us/max": 0.474,
+      "RefereePerfTests.Perf_Referee/ref_gc_bytes/max": 0.0
+    },
+    "budget": [
+      {
+        "ac": "AC-21",
+        "label": "010 결정 틱 평균 (Mono 회귀)",
+        "metric": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase/dec_tick_avg_us/min",
+        "value": 28.104601506393415,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "실경기 틱 GC 할당",
+        "metric": "MatchFeelPerfTests.Perf_Tick_ZeroGc/shot_gc_bytes_per_tick/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "심판 접촉 판정 1회 p95 (Mono 회귀)",
+        "metric": "RefereePerfTests.Perf_Referee/ref_contact_p95_us/max",
+        "value": 0.456,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "오프사이드 판정 1회 p95 (Mono 회귀)",
+        "metric": "RefereePerfTests.Perf_Referee/ref_offside_p95_us/max",
+        "value": 0.219,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "심판 위치+시야 1틱 p95 (Mono 회귀)",
+        "metric": "RefereePerfTests.Perf_Referee/ref_officials_p95_us/max",
+        "value": 0.474,
+        "budget": "—",
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "심판 판정 GC 할당",
+        "metric": "RefereePerfTests.Perf_Referee/ref_gc_bytes/max",
+        "value": 0.0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  },
+  "benchPerf": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "backend": "il2cpp",
+    "profile": "mac-m1-1600p",
+    "budget": [
+      {
+        "ac": "AC-21",
+        "label": "010 결정 틱 1회 평균 (012 심판 연결 뒤, 081 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "value": 5.233678801907969,
+        "budget": 12,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "공 소유 선수 1명 결정 평균 (007 T21 개정 예산 — 궤적 질의 K개 포함)",
+        "metric": "onball_owner_avg_us",
+        "value": 75.54697168901744,
+        "budget": 90,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "심판 접촉 판정 1회 p95",
+        "metric": "ref_contact_p95_us",
+        "value": 0.085,
+        "budget": 5,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "오프사이드 위치 판정 1회 p95 (22명)",
+        "metric": "ref_offside_p95_us",
+        "value": 0.031,
+        "budget": 3,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "결정 틱당 심판 3인 위치 갱신 + 시야 품질 p95",
+        "metric": "ref_officials_p95_us",
+        "value": 0.066,
+        "budget": 10,
+        "unit": "µs",
+        "ok": true
+      },
+      {
+        "ac": "AC-21",
+        "label": "심판 판정 GC 할당",
+        "metric": "ref_gc_bytes",
+        "value": 0,
+        "budget": 0,
+        "unit": "B",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "stages": {},
+    "metrics": {
+      "shot_xg_eval_us": 0.02475525,
+      "shot_xg_eval_p95_us": 0.030100000000000002,
+      "shot_aim_us": 0.41091800000000006,
+      "shot_aim_p95_us": 0.4357,
+      "aerial_contest_us": 0.057549,
+      "aerial_contest_p95_us": 0.0676,
+      "shot_gc_bytes_models": 0,
+      "shot_sink": 1,
+      "shot_match_tick_avg_us": 23.177275925925926,
+      "shot_match_tick_p95_us": 33.4,
+      "shot_match_ticks": 54000,
+      "shot_gc_bytes_per_tick": 0,
+      "shot_planned": 55,
+      "shot_blocks": 0,
+      "aerial_contests": 102,
+      "aerial_headers": 6,
+      "dec_tick_avg_us": 5.233678801907969,
+      "dec_tick_p95_us": 10.200000000000001,
+      "dec_match_s": 0.29844529999999997,
+      "dec_ticks": 57024,
+      "dec_gc_bytes_per_tick": 0,
+      "dec_space_queries_avg": 1.0724782547699214,
+      "dec_space_queries_max": 8,
+      "dec_offball_avg_us": 0.20609000000000002,
+      "dec_offball_p95_us": 0.4,
+      "onball_owner_avg_us": 75.54697168901744,
+      "onball_owner_p95_us": 105.1,
+      "onball_owner_samples": 11409,
+      "onball_owner_world_avg_us": 0.3741344552546235,
+      "onball_owner_decide_avg_us": 75.17283723376282,
+      "onball_owner_decide_p95_us": 104.8,
+      "onball_candidates_avg": 14.758173371899378,
+      "onball_pc_points_per_decision": 7.783942501533876,
+      "onball_pc_traj_per_decision": 3.146989219037602,
+      "onball_pc_samples_per_traj": 64.23805147058823,
+      "onball_pc_tti_per_decision": 1273.79779121746,
+      "onball_gc_bytes_per_decision": 0,
+      "onball_vision_avg_us": 0.0368999,
+      "onball_vision_p95_us": 0.040299999999999996,
+      "ref_contact_p95_us": 0.085,
+      "ref_offside_p95_us": 0.031,
+      "ref_officials_p95_us": 0.066,
+      "ref_gc_bytes": 0,
+      "ref_sink": 1
+    },
+    "host": "mac-m1-1600p",
+    "power": "ac",
+    "buildCached": false,
+    "durationSec": 13.3,
+    "unity": "6000.3.27f2",
+    "cpu": "Apple M5 Pro",
+    "development": false,
+    "commit": "421b82f102d84e5bb0b7f2d184da5b714054bb23"
+  },
+  "requireAllAcs": true,
+  "deferred": {
+    "AC-17": "1,000경기 판정 지표 — 017 하네스 전까지 보류(100경기 측정값 기록)",
+    "AC-18": "주요 판정 정확도 — 017 전까지 보류",
+    "AC-22": "2D 디버그 오버레이 — 040 전까지 보류"
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-04": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-06": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-07": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-08": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-10": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-11": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-12": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-13": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-14": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-15": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-16": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-19": [
+      {
+        "label": "결정론 테스트 83/83 통과",
+        "ok": true
+      }
+    ],
+    "AC-20": [
+      {
+        "label": "결정론 테스트 83/83 통과",
+        "ok": true
+      }
+    ],
+    "AC-21": [
+      {
+        "label": "EditMode 성능 6/6 통과 (mac-m1-1600p)",
+        "ok": true
+      },
+      {
+        "label": "IL2CPP 벤치 8/8 통과",
+        "ok": true
+      }
+    ],
+    "AC-23": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-25": [
+      {
+        "label": "EditMode 테스트",
+        "ok": true
+      }
+    ],
+    "AC-24": [
+      {
+        "label": "결정론 테스트 83/83 통과",
+        "ok": true
+      }
+    ]
+  },
+  "verdict": "deferred"
+}

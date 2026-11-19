@@ -1,6 +1,6 @@
 # 012 — 심판 · 규칙 판정 · 재시작 · 태스크
 
-상태: 승인됨 (2026-11-19 사용자 "진행")
+상태: 완료 (2026-11-19) · 승인됨 (2026-11-19 사용자 "진행")
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 판정기 태스크는 표 테스트를 먼저 쓰고(실패 확인) 구현한다. 테스트 이름에 IFAB 조항(`Law11_`, `Law12_` 등).
@@ -57,4 +57,4 @@
 - [x] T30 회귀 정리 — 파일: 고정 시드·고정 수치가 깨진 테스트(시드 재선택, 087 T13a 방식), 실경기 하이라이트 E2E 시드가 바뀌면 `Data/e2e/` 장면 시드 재선택, 범위 밖 보호 지표는 `specs/README.md` D 항목 추가 — 검증: `.claude/scripts/unity-test.sh EditMode` 범위 `match` 필터 1회 실패 0, `determinism-reviewer` 리뷰 — 결과: `match` 범위(Core·Architecture·MatchEngine·Presentation.Highlight) 1,246건 중 실패 1 → 수정 후 0. 실패 `DuelMatchTests.Tackles_CarrierWithinReach_20Matches`(거리 밖 4건)는 엔진 결함이 아니라 테스트 가정: 같은 틱 심판 단계에서 태클러가 직접 퇴장하면 틱 끝 스쿼드에 없어 '슬롯 없음'을 거리 밖으로 셌다 → 판정은 이벤트 F1(판정 순간 거리)로만, 슬롯 조회는 참고 거리에만. 고정 시드 재선택 없음, 하이라이트 실경기 픽스처 통과 → `Data/e2e/` 시드 그대로(E2E 재촬영 불필요). 보호 지표는 T29 측정에서 범위 안, 범위 밖 판정 분포는 D26·D27. `determinism-reviewer` 리뷰는 T29 단계에서 받고 반영(F1·F2·F4·상수 이동). 참고: 넓은 이름 정규식으로 Explicit 테스트(`MassSimDeadBallTests` 등)까지 돌아 64분 걸림 — 그 테스트가 덮어쓴 058 증거 `mass-sim.json`은 되돌림
 
 ## I. 검증
-- [ ] T31 `/verify 012` — 커밋 → `farm.py bench --spec 012` 1회(심판 워크로드 3개 예산 + 기존 결정 틱·물리 회귀 +10 % 이내·GC 0 B) → `farm.py logic --spec 012 --scope auto`(→ `match`) 1회 → E2E 시드가 바뀐 장면만 `farm.py shot --scenario <장면>` 1회 + 육안 승인 → `E/report.html` 아티팩트 발행. AC-17·18(017)·AC-22(040)는 보류(100경기 측정값 기록), 플랜 승인대로 완료 조건에서 뺌
+- [x] T31 `/verify 012` — 커밋 → `farm.py bench --spec 012` 1회(심판 워크로드 3개 예산 + 기존 결정 틱·물리 회귀 +10 % 이내·GC 0 B) → `farm.py logic --spec 012 --scope auto`(→ `match`) 1회 → E2E 시드가 바뀐 장면만 `farm.py shot --scenario <장면>` 1회 + 육안 승인 → `E/report.html` 아티팩트 발행. AC-17·18(017)·AC-22(040)는 보류(100경기 측정값 기록), 플랜 승인대로 완료 조건에서 뺌 — 결과: 커밋 `989db79`·`421b82f`(푸시 없음). 벤치(IL2CPP) 8/8 통과 — 접촉 p95 0.09 µs·오프사이드 0.03 µs·심판 위치 0.07 µs·결정 틱 5.23 µs·GC 0 B. 첫 실행에서 온볼 결정 평균 78.7 µs > 12 µs 실패 → 012 회귀 아님(007 T21이 피치 컨트롤로 80 µs·예산 90 µs로 개정, 012 예산 파일이 087 복사본이라 낡았음) → 007 현행 예산으로 맞춤. 로직은 `--scope match,verification`으로 지정(auto는 `Tests/Performance/` 경로가 규칙에 없어 all이 됨): 1,246건 실패 0, 결정론 83/83. 첫 실행에서 AC-19 동시 반칙 픽스처가 Inconclusive(붙은 Contact만 찾음) → 틱별 개수로 고침. E2E: 하이라이트 시드 변경 없음 → shot 생략. 리포트 https://claude.ai/artifact/2XL1bGofBgrvSSJvTVX1L1 — 보류 AC-17·18·22 외 전부 통과
