@@ -1,0 +1,115 @@
+{
+  "spec": "074",
+  "profile": "mac-m1-1600p",
+  "note": "specs/074 성능 예산 표의 기계용 사본. GK PK 전략·배급·손 보유 시간 실경기 연결 — 기존 결정 틱·온볼·틱 GC 예산 그대로(회귀 확인) + 워크로드 2개(배급 대상 선택 1회 후보 ≤ 10 × 방식 6 ≤ 10 µs, PK GK 전략 1회 ≤ 1 µs, p95 [제안]). farm.py bench --spec 074, README D17.",
+  "tests": [
+    "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests",
+    "RoadToPro.Tests.Performance.MatchEngine.PenaltyDistributionPerfTests"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-05",
+      "label": "010 결정 틱 평균 (Mono 회귀)",
+      "test": "MatchFeelPerfTests.Perf_DecisionTick_WithAerialChase",
+      "group": "dec_tick_avg_us",
+      "stat": "min",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-05",
+      "label": "실경기 틱 GC 할당",
+      "test": "MatchFeelPerfTests.Perf_Tick_ZeroGc",
+      "group": "shot_gc_bytes_per_tick",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    },
+    {
+      "ac": "AC-05",
+      "label": "배급 대상 선택 1회 p95 (Mono 회귀)",
+      "test": "PenaltyDistributionPerfTests.Perf_PenaltyDistribution",
+      "group": "pd_dist_p95_us",
+      "stat": "max",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-05",
+      "label": "PK GK 전략 1회 p95 (Mono 회귀)",
+      "test": "PenaltyDistributionPerfTests.Perf_PenaltyDistribution",
+      "group": "pd_pk_p95_us",
+      "stat": "max",
+      "max": null,
+      "unit": "µs",
+      "regression": false
+    },
+    {
+      "ac": "AC-05",
+      "label": "배급·PK 판단 GC 할당",
+      "test": "PenaltyDistributionPerfTests.Perf_PenaltyDistribution",
+      "group": "pd_gc_bytes",
+      "stat": "max",
+      "max": 0,
+      "unit": "B"
+    }
+  ],
+  "il2cpp": {
+    "budgets": [
+      {
+        "ac": "AC-05",
+        "label": "010 결정 틱 1회 평균 (074 배급·PK 연결 뒤, 081 예산 그대로)",
+        "metric": "dec_tick_avg_us",
+        "max": 12,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-05",
+        "label": "실경기 틱당 GC 할당",
+        "metric": "shot_gc_bytes_per_tick",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-05",
+        "label": "공 소유 선수 1명 결정 평균 (007 T21 개정 예산 — 궤적 질의 K개 포함)",
+        "metric": "onball_owner_avg_us",
+        "max": 90,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-05",
+        "label": "온볼 결정 GC 할당",
+        "metric": "onball_gc_bytes_per_decision",
+        "max": 0,
+        "unit": "B"
+      },
+      {
+        "ac": "AC-05",
+        "label": "배급 대상 선택 1회 p95 (후보 ≤ 10 × 방식 6)",
+        "metric": "pd_dist_p95_us",
+        "max": 10,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-05",
+        "label": "PK GK 전략 1회 p95",
+        "metric": "pd_pk_p95_us",
+        "max": 1,
+        "unit": "µs"
+      },
+      {
+        "ac": "AC-05",
+        "label": "배급·PK 판단 GC 할당",
+        "metric": "pd_gc_bytes",
+        "max": 0,
+        "unit": "B"
+      }
+    ]
+  },
+  "deferred": {
+    "AC-07": "PK 성공률 조건(017 FR-20) — 017 하네스 전까지 보류 (2026-11-19 플랜 Q2)"
+  }
+}

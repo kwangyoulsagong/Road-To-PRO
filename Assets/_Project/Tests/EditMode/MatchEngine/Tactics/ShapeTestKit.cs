@@ -67,6 +67,13 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Tactics
             }
         }
 
+        /// <summary>074: GK 튜닝 묶음만 바꾼 경기 튜닝 (재차기 연결 테스트 — 라인 이탈 확률 등).</summary>
+        public static MatchTuning TuningWithShape(RoadToPro.Core.Tuning.TuningBundle goalkeeper)
+        {
+            var t = MatchTestKit.Tuning();
+            return new MatchTuning(t.Ball, t.Kinematics, t.Match, Data(), goalkeeper: goalkeeper, decision: t.Decision, action: t.Action);
+        }
+
         public static MatchTuning TuningWithShape()
         {
             var t = MatchTestKit.Tuning();

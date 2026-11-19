@@ -116,10 +116,12 @@ namespace RoadToPro.MatchEngine.Goalkeeper
 
             ref readonly var st = ref ctx.SlotState(slot);
             var state = new KeeperState { Position = st.Position, Velocity = gk.SaveVelocity(ctx, team, st.Velocity) }; // 073 FR-20·22: 1v1 세트면 정지 여부 = 정지 시각 오차
-            var busy = gk.IsBusy(team);
-            var extra = busy ? 10f : OcclusionDelay(ctx, slot, goal);
+            var commit = gk.PenaltyCommit(ctx, team, out var commitPos, out var commitLead); // 074 FR-01: PK 조기 다이빙
+            var busy = commit == 0 && gk.IsBusy(team);
+            var extra = busy ? 10f : (commit != 0 ? 0f : OcclusionDelay(ctx, slot, goal));
+            if (commit != 0) state = new KeeperState { Position = commitPos };
             var crowd = 0;
-            var sctx = new SaveContext { Goal = goal, DirIn = dirIn, ExtraDelay = extra };
+            var sctx = new SaveContext { Goal = goal, DirIn = dirIn, ExtraDelay = extra, CommitDir = commit, CommitLead = commitLead };
             _spread = gk.SpreadActive(ctx, team); // 073 FR-21: 판정·다이빙·처리가 같은 스프레드 여부를 쓰게 시작 때 고정
             var prof = gk.ProfileFor(ctx, team, _spread);
             var j = _save.Evaluate(in state, in prof, in sctx);
@@ -145,6 +147,13 @@ namespace RoadToPro.MatchEngine.Goalkeeper
             var reactSteps = (long)DMath.Floor(j.ReactTime / ctx.BallParams.Dt + 0.5f);
             _react = abs + (reactSteps < 1 ? 1 : reactSteps);
             if (_react >= _contact) { _j.Dives = false; _react = _contact; }
+            if (commit != 0)
+            {
+                // 074 FR-01: 이미 조기 다이빙 중 — 새 다이빙 없음. 같은 쪽 공이면 예정 접촉점으로 다시 겨눈다
+                _reactDone = true;
+                _react = abs;
+                if (j.Direction == commit) gk.RetargetDive(ctx, team, j.ContactPoint, _contact, abs);
+            }
         }
 
         /// <summary>
@@ -227,6 +236,7 @@ namespace RoadToPro.MatchEngine.Goalkeeper
                     BallCommands.TakeControl(ref ball, slot, pos, _scratch);
                     Contact(ctx, SimEventKind.Catch, team, pid, shooter, sub, pos, CatchMotion(_j), heightBand);
                     AfterTouch(ctx, team, slot, abs, sub, keep: true);
+                    gk.StartHold(ctx, team, abs); // 074 FR-14: 손 보유 시계
                     break;
                 }
                 case SaveOutcomeKind.ParrySafe:

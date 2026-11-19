@@ -34,8 +34,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Goalkeeper
             // 084 개정(011 FR-70 t_react 절편 0.32 → 0.26): 반응 시간은 튜닝 값으로 확인 — 기울기 0.14는 그대로
             Assert.AreEqual(P.MapReactBase, KeeperMapping.ReactTime(P, 0f), 1e-6f);
             Assert.AreEqual(P.MapReactBase - 0.14f, KeeperMapping.ReactTime(P, 1f), 1e-6f);
-            Assert.AreEqual(3.0f, KeeperMapping.DiveSpeed(P, 0f), 1e-6f);
-            Assert.AreEqual(4.6f, KeeperMapping.DiveSpeed(P, 1f), 1e-6f);
+            // 074 개정(011 FR-70 v_dive 절편 3.0 → 3.3, 074 FR-02 PK 방어 불가 면적 보정): 절편은 튜닝 값 — 기울기 1.6은 그대로
+            Assert.AreEqual(P.MapDiveBase, KeeperMapping.DiveSpeed(P, 0f), 1e-6f);
+            Assert.AreEqual(P.MapDiveBase + 1.6f, KeeperMapping.DiveSpeed(P, 1f), 1e-6f);
             Assert.AreEqual(2f, KeeperMapping.HandlingA(P, 0f), 1e-6f);
             Assert.AreEqual(6f, KeeperMapping.HandlingA(P, 1f), 1e-6f);
             Assert.AreEqual(6f, KeeperMapping.SpillMean(P, 0f), 1e-6f);
@@ -97,7 +98,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Goalkeeper
         {
             var prof = KeeperProfile.From(P, KeeperAttributes.Uniform(10.5f));
             Assert.AreEqual(P.MapReactBase - 0.07f, prof.ReactTime, 1e-4f); // 리그 평균 n = 0.5 (084 개정 전 0.25)
-            Assert.AreEqual(3.8f, prof.DiveSpeed, 1e-4f);
+            Assert.AreEqual(P.MapDiveBase + 0.8f, prof.DiveSpeed, 1e-4f); // 074: 절편 튜닝 값 + 1.6·0.5
             Assert.AreEqual(4.5f, prof.SpillMean, 1e-4f);
         }
     }

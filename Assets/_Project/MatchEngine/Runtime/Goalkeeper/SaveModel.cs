@@ -32,6 +32,14 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         public float ExtraDelay;
         /// <summary>접촉 예정점 반경 안 다른 선수 수 (펀칭 조건 '혼잡', FR-10).</summary>
         public int Crowd;
+        /// <summary>
+        /// 074 FR-01 PK 조기 다이빙 방향 (−1·0·+1, 골문 y 증가 쪽 +1). 0이면 011 반응형 그대로(비트 동일).
+        /// 0이 아니면 GK 위치 = 조기 다이빙 시작 위치, 같은 쪽 공은 반응 지연 없이 <see cref="CommitLead"/>만큼 일찍 출발한 도달거리,
+        /// 반대쪽·정면 공은 반응형 도달거리에서 t_e 동안 멀어진 거리를 빼고 반응도 t_e만큼 늦다: max(0, R(τ − t_react − t_e) − v_dive·t_e).
+        /// </summary>
+        public int CommitDir;
+        /// <summary>074 FR-01 킥 기준 실제 조기 움직임 시각 t_e (s).</summary>
+        public float CommitLead;
     }
 
     /// <summary>
@@ -162,8 +170,11 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         public SaveJudgement Evaluate(in KeeperState gk, in KeeperProfile k, in SaveContext ctx)
         {
             var j = new SaveJudgement { OnTarget = _onTarget, CrossTime = _crossTime };
-            var tReact = k.ReactTime + ctx.ExtraDelay;
+            var commit = ctx.CommitDir;
+            var lead = ctx.CommitLead;
+            var tReact = commit != 0 ? -lead : k.ReactTime + ctx.ExtraDelay; // 074 FR-01: 같은 쪽은 킥 t_e 전에 이미 출발
             j.ReactTime = tReact;
+            var tReactAway = k.ReactTime + ctx.ExtraDelay + lead; // 074 FR-01: 반대쪽은 조기 움직임을 멈춘 뒤 반응
             var moving = gk.Velocity.LengthSq() > _p.StillSpeed * _p.StillSpeed;
             j.MovingPenalty = moving;
             var penalty = moving ? _p.StillMovingPenalty : 0f;
@@ -196,7 +207,9 @@ namespace RoadToPro.MatchEngine.Goalkeeper
                 var vex = b.Z - k.StandReachZ;
                 if (vex < 0f) vex = 0f;
                 var req = DMath.Sqrt(horiz * horiz + vex * vex);
-                var reach = _pos.ReachAfterReact(t - tReact, b.Z, in k) - penalty;
+                var reach = commit != 0 && lat * commit <= _p.ReachBodyHalf
+                    ? DMath.Max(0f, _pos.ReachAfterReact(t - tReactAway, b.Z, in k) - k.DiveSpeed * lead) - penalty // 074 FR-01: 반대쪽·정면 — t_e 동안 멀어지고(v_dive·t_e) 멈춘 뒤에야 반응
+                    : _pos.ReachAfterReact(t - tReact, b.Z, in k) - penalty;
                 var m = reach - req;
                 if (m >= best) { best = m; bestI = i; bestReq = req; bestReach = reach; }
             }

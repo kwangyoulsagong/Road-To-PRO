@@ -140,7 +140,11 @@ namespace RoadToPro.MatchEngine.Actions
         /// FR-17 페널티 셀: 자연 측 = 주발 반대쪽(오른발 → 키커 왼쪽). 키커가 골문을 볼 때 왼쪽은 골문 y 오프셋 부호 = 공격 방향.
         /// 그쪽 바깥 두 열 × 하단 두 행 중 P_onTarget × P_beatGK 최대(같으면 낮은 번호).
         /// </summary>
-        public int PenaltyCell(MatchContext ctx, int s, int team, Vec2 goal, Vec2 from, float speed, bool natural)
+        public int PenaltyCell(MatchContext ctx, int s, int team, Vec2 goal, Vec2 from, float speed, bool natural) =>
+            PenaltyCell(ctx, s, team, goal, from, speed, natural, KeeperOffset(team, goal));
+
+        /// <summary>074 승부차기: GK 좌우 오프셋을 직접 준다 (승부차기 GK는 골라인 중앙).</summary>
+        public int PenaltyCell(MatchContext ctx, int s, int team, Vec2 goal, Vec2 from, float speed, bool natural, float gkY)
         {
             var dir = ctx.AttackDir(team);
             var leftSign = dir > 0 ? 1 : -1;
@@ -149,7 +153,6 @@ namespace RoadToPro.MatchEngine.Actions
             var sign = natural ? naturalSign : -naturalSign;
             int c0 = sign > 0 ? GoalGrid.Cols - 2 : 0, c1 = c0 + 1;
             var sigma = ShotExecution.SigmaAimDeg(_p, _a.World.Finishing[s], speed, 0f, _a.World.Composure[s], 1f, false);
-            var gkY = KeeperOffset(team, goal);
             var best = GoalGrid.Cell(0, sign > 0 ? GoalGrid.Cols - 1 : 0);
             var bestV = -1f;
             for (int r = 0; r < 2; r++)

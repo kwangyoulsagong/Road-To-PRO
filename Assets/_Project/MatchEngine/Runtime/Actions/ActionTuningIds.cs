@@ -255,5 +255,6 @@ namespace RoadToPro.MatchEngine.Actions
         public const string HeaderShotPower = "act.header.shotPower";
         public const string PenNaturalP = "act.pen.naturalP";
         public const string PenPower = "act.pen.power";
+        public const string PenRunUp = "act.pen.runUp";
     }
 }

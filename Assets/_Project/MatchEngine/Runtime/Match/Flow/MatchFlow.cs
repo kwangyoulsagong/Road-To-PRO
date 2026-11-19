@@ -50,7 +50,7 @@ namespace RoadToPro.MatchEngine.Match.Flow
         public readonly DeadBallFlow DeadBall;
         /// <summary>걸어 나감·들어옴 (specs/058 FR-61·65).</summary>
         public readonly OffPitchWalkers Walkers;
-        public IPenaltyJudge PenaltyJudge = new StandInPenaltyJudge();
+        public IPenaltyJudge PenaltyJudge = new SimPenaltyJudge(); // 074: 010 파이프라인이면 모델 판정, 아니면 대체와 같음
 
         public FlowState State { get; private set; }
         public int Period { get; private set; }

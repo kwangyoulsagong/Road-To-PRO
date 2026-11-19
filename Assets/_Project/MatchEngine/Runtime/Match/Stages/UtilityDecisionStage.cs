@@ -234,6 +234,11 @@ namespace RoadToPro.MatchEngine.Match.Stages
                     d = StandInOnBall.Stand();
                     Other(s, DecisionSource.Keeper, ctx.Tick);
                 }
+                else if (inPlay && s == owner && Squad.IsKeeperSlot(s) && _x.InputOf(s) == default && !flow.DeadBall.Pending)
+                {
+                    d = StandInOnBall.KeeperOnBall(ctx, s, ref hasAction); // 074 FR-10~14: GK 배급 · 손 보유 시간
+                    Other(s, DecisionSource.Keeper, ctx.Tick);
+                }
                 else if (_x.KeeperDecides(ctx, s))
                 {
                     d = _x.DecideKeeper(ctx, s, ref hasAction);

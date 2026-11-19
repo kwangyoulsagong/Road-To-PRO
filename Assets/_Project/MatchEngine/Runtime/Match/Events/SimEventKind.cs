@@ -71,10 +71,18 @@ namespace RoadToPro.MatchEngine.Match.Events
         Smother = 306,
         /// <summary>073 예약: 크로스 클레임 실패.</summary>
         ClaimFail = 307,
-        /// <summary>074 예약: GK 배급.</summary>
+        /// <summary>
+        /// GK 배급 (074 FR-10~14). 배급 킥(Pass 이벤트) 바로 뒤에 낸다. A = 방식(<c>Goalkeeper.DistributionKind</c>), OtherId = 받는 선수(없으면 −1),
+        /// B = 손 보유 서브스텝 수(100 Hz, 손에 든 공이 아니면 −1), F0 = 보유 초(B/100, 아니면 0), F1 = 선택 후보의 성공 확률(008 xPass 또는 007 낙하점 컨트롤).
+        /// </summary>
         Distribution = 308,
         /// <summary>다이빙 뒤 일어나기 끝 (011 FR-17·92).</summary>
         KeeperRecovered = 309,
+        /// <summary>
+        /// PK GK 전략 (074 FR-01·03). Substep = 다이빙 시작(조기 움직임) 서브스텝, A = 방향(−1·0·+1, 골문 y 증가 쪽 +1, 0 = 서서 반응),
+        /// B = 킥 순간 골라인 이탈(0/1, 012 재차기 입력), F0 = 조기 움직임 시각 t_e(s, 킥 기준 실제값), F1 = 기울기 l.
+        /// </summary>
+        PenaltyKeeper = 310,
 
         // 012 (400~): 심판 · 재시작 — 데이터 규약은 specs/012 plan "SimEvent 데이터 규약" (FR-95)
         /// <summary>

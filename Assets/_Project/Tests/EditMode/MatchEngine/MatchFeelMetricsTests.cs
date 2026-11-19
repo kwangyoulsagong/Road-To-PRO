@@ -223,5 +223,20 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             StringAssert.Contains("\"keeper\": {", json);
             StringAssert.Contains("\"crossClaims\":", json);
         }
+
+        [Test]
+        public void KeeperDistSection_KeysInJson()
+        {
+            var t = new MatchFeelMetrics.Totals { Matches = 2, DistTotal = 10, HoldSum = 12, HoldN = 4, HoldMax = 5.5, PkShots = 4, PkGoals = 3 };
+            t.DistKinds[1] = 5;
+            var k = MatchFeelMetrics.KeeperDistribution(t);
+            Assert.AreEqual(5.0, k.Find(kv => kv.Key == "distributions").Value, 1e-9);
+            Assert.AreEqual(0.5, k.Find(kv => kv.Key == "shareThrow").Value, 1e-9);
+            Assert.AreEqual(3.0, k.Find(kv => kv.Key == "handHoldAvgS").Value, 1e-9);
+            Assert.AreEqual(0.75, k.Find(kv => kv.Key == "penaltyConversion").Value, 1e-9);
+            var json = MatchFeelMetrics.ToJson(t, "x", 1, "-");
+            StringAssert.Contains("\"keeperDistribution\": {", json);
+            StringAssert.Contains("\"penaltyConversion\":", json);
+        }
     }
 }

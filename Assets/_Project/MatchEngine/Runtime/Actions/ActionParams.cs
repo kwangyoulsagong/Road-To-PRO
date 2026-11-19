@@ -262,7 +262,9 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly float HeaderPassMax = 15.0f;
         public readonly float HeaderShotPower = 0.3f;
         public readonly float PenNaturalP = 0.6f;
-        public readonly float PenPower = 0.7f;
+        public readonly float PenPower = 0.2f;
+        /// <summary>074 FR-01: PK 킥 준비 최소 시간 (도움닫기).</summary>
+        public readonly float PenRunUp = 0.4f;
 
         /// <summary>코드 기본값 묶음의 해시 대용.</summary>
         public readonly ulong Hash;
@@ -523,6 +525,7 @@ namespace RoadToPro.MatchEngine.Actions
             HeaderShotPower = t.Get(Ids.HeaderShotPower);
             PenNaturalP = t.Get(Ids.PenNaturalP);
             PenPower = t.Get(Ids.PenPower);
+            PenRunUp = t.Get(Ids.PenRunUp);
             Hash = t.Hash;
         }
 

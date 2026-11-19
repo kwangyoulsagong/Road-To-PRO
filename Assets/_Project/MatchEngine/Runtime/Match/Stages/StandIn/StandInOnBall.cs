@@ -159,6 +159,10 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
                     hasAction = true;
                     _restartKickTick = ctx.Tick; // 물리 단계가 다음 서브스텝 0에 적용 — 적용 못 됐을 때만 1초 뒤 다시
                     if (flow.Restart == RestartKind.Penalty) Shoot(ctx, s, team, true, true);
+                    else if (flow.Restart == RestartKind.GoalKick && Squad.IsKeeperSlot(s) && ctx.Actions.Duels.Enabled) // 074 FR-10: GK 골킥 = 짧은·롱 골킥 배급
+                    {
+                        if (!ctx.Keepers.TryDistribute(ctx, s, Goalkeeper.DistributionSource.GoalKick, out _)) ClearForward(ctx, s, team);
+                    }
                     else if (!Pass(ctx, s, team, true, flow.Restart == RestartKind.Kickoff)) ClearForward(ctx, s, team);
                 }
                 return TakerAtBall(ctx, s); // 086 T03a
@@ -332,6 +336,24 @@ namespace RoadToPro.MatchEngine.Match.Stages.StandIn
         }
 
         /// <summary>대체 슈팅 공 동작 (072가 재사용 — 조준 오차는 071 전 대체, 결정 RNG 2회).</summary>
+        /// <summary>
+        /// 074 FR-10~14: 인플레이에서 공을 가진 GK (010 파이프라인). 자기 박스 안 + 손 보유 시계가 돌면 손에 든 공, 아니면 발로 가진 공.
+        /// 배급하면 공 동작을 올리고 서 있고, 기다리면 박스 선 안쪽 지점으로 걸어간다.
+        /// </summary>
+        public static Decision KeeperOnBall(MatchContext ctx, int s, ref bool hasAction)
+        {
+            if (hasAction || ctx.Actions.Pending.Active) return Stand();
+            var team = Squad.TeamOfSlot(s);
+            var me = ctx.SlotState(s);
+            var held = PhysicsStage.InOwnBox(ctx, team, new Vec3(me.Position.X, me.Position.Y, 0f)) && ctx.Keepers.Hold(team).Active;
+            if (ctx.Keepers.TryDistribute(ctx, s, held ? Goalkeeper.DistributionSource.Hands : Goalkeeper.DistributionSource.Feet, out var stand))
+            {
+                hasAction = true;
+                return Stand();
+            }
+            return new Decision { Kind = DecisionKind.MoveTo, Point = stand, TargetSlot = -1, MaxSpeed = held ? ctx.Keepers.Params.HoldWalkSpeed : 0f };
+        }
+
         public static void Shoot(MatchContext ctx, int s, int team, bool restart, bool penalty)
         {
             var me = ctx.SlotState(s);

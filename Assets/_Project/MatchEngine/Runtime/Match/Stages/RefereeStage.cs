@@ -93,6 +93,7 @@ namespace RoadToPro.MatchEngine.Match.Stages
                 }
                 ref readonly var e = ref ctx.Publisher.PendingAt(_order[ei++]);
                 if (stopped || !ctx.Flow.InPlay) continue;
+                if (PenaltyKeeperTouch(ctx, in e)) { stopped = true; continue; } // 074 FR-03: GK가 라인을 벗어나 막은 PK → 재차기
                 OnEvent(ctx, in e);
                 if (!ctx.Flow.InPlay) stopped = true;
             }
@@ -691,6 +692,12 @@ namespace RoadToPro.MatchEngine.Match.Stages
         {
             var flow = ctx.Flow;
             if (flow.PenaltyKickTick >= 0) flow.ClearPenalty();
+            var pk = ctx.Keepers.PendingPenaltyTeam(); // 074 FR-03: PK 결과(아웃·골) — 라인 이탈 + 비득점이면 재차기 (012 DIS-12)
+            if (pk >= 0 && RestartRules.PenaltyRetake(ctx.Keepers.SettlePenalty(pk), false, RefereeCommon.IsGoal(in c)))
+            {
+                PenaltyRetake(ctx, 1 - pk, c.Substep);
+                return;
+            }
             if (!RefereeCommon.IsGoal(in c))
             {
                 // 아웃: 보류 어드밴티지(이득 없이 정지) → 원래 반칙, 늦은 깃발 → 오프사이드가 아웃보다 먼저
@@ -904,8 +911,65 @@ namespace RoadToPro.MatchEngine.Match.Stages
             }
         }
 
+        /// <summary>
+        /// 074 FR-03 · 012 FR-66: 킥이 나간 PK 뒤 첫 터치(GK 선방·캐치·쳐내기·펀칭, 골대 리바운드 뒤 누구든 수신·회수·헤더·블록) → PK 결과(비득점).
+        /// 킥 순간 라인 이탈이면 재차기(PenaltyRetake A = 1) 후 true. 골대 맞고 들어간 골은 터치보다 골 판정(경계)이 먼저라 재차기 없음.
+        /// </summary>
+        bool PenaltyKeeperTouch(MatchContext ctx, in SimEvent e)
+        {
+            switch (e.Kind)
+            {
+                case SimEventKind.Save: case SimEventKind.Catch: case SimEventKind.Parry: case SimEventKind.Punch:
+                case SimEventKind.PassReceived: case SimEventKind.BallRecovered: case SimEventKind.Interception: case SimEventKind.Header: case SimEventKind.Block:
+                    break;
+                default: return false;
+            }
+            var pk = ctx.Keepers.PendingPenaltyTeam();
+            if (pk < 0) return false;
+            if (!RestartRules.PenaltyRetake(ctx.Keepers.SettlePenalty(pk), false, false)) return false;
+            PenaltyRetake(ctx, 1 - pk, e.Substep);
+            return true;
+        }
+
+        void PenaltyRetake(MatchContext ctx, int attackTeam, sbyte substep)
+        {
+            ResolveAdvantageOnStop(ctx);
+            var e = SimEvent.Make(SimEventKind.PenaltyRetake, attackTeam);
+            e.Substep = substep;
+            e.A = 1; // GK 조기 이탈
+            var g = ctx.OpponentGoal(attackTeam);
+            var spot = RestartRules.PenaltySpot(g, ctx.AttackDir(attackTeam));
+            ctx.SetPosition(ref e, new Vec3(spot.X, spot.Y, 0f));
+            ctx.Emit(e);
+            if (ctx.Flow.PenaltyKickTick >= 0) ctx.Flow.ClearPenalty();
+            var dec = new RestartDecision(RestartKind.Penalty, attackTeam, spot);
+            RefereeCommon.Restart(ctx, in dec, substep, true);
+        }
+
         void KeeperHold(MatchContext ctx)
         {
+            if (ctx.Actions.Duels.Enabled)
+            {
+                // 074 FR-14: 010 파이프라인은 GK 손 보유 시계(100 Hz 서브스텝, 캐치·손 잡기 모두)로 판정 — 위반 = 보유 > 8 s (정수 비교)
+                var limit = RestartRules.KeeperHoldLimit(_p.KeeperHoldMax, ctx.BallParams.Dt);
+                for (int t = 0; t < 2; t++)
+                {
+                    var held = ctx.Keepers.HoldSubsteps(ctx, t, ctx.Kinematics.Substep);
+                    if (held < 0 || !ctx.Flow.InPlay || !RestartRules.KeeperHoldViolation(held, limit)) continue;
+                    var gk = t * Squad.SlotsPerTeam;
+                    ctx.Keepers.ClearHold(t);
+                    _s.HoldStart[t] = -1;
+                    Telemetry.KeeperHolds++;
+                    var v = SimEvent.Make(SimEventKind.KeeperHoldViolation, t, ctx.PlayerAtSlot(gk));
+                    v.Substep = SimEvent.TickEnd;
+                    v.F0 = held * ctx.BallParams.Dt;
+                    ctx.SetPosition(ref v, ctx.SlotState(gk).Position);
+                    ctx.Emit(v);
+                    var dec = RestartRules.KeeperHold(_rules, t, ctx.SlotState(gk).Position, ctx.OwnGoal(t), ctx.AttackDir(t), ctx.Pitch.LengthM, ctx.Pitch.WidthM);
+                    RefereeCommon.Restart(ctx, in dec, SimEvent.TickEnd, true);
+                }
+                return;
+            }
             for (int t = 0; t < 2; t++)
             {
                 if (_s.HoldStart[t] < 0) continue;

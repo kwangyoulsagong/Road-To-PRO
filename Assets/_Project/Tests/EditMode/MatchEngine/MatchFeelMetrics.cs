@@ -36,6 +36,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             /// <summary>specs/073 GK 이탈 지표: 팀별 박스 밖 수비 행동·수비 행동 수·골라인에서 거리 합(m), 크로스 잡기·펀칭·잡기 실패·스마더·돌진.</summary>
             public readonly double[] GkOutside = new double[2], GkActs = new double[2], GkActDist = new double[2];
             public double GkClaims, GkPunches, GkClaimFails, GkSmothers, GkRushes, GkRushesOutside;
+            /// <summary>specs/074: 배급 방식별 수·손 보유 합/수/최대(s)·8초 위반·PK 슛/골/재차기.</summary>
+            public readonly double[] DistKinds = new double[6];
+            public double DistTotal, HoldSum, HoldN, HoldMax, HoldViolations, PkShots, PkGoals, PkRetakes;
 
             public void Add(Totals o)
             {
@@ -45,6 +48,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 RefSlideFouls += o.RefSlideFouls; RefAdvantages += o.RefAdvantages; RefHandballs += o.RefHandballs;
                 for (int i = 0; i < 2; i++) { GkOutside[i] += o.GkOutside[i]; GkActs[i] += o.GkActs[i]; GkActDist[i] += o.GkActDist[i]; }
                 GkClaims += o.GkClaims; GkPunches += o.GkPunches; GkClaimFails += o.GkClaimFails; GkSmothers += o.GkSmothers; GkRushes += o.GkRushes; GkRushesOutside += o.GkRushesOutside;
+                for (int k = 0; k < DistKinds.Length; k++) DistKinds[k] += o.DistKinds[k];
+                DistTotal += o.DistTotal; HoldSum += o.HoldSum; HoldN += o.HoldN; if (o.HoldMax > HoldMax) HoldMax = o.HoldMax;
+                HoldViolations += o.HoldViolations; PkShots += o.PkShots; PkGoals += o.PkGoals; PkRetakes += o.PkRetakes;
                 Matches += o.Matches; Goals += o.Goals; ShotOnTarget += o.ShotOnTarget; ShotGoals += o.ShotGoals; OwnGoals += o.OwnGoals; Shots += o.Shots; ShotXg += o.ShotXg; HeaderShots += o.HeaderShots; HeaderGoals += o.HeaderGoals; Saves += o.Saves;
                 Passes += o.Passes; Received += o.Received; TakeOns += o.TakeOns; TakeOnOk += o.TakeOnOk; Tackles += o.Tackles; TacklesWon += o.TacklesWon;
                 Interceptions += o.Interceptions; Contacts += o.Contacts; Possessions += o.Possessions; SeqTicks += o.SeqTicks; SeqCount += o.SeqCount;
@@ -178,6 +184,23 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                     case SimEventKind.Smother: t.GkSmothers++; break;
                     case SimEventKind.Header: if (e.A == (int)RoadToPro.MatchEngine.Actions.HeaderOutcome.Keeper) t.GkClaims++; break;
                     case SimEventKind.Punch: if (e.F0 > 1.5f) t.GkPunches++; break; // 071 경합 펀칭(F0 = 공 속도)
+                    case SimEventKind.Distribution: // 074
+                        t.DistTotal++;
+                        if (e.A >= 0 && e.A < t.DistKinds.Length) t.DistKinds[e.A]++;
+                        if (e.B >= 0) { t.HoldSum += e.F0; t.HoldN++; if (e.F0 > t.HoldMax) t.HoldMax = e.F0; }
+                        break;
+                    case SimEventKind.KeeperHoldViolation: t.HoldViolations++; break;
+                    case SimEventKind.PenaltyRetake: t.PkRetakes++; break;
+                    case SimEventKind.Shot:
+                        if ((e.A & 1) == 0) break;
+                        t.PkShots++;
+                        for (int k = i + 1; k < log.Count && log[k].Tick <= e.Tick + 40; k++)
+                        {
+                            var x = log[k].Kind;
+                            if (x == SimEventKind.Goal) { t.PkGoals++; break; }
+                            if (x == SimEventKind.Shot || x == SimEventKind.PenaltyRetake) break;
+                        }
+                        break;
                 }
                 if (e.Team < 0 || e.Team > 1) continue;
                 if (e.PlayerId != (e.Team == 0 ? gk0 : gk1)) continue;
@@ -220,6 +243,29 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 new("crossPunches", t.GkPunches / n),
                 new("claimFails", t.GkClaimFails / n),
                 new("smothers", t.GkSmothers / n),
+            };
+        }
+
+        /// <summary>specs/074 GK 배급·PK 지표 (경기당·비율).</summary>
+        public static List<KeyValuePair<string, double>> KeeperDistribution(Totals t)
+        {
+            var n = t.Matches > 0 ? t.Matches : 1;
+            var d = t.DistTotal > 0 ? t.DistTotal : 1;
+            return new List<KeyValuePair<string, double>>
+            {
+                new("distributions", t.DistTotal / n),
+                new("shareRoll", t.DistKinds[0] / d),
+                new("shareThrow", t.DistKinds[1] / d),
+                new("shareShortKick", t.DistKinds[2] / d),
+                new("shareLongKick", t.DistKinds[3] / d),
+                new("sharePunt", t.DistKinds[4] / d),
+                new("shareDropKick", t.DistKinds[5] / d),
+                new("handHoldAvgS", t.HoldN > 0 ? t.HoldSum / t.HoldN : 0),
+                new("handHoldMaxS", t.HoldMax),
+                new("holdViolations", t.HoldViolations / n),
+                new("penaltyShots", t.PkShots / n),
+                new("penaltyConversion", t.PkShots > 0 ? t.PkGoals / t.PkShots : 0),
+                new("penaltyRetakes", t.PkRetakes / n),
             };
         }
 
@@ -456,6 +502,9 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             sb.Append("  },\n  \"keeper\": {\n"); // specs/073 T17
             var g = Keeper(t);
             for (int i = 0; i < g.Count; i++) sb.Append("    \"").Append(g[i].Key).Append("\": ").Append(g[i].Value.ToString("0.####", c)).Append(i + 1 < g.Count ? ",\n" : "\n");
+            sb.Append("  },\n  \"keeperDistribution\": {\n"); // specs/074 T16
+            var kd = KeeperDistribution(t);
+            for (int i = 0; i < kd.Count; i++) sb.Append("    \"").Append(kd[i].Key).Append("\": ").Append(kd[i].Value.ToString("0.####", c)).Append(i + 1 < kd.Count ? ",\n" : "\n");
             sb.Append("  }\n}\n");
             return sb.ToString();
         }

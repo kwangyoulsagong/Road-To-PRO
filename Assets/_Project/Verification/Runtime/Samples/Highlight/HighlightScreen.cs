@@ -51,6 +51,8 @@ namespace RoadToPro.Verification.Samples.Highlight
         const ulong Seed082 = 20261224UL, Seed082Slide = 20261192UL; // 2026-11-17 082 엔진(M-1 반영) 뒤 플레이어 768시드 탐색
         const ulong Seed085 = 20261181UL, Seed085Header = 20261273UL, Seed085Slide = 20261187UL; // 085 FR-05·06: 087 엔진 뒤 플레이어 768시드 탐색 — 기존 083 20261230·086 20261264·082 20261192에 장면 없음 → 놓친 경합 · 점프 헤딩슛 · 늦은 슬라이딩 첫 시드
         /// <summary>specs/073 AC-07: GK 돌진 · 크로스 잡기 · 스마더 (073 엔진 뒤 플레이어 768시드 탐색 `tool-feel-search`).</summary>
+        /// <summary>specs/074 AC-06: PK 조기 다이빙 후 반대편 실점 · 캐치 직후 오버암 던지기 (074 엔진 뒤 플레이어 시드 탐색 `tool-feel-search`).</summary>
+        const ulong Seed074Penalty = 20261217UL, Seed074Throw = 20261217UL; // 2026-11-19 074 엔진 뒤 플레이어 768시드 탐색: 두 장면이 다 있는 첫 시드 (PK 단독 첫 20261195, 던지기 단독 첫 20261181)
         const ulong Seed073Rush = 20261307UL, Seed073Claim = 20261186UL, Seed073Smother = 20261215UL; // 2026-11-19 073 엔진(aca8c70) 뒤 플레이어 768시드 탐색: 보이는 돌진(첫 접촉점 골라인 8 m+)·크로스 잡기·보이는 스마더(4 m+) 각 첫 시드 (셋 다 있는 시드 없음)
         const ulong Seed086 = 20261264UL, Seed086Slide = 20261243UL; // 2026-11-18 086 엔진(재시작 잡기·GK 잡기 판정) 뒤 플레이어 768시드 탐색: 082 점프 헤딩슛 · 083 이긴 슬라이딩 첫 시드
 
@@ -317,6 +319,10 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["livePlay073rush"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed073Rush); Play(false); }; // 073 AC-07 GK 돌진
             FarmContext.Screens["livePlay073claim"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed073Claim); Play(false); }; // 073 AC-07 크로스 잡기
             FarmContext.Screens["livePlay073smother"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed073Smother); Play(false); }; // 073 AC-07 스마더
+            FarmContext.Screens["livePlay074pk"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed074Penalty); Play(false); }; // 074 AC-06 PK 조기 다이빙 반대편 실점
+            FarmContext.Screens["livePlay074throw"] = () => { HighlightCastStage.NightRequested = false; PlayFeelSeed(Seed074Throw); Play(false); }; // 074 AC-06 캐치 직후 던지기
+            FarmContext.Screens["live.freeze074.pk"] = () => FreezeEvent(e => e.Kind == SimEventKind.Shot && (e.A & 1) != 0 && e.Tick == PenaltyDiveGoalTick(), null, "gk_pk_dive", 0.25d); // PK 킥 + 0.25 s: GK는 이미 반대쪽으로 날고 공은 비행 중
+            FarmContext.Screens["live.freeze074.throw"] = () => FreezeEvent(e => FeelSceneCoverage.IsQuickThrow(e), null, "gk_throw", 0.05d); // 던지기 직후 (공이 손을 떠남)
             FarmContext.Screens["live.freeze073.rush"] = () => FreezeEvent(e => FeelSceneCoverage.IsVisibleRush(e), e => e.Kind == SimEventKind.KeeperRush, "gk_rush", 1.0d); // 돌진 결정 + 1.0 s: 골문을 떠나 달리는 중 (첫 접촉점 골라인 8 m 이상)
             FarmContext.Screens["live.freeze073.claim"] = () => FreezeEvent(e => FeelSceneCoverage.IsKeeperClaim(e), null, "gk_claim", 0.9d); // 경합 판정 + 0.9 s: 잡기 직전 (착지 약 1 s 전 판정)
             FarmContext.Screens["live.freeze073.smother"] = () => FreezeEvent(e => FeelSceneCoverage.IsVisibleSmother(e), e => e.Kind == SimEventKind.Smother, "gk_smother", -0.1d); // 덮치기 직전 (골라인 4 m 이상)
@@ -377,6 +383,16 @@ namespace RoadToPro.Verification.Samples.Highlight
             var missedSeeds = new System.Text.StringBuilder();
             for (int i = 0, n = 0; i < masks.Length && n < 12; i++) if ((masks[i] & FeelSceneCoverage.MissedAerial) != 0) { missedSeeds.Append(FeelSceneCoverage.FirstSeed + (ulong)i).Append(' '); n++; }
             Debug.Log($"[highlight] 085 시드 확인: 놓친 경합 {At(Seed083)} · 점프 헤딩슛 {At(Seed086)} · 늦은 슬라이딩 {At(Seed082Slide)} · 놓친 경합 시드 {missedSeeds}");
+            // 074 T18: PK 조기 다이빙 반대편 실점 · 캐치 직후 던지기 첫 시드 + 둘 다
+            int pkSeed = -1, thSeed = -1, pkBoth = -1;
+            for (int i = 0; i < masks.Length; i++)
+            {
+                if (pkSeed < 0 && (masks[i] & FeelSceneCoverage.PenaltyDiveGoal) != 0) pkSeed = i;
+                if (thSeed < 0 && (masks[i] & FeelSceneCoverage.KeeperQuickThrow) != 0) thSeed = i;
+                if (pkBoth < 0 && (masks[i] & FeelSceneCoverage.PenaltyDiveGoal) != 0 && (masks[i] & FeelSceneCoverage.KeeperQuickThrow) != 0) pkBoth = i;
+            }
+            Debug.Log($"[highlight] 074 탐색: PK 조기 다이빙 반대편 실점 {S(pkSeed)} · 캐치 직후 던지기 {S(thSeed)} · 둘 다 {S(pkBoth)}");
+            Debug.Log($"[highlight] 074 기존 시드 확인: 073r {At(Seed073Rush)} · 073c {At(Seed073Claim)} · 073s {At(Seed073Smother)} · 082 {At(Seed082)} · 083 {At(Seed083)} · 085 {At(Seed085)} · 086 {At(Seed086)}");
             // 073 T18: GK 장면 3종 첫 시드 + 셋 다 있는 첫 시드, 기존 E2E 시드가 아직 장면을 갖는지
             int kRush = -1, kClaim = -1, kSm = -1, kAll = -1;
             const int kMask = FeelSceneCoverage.KeeperRush | FeelSceneCoverage.KeeperClaim | FeelSceneCoverage.KeeperSmother;
@@ -595,6 +611,18 @@ namespace RoadToPro.Verification.Samples.Highlight
             if (bestScene < 0) { Debug.LogError($"[highlight] 083 놓친 경합 장면 없음 ({label}) 시드 {_matchSeed}"); return; }
             player.Sequencer.SeekAndPause(bestScene, bestT);
             Debug.Log($"[highlight] 결투·슈팅 장면 {label}: 장면 {scenes[bestScene].Scene.Id} t={bestT:0.00} (경합 이벤트 {bestSeq}, 점수 {bestScore:0.00} — 50 이상이면 점프 높이·공 높이 조건 미달)");
+        }
+
+        /// <summary>074: 지금 경기에서 PK 조기 다이빙 반대편 실점이 된 PK 슛 틱 (없으면 −1).</summary>
+        long PenaltyDiveGoalTick()
+        {
+            var log = Match().Result.EventLog;
+            for (int k = 0; k < log.Length; k++)
+            {
+                var shot = FeelSceneCoverage.PenaltyDiveGoalShot(log, k);
+                if (shot >= 0) return log[shot].Tick;
+            }
+            return -1;
         }
 
         void FreezeEvent(System.Func<SimEvent, bool> want, System.Func<SimEvent, bool> fallback, string label, double offset = 0.05d)

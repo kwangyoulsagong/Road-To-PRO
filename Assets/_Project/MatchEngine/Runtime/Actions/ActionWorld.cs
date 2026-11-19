@@ -34,6 +34,8 @@ namespace RoadToPro.MatchEngine.Actions
         public readonly float[] Finishing = new float[N], LongShots = new float[N], Crossing = new float[N], Heading = new float[N], Jumping = new float[N],
             HeightCm = new float[N], Stamina = new float[N];
         public readonly byte[] CutInLevel = new byte[N], CrossLevel = new byte[N];
+        /// <summary>074 FR-04: 빅매치 버릇 레벨 (0~2, 승부차기 압박 노이즈 — 003 BigMatch 능력치 전 대체).</summary>
+        public readonly byte[] BigMatchLevel = new byte[N];
 
         /// <summary>땅볼 속도 후보별 구름 표 시작값 캐시 (같은 함수 값 — 평가 핫 경로에서 이진 탐색 2회 절약). <see cref="PrepareRoll"/>.</summary>
         public readonly float[] RollX0 = new float[4], RollStep0 = new float[4], LoftSin2 = new float[2], LoftSin = new float[2];

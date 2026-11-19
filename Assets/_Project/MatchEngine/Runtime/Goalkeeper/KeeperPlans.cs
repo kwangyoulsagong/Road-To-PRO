@@ -106,3 +106,74 @@ namespace RoadToPro.MatchEngine.Goalkeeper
         }
     }
 }
+
+namespace RoadToPro.MatchEngine.Goalkeeper
+{
+    /// <summary>
+    /// 팀별 PK GK 전략 (specs/074 FR-01·03). 상대 PK 예약 킥이 잡히면 한 번 뽑고(방향·기울기·조기 시각·라인 이탈),
+    /// <see cref="DiveAbs"/> 서브스텝에 조기 다이빙을 시작한다. 판정은 011 슛 감시가 이 계획의 방향·실제 조기 시각으로 한다.
+    /// 값 타입 — 스냅샷·해시에 들어간다.
+    /// </summary>
+    public struct PenaltyPlan
+    {
+        public bool Active;
+        /// <summary>계획을 만든 예약 킥의 실행 가능 서브스텝 (같은 예약에 두 번 뽑지 않는다).</summary>
+        public long KickDue;
+        /// <summary>−1·0·+1 (골문 y 증가 쪽 +1, 0 = 서서 반응).</summary>
+        public int Dir;
+        public float Lean;
+        /// <summary>뽑은 조기 시각 (s).</summary>
+        public float Lead;
+        /// <summary>조기 다이빙 시작 절대 서브스텝.</summary>
+        public long DiveAbs;
+        public bool Started;
+        /// <summary>조기 다이빙을 시작한 순간 GK 위치 (판정 기준점).</summary>
+        public Vec2 StartPos;
+        /// <summary>킥 순간 골라인 이탈 (FR-03) — 012 재차기 판정이 한 번 읽고 지운다.</summary>
+        public bool OffLine;
+        /// <summary>PK 킥이 실행됐다 (012 재차기 판정 대상).</summary>
+        public bool Kicked;
+        /// <summary>PK 킥이 실행된 절대 서브스텝 (슛 감시가 이 킥에만 계획을 적용 — 결정론 리뷰 H1).</summary>
+        public long KickAbs;
+        /// <summary>슛 감시가 이 계획으로 판정을 시작했다 (유효 슛일 때만).</summary>
+        public bool Judged;
+        /// <summary>012 재차기 판정을 받았다 (골·GK 처리·아웃·골대 중 첫 결과).</summary>
+        public bool Settled;
+
+        public void Write(StateWriter w)
+        {
+            w.Write(Active); w.Write(KickDue); w.Write(Dir); w.Write(Lean); w.Write(Lead); w.Write(DiveAbs); w.Write(Started); w.Write(StartPos); w.Write(OffLine); w.Write(Kicked); w.Write(KickAbs); w.Write(Judged); w.Write(Settled);
+        }
+
+        public static PenaltyPlan Read(StateReader r) => new PenaltyPlan
+        {
+            Active = r.ReadBool(), KickDue = r.ReadLong(), Dir = r.ReadInt(), Lean = r.ReadFloat(), Lead = r.ReadFloat(), DiveAbs = r.ReadLong(),
+            Started = r.ReadBool(), StartPos = r.ReadVec2(), OffLine = r.ReadBool(), Kicked = r.ReadBool(), KickAbs = r.ReadLong(), Judged = r.ReadBool(), Settled = r.ReadBool(),
+        };
+
+        public void AddTo(ref StableHasher h)
+        {
+            h.Add(Active); h.Add(KickDue); h.Add(Dir); h.Add(Lean); h.Add(Lead); h.Add(DiveAbs); h.Add(Started); h.Add(StartPos.X); h.Add(StartPos.Y); h.Add(OffLine); h.Add(Kicked); h.Add(KickAbs); h.Add(Judged); h.Add(Settled);
+        }
+    }
+
+    /// <summary>
+    /// 팀별 GK 손 보유 시계 (specs/074 FR-14). 손으로 잡은 절대 서브스텝(100 Hz)부터 놓을 때까지. 마감은 캐치 때 한 번 뽑는다.
+    /// 값 타입 — 스냅샷·해시에 들어간다. 012 8초 판정이 <see cref="GoalkeeperSystem.HoldSubsteps"/>로 읽는다.
+    /// </summary>
+    public struct HoldClock
+    {
+        public bool Active;
+        public long StartAbs;
+        /// <summary>배급 마감 절대 서브스텝 (목표 + 지연 표본).</summary>
+        public long DeadlineAbs;
+        /// <summary>빠른 스로 조건(캐치 순간 상대 미정렬)이었다.</summary>
+        public bool Quick;
+
+        public void Write(StateWriter w) { w.Write(Active); w.Write(StartAbs); w.Write(DeadlineAbs); w.Write(Quick); }
+
+        public static HoldClock Read(StateReader r) => new HoldClock { Active = r.ReadBool(), StartAbs = r.ReadLong(), DeadlineAbs = r.ReadLong(), Quick = r.ReadBool() };
+
+        public void AddTo(ref StableHasher h) { h.Add(Active); h.Add(StartAbs); h.Add(DeadlineAbs); h.Add(Quick); }
+    }
+}

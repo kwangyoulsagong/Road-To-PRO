@@ -31,7 +31,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 {
                     if (!main.TryGetIndex(d.Id, out var i)) continue; // 081 신규 계수
                     seen++;
-                    if (Revised084(d.Source) || Revised087(d.Source) || Revised007(d.Source)) continue; // 084·087·007 개정 — 각 스펙 테스트가 본다
+                    if (Revised084(d.Source) || Revised087(d.Source) || Revised007(d.Source) || Revised074(d.Source)) continue; // 084·087·007·074 개정 — 각 스펙 테스트가 본다
                     var m = main.Definitions[i];
                     Assert.AreEqual(m.Tag, d.Tag, $"{d.Id}: 태그가 바뀌면 안 된다");
                     if (System.Math.Abs(m.Default - d.Default) <= 1e-6f) continue;
@@ -64,7 +64,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                 {
                     if (!before.TryGetIndex(d.Id, out var i)) continue;
                     seen++;
-                    if (Revised087(d.Source) || Revised007(d.Source)) continue; // 087·007 개정 — 각 스펙 테스트가 본다
+                    if (Revised087(d.Source) || Revised007(d.Source) || Revised074(d.Source)) continue; // 087·007·074 개정 — 각 스펙 테스트가 본다
                     var b = before.Definitions[i];
                     Assert.AreEqual(b.Tag, d.Tag, $"{d.Id}: 태그가 바뀌면 안 된다");
                     if (System.Math.Abs(b.Default - d.Default) <= 1e-6f) continue;
@@ -101,7 +101,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                     Assert.AreEqual(b.Tag, d.Tag, $"{d.Id}: 태그가 바뀌면 안 된다");
                     var same = System.Math.Abs(b.Default - d.Default) <= 1e-6f && System.Math.Abs(b.Min - d.Min) <= 1e-6f && System.Math.Abs(b.Max - d.Max) <= 1e-6f;
                     if (same) continue;
-                    if (Revised007(d.Source)) continue; // 007 개정 — 007 테스트가 본다
+                    if (Revised007(d.Source) || Revised074(d.Source)) continue; // 007·074 개정 — 각 스펙 테스트가 본다
                     changed++;
                     Assert.IsTrue(Revised087(d.Source), $"{d.Id}: 출처 칸에 '087:' 개정 기록이 있어야 한다 (FR-08) — {b.Default} [{b.Min}, {b.Max}] → {d.Default} [{d.Min}, {d.Max}]");
                     Assert.That(d.Default, Is.InRange(d.Min, d.Max), $"{d.Id}: min·max 안이어야 한다");
@@ -112,6 +112,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
 
         /// <summary>specs/007 FR-25: 007이 개정한 계수는 출처 칸에 "007:" 기록(이전 → 새·근거)이 있다.</summary>
         static bool Revised007(string source) => source != null && source.Contains("007:");
+        /// <summary>specs/074: 074 개정(act.pen.power FR-02) — <see cref="Tuning074_PenaltyDistributionIds_HaveSource"/>가 본다.</summary>
+        static bool Revised074(string source) => source != null && source.Contains("074:");
 
         static TuningRegistry Baseline007() =>
             TuningLoader.LoadDefinitionsFile(Path.Combine(Root, "specs", "007-pitch-control-xt", "evidence", "tuning-before.json"));
@@ -134,7 +136,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                     var b = before.Definitions[i];
                     Assert.AreEqual(b.Tag, d.Tag, $"{d.Id}: 태그가 바뀌면 안 된다");
                     var same = System.Math.Abs(b.Default - d.Default) <= 1e-6f && System.Math.Abs(b.Min - d.Min) <= 1e-6f && System.Math.Abs(b.Max - d.Max) <= 1e-6f;
-                    if (same) continue;
+                    if (same || Revised074(d.Source)) continue; // 074 개정은 074 테스트가 본다
                     changed++;
                     Assert.IsTrue(Revised007(d.Source), $"{d.Id}: 출처 칸에 '007:' 개정 기록이 있어야 한다 (FR-25) — {b.Default} [{b.Min}, {b.Max}] → {d.Default} [{d.Min}, {d.Max}]");
                     Assert.That(d.Default, Is.InRange(d.Min, d.Max), $"{d.Id}: min·max 안이어야 한다");
@@ -183,6 +185,22 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
         }
 
         [Test]
+        public void Tuning074_PenaltyDistributionIds_HaveSource()
+        {
+            var n = 0;
+            foreach (var f in Files())
+                foreach (var d in TuningLoader.LoadDefinitionsFile(f).Definitions)
+                {
+                    if (!d.Id.StartsWith("gk.pk.") && !d.Id.StartsWith("gk.dist.") && !d.Id.StartsWith("gk.hold.") && d.Id != "act.pen.runUp" && d.Id != "act.pen.power") continue;
+                    n++;
+                    StringAssert.Contains("074", d.Source, $"{d.Id}: 출처 칸에 074 기록이 있어야 한다");
+                    Assert.That(d.Default, Is.InRange(d.Min, d.Max), $"{d.Id}: min·max 안이어야 한다");
+                }
+            Assert.AreEqual(43, n, "074 계수 수 (gk.pk 10 · gk.dist 25 · gk.hold 6 · act.pen.runUp · act.pen.power)");
+            TestContext.WriteLine($"074 계수 {n}개");
+        }
+
+        [Test]
         public void ShotAimDesignCoefficients_Unchanged()
         {
             // 071 FR-14 σ_aim·act.cross.*·act.takeon.*·act.aerial.* 등 [설계] 값 전부 = main (AC-12, FR-21)
@@ -191,7 +209,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
             foreach (var f in Files())
                 foreach (var d in TuningLoader.LoadDefinitionsFile(f).Definitions)
                 {
-                    if (!main.TryGetIndex(d.Id, out var i) || main.Definitions[i].Tag != "[설계]" || Revised084(d.Source) || Revised087(d.Source)) continue;
+                    if (!main.TryGetIndex(d.Id, out var i) || main.Definitions[i].Tag != "[설계]" || Revised084(d.Source) || Revised087(d.Source) || Revised074(d.Source)) continue;
                     n++;
                     Assert.AreEqual(main.Definitions[i].Default, d.Default, 1e-6f, $"{d.Id}: [설계] 값은 바꾸지 않는다");
                 }
