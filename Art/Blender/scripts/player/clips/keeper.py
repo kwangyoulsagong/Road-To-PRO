@@ -151,7 +151,7 @@ def landing(s):
 def gk_dive(height, reach, s, report=None):
     side = "l" if s < 0 else "r"
     name = f"gk_dive_{height}_{reach}_{side}"
-    frames, c = 27, 12  # 27: 착지(20) 뒤 7프레임 멈춤 — 클립 메모리(055 예산 +80%)와 착지 뒤 발 미끄러짐(054 FR-10) 사이 (080 T13a)
+    frames, c = 24, 12  # 24: 착지(19) 뒤 5프레임 멈춤 — 클립 메모리(055 예산 +80%, 전체 실행 측정 흔들림 ≈ 0.5 MB 여유) (080 T13a·T16)
     # 오른쪽(s = +1)만 맞추고 왼쪽은 거울 — 좌우가 정확히 대칭이고 탐색이 한 번이다
     key = (height, reach)
     if key not in _FIT:
@@ -165,7 +165,7 @@ def gk_dive(height, reach, s, report=None):
     load = M(GK_READY4, hips=(s * 0.05, -0.22, 0.0), **{"ik" + ("L" if s < 0 else "R"): (s * 0.32, 0.0, 0.0, s * 20.0)})
     # 착지: 모든 다이빙이 낮은 긴 다이빙의 누운 자세로 끝난다 (관통 검사를 통과한 포즈 하나로 통일, 일어나기는 GetUp 클립)
     land = landing(s)
-    keys = [(0, GK_READY4), (5, load), (c, fly), (c + 3, fly), (20, land), (frames, land)]
+    keys = [(0, GK_READY4), (5, load), (c, fly), (c + 3, fly), (19, land), (frames, land)]
     return _clip(name, "keeper", frames, keys, c, "Hand", B.HANDS, (-180, 180), DIVE_BALL_RANGE[height], (0.0, 40.0),
                  root=(0.0, 0.0))
 
@@ -226,7 +226,7 @@ def gk_catch_ground(side):
     kneel = lambda k: M(GK_READY4, hips=(k * 0.08 * abs(side), -0.55, -0.08), hrot=(20.0, k * 15.0 * abs(side), 0.0),
                         spine=(60.0, 0.0, k * 10.0 * abs(side)), head=(-45.0, 0.0),
                         **_legs(k, (60.0, 110.0, 30.0, 28.0, 10.0), (15.0, 125.0, 10.0, 28.0, 10.0)))
-    return fitted(name, kneel, lambda k: B.HANDS, lambda k: (0.35 * abs(side) * k, 0.12, 0.40), 22, 9, (0.0, 0.45),
+    return fitted(name, kneel, lambda k: B.HANDS, lambda k: (0.35 * abs(side) * k, 0.12, 0.40), 20, 9, (0.0, 0.45),
                   prep=lambda k: _crouch(k, -0.28, 25.0), s=s, key="gk_catch_ground" + ("_side" if side else ""))
 
 
@@ -245,7 +245,7 @@ def gk_claim_jump():
     """073 크로스 클레임: 한 무릎을 들고 높이 뛰어 잡기."""
     body = lambda k: M(GK_READY4, hips=(0.0, 0.38, 0.0), spine=(-5.0, 0.0, 0.0), head=(-30.0, 0.0),
                        legL=(5.0, 15.0, 20.0, 5.0, 0.0), legR=(75.0, 95.0, 20.0, 5.0, 0.0))
-    return fitted("gk_claim_jump", body, lambda k: B.HANDS, lambda k: (0.0, 2.45, 0.35), 22, 11, (2.0, 3.0),
+    return fitted("gk_claim_jump", body, lambda k: B.HANDS, lambda k: (0.0, 2.45, 0.35), 20, 11, (2.0, 3.0),
                   prep=lambda k: _crouch(k, -0.25, 10.0), air=0.38)
 
 
@@ -259,7 +259,7 @@ def gk_parry_side(s):
     """허리~가슴 높이 옆 공을 한 손으로 쳐낸다 (낮은 측면 쳐내기는 다이빙 클립)."""
     body = lambda k: M(GK_READY4, hips=(0.0, -0.18, 0.0), hrot=(0.0, 0.0, k * 30.0), spine=(5.0, 0.0, k * 15.0), head=(-5.0, 0.0),
                        **{"ik" + ("R" if k > 0 else "L"): (k * 0.45, 0.05, 0.0, k * 30.0), "ik" + ("L" if k > 0 else "R"): (-k * 0.15, 0.0, 0.0, -k * 10.0)})
-    return fitted("gk_parry_side_" + ("l" if s < 0 else "r"), body, lambda k: B.hand(k), lambda k: (k * 0.80, 1.20, 0.15), 20, 8,
+    return fitted("gk_parry_side_" + ("l" if s < 0 else "r"), body, lambda k: B.hand(k), lambda k: (k * 0.80, 1.20, 0.15), 18, 8,
                   (0.6, 1.6), arms=("R",), s=s)
 
 
@@ -267,13 +267,13 @@ def gk_tip_over(s):
     """크로스바 위로 넘기기: 뛰어올라 한 손끝."""
     body = lambda k: M(GK_READY4, hips=(k * 0.05, 0.35, 0.0), hrot=(0.0, 0.0, k * 30.0), spine=(-10.0, 0.0, k * 15.0), head=(-30.0, 0.0),
                        **_air(0.35))
-    return fitted("gk_tip_over_" + ("l" if s < 0 else "r"), body, lambda k: B.hand(k), lambda k: (k * 0.70, 2.20, 0.10), 22, 10,
+    return fitted("gk_tip_over_" + ("l" if s < 0 else "r"), body, lambda k: B.hand(k), lambda k: (k * 0.70, 2.20, 0.10), 20, 10,
                   (2.0, 2.8), prep=lambda k: _crouch(k, -0.22, 10.0), arms=("R",), s=s, air=0.35)
 
 
 def gk_punch_two():
     body = lambda k: M(GK_READY4, hips=(0.0, 0.25, 0.0), spine=(-8.0, 0.0, 0.0), head=(-25.0, 0.0), **_air(0.25))
-    return fitted("gk_punch_two", body, lambda k: B.HANDS, lambda k: (0.0, 2.20, 0.40), 22, 9, (1.8, 2.8),
+    return fitted("gk_punch_two", body, lambda k: B.HANDS, lambda k: (0.0, 2.20, 0.40), 20, 9, (1.8, 2.8),
                   prep=lambda k: _crouch(k, -0.22, 10.0), air=0.25)
 
 
@@ -291,7 +291,7 @@ def gk_punch():
 def gk_smother(s):
     """073 1v1 덮치기: 옆으로 쓰러지며 공격수 발밑 공을 덮는다 (080 Q1 '옆으로 쓰러지며 덮기')."""
     body = lambda k: M(_dive_body(k, "low", "short"), hips=(-k * 0.20, -0.72, -0.10), spine=(20.0, 0.0, k * 10.0))
-    return fitted("gk_smother_" + ("l" if s < 0 else "r"), body, lambda k: B.HANDS, lambda k: (k * 0.30, 0.12, 0.45), 22, 10,
+    return fitted("gk_smother_" + ("l" if s < 0 else "r"), body, lambda k: B.HANDS, lambda k: (k * 0.30, 0.12, 0.45), 20, 10,
                   (0.0, 0.6), prep=lambda k: _crouch(k, -0.35, 30.0), s=s)
 
 
@@ -305,7 +305,7 @@ def gk_spread():
     wide = M(GK_READY4, hips=(0.0, -0.40, 0.0), spine=(25.0, 0.0, 0.0), head=(-20.0, 0.0),
              armL=(-40.0, 20.0, 10.0, 180.0), armR=(-40.0, 20.0, 10.0, 180.0),
              legL=(30.0, 80.0, 20.0, 35.0, 10.0), legR=(5.0, 30.0, 20.0, 35.0, 10.0))
-    return _plain("gk_spread", 16, [(0, GK_READY4), (8, wide), (16, wide)], root=[0.0, 0.0])
+    return _plain("gk_spread", 14, [(0, GK_READY4), (8, wide), (14, wide)], root=[0.0, 0.0])
 
 
 def gk_shuffle(s):
@@ -313,7 +313,7 @@ def gk_shuffle(s):
     lead, trail = ("R", "L") if s > 0 else ("L", "R")
     step = M(GK_READY4, hips=(s * 0.04, -0.16, -0.03), **{"ik" + lead: (s * 0.36, 0.0, 0.04, s * 12.0), "ik" + trail: (-s * 0.10, 0.0, 0.0, -s * 8.0)})
     close = M(GK_READY4, hips=(0.0, -0.14, -0.03), ikL=(-0.20, 0.0, 0.0, -10.0), ikR=(0.20, 0.0, 0.0, 10.0))
-    return _plain("gk_shuffle_" + ("l" if s < 0 else "r"), 16, [(0, close), (6, step), (16, close)], root=[0.0, 0.0])
+    return _plain("gk_shuffle_" + ("l" if s < 0 else "r"), 14, [(0, close), (6, step), (14, close)], root=[0.0, 0.0])
 
 
 def gk_pk_move(s):
@@ -331,14 +331,14 @@ def gk_getup():
             armL=(10.0, 35.0, 30.0, 180.0), armR=(-20.0, 20.0, 20.0, 180.0),
             legL=(70.0, 120.0, 20.0, 10.0, 0.0), legR=(40.0, 110.0, 20.0, 10.0, 0.0))
     crouch = M(GK_READY4, hips=(0.05, -0.40, 0.0), spine=(35.0, 0.0, 0.0), **STEP)
-    return _plain("gk_getup", 24, [(0, lying), (8, sit), (16, crouch), (24, GK_READY4)], root=[0.0, 0.0])
+    return _plain("gk_getup", 20, [(0, lying), (7, sit), (14, crouch), (20, GK_READY4)], root=[0.0, 0.0])
 
 
 def gk_roll():
     """074 배급 굴리기: 웅크려 오른손으로 공을 앞으로 굴린다 (공이 손을 떠나는 순간 = 접촉)."""
     body = lambda k: M(GK_READY4, hips=(0.0, -0.45, -0.05), hrot=(15.0, 0.0, 0.0), spine=(55.0, 0.0, 0.0), head=(-40.0, 0.0),
                        **_legs(-1, (55.0, 95.0, 20.0, 10.0, 0.0), (10.0, 60.0, 20.0, 10.0, 0.0)))
-    return fitted("gk_roll_r", body, lambda k: B.hand(1), lambda k: (0.10, 0.12, 0.32), 20, 12, (0.0, 0.4),  # 시뮬 공은 배급 순간 GK 발밑
+    return fitted("gk_roll_r", body, lambda k: B.hand(1), lambda k: (0.10, 0.12, 0.32), 18, 12, (0.0, 0.4),  # 시뮬 공은 배급 순간 GK 발밑
                   prep=lambda k: _crouch(k, -0.30, 30.0), arms=("R",))
 
 
@@ -346,7 +346,7 @@ def gk_throw():
     """074 배급 오버암 던지기: 오른팔을 머리 위로 돌려 던진다. 시뮬 공이 발밑이라 손–공은 기록만 (080 FR-06, D31)."""
     body = lambda k: M(GK_READY4, hips=(0.0, -0.10, 0.05), spine=(10.0, -15.0, -10.0), head=(-10.0, 0.0),
                        ikL=(-0.15, 0.35, 0.0, -10.0), ikR=(0.18, -0.20, 0.0, 20.0))
-    return fitted("gk_throw_r", body, lambda k: B.hand(1), lambda k: (0.30, 2.00, 0.25), 20, 12, (1.5, 2.4),
+    return fitted("gk_throw_r", body, lambda k: B.hand(1), lambda k: (0.30, 2.00, 0.25), 18, 12, (1.5, 2.4),
                   prep=lambda k: M(body(k), spine=(0.0, 25.0, -15.0)), arms=("R",))
 
 
@@ -354,7 +354,7 @@ def gk_lunge_low():
     """앞으로 몸을 던져 땅볼 덮치기 (080 T13a: 시뮬 GK가 1.5~1.8 m 앞 느슨한 공을 잡는다). 엎드려 팔을 앞으로, 고개는 들어 머리카락이 팔에 닿지 않게."""
     body = lambda k: M(GK_READY4, hips=(0.0, -0.70, 0.75), hrot=(80.0, 0.0, 0.0), spine=(5.0, 0.0, 0.0), head=(-55.0, 0.0),
                        legL=(-10.0, 20.0, 30.0, 8.0, 0.0), legR=(-5.0, 35.0, 30.0, 8.0, 0.0))
-    return fitted("gk_lunge_low", body, lambda k: B.HANDS, lambda k: (0.0, 0.12, 1.65), 22, 10, (0.0, 0.6),
+    return fitted("gk_lunge_low", body, lambda k: B.HANDS, lambda k: (0.0, 0.12, 1.65), 20, 10, (0.0, 0.6),
                   prep=lambda k: _crouch(k, -0.35, 35.0))
 
 
@@ -362,7 +362,7 @@ def gk_lunge_mid():
     """앞으로 크게 내디디며 가슴~머리 높이 공 잡기 (080 T13a)."""
     body = lambda k: M(GK_READY4, hips=(0.0, -0.25, 0.30), spine=(30.0, 0.0, 0.0), head=(-25.0, 0.0),
                        ikL=(-0.15, 0.75, 0.0, -5.0), ikR=(0.17, -0.35, 0.0, 15.0))
-    return fitted("gk_lunge_mid", body, lambda k: B.HANDS, lambda k: (0.0, 1.30, 1.00), 22, 9, (0.6, 1.8),
+    return fitted("gk_lunge_mid", body, lambda k: B.HANDS, lambda k: (0.0, 1.30, 1.00), 20, 9, (0.6, 1.8),
                   prep=lambda k: _crouch(k, -0.20, 15.0))
 
 
