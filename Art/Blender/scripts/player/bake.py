@@ -105,6 +105,13 @@ def stance_paths(c):
     return out
 
 
+def arm_length(head):
+    """080: 위팔 + 아래팔 길이 (좌우 평균, m). 본 길이는 포즈와 무관하다."""
+    def one(n):
+        return (head[n + "LowerArm"] - head[n + "UpperArm"]).length + (head[n + "Hand"] - head[n + "LowerArm"]).length
+    return 0.5 * (one("Left") + one("Right"))
+
+
 def clip_tags(c):
     t = {"id": c.id, "group": c.group, "frames": c.frames, "loop": c.loop, "stancePaths": stance_paths(c)}
     for k, v in sorted(c.tags.items()):
@@ -113,6 +120,10 @@ def clip_tags(c):
             _, head, _ = PO.fk(c.sample(frame / CB.FPS))
             p = CB.contact_point(v["rule"], head)
             t["contact"] = {"frame": frame, "part": v["part"], "rule": v["rule"], "point": _fmt(p)}
+            if v["part"] == "Hand":
+                # 080 FR-04: 손 IK 도달 한계 — 접촉 프레임 어깨(위팔 머리) 2점 + 팔 길이(위팔 + 아래팔, 기준 키)
+                t["contact"]["shoulders"] = [_fmt(head["LeftUpperArm"]), _fmt(head["RightUpperArm"])]
+                t["contact"]["armLength"] = round(arm_length(head), 4)
         else:
             t[k] = v
     return t

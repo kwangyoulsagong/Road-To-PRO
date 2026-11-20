@@ -1,12 +1,13 @@
 """반응·GK·감정·심판·흐름 클립 (specs/043 FR-31·47·63).
 
 넘어짐 8방향(fall_n … fall_nw): hitDir = 넘어지는 방향(°, 0 = 정면, 90 = 오른쪽) — FR-47은 충돌 방향과 가장 가까운 것.
-GK 동작은 011이 목록을 주기 전까지 최소 세트(준비·좌우 다이브·가슴 캐치·펀칭·킥).
+GK 동작은 keeper.py (specs/080). 여기는 GK 킥(gk_kick)만.
 """
 import math
 
 from . import base as B
 from . import poses as P
+from . import keeper
 from .actions import _clip, kick
 
 M = P.merged
@@ -36,41 +37,6 @@ def stumble():
             armL=(-30.0, 30.0, 30.0), armR=(-40.0, 20.0, 30.0))
     keys = [(0, P.READY), (6, hit), (frames, P.READY)]
     return _clip("hit_stumble", "fall", frames, keys, hitDir=0, root=(0.0, 0.3))
-
-
-def gk_ready():
-    base = M(P.READY, hips=(0.0, -0.14, -0.03), spine=(18.0, 0.0, 0.0), armL=(10.0, 35.0, 45.0), armR=(10.0, 35.0, 45.0),
-             ikL=(-0.22, 0.0, 0.0, -10.0), ikR=(0.22, 0.0, 0.0, 10.0))
-    tl = P.timeline([(0, base), (15, M(base, hips=(0.0, -0.12, -0.03))), (30, base)])
-    return B.Clip("gk_ready", "keeper", 30, lambda t: P.grounded(tl(t * 30.0)), loop=True)
-
-
-def gk_dive(name, s):
-    frames, c = 30, 14
-    ready = M(P.READY, hips=(0.0, -0.14, -0.03), spine=(18.0, 0.0, 0.0), armL=(10.0, 35.0, 45.0), armR=(10.0, 35.0, 45.0))
-    load = M(ready, hips=(s * 0.10, -0.20, 0.0), **{"ik" + ("L" if s < 0 else "R"): (s * 0.30, 0.0, 0.0, s * 20.0)})
-    fly = M(P.READY, hips=(s * 1.0, -0.35, 0.0), hrot=(0.0, 0.0, s * 75.0), spine=(0.0, 0.0, s * 15.0), head=(0.0, 0.0),
-            armL=(-80.0, 0.0, 10.0), armR=(-80.0, 0.0, 10.0), legL=(10.0, 20.0, 20.0, 10.0, 0.0), legR=(10.0, 20.0, 20.0, 10.0, 0.0))
-    land = M(fly, hips=(s * 1.2, -0.80, 0.0), hrot=(0.0, 0.0, s * 85.0), armL=(-60.0, 30.0, 60.0), armR=(-60.0, 30.0, 60.0))
-    keys = [(0, ready), (6, load), (c, fly), (22, land), (frames, land)]
-    return _clip(name, "keeper", frames, keys, c, "Hand", B.HANDS, (-20, 20), (0.0, 2.3), (5.0, 35.0), root=(s * 1.6, 0.0))
-
-
-def gk_catch_chest():
-    frames, c = 20, 8
-    reach = M(P.READY, hips=(0.0, -0.10, 0.0), spine=(5.0, 0.0, 0.0), armL=(0.0, 70.0, 60.0), armR=(0.0, 70.0, 60.0))
-    hug = M(reach, spine=(25.0, 0.0, 0.0), armL=(0.0, 40.0, 120.0), armR=(0.0, 40.0, 120.0))
-    keys = [(0, P.READY), (c, reach), (c + 5, hug), (frames, hug)]
-    return _clip("gk_catch_chest", "keeper", frames, keys, c, "Hand", B.HANDS, (-30, 30), (0.8, 1.6), (5.0, 30.0))
-
-
-def gk_punch():
-    frames, c = 18, 8
-    jump = M(P.READY, hips=(0.0, 0.25, 0.0), ikL=(-0.12, 0.0, 0.25, -6.0), ikR=(0.12, 0.0, 0.25, 6.0),
-             armL=(-10.0, 60.0, 20.0), armR=(-20.0, 150.0, 30.0), spine=(-5.0, 0.0, 0.0))
-    hit = M(jump, armR=(-20.0, 165.0, 0.0))
-    keys = [(0, P.READY), (4, M(P.READY, hips=(0.0, -0.15, 0.0))), (c, hit), (14, jump), (frames, P.READY)]
-    return _clip("gk_punch", "keeper", frames, keys, c, "Hand", B.hand(1), (-45, 45), (2.0, 2.8), (5.0, 30.0))
 
 
 def celebrate_arms():
@@ -136,8 +102,7 @@ def clips():
            turn("turn_l90", -90, 18), turn("turn_r90", 90, 18), turn("turn_180", 180, 24)]
     out += [fall(f"fall_{n}", d) for n, d in FALL_DIRS]
     out.append(stumble())
-    out += [gk_ready(), gk_dive("gk_dive_l", -1), gk_dive("gk_dive_r", 1), gk_catch_chest(), gk_punch(),
-            kick("gk_kick", 1, "lofted", "keeper")]
+    out += keeper.clips() + [kick("gk_kick", 1, "lofted", "keeper")]
     out += [celebrate_arms(), celebrate_knee(), dejected()]
     out += [ref("ref_whistle", (-10.0, 110.0, 140.0), (33.0, 5.0, 15.0), 30),
             ref("ref_card", (-10.0, 175.0, 5.0), (33.0, 5.0, 15.0), 36),

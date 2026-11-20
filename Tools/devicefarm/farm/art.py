@@ -35,6 +35,8 @@ SPEC_ART = {
             "title": "Blender 미리보기 (컷 디딤 포함 보법 필름스트립 · 대표 클립 접촉 프레임 · LOD/체형)"},
     "057": {"pattern": ("test_player.py", "test_face.py"), "sets": ("default",), "views": ("lineup", "heads", "poses"), "stem": "player",
             "cols": 1, "title": "Blender 미리보기 (칼라 경계 · 헤어 30종 × 얼굴 변주(가닥 카드 포함, 단색 표시라 알파 없음) · 대표 클립)"},
+    "080": {"pattern": ("test_player.py",), "sets": ("default",), "views": ("keeper", "poses", "lineup"), "stem": "player", "cols": 1,
+            "title": "Blender 미리보기 (GK 동작 접촉 순간 — 다이빙 6 · 잡기·쳐내기·펀칭·클레임·스마더·배급·앞 덮치기 · 대표 클립 · LOD/체형)"},
 }
 
 

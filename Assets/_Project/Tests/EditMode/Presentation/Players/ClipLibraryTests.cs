@@ -45,7 +45,9 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         public void Parses_055Tags_StyleVariantKickSpeedCurve()
         {
             var lib = AnimTestKit.Lib;
-            Assert.AreEqual(121, lib.Count, "055 117 + 054 컷 4");
+            int nonKeeper = 0;
+            for (int i = 0; i < lib.Count; i++) if (!lib.Get(i).Id.StartsWith("gk_", System.StringComparison.Ordinal)) nonKeeper++;
+            Assert.AreEqual(113, nonKeeper, "055 117 + 054 컷 4 − GK 8 (GK 클립은 080 KeeperClipCoverageTests)");
             Assert.IsTrue(lib.TryGet("sprint_f_r1_lo", out var lo));
             Assert.AreEqual("r1", lo.Style);
             Assert.AreEqual("lo", lo.Variant);
@@ -97,6 +99,36 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         {
             Assert.IsTrue(AnimTestKit.Lib.TryGet("pass_inside_r", out var c));
             Assert.IsTrue(System.Array.Exists(c.StanceL, s => s.F0 <= c.ContactFrame && c.ContactFrame <= s.F1), "디딤발(왼발)은 접촉 때 땅에 있다");
+        }
+        /// <summary>080 FR-04: 손 접촉 클립은 어깨 2점·팔 길이 태그가 있고, 접촉점이 어깨에서 팔 길이 + 0.30 m 안이다.</summary>
+        [Test]
+        public void HandClip_HasShouldersAndArmLength()
+        {
+            var lib = AnimTestKit.Lib;
+            int n = 0;
+            for (int i = 0; i < lib.Count; i++)
+            {
+                var c = lib.Get(i);
+                if (!c.HasContact || c.ContactPart != BodyPart.Hand) continue;
+                n++;
+                Assert.That(c.ArmLength, Is.InRange(0.45f, 0.70f), c.Id);
+                float d = System.Math.Min((c.ContactPoint - c.ShoulderL).Length(), (c.ContactPoint - c.ShoulderR).Length());
+                Assert.LessOrEqual(d, c.ArmLength + 0.30f, c.Id);
+                Assert.Greater(System.Math.Max(c.ShoulderL.Y, c.ShoulderR.Y), 0.3f, c.Id + " 어깨 높이 (누운 다이빙은 아래쪽 어깨가 바닥 근처)");
+            }
+            Assert.Greater(n, 0, "손 접촉 클립");
+        }
+
+        [Test]
+        public void NonHandClip_NoReachTag()
+        {
+            var lib = AnimTestKit.Lib;
+            for (int i = 0; i < lib.Count; i++)
+            {
+                var c = lib.Get(i);
+                if (c.HasContact && c.ContactPart == BodyPart.Hand) continue;
+                Assert.AreEqual(0f, c.ArmLength, c.Id);
+            }
         }
     }
 }

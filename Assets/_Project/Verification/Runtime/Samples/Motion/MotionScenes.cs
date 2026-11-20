@@ -485,7 +485,7 @@ namespace RoadToPro.Verification.Samples.Motion
             var m = Simulate(sc);
             var d = m.Data;
             float t1 = Start + 2f, t2 = Start + 5.5f;
-            var b1 = BallAtContact(d, 0, t1, "gk_dive_l");
+            var b1 = BallAtContact(d, 0, t1, "gk_dive_mid_long_l");
             var v1 = Dir((float)(Math.PI * 0.15), 9f, 3f);
             BallLine(d, Start, b1 + new Vec3(16f, 0.6f, -3f), t1, b1);
             BallFly(d, t1, t2 - 1f, b1, v1);

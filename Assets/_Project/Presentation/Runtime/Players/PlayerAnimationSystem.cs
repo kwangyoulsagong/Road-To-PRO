@@ -20,6 +20,7 @@ namespace RoadToPro.Presentation.Players
         AnimPlan _plan;
         PlayerAnimator[] _anim;
         FootLock[] _lock;
+        HandReachIk[] _hands; // 080 FR-04
         PoseSample[] _poses;
         UnityEngine.Playables.PlayableGraph _graph;   // 25명이 공유 — 한 번에 평가
         IPlaybackClock _clock;
@@ -50,6 +51,7 @@ namespace RoadToPro.Presentation.Players
             _cam = lodCamera;
             _anim = new PlayerAnimator[rigs.Length];
             _lock = new FootLock[rigs.Length];
+            _hands = new HandReachIk[rigs.Length];
             _poses = new PoseSample[rigs.Length];
             _graph = UnityEngine.Playables.PlayableGraph.Create("Players");
             _graph.SetTimeUpdateMode(UnityEngine.Playables.DirectorUpdateMode.Manual);
@@ -58,6 +60,7 @@ namespace RoadToPro.Presentation.Players
                 {
                     _anim[e] = new PlayerAnimator(rigs[e], clips, _graph);
                     _lock[e] = new FootLock(rigs[e]);
+                    _hands[e] = new HandReachIk(rigs[e]);
                 }
         }
 
@@ -114,6 +117,8 @@ namespace RoadToPro.Presentation.Players
                         _lock[e].ApplyPosture(_poses[e].Roll, _poses[e].Pitch, _poses[e].Twist);
                         _lock[e].ApplyFeet(_plan.Plants, e, t);
                         lift = Mathf.Max(lift, FootGrounding.Apply(a.Rig));
+                        _plan.HandReachAt(e, t, out var reach, out var hands, out _); // 080 FR-04: 발 접지 뒤 GK 손 IK
+                        if (hands != 0) _hands[e].Apply(new Vector3(reach.X, reach.Y, reach.Z), hands);
                     }
                 if (TimeMotion) LastMotionMs = (System.Diagnostics.Stopwatch.GetTimestamp() - t0) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
                 MaxGroundLift = lift;

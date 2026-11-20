@@ -34,7 +34,7 @@ REQUIRED_GROUPS = {
     "tackle": ["tackle_stand_r", "tackle_slide_r"],
     "duel": ["shoulder_duel"],
     "fall": ["fall_n", "fall_e", "fall_s", "fall_w", "hit_stumble"],
-    "keeper": ["gk_ready", "gk_dive_l", "gk_dive_r"],
+    "keeper": ["gk_ready"] + [f"gk_dive_{h}_{r}_{s}" for h in ("low", "mid", "high") for r in ("short", "long") for s in "lr"],
     "emotion": ["celebrate_arms", "dejected"],
     "restart": ["throw_in"],
     "referee": ["ref_whistle", "ref_card", "ref_advantage"],
@@ -48,6 +48,7 @@ def _tris(m, pred=None):
 
 
 HEAD_MIN = 2000
+HAND_BALL_SLACK = 0.30  # 080: 손목(Hand 본 머리) → 손바닥 → 공 중심 (손 ≈ 0.10 + 손바닥 앞 0.06 + 공 반지름 0.11 + 여유)
 CLOSEUP_MAX = 6000
 HAIR_LOD0_MAX = 1350  # 057 plan T01: 몸 LOD0 + 헤어(셸 + 카드 + 부속) ≤ 10k
 
@@ -355,6 +356,14 @@ def clip_list(tags):
         lo, hi = t["ballHeight"]
         if not (lo - 1e-6 <= c["point"][1] <= hi + 1e-6):
             bad.append(f"{t['id']}: 접촉점 높이 {c['point'][1]:.3f} ∉ [{lo}, {hi}]")
+        if c["part"] == "Hand":
+            # 080 FR-04: 손 접촉 클립은 어깨·팔 길이 태그가 있고, 접촉점(공 중심)이 어깨에서 팔 길이 + 손·공 여유 안
+            if "shoulders" not in c or "armLength" not in c:
+                bad.append(f"{t['id']}: 손 접촉 클립에 shoulders·armLength 없음")
+            else:
+                d = min(math.dist(sh, c["point"]) for sh in c["shoulders"])
+                if d > c["armLength"] + HAND_BALL_SLACK:
+                    bad.append(f"{t['id']}: 손 접촉점이 어깨에서 {d:.3f} m (팔 {c['armLength']:.3f} + {HAND_BALL_SLACK})")
     return {"ok": not missing and not bad and len(tags) >= 75, "count": len(tags), "missing": missing, "bad": bad}
 
 

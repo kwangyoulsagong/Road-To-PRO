@@ -286,6 +286,9 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["live.freeze.gkdive"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Save && (i.EventKind == SimEventKind.Parry || i.EventKind == SimEventKind.Catch), i => i.Kind == LiveSceneKind.Save, -0.1d);
             FarmContext.Screens["live.freeze.gkpunch"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Save && i.EventKind == SimEventKind.Punch, i => i.Kind == LiveSceneKind.Save && i.EventKind == SimEventKind.Parry, 0d);
             FarmContext.Screens["live.freeze.gkconceded"] = () => FreezeGoal(0, b => b.EventTime - 0.05d);
+            // specs/080 AC-05: 011 GK 경기(기본 시드)를 앞 장면 언로드 뒤 재생(D30), 다이빙 선방은 접촉 순간(손–공), 펀칭·실점은 011 화면 그대로
+            FarmContext.Screens["livePlay080"] = () => StartCoroutine(PlayFresh(Seed));
+            FarmContext.Screens["live.freeze080.gkdive"] = () => FreezeKind(i => i.Kind == LiveSceneKind.Save && (i.EventKind == SimEventKind.Parry || i.EventKind == SimEventKind.Catch), i => i.Kind == LiveSceneKind.Save, 0d);
             FarmContext.Screens["live.freeze.foul"] = () => FreezeKind(i => i.Kind == LiveSceneKind.RedCard || i.Kind == LiveSceneKind.YellowCard || i.Kind == LiveSceneKind.Foul, null);
             // specs/070 AC-11: 결투 장면 — 선정된 장면 구간 안의 테이크온·태클 이벤트 순간 (경기 이벤트 로그 A·B 비트)
             FarmContext.Screens["live.freeze.takeon_ok"] = () => FreezeEvent(e => e.Kind == SimEventKind.Dribble && (e.B & EventCodes.DribbleSuccess) != 0, null, "takeon_ok");
