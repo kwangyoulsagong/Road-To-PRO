@@ -1,0 +1,41 @@
+{
+  "results": [
+    {
+      "name": "HandReachIkPerf.Solve_Under50us",
+      "fullName": "RoadToPro.Tests.Performance.Presentation.HandReachIkPerf.Solve_Under50us",
+      "groups": {
+        "HandReachIk.Solve": {
+          "median": 0.0012267,
+          "min": 0.0012253000000000001,
+          "max": 0.0012509,
+          "avg": 0.00123258,
+          "unit": "ms",
+          "samples": 5
+        }
+      }
+    }
+  ],
+  "judgement": {
+    "judged": true,
+    "ok": true,
+    "note": "",
+    "profile": "mac-m1-1600p",
+    "metrics": {
+      "HandReachIkPerf.Solve_Under50us/HandReachIk.Solve/min": 0.0012253000000000001
+    },
+    "budget": [
+      {
+        "ac": "AC-07",
+        "label": "GK 손 IK 1회 (양손, 최선 회차)",
+        "metric": "HandReachIkPerf.Solve_Under50us/HandReachIk.Solve/min",
+        "value": 0.0012253000000000001,
+        "budget": 0.05,
+        "unit": "ms",
+        "ok": true
+      }
+    ],
+    "regression": [],
+    "host": "mac-m1-1600p",
+    "power": "ac"
+  }
+}

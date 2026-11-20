@@ -127,8 +127,11 @@ namespace RoadToPro.Presentation.Players.Logic.Motion
         readonly HighlightData _d;
 
         public const float MaxRate = MotionDefaults.YawFrameDeltaDeg * 60f * (float)(Math.PI / 180.0);
+        /// <summary>080 T12a: 방향 덮어쓰기 구간 앞뒤 섞기 (s). 180° 돌기 = 300°/s → 3배속 60 fps에서 프레임당 15°.</summary>
+        public const float OverrideRamp = 0.6f;
 
-        public YawTrack(HighlightData d)
+        /// <summary>overrides: (엔티티, 시작, 끝, 목표 방향) — 그 구간 동안 시뮬 방향 대신 목표 방향으로 돈다(같은 회전 속도 상한). 080 T12a: GK 선방은 공이 오는 쪽.</summary>
+        public YawTrack(HighlightData d, IReadOnlyList<(int e, float t0, float t1, float yaw)> overrides = null)
         {
             _d = d;
             _yaw = new float[d.Frames * E];
@@ -139,9 +142,22 @@ namespace RoadToPro.Presentation.Players.Logic.Motion
                 for (int f = 0; f < d.Frames; f++)
                 {
                     int i = f * E + e;
+                    float target = d.Yaw[i];
+                    if (overrides != null)
+                    {
+                        // 구간 안은 목표 방향, 앞뒤 OverrideRamp 동안 선형으로 섞는다 (순간 회전 054 FR-25 — 3배속 프레임당 ≤ 20°)
+                        float tf = d.StartTime + f / HighlightData.FrameRate;
+                        for (int k = 0; k < overrides.Count; k++)
+                        {
+                            var o = overrides[k];
+                            if (o.e != e || tf < o.t0 - OverrideRamp || tf > o.t1 + OverrideRamp) continue;
+                            float w = tf < o.t0 ? 1f - (o.t0 - tf) / OverrideRamp : tf > o.t1 ? 1f - (tf - o.t1) / OverrideRamp : 1f;
+                            target += (float)Math.IEEERemainder(o.yaw - target, 2 * Math.PI) * w;
+                        }
+                    }
                     if (f > 0)
                     {
-                        float delta = (float)Math.IEEERemainder(d.Yaw[i] - cur, 2 * Math.PI);
+                        float delta = (float)Math.IEEERemainder(target - cur, 2 * Math.PI);
                         cur += delta > max ? max : delta < -max ? -max : delta;
                     }
                     _yaw[i] = cur;

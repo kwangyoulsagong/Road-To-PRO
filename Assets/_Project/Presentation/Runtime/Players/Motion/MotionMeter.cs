@@ -239,7 +239,8 @@ namespace RoadToPro.Presentation.Players.Motion
 
         /// <summary>이 액션이 땅에 미끄러지거나 쓰러지는 동작이면 발 지지 기준 밖 (FR-10은 지지 발 기준).</summary>
         internal static bool GroundContactAction(ClipInfo c) =>
-            c.Group == "fall" || c.Id == "tackle_slide_r" || c.Id == "tackle_win_r" || c.Id == "gk_dive_l" || c.Id == "gk_dive_r";
+            c.Group == "fall" || c.Id == "tackle_slide_r" || c.Id == "tackle_win_r" || c.Id.StartsWith("gk_dive_", StringComparison.Ordinal)
+            || c.Id.StartsWith("gk_smother_", StringComparison.Ordinal) || c.Id == "gk_getup"; // 080: 옆으로 덮기·누운 자세에서 일어나기
 
         bool InGroundAction(int e, float t)
         {

@@ -153,6 +153,9 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         ids = [i for i in PV.POSE_IDS if i in {t["id"] for t in tags}]
         if ids:
             PV.poses(rig_obj, objs[min(objs)], tags, ids, os.path.join(stem_dir, "player.preview-poses.png"), stem_dir)
+        keeper = [i for i in PV.KEEPER_POSE_IDS if i in {t["id"] for t in tags}]
+        if keeper:
+            PV.poses(rig_obj, objs[min(objs)], tags, keeper, os.path.join(stem_dir, "player.preview-keeper.png"), stem_dir)
         film = [i for i in PV.FILM_IDS if i in {t["id"] for t in tags}]
         if film:
             PV.filmstrip(rig_obj, objs[min(objs)], tags, film, os.path.join(stem_dir, "player.preview-film.png"), stem_dir)

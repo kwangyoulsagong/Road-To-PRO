@@ -155,7 +155,14 @@ def heads(rig, lod_obj, hair_objs, out_png, tmp):
 
 
 POSE_IDS = ("idle", "walk_f", "sprint_f", "pass_inside_r", "shot_instep_r", "cross_r",
-            "trap_chest", "header_jump", "tackle_slide_r", "fall_n", "gk_dive_r", "celebrate_arms")
+            "trap_chest", "header_jump", "tackle_slide_r", "fall_n", "gk_dive_mid_long_r", "celebrate_arms")
+
+
+# 080: GK 동작 접촉 순간 (다이빙 6 · 잡기·쳐내기·펀칭·클레임·스마더·배급)
+KEEPER_POSE_IDS = ("gk_dive_low_short_r", "gk_dive_low_long_r", "gk_dive_mid_short_r", "gk_dive_mid_long_r", "gk_dive_high_short_r",
+                   "gk_dive_high_long_r", "gk_catch_ground", "gk_catch_ground_r", "gk_catch_chest", "gk_catch_high", "gk_claim_jump",
+                   "gk_parry_front", "gk_parry_side_r", "gk_tip_over_r", "gk_punch", "gk_punch_two", "gk_smother_r", "gk_spread",
+                   "gk_getup", "gk_roll_r", "gk_throw_r", "gk_lunge_low", "gk_lunge_mid", "gk_ready")
 
 
 FILM_IDS = ("walk_f", "jog_f", "run_f", "sprint_f", "start_f", "stop_f", "dribble_run_50", "sprint_f_r1_lo", "sprint_f_r2_lo",

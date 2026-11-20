@@ -214,7 +214,8 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players.Motion
             var d = MotionSceneKit.Scene("keeper").Data;
             var p = AnimPlan.Build(lib, AnimTestKit.Map, d, NullLogger.Instance);
             var c = lib.Get(p.Timeline(0).Get(0).Clip);
-            Assert.AreEqual("gk_dive_l", c.Id);
+            StringAssert.StartsWith("gk_dive_", c.Id);
+            StringAssert.EndsWith("_l", c.Id);
             Assert.Less(c.ContactPoint.X, 0f, "왼쪽 다이브의 손은 왼쪽");
         }
 

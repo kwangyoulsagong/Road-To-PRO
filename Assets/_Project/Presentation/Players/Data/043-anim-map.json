@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "_doc": "specs/043 FR-40 매핑 표 (011: GK 접촉은 Catch·Parry·Punch가 클립을 정하고 Save는 집계라 none, DiveStart는 접촉 없는 다이빙(실점)만 변환기가 예정 접촉 시각으로 옮겨 넣는다. 높이 3구간·크로스바 넘기기 클립은 043/054 후속 — 지금은 gk_dive_l/r로 재생. 055: 킥 원형 클립 shot_power_r·shot_inside_r·gk_goalkick_r·gk_punt_r 추가 — 같은 상황 안에서 선수 킥 원형으로 고른다). events: SimEventKind 이름 → {clips: 후보} 또는 {none: 이유}. who: player(PlayerId) | other(OtherId) | referee | scorer. outcome별 후보는 outcomes. 코드 수정 없이 바꿀 수 있다.",
+ "_doc": "specs/043 FR-40 매핑 표 (011: GK 접촉은 Catch·Parry·Punch가 클립을 정하고 Save는 집계라 none, DiveStart는 접촉 없는 다이빙(실점)만 변환기가 예정 접촉 시각으로 옮겨 넣는다. 080: GK 동작 종류·높이 구간별 후보는 keeper 구획 — events의 GK 후보는 합성 장면·해석 불가 이벤트용 대체. 055: 킥 원형 클립 shot_power_r·shot_inside_r·gk_goalkick_r·gk_punt_r 추가 — 같은 상황 안에서 선수 킥 원형으로 고른다). events: SimEventKind 이름 → {clips: 후보} 또는 {none: 이유}. who: player(PlayerId) | other(OtherId) | referee | scorer. outcome별 후보는 outcomes. 코드 수정 없이 바꿀 수 있다.",
  "default": "idle",
  "motionHints": {
   "Idle": ["idle"], "Walk": ["walk_f"], "Jog": ["jog_f"], "Run": ["run_f"], "Sprint": ["sprint_f"],
@@ -11,6 +11,120 @@
   "Pass": ["pass_inside_r", "pass_inside_l", "pass_outside_r", "pass_lofted_r", "onetouch_pass_r"],
   "Shot": ["shot_instep_r", "shot_instep_l", "shot_curl_r", "shot_volley_r", "onetouch_shot_r", "shot_power_r", "shot_inside_r"],
   "Clearance": ["clearance_r", "header_jump", "header_stand"]
+ },
+ "keeper": {
+  "_doc": "specs/080 FR-01·03: GK 시뮬 이벤트(Catch·Parry·Punch·Smother·ClaimFail·DiveStart의 A = KeeperMotionKind, B = 높이 구간)와 손 배급(같은 시각 Distribution A)의 후보. 높이 구간이 있는 종류는 {Low, Mid, High}. 여기 후보가 있으면 events 후보보다 먼저 쓴다(KeeperMotion.Candidates). 측면 쳐내기는 대부분 낮은 공이라 다이빙 클립을 같이 받는다(080 T01 진단). 땅볼 잡기도 움직이며 몸에서 ≈ 1 m 떨어진 공을 잡는 경우가 있어 낮은 다이빙을, 1.5~1.8 m 앞 공은 앞 덮치기(gk_lunge_low·mid)를 같이 받는다(080 T12·T13a). GK 손 받기(BallRecovered·Interception·PassReceived, Part = Hand)는 공 높이로 CatchGround·CatchChest·ClaimJump 후보를 쓴다.",
+  "ReadyStance": [
+   "gk_ready"
+  ],
+  "Shuffle": [
+   "gk_shuffle_l",
+   "gk_shuffle_r"
+  ],
+  "Dive": {
+   "Low": [
+    "gk_dive_low_short_l",
+    "gk_dive_low_short_r",
+    "gk_dive_low_long_l",
+    "gk_dive_low_long_r"
+   ],
+   "Mid": [
+    "gk_dive_mid_short_l",
+    "gk_dive_mid_short_r",
+    "gk_dive_mid_long_l",
+    "gk_dive_mid_long_r"
+   ],
+   "High": [
+    "gk_dive_high_short_l",
+    "gk_dive_high_short_r",
+    "gk_dive_high_long_l",
+    "gk_dive_high_long_r"
+   ]
+  },
+  "CatchGround": ["gk_catch_ground", "gk_catch_ground_l", "gk_catch_ground_r", "gk_dive_low_short_l", "gk_dive_low_short_r", "gk_dive_low_long_l", "gk_dive_low_long_r", "gk_lunge_low"],
+  "CatchChest": ["gk_catch_chest", "gk_lunge_mid"],
+  "CatchOverhead": [
+   "gk_catch_high"
+  ],
+  "ParrySide": {
+   "Low": [
+    "gk_dive_low_short_l",
+    "gk_dive_low_short_r",
+    "gk_dive_low_long_l",
+    "gk_dive_low_long_r"
+   ],
+   "Mid": [
+    "gk_parry_side_l",
+    "gk_parry_side_r",
+    "gk_dive_mid_short_l",
+    "gk_dive_mid_short_r",
+    "gk_dive_mid_long_l",
+    "gk_dive_mid_long_r"
+   ],
+   "High": [
+    "gk_tip_over_l",
+    "gk_tip_over_r",
+    "gk_dive_high_short_l",
+    "gk_dive_high_short_r",
+    "gk_dive_high_long_l",
+    "gk_dive_high_long_r"
+   ]
+  },
+  "ParryFront": {
+   "Low": [
+    "gk_parry_front",
+    "gk_catch_ground"
+   ],
+   "Mid": [
+    "gk_catch_chest",
+    "gk_parry_front"
+   ],
+   "High": [
+    "gk_punch_two",
+    "gk_catch_high"
+   ]
+  },
+  "TipOverBar": [
+   "gk_tip_over_l",
+   "gk_tip_over_r"
+  ],
+  "PunchOneHand": [
+   "gk_punch"
+  ],
+  "PunchTwoHands": [
+   "gk_punch_two"
+  ],
+  "ClaimJump": [
+   "gk_claim_jump",
+   "gk_catch_high"
+  ],
+  "Smother": ["gk_smother_l", "gk_smother_r", "gk_lunge_low"],
+  "Spread": [
+   "gk_spread"
+  ],
+  "GetUp": [
+   "gk_getup"
+  ],
+  "PenaltyEarlyMove": [
+   "gk_pk_move_l",
+   "gk_pk_move_r"
+  ],
+  "DistributeRoll": [
+   "gk_roll_r"
+  ],
+  "DistributeOverarm": [
+   "gk_throw_r"
+  ],
+  "DistributeGoalKick": [
+   "gk_goalkick_r",
+   "gk_kick"
+  ],
+  "DistributePunt": [
+   "gk_punt_r"
+  ],
+  "DistributeDropKick": [
+   "gk_punt_r"
+  ]
  },
  "events": {
   "Kickoff": {"who": "player", "clips": ["pass_inside_r", "pass_inside_l"]},
@@ -30,7 +144,7 @@
   "TacticsChanged": {"none": "상태"},
   "TacticsInputClamped": {"none": "상태"},
   "ShapeCastOverflow": {"none": "상태"},
-  "Pass": {"who": "player", "clips": ["pass_inside_r", "pass_inside_l", "pass_outside_r", "pass_lofted_r", "onetouch_pass_r"]},
+  "Pass": {"who": "player", "clips": ["pass_inside_r", "pass_inside_l", "pass_outside_r", "pass_lofted_r", "onetouch_pass_r", "gk_roll_r", "gk_throw_r"]},
   "PassReceived": {"who": "player", "clips": ["trap_foot_r", "trap_foot_l", "trap_chest", "trap_thigh_r"],
                    "outcomes": {"fail": ["trap_fail_r"]}},
   "Cross": {"who": "player", "clips": ["cross_r", "cross_l"]},
@@ -46,11 +160,11 @@
   "WoodworkHit": {"who": "player", "clips": ["dejected"]},
   "BallRecovered": {"who": "player", "clips": ["trap_foot_r", "trap_foot_l"]},
   "Save": {"none": "011 FR-80 선방 집계 이벤트 — 동작은 접촉 이벤트(Catch·Parry·Punch)가 정한다"},
-  "Catch": {"who": "player", "clips": ["gk_catch_chest", "gk_dive_l", "gk_dive_r"]},
+  "Catch": {"who": "player", "clips": ["gk_catch_chest", "gk_dive_mid_long_l", "gk_dive_mid_long_r"]},
   "Punch": {"who": "player", "clips": ["gk_punch"]},
   "KeeperRush": {"who": "player", "clips": ["sprint_f"]},
-  "DiveStart": {"who": "player", "clips": ["gk_dive_l", "gk_dive_r"]},
-  "Parry": {"who": "player", "clips": ["gk_dive_l", "gk_dive_r"]},
+  "DiveStart": {"who": "player", "clips": ["gk_dive_mid_long_l", "gk_dive_mid_long_r"]},
+  "Parry": {"who": "player", "clips": ["gk_dive_mid_long_l", "gk_dive_mid_long_r"]},
   "AdvantagePlayed": {"none": "012 어드밴티지 신호 — 동작은 079(판정 연출)"},
   "AdvantageEnd": {"none": "012 어드밴티지 끝 — 동작 없음"},
   "HandballOffence": {"none": "012 핸드볼 판정 — 동작은 079"},
@@ -58,9 +172,9 @@
   "KeeperHoldViolation": {"none": "012 GK 8초 위반 — 동작 없음"},
   "RestartCancelled": {"none": "012 재시작 취소 — 상태"},
   "ContactInputClamped": {"none": "012 접촉 입력 범위 보정 — 진단"},
-  "Smother": {"who": "player", "clips": ["gk_dive_l", "gk_dive_r"]},
-  "ClaimFail": {"who": "player", "clips": ["gk_catch_chest"]},
-  "Distribution": {"none": "074 배급 집계 — 동작은 같은 서브스텝 Pass 이벤트가 정한다(손 굴리기·던지기는 Part = Hand — 맞는 클립이 없어 선택기 대체 경로로 패스 클립, GK 손 공은 지면 높이라 throw_in(손 접촉 1.55 m)은 130 cm 어긋나 뺌, GK 배급 전용 클립은 080)"},
+  "Smother": {"who": "player", "clips": ["gk_smother_l", "gk_smother_r"]},
+  "ClaimFail": {"who": "player", "clips": ["gk_claim_jump", "gk_catch_high"]},
+  "Distribution": {"none": "074 배급 집계 — 동작은 같은 서브스텝 Pass 이벤트가 정한다. 손 배급(Part = Hand)은 이 이벤트의 A(굴리기·던지기)로 080 클립(gk_roll_r·gk_throw_r)을 고른다(KeeperMotion.HandPassKind). 던지기는 시뮬 공이 발밑이라 손–공 기록만(080 FR-06, D31)"},
   "PenaltyKeeper": {"none": "074 PK GK 전략 — 조기 다이빙 동작은 같은 서브스텝 DiveStart가 정한다"},
   "KeeperRecovered": {"none": "011 일어나기 끝 — 다이빙 클립 끝 동작으로 처리"},
   "IntentOpportunistic": {"none": "010 판단 기록 — 동작 없음"},

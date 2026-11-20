@@ -100,7 +100,7 @@
 | AC-10 | 043·056 회귀: `test_player.py` 전체(발 미끄러짐·접촉·관통) + EditMode `RoadToPro.Tests.EditMode.Presentation.Players` 전체(태그 형식·접촉 프레임) + `LocomotionBlendTests.RunSubstitution_*`·`StyleBlend_SlotsAtMost5` | 로직 | — |
 | AC-11 | `e2e/055-gait-filmstrip` (보법 4 + start·stop·드리블 런 × 측면·정면 × 8위상 + 스틱 피겨) + 회귀 `043-speed-motion`·`043-contact-closeup` | E2E | smoke |
 | AC-12 | `gaitSprint` 화면(1.5x 질주 R1 vs R2) + 필름스트립 리포트 육안 승인 → `evidence/approval.md` (Data/perf `manual`) | E2E | — |
-| AC-13 | `e2e/055-anim-perf` + `farm.py bench --spec 055`(IL2CPP 25명 p95 ≤ 2 ms·GC 0) + `PlayerImportTests.ClipMemory_Within150Percent` + 생성 시간(`farm.py art` 기록) | 성능 | low-igpu-1080p, il2cpp |
+| AC-13 | `e2e/055-anim-perf` + `farm.py bench --spec 055`(IL2CPP 25명 p95 ≤ 2 ms·GC 0) + `PlayerImportTests.ClipMemory_Within180Percent`(2026-11-20 080: +50% → +80%) + 생성 시간(`farm.py art` 기록) | 성능 | low-igpu-1080p, il2cpp |
 | AC-14 | `test_player.py::test_deterministic_twice`(클립 해시 2회 동일) + `AnimPlanTests.SameScene_StyleAndClipSequence_Same` | 결정론 | — |
 
 ## 버그 방지

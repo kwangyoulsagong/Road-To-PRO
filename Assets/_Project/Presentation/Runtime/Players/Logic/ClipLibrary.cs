@@ -103,6 +103,9 @@ namespace RoadToPro.Presentation.Players.Logic
         public BodyPart ContactPart;
         public Vec3 ContactPoint;
         public ContactRule Rule;
+        /// <summary>080 FR-04: 손 접촉 클립의 접촉 프레임 어깨(위팔 머리, 루트 기준)·팔 길이(기준 키). <see cref="ArmLength"/> = 0이면 손 IK 없음.</summary>
+        public Vec3 ShoulderL, ShoulderR;
+        public float ArmLength;
         public float ApproachMin = -180, ApproachMax = 180, BallHeightMin, BallHeightMax = 3, BallSpeedMin, BallSpeedMax = 40;
 
         public float Length => Frames / Fps;
@@ -241,6 +244,15 @@ namespace RoadToPro.Presentation.Players.Logic
                     var rr = (JsonObject)ru;
                     float G(string k) => rr.TryGet(k, out var v) ? F(v) : 0f;
                     c.Rule = new ContactRule(S(rr, "bone"), S(rr, "toward"), G("t"), G("up"), G("fwd"), G("side"), S(rr, "basis") == "foot");
+                    var sh = L(co, "shoulders");
+                    if (sh != null && co.TryGet("armLength", out var al))
+                    {
+                        var a = (List<object>)sh[0];
+                        var b2 = (List<object>)sh[1];
+                        c.ShoulderL = new Vec3(F(a[0]), F(a[1]), F(a[2]));
+                        c.ShoulderR = new Vec3(F(b2[0]), F(b2[1]), F(b2[2]));
+                        c.ArmLength = F(al);
+                    }
                 }
                 if (o.TryGet("cut", out var cu)) c.Cut = F(cu);
                 if (o.TryGet("plantFrame", out var pf)) c.PlantFrame = (int)(double)pf;

@@ -170,6 +170,8 @@ namespace RoadToPro.Presentation.Players.Logic
         readonly LocoStyle[] _style;            // 엔티티별 정면 원형 로코모션 (055)
         readonly KickArchetype[] _kick;         // 엔티티별 킥 원형 (055)
         readonly List<(float contactAt, Vec3 pull)> _ballPulls = new List<(float, Vec3)>();
+        /// <summary>080 FR-04·05: 엔티티별 GK 손 IK 키.</summary>
+        readonly HandReachTrack[] _reach = NewReach();
         float[] _pullFrom;
         MotionTrack _track;
         YawTrack _yaw;
@@ -228,8 +230,9 @@ namespace RoadToPro.Presentation.Players.Logic
                 }
             p._scale = entityScale;
             p.BuildLocomotion(log);
-            p._yaw = new YawTrack(d); // 083 T08a: 이긴 슬라이딩 루트 맞춤이 화면 방향을 쓴다 (데이터만 읽는다 — 순서 무관)
+            p._yaw = new YawTrack(d, KeeperMotion.FacingOverrides(d)); // 083 T08a: 이긴 슬라이딩 루트 맞춤이 화면 방향을 쓴다 (데이터만 읽는다 — 순서 무관). 080 T12a: GK 선방은 공이 오는 쪽
             p.BuildActions(map, log);
+            foreach (var r in p._reach) r.Finish();
             p.BuildMissedJumps();
             p._keys = new ContactKeys(d);
             // 082 T07b: 보정 창은 앞 접촉 키 뒤에서 시작 (다음 터치 보정이 앞 접촉 프레임 화면 공을 끌지 않게)
@@ -348,6 +351,37 @@ namespace RoadToPro.Presentation.Players.Logic
             return _styleBuf.Count > 0 ? _styleBuf : cands;
         }
 
+        static HandReachTrack[] NewReach()
+        {
+            var r = new HandReachTrack[HighlightData.Entities];
+            for (int i = 0; i < r.Length; i++) r[i] = new HandReachTrack();
+            return r;
+        }
+
+        /// <summary>080 FR-04: 시각 t의 GK 손 IK 이동량(월드, 가중치 곱함)·손(1 왼 · 2 오른). 런타임 HandReachIk가 쓴다.</summary>
+        public void HandReachAt(int e, float t, out Vec3 reach, out int hands, out float weight) => _reach[e].Sample(t, out reach, out hands, out weight);
+
+        /// <summary>화면 방향 (YawTrack, 라디안) — 테스트·진단.</summary>
+        public float ScreenYaw(int e, float t) => _yaw.At(e, t);
+
+        /// <summary>080: 엔티티의 손 IK 키 (테스트·진단).</summary>
+        public HandReachTrack ReachTrack(int e) => _reach[e];
+
+        static Vec3 RotY(Vec3 v, float yaw)
+        {
+            float sy = (float)Math.Sin(yaw), cy = (float)Math.Cos(yaw);
+            return new Vec3(v.X * cy + v.Z * sy, v.Y, -v.X * sy + v.Z * cy);
+        }
+
+        void AddMissReach(in AnimEvent ev, int e, in ActionChoice choice, float yaw, float contact)
+        {
+            var c = _lib.Get(choice.Clip);
+            if (!KeeperMotion.UsesReach(c)) return;
+            float sc = ScaleOf(e);
+            var cw = _d.Pos(e, contact) + RotY(c.ContactPoint * sc, yaw);
+            _reach[e].Add(choice.ContactAt, KeeperMotion.MissReach(cw, ev.BallPos, KeeperMotion.Decode(ev).Fingertip), KeeperMotion.HandsOf(c.Rule));
+        }
+
         void BuildActions(AnimationMap map, ILogger log)
         {
             var evs = new List<AnimEvent>(_d.Events);
@@ -355,7 +389,9 @@ namespace RoadToPro.Presentation.Players.Logic
             foreach (var ev in evs)
             {
                 if (map.IsNone(ev.Kind)) continue;
+                if (KeeperMotion.SupersededSmother(_d.Events, ev)) continue; // 080 T13a: 같은 순간 손 받기가 스마더 동작을 맡는다
                 var cands = map.Has(ev.Kind) ? map.Candidates(ev.Kind, ev.Outcome) : map.Resolve(ev.Kind, log);
+                cands = KeeperMotion.Candidates(map, _d.Events, ev, cands); // 080 FR-03·06: GK 동작 종류·높이 구간, 손 배급 방식
                 if (cands.Count == 0) continue;
                 var who = map.Who(ev.Kind);
                 int e = EntityFor(ev, who);
@@ -395,11 +431,15 @@ namespace RoadToPro.Presentation.Players.Logic
                     now = Math.Max(now, tl.LastContactBefore(t));   // 앞 접촉이 끝나기 전에 시작하지 않는다 (043 FR-60, 054 FR-82)
                     float contact = Math.Max(t, now);
                     // 083 T08a: 이긴 슬라이딩은 접촉점이 루트 앞 1 m 이상이라 시뮬 방향 ↔ 화면 방향(YawTrack 평활) 몇 도 차가 발–공 ~10 cm가 된다 — 화면 방향으로 맞춘다
-                    float yawQ = simSlide && ev.Outcome == ActionOutcome.Win ? _yaw.At(e, contact) : _d.YawAt(e, contact);
+                    float yawQ = (simSlide && ev.Outcome == ActionOutcome.Win) || KeeperMotion.IsSave(ev) || ev.Part == BodyPart.Hand ? _yaw.At(e, contact) : _d.YawAt(e, contact); // 080 T12a·T13a: GK 선방·손 동작도 화면 방향 (선방 방향 보정 구간이 뒤 동작까지 걸친다)
                     var q = new ActionRequest(now, contact, _d.Pos(e, contact), yawQ, ev.BallPos, ev.BallVelOut,
                         SpeedAt(e, contact - 0.3f), ev.Part, _kick[e], ScaleOf(e));
                     choice = ActionClipSelector.Select(_lib, cands, q);
-                    if (MissesBall(ev)) choice = choice.WithRootOffset(Vec3.Zero);    // 닿지 않는 동작: 공에 맞추지 않는다 (054 FR-36·44·83)
+                    if (MissesBall(ev))
+                    {
+                        choice = choice.WithRootOffset(Vec3.Zero);    // 닿지 않는 동작: 공에 맞추지 않는다 (054 FR-36·44·83)
+                        AddMissReach(ev, e, choice, yawQ, contact);   // 080 FR-05: 실점 다이빙 손은 공을 비켜 가거나(≥ 15 cm) 손끝(≤ 10 cm)
+                    }
                     else if (_lib.Get(choice.Clip).HasContact)
                     {
                         // 접촉 순간 루트 오차 ≤ 10 cm (054 FR-02). 남는 차이는 화면 공 보정(≤ 15 cm, FR-35)이 맡는다
@@ -423,6 +463,17 @@ namespace RoadToPro.Presentation.Players.Logic
                         }
                         // 남는 높이 차는 화면 공이 맡는다 (헤더는 리프트 뒤 차이)
                         var pull = residual * -1f + new Vec3(0, clipY + lift - ev.BallPos.Y, 0);
+                        var cc = _lib.Get(choice.Clip);
+                        if (KeeperMotion.UsesReach(cc))
+                        {
+                            // 080 FR-04: 루트(≤ 10 cm) 뒤 남는 차를 손 IK(≤ 30 cm)가 먼저 맡고, 그래도 남는 차만 화면 공 보정(054 FR-35)
+                            float sc = ScaleOf(e);
+                            var cw = ev.BallPos + pull;
+                            var reach = KeeperMotion.HandReach(pull * -1f, cw, cw + RotY((cc.ShoulderL - cc.ContactPoint) * sc, yawQ),
+                                cw + RotY((cc.ShoulderR - cc.ContactPoint) * sc, yawQ), cc.ArmLength, sc);
+                            _reach[e].Add(choice.ContactAt, reach, KeeperMotion.HandsOf(cc.Rule));
+                            pull += reach;
+                        }
                         if (pull.LengthSq() > 1e-8f) _ballPulls.Add((choice.ContactAt, pull));
                         choice = choice.WithRootOffset(clamped);
                         if (hd || slideWin) choice = choice.WithRootCap(lift, cap);

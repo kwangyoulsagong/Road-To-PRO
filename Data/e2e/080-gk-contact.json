@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "id": "080-gk-contact",
+  "spec": "080",
+  "description": "실제 경기(058 경로) 011 GK 장면과 같은 경기(기본 시드)·같은 3장면: 다이빙 선방(접촉 순간 — 080 GK 클립·손 IK로 손이 공에 붙는지), 펀칭(고정 경기에 없으면 쳐내기), 실점(공이 골라인을 넘기 직전 — 손이 공에 닿지 않게). PlayFresh로 재생(D30). 손–공 화면 거리 ≤ 공 지름 2배 육안 승인 (080 AC-05 = 011 AC-25 보류 해제)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261109
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-05"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "livePlay080"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 240
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze080.gkdive"
+    },
+    {
+      "type": "capture",
+      "name": "gkdive",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.gkpunch"
+    },
+    {
+      "type": "capture",
+      "name": "gkpunch",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "live.freeze.gkconceded"
+    },
+    {
+      "type": "capture",
+      "name": "gkconceded",
+      "kind": "3d"
+    }
+  ]
+}

@@ -70,8 +70,12 @@ namespace RoadToPro.Presentation.Highlight.Logic
                     int df = FrameIndex(clip, dt);
                     int de = SlotOf(clip.Frames[df], ev.PlayerId);
                     if (de < 0) continue;
+                    // 080 T02: 방향·높이(A)를 재생으로 넘긴다 — 높이 구간별 다이빙 클립 (080 FR-01·03).
+                    // 080 FR-05: 이어진 골이 손끝 플래그(Goal B)를 가지면 DiveStart B에 옮긴다 — 손끝이 공에 닿아 보이게
+                    var dive = ev;
+                    if (FingertipGoalAfter(clip, ev)) dive.B |= EventCodes.Fingertip;
                     data.Events.Add(new AnimEvent((float)dt, ev.Seq, ev.Kind, de, -1, BodyPart.Hand, ActionOutcome.Fail,
-                        EventBall(ev, data.Ball[df], pitch), BallVelocityAfter(data, df)));
+                        EventBall(ev, data.Ball[df], pitch), BallVelocityAfter(data, df), KeeperMotion.PackFlags(dive)));
                     continue;
                 }
                 double time = EventTime(ev);
@@ -81,7 +85,7 @@ namespace RoadToPro.Presentation.Highlight.Logic
                 // 070: 태클은 공을 따냈으면 Win, 빗나갔으면 Fail(공에 닿지 않는 동작, 054 FR-36) — A 비트
                 var outcome = ev.Kind == SimEventKind.Tackle ? ((ev.A & EventCodes.TackleWon) != 0 ? ActionOutcome.Win : ActionOutcome.Fail) : ActionOutcome.Success;
                 data.Events.Add(new AnimEvent((float)time, ev.Seq, ev.Kind, entity, SlotOf(clip.Frames[frame], ev.OtherId), ev.Part,
-                    outcome, EventBall(ev, data.Ball[frame], pitch), BallVelocityAfter(data, frame), (ev.A & 0x7FFF) | AnimEvent.FromSim | (ev.B << 16)));
+                    outcome, EventBall(ev, data.Ball[frame], pitch), BallVelocityAfter(data, frame), KeeperMotion.PackFlags(ev)));
             }
             AddMissedJumps(clip, data, (float)halfL, pitch);
             return data;
@@ -123,6 +127,14 @@ namespace RoadToPro.Presentation.Highlight.Logic
         }
 
         /// <summary>다이빙 시작 뒤 예정 접촉 시각(+2 서브스텝)까지 같은 GK의 접촉 이벤트(잡기·쳐내기·펀칭)가 있는가.</summary>
+        /// <summary>080: 다이빙 뒤 3 s(30 틱) 안 골 이벤트에 손끝 플래그(011 FR-92)가 있는가.</summary>
+        static bool FingertipGoalAfter(ReplayClip clip, in SimEvent dive)
+        {
+            foreach (var g in clip.Events)
+                if (g.Kind == SimEventKind.Goal && g.Tick >= dive.Tick && g.Tick <= dive.Tick + 30 && (g.B & EventCodes.Fingertip) != 0) return true;
+            return false;
+        }
+
         static bool HasKeeperContact(ReplayClip clip, in SimEvent dive)
         {
             long start = dive.Tick * 10 + Math.Max((int)dive.Substep, 0);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using RoadToPro.Core.Logging;
 using RoadToPro.Core.Math;
 using RoadToPro.Core.Serialization;
+using RoadToPro.MatchEngine.Goalkeeper;
 using RoadToPro.MatchEngine.Match.Events;
 using RoadToPro.MatchEngine.Match.Pipeline;
 using RoadToPro.MatchEngine.Match.Replay;
@@ -40,6 +41,8 @@ namespace RoadToPro.Presentation.Players.Logic
         readonly Dictionary<(SimEventKind, ActionOutcome), int[]> _outcomes = new Dictionary<(SimEventKind, ActionOutcome), int[]>();
         readonly Dictionary<MotionHint, int[]> _hints = new Dictionary<MotionHint, int[]>();
         readonly Dictionary<BallActionKind, int[]> _ball = new Dictionary<BallActionKind, int[]>();
+        /// <summary>080 FR-01·03: GK 동작 종류 × 높이 구간 → 후보. 구간 구분이 없는 종류는 세 구간에 같은 배열.</summary>
+        readonly Dictionary<(KeeperMotionKind, DiveHeight), int[]> _keeper = new Dictionary<(KeeperMotionKind, DiveHeight), int[]>();
         readonly int[] _default = new int[1];
         readonly List<string> _missing = new List<string>();
 
@@ -54,6 +57,8 @@ namespace RoadToPro.Presentation.Players.Logic
         public IReadOnlyList<int> Candidates(SimEventKind k) => _events.TryGetValue(k, out var c) ? c : Empty;
         public IReadOnlyList<int> Candidates(MotionHint h) => _hints.TryGetValue(h, out var c) ? c : Empty;
         public IReadOnlyList<int> Candidates(BallActionKind a) => _ball.TryGetValue(a, out var c) ? c : Empty;
+        /// <summary>080: GK 동작 종류·높이 구간 후보 (없으면 빈 목록).</summary>
+        public IReadOnlyList<int> KeeperCandidates(KeeperMotionKind k, DiveHeight band) => _keeper.TryGetValue((k, band), out var c) ? c : Empty;
 
         /// <summary>결과별 후보 (FR-48). 결과 전용 후보가 있으면 그것, 없으면 결과 태그가 맞지 않는 클립(fail·win 전용)을 뺀 기본 후보.</summary>
         public IReadOnlyList<int> Candidates(SimEventKind k, ActionOutcome o)
@@ -104,6 +109,30 @@ namespace RoadToPro.Presentation.Players.Logic
             {
                 if (!Enum.TryParse(kv.Key, out BallActionKind a)) throw new FormatException("모르는 BallActionKind: " + kv.Key);
                 m._ball[a] = Ids((List<object>)kv.Value, lib, kv.Key);
+            }
+            if (root.TryGet("keeper", out var kp))
+            {
+                foreach (var kv in ((JsonObject)kp).Members)
+                {
+                    if (kv.Key.StartsWith("_", StringComparison.Ordinal)) continue;
+                    if (!Enum.TryParse(kv.Key, out KeeperMotionKind k) || k == KeeperMotionKind.None) throw new FormatException("모르는 KeeperMotionKind: " + kv.Key);
+                    if (kv.Value is JsonObject bands)
+                    {
+                        foreach (var bk in bands.Members)
+                        {
+                            if (!Enum.TryParse(bk.Key, out DiveHeight b)) throw new FormatException("모르는 DiveHeight: " + kv.Key + "." + bk.Key);
+                            m._keeper[(k, b)] = Ids((List<object>)bk.Value, lib, kv.Key + "." + bk.Key);
+                        }
+                    }
+                    else
+                    {
+                        var ids = Ids((List<object>)kv.Value, lib, kv.Key);
+                        foreach (DiveHeight b in Enum.GetValues(typeof(DiveHeight))) m._keeper[(k, b)] = ids;
+                    }
+                }
+                foreach (KeeperMotionKind k in Enum.GetValues(typeof(KeeperMotionKind)))
+                    if (k != KeeperMotionKind.None && !m._keeper.ContainsKey((k, DiveHeight.Low)) && !m._keeper.ContainsKey((k, DiveHeight.Mid)))
+                        m._missing.Add("KeeperMotionKind." + k);
             }
             root.TryGet("events", out var ev);
             foreach (var kv in ((JsonObject)ev).Members)
