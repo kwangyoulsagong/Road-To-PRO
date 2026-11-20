@@ -108,6 +108,58 @@ def fit_arms(kp, rule, target, downs=range(-175, 125, 10), flexes=range(-60, 185
 FIT_STARTS = ((-90.0, 0.0, 0.0), (-150.0, 30.0, 0.0), (0.0, 90.0, 0.0), (-45.0, 150.0, 0.0), (0.0, 60.0, 45.0))
 
 
+# ---------------------------------------------------------------- 맞춤 캐시 (080 T16a: 생성 시간 예산 057 FR-42 ≤ 180 s)
+# fit_arms는 결정론이라 결과를 keeper_fits.json에 둔다. 항목 = 입력 서명(몸 키 포즈·규칙·목표·팔·탐색 설정·뼈대) → 팔 키 + 오차.
+# 서명이 같으면 저장값, 다르면 다시 맞추고 파일을 갱신한다(입력이 바뀐 생성 1회만 느리다). 같은 입력 → 같은 결과는 그대로.
+FITS_PATH = __import__("os").path.join(__import__("os").path.dirname(__file__), "keeper_fits.json")
+_CACHE = None
+_CACHE_DIRTY = False
+
+
+def _signature(body, rule, target, arms):
+    import hashlib
+    import json
+    from .. import skeleton as S
+    def norm(v):
+        if isinstance(v, (list, tuple)):
+            return [norm(x) for x in v]
+        if isinstance(v, dict):
+            return {str(k): norm(x) for k, x in sorted(v.items())}
+        if isinstance(v, float):
+            return round(v, 6)
+        return v
+    src = norm({"body": body, "rule": rule, "target": list(target), "arms": list(arms), "fit": [HAND_GAP, GAP_WEIGHT, CLEAR_TORSO,
+               CLEAR_THIGH, CLEAR_ARM, CLEAR_HEAD, CLEAR_WEIGHT, list(FIT_STARTS)],
+               "bones": [[n, list(h)] for n, _p, h, _t in S.BONES]})
+    return hashlib.sha256(json.dumps(src, sort_keys=True).encode()).hexdigest()[:16]
+
+
+def fit_cached(key, body, rule, target, arms=("R", "L")):
+    import json
+    import os
+    global _CACHE, _CACHE_DIRTY
+    if _CACHE is None:
+        _CACHE = json.load(open(FITS_PATH, encoding="utf-8")) if os.path.exists(FITS_PATH) else {}
+    name = key if isinstance(key, str) else "_".join(key)
+    sig = _signature(body, rule, target, arms)
+    hit = _CACHE.get(name)
+    if hit and hit["sig"] == sig:
+        k = dict(body)
+        for s in arms:
+            k["arm" + s] = tuple(hit["arm" + s])
+        return k, hit["err"]
+    k, e = fit_arms(body, rule, target, arms=arms)
+    _CACHE[name] = {"sig": sig, "err": round(e, 6), **{"arm" + s: [round(x, 6) for x in k["arm" + s]] for s in arms}}
+    k = dict(k)
+    for s in arms:
+        k["arm" + s] = tuple(_CACHE[name]["arm" + s])  # 저장값과 같은 반올림 — 캐시 적중 생성과 바이트 동일
+    with open(FITS_PATH, "w", encoding="utf-8", newline="\n") as f:
+        json.dump(_CACHE, f, ensure_ascii=False, sort_keys=True, indent=1)
+        f.write("\n")
+    print(f"[keeper] 팔 맞춤 갱신: {name} (오차 {e * 100:.1f} cm) → {os.path.basename(FITS_PATH)}")
+    return k, round(e, 6)
+
+
 def mirror_arms(kp):
     """오른쪽 다이빙 키 포즈의 팔을 왼쪽 다이빙용으로 (팔 키는 몸 기준이라 좌우 교환이 곧 거울)."""
     out = dict(kp)
@@ -144,7 +196,7 @@ def _sided(body, fitted, s):
 def landing(s):
     key = ("low", "long")
     if key not in _FIT:
-        _FIT[key] = fit_arms(_dive_body(1, *key), B.HANDS, (DIVE_REACH["long"], DIVE_HEIGHT["low"], DIVE_FWD))
+        _FIT[key] = fit_cached(key, _dive_body(1, *key), B.HANDS, (DIVE_REACH["long"], DIVE_HEIGHT["low"], DIVE_FWD))
     return _sided(M(_dive_body(s, *key), hips=(s * 0.10, -0.72, 0.05)), _FIT[key][0], s)
 
 
@@ -155,7 +207,7 @@ def gk_dive(height, reach, s, report=None):
     # 오른쪽(s = +1)만 맞추고 왼쪽은 거울 — 좌우가 정확히 대칭이고 탐색이 한 번이다
     key = (height, reach)
     if key not in _FIT:
-        _FIT[key] = fit_arms(_dive_body(1, height, reach), B.HANDS, (DIVE_REACH[reach], DIVE_HEIGHT[height], DIVE_FWD))
+        _FIT[key] = fit_cached(key, _dive_body(1, height, reach), B.HANDS, (DIVE_REACH[reach], DIVE_HEIGHT[height], DIVE_FWD))
     fitted, e = _FIT[key]
     fly = _sided(_dive_body(s, height, reach), fitted, s)
     if report is not None:
@@ -189,7 +241,7 @@ def _air(lift):
 
 def _fit_once(key, body, rule, target, arms=("R", "L")):
     if key not in _FIT:
-        _FIT[key] = fit_arms(body, rule, target, arms=arms)
+        _FIT[key] = fit_cached(key, body, rule, target, arms=arms)
     return _FIT[key][0]
 
 
