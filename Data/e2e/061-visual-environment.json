@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "id": "061-visual-environment",
+  "spec": "061",
+  "description": "061 S3(골대 뒤 하이앵글)·S6(코너 오버뷰): 경기장 밖 회색 비율(FR-15)·하늘(FR-11). 하늘–방향광 방위는 로직 SkySunAlignment",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261110
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-05"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "preset.Medium"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S3"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S3",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.mask"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S3-mask",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.unmask"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S6"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S6",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.mask"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S6-mask",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.unmask"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    }
+  ],
+  "imageChecks": [
+    {
+      "type": "grayRatio",
+      "capture": "medium-S3",
+      "mask": "medium-S3-mask",
+      "ac": "AC-05"
+    },
+    {
+      "type": "sky",
+      "capture": "medium-S3",
+      "mask": "medium-S3-mask",
+      "ac": "AC-05"
+    },
+    {
+      "type": "grayRatio",
+      "capture": "medium-S6",
+      "mask": "medium-S6-mask",
+      "ac": "AC-05"
+    },
+    {
+      "type": "sky",
+      "capture": "medium-S6",
+      "mask": "medium-S6-mask",
+      "ac": "AC-05"
+    }
+  ]
+}

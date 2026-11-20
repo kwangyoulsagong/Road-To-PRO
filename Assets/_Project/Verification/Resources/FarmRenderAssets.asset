@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: FarmRenderAssets
   m_EditorClassIdentifier: RoadToPro.Verification::RoadToPro.Verification.FarmRenderAssets
   entries:
-  - name: Mobile
+  - name: Medium
     asset: {fileID: 11400000, guid: 5e6cbd92db86f4b18aec3ed561671858, type: 2}
-  - name: PC
+  - name: High
     asset: {fileID: 11400000, guid: 4b83569d67af61e458304325a23e5dfd, type: 2}

@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "id": "061-mode-transition-release",
+  "spec": "061",
+  "description": "061 AC-14 (릴리스 = IL2CPP·비개발 빌드): Low·Medium·High 합성 골 시퀀스 2400프레임 재생(장면 반복으로 고품질 모드 진입·퇴장 ≥ 8회) — 모드 전환 뒤 1 s 최대 프레임 ≤ max(25 ms, 전환 밖 최대 + 1 ms), 셰이더 컴파일·동기 로드 0, p95 ≤ 16.6 ms. mac-m1-1600p 판정 (low-igpu-1080p는 실기기 후)",
+  "scene": "Highlight041",
+  "build": "release",
+  "fixture": {
+    "save": null,
+    "seed": 20261110
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-14"
+  ],
+  "defaults": {
+    "timeoutSec": 300
+  },
+  "budgets": {
+    "low-playback": {
+      "custom.modeTransitionFrameMs.max": {
+        "max": 25,
+        "orMetric": "outsideModeTransitionFrameMs.max",
+        "orMargin": 1
+      },
+      "frameMs.p95": {
+        "max": 16.6,
+        "orSection": "empty",
+        "orMetric": "frameMs.p95",
+        "orMargin": 0.3
+      },
+      "custom.shaderCompiles.max": 0,
+      "custom.syncLoads.max": 0,
+      "frameMs.max": {
+        "max": 33,
+        "orSection": "empty",
+        "orMetric": "frameMs.max"
+      }
+    },
+    "medium-playback": {
+      "custom.modeTransitionFrameMs.max": {
+        "max": 25,
+        "orMetric": "outsideModeTransitionFrameMs.max",
+        "orMargin": 1
+      },
+      "frameMs.p95": {
+        "max": 16.6,
+        "orSection": "empty",
+        "orMetric": "frameMs.p95",
+        "orMargin": 0.3
+      },
+      "custom.shaderCompiles.max": 0,
+      "custom.syncLoads.max": 0,
+      "frameMs.max": {
+        "max": 33,
+        "orSection": "empty",
+        "orMetric": "frameMs.max"
+      }
+    },
+    "high-playback": {
+      "custom.modeTransitionFrameMs.max": {
+        "max": 25,
+        "orMetric": "outsideModeTransitionFrameMs.max",
+        "orMargin": 1
+      },
+      "frameMs.p95": {
+        "max": 16.6,
+        "orSection": "empty",
+        "orMetric": "frameMs.p95",
+        "orMargin": 0.3
+      },
+      "custom.shaderCompiles.max": 0,
+      "custom.syncLoads.max": 0,
+      "frameMs.max": {
+        "max": 33,
+        "orSection": "empty",
+        "orMetric": "frameMs.max"
+      }
+    }
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightEmpty"
+    },
+    {
+      "type": "perfBegin",
+      "name": "empty",
+      "warmupFrames": 60,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "empty"
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Low"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "perfBegin",
+      "name": "low-playback",
+      "warmupFrames": 0,
+      "minFrames": 2400
+    },
+    {
+      "type": "perfEnd",
+      "name": "low-playback"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Medium"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "perfBegin",
+      "name": "medium-playback",
+      "warmupFrames": 0,
+      "minFrames": 2400
+    },
+    {
+      "type": "perfEnd",
+      "name": "medium-playback"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.High"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "perfBegin",
+      "name": "high-playback",
+      "warmupFrames": 0,
+      "minFrames": 2400
+    },
+    {
+      "type": "perfEnd",
+      "name": "high-playback"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    }
+  ]
+}

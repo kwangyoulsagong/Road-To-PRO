@@ -36,13 +36,21 @@ PlayerVaryings PlayerVert(PlayerAttributes i)
     return o;
 }
 
+// specs/061 FR-42: 림 라이트 (전역 값 — StadiumLighting이 넣고 고품질 모드 컨트롤러가 보정). 0이면 기존과 같다.
+half _RoadToProRim;
+
 half3 PlayerLight(half3 albedo, PlayerVaryings i, half detail)
 {
     half3 n = normalize(i.normalWS);
     float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
     Light light = GetMainLight(shadowCoord);
     half ndl = saturate(dot(n, light.direction));
-    half3 c = albedo * (light.color * ndl * light.shadowAttenuation + SampleSH(n)) * detail;
+    half3 sh = SampleSH(n);
+    half3 c = albedo * (light.color * ndl * light.shadowAttenuation + sh) * detail;
+    // 윤곽(시선과 수직인 면)을 하늘 환경광 + 약한 햇빛으로 살짝 밝힌다 — 빛나는 테두리가 아니라 잔디에서 떨어져 보일 만큼
+    half3 v = normalize(GetWorldSpaceViewDir(i.positionWS));
+    half fres = pow(1.0h - saturate(dot(n, v)), 3.0h);
+    c += fres * _RoadToProRim * (sh + light.color * 0.25h * light.shadowAttenuation) * lerp(0.6h, 1.0h, albedo);
     return MixFog(c, i.fog);
 }
 
@@ -63,6 +71,18 @@ float4 PlayerShadowVert(PlayerAttributes i) : SV_POSITION
 }
 
 float4 PlayerDepthVert(PlayerAttributes i) : SV_POSITION { return TransformObjectToHClip(i.positionOS.xyz); }
+
+// specs/061: SSAO(High 고품질 모드)가 켜지면 URP는 깊이를 DepthNormals 패스로 그린다 — 이 패스가 없으면 선수가 깊이 텍스처에서 빠져
+// 피사계 심도가 선수를 먼 배경으로 보고 흐린다.
+struct PlayerNormalVaryings { float4 positionCS : SV_POSITION; half3 normalWS : TEXCOORD0; float2 uv : TEXCOORD1; };
+PlayerNormalVaryings PlayerDepthNormalsVert(PlayerAttributes i)
+{
+    PlayerNormalVaryings o;
+    o.positionCS = TransformObjectToHClip(i.positionOS.xyz);
+    o.normalWS = (half3)TransformObjectToWorldNormal(i.normalOS);
+    o.uv = i.uv;
+    return o;
+}
 
 half PlayerDepthFrag(float4 positionCS : SV_POSITION) : SV_Target
 {

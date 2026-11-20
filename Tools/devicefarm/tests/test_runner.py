@@ -41,7 +41,7 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(d["-farmWidth"], "2560")
         self.assertEqual(d["-farmHeight"], "1600")
         self.assertEqual(d["-farmUiScale"], "2.0")
-        self.assertEqual(d["-farmUnityQuality"], "Mobile")
+        self.assertEqual(d["-farmUnityQuality"], "Medium")
         self.assertEqual(d["-farmRenderScale"], "0.75")
         self.assertEqual(d["-farmTheme"], c.theme)
         self.assertEqual(d["-farmLang"], c.lang)

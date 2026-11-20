@@ -18,6 +18,10 @@ namespace RoadToPro.Presentation.Editor.Stadium
         public const string BlobMatPath = Dir + "/BlobShadow.mat";
         public const string DayPath = Dir + "/Lighting_Day.asset";
         public const string NightPath = Dir + "/Lighting_Night.asset";
+        /// <summary>specs/061 절차 하늘 머티리얼 (RoadToPro/Sky).</summary>
+        public const string SkyMatPath = Dir + "/Stadium_Sky.mat";
+        /// <summary>specs/061 근거리 셸 잔디 머티리얼 (조명 프리셋이 참조해 빌드에 셰이더가 들어가게).</summary>
+        public const string GrassShellMatPath = Dir + "/Stadium_GrassShell.mat";
         const string TexDir = "Assets/_Project/Presentation/Stadium/Textures";
         const int BlobSize = 64;
 
@@ -28,7 +32,10 @@ namespace RoadToPro.Presentation.Editor.Stadium
             ConfigureTextures();
             PitchMaterial();
             BlobMaterial();
-            Presets();
+            var sky = SkyMaterial();
+            var grass = GrassShellMaterial();
+            Presets(sky, grass);
+            RetuneStructureMaterials();
             AssetDatabase.SaveAssets();
         }
 
@@ -65,6 +72,7 @@ namespace RoadToPro.Presentation.Editor.Stadium
             m.shader = shader;
             m.SetTexture("_BaseMap", AssetDatabase.LoadAssetAtPath<Texture2D>(TexDir + "/Grass004_Color.jpg"));
             m.SetTexture("_NormalMap", AssetDatabase.LoadAssetAtPath<Texture2D>(TexDir + "/Grass004_NormalGL.jpg"));
+            m.SetColor("_LineColor", new Color(0.85f, 0.85f, 0.83f, 1f)); // specs/061 FR-07: 라인 페인트 180~225 (217), 순백 금지
             EditorUtility.SetDirty(m);
             return m;
         }
@@ -148,11 +156,105 @@ namespace RoadToPro.Presentation.Editor.Stadium
                 m.SetColor("_EmissionColor", Color.black);
             }
             m.enableInstancing = true;
+            ApplySurfaceRules(m, name);
             EditorUtility.SetDirty(m);
             return m;
         }
 
-        static void Presets()
+        public const string SurfaceShaderName = "RoadToPro/StadiumSurface";
+
+        /// <summary>
+        /// specs/061 FR-07 재질 값 기준 (sRGB 0~255 알베도): 콘크리트 100~180, 좌석 밝기 40~200·채도 ≤ 0.75, 공통 15~240.
+        /// 불투명·비발광 구조물은 StadiumSurface(정점 AO, FR-30)로 바꾼다. 그물(059)·발광(조명 프리셋이 세기 조절)은 URP Lit 유지.
+        /// glb 인자(좌석 색 등)가 범위를 넘어도 여기서 범위 안으로 접는다.
+        /// </summary>
+        public static void ApplySurfaceRules(Material m, string name)
+        {
+            var c = m.GetColor("_BaseColor");
+            if (name.StartsWith("Net"))
+            {
+                m.SetColor("_BaseColor", new Color(0.88f, 0.88f, 0.88f, c.a)); // ≤ 240 (225)
+                return;
+            }
+            if (name.StartsWith("LightEmit")) return;
+            float smooth = 0.2f, spec = 0.04f;
+            if (name.StartsWith("Concrete")) c = Gray(0.59f);          // 150
+            else if (name.StartsWith("Ground")) { c = new Color(0.36f, 0.39f, 0.33f); smooth = 0.05f; } // 경기장 밖 바닥: 회색 대신 흙·잔디 섞인 색 (FR-15)
+            else if (name.StartsWith("Roof")) { c = Gray(0.80f); smooth = 0.35f; spec = 0.05f; }    // 도장 금속 지붕 204
+            else if (name.StartsWith("Metal")) { c = Gray(0.74f); smooth = 0.45f; spec = 0.06f; }   // 금속: 콘크리트보다 정반사 큼
+            else if (name.StartsWith("Seat")) { c = ClampSeat(c); smooth = 0.4f; spec = 0.045f; }  // 좌석 플라스틱: 약한 광택
+            else if (name.StartsWith("Board")) { smooth = 0.35f; }
+            else if (name.StartsWith("Bench")) { smooth = 0.3f; }
+            else if (name.StartsWith("Tunnel")) { smooth = 0.1f; }
+            c = ClampAlbedo(c);
+            var shader = Shader.Find(SurfaceShaderName);
+            if (shader == null) throw new System.InvalidOperationException("셰이더 " + SurfaceShaderName + " 없음");
+            m.shader = shader;
+            m.SetColor("_BaseColor", new Color(c.r, c.g, c.b, 1f));
+            m.SetFloat("_Smoothness", smooth);
+            m.SetFloat("_Specular", spec);
+            m.SetFloat("_AOStrength", 1f);
+            m.renderQueue = -1;
+            m.enableInstancing = true;
+        }
+
+        static Color Gray(float v) => new Color(v, v, v, 1f);
+
+        /// <summary>좌석: 가장 밝은 채널 ≤ 200/255, 채도(HSV) ≤ 0.75, 어두운 쪽 ≥ 40/255.</summary>
+        public static Color ClampSeat(Color c)
+        {
+            Color.RGBToHSV(c, out float h, out float sat, out float v);
+            sat = Mathf.Min(sat, 0.75f);
+            v = Mathf.Clamp(v, 40f / 255f, 200f / 255f);
+            var o = Color.HSVToRGB(h, sat, v);
+            o.a = 1f;
+            return o;
+        }
+
+        /// <summary>공통 15~240 (FR-07).</summary>
+        static Color ClampAlbedo(Color c)
+        {
+            const float lo = 15f / 255f, hi = 240f / 255f;
+            return new Color(Mathf.Clamp(c.r, lo, hi), Mathf.Clamp(c.g, lo, hi), Mathf.Clamp(c.b, lo, hi), c.a);
+        }
+
+        /// <summary>이미 만들어진 Stadium_*.mat에 061 재질 규칙을 다시 적용 (생성 순서와 무관하게 값 수렴).</summary>
+        static void RetuneStructureMaterials()
+        {
+            foreach (var guid in AssetDatabase.FindAssets("Stadium_ t:Material", new[] { Dir }))
+            {
+                var path = AssetDatabase.GUIDToAssetPath(guid);
+                var m = AssetDatabase.LoadAssetAtPath<Material>(path);
+                var name = Path.GetFileNameWithoutExtension(path).Substring("Stadium_".Length);
+                if (name == "Sky" || name == "GrassShell") continue;
+                ApplySurfaceRules(m, name);
+                EditorUtility.SetDirty(m);
+            }
+        }
+
+        /// <summary>specs/061 FR-10: 절차 하늘 머티리얼 (시간대 값은 조명 프리셋이 런타임 인스턴스에 넣는다).</summary>
+        static Material SkyMaterial()
+        {
+            var shader = Shader.Find("RoadToPro/Sky");
+            if (shader == null) throw new System.InvalidOperationException("셰이더 RoadToPro/Sky 없음");
+            var m = LoadOrCreate(SkyMatPath, () => new Material(shader));
+            m.shader = shader;
+            EditorUtility.SetDirty(m);
+            return m;
+        }
+
+        static Material GrassShellMaterial()
+        {
+            var shader = Shader.Find("RoadToPro/GrassShell");
+            if (shader == null) throw new System.InvalidOperationException("셰이더 RoadToPro/GrassShell 없음");
+            var m = LoadOrCreate(GrassShellMatPath, () => new Material(shader));
+            m.shader = shader;
+            m.enableInstancing = true;
+            EditorUtility.SetDirty(m);
+            return m;
+        }
+
+        static void Presets(Material sky, Material grass)
         {
             var day = LoadOrCreate(DayPath, ScriptableObject.CreateInstance<StadiumLightingPreset>);
             day.sunColor = new Color(1f, 0.96f, 0.9f);
@@ -165,11 +267,26 @@ namespace RoadToPro.Presentation.Editor.Stadium
             day.background = new Color(0.55f, 0.68f, 0.85f);
             day.emission = 0f;
             day.blobShadows = false;
+            // 061 하늘·환경광 [제안] (FR-10~12): 맑은 낮, 구름 조금, 지평선은 옅은 대기색
+            day.skyMaterial = sky;
+            day.grassShellMaterial = grass;
+            day.skyTop = new Color(0.20f, 0.40f, 0.78f);
+            day.skyHorizon = new Color(0.62f, 0.74f, 0.88f);
+            day.skyGround = new Color(0.30f, 0.33f, 0.28f);
+            day.cloudCover = 0.5f;
+            day.cloudColor = new Color(0.96f, 0.96f, 0.97f);
+            day.cloudShade = new Color(0.64f, 0.68f, 0.74f);
+            day.cloudSpeed = 3f;
+            day.cityGlow = new Color(1f, 0.62f, 0.35f, 0f);
+            day.backdropColor = new Color(0.40f, 0.46f, 0.50f);
+            day.ambientIntensity = 1.6f; // T14: 그림자 안이 검게 뭉개지지 않게 (FR-12) 1.3, T19: S1·S3 L* 41~44 → 1.5
+            day.floodlightFill = 0f;
+            day.rimStrength = 0.45f;
             EditorUtility.SetDirty(day);
 
             var night = LoadOrCreate(NightPath, ScriptableObject.CreateInstance<StadiumLightingPreset>);
             night.sunColor = new Color(0.92f, 0.95f, 1f);
-            night.sunIntensity = 0.55f;
+            night.sunIntensity = 0.85f;
             night.sunEuler = new Vector3(80f, 0f, 0f);  // 대표광: 거의 머리 위 (실시간 그림자는 블롭이 대신)
             night.sunShadows = false;
             night.ambientSky = new Color(0.30f, 0.33f, 0.42f);
@@ -178,6 +295,21 @@ namespace RoadToPro.Presentation.Editor.Stadium
             night.background = new Color(0.03f, 0.04f, 0.08f);
             night.emission = 4f;
             night.blobShadows = true;
+            // 061 나이트 하늘 [제안] (FR-10): 완전한 검정 아님 + 지평선 도시광, 구름은 옅고 어둡게
+            night.skyMaterial = sky;
+            night.grassShellMaterial = grass;
+            night.skyTop = new Color(0.02f, 0.03f, 0.07f);
+            night.skyHorizon = new Color(0.09f, 0.10f, 0.15f);
+            night.skyGround = new Color(0.04f, 0.045f, 0.05f);
+            night.cloudCover = 0.30f;
+            night.cloudColor = new Color(0.16f, 0.16f, 0.20f);
+            night.cloudShade = new Color(0.06f, 0.07f, 0.10f);
+            night.cloudSpeed = 3f;
+            night.cityGlow = new Color(1f, 0.60f, 0.32f, 0.30f);
+            night.backdropColor = new Color(0.05f, 0.06f, 0.08f);
+            night.ambientIntensity = 1f;
+            night.floodlightFill = 1.8f; // T14: 나이트 L* 24~28 → 1.5, T19: S5 30 → 1.8
+            night.rimStrength = 0.55f; // 조명탑 역광 // 하늘은 어두우므로 경기장 환경광은 조명탑 채움광(기존 3색)이 맡는다
             EditorUtility.SetDirty(night);
         }
     }

@@ -39,7 +39,7 @@ Material:
     - _StripeStrength: 0.14
     - _Tile: 4
     m_Colors:
-    - _LineColor: {r: 0.93, g: 0.93, b: 0.9, a: 1}
+    - _LineColor: {r: 0.85, g: 0.85, b: 0.83, a: 1}
     - _Tint: {r: 0.82, g: 0.95, b: 0.78, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

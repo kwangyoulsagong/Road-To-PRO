@@ -161,6 +161,7 @@ namespace RoadToPro.Verification.Samples.Highlight
             FarmContext.Screens["highlightLoop"] = () => StartCoroutine(EnterExitLoop());
             RegisterRenderScreens();
             FarmContext.CaptureRegions = null;
+            Visual061Screen.Attach(gameObject, cam, player, PlayBroadcast); // specs/061 기준 장면 S1~S7 + 캡처 영역
             FarmContext.PerfCounters["transitionFrameMs"] = () => _inTransition ? _frameMs : (double?)null;
             FarmContext.PerfCounters["shaderCompiles"] = () => player.IsLoaded ? _shaderFrame : (double?)null;
             FarmContext.PerfCounters["syncLoads"] = () => player.IsLoaded ? 0d : (double?)null;

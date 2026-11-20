@@ -247,6 +247,26 @@ namespace RoadToPro.Verification.Samples
 
         static readonly Color TextKey = new Color(1f, 0f, 1f, 1f);
         bool _key;
+        bool? _postBeforeKey;
+
+        /// <summary>
+        /// 키 캡처(글자 = 마젠타 마스크)는 후처리 없이 그린다 — specs/061 공통 룩(채도·녹색 곡선·톤맵)이 키 색을 바꿔 영역 검사(043 AC-13)가 글자를 못 찾는다.
+        /// 키가 아닌 캡처는 원래 후처리 상태로 되돌린다.
+        /// </summary>
+        void KeyPost(bool key)
+        {
+            var data = UnityEngine.Rendering.Universal.CameraExtensions.GetUniversalAdditionalCameraData(cam);
+            if (key)
+            {
+                if (_postBeforeKey == null) _postBeforeKey = data.renderPostProcessing;
+                data.renderPostProcessing = false;
+            }
+            else if (_postBeforeKey != null)
+            {
+                data.renderPostProcessing = _postBeforeKey.Value;
+                _postBeforeKey = null;
+            }
+        }
 
         KitColors KitOf(int e) => e == 0 ? _kits.HomeKeeper : e <= 10 ? _kits.Home : e == 11 ? _kits.AwayKeeper : e <= 21 ? _kits.Away : _kits.Referee;
 
@@ -259,6 +279,7 @@ namespace RoadToPro.Verification.Samples
             _perf = false;
             KitCompositor.PlaybackActive = false;
             _key = key;
+            KeyPost(key);
             _view = $"row{row + 1}{(back ? "Back" : "Front")}{(key ? "Key" : "")}";
             if (_bodiesApplied) RestoreLooks();
             foreach (var rg in _rigs) rg.SetCloseup(false);
@@ -461,6 +482,7 @@ namespace RoadToPro.Verification.Samples
             _perf = false;
             KitCompositor.PlaybackActive = false;
             _key = false;
+            KeyPost(false);
             _view = view;
             foreach (var r in stadium) r.enabled = false;
             pitch.enabled = true;

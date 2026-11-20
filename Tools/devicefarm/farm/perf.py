@@ -112,10 +112,13 @@ def summarize(sec):
     if custom:
         out["custom"] = custom  # specs/043: 화면이 넘긴 카운터 (예: custom.animCpuMs.p95)
     # specs/048: 전환 카운터가 있으면 전환 구간 밖 프레임 시간도 — 전환이 유발한 스파이크만 가려낸다
-    tr = (sec.get("custom") or {}).get("transitionFrameMs")
-    if tr and len(tr) == len(sec["frameMs"]):
-        outside = [f for f, t in zip(sec["frameMs"][w:], tr[w:]) if t is None]
-        out["outsideTransitionFrameMs"] = _stats(outside) if outside else None
+    # specs/061: 같은 규칙을 다른 전환 카운터(modeTransitionFrameMs = 고품질 모드 진입·퇴장 ±1 s)에도 — outside<이름>
+    for key, series in (sec.get("custom") or {}).items():
+        if not key.endswith("ransitionFrameMs") or not series or len(series) != len(sec["frameMs"]):
+            continue
+        outside = [f for f, t in zip(sec["frameMs"][w:], series[w:]) if t is None]
+        name = "outside" + key[0].upper() + key[1:]
+        out[name] = _stats(outside) if outside else None
     return out
 
 

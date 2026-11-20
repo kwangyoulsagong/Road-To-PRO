@@ -224,6 +224,25 @@ Shader "RoadToPro/PlayerBody"
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             ENDHLSL
         }
+
+        Pass
+        {
+            Name "DepthNormals"
+            Tags { "LightMode" = "DepthNormals" }
+            HLSLPROGRAM
+            #pragma vertex PlayerDepthNormalsVert
+            #pragma fragment BodyNormalsFrag
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
+            half4 BodyNormalsFrag(PlayerNormalVaryings i) : SV_Target
+            {
+            #if defined(LOD_FADE_CROSSFADE)
+                LODFadeCrossFade(i.positionCS);
+            #endif
+                ClipCard(i.uv, i.positionCS);
+                return half4(NormalizeNormalPerPixel(i.normalWS), 0);
+            }
+            ENDHLSL
+        }
     }
     FallBack Off
 }

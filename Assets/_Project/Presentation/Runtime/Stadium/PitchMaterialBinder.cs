@@ -14,6 +14,9 @@ namespace RoadToPro.Presentation.Stadium
         StadiumLayout _layout;
         MaterialPropertyBlock _block;
 
+        /// <summary>피치 렌더러 (specs/061 셸 잔디가 같은 머티리얼·프로퍼티 블록을 쓴다).</summary>
+        public Renderer PitchRenderer => pitchRenderer;
+
         public StadiumLayout Layout => _layout ??= layoutJson != null ? StadiumLayout.Parse(layoutJson.text) : null;
 
         public void Configure(TextAsset layout, Renderer pitch)

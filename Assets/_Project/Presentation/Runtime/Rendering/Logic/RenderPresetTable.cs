@@ -3,19 +3,16 @@ using System;
 namespace RoadToPro.Presentation.Rendering.Logic
 {
     /// <summary>
-    /// 프리셋 표 (specs/048 FR-01). P1은 Low만 실제 정의이고 Medium/High는 기존 Mobile/PC 에셋 대역이다.
-    /// 대역 열의 값은 기획서 FR-01 표대로 적되 적용은 후속 스펙에서 한다.
+    /// 프리셋 표 (specs/048 FR-01). 061 T06(2026-11-20)부터 세 프리셋 모두 실제 품질 레벨(Low·Medium·High)이다.
+    /// URP 템플릿에서 남은 Mobile·PC 레벨 이름은 PC 전용 결정에 맞춰 정리했다. 061 시각 기능은 VisualFeatureTable.
     /// </summary>
     public static class RenderPresetTable
     {
         public const string LowLevel = "Low";
-        public const string MediumStandInLevel = "Mobile";
-        public const string HighStandInLevel = "PC";
-        /// <summary>
-        /// 이 플랫폼에서 꺼진 대역 레벨(Mobile은 Standalone 제외)을 에셋으로만 덮을 때 밑에 깔 레벨.
-        /// 048 전 디바이스팜이 쓰던 조합(PC 레벨 + Mobile 에셋)과 같게 해서 기존 기준 이미지를 지킨다.
-        /// </summary>
-        public const string FallbackBaseLevel = "PC";
+        public const string MediumLevel = "Medium";
+        public const string HighLevel = "High";
+        /// <summary>품질 레벨이 없을 때(이름 오타 등) 에셋으로만 덮을 때 밑에 깔 레벨.</summary>
+        public const string FallbackBaseLevel = "High";
 
         public static readonly RenderPreset Low = new RenderPreset
         {
@@ -37,7 +34,7 @@ namespace RoadToPro.Presentation.Rendering.Logic
         public static readonly RenderPreset Medium = new RenderPreset
         {
             Id = PresetId.Medium,
-            QualityLevel = MediumStandInLevel,
+            QualityLevel = MediumLevel,
             RenderScale = 0.75f,
             Upscaler = Upscaler.Stp,
             Shadows = ShadowMode.DirectionalPlusBlob,
@@ -48,15 +45,15 @@ namespace RoadToPro.Presentation.Rendering.Logic
             Ssao = false, Volumetric = false, Ssr = false,
             Post = PostStack.ToneMapBloomVignette,
             MaxTextureSize = 2048,
-            IsStandIn = true,
+            IsStandIn = false,
         };
 
         public static readonly RenderPreset High = new RenderPreset
         {
             Id = PresetId.High,
-            QualityLevel = HighStandInLevel,
+            QualityLevel = HighLevel,
             RenderScale = 1.0f,
-            Upscaler = Upscaler.None,
+            Upscaler = Upscaler.Stp, // 061 FR-34·60: 렌더 스케일 1.0에서 STP = 시간적 AA
             Shadows = ShadowMode.Realtime,
             FloodlightShadows = 4,
             Grass = GrassMode.Shell,
@@ -65,7 +62,7 @@ namespace RoadToPro.Presentation.Rendering.Logic
             Ssao = false, Volumetric = false, Ssr = false,
             Post = PostStack.ToneMapBloomVignetteReplayDof,
             MaxTextureSize = 2048,
-            IsStandIn = true,
+            IsStandIn = false,
         };
 
         public static RenderPreset Get(PresetId id) => id switch

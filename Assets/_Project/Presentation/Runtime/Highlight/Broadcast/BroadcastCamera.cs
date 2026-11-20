@@ -69,6 +69,16 @@ namespace RoadToPro.Presentation.Highlight.Broadcast
             if (built.Scene.Id == _currentId) _current = _tracks[_tracks.Count - 1].Track;
         }
 
+        /// <summary>장면의 카메라 트랙 (specs/061 고품질 모드 판단 입력). 없으면 null.</summary>
+        public CameraTrack TrackOf(int sceneId)
+        {
+            int at = IndexOf(sceneId);
+            return at >= 0 ? _tracks[at].Track : null;
+        }
+
+        /// <summary>장면 요약 (득점자 등 — 061 피사계 심도 초점 대상).</summary>
+        public SceneBrief BriefOf(int sceneId) => _briefs(sceneId);
+
         /// <summary>설정이 바뀌었을 때 전체 트랙을 다시 만든다.</summary>
         public void Rebuild(IReadOnlyList<BuiltScene> scenes)
         {

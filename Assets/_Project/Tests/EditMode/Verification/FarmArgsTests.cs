@@ -16,7 +16,7 @@ namespace RoadToPro.Tests.EditMode.Verification
             "-farmProfile", "mac-m1-1600p",
             "-farmWidth", "2560", "-farmHeight", "1600",
             "-farmUiScale", "2.0",
-            "-farmQuality", "Medium", "-farmUnityQuality", "Mobile",
+            "-farmQuality", "Medium", "-farmUnityQuality", "Medium",
             "-farmRenderScale", "0.75",
             "-farmTargetFps", "60",
             "-farmTheme", "dark", "-farmLang", "en",
@@ -39,7 +39,7 @@ namespace RoadToPro.Tests.EditMode.Verification
             Assert.AreEqual(1600, a.Height);
             Assert.AreEqual(2.0f, a.UiScale);
             Assert.AreEqual("Medium", a.Quality);
-            Assert.AreEqual("Mobile", a.UnityQualityLevel);
+            Assert.AreEqual("Medium", a.UnityQualityLevel);
             Assert.AreEqual(0.75f, a.RenderScale);
             Assert.AreEqual(60, a.TargetFps);
             Assert.AreEqual("dark", a.Theme);

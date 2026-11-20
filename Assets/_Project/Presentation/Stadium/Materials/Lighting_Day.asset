@@ -22,3 +22,17 @@ MonoBehaviour:
   background: {r: 0.55, g: 0.68, b: 0.85, a: 1}
   emission: 0
   blobShadows: 0
+  skyMaterial: {fileID: 2100000, guid: ed3a798dcf03842afb4819ce314881e5, type: 2}
+  grassShellMaterial: {fileID: 2100000, guid: 10ee923a05fd64824a07529d1e2cdb00, type: 2}
+  skyTop: {r: 0.2, g: 0.4, b: 0.78, a: 1}
+  skyHorizon: {r: 0.62, g: 0.74, b: 0.88, a: 1}
+  skyGround: {r: 0.3, g: 0.33, b: 0.28, a: 1}
+  cloudCover: 0.5
+  cloudColor: {r: 0.96, g: 0.96, b: 0.97, a: 1}
+  cloudShade: {r: 0.64, g: 0.68, b: 0.74, a: 1}
+  cloudSpeed: 3
+  cityGlow: {r: 1, g: 0.62, b: 0.35, a: 0}
+  backdropColor: {r: 0.4, g: 0.46, b: 0.5, a: 1}
+  ambientIntensity: 1.6
+  rimStrength: 0.45
+  floodlightFill: 0

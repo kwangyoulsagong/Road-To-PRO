@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Lighting_Night
   m_EditorClassIdentifier: RoadToPro.Presentation::RoadToPro.Presentation.Stadium.StadiumLightingPreset
   sunColor: {r: 0.92, g: 0.95, b: 1, a: 1}
-  sunIntensity: 0.55
+  sunIntensity: 0.85
   sunEuler: {x: 80, y: 0, z: 0}
   sunShadows: 0
   ambientSky: {r: 0.3, g: 0.33, b: 0.42, a: 1}
@@ -22,3 +22,17 @@ MonoBehaviour:
   background: {r: 0.03, g: 0.04, b: 0.08, a: 1}
   emission: 4
   blobShadows: 1
+  skyMaterial: {fileID: 2100000, guid: ed3a798dcf03842afb4819ce314881e5, type: 2}
+  grassShellMaterial: {fileID: 2100000, guid: 10ee923a05fd64824a07529d1e2cdb00, type: 2}
+  skyTop: {r: 0.02, g: 0.03, b: 0.07, a: 1}
+  skyHorizon: {r: 0.09, g: 0.1, b: 0.15, a: 1}
+  skyGround: {r: 0.04, g: 0.045, b: 0.05, a: 1}
+  cloudCover: 0.3
+  cloudColor: {r: 0.16, g: 0.16, b: 0.2, a: 1}
+  cloudShade: {r: 0.06, g: 0.07, b: 0.1, a: 1}
+  cloudSpeed: 3
+  cityGlow: {r: 1, g: 0.6, b: 0.32, a: 0.3}
+  backdropColor: {r: 0.05, g: 0.06, b: 0.08, a: 1}
+  ambientIntensity: 1
+  rimStrength: 0.55
+  floodlightFill: 1.8

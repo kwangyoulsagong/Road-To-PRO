@@ -303,7 +303,7 @@
    "seed": 1,
    "tiers": 2
   },
-  "blender": "5.1.1",
+  "blender": "5.3.0",
   "command": "python: .claude/scripts/blender-gen.sh Art/Blender/scripts/gen_stadium.py <out> --capacity 40000 --tiers 2 --roof partial --seat-colors #1E5AA8,#F2F2F2 --lights towers --boards on --seed 1",
   "script": "Art/Blender/scripts/gen_stadium.py"
  },
@@ -4355,6 +4355,15 @@
    ]
   },
   "checks": {
+   "ao": {
+    "corners": 10356,
+    "max": 1.0,
+    "min": 0.25,
+    "objects": 22,
+    "ok": true,
+    "roofTop": 0.8663,
+    "roofUnder": 0.8374
+   },
    "budget": {
     "materials": true,
     "triangles": true
