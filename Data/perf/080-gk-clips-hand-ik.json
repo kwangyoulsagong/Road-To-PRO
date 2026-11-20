@@ -1,0 +1,24 @@
+{
+  "spec": "080",
+  "profile": "mac-m1-1600p",
+  "note": "specs/080 성능 예산 표의 기계용 사본. GK 손 IK 1회(양손) ≤ 0.05 ms [제안, 2026-11-20 승인] — 에디터 측정. 클립 메모리는 EditMode PlayerImportTests.ClipMemory_Within180Percent(055 예산 +80%), 생성물 크기 ≤ 2 MB는 evidence/visual-approval.md. 시뮬 틱 경로 변경 없음 → IL2CPP 벤치 없음.",
+  "tests": [
+    "RoadToPro.Tests.Performance.Presentation.HandReachIkPerf"
+  ],
+  "budgets": [
+    {
+      "ac": "AC-07",
+      "label": "GK 손 IK 1회 (양손, 최선 회차)",
+      "test": "HandReachIkPerf.Solve_Under50us",
+      "group": "HandReachIk.Solve",
+      "stat": "min",
+      "max": 0.05,
+      "unit": "ms",
+      "regression": false
+    }
+  ],
+  "manual": {
+    "AC-05": "evidence/visual-approval.md",
+    "AC-07": "evidence/visual-approval.md"
+  }
+}
