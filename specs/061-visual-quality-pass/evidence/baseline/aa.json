@@ -1,0 +1,17 @@
+{
+ "note": "061 Q12 AA 기준선: main d2deaa2 빌드(Medium·High는 당시 Mobile·PC 대역)에서 같은 장면 vs 렌더 스케일 2.0 슈퍼샘플, 고대비 경계 평균 차",
+ "edgeDiff": {
+  "low-S1": 9.337,
+  "low-S3": 11.478,
+  "low-S4": 10.846,
+  "low-S6": 10.93,
+  "medium-S1": 0.21,
+  "medium-S3": 2.31,
+  "medium-S4": 0.066,
+  "medium-S6": 0.193,
+  "high-S1": 8.964,
+  "high-S3": 4.403,
+  "high-S4": 3.068,
+  "high-S6": 11.126
+ }
+}
