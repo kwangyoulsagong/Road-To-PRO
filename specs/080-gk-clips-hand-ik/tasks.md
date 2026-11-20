@@ -1,6 +1,6 @@
 # 080 — GK 동작 클립 확장 · 손 IK · 태스크
 
-상태: 승인됨 (2026-11-20 사용자 "ㄱㄱ")
+상태: 완료 (2026-11-20 T17 검증): AC-01~08 통과 — 로직 812(통과 803, Explicit 진단 9), Blender 29/29, AC-05 육안 승인, AC-07 손 IK 1.2 µs·클립 메모리 +75.9 %. 리포트 https://claude.ai/artifact/KqAFtPLscB67hQCjPiuvp8 (태스크 승인 2026-11-20)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현보다 먼저 둔다 (Unity 실행 횟수를 줄이려 테스트와 구현을 한 번에 컴파일·실행해도 된다 — 결과 줄에 적는다).
@@ -38,5 +38,6 @@
 - [x] T15 E2E 장면 — 파일: `Data/e2e/080-gk-contact.json`(011-gk-highlight와 같은 3장면 다이빙 선방·펀칭·실점, `PlayFresh` 경로), `Assets/_Project/Verification/Runtime/Samples/Highlight/HighlightScreen.cs`(080 화면 이름 → `PlayFresh`, 고정 시드 탐색은 플레이어 안에서) — 검증: `farm.py shot --scenario 080-gk-contact` 1회로 장면 3개가 잡히는지만 확인 (판정은 T16) — 결과: `Data/e2e/080-gk-contact.json`(011과 같은 경기·같은 3장면, 고정 시드 20261109), `HighlightScreen`: `livePlay080` = `PlayFresh(Seed)`(D30), `live.freeze080.gkdive` = 다이빙 선방 접촉 순간(손–공 확인 — 011은 0.1 s 전), 펀칭·실점은 011 화면 재사용. `farm.py art`에 080 등록(`keeper`·`poses`·`lineup` 미리보기, devicefarm `test_art` 통과). 장면이 잡히는지는 T16 shot 1회로 확인(같은 실행 두 번 하지 않음)
 
 ## G. 마무리
-- [ ] T16 수용 기준 전체 확인 — 커밋 → `farm.py logic --spec 080 --scope auto`(Presentation 범위) → `farm.py art --spec 080`(≈ 7분, Blender 스크립트 변경) → `farm.py shot --scenario 080-gk-contact`(mac-m1-1600p) → 스크린샷 직접 확인 → 사용자 육안 승인 (AC-05)
-- [ ] T17 `/verify 080` — `evidence/report.html`(로직·아트·E2E 승인·IK 성능·클립 메모리, 벤치 "틱 경로 변경 없음") 아티팩트 발행, 011 AC-24·25 보류 해제 기록(011 spec 상태 줄·README), spec·plan·tasks 상태 `완료`
+- [x] T16a (추가) 검증 중 고친 것 — (1) 전체 로직 실행에서 클립 메모리가 단독보다 ≈ 0.5 MB 크게 잡혀 +80% 초과(42.71 MB) → GK 클립 끝 여유 축소(다이빙 24프레임 등), 단독 41.43 MB(+75.9%) (2) 선수·하이라이트 E2E 씬이 클립 배열을 씬에 저장해, 121개 배열로 남아 플레이어가 범위 밖 클립 연결(`PlayerAnimator.Prepare` IndexOutOfRange) → `PlayerSceneSetup`·`HighlightSceneSetup.Generate`로 재생성 (3) `farm.py art` 생성 시간 299 s > 180 s(057 FR-42) → 결정론 팔 맞춤 결과를 `keeper_fits.json` 캐시(입력 서명 일치 시 사용), 생성 68 s, 산출물 바이트 동일. 참고: `farm.py logic --scope auto`는 `Tests/Performance/` 경로 규칙이 없어 `all`이 되어 `presentation,verification`으로 직접 지정
+- [x] T16 수용 기준 전체 확인 — 커밋 → `farm.py logic --spec 080 --scope auto`(Presentation 범위) → `farm.py art --spec 080`(≈ 7분, Blender 스크립트 변경) → `farm.py shot --scenario 080-gk-contact`(mac-m1-1600p) → 스크린샷 직접 확인 → 사용자 육안 승인 (AC-05) — 결과: 커밋 9d81021·d244dc0·bc48984·4e19ae6 뒤 `farm.py logic --spec 080 --scope presentation,verification`(auto는 `Tests/Performance/` 규칙이 없어 all → 직접 지정) 812/803 통과·실패 0·성능 판정 초과 0, `farm.py art --spec 080` 29/29(5분), `farm.py shot --spec 080` 3장면 → 직접 확인 → 사용자 육안 승인 "승인"(`E/visual-approval.md`). 중간 실패와 수정은 T16a
+- [x] T17 `/verify 080` — `evidence/report.html`(로직·아트·E2E 승인·IK 성능·클립 메모리, 벤치 "틱 경로 변경 없음") 아티팩트 발행, 011 AC-24·25 보류 해제 기록(011 spec 상태 줄·README), spec·plan·tasks 상태 `완료` — 결과: `evidence/report.html` 발행 https://claude.ai/artifact/KqAFtPLscB67hQCjPiuvp8 (`artifact-url.txt`), `Data/perf/080-gk-clips-hand-ik.json`(AC-07 손 IK 예산 + 수동 증거 AC-05·07), 011 AC-24·25 보류 해제 기록

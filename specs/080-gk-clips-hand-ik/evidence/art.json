@@ -1,0 +1,279 @@
+{
+  "result": {
+    "ok": true,
+    "total": 29,
+    "passed": 29,
+    "failed": 0,
+    "skipped": 0,
+    "duration": 312.8773241043091,
+    "compileErrors": [],
+    "failures": []
+  },
+  "meta": {
+    "commit": "bc48984a21f50b80c922db0f76b8815819ffcb99",
+    "branch": "feat/080-gk-clips-hand-ik",
+    "dirty": false,
+    "unity": "6000.3.27f2",
+    "time": "2026-11-20 13:00:53 +0900",
+    "blender": "Blender 5.3.0",
+    "durationSec": 313.2303149700165,
+    "command": "python3 Tools/devicefarm/farm.py art --spec 080"
+  },
+  "png": "art.png",
+  "previews": {
+    "default": {
+      "keeper": "blender/default/preview-keeper.png",
+      "poses": "blender/default/preview-poses.png",
+      "lineup": "blender/default/preview-lineup.png"
+    }
+  },
+  "acEvidence": {
+    "AC-01": [
+      {
+        "label": "Blender 생성 테스트 7/7 통과",
+        "ok": true
+      }
+    ],
+    "AC-02": [
+      {
+        "label": "Blender 생성 테스트 6/6 통과",
+        "ok": true
+      }
+    ],
+    "AC-03": [
+      {
+        "label": "Blender 생성 테스트 7/7 통과",
+        "ok": true
+      }
+    ],
+    "AC-05": [
+      {
+        "label": "Blender 생성 테스트 2/2 통과",
+        "ok": true
+      }
+    ],
+    "AC-09": [
+      {
+        "label": "Blender 생성 테스트 1/1 통과",
+        "ok": true
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_glb",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02",
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_hair_style_order_and_family",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02",
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_hair_styles_budget_and_cards",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02",
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_layout_summary",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02",
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Budgets_Lod_Materials_Textures.test_textures",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02",
+        "AC-03"
+      ]
+    },
+    {
+      "name": "ClipList_CoversFr31.test_clip_length_matches_tags",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ClipList_CoversFr31.test_list",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ClipTags_Complete.test_ground_ball_contacts_at_ball_center",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ClipTags_Complete.test_tags",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "ExtremeBodies_FootGround_NoSelfIntersect.test_extremes",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-02"
+      ]
+    },
+    {
+      "name": "Gait_StanceFootFixed.test_slide",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-09"
+      ]
+    },
+    {
+      "name": "GenerationTime.test_time",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "InvalidArgs.test_bad_lod",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "InvalidArgs.test_bad_seed",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "InvalidArgs.test_unknown_clip",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "KitBoundary_Smooth.test_kit_rim_uv_region",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "KitBoundary_Smooth.test_lod0_loops",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "KitBoundary_Smooth.test_lod1_closed",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "KitUv_SameAs043.test_kit_uv_areas_same_as_043",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "Mpfb_Reference_Licenses.test_assets_all_cc0_in_licenses",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "Mpfb_Reference_Licenses.test_missing_mpfb_exit4",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "Mpfb_Reference_Licenses.test_proportions_200_samples",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "Mpfb_Reference_Licenses.test_reference_height_180",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-01"
+      ]
+    },
+    {
+      "name": "Penetration_ClipsExtremes.test_all_hair_styles_with_cards",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-03"
+      ]
+    },
+    {
+      "name": "Penetration_ClipsExtremes.test_no_penetration_extremes",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-03"
+      ]
+    },
+    {
+      "name": "SameArgs_SameBytes.test_two_runs",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "SeedChange_ChangesTextures_KeepsMesh.test_seed",
+      "result": "Passed",
+      "message": "",
+      "acs": []
+    },
+    {
+      "name": "SkinDetail_Closeup.test_beard",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-05"
+      ]
+    },
+    {
+      "name": "SkinDetail_Closeup.test_detail",
+      "result": "Passed",
+      "message": "",
+      "acs": [
+        "AC-05"
+      ]
+    }
+  ]
+}
