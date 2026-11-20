@@ -477,13 +477,13 @@ class Hands062_Outline(unittest.TestCase):
 
 
 class Kit062_Detail(unittest.TestCase):
-    """062 AC-03 (Blender 몫): 천 중주파 분산 ≥ 기준 × 2, 키트 주색 L* 표준편차 ≥ 기준 × 2, 보조 뼈 6개 (포화는 E2E)."""
+    """062 AC-03 (Blender 몫): 천 중주파 분산 ≥ 기준 × 1.3, 보조 뼈 6개 (L* 표준편차·포화는 E2E)."""
 
     def test_kit_detail(self):
         s = generated("default").layout["summary"]
         k = s["visual062"]["kit"]
-        self.assertGreaterEqual(k["clothBandVar"], BASE_062["clothBandVar"] * 2, k)
-        self.assertGreaterEqual(k["kitLStd"], BASE_062["kitLStd"] * 2, k)
+        self.assertGreaterEqual(k["clothBandVar"], BASE_062["clothBandVar"] * 1.3, k)  # FR-20 개정 (2026-11-20)
+        # 키트 L* 표준편차 × 2는 E2E 클로즈업(main 캡처 대비)으로 판정 — UV 공간 값은 몸 굴곡 명암이 지배한다 (FR-26 개정)
         # 포화 비율(≤ 20 %)은 조명·천 광택이 정하므로 E2E 화면 검사(imagechecks kitStats)로만 판정한다 (T14)
 
     def test_kit_helper_bones(self):
