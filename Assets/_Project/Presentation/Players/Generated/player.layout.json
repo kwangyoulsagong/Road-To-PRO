@@ -21,6 +21,22 @@
      "sha256": "9f4a773e74ce5ba08415b4f30070338e9f75bae5971b5075b10cd6b9caa58473"
     },
     {
+     "path": "targets/arms/l-lowerarm-muscle-incr.target.gz",
+     "sha256": "29077b022632174656b8404ae12f68f62059f2fbc774b24885ec5b7460b72992"
+    },
+    {
+     "path": "targets/arms/l-upperarm-muscle-incr.target.gz",
+     "sha256": "2b1ae2af00eabddadc298fd22b8af17966f13e65931636b36c2d77d2b9540dcd"
+    },
+    {
+     "path": "targets/arms/r-lowerarm-muscle-incr.target.gz",
+     "sha256": "84777a42af2cefbabcea15820c61dfd23a800d9a2583b23d063a1566052da226"
+    },
+    {
+     "path": "targets/arms/r-upperarm-muscle-incr.target.gz",
+     "sha256": "24f3486b3fe48bb8127f48c2eae53e48930c32b7ae2a221ec2c9afafc60b453d"
+    },
+    {
      "path": "targets/cheek/l-cheek-bones-decr.target.gz",
      "sha256": "109d88ec6394cb3455073ae9f2a6038b8b4d6b57feeaf4633611bc60f27ed212"
     },
@@ -229,6 +245,14 @@
      "sha256": "671542640aec14d1740c1263deb0e274f3044edec761e6d4171329f0419be084"
     },
     {
+     "path": "targets/legs/l-upperleg-muscle-incr.target.gz",
+     "sha256": "c8af86a15d35ac926f2526c3fc532d70e43a3390de7f65468642ac5558bbf27b"
+    },
+    {
+     "path": "targets/legs/r-upperleg-muscle-incr.target.gz",
+     "sha256": "a96b25430155374568d72b1efd12443aeb2fa0c78a11c1a4d198a03a986c088f"
+    },
+    {
      "path": "targets/macrodetails/african-male-young.target.gz",
      "sha256": "05ed84d6df36e788cdfa8da0be15376850524b960cf2f17f3e592b9cf7d21c85"
     },
@@ -407,6 +431,18 @@
     {
      "path": "targets/nose/nose-scale-vert-incr.target.gz",
      "sha256": "63d297c237e7054a1ea700b83454ef508bf5f42ba8f2eb6bc1eb747ad261f34b"
+    },
+    {
+     "path": "targets/torso/measure-shoulder-dist-incr.target.gz",
+     "sha256": "d9508362063fee6f697bee2d7204cb6a799d9711fb2436f93f781242a104494f"
+    },
+    {
+     "path": "targets/torso/torso-muscle-pectoral-incr.target.gz",
+     "sha256": "83831fd65509c729bc0b5b3311b5f63bf35a37728e7c22d4425a3c620f2e4069"
+    },
+    {
+     "path": "targets/torso/torso-vshape-incr.target.gz",
+     "sha256": "e1fb879d1a59229f0127af161f7dcdb6a476b734ed3bcf84bea2b379590ce371"
     }
    ],
    "version": "2.0.18"
@@ -829,6 +865,132 @@
    "name": "Hair_HalfUp"
   }
  ],
+ "handPoses": {
+  "poses": {
+   "fist": {
+    "Index": [
+     60,
+     68,
+     32
+    ],
+    "Little": [
+     62,
+     68,
+     30
+    ],
+    "Middle": [
+     68,
+     75,
+     34
+    ],
+    "Ring": [
+     68,
+     75,
+     40
+    ],
+    "Thumb": [
+     12,
+     20,
+     15,
+     25
+    ]
+   },
+   "half": {
+    "Index": [
+     35,
+     45,
+     25
+    ],
+    "Little": [
+     50,
+     50,
+     25
+    ],
+    "Middle": [
+     40,
+     50,
+     25
+    ],
+    "Ring": [
+     45,
+     50,
+     25
+    ],
+    "Thumb": [
+     10,
+     20,
+     15,
+     20
+    ]
+   },
+   "open": {
+    "Index": [
+     3,
+     4,
+     3
+    ],
+    "Little": [
+     5,
+     6,
+     4
+    ],
+    "Middle": [
+     3,
+     4,
+     3
+    ],
+    "Ring": [
+     4,
+     5,
+     3
+    ],
+    "Thumb": [
+     0,
+     5,
+     5,
+     0
+    ]
+   },
+   "relax": {
+    "Index": [
+     15,
+     20,
+     10
+    ],
+    "Little": [
+     22,
+     22,
+     10
+    ],
+    "Middle": [
+     18,
+     22,
+     10
+    ],
+    "Ring": [
+     20,
+     22,
+     10
+    ],
+    "Thumb": [
+     5,
+     10,
+     8,
+     10
+    ]
+   }
+  },
+  "rule": "axis = fingerDir × palmNormal (rest), palmNormal faces body midline in A-pose; thumb[3] = rotation about hand dir; spread about palm normal (Right +, Left −)",
+  "spread": {
+   "open": {
+    "Index": 4,
+    "Little": -8,
+    "Middle": 0,
+    "Ring": -4,
+    "Thumb": 0
+   }
+  }
+ },
  "headCloseup": "Head_Closeup",
  "materials": [
   "PlayerBody",
@@ -839,6 +1001,7 @@
   "Beard_full",
   "Beard_short",
   "Beard_stubble",
+  "Broad",
   "Face_brow_angle_neg",
   "Face_brow_angle_pos",
   "Face_brow_height_neg",
@@ -901,6 +1064,7 @@
   "Face_nose_width_pos",
   "Heavy",
   "HideHead",
+  "Limb",
   "Muscular",
   "Thin"
  ],
@@ -1213,6 +1377,426 @@
      0.024194,
      0.2018
     ]
+   },
+   {
+    "head": [
+     -0.623107,
+     1.042061,
+     0.040838
+    ],
+    "name": "LeftThumbProximal",
+    "parent": "LeftHand",
+    "tail": [
+     -0.620125,
+     1.015395,
+     0.061331
+    ]
+   },
+   {
+    "head": [
+     -0.620125,
+     1.015395,
+     0.061331
+    ],
+    "name": "LeftThumbIntermediate",
+    "parent": "LeftThumbProximal",
+    "tail": [
+     -0.630513,
+     0.981013,
+     0.079901
+    ]
+   },
+   {
+    "head": [
+     -0.630513,
+     0.981013,
+     0.079901
+    ],
+    "name": "LeftThumbDistal",
+    "parent": "LeftThumbIntermediate",
+    "tail": [
+     -0.638782,
+     0.952859,
+     0.086145
+    ]
+   },
+   {
+    "head": [
+     -0.677514,
+     0.994303,
+     0.035589
+    ],
+    "name": "LeftIndexProximal",
+    "parent": "LeftHand",
+    "tail": [
+     -0.693623,
+     0.970632,
+     0.037165
+    ]
+   },
+   {
+    "head": [
+     -0.693623,
+     0.970632,
+     0.037165
+    ],
+    "name": "LeftIndexIntermediate",
+    "parent": "LeftIndexProximal",
+    "tail": [
+     -0.703393,
+     0.946856,
+     0.037525
+    ]
+   },
+   {
+    "head": [
+     -0.703393,
+     0.946856,
+     0.037525
+    ],
+    "name": "LeftIndexDistal",
+    "parent": "LeftIndexIntermediate",
+    "tail": [
+     -0.711277,
+     0.918894,
+     0.037975
+    ]
+   },
+   {
+    "head": [
+     -0.677183,
+     0.999395,
+     0.007031
+    ],
+    "name": "LeftMiddleProximal",
+    "parent": "LeftHand",
+    "tail": [
+     -0.695729,
+     0.968231,
+     -0.001087
+    ]
+   },
+   {
+    "head": [
+     -0.695729,
+     0.968231,
+     -0.001087
+    ],
+    "name": "LeftMiddleIntermediate",
+    "parent": "LeftMiddleProximal",
+    "tail": [
+     -0.708027,
+     0.941119,
+     -0.005628
+    ]
+   },
+   {
+    "head": [
+     -0.708027,
+     0.941119,
+     -0.005628
+    ],
+    "name": "LeftMiddleDistal",
+    "parent": "LeftMiddleIntermediate",
+    "tail": [
+     -0.716784,
+     0.913435,
+     -0.010594
+    ]
+   },
+   {
+    "head": [
+     -0.670829,
+     1.005361,
+     -0.013759
+    ],
+    "name": "LeftRingProximal",
+    "parent": "LeftHand",
+    "tail": [
+     -0.686657,
+     0.979575,
+     -0.026295
+    ]
+   },
+   {
+    "head": [
+     -0.686657,
+     0.979575,
+     -0.026295
+    ],
+    "name": "LeftRingIntermediate",
+    "parent": "LeftRingProximal",
+    "tail": [
+     -0.69735,
+     0.955647,
+     -0.034367
+    ]
+   },
+   {
+    "head": [
+     -0.69735,
+     0.955647,
+     -0.034367
+    ],
+    "name": "LeftRingDistal",
+    "parent": "LeftRingIntermediate",
+    "tail": [
+     -0.705328,
+     0.929406,
+     -0.044264
+    ]
+   },
+   {
+    "head": [
+     -0.657811,
+     1.009491,
+     -0.032989
+    ],
+    "name": "LeftLittleProximal",
+    "parent": "LeftHand",
+    "tail": [
+     -0.666551,
+     0.990389,
+     -0.044017
+    ]
+   },
+   {
+    "head": [
+     -0.666551,
+     0.990389,
+     -0.044017
+    ],
+    "name": "LeftLittleIntermediate",
+    "parent": "LeftLittleProximal",
+    "tail": [
+     -0.670698,
+     0.975212,
+     -0.050748
+    ]
+   },
+   {
+    "head": [
+     -0.670698,
+     0.975212,
+     -0.050748
+    ],
+    "name": "LeftLittleDistal",
+    "parent": "LeftLittleIntermediate",
+    "tail": [
+     -0.675953,
+     0.956094,
+     -0.059764
+    ]
+   },
+   {
+    "head": [
+     0.623107,
+     1.042061,
+     0.040838
+    ],
+    "name": "RightThumbProximal",
+    "parent": "RightHand",
+    "tail": [
+     0.620125,
+     1.015395,
+     0.061331
+    ]
+   },
+   {
+    "head": [
+     0.620125,
+     1.015395,
+     0.061331
+    ],
+    "name": "RightThumbIntermediate",
+    "parent": "RightThumbProximal",
+    "tail": [
+     0.630513,
+     0.981013,
+     0.079901
+    ]
+   },
+   {
+    "head": [
+     0.630513,
+     0.981013,
+     0.079901
+    ],
+    "name": "RightThumbDistal",
+    "parent": "RightThumbIntermediate",
+    "tail": [
+     0.638782,
+     0.952859,
+     0.086145
+    ]
+   },
+   {
+    "head": [
+     0.677514,
+     0.994303,
+     0.035589
+    ],
+    "name": "RightIndexProximal",
+    "parent": "RightHand",
+    "tail": [
+     0.693623,
+     0.970632,
+     0.037165
+    ]
+   },
+   {
+    "head": [
+     0.693623,
+     0.970632,
+     0.037165
+    ],
+    "name": "RightIndexIntermediate",
+    "parent": "RightIndexProximal",
+    "tail": [
+     0.703393,
+     0.946856,
+     0.037525
+    ]
+   },
+   {
+    "head": [
+     0.703393,
+     0.946856,
+     0.037525
+    ],
+    "name": "RightIndexDistal",
+    "parent": "RightIndexIntermediate",
+    "tail": [
+     0.711277,
+     0.918894,
+     0.037975
+    ]
+   },
+   {
+    "head": [
+     0.677183,
+     0.999395,
+     0.007031
+    ],
+    "name": "RightMiddleProximal",
+    "parent": "RightHand",
+    "tail": [
+     0.695729,
+     0.968231,
+     -0.001087
+    ]
+   },
+   {
+    "head": [
+     0.695729,
+     0.968231,
+     -0.001087
+    ],
+    "name": "RightMiddleIntermediate",
+    "parent": "RightMiddleProximal",
+    "tail": [
+     0.708027,
+     0.941119,
+     -0.005628
+    ]
+   },
+   {
+    "head": [
+     0.708027,
+     0.941119,
+     -0.005628
+    ],
+    "name": "RightMiddleDistal",
+    "parent": "RightMiddleIntermediate",
+    "tail": [
+     0.716784,
+     0.913435,
+     -0.010594
+    ]
+   },
+   {
+    "head": [
+     0.670829,
+     1.005361,
+     -0.013759
+    ],
+    "name": "RightRingProximal",
+    "parent": "RightHand",
+    "tail": [
+     0.686657,
+     0.979575,
+     -0.026295
+    ]
+   },
+   {
+    "head": [
+     0.686657,
+     0.979575,
+     -0.026295
+    ],
+    "name": "RightRingIntermediate",
+    "parent": "RightRingProximal",
+    "tail": [
+     0.69735,
+     0.955647,
+     -0.034367
+    ]
+   },
+   {
+    "head": [
+     0.69735,
+     0.955647,
+     -0.034367
+    ],
+    "name": "RightRingDistal",
+    "parent": "RightRingIntermediate",
+    "tail": [
+     0.705328,
+     0.929406,
+     -0.044264
+    ]
+   },
+   {
+    "head": [
+     0.657811,
+     1.009491,
+     -0.032989
+    ],
+    "name": "RightLittleProximal",
+    "parent": "RightHand",
+    "tail": [
+     0.666551,
+     0.990389,
+     -0.044017
+    ]
+   },
+   {
+    "head": [
+     0.666551,
+     0.990389,
+     -0.044017
+    ],
+    "name": "RightLittleIntermediate",
+    "parent": "RightLittleProximal",
+    "tail": [
+     0.670698,
+     0.975212,
+     -0.050748
+    ]
+   },
+   {
+    "head": [
+     0.670698,
+     0.975212,
+     -0.050748
+    ],
+    "name": "RightLittleDistal",
+    "parent": "RightLittleIntermediate",
+    "tail": [
+     0.675953,
+     0.956094,
+     -0.059764
+    ]
    }
   ],
   "heightRangeCm": [
@@ -1222,6 +1806,33 @@
   "refHeight": 1.8
  },
  "summary": {
+  "bodyShapes": {
+   "flipParts": {},
+   "flipped": 0,
+   "flippedBase": 0,
+   "forearmRatio": [
+    0.1604,
+    0.175
+   ],
+   "keys": [
+    "Broad",
+    "Heavy",
+    "Limb",
+    "Muscular",
+    "Thin"
+   ],
+   "ok": true,
+   "samples": 208,
+   "sliverFlips": 294,
+   "sliverM2": 2e-06,
+   "torn": 0,
+   "upperArmMean": 0.1949,
+   "upperArmMeanBase": 0.1849,
+   "upperArmRatio": [
+    0.1712,
+    0.2347
+   ]
+  },
   "budgets": {
    "hair": {
     "Hair_Afro": {
@@ -1666,32 +2277,40 @@
    },
    "lods": {
     "0": {
-     "body": 8674,
+     "body": 8666,
      "hairMax": 1320,
      "headTriangles": 2942,
      "materials": 2,
      "ok": true,
-     "triangles": 9994
+     "triangles": 9986
     },
     "1": {
-     "body": 2468,
+     "body": 2502,
      "hairMax": 438,
      "headTriangles": 788,
      "materials": 2,
      "ok": true,
-     "triangles": 2906
+     "triangles": 2940
     },
     "2": {
-     "body": 746,
+     "body": 752,
      "hairMax": 151,
-     "headTriangles": 214,
+     "headTriangles": 210,
      "materials": 2,
      "ok": true,
-     "triangles": 897
+     "triangles": 903
     }
    },
    "ok": true,
    "textures": {
+    "body_detail_ao.png": [
+     2048,
+     2048
+    ],
+    "body_detail_n.png": [
+     2048,
+     2048
+    ],
     "kit_mask_halves.png": [
      1024,
      1024
@@ -1972,22 +2591,47 @@
    "bad": {},
    "ok": true
   },
+  "hands": {
+   "fingerBones": 30,
+   "lod1Mitten": true,
+   "ok": true,
+   "openConcave": 9,
+   "openGapPx": 3,
+   "poses": {
+    "fist": {
+     "pairs": {},
+     "penetration": 0
+    },
+    "half": {
+     "pairs": {},
+     "penetration": 0
+    },
+    "open": {
+     "pairs": {},
+     "penetration": 0
+    },
+    "relax": {
+     "pairs": {},
+     "penetration": 0
+    }
+   }
+  },
   "kitBoundary": {
    "0": {
     "lod": 0,
     "loops": {
      "bootL": {
       "closed": true,
-      "devMax": 0.00225,
-      "turnMax": 32.49,
-      "turnP95": 26.96,
+      "devMax": 0.00226,
+      "turnMax": 32.5,
+      "turnP95": 26.97,
       "verts": 25,
       "zigzag": 0
      },
      "bootL#2": {
       "closed": true,
-      "devMax": 0.00225,
-      "turnMax": 32.49,
+      "devMax": 0.00226,
+      "turnMax": 32.5,
       "turnP95": 26.97,
       "verts": 25,
       "zigzag": 0
@@ -1995,23 +2639,23 @@
      "collar": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 17.83,
-      "turnP95": 15.76,
+      "turnMax": 19.15,
+      "turnP95": 17.79,
       "verts": 96,
       "zigzag": 0
      },
      "hem": {
       "closed": true,
-      "devMax": 0.00185,
-      "turnMax": 16.43,
-      "turnP95": 13.79,
-      "verts": 60,
+      "devMax": 0.00189,
+      "turnMax": 15.85,
+      "turnP95": 14.07,
+      "verts": 58,
       "zigzag": 0
      },
      "shortsL": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 16.88,
+      "turnMax": 16.9,
       "turnP95": 15.73,
       "verts": 28,
       "zigzag": 0
@@ -2019,7 +2663,7 @@
      "shortsL#2": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 16.88,
+      "turnMax": 16.9,
       "turnP95": 15.73,
       "verts": 28,
       "zigzag": 0
@@ -2027,32 +2671,32 @@
      "sleeveL": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 21.98,
-      "turnP95": 21.35,
-      "verts": 26,
+      "turnMax": 21.36,
+      "turnP95": 20.72,
+      "verts": 27,
       "zigzag": 0
      },
      "sleeveR": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 21.88,
-      "turnP95": 20.98,
-      "verts": 25,
+      "turnMax": 22.68,
+      "turnP95": 22.26,
+      "verts": 24,
       "zigzag": 0
      },
      "sockL": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 18.66,
-      "turnP95": 16.36,
+      "turnMax": 18.71,
+      "turnP95": 16.38,
       "verts": 31,
       "zigzag": 0
      },
      "sockL#2": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 18.75,
-      "turnP95": 15.79,
+      "turnMax": 18.8,
+      "turnP95": 15.84,
       "verts": 31,
       "zigzag": 0
      }
@@ -2065,71 +2709,71 @@
      "bootL": {
       "closed": true,
       "devMax": 0.00132,
-      "turnMax": 45.36,
-      "turnP95": 40.43,
+      "turnMax": 45.2,
+      "turnP95": 40.4,
       "verts": 13,
       "zigzag": 0
      },
      "bootL#2": {
       "closed": true,
-      "devMax": 0.00132,
-      "turnMax": 45.36,
-      "turnP95": 40.44,
+      "devMax": 0.00131,
+      "turnMax": 45.2,
+      "turnP95": 40.41,
       "verts": 13,
       "zigzag": 0
      },
      "collar": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 59.92,
-      "turnP95": 54.0,
-      "verts": 22,
-      "zigzag": 0
+      "turnMax": 65.88,
+      "turnP95": 44.7,
+      "verts": 30,
+      "zigzag": 2
      },
      "hem": {
       "closed": true,
-      "devMax": 0.00169,
-      "turnMax": 39.49,
-      "turnP95": 22.23,
-      "verts": 33,
-      "zigzag": 2
+      "devMax": 0.00168,
+      "turnMax": 23.51,
+      "turnP95": 20.34,
+      "verts": 32,
+      "zigzag": 0
      },
      "shortsL": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 23.64,
-      "turnP95": 22.5,
+      "turnMax": 23.69,
+      "turnP95": 22.49,
       "verts": 18,
       "zigzag": 0
      },
      "shortsL#2": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 27.3,
-      "turnP95": 26.21,
+      "turnMax": 27.33,
+      "turnP95": 26.32,
       "verts": 15,
       "zigzag": 0
      },
      "sleeveL": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 28.1,
-      "turnP95": 26.73,
-      "verts": 17,
+      "turnMax": 27.5,
+      "turnP95": 26.93,
+      "verts": 18,
       "zigzag": 0
      },
      "sleeveR": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 29.2,
-      "turnP95": 27.7,
-      "verts": 16,
+      "turnMax": 27.97,
+      "turnP95": 27.22,
+      "verts": 17,
       "zigzag": 0
      },
      "sockL": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 28.61,
+      "turnMax": 28.68,
       "turnP95": 25.37,
       "verts": 16,
       "zigzag": 0
@@ -2137,8 +2781,8 @@
      "sockL#2": {
       "closed": true,
       "devMax": 0.0,
-      "turnMax": 26.09,
-      "turnP95": 25.21,
+      "turnMax": 26.15,
+      "turnP95": 25.25,
       "verts": 18,
       "zigzag": 0
      }
@@ -2160,14 +2804,26 @@
    "missing": [],
    "ok": true
   },
+  "outline": {
+   "ok": true,
+   "sleeveSeamRatio": 0.945,
+   "turnDeg": {
+    "elbow": 10.39,
+    "knee": 14.23,
+    "shoulder": 13.34,
+    "sleeve": 24.34
+   }
+  },
   "penetration": {
-   "creaseFolds": 27266,
+   "clipHits": {},
+   "creaseFolds": 25204,
    "flipped": 0,
    "hairBody": 0,
    "hairPoses": 17864,
    "hairStyles": 29,
    "hairWorst": {},
    "ok": true,
+   "overlapPairs": {},
    "poses": 2464,
    "skinKit": 0,
    "worst": []
@@ -2225,9 +2881,1098 @@
     "texels": 11524
    },
    "ok": true
+  },
+  "visual062": {
+   "hair": {
+    "minPair": [
+     "Hair_Buzz",
+     "Hair_BuzzLine"
+    ],
+    "minPairSilhouette": 0.0,
+    "pairsBelow008": [
+     [
+      "Hair_Buzz",
+      "Hair_Short",
+      0.0672
+     ],
+     [
+      "Hair_Buzz",
+      "Hair_Bun",
+      0.0409
+     ],
+     [
+      "Hair_Buzz",
+      "Hair_Bald",
+      0.0239
+     ],
+     [
+      "Hair_Buzz",
+      "Hair_Crew",
+      0.0418
+     ],
+     [
+      "Hair_Buzz",
+      "Hair_SidePart",
+      0.0789
+     ],
+     [
+      "Hair_Buzz",
+      "Hair_TexturedCrop",
+      0.0593
+     ],
+     [
+      "Hair_Buzz",
+      "Hair_BuzzLine",
+      0.0
+     ],
+     [
+      "Hair_Buzz",
+      "Hair_Cornrows",
+      0.0104
+     ],
+     [
+      "Hair_Buzz",
+      "Hair_FrenchCrop",
+      0.0592
+     ],
+     [
+      "Hair_Buzz",
+      "Hair_IvyLeague",
+      0.0726
+     ],
+     [
+      "Hair_Short",
+      "Hair_Long",
+      0.0786
+     ],
+     [
+      "Hair_Short",
+      "Hair_Bun",
+      0.0376
+     ],
+     [
+      "Hair_Short",
+      "Hair_Fade",
+      0.0422
+     ],
+     [
+      "Hair_Short",
+      "Hair_Crew",
+      0.0265
+     ],
+     [
+      "Hair_Short",
+      "Hair_SidePart",
+      0.0207
+     ],
+     [
+      "Hair_Short",
+      "Hair_Undercut",
+      0.0582
+     ],
+     [
+      "Hair_Short",
+      "Hair_SlickBack",
+      0.0624
+     ],
+     [
+      "Hair_Short",
+      "Hair_Quiff",
+      0.0487
+     ],
+     [
+      "Hair_Short",
+      "Hair_Curtains",
+      0.0597
+     ],
+     [
+      "Hair_Short",
+      "Hair_TexturedCrop",
+      0.0132
+     ],
+     [
+      "Hair_Short",
+      "Hair_BuzzLine",
+      0.0672
+     ],
+     [
+      "Hair_Short",
+      "Hair_Cornrows",
+      0.0583
+     ],
+     [
+      "Hair_Short",
+      "Hair_Twists",
+      0.0547
+     ],
+     [
+      "Hair_Short",
+      "Hair_TopKnot",
+      0.0695
+     ],
+     [
+      "Hair_Short",
+      "Hair_FrenchCrop",
+      0.0152
+     ],
+     [
+      "Hair_Short",
+      "Hair_IvyLeague",
+      0.0134
+     ],
+     [
+      "Hair_Short",
+      "Hair_Spiky",
+      0.0347
+     ],
+     [
+      "Hair_Short",
+      "Hair_HalfUp",
+      0.0599
+     ],
+     [
+      "Hair_Long",
+      "Hair_Curly",
+      0.0521
+     ],
+     [
+      "Hair_Long",
+      "Hair_Fade",
+      0.0429
+     ],
+     [
+      "Hair_Long",
+      "Hair_Dreads",
+      0.0379
+     ],
+     [
+      "Hair_Long",
+      "Hair_SidePart",
+      0.067
+     ],
+     [
+      "Hair_Long",
+      "Hair_SlickBack",
+      0.0308
+     ],
+     [
+      "Hair_Long",
+      "Hair_Quiff",
+      0.0632
+     ],
+     [
+      "Hair_Long",
+      "Hair_Curtains",
+      0.0294
+     ],
+     [
+      "Hair_Long",
+      "Hair_Twists",
+      0.0309
+     ],
+     [
+      "Hair_Long",
+      "Hair_MediumWave",
+      0.0231
+     ],
+     [
+      "Hair_Long",
+      "Hair_IvyLeague",
+      0.0733
+     ],
+     [
+      "Hair_Long",
+      "Hair_BoxBraids",
+      0.0319
+     ],
+     [
+      "Hair_Long",
+      "Hair_HalfUp",
+      0.0297
+     ],
+     [
+      "Hair_Curly",
+      "Hair_Dreads",
+      0.0217
+     ],
+     [
+      "Hair_Curly",
+      "Hair_SlickBack",
+      0.0652
+     ],
+     [
+      "Hair_Curly",
+      "Hair_Curtains",
+      0.0736
+     ],
+     [
+      "Hair_Curly",
+      "Hair_Twists",
+      0.0728
+     ],
+     [
+      "Hair_Curly",
+      "Hair_MediumWave",
+      0.0393
+     ],
+     [
+      "Hair_Curly",
+      "Hair_BoxBraids",
+      0.0441
+     ],
+     [
+      "Hair_Curly",
+      "Hair_HalfUp",
+      0.0721
+     ],
+     [
+      "Hair_Bun",
+      "Hair_Fade",
+      0.0746
+     ],
+     [
+      "Hair_Bun",
+      "Hair_Bald",
+      0.0638
+     ],
+     [
+      "Hair_Bun",
+      "Hair_Crew",
+      0.0168
+     ],
+     [
+      "Hair_Bun",
+      "Hair_SidePart",
+      0.0446
+     ],
+     [
+      "Hair_Bun",
+      "Hair_Undercut",
+      0.0793
+     ],
+     [
+      "Hair_Bun",
+      "Hair_TexturedCrop",
+      0.0306
+     ],
+     [
+      "Hair_Bun",
+      "Hair_BuzzLine",
+      0.0409
+     ],
+     [
+      "Hair_Bun",
+      "Hair_Cornrows",
+      0.0309
+     ],
+     [
+      "Hair_Bun",
+      "Hair_FrenchCrop",
+      0.0305
+     ],
+     [
+      "Hair_Bun",
+      "Hair_IvyLeague",
+      0.0394
+     ],
+     [
+      "Hair_Bun",
+      "Hair_Spiky",
+      0.0644
+     ],
+     [
+      "Hair_Fade",
+      "Hair_Dreads",
+      0.0775
+     ],
+     [
+      "Hair_Fade",
+      "Hair_Crew",
+      0.0677
+     ],
+     [
+      "Hair_Fade",
+      "Hair_SidePart",
+      0.0374
+     ],
+     [
+      "Hair_Fade",
+      "Hair_Undercut",
+      0.0715
+     ],
+     [
+      "Hair_Fade",
+      "Hair_SlickBack",
+      0.0285
+     ],
+     [
+      "Hair_Fade",
+      "Hair_Quiff",
+      0.0492
+     ],
+     [
+      "Hair_Fade",
+      "Hair_Curtains",
+      0.0303
+     ],
+     [
+      "Hair_Fade",
+      "Hair_TexturedCrop",
+      0.0497
+     ],
+     [
+      "Hair_Fade",
+      "Hair_Twists",
+      0.0331
+     ],
+     [
+      "Hair_Fade",
+      "Hair_MediumWave",
+      0.0544
+     ],
+     [
+      "Hair_Fade",
+      "Hair_FrenchCrop",
+      0.0495
+     ],
+     [
+      "Hair_Fade",
+      "Hair_IvyLeague",
+      0.0366
+     ],
+     [
+      "Hair_Fade",
+      "Hair_Spiky",
+      0.0456
+     ],
+     [
+      "Hair_Fade",
+      "Hair_CurlyTop",
+      0.0669
+     ],
+     [
+      "Hair_Fade",
+      "Hair_BoxBraids",
+      0.0603
+     ],
+     [
+      "Hair_Fade",
+      "Hair_HalfUp",
+      0.036
+     ],
+     [
+      "Hair_Mohawk",
+      "Hair_CurlyTop",
+      0.0736
+     ],
+     [
+      "Hair_Dreads",
+      "Hair_SlickBack",
+      0.0534
+     ],
+     [
+      "Hair_Dreads",
+      "Hair_Curtains",
+      0.0603
+     ],
+     [
+      "Hair_Dreads",
+      "Hair_Twists",
+      0.0606
+     ],
+     [
+      "Hair_Dreads",
+      "Hair_MediumWave",
+      0.0318
+     ],
+     [
+      "Hair_Dreads",
+      "Hair_BoxBraids",
+      0.0319
+     ],
+     [
+      "Hair_Dreads",
+      "Hair_HalfUp",
+      0.0576
+     ],
+     [
+      "Hair_Bald",
+      "Hair_Crew",
+      0.0648
+     ],
+     [
+      "Hair_Bald",
+      "Hair_BuzzLine",
+      0.0239
+     ],
+     [
+      "Hair_Bald",
+      "Hair_Cornrows",
+      0.034
+     ],
+     [
+      "Hair_Bald",
+      "Hair_FrenchCrop",
+      0.0779
+     ],
+     [
+      "Hair_Crew",
+      "Hair_SidePart",
+      0.0393
+     ],
+     [
+      "Hair_Crew",
+      "Hair_Undercut",
+      0.0704
+     ],
+     [
+      "Hair_Crew",
+      "Hair_Quiff",
+      0.0702
+     ],
+     [
+      "Hair_Crew",
+      "Hair_TexturedCrop",
+      0.0189
+     ],
+     [
+      "Hair_Crew",
+      "Hair_BuzzLine",
+      0.0418
+     ],
+     [
+      "Hair_Crew",
+      "Hair_Cornrows",
+      0.0355
+     ],
+     [
+      "Hair_Crew",
+      "Hair_Twists",
+      0.0798
+     ],
+     [
+      "Hair_Crew",
+      "Hair_TopKnot",
+      0.0673
+     ],
+     [
+      "Hair_Crew",
+      "Hair_Ponytail",
+      0.0744
+     ],
+     [
+      "Hair_Crew",
+      "Hair_FrenchCrop",
+      0.0193
+     ],
+     [
+      "Hair_Crew",
+      "Hair_IvyLeague",
+      0.0321
+     ],
+     [
+      "Hair_Crew",
+      "Hair_Spiky",
+      0.0553
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_Undercut",
+      0.0685
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_SlickBack",
+      0.0518
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_Quiff",
+      0.0513
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_Curtains",
+      0.049
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_TexturedCrop",
+      0.0264
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_BuzzLine",
+      0.0789
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_Cornrows",
+      0.0693
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_Twists",
+      0.0428
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_MediumWave",
+      0.0783
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_FrenchCrop",
+      0.0281
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_IvyLeague",
+      0.0194
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_Spiky",
+      0.0354
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_HalfUp",
+      0.0513
+     ],
+     [
+      "Hair_Undercut",
+      "Hair_SlickBack",
+      0.077
+     ],
+     [
+      "Hair_Undercut",
+      "Hair_Quiff",
+      0.0639
+     ],
+     [
+      "Hair_Undercut",
+      "Hair_TexturedCrop",
+      0.0658
+     ],
+     [
+      "Hair_Undercut",
+      "Hair_TopKnot",
+      0.0547
+     ],
+     [
+      "Hair_Undercut",
+      "Hair_FrenchCrop",
+      0.0657
+     ],
+     [
+      "Hair_Undercut",
+      "Hair_IvyLeague",
+      0.0708
+     ],
+     [
+      "Hair_Undercut",
+      "Hair_Spiky",
+      0.0419
+     ],
+     [
+      "Hair_Undercut",
+      "Hair_CurlyTop",
+      0.0439
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_Quiff",
+      0.0657
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_Curtains",
+      0.0317
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_TexturedCrop",
+      0.0703
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_Twists",
+      0.0344
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_MediumWave",
+      0.0361
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_FrenchCrop",
+      0.0743
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_IvyLeague",
+      0.057
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_Spiky",
+      0.0658
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_CurlyTop",
+      0.0644
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_BoxBraids",
+      0.0465
+     ],
+     [
+      "Hair_SlickBack",
+      "Hair_HalfUp",
+      0.0301
+     ],
+     [
+      "Hair_Quiff",
+      "Hair_Curtains",
+      0.0581
+     ],
+     [
+      "Hair_Quiff",
+      "Hair_TexturedCrop",
+      0.0594
+     ],
+     [
+      "Hair_Quiff",
+      "Hair_Twists",
+      0.0549
+     ],
+     [
+      "Hair_Quiff",
+      "Hair_TopKnot",
+      0.0752
+     ],
+     [
+      "Hair_Quiff",
+      "Hair_MediumWave",
+      0.0733
+     ],
+     [
+      "Hair_Quiff",
+      "Hair_FrenchCrop",
+      0.0541
+     ],
+     [
+      "Hair_Quiff",
+      "Hair_IvyLeague",
+      0.0515
+     ],
+     [
+      "Hair_Quiff",
+      "Hair_Spiky",
+      0.046
+     ],
+     [
+      "Hair_Quiff",
+      "Hair_CurlyTop",
+      0.054
+     ],
+     [
+      "Hair_Quiff",
+      "Hair_HalfUp",
+      0.072
+     ],
+     [
+      "Hair_Curtains",
+      "Hair_TexturedCrop",
+      0.0659
+     ],
+     [
+      "Hair_Curtains",
+      "Hair_Twists",
+      0.0143
+     ],
+     [
+      "Hair_Curtains",
+      "Hair_MediumWave",
+      0.0431
+     ],
+     [
+      "Hair_Curtains",
+      "Hair_FrenchCrop",
+      0.0698
+     ],
+     [
+      "Hair_Curtains",
+      "Hair_IvyLeague",
+      0.0524
+     ],
+     [
+      "Hair_Curtains",
+      "Hair_Spiky",
+      0.0678
+     ],
+     [
+      "Hair_Curtains",
+      "Hair_BoxBraids",
+      0.0427
+     ],
+     [
+      "Hair_Curtains",
+      "Hair_HalfUp",
+      0.0333
+     ],
+     [
+      "Hair_TexturedCrop",
+      "Hair_BuzzLine",
+      0.0593
+     ],
+     [
+      "Hair_TexturedCrop",
+      "Hair_Cornrows",
+      0.0502
+     ],
+     [
+      "Hair_TexturedCrop",
+      "Hair_Twists",
+      0.0627
+     ],
+     [
+      "Hair_TexturedCrop",
+      "Hair_TopKnot",
+      0.0722
+     ],
+     [
+      "Hair_TexturedCrop",
+      "Hair_Ponytail",
+      0.0733
+     ],
+     [
+      "Hair_TexturedCrop",
+      "Hair_FrenchCrop",
+      0.0088
+     ],
+     [
+      "Hair_TexturedCrop",
+      "Hair_IvyLeague",
+      0.0167
+     ],
+     [
+      "Hair_TexturedCrop",
+      "Hair_Spiky",
+      0.0389
+     ],
+     [
+      "Hair_TexturedCrop",
+      "Hair_HalfUp",
+      0.0681
+     ],
+     [
+      "Hair_BuzzLine",
+      "Hair_Cornrows",
+      0.0104
+     ],
+     [
+      "Hair_BuzzLine",
+      "Hair_FrenchCrop",
+      0.0592
+     ],
+     [
+      "Hair_BuzzLine",
+      "Hair_IvyLeague",
+      0.0726
+     ],
+     [
+      "Hair_HighTop",
+      "Hair_CurlyTop",
+      0.0744
+     ],
+     [
+      "Hair_Cornrows",
+      "Hair_TopKnot",
+      0.0793
+     ],
+     [
+      "Hair_Cornrows",
+      "Hair_FrenchCrop",
+      0.0506
+     ],
+     [
+      "Hair_Cornrows",
+      "Hair_IvyLeague",
+      0.063
+     ],
+     [
+      "Hair_Cornrows",
+      "Hair_Spiky",
+      0.0799
+     ],
+     [
+      "Hair_Twists",
+      "Hair_MediumWave",
+      0.0399
+     ],
+     [
+      "Hair_Twists",
+      "Hair_FrenchCrop",
+      0.0666
+     ],
+     [
+      "Hair_Twists",
+      "Hair_IvyLeague",
+      0.0492
+     ],
+     [
+      "Hair_Twists",
+      "Hair_Spiky",
+      0.064
+     ],
+     [
+      "Hair_Twists",
+      "Hair_BoxBraids",
+      0.043
+     ],
+     [
+      "Hair_Twists",
+      "Hair_HalfUp",
+      0.03
+     ],
+     [
+      "Hair_TopKnot",
+      "Hair_FrenchCrop",
+      0.072
+     ],
+     [
+      "Hair_TopKnot",
+      "Hair_Spiky",
+      0.0558
+     ],
+     [
+      "Hair_TopKnot",
+      "Hair_CurlyTop",
+      0.076
+     ],
+     [
+      "Hair_Ponytail",
+      "Hair_FrenchCrop",
+      0.0782
+     ],
+     [
+      "Hair_Ponytail",
+      "Hair_IvyLeague",
+      0.078
+     ],
+     [
+      "Hair_MediumWave",
+      "Hair_BoxBraids",
+      0.0286
+     ],
+     [
+      "Hair_MediumWave",
+      "Hair_HalfUp",
+      0.0431
+     ],
+     [
+      "Hair_FrenchCrop",
+      "Hair_IvyLeague",
+      0.019
+     ],
+     [
+      "Hair_FrenchCrop",
+      "Hair_Spiky",
+      0.0381
+     ],
+     [
+      "Hair_FrenchCrop",
+      "Hair_HalfUp",
+      0.0717
+     ],
+     [
+      "Hair_IvyLeague",
+      "Hair_Spiky",
+      0.0315
+     ],
+     [
+      "Hair_IvyLeague",
+      "Hair_HalfUp",
+      0.0588
+     ],
+     [
+      "Hair_Spiky",
+      "Hair_CurlyTop",
+      0.0566
+     ],
+     [
+      "Hair_Spiky",
+      "Hair_HalfUp",
+      0.0662
+     ],
+     [
+      "Hair_CurlyTop",
+      "Hair_HalfUp",
+      0.0797
+     ],
+     [
+      "Hair_BoxBraids",
+      "Hair_HalfUp",
+      0.04
+     ]
+    ],
+    "styles": {
+     "Hair_Afro": {
+      "side": 0.2439,
+      "volume": 0.2549
+     },
+     "Hair_Bald": {
+      "side": 0.0,
+      "volume": 0.0
+     },
+     "Hair_BoxBraids": {
+      "side": 0.1231,
+      "volume": 0.0858
+     },
+     "Hair_Bun": {
+      "side": 0.0298,
+      "volume": 0.0308
+     },
+     "Hair_Buzz": {
+      "side": 0.0101,
+      "volume": 0.0123
+     },
+     "Hair_BuzzLine": {
+      "side": 0.0101,
+      "volume": 0.0123
+     },
+     "Hair_Cornrows": {
+      "side": 0.0129,
+      "volume": 0.0164
+     },
+     "Hair_Crew": {
+      "side": 0.016,
+      "volume": 0.0505
+     },
+     "Hair_Curly": {
+      "side": 0.1256,
+      "volume": 0.1143
+     },
+     "Hair_CurlyTop": {
+      "side": 0.0074,
+      "volume": 0.1121
+     },
+     "Hair_Curtains": {
+      "side": 0.078,
+      "volume": 0.0736
+     },
+     "Hair_Dreads": {
+      "side": 0.1206,
+      "volume": 0.1174
+     },
+     "Hair_Fade": {
+      "side": 0.0539,
+      "volume": 0.0769
+     },
+     "Hair_FrenchCrop": {
+      "side": 0.0241,
+      "volume": 0.0637
+     },
+     "Hair_HalfUp": {
+      "side": 0.0711,
+      "volume": 0.0835
+     },
+     "Hair_HighTop": {
+      "side": 0.0056,
+      "volume": 0.3274
+     },
+     "Hair_IvyLeague": {
+      "side": 0.0329,
+      "volume": 0.0593
+     },
+     "Hair_Long": {
+      "side": 0.078,
+      "volume": 0.0967
+     },
+     "Hair_MediumWave": {
+      "side": 0.117,
+      "volume": 0.1045
+     },
+     "Hair_Mohawk": {
+      "side": 0.0045,
+      "volume": 0.2074
+     },
+     "Hair_Ponytail": {
+      "side": 0.0298,
+      "volume": 0.0483
+     },
+     "Hair_Quiff": {
+      "side": 0.0332,
+      "volume": 0.1736
+     },
+     "Hair_Short": {
+      "side": 0.0229,
+      "volume": 0.0703
+     },
+     "Hair_SidePart": {
+      "side": 0.0504,
+      "volume": 0.067
+     },
+     "Hair_SlickBack": {
+      "side": 0.0556,
+      "volume": 0.099
+     },
+     "Hair_Spiky": {
+      "side": 0.0146,
+      "volume": 0.0948
+     },
+     "Hair_TexturedCrop": {
+      "side": 0.0211,
+      "volume": 0.0527
+     },
+     "Hair_TopKnot": {
+      "side": 0.0045,
+      "volume": 0.1919
+     },
+     "Hair_Twists": {
+      "side": 0.0831,
+      "volume": 0.0747
+     },
+     "Hair_Undercut": {
+      "side": 0.0045,
+      "volume": 0.0932
+     }
+    }
+   },
+   "hairTexture": {
+    "anisotropy": 6.041368,
+    "strandHf": 0.076131
+   },
+   "kit": {
+    "clothBandVar": 0.002065,
+    "kitLStd": 6.051886,
+    "kitSaturated": 1.0,
+    "texels": 22466
+   },
+   "lod": 0,
+   "muscle": {
+    "bandRms": 0.095277,
+    "bandRmsMax": 0.10342,
+    "bandRmsMin": 0.085549,
+    "texels": 9200
+   },
+   "ok": true
   }
  },
  "textures": {
+  "body_detail_ao.png": [
+   2048,
+   2048
+  ],
+  "body_detail_n.png": [
+   2048,
+   2048
+  ],
   "kit_mask_halves.png": [
    1024,
    1024

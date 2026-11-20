@@ -167,5 +167,63 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             CollectionAssert.AreEqual(a, b);
             Assert.AreEqual(AppearanceGenerator.Generate(inputs[0]), a[0]);
         }
+
+        // ---------------------------------------------------------------- specs/062 체형 5축 (T10)
+
+        [Test]
+        public void BodyShoulderWidth_ThousandTeams_MeanStdDev()
+        {
+            // FR-04 개정 (2026-11-20): 1,000팀 × 22명, 팀 안 정면 어깨 너비/키 표준편차의 1,000팀 평균 ≥ 0.010
+            var roles = new[] { BodyRole.Goalkeeper, BodyRole.Goalkeeper, BodyRole.Defender, BodyRole.Defender, BodyRole.Defender,
+                BodyRole.Defender, BodyRole.Defender, BodyRole.Defender, BodyRole.Defender, BodyRole.Midfielder, BodyRole.Midfielder,
+                BodyRole.Midfielder, BodyRole.Midfielder, BodyRole.Midfielder, BodyRole.Midfielder, BodyRole.Midfielder,
+                BodyRole.Forward, BodyRole.Forward, BodyRole.Forward, BodyRole.Forward, BodyRole.Forward, BodyRole.Forward };
+            double sum = 0;
+            var w = new double[22];
+            for (int team = 0; team < 1000; team++)
+            {
+                double mean = 0;
+                for (int k = 0; k < 22; k++)
+                {
+                    var a = AppearanceGenerator.Generate(new BodyInput(team * 22 + k + 1, role: roles[k]));
+                    w[k] = BodyShapeMap.ShoulderWidthRatio(a);
+                    mean += w[k] / 22.0;
+                }
+                double v = 0;
+                for (int k = 0; k < 22; k++) v += (w[k] - mean) * (w[k] - mean) / 22.0;
+                sum += System.Math.Sqrt(v);
+            }
+            Assert.GreaterOrEqual(sum / 1000.0, 0.010);
+        }
+
+        [Test]
+        public void SameHeight_DifferentSilhouette()
+        {
+            // FR-04: 같은 키 ±2 cm 선수끼리도 근육·체중·어깨 축 차이로 실루엣이 달라진다 — 그런 쌍의 절반 이상이 어깨 너비 차 ≥ 0.005
+            var list = new List<PlayerAppearance>();
+            for (int id = 1; id <= 400; id++) list.Add(AppearanceGenerator.Generate(new BodyInput(id)));
+            int pairs = 0, differ = 0;
+            for (int i = 0; i < list.Count; i++)
+                for (int j = i + 1; j < list.Count; j++)
+                {
+                    if (System.Math.Abs(list[i].HeightCm - list[j].HeightCm) > 2f) continue;
+                    pairs++;
+                    if (System.Math.Abs(BodyShapeMap.ShoulderWidthRatio(list[i]) - BodyShapeMap.ShoulderWidthRatio(list[j])) >= 0.005f) differ++;
+                }
+            Assert.Greater(pairs, 100);
+            Assert.GreaterOrEqual(differ, pairs / 2);
+        }
+
+        [Test]
+        public void BroadLimb_InRange_MuscleDefHalfToOne()
+        {
+            for (int id = 1; id <= 500; id++)
+            {
+                var a = AppearanceGenerator.Generate(new BodyInput(id));
+                Assert.That(a.Broad, Is.InRange(0f, 1f));
+                Assert.That(a.Limb, Is.InRange(0f, 1f));
+                Assert.That(BodyShapeMap.MuscleDef(a), Is.InRange(0.5f, 1f));
+            }
+        }
     }
 }

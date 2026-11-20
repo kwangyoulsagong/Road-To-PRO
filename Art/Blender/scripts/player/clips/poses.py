@@ -157,7 +157,8 @@ def joint_min(bone):
 def _deficit(pose):
     from ..pose import fk
     _, head, tail = fk(pose)
-    d = min(p.y - joint_min(n) for n, p in head.items())
+    # 062: 손가락 뼈는 지면 보정에서 뺀다 (손 기준 0.02 m가 손바닥을 맡는다 — 손가락 기본값 0.045가 GK 땅볼 잡기 몸을 띄웠다)
+    d = min(p.y - joint_min(n) for n, p in head.items() if not n.endswith(("Proximal", "Intermediate", "Distal")))
     return min(d, tail["LeftToes"].y - TIP_MIN, tail["RightToes"].y - TIP_MIN), head, tail
 
 

@@ -101,7 +101,7 @@ def mesh_object(name, m, rig, mats, keys=None):
     return obj, names
 
 
-REQUIRED_KEYS = ("Thin", "Muscular", "Heavy", "HideHead")
+REQUIRED_KEYS = ("Thin", "Muscular", "Heavy", "Broad", "Limb", "HideHead")  # 062: +Broad·Limb
 
 
 def build(lods):

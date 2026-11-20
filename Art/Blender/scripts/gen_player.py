@@ -88,6 +88,9 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     tex = textures.write_all(os.path.join(stem_dir, "Textures"), seed, R)
     mm = {l: m for l, (o, m) in meshes.items()}
     pm = {k: m for k, (o, m) in parts.items()}
+    if 0 in mm:  # 062 FR-20·31·91: 키트 구운 지도 (LOD0 키트 UV)
+        from player import heightfield as HF
+        tex.update(HF.write_kit(os.path.join(stem_dir, "Textures"), mm[0]))
     tree = B._ref_tree(R)
     face_json = F.face_json(R, tree)
     eye_keys = [{}] + [{f"Face_{a}_{sg}": r} for a, _, _, r in F.AXES if a.startswith(("eye", "brow")) for sg in ("pos", "neg")]
@@ -109,11 +112,21 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     summary["kitRimUv"] = checks.kit_rim_uv(mm[min(mm)])
     from player import skin as SK
     summary["skinDetail"] = checks.skin_detail(SK.LAST_METRICS)
+    summary["bodyShapes"] = checks.body_shapes(R, mm[min(mm)])  # 062 AC-01
+    if 0 in mm:  # 062 T01: 시각 지표 (기준선·이후 비교, player/visual_metrics.py)
+        from player import visual_metrics as VM
+        summary["visual062"] = VM.all_metrics(mm, pm, os.path.join(stem_dir, "Textures"), H.STYLES)
+        summary["outline"] = VM.outline_metrics(mm[0])  # 062 AC-02
+        from player import hands as HD
+        summary["hands"] = HD.hand_metrics(mm)
     if 0 in mm:
         summary["proportions"] = checks.proportions(mm)
         summary["penetration"] = checks.penetration(clips, mm, pm, 0)
     export.write_glb(os.path.join(stem_dir, "player.glb"))
-    export.write_json(os.path.join(stem_dir, "player.clips.json"), {"schemaVersion": 1, "fps": 30, "clips": tags})
+    export.strip_animation_channels(os.path.join(stem_dir, "player.glb"), skeleton.NAMES[MS.CORE_BONES:])  # 062: 손가락 채널 제거
+    from player import hands as HD
+    export.write_json(os.path.join(stem_dir, "player.clips.json"),
+                      {"schemaVersion": 1, "fps": 30, "clips": tags, "handPoses": HD.clips_json()})  # 062 FR-11
     export.write_json(os.path.join(stem_dir, "player.face.json"), face_json)
     # 055 FR-70·71: 형태 지표(클립 → 지표)와 연구 기준 스틱 피겨
     from player import gait_metrics as GM
@@ -140,6 +153,7 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         "hairStyles": [{"name": st, "family": H.FAMILY[st],
                         "meshes": [f"{st}_LOD{l}" for l in lods] if st in H.MESH_STYLES else None} for st in H.STYLES],
         "headCloseup": HL.NAME,
+        "handPoses": __import__("player.hands", fromlist=["layout_json"]).layout_json(),  # 062 FR-11 (Unity HandPose)
         "materials": list(rig.MATERIALS),
         "textures": {k: list(v) for k, v in sorted(tex.items())},
         "summary": summary,

@@ -1,0 +1,135 @@
+{
+ "source": "main 0309fa5 생성기 (Blender 5.3.0, --clips idle), player/visual_metrics.py 정의",
+ "date": "2026-11-20",
+ "muscleBandRms": 0.071748,
+ "clothBandVar": 0.002107,
+ "kitLStd": 6.129351,
+ "kitSaturated": 1.0,
+ "hairStrandHf": 0.076131,
+ "hairAnisotropyTexture": 6.041368,
+ "hairPairsBelow008": 186,
+ "hairPairsTotal": 435,
+ "hairStyles": {
+  "Hair_Afro": {
+   "side": 0.2439,
+   "volume": 0.2549
+  },
+  "Hair_Bald": {
+   "side": 0.0,
+   "volume": 0.0
+  },
+  "Hair_BoxBraids": {
+   "side": 0.1231,
+   "volume": 0.0858
+  },
+  "Hair_Bun": {
+   "side": 0.0298,
+   "volume": 0.0308
+  },
+  "Hair_Buzz": {
+   "side": 0.0101,
+   "volume": 0.0123
+  },
+  "Hair_BuzzLine": {
+   "side": 0.0101,
+   "volume": 0.0123
+  },
+  "Hair_Cornrows": {
+   "side": 0.0129,
+   "volume": 0.0164
+  },
+  "Hair_Crew": {
+   "side": 0.016,
+   "volume": 0.0505
+  },
+  "Hair_Curly": {
+   "side": 0.1256,
+   "volume": 0.1143
+  },
+  "Hair_CurlyTop": {
+   "side": 0.0074,
+   "volume": 0.1121
+  },
+  "Hair_Curtains": {
+   "side": 0.078,
+   "volume": 0.0736
+  },
+  "Hair_Dreads": {
+   "side": 0.1206,
+   "volume": 0.1174
+  },
+  "Hair_Fade": {
+   "side": 0.0539,
+   "volume": 0.0769
+  },
+  "Hair_FrenchCrop": {
+   "side": 0.0241,
+   "volume": 0.0637
+  },
+  "Hair_HalfUp": {
+   "side": 0.0711,
+   "volume": 0.0835
+  },
+  "Hair_HighTop": {
+   "side": 0.0056,
+   "volume": 0.3274
+  },
+  "Hair_IvyLeague": {
+   "side": 0.0329,
+   "volume": 0.0593
+  },
+  "Hair_Long": {
+   "side": 0.078,
+   "volume": 0.0967
+  },
+  "Hair_MediumWave": {
+   "side": 0.117,
+   "volume": 0.1045
+  },
+  "Hair_Mohawk": {
+   "side": 0.0045,
+   "volume": 0.2074
+  },
+  "Hair_Ponytail": {
+   "side": 0.0298,
+   "volume": 0.0483
+  },
+  "Hair_Quiff": {
+   "side": 0.0332,
+   "volume": 0.1736
+  },
+  "Hair_Short": {
+   "side": 0.0229,
+   "volume": 0.0703
+  },
+  "Hair_SidePart": {
+   "side": 0.0504,
+   "volume": 0.067
+  },
+  "Hair_SlickBack": {
+   "side": 0.0556,
+   "volume": 0.099
+  },
+  "Hair_Spiky": {
+   "side": 0.0146,
+   "volume": 0.0948
+  },
+  "Hair_TexturedCrop": {
+   "side": 0.0211,
+   "volume": 0.0527
+  },
+  "Hair_TopKnot": {
+   "side": 0.0045,
+   "volume": 0.1919
+  },
+  "Hair_Twists": {
+   "side": 0.0831,
+   "volume": 0.0747
+  },
+  "Hair_Undercut": {
+   "side": 0.0045,
+   "volume": 0.0932
+  }
+ },
+ "notImage": "윤곽 꺾임·소매 이음매 단차·손 오목점·키트 L*(화면)·등급 ΔE 등 화면 지표 기준선은 T03 imagechecks로 main 캡처에서 잰다. 바탕 머리 랜드마크 기준(056 AC-04 MinDistance)은 Unity FaceLandmarks에서 T28 테스트가 계산."
+}

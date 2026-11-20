@@ -64,6 +64,20 @@ def bones():
             (n + "Foot", n + "LowerLeg", ankle, ball),
             (n + "Toes", n + "Foot", ball, toe),
         ]
+    # 062 FR-10·13: 손가락 15 × 2 (Humanoid 이름). 기본 위치는 손 뼈를 따라 부채꼴로 둔 자리 표시 — configure가 MPFB 관절로 바꾼다.
+    fingers = (("Thumb", -0.55), ("Index", -0.25), ("Middle", 0.0), ("Ring", 0.22), ("Little", 0.42))
+    for side, n in ((-1, "Left"), (1, "Right")):
+        _, _, _, wr, tip = _arm(side)
+        d = tuple(tip[i] - wr[i] for i in range(3))
+        for fname, spread in fingers:
+            base = (wr[0] + d[0] * 0.55, wr[1] + d[1] * 0.55, wr[2] + 0.02 * spread * -1)
+            seg = tuple(c * 0.15 for c in d)
+            prev = n + "Hand"
+            p = base
+            for k, sname in enumerate(("Proximal", "Intermediate", "Distal")):
+                q = (p[0] + seg[0], p[1] + seg[1], p[2] + seg[2] + 0.01 * spread)
+                b.append((n + fname + sname, prev, p, q))
+                prev, p = n + fname + sname, q
     return b
 
 

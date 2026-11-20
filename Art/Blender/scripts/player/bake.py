@@ -113,7 +113,9 @@ def arm_length(head):
 
 
 def clip_tags(c):
-    t = {"id": c.id, "group": c.group, "frames": c.frames, "loop": c.loop, "stancePaths": stance_paths(c)}
+    from .hands import hand_pose_for
+    t = {"id": c.id, "group": c.group, "frames": c.frames, "loop": c.loop, "stancePaths": stance_paths(c),
+         "handPose": hand_pose_for(c.id, c.group)}  # 062 FR-11
     for k, v in sorted(c.tags.items()):
         if k == "contact" and v is not None:
             frame = v["frame"]

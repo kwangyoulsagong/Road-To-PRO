@@ -40,11 +40,15 @@ namespace RoadToPro.Presentation.Players.Logic
     {
         public readonly float HeightCm, WeightKg;
         public readonly float Thin, Muscular, Heavy;
+        /// <summary>062 FR-01: 어깨·가슴 폭(Broad)·팔다리 근육 둘레(Limb) 0~1 — 같은 키·체중에서도 실루엣이 달라진다.</summary>
+        public readonly float Broad, Limb;
         public readonly int SkinTone, Face, HairStyle, HairColor;
 
         public PlayerAppearance(float heightCm, float weightKg, float thin, float muscular, float heavy,
-            int skinTone, int face, int hairStyle, int hairColor)
+            int skinTone, int face, int hairStyle, int hairColor, float broad = 0.5f, float limb = 0.5f)
         {
+            Broad = broad;
+            Limb = limb;
             HeightCm = heightCm;
             WeightKg = weightKg;
             Thin = thin;
@@ -68,16 +72,16 @@ namespace RoadToPro.Presentation.Players.Logic
             int hs = combo % AppearanceGenerator.HairStyles; combo /= AppearanceGenerator.HairStyles;
             int f = combo % AppearanceGenerator.Faces; combo /= AppearanceGenerator.Faces;
             int s = combo % AppearanceGenerator.SkinTones;
-            return new PlayerAppearance(HeightCm, WeightKg, Thin, Muscular, Heavy, s, f, hs, hc);
+            return new PlayerAppearance(HeightCm, WeightKg, Thin, Muscular, Heavy, s, f, hs, hc, Broad, Limb);
         }
 
         public bool Equals(PlayerAppearance o) =>
             HeightCm.Equals(o.HeightCm) && WeightKg.Equals(o.WeightKg) && Thin.Equals(o.Thin) && Muscular.Equals(o.Muscular) &&
-            Heavy.Equals(o.Heavy) && SkinTone == o.SkinTone && Face == o.Face && HairStyle == o.HairStyle && HairColor == o.HairColor;
+            Heavy.Equals(o.Heavy) && Broad.Equals(o.Broad) && Limb.Equals(o.Limb) && SkinTone == o.SkinTone && Face == o.Face && HairStyle == o.HairStyle && HairColor == o.HairColor;
 
         public override bool Equals(object obj) => obj is PlayerAppearance o && Equals(o);
         public override int GetHashCode() => ComboKey * 397 ^ HeightCm.GetHashCode();
-        public override string ToString() => $"{HeightCm:0.#}cm {WeightKg:0.#}kg T{Thin:0.##} M{Muscular:0.##} H{Heavy:0.##} skin{SkinTone} face{Face} hair{HairStyle}/{HairColor}";
+        public override string ToString() => $"{HeightCm:0.#}cm {WeightKg:0.#}kg T{Thin:0.##} M{Muscular:0.##} H{Heavy:0.##} B{Broad:0.##} L{Limb:0.##} skin{SkinTone} face{Face} hair{HairStyle}/{HairColor}";
     }
 
     /// <summary>
@@ -157,6 +161,14 @@ namespace RoadToPro.Presentation.Players.Logic
             }
         }
 
+        static float RoleBroad(BodyRole r) => r switch
+        {
+            BodyRole.Goalkeeper => 0.08f,
+            BodyRole.Defender => 0.08f,
+            BodyRole.Midfielder => -0.06f,
+            _ => 0f,
+        };
+
         public static PlayerAppearance Generate(in BodyInput input)
         {
             var h = StableHasher.Create();
@@ -179,7 +191,11 @@ namespace RoadToPro.Presentation.Players.Logic
             int face = (int)(SplitMix64.Next(ref s) % Faces);
             int hs = PickHair(SplitMix64.Next(ref s));
             int hc = (int)(SplitMix64.Next(ref s) % HairColors);
-            return new PlayerAppearance(height, weight, thin, muscular, heavy, skin, face, hs, hc);
+            // 062 FR-01·04: 새 축은 기존 뽑기 뒤에서 뽑는다(키·체중·피부 값 유지). Broad는 넓게 퍼뜨리고(팀 안 어깨 너비 표준편차,
+            // FR-04 개정 ≥ 0.010) 역할로 살짝 민다(골키퍼·수비 +, 미드 −). Limb는 근육량과 반반.
+            float broad = Math.Clamp(U01(ref s) * 1.1f - 0.05f + RoleBroad(input.Role), 0f, 1f);
+            float limb = Math.Clamp(0.5f * ((muscular - 0.25f) / 0.75f) + 0.5f * U01(ref s), 0f, 1f);
+            return new PlayerAppearance(height, weight, thin, muscular, heavy, skin, face, hs, hc, broad, limb);
         }
 
         static int HairOf(int combo) => (combo / HairColors) % HairStyles;

@@ -12,9 +12,13 @@ TYPES = ("notBlank", "bandFlip", "lineContinuity", "blobX", "deltaE", "glyphInsi
          # specs/061 그래픽 품질 지표
          "colorStats", "exposure", "exposureMatch", "sky", "regionRatio", "grayRatio", "clipping", "rimContrast",
          "contactDarkening", "modeGap", "frameDeltaE", "aaEdge", "panFlicker", "groundLineStd", "regionStd",
-         "sharpness", "grassShade")
-PAIRED = ("bandFlip", "sameImage", "differentImage", "modeGap", "aaEdge", "sharpness")  # 캡처 두 장 (capture + other)
-MULTI = ("exposureMatch", "frameDeltaE", "panFlicker")  # 캡처 여러 장 (capture + others)
+         "sharpness", "grassShade",
+         # specs/062 선수 비주얼 지표 (imagechecks_062.py)
+         "outlineTurn", "seamStep", "handConcavity", "kitStats", "silhouetteDiff", "highlightAnisotropy",
+         "tierMatch", "textSpots")
+TYPES_062 = TYPES[-8:]
+PAIRED = ("bandFlip", "sameImage", "differentImage", "modeGap", "aaEdge", "sharpness", "tierMatch")  # 캡처 두 장 (capture + other)
+MULTI = ("exposureMatch", "frameDeltaE", "panFlicker", "silhouetteDiff")  # 캡처 여러 장 (capture + others)
 
 
 def _lum(a):
@@ -363,6 +367,9 @@ def run(checks, captures):
                     raise KeyError(f"캡처 없음: {c['other']}")
                 arr2, reg2 = captures[c["other"]]
                 r = different_image(arr, reg, arr2, reg2, **params)
+            elif t in TYPES_062:
+                from . import imagechecks_062
+                r = imagechecks_062.run_062(t, c, params, captures)
             elif t in TYPES:
                 r = run_061(t, c, params, captures)
             else:
@@ -379,7 +386,9 @@ def run(checks, captures):
 # 분류 색 (±MASK_TOL): 하늘·잔디·선수·경기장 밖·라인·구조물. 마스크가 없으면 화면 전체(HUD는 꺼서 캡처).
 
 MASK_COLORS = {"sky": (255, 0, 255), "grass": (0, 255, 0), "player": (255, 0, 0), "outside": (0, 0, 255),
-               "line": (255, 255, 255), "structure": (128, 128, 128), "shade": (0, 255, 255), "sun": (255, 255, 0)}
+               "line": (255, 255, 255), "structure": (128, 128, 128), "shade": (0, 255, 255), "sun": (255, 255, 0),
+               # specs/062: 키트 주색·피부·머리카락 (선수를 부위별로 나눈 마스크)
+               "kit": (255, 128, 0), "skin": (128, 0, 255), "hair": (0, 128, 255)}
 MASK_TOL = 30
 
 

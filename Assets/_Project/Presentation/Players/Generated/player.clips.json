@@ -6,6 +6,7 @@
    "frames": 60,
    "gait": "idle",
    "group": "locomotion",
+   "handPose": "open",
    "id": "idle",
    "loop": true,
    "speed": 0.0,
@@ -48,6 +49,7 @@
    "frames": 40,
    "gait": "idle",
    "group": "locomotion",
+   "handPose": "open",
    "id": "idle_ready",
    "loop": true,
    "speed": 0.0,
@@ -90,6 +92,7 @@
    "frames": 32,
    "gait": "walk",
    "group": "locomotion",
+   "handPose": "open",
    "id": "walk_f",
    "loop": true,
    "speed": 1.4,
@@ -132,6 +135,7 @@
    "frames": 32,
    "gait": "walk",
    "group": "locomotion",
+   "handPose": "open",
    "id": "walk_fr",
    "loop": true,
    "speed": 1.19,
@@ -174,6 +178,7 @@
    "frames": 32,
    "gait": "walk",
    "group": "locomotion",
+   "handPose": "open",
    "id": "walk_r",
    "loop": true,
    "speed": 0.84,
@@ -216,6 +221,7 @@
    "frames": 32,
    "gait": "walk",
    "group": "locomotion",
+   "handPose": "open",
    "id": "walk_br",
    "loop": true,
    "speed": 0.7,
@@ -258,6 +264,7 @@
    "frames": 32,
    "gait": "walk",
    "group": "locomotion",
+   "handPose": "open",
    "id": "walk_b",
    "loop": true,
    "speed": 0.63,
@@ -300,6 +307,7 @@
    "frames": 32,
    "gait": "walk",
    "group": "locomotion",
+   "handPose": "open",
    "id": "walk_bl",
    "loop": true,
    "speed": 0.7,
@@ -342,6 +350,7 @@
    "frames": 32,
    "gait": "walk",
    "group": "locomotion",
+   "handPose": "open",
    "id": "walk_l",
    "loop": true,
    "speed": 0.84,
@@ -384,6 +393,7 @@
    "frames": 32,
    "gait": "walk",
    "group": "locomotion",
+   "handPose": "open",
    "id": "walk_fl",
    "loop": true,
    "speed": 1.19,
@@ -426,6 +436,7 @@
    "frames": 22,
    "gait": "jog",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "jog_f",
    "loop": true,
    "speed": 3.4,
@@ -468,6 +479,7 @@
    "frames": 22,
    "gait": "jog",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "jog_fr",
    "loop": true,
    "speed": 2.89,
@@ -510,6 +522,7 @@
    "frames": 22,
    "gait": "jog",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "jog_r",
    "loop": true,
    "speed": 2.04,
@@ -552,6 +565,7 @@
    "frames": 22,
    "gait": "jog",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "jog_br",
    "loop": true,
    "speed": 1.7,
@@ -594,6 +608,7 @@
    "frames": 22,
    "gait": "jog",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "jog_b",
    "loop": true,
    "speed": 1.53,
@@ -636,6 +651,7 @@
    "frames": 22,
    "gait": "jog",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "jog_bl",
    "loop": true,
    "speed": 1.7,
@@ -678,6 +694,7 @@
    "frames": 22,
    "gait": "jog",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "jog_l",
    "loop": true,
    "speed": 2.04,
@@ -720,6 +737,7 @@
    "frames": 22,
    "gait": "jog",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "jog_fl",
    "loop": true,
    "speed": 2.89,
@@ -762,6 +780,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f",
    "loop": true,
    "speed": 7.6,
@@ -804,6 +823,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_fr",
    "loop": true,
    "speed": 6.46,
@@ -846,6 +866,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_r",
    "loop": true,
    "speed": 4.56,
@@ -888,6 +909,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_br",
    "loop": true,
    "speed": 3.8,
@@ -930,6 +952,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_b",
    "loop": true,
    "speed": 3.42,
@@ -972,6 +995,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_bl",
    "loop": true,
    "speed": 3.8,
@@ -1014,6 +1038,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "open",
    "id": "sprint_l",
    "loop": true,
    "speed": 4.56,
@@ -1056,6 +1081,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_fl",
    "loop": true,
    "speed": 6.46,
@@ -1098,6 +1124,7 @@
    "frames": 19,
    "gait": "run",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "run_f",
    "loop": true,
    "speed": 5.4,
@@ -1140,6 +1167,7 @@
    "frames": 44,
    "gait": "start",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "start_f",
    "loop": false,
    "speed": 7.175,
@@ -1225,6 +1253,7 @@
    "frames": 32,
    "gait": "stop",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "stop_f",
    "loop": false,
    "speed": 0.0,
@@ -1305,6 +1334,7 @@
    "frames": 20,
    "gait": "dribble",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "dribble_run_30",
    "loop": true,
    "speed": 3.0,
@@ -1348,6 +1378,7 @@
    "frames": 17,
    "gait": "dribble",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "dribble_run_50",
    "loop": true,
    "speed": 5.0,
@@ -1391,6 +1422,7 @@
    "frames": 14,
    "gait": "dribble",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "dribble_run_65",
    "loop": true,
    "speed": 6.5,
@@ -1432,6 +1464,7 @@
    "frames": 16,
    "gait": "cut",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "cut_l45",
    "loop": false,
    "plantFoot": "Right",
@@ -1455,6 +1488,7 @@
    "frames": 16,
    "gait": "cut",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "cut_r45",
    "loop": false,
    "plantFoot": "Left",
@@ -1478,6 +1512,7 @@
    "frames": 16,
    "gait": "cut",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "cut_l90",
    "loop": false,
    "plantFoot": "Right",
@@ -1501,6 +1536,7 @@
    "frames": 16,
    "gait": "cut",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "cut_r90",
    "loop": false,
    "plantFoot": "Left",
@@ -1525,6 +1561,7 @@
    "frames": 16,
    "gait": "run",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "run_f_r1",
    "loop": true,
    "speed": 5.4,
@@ -1568,6 +1605,7 @@
    "frames": 13,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r1_lo",
    "loop": true,
    "speed": 8.7875,
@@ -1612,6 +1650,7 @@
    "frames": 12,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r1_hi",
    "loop": true,
    "speed": 8.7875,
@@ -1656,6 +1695,7 @@
    "frames": 19,
    "gait": "run",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "run_f_r2",
    "loop": true,
    "speed": 5.4,
@@ -1699,6 +1739,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r2_lo",
    "loop": true,
    "speed": 9.545,
@@ -1743,6 +1784,7 @@
    "frames": 14,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r2_hi",
    "loop": true,
    "speed": 9.545,
@@ -1787,6 +1829,7 @@
    "frames": 17,
    "gait": "run",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "run_f_r3",
    "loop": true,
    "speed": 5.4,
@@ -1830,6 +1873,7 @@
    "frames": 14,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r3_lo",
    "loop": true,
    "speed": 9.66,
@@ -1874,6 +1918,7 @@
    "frames": 13,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r3_hi",
    "loop": true,
    "speed": 9.66,
@@ -1918,6 +1963,7 @@
    "frames": 19,
    "gait": "run",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "run_f_r4",
    "loop": true,
    "speed": 5.4,
@@ -1961,6 +2007,7 @@
    "frames": 14,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r4_lo",
    "loop": true,
    "speed": 9.7875,
@@ -2005,6 +2052,7 @@
    "frames": 13,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r4_hi",
    "loop": true,
    "speed": 9.7875,
@@ -2049,6 +2097,7 @@
    "frames": 17,
    "gait": "run",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "run_f_r5",
    "loop": true,
    "speed": 5.4,
@@ -2092,6 +2141,7 @@
    "frames": 14,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r5_lo",
    "loop": true,
    "speed": 9.3275,
@@ -2136,6 +2186,7 @@
    "frames": 13,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r5_hi",
    "loop": true,
    "speed": 9.3275,
@@ -2180,6 +2231,7 @@
    "frames": 20,
    "gait": "run",
    "group": "locomotion",
+   "handPose": "open",
    "id": "run_f_r6",
    "loop": true,
    "speed": 5.4,
@@ -2223,6 +2275,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r6_lo",
    "loop": true,
    "speed": 9.84,
@@ -2267,6 +2320,7 @@
    "frames": 14,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r6_hi",
    "loop": true,
    "speed": 9.84,
@@ -2311,6 +2365,7 @@
    "frames": 18,
    "gait": "run",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "run_f_r7",
    "loop": true,
    "speed": 5.4,
@@ -2354,6 +2409,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r7_lo",
    "loop": true,
    "speed": 9.03,
@@ -2398,6 +2454,7 @@
    "frames": 14,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r7_hi",
    "loop": true,
    "speed": 9.03,
@@ -2442,6 +2499,7 @@
    "frames": 17,
    "gait": "run",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "run_f_r8",
    "loop": true,
    "speed": 5.4,
@@ -2485,6 +2543,7 @@
    "frames": 14,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r8_lo",
    "loop": true,
    "speed": 8.8,
@@ -2529,6 +2588,7 @@
    "frames": 13,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_r8_hi",
    "loop": true,
    "speed": 8.8,
@@ -2573,6 +2633,7 @@
    "frames": 18,
    "gait": "run",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "run_f_gk",
    "loop": true,
    "speed": 5.4,
@@ -2616,6 +2677,7 @@
    "frames": 15,
    "gait": "sprint",
    "group": "locomotion",
+   "handPose": "relax",
    "id": "sprint_f_gk",
    "loop": true,
    "speed": 7.5,
@@ -2687,6 +2749,7 @@
    },
    "frames": 22,
    "group": "pass",
+   "handPose": "half",
    "id": "pass_inside_r",
    "kind": "inside",
    "loop": false,
@@ -2759,6 +2822,7 @@
    },
    "frames": 22,
    "group": "pass",
+   "handPose": "half",
    "id": "pass_inside_l",
    "kind": "inside",
    "loop": false,
@@ -2831,6 +2895,7 @@
    },
    "frames": 22,
    "group": "pass",
+   "handPose": "half",
    "id": "pass_outside_r",
    "kickStyle": "k4",
    "kind": "outside",
@@ -2913,6 +2978,7 @@
    },
    "frames": 50,
    "group": "pass",
+   "handPose": "half",
    "id": "pass_lofted_r",
    "kickStyle": "k5",
    "kind": "lofted",
@@ -3040,6 +3106,7 @@
    },
    "frames": 14,
    "group": "pass",
+   "handPose": "half",
    "id": "onetouch_pass_r",
    "kickStyle": "k6",
    "kind": "onetouch_pass",
@@ -3105,6 +3172,7 @@
    },
    "frames": 28,
    "group": "cross",
+   "handPose": "half",
    "id": "cross_r",
    "kind": "cross",
    "loop": false,
@@ -3194,6 +3262,7 @@
    },
    "frames": 28,
    "group": "cross",
+   "handPose": "half",
    "id": "cross_l",
    "kind": "cross",
    "loop": false,
@@ -3283,6 +3352,7 @@
    },
    "frames": 26,
    "group": "shot",
+   "handPose": "half",
    "id": "shot_instep_r",
    "kind": "instep",
    "loop": false,
@@ -3364,6 +3434,7 @@
    },
    "frames": 26,
    "group": "shot",
+   "handPose": "half",
    "id": "shot_instep_l",
    "kind": "instep",
    "loop": false,
@@ -3445,6 +3516,7 @@
    },
    "frames": 62,
    "group": "shot",
+   "handPose": "open",
    "id": "shot_curl_r",
    "kickStyle": "k3",
    "kind": "curl",
@@ -3588,6 +3660,7 @@
    },
    "frames": 24,
    "group": "shot",
+   "handPose": "half",
    "id": "shot_volley_r",
    "kind": "volley",
    "loop": false,
@@ -3669,6 +3742,7 @@
    },
    "frames": 16,
    "group": "shot",
+   "handPose": "half",
    "id": "onetouch_shot_r",
    "kickStyle": "k6",
    "kind": "onetouch_shot",
@@ -3742,6 +3816,7 @@
    },
    "frames": 70,
    "group": "shot",
+   "handPose": "open",
    "id": "shot_power_r",
    "kickStyle": "k1",
    "kind": "power",
@@ -3909,6 +3984,7 @@
    },
    "frames": 18,
    "group": "shot",
+   "handPose": "half",
    "id": "shot_inside_r",
    "kickStyle": "k2",
    "kind": "finish",
@@ -3982,6 +4058,7 @@
    },
    "frames": 50,
    "group": "clearance",
+   "handPose": "half",
    "id": "clearance_r",
    "kickStyle": "k7",
    "kind": "lofted",
@@ -4109,6 +4186,7 @@
    },
    "frames": 70,
    "group": "keeper",
+   "handPose": "half",
    "id": "gk_goalkick_r",
    "kickStyle": "k8",
    "kind": "lofted",
@@ -4268,6 +4346,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "half",
    "id": "gk_punt_r",
    "kickStyle": "k8",
    "kind": "punt",
@@ -4349,6 +4428,7 @@
    },
    "frames": 20,
    "group": "control",
+   "handPose": "half",
    "id": "trap_foot_r",
    "loop": false,
    "outcome": "success",
@@ -4444,6 +4524,7 @@
    },
    "frames": 20,
    "group": "control",
+   "handPose": "half",
    "id": "trap_foot_l",
    "loop": false,
    "outcome": "success",
@@ -4539,6 +4620,7 @@
    },
    "frames": 20,
    "group": "control",
+   "handPose": "half",
    "id": "trap_fail_r",
    "loop": false,
    "outcome": "fail",
@@ -4634,6 +4716,7 @@
    },
    "frames": 22,
    "group": "control",
+   "handPose": "half",
    "id": "trap_chest",
    "loop": false,
    "outcome": "success",
@@ -4745,6 +4828,7 @@
    },
    "frames": 22,
    "group": "control",
+   "handPose": "half",
    "id": "trap_thigh_r",
    "loop": false,
    "outcome": "success",
@@ -4840,6 +4924,7 @@
    },
    "frames": 12,
    "group": "dribble",
+   "handPose": "half",
    "id": "dribble_touch_r",
    "loop": false,
    "root": [
@@ -4901,6 +4986,7 @@
    },
    "frames": 12,
    "group": "dribble",
+   "handPose": "half",
    "id": "dribble_touch_l",
    "loop": false,
    "root": [
@@ -4962,6 +5048,7 @@
    },
    "frames": 30,
    "group": "header",
+   "handPose": "half",
    "id": "header_jump",
    "loop": false,
    "root": [
@@ -5056,6 +5143,7 @@
    },
    "frames": 20,
    "group": "header",
+   "handPose": "half",
    "id": "header_stand",
    "loop": false,
    "root": [
@@ -5166,6 +5254,7 @@
    },
    "frames": 24,
    "group": "tackle",
+   "handPose": "half",
    "id": "tackle_stand_r",
    "loop": false,
    "outcome": "attempt",
@@ -5285,6 +5374,7 @@
    },
    "frames": 24,
    "group": "tackle",
+   "handPose": "half",
    "id": "tackle_win_r",
    "loop": false,
    "outcome": "win",
@@ -5404,6 +5494,7 @@
    },
    "frames": 36,
    "group": "tackle",
+   "handPose": "half",
    "id": "tackle_slide_r",
    "loop": false,
    "outcome": "attempt",
@@ -5529,6 +5620,7 @@
    ],
    "frames": 24,
    "group": "duel",
+   "handPose": "relax",
    "id": "shoulder_duel",
    "loop": false,
    "root": [
@@ -5652,6 +5744,7 @@
    },
    "frames": 36,
    "group": "restart",
+   "handPose": "open",
    "id": "throw_in",
    "loop": false,
    "root": [
@@ -5776,6 +5869,7 @@
    ],
    "frames": 20,
    "group": "locomotion",
+   "handPose": "relax",
    "id": "decel_stop",
    "loop": false,
    "root": [
@@ -5860,6 +5954,7 @@
    ],
    "frames": 14,
    "group": "locomotion",
+   "handPose": "relax",
    "id": "quick_stop",
    "loop": false,
    "root": [
@@ -5928,6 +6023,7 @@
    ],
    "frames": 18,
    "group": "locomotion",
+   "handPose": "relax",
    "id": "turn_l90",
    "loop": false,
    "root": [
@@ -5997,6 +6093,7 @@
    ],
    "frames": 18,
    "group": "locomotion",
+   "handPose": "relax",
    "id": "turn_r90",
    "loop": false,
    "root": [
@@ -6066,6 +6163,7 @@
    ],
    "frames": 24,
    "group": "locomotion",
+   "handPose": "relax",
    "id": "turn_180",
    "loop": false,
    "root": [
@@ -6143,6 +6241,7 @@
    ],
    "frames": 40,
    "group": "fall",
+   "handPose": "open",
    "hitDir": 0,
    "id": "fall_n",
    "loop": false,
@@ -6187,6 +6286,7 @@
    ],
    "frames": 40,
    "group": "fall",
+   "handPose": "open",
    "hitDir": 45,
    "id": "fall_ne",
    "loop": false,
@@ -6231,6 +6331,7 @@
    ],
    "frames": 40,
    "group": "fall",
+   "handPose": "open",
    "hitDir": 90,
    "id": "fall_e",
    "loop": false,
@@ -6275,6 +6376,7 @@
    ],
    "frames": 40,
    "group": "fall",
+   "handPose": "open",
    "hitDir": 135,
    "id": "fall_se",
    "loop": false,
@@ -6360,6 +6462,7 @@
    ],
    "frames": 40,
    "group": "fall",
+   "handPose": "open",
    "hitDir": 180,
    "id": "fall_s",
    "loop": false,
@@ -6444,6 +6547,7 @@
    ],
    "frames": 40,
    "group": "fall",
+   "handPose": "open",
    "hitDir": 225,
    "id": "fall_sw",
    "loop": false,
@@ -6528,6 +6632,7 @@
    ],
    "frames": 40,
    "group": "fall",
+   "handPose": "open",
    "hitDir": 270,
    "id": "fall_w",
    "loop": false,
@@ -6572,6 +6677,7 @@
    ],
    "frames": 40,
    "group": "fall",
+   "handPose": "open",
    "hitDir": 315,
    "id": "fall_nw",
    "loop": false,
@@ -6616,6 +6722,7 @@
    ],
    "frames": 20,
    "group": "fall",
+   "handPose": "open",
    "hitDir": 0,
    "id": "hit_stumble",
    "loop": false,
@@ -6681,6 +6788,7 @@
   {
    "frames": 30,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_ready",
    "loop": true,
    "stancePaths": {
@@ -6816,6 +6924,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_low_short_l",
    "loop": false,
    "root": [
@@ -6923,6 +7032,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_low_short_r",
    "loop": false,
    "root": [
@@ -7030,6 +7140,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_low_long_l",
    "loop": false,
    "root": [
@@ -7137,6 +7248,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_low_long_r",
    "loop": false,
    "root": [
@@ -7244,6 +7356,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_mid_short_l",
    "loop": false,
    "root": [
@@ -7359,6 +7472,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_mid_short_r",
    "loop": false,
    "root": [
@@ -7474,6 +7588,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_mid_long_l",
    "loop": false,
    "root": [
@@ -7573,6 +7688,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_mid_long_r",
    "loop": false,
    "root": [
@@ -7672,6 +7788,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_high_short_l",
    "loop": false,
    "root": [
@@ -7771,6 +7888,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_high_short_r",
    "loop": false,
    "root": [
@@ -7870,6 +7988,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_high_long_l",
    "loop": false,
    "root": [
@@ -7969,6 +8088,7 @@
    },
    "frames": 24,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_dive_high_long_r",
    "loop": false,
    "root": [
@@ -8068,6 +8188,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_catch_ground",
    "loop": false,
    "root": [
@@ -8143,6 +8264,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_catch_ground_l",
    "loop": false,
    "root": [
@@ -8218,6 +8340,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_catch_ground_r",
    "loop": false,
    "root": [
@@ -8293,6 +8416,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_catch_chest",
    "loop": false,
    "root": [
@@ -8416,6 +8540,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_catch_high",
    "loop": false,
    "root": [
@@ -8491,6 +8616,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_claim_jump",
    "loop": false,
    "root": [
@@ -8582,6 +8708,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_parry_front",
    "loop": false,
    "root": [
@@ -8705,6 +8832,7 @@
    },
    "frames": 18,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_parry_side_l",
    "loop": false,
    "root": [
@@ -8812,6 +8940,7 @@
    },
    "frames": 18,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_parry_side_r",
    "loop": false,
    "root": [
@@ -8919,6 +9048,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_tip_over_l",
    "loop": false,
    "root": [
@@ -8994,6 +9124,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_tip_over_r",
    "loop": false,
    "root": [
@@ -9069,6 +9200,7 @@
    },
    "frames": 18,
    "group": "keeper",
+   "handPose": "fist",
    "id": "gk_punch",
    "loop": false,
    "root": [
@@ -9144,6 +9276,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "fist",
    "id": "gk_punch_two",
    "loop": false,
    "root": [
@@ -9219,6 +9352,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_smother_l",
    "loop": false,
    "root": [
@@ -9326,6 +9460,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_smother_r",
    "loop": false,
    "root": [
@@ -9390,6 +9525,7 @@
   {
    "frames": 14,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_spread",
    "loop": false,
    "root": [
@@ -9422,6 +9558,7 @@
   {
    "frames": 14,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_shuffle_l",
    "loop": false,
    "root": [
@@ -9478,6 +9615,7 @@
   {
    "frames": 14,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_shuffle_r",
    "loop": false,
    "root": [
@@ -9534,6 +9672,7 @@
   {
    "frames": 12,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_pk_move_l",
    "loop": false,
    "root": [
@@ -9582,6 +9721,7 @@
   {
    "frames": 12,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_pk_move_r",
    "loop": false,
    "root": [
@@ -9630,6 +9770,7 @@
   {
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_getup",
    "loop": false,
    "root": [
@@ -9729,6 +9870,7 @@
    },
    "frames": 18,
    "group": "keeper",
+   "handPose": "half",
    "id": "gk_roll_r",
    "loop": false,
    "root": [
@@ -9820,6 +9962,7 @@
    },
    "frames": 18,
    "group": "keeper",
+   "handPose": "half",
    "id": "gk_throw_r",
    "loop": false,
    "root": [
@@ -9927,6 +10070,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_lunge_low",
    "loop": false,
    "root": [
@@ -10018,6 +10162,7 @@
    },
    "frames": 20,
    "group": "keeper",
+   "handPose": "open",
    "id": "gk_lunge_mid",
    "loop": false,
    "root": [
@@ -10129,6 +10274,7 @@
    },
    "frames": 26,
    "group": "keeper",
+   "handPose": "half",
    "id": "gk_kick",
    "kind": "lofted",
    "loop": false,
@@ -10179,6 +10325,7 @@
   {
    "frames": 40,
    "group": "emotion",
+   "handPose": "open",
    "id": "celebrate_arms",
    "loop": true,
    "stancePaths": {
@@ -10219,6 +10366,7 @@
    ],
    "frames": 45,
    "group": "emotion",
+   "handPose": "fist",
    "id": "celebrate_knee",
    "loop": false,
    "root": [
@@ -10267,6 +10415,7 @@
   {
    "frames": 60,
    "group": "emotion",
+   "handPose": "open",
    "id": "dejected",
    "loop": true,
    "stancePaths": {
@@ -10451,6 +10600,7 @@
    ],
    "frames": 30,
    "group": "referee",
+   "handPose": "half",
    "id": "ref_whistle",
    "loop": false,
    "root": [
@@ -10559,6 +10709,7 @@
    ],
    "frames": 36,
    "group": "referee",
+   "handPose": "half",
    "id": "ref_card",
    "loop": false,
    "root": [
@@ -10683,6 +10834,7 @@
    ],
    "frames": 30,
    "group": "referee",
+   "handPose": "open",
    "id": "ref_advantage",
    "loop": false,
    "root": [
@@ -10780,6 +10932,7 @@
    "dir": 0,
    "frames": 22,
    "group": "flow",
+   "handPose": "relax",
    "id": "enter_jog_on",
    "loop": true,
    "speed": 3.4,
@@ -10826,6 +10979,7 @@
    "dir": 0,
    "frames": 32,
    "group": "flow",
+   "handPose": "open",
    "id": "exit_walk_off",
    "loop": true,
    "speed": 1.4,
@@ -10902,5 +11056,769 @@
   }
  ],
  "fps": 30,
+ "handPoses": {
+  "bones": [
+   "LeftThumbProximal",
+   "LeftThumbIntermediate",
+   "LeftThumbDistal",
+   "LeftIndexProximal",
+   "LeftIndexIntermediate",
+   "LeftIndexDistal",
+   "LeftMiddleProximal",
+   "LeftMiddleIntermediate",
+   "LeftMiddleDistal",
+   "LeftRingProximal",
+   "LeftRingIntermediate",
+   "LeftRingDistal",
+   "LeftLittleProximal",
+   "LeftLittleIntermediate",
+   "LeftLittleDistal",
+   "RightThumbProximal",
+   "RightThumbIntermediate",
+   "RightThumbDistal",
+   "RightIndexProximal",
+   "RightIndexIntermediate",
+   "RightIndexDistal",
+   "RightMiddleProximal",
+   "RightMiddleIntermediate",
+   "RightMiddleDistal",
+   "RightRingProximal",
+   "RightRingIntermediate",
+   "RightRingDistal",
+   "RightLittleProximal",
+   "RightLittleIntermediate",
+   "RightLittleDistal"
+  ],
+  "poses": {
+   "fist": [
+    [
+     0.181269,
+     0.219801,
+     0.103635,
+     0.952937
+    ],
+    [
+     0.067757,
+     0.10212,
+     0.123021,
+     0.984808
+    ],
+    [
+     0.050931,
+     0.076761,
+     0.092471,
+     0.991445
+    ],
+    [
+     -0.018625,
+     0.045804,
+     0.497549,
+     0.866025
+    ],
+    [
+     -0.02083,
+     0.051226,
+     0.556452,
+     0.829038
+    ],
+    [
+     -0.010268,
+     0.02525,
+     0.274286,
+     0.961262
+    ],
+    [
+     -0.117085,
+     -0.071544,
+     0.542097,
+     0.829038
+    ],
+    [
+     -0.127464,
+     -0.077885,
+     0.59015,
+     0.793353
+    ],
+    [
+     -0.061218,
+     -0.037406,
+     0.283433,
+     0.956305
+    ],
+    [
+     -0.171452,
+     -0.143881,
+     0.512445,
+     0.829038
+    ],
+    [
+     -0.186649,
+     -0.156635,
+     0.557869,
+     0.793353
+    ],
+    [
+     -0.104865,
+     -0.088002,
+     0.313427,
+     0.939693
+    ],
+    [
+     -0.187258,
+     -0.172726,
+     0.447621,
+     0.857167
+    ],
+    [
+     -0.203312,
+     -0.187534,
+     0.485996,
+     0.829038
+    ],
+    [
+     -0.094102,
+     -0.086799,
+     0.22494,
+     0.965926
+    ],
+    [
+     0.181269,
+     -0.219801,
+     -0.103635,
+     0.952937
+    ],
+    [
+     0.067757,
+     -0.10212,
+     -0.123021,
+     0.984808
+    ],
+    [
+     0.050931,
+     -0.076761,
+     -0.092471,
+     0.991445
+    ],
+    [
+     -0.018625,
+     -0.045804,
+     -0.497549,
+     0.866025
+    ],
+    [
+     -0.02083,
+     -0.051226,
+     -0.556452,
+     0.829038
+    ],
+    [
+     -0.010268,
+     -0.02525,
+     -0.274286,
+     0.961262
+    ],
+    [
+     -0.117085,
+     0.071544,
+     -0.542097,
+     0.829038
+    ],
+    [
+     -0.127464,
+     0.077885,
+     -0.59015,
+     0.793353
+    ],
+    [
+     -0.061218,
+     0.037406,
+     -0.283433,
+     0.956305
+    ],
+    [
+     -0.171452,
+     0.143881,
+     -0.512445,
+     0.829038
+    ],
+    [
+     -0.186649,
+     0.156635,
+     -0.557869,
+     0.793353
+    ],
+    [
+     -0.104865,
+     0.088002,
+     -0.313427,
+     0.939693
+    ],
+    [
+     -0.187258,
+     0.172726,
+     -0.447621,
+     0.857167
+    ],
+    [
+     -0.203312,
+     0.187534,
+     -0.485996,
+     0.829038
+    ],
+    [
+     -0.094102,
+     0.086799,
+     -0.22494,
+     0.965926
+    ]
+   ],
+   "half": [
+    [
+     0.145729,
+     0.180033,
+     0.085832,
+     0.969012
+    ],
+    [
+     0.067757,
+     0.10212,
+     0.123021,
+     0.984808
+    ],
+    [
+     0.050931,
+     0.076761,
+     0.092471,
+     0.991445
+    ],
+    [
+     -0.011201,
+     0.027547,
+     0.299232,
+     0.953717
+    ],
+    [
+     -0.014255,
+     0.035057,
+     0.380808,
+     0.92388
+    ],
+    [
+     -0.008062,
+     0.019827,
+     0.215379,
+     0.976296
+    ],
+    [
+     -0.071613,
+     -0.043758,
+     0.331564,
+     0.939693
+    ],
+    [
+     -0.088489,
+     -0.05407,
+     0.409698,
+     0.906308
+    ],
+    [
+     -0.045319,
+     -0.027691,
+     0.209823,
+     0.976296
+    ],
+    [
+     -0.117333,
+     -0.098465,
+     0.350691,
+     0.92388
+    ],
+    [
+     -0.129577,
+     -0.10874,
+     0.387288,
+     0.906308
+    ],
+    [
+     -0.066362,
+     -0.05569,
+     0.198345,
+     0.976296
+    ],
+    [
+     -0.153656,
+     -0.141732,
+     0.367299,
+     0.906308
+    ],
+    [
+     -0.153656,
+     -0.141732,
+     0.367299,
+     0.906308
+    ],
+    [
+     -0.078693,
+     -0.072586,
+     0.188108,
+     0.976296
+    ],
+    [
+     0.145729,
+     -0.180033,
+     -0.085832,
+     0.969012
+    ],
+    [
+     0.067757,
+     -0.10212,
+     -0.123021,
+     0.984808
+    ],
+    [
+     0.050931,
+     -0.076761,
+     -0.092471,
+     0.991445
+    ],
+    [
+     -0.011201,
+     -0.027547,
+     -0.299232,
+     0.953717
+    ],
+    [
+     -0.014255,
+     -0.035057,
+     -0.380808,
+     0.92388
+    ],
+    [
+     -0.008062,
+     -0.019827,
+     -0.215379,
+     0.976296
+    ],
+    [
+     -0.071613,
+     0.043758,
+     -0.331564,
+     0.939693
+    ],
+    [
+     -0.088489,
+     0.05407,
+     -0.409698,
+     0.906308
+    ],
+    [
+     -0.045319,
+     0.027691,
+     -0.209823,
+     0.976296
+    ],
+    [
+     -0.117333,
+     0.098465,
+     -0.350691,
+     0.92388
+    ],
+    [
+     -0.129577,
+     0.10874,
+     -0.387288,
+     0.906308
+    ],
+    [
+     -0.066362,
+     0.05569,
+     -0.198345,
+     0.976296
+    ],
+    [
+     -0.153656,
+     0.141732,
+     -0.367299,
+     0.906308
+    ],
+    [
+     -0.153656,
+     0.141732,
+     -0.367299,
+     0.906308
+    ],
+    [
+     -0.078693,
+     0.072586,
+     -0.188108,
+     0.976296
+    ]
+   ],
+   "open": [
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.01702,
+     0.025652,
+     0.030902,
+     0.999048
+    ],
+    [
+     0.01702,
+     0.025652,
+     0.030902,
+     0.999048
+    ],
+    [
+     -0.027584,
+     0.02477,
+     0.022977,
+     0.999048
+    ],
+    [
+     -0.0013,
+     0.003197,
+     0.034728,
+     0.999391
+    ],
+    [
+     -0.000975,
+     0.002398,
+     0.026049,
+     0.999657
+    ],
+    [
+     -0.005481,
+     -0.003349,
+     0.025377,
+     0.999657
+    ],
+    [
+     -0.007307,
+     -0.004465,
+     0.033833,
+     0.999391
+    ],
+    [
+     -0.005481,
+     -0.003349,
+     0.025377,
+     0.999657
+    ],
+    [
+     0.015814,
+     -0.031533,
+     0.034497,
+     0.998782
+    ],
+    [
+     -0.013374,
+     -0.011223,
+     0.039973,
+     0.999048
+    ],
+    [
+     -0.008026,
+     -0.006735,
+     0.023989,
+     0.999657
+    ],
+    [
+     0.036921,
+     -0.060021,
+     0.042352,
+     0.996615
+    ],
+    [
+     -0.019028,
+     -0.017552,
+     0.045485,
+     0.99863
+    ],
+    [
+     -0.012689,
+     -0.011704,
+     0.030331,
+     0.999391
+    ],
+    [
+     0.0,
+     0.0,
+     0.0,
+     1.0
+    ],
+    [
+     0.01702,
+     -0.025652,
+     -0.030902,
+     0.999048
+    ],
+    [
+     0.01702,
+     -0.025652,
+     -0.030902,
+     0.999048
+    ],
+    [
+     -0.027584,
+     -0.02477,
+     -0.022977,
+     0.999048
+    ],
+    [
+     -0.0013,
+     -0.003197,
+     -0.034728,
+     0.999391
+    ],
+    [
+     -0.000975,
+     -0.002398,
+     -0.026049,
+     0.999657
+    ],
+    [
+     -0.005481,
+     0.003349,
+     -0.025377,
+     0.999657
+    ],
+    [
+     -0.007307,
+     0.004465,
+     -0.033833,
+     0.999391
+    ],
+    [
+     -0.005481,
+     0.003349,
+     -0.025377,
+     0.999657
+    ],
+    [
+     0.015814,
+     0.031533,
+     -0.034497,
+     0.998782
+    ],
+    [
+     -0.013374,
+     0.011223,
+     -0.039973,
+     0.999048
+    ],
+    [
+     -0.008026,
+     0.006735,
+     -0.023989,
+     0.999657
+    ],
+    [
+     0.036921,
+     0.060021,
+     -0.042352,
+     0.996615
+    ],
+    [
+     -0.019028,
+     0.017552,
+     -0.045485,
+     0.99863
+    ],
+    [
+     -0.012689,
+     0.011704,
+     -0.030331,
+     0.999391
+    ]
+   ],
+   "relax": [
+    [
+     0.071651,
+     0.0922,
+     0.043181,
+     0.99222
+    ],
+    [
+     0.034008,
+     0.051255,
+     0.061745,
+     0.996195
+    ],
+    [
+     0.027219,
+     0.041023,
+     0.049419,
+     0.997564
+    ],
+    [
+     -0.004862,
+     0.011957,
+     0.129886,
+     0.991445
+    ],
+    [
+     -0.006468,
+     0.015907,
+     0.172797,
+     0.984808
+    ],
+    [
+     -0.003247,
+     0.007984,
+     0.086729,
+     0.996195
+    ],
+    [
+     -0.032755,
+     -0.020014,
+     0.151652,
+     0.987688
+    ],
+    [
+     -0.039952,
+     -0.024412,
+     0.184976,
+     0.981627
+    ],
+    [
+     -0.018249,
+     -0.011151,
+     0.084491,
+     0.996195
+    ],
+    [
+     -0.053241,
+     -0.04468,
+     0.159131,
+     0.984808
+    ],
+    [
+     -0.058503,
+     -0.049095,
+     0.174857,
+     0.981627
+    ],
+    [
+     -0.026722,
+     -0.022425,
+     0.07987,
+     0.996195
+    ],
+    [
+     -0.069374,
+     -0.063991,
+     0.165833,
+     0.981627
+    ],
+    [
+     -0.069374,
+     -0.063991,
+     0.165833,
+     0.981627
+    ],
+    [
+     -0.031688,
+     -0.029229,
+     0.075747,
+     0.996195
+    ],
+    [
+     0.071651,
+     -0.0922,
+     -0.043181,
+     0.99222
+    ],
+    [
+     0.034008,
+     -0.051255,
+     -0.061745,
+     0.996195
+    ],
+    [
+     0.027219,
+     -0.041023,
+     -0.049419,
+     0.997564
+    ],
+    [
+     -0.004862,
+     -0.011957,
+     -0.129886,
+     0.991445
+    ],
+    [
+     -0.006468,
+     -0.015907,
+     -0.172797,
+     0.984808
+    ],
+    [
+     -0.003247,
+     -0.007984,
+     -0.086729,
+     0.996195
+    ],
+    [
+     -0.032755,
+     0.020014,
+     -0.151652,
+     0.987688
+    ],
+    [
+     -0.039952,
+     0.024412,
+     -0.184976,
+     0.981627
+    ],
+    [
+     -0.018249,
+     0.011151,
+     -0.084491,
+     0.996195
+    ],
+    [
+     -0.053241,
+     0.04468,
+     -0.159131,
+     0.984808
+    ],
+    [
+     -0.058503,
+     0.049095,
+     -0.174857,
+     0.981627
+    ],
+    [
+     -0.026722,
+     0.022425,
+     -0.07987,
+     0.996195
+    ],
+    [
+     -0.069374,
+     0.063991,
+     -0.165833,
+     0.981627
+    ],
+    [
+     -0.069374,
+     0.063991,
+     -0.165833,
+     0.981627
+    ],
+    [
+     -0.031688,
+     0.029229,
+     -0.075747,
+     0.996195
+    ]
+   ]
+  }
+ },
  "schemaVersion": 1
 }

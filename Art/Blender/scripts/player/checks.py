@@ -15,10 +15,11 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
 from . import body as B
+from . import mpfb_src as MS
 from . import pose as PO
 from . import skeleton as S
 
-TRI_BUDGET = {0: (6000, 10000), 1: (2000, 3000), 2: (0, 1000)}
+TRI_BUDGET = {0: (6000, 11000), 1: (2000, 3000), 2: (0, 1000)}  # 062: LOD0 상한 11k (2026-11-20 사용자 결정, CLAUDE.md)
 MATERIAL_BUDGET = 3
 TEXTURE_MAX = 2048
 HEIGHT_RANGE_CM = (160.0, 200.0)
@@ -126,9 +127,9 @@ def _bvh(V, faces):
 
 EXTREMES = {
     "short_light": (HEIGHT_RANGE_CM[0], {"Thin": 1.0}, "Hair_Afro"),
-    "short_heavy": (HEIGHT_RANGE_CM[0], {"Heavy": 1.0, "Muscular": 1.0}, "Hair_Bun"),
+    "short_heavy": (HEIGHT_RANGE_CM[0], {"Heavy": 1.0, "Muscular": 1.0, "Broad": 1.0, "Limb": 1.0}, "Hair_Bun"),
     "tall_light": (HEIGHT_RANGE_CM[1], {"Thin": 1.0}, "Hair_Long"),
-    "tall_heavy": (HEIGHT_RANGE_CM[1], {"Heavy": 1.0, "Muscular": 1.0}, "Hair_Dreads"),
+    "tall_heavy": (HEIGHT_RANGE_CM[1], {"Heavy": 1.0, "Muscular": 1.0, "Broad": 1.0, "Limb": 1.0}, "Hair_Dreads"),  # 062: 근육 최대
 }
 
 
@@ -202,7 +203,11 @@ def _overlaps(m, P, fa, fb, da, db):
     for i, j in _bvh(P, fa).overlap(_bvh(P, fb)):
         if _hops(da[i], db[j]) > ADJACENT_HOPS:
             n += 1
+            OVERLAP_PAIRS[(da[i], db[j])] = OVERLAP_PAIRS.get((da[i], db[j]), 0) + 1
     return n
+
+
+OVERLAP_PAIRS = {}  # 진단: 마지막 검사에서 겹친 (주 뼈, 주 뼈) 쌍 수
 
 
 def extremes(meshes, parts, lod=0):
@@ -242,9 +247,14 @@ def _sample_frames(c):
     return fr
 
 
+HANDQ = {}
+CLIP_HITS = {}
+
+
 def penetration(clips, meshes, parts, lod=0):
     """056 AC-03: 클립 × 극단 4 × 4프레임 — 피부×유니폼, 머리카락×머리 아닌 몸, 뒤집힌 삼각형."""
     from . import hair as H
+    from . import hands as HD
     m = meshes[lod]
     skin, kit, nonhead = _sets(m)
     ds, dk = _dom(m, skin), _dom(m, kit)
@@ -263,8 +273,12 @@ def penetration(clips, meshes, parts, lod=0):
         hms = [(st, parts[f"{st}_LOD{lod}"]) for st in assign[name] if f"{st}_LOD{lod}" in parts]
         HVs = [(st, hm, _blend(hm, weights), [x[0] for x in hm.faces]) for st, hm in hms]
         for c in clips:
+            hand_q = HANDQ.setdefault(HD.hand_pose_for(c.id, c.group), HD.pose_rotations(HD.hand_pose_for(c.id, c.group)))
             for f in _sample_frames(c):
-                rw, head, _ = PO.fk(c.sample(f / 30.0))
+                pz = c.sample(f / 30.0)
+                for k, qv in hand_q.items():  # 062: 런타임과 같이 클립의 손 포즈를 손가락에 건다
+                    pz.local.setdefault(k, qv)
+                rw, head, _ = PO.fk(pz)
                 P = _skin(m, V, rw, head)
                 poses += 1
                 n1 = _overlaps(m, P, skin, kit, ds, dk)
@@ -280,10 +294,13 @@ def penetration(clips, meshes, parts, lod=0):
                             hair_worst.setdefault(st, {"clip": c.id, "frame": f, "case": name, "hits": k})
                 n3, c3 = _flipped(m, V, P, tri_faces, rw)
                 sk, hb, fl, cr = sk + n1, hb + n2, fl + n3, cr + c3
+                if n1:
+                    CLIP_HITS[c.id] = CLIP_HITS.get(c.id, 0) + n1
                 if (n1 or n2 or n3) and len(worst) < 16:
                     worst.append({"case": name, "clip": c.id, "frame": f, "skinKit": n1, "hairBody": n2, "flipped": n3})
     nst = sum(len(v) for v in assign.values())
-    return {"ok": sk == 0 and hb == 0 and fl == 0, "poses": poses, "skinKit": sk, "hairBody": hb, "flipped": fl,
+    return {"overlapPairs": {f"{a}×{b}": v for (a, b), v in sorted(OVERLAP_PAIRS.items())}, "clipHits": dict(CLIP_HITS),
+            "ok": sk == 0 and hb == 0 and fl == 0, "poses": poses, "skinKit": sk, "hairBody": hb, "flipped": fl,
             "creaseFolds": cr, "worst": worst, "hairStyles": nst, "hairPoses": hposes, "hairWorst": hair_worst}
 
 
@@ -308,6 +325,115 @@ def proportions(meshes, samples=200):
     hmin, hmax = min(ratios), max(ratios)
     ok = max(errs) <= 1.0 and hmin >= 1 / 8.0 - 1e-4 and hmax <= 1 / 7.5 + 1e-4
     return {"ok": ok, "samples": samples, "heightErrCmMax": max(errs), "headRatioMin": hmin, "headRatioMax": hmax}
+
+
+def _hull_perimeter(P2):
+    pts = sorted(set(map(tuple, np.round(P2, 6))))
+    if len(pts) < 3:
+        return 0.0
+    def cr(o, a, b):
+        return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+    lo, up = [], []
+    for q in pts:
+        while len(lo) >= 2 and cr(lo[-2], lo[-1], q) <= 0:
+            lo.pop()
+        lo.append(q)
+    for q in reversed(pts):
+        while len(up) >= 2 and cr(up[-2], up[-1], q) <= 0:
+            up.pop()
+        up.append(q)
+    h = np.array(lo[:-1] + up[:-1])
+    return float(np.linalg.norm(h - np.roll(h, 1, axis=0), axis=1).sum())
+
+
+LIMB_SPAN = {"UpperArm": (0.40, 0.80), "LowerArm": (0.08, 0.45)}  # 뼈 길이 비율 구간 — 위팔은 ANSUR 위팔 둘레처럼 이두 높이(삼각근 아래), 아래팔은 팔꿈치 아래 굵은 곳
+
+
+def limb_girth(R, V, bone, slices=10):
+    """뼈 축에 수직인 단면(구간을 slices개로 나눔)의 볼록 둘레 최댓값 (m), 좌우 평균. 단면 = 그 뼈가 주 뼈인 몸 정점."""
+    body = np.zeros(R.n, dtype=bool)
+    body[R.groups["body"]] = True
+    dom = np.argmax(R.weights, axis=1)
+    out = []
+    for side in ("Left", "Right"):
+        name = side + bone
+        h, t = (np.array(x) for x in R.joints[name])
+        ax = t - h
+        ln = float(np.linalg.norm(ax))
+        ax /= ln
+        sel = body & (dom == MS.OUR_NAMES.index(name))
+        P = V[sel] - h
+        tt = P @ ax / ln
+        u = np.cross(ax, [0.0, 0.0, 1.0] if abs(ax[2]) < 0.9 else [1.0, 0.0, 0.0])
+        u /= np.linalg.norm(u)
+        w = np.cross(ax, u)
+        a0, a1 = LIMB_SPAN[bone]
+        best = 0.0
+        for k in range(slices):
+            lo = a0 + (a1 - a0) * k / slices
+            m = (tt >= lo) & (tt < lo + (a1 - a0) / slices)
+            if m.sum() >= 6:
+                best = max(best, _hull_perimeter(np.stack([P[m] @ u, P[m] @ w], axis=1)))
+        out.append(best)
+    return float(np.mean(out))
+
+
+SLIVER_M2 = 2e-6  # 062: 2 mm² 미만 퇴화 조각(056 감량이 남긴 칼라 쪽 조각, 클로즈업에서 ≈ 1~2 px)은 뒤집힘 판정에서 따로 센다
+
+
+def body_shapes(R, m0, samples=200, seed=62):
+    """062 AC-01: 체형 5축 무작위 200명 + 극단 4종 × 근육(Muscular·Broad·Limb) 0/1.
+    팔 둘레/키는 기준 고해상도 몸(R, 키 1.80 m, 균등 스케일이라 비율 불변), 같은 표본의 3축(Broad·Limb 0) 평균 = 056·057 분포.
+    뒤집힌 삼각형(기준 면 법선과 반대)·찢어짐(모서리 길이 ×2.5 초과)은 실제로 그리는 LOD0 메시(m0, 몸+키트)에서."""
+    rng = np.random.default_rng(seed)
+    keys = sorted(R.body_deltas)
+    W = []
+    for _ in range(samples):
+        u = float(rng.uniform(0, 1))
+        W.append({"Thin": max(0.0, 1 - 2 * u), "Heavy": max(0.0, 2 * u - 1), "Muscular": float(rng.uniform(0, 1)),
+                  "Broad": float(rng.uniform(0, 1)), "Limb": float(rng.uniform(0, 1))})
+    for _, w, _ in EXTREMES.values():
+        base = {k: v for k, v in w.items() if k in ("Thin", "Heavy")}
+        for mu in (0.0, 1.0):
+            W.append(dict(base, Muscular=mu, Broad=mu, Limb=mu))
+    sel_f = [(f, part) for f, _mat, _uv, part, _ in m0.faces if all(m0.vpart[v] not in ("hair", "eye") for v in f)]
+    tris = np.array([(f[0], f[k], f[k + 1]) for f, _ in sel_f for k in range(1, len(f) - 1)])
+    tpart = [part for f, part in sel_f for k in range(1, len(f) - 1)]
+    def fn(V):
+        return np.cross(V[tris[:, 1]] - V[tris[:, 0]], V[tris[:, 2]] - V[tris[:, 0]])
+    n0 = fn(m0.verts)
+    e = np.concatenate([tris[:, [0, 1]], tris[:, [1, 2]], tris[:, [2, 0]]])
+    l0 = np.linalg.norm(m0.verts[e[:, 0]] - m0.verts[e[:, 1]], axis=1)
+    ua, fa, ua_base, flipped, torn, flip_base, flip_parts, slivers = [], [], [], 0, 0, 0, {}, 0
+    area0 = np.linalg.norm(n0, axis=1) * 0.5
+    for w in W:
+        V = R.verts + sum(R.body_deltas[k] * w.get(k, 0.0) for k in keys)
+        ua.append(limb_girth(R, V, "UpperArm") / S.REF_HEIGHT)
+        fa.append(limb_girth(R, V, "LowerArm") / S.REF_HEIGHT)
+        Vb = R.verts + sum(R.body_deltas[k] * w.get(k, 0.0) for k in keys if k not in ("Broad", "Limb"))
+        ua_base.append(limb_girth(R, Vb, "UpperArm") / S.REF_HEIGHT)
+        V0 = _blend(m0, w)
+        inv = (fn(V0) * n0).sum(axis=1) < 0
+        fl = inv & (area0 >= SLIVER_M2)
+        slivers += int((inv & (area0 < SLIVER_M2)).sum())
+        flipped += int(fl.sum())
+        a0 = area0
+        for ti in np.flatnonzero(fl):
+            k2 = f"{tpart[ti]}|{MS.OUR_NAMES[int(np.argmax(m0.W[tris[ti][0]]))]}|{a0[ti]*1e6:.2f}mm2|{tuple(int(x) for x in tris[ti])}|{ {k: round(v, 2) for k, v in w.items() if v} }"
+            flip_parts[k2] = flip_parts.get(k2, 0) + 1
+        Vb0 = _blend(m0, {k: v for k, v in w.items() if k not in ("Broad", "Limb")})
+        flip_base += int((((fn(Vb0) * n0).sum(axis=1) < 0) & (area0 >= SLIVER_M2)).sum())
+        r = np.linalg.norm(V0[e[:, 0]] - V0[e[:, 1]], axis=1) / np.maximum(l0, 1e-9)
+        torn += int((r > 2.5).sum())
+    out = {"keys": keys, "samples": len(W),
+           "upperArmRatio": [round(min(ua), 4), round(max(ua), 4)], "forearmRatio": [round(min(fa), 4), round(max(fa), 4)],
+           "upperArmMean": round(float(np.mean(ua)), 4), "upperArmMeanBase": round(float(np.mean(ua_base)), 4),
+           "flipped": flipped, "torn": torn, "flippedBase": flip_base, "flipParts": flip_parts,
+           "sliverFlips": slivers, "sliverM2": SLIVER_M2}
+    out["ok"] = (out["upperArmRatio"][0] >= 0.17 and out["upperArmRatio"][1] <= 0.24 and out["forearmRatio"][0] >= 0.155
+                 and out["forearmRatio"][1] <= 0.20 and out["upperArmMean"] >= out["upperArmMeanBase"]
+                 and flipped == 0 and torn == 0)
+    return out
 
 
 def licenses(used, assets_json, licenses_csv):
@@ -428,6 +554,8 @@ def ground(clips, step=2):
         for f in list(range(0, c.frames + 1, step)) + [c.frames]:
             _, head, tail = PO.fk(c.sample(f / 30.0))
             for n, p in head.items():
+                if n.endswith(("Proximal", "Intermediate", "Distal")):
+                    continue  # 062: 손가락은 손 기준이 맡는다 (클립 생성 지면 보정과 같은 규칙)
                 d = p.y - _min_for(n)
                 if d < -0.005 and (worst is None or d < worst[0]):
                     worst = (d, n, f)

@@ -251,12 +251,28 @@ namespace RoadToPro.Presentation.Players.Logic
         public float MinDistance => _min >= 0 ? _min : (_min = MeanPairDistance * MinFraction);
     }
 
-    /// <summary>043 외형 체형 3축 → 056 셰이프키 가중치 (FR-10·11). Muscular 0.25~1 → MPFB 근육 0.6~0.9 구간(키 Muscular 0~1).</summary>
+    /// <summary>043 외형 체형 3축 → 056 셰이프키 가중치 (FR-10·11). Muscular 0.25~1 → MPFB 근육 0.6~0.9 구간(키 Muscular 0~1).
+    /// 062: + Broad·Limb 셰이프키, 근육 지도 세기, 어깨 너비 근사.</summary>
     public static class BodyShapeMap
     {
         public static float Thin(in PlayerAppearance a) => Clamp01(a.Thin);
         public static float Heavy(in PlayerAppearance a) => Clamp01(a.Heavy);
         public static float Muscular(in PlayerAppearance a) => Clamp01((a.Muscular - 0.25f) / 0.75f);
+        public static float Broad(in PlayerAppearance a) => Clamp01(a.Broad);
+        public static float Limb(in PlayerAppearance a) => Clamp01(a.Limb);
+
+        /// <summary>062 셰이더 근육 지도 세기 _MuscleDef = 0.5 + 0.5 × Muscular(0~1) — 프로 선수라 최소도 0.5 (T06).</summary>
+        public static float MuscleDef(in PlayerAppearance a) => 0.5f + 0.5f * Muscular(a);
+
+        // 062 FR-04: 정면 어깨 너비(어깨 관절 높이 ±4 cm 띠)/키 = 기준 + Σ 축 기여. 값은 Blender 생성기 기준 몸에서 잰 것
+        // (2026-11-20 T10, 축 가중치 1에서의 차). 생성기 체형 키를 바꾸면 다시 잰다.
+        public const float ShoulderWidthBase = 0.3448f;
+        public const float ShoulderBroad = 0.0345f, ShoulderHeavy = 0.0043f, ShoulderLimb = 0.0030f,
+            ShoulderMuscular = -0.0021f, ShoulderThin = -0.0098f;
+
+        public static float ShoulderWidthRatio(in PlayerAppearance a) =>
+            ShoulderWidthBase + ShoulderBroad * Broad(a) + ShoulderHeavy * Heavy(a) + ShoulderLimb * Limb(a)
+            + ShoulderMuscular * Muscular(a) + ShoulderThin * Thin(a);
 
         static float Clamp01(float x) => x < 0f ? 0f : x > 1f ? 1f : x;
     }

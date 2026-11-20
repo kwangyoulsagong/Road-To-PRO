@@ -17,6 +17,22 @@
    "sha256": "9f4a773e74ce5ba08415b4f30070338e9f75bae5971b5075b10cd6b9caa58473"
   },
   {
+   "path": "targets/arms/l-lowerarm-muscle-incr.target.gz",
+   "sha256": "29077b022632174656b8404ae12f68f62059f2fbc774b24885ec5b7460b72992"
+  },
+  {
+   "path": "targets/arms/l-upperarm-muscle-incr.target.gz",
+   "sha256": "2b1ae2af00eabddadc298fd22b8af17966f13e65931636b36c2d77d2b9540dcd"
+  },
+  {
+   "path": "targets/arms/r-lowerarm-muscle-incr.target.gz",
+   "sha256": "84777a42af2cefbabcea15820c61dfd23a800d9a2583b23d063a1566052da226"
+  },
+  {
+   "path": "targets/arms/r-upperarm-muscle-incr.target.gz",
+   "sha256": "24f3486b3fe48bb8127f48c2eae53e48930c32b7ae2a221ec2c9afafc60b453d"
+  },
+  {
    "path": "targets/cheek/l-cheek-bones-decr.target.gz",
    "sha256": "109d88ec6394cb3455073ae9f2a6038b8b4d6b57feeaf4633611bc60f27ed212"
   },
@@ -225,6 +241,14 @@
    "sha256": "671542640aec14d1740c1263deb0e274f3044edec761e6d4171329f0419be084"
   },
   {
+   "path": "targets/legs/l-upperleg-muscle-incr.target.gz",
+   "sha256": "c8af86a15d35ac926f2526c3fc532d70e43a3390de7f65468642ac5558bbf27b"
+  },
+  {
+   "path": "targets/legs/r-upperleg-muscle-incr.target.gz",
+   "sha256": "a96b25430155374568d72b1efd12443aeb2fa0c78a11c1a4d198a03a986c088f"
+  },
+  {
    "path": "targets/macrodetails/african-male-young.target.gz",
    "sha256": "05ed84d6df36e788cdfa8da0be15376850524b960cf2f17f3e592b9cf7d21c85"
   },
@@ -403,6 +427,18 @@
   {
    "path": "targets/nose/nose-scale-vert-incr.target.gz",
    "sha256": "63d297c237e7054a1ea700b83454ef508bf5f42ba8f2eb6bc1eb747ad261f34b"
+  },
+  {
+   "path": "targets/torso/measure-shoulder-dist-incr.target.gz",
+   "sha256": "d9508362063fee6f697bee2d7204cb6a799d9711fb2436f93f781242a104494f"
+  },
+  {
+   "path": "targets/torso/torso-muscle-pectoral-incr.target.gz",
+   "sha256": "83831fd65509c729bc0b5b3311b5f63bf35a37728e7c22d4425a3c620f2e4069"
+  },
+  {
+   "path": "targets/torso/torso-vshape-incr.target.gz",
+   "sha256": "e1fb879d1a59229f0127af161f7dcdb6a476b734ed3bcf84bea2b379590ce371"
   }
  ],
  "license": "CC0 1.0 (LICENSE.ASSETS.md · LICENSE.md 섹션 C). MPFB 코드(GPL-3.0)는 레포·빌드에 넣지 않는다.",

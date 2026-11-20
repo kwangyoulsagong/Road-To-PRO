@@ -116,6 +116,11 @@ _CACHE = None
 _CACHE_DIRTY = False
 
 
+def _core():
+    from .. import mpfb_src as MS
+    return MS.CORE_BONES
+
+
 def _signature(body, rule, target, arms):
     import hashlib
     import json
@@ -130,7 +135,7 @@ def _signature(body, rule, target, arms):
         return v
     src = norm({"body": body, "rule": rule, "target": list(target), "arms": list(arms), "fit": [HAND_GAP, GAP_WEIGHT, CLEAR_TORSO,
                CLEAR_THIGH, CLEAR_ARM, CLEAR_HEAD, CLEAR_WEIGHT, list(FIT_STARTS)],
-               "bones": [[n, list(h)] for n, _p, h, _t in S.BONES]})
+               "bones": [[n, list(h)] for n, _p, h, _t in S.BONES[:_core()]]})  # 062: 손가락 뼈는 팔 맞춤과 무관 — 서명에서 뺀다
     return hashlib.sha256(json.dumps(src, sort_keys=True).encode()).hexdigest()[:16]
 
 

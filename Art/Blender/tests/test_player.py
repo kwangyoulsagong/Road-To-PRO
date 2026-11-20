@@ -429,3 +429,70 @@ class GenerationTime(unittest.TestCase):
     def test_time(self):
         g = generated("default", preview=False)
         self.assertLessEqual(g.seconds, 180.0, f"{g.seconds:.1f}s")  # 057 FR-42
+
+
+# ---------------------------------------------------------------- specs/062 체형·근육·손 (T04)
+BASE_062 = json.load(open(os.path.join(_path.REPO, "specs", "062-player-visual-upgrade", "evidence", "baseline", "metrics.json"),
+                          encoding="utf-8"))
+UPPER_ARM_RATIO = (0.17, 0.24)   # FR-03 (T02 ANSUR II, 2026-11-20 채택)
+FOREARM_RATIO = (0.155, 0.20)
+
+
+class Body062_Shapes_Muscle(unittest.TestCase):
+    """062 AC-01: 체형 5축, 근육 중주파 ≥ 기준 × 1.3 (중간 근육량, FR-02 개정), 팔 둘레/키 범위·기준보다 가늘지 않음, 찢어짐·뒤집힘 0."""
+
+    def test_body_shapes(self):
+        s = generated("default").layout["summary"]
+        b = s["bodyShapes"]
+        self.assertEqual(sorted(b["keys"]), ["Broad", "Heavy", "Limb", "Muscular", "Thin"])
+        self.assertEqual(b["samples"], 200 + 4 * 2)
+        self.assertGreaterEqual(b["upperArmRatio"][0], UPPER_ARM_RATIO[0], b)
+        self.assertLessEqual(b["upperArmRatio"][1], UPPER_ARM_RATIO[1], b)
+        self.assertGreaterEqual(b["forearmRatio"][0], FOREARM_RATIO[0], b)
+        self.assertLessEqual(b["forearmRatio"][1], FOREARM_RATIO[1], b)
+        self.assertGreaterEqual(b["upperArmMean"], b["upperArmMeanBase"], b)  # 056·057 평균보다 가늘지 않다
+        self.assertEqual(b["flipped"], 0, b)
+        self.assertEqual(b["torn"], 0, b)
+        self.assertGreaterEqual(s["visual062"]["muscle"]["bandRms"], BASE_062["muscleBandRms"] * 1.3)  # FR-02 개정 (중간 근육량)
+        self.assertTrue(b["ok"])
+
+
+class Hands062_Outline(unittest.TestCase):
+    """062 AC-02: 윤곽 꺾임 ≤ 25°, 소매 이음매 단차 ≤ 1.5배, 편 손 오목점 ≥ 4·간격 > 0, 손 포즈 3종 관통 0, LOD1 장갑형."""
+
+    def test_outline_and_hands(self):
+        s = generated("default").layout["summary"]
+        o = s["outline"]
+        for k in ("shoulder", "sleeve", "elbow", "knee"):
+            self.assertLessEqual(o["turnDeg"][k], 25.0, o)
+        self.assertLessEqual(o["sleeveSeamRatio"], 1.5, o)
+        h = s["hands"]
+        self.assertEqual(h["fingerBones"], 30, h)
+        self.assertGreaterEqual(h["openConcave"], 4, h)
+        self.assertGreater(h["openGapPx"], 0, h)
+        for p in ("open", "fist", "half"):
+            self.assertEqual(h["poses"][p]["penetration"], 0, h)
+        self.assertTrue(h["lod1Mitten"], h)
+        self.assertTrue(o["ok"] and h["ok"])
+
+
+class Kit062_Detail(unittest.TestCase):
+    """062 AC-03 (Blender 몫): 천 중주파 분산 ≥ 기준 × 2, 키트 주색 L* 표준편차 ≥ 기준 × 2, 보조 뼈 6개 (포화는 E2E)."""
+
+    def test_kit_detail(self):
+        s = generated("default").layout["summary"]
+        k = s["visual062"]["kit"]
+        self.assertGreaterEqual(k["clothBandVar"], BASE_062["clothBandVar"] * 2, k)
+        self.assertGreaterEqual(k["kitLStd"], BASE_062["kitLStd"] * 2, k)
+        # 포화 비율(≤ 20 %)은 조명·천 광택이 정하므로 E2E 화면 검사(imagechecks kitStats)로만 판정한다 (T14)
+
+    def test_kit_helper_bones(self):
+        bones = [b["name"] for b in generated("default").layout["skeleton"]["bones"]]
+        for n in ("Kit_HemF", "Kit_HemB", "Kit_Sleeve.L", "Kit_Sleeve.R", "Kit_Short.L", "Kit_Short.R"):
+            self.assertIn(n, bones)
+
+    def test_no_penetration_with_kit_motion(self):
+        # 보조 뼈 최대 오프셋(±3 cm) × 극단 체형에서 천 × 피부 관통 0 (FR-21)
+        p = generated("default").layout["summary"]["kitMotion"]
+        self.assertEqual(p["penetration"], 0, p)
+        self.assertTrue(p["ok"])

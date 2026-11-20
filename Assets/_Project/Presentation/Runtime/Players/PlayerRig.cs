@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using RoadToPro.Presentation.Players.Logic;
 using UnityEngine;
@@ -105,8 +106,58 @@ namespace RoadToPro.Presentation.Players
             for (int i = 0; i < 3; i++) lods[i] = new LOD(LodHeights[i], new Renderer[] { rig._lods[i] });
             group.SetLODs(lods);
             group.RecalculateBounds();
-            foreach (var t in go.GetComponentsInChildren<Transform>(true)) rig._bones[t.name] = t;
+            foreach (var t in go.GetComponentsInChildren<Transform>(true))
+            {
+                rig._bones[t.name] = t;
+                rig._restLocal[t] = t.localRotation; // 062: 만든 직후 = 바인드 포즈 (손가락 델타 변환에 쓴다)
+            }
             return rig;
+        }
+
+        // ---------------------------------------------------------------- 062 FR-10·11 손가락
+        readonly Dictionary<Transform, Quaternion> _restLocal = new Dictionary<Transform, Quaternion>();
+        Transform[] _fingers;
+        Quaternion[] _fingerRestLocal, _fingerRestModel;
+        HandPoseTable _fingerTable;
+
+        /// <summary>손가락 뼈 수 (glb에 손가락 뼈가 없으면 0 — 062 이전 생성물).</summary>
+        public int FingerBoneCount { get; private set; }
+
+        /// <summary>표의 뼈 이름으로 손가락 뼈를 찾고 레스트 회전(부모 local · 루트 기준 model)을 기억한다. 한 번만.</summary>
+        public void BindFingers(HandPoseTable t)
+        {
+            if (t == null || ReferenceEquals(t, _fingerTable)) return;
+            _fingerTable = t;
+            _fingers = new Transform[HandPoseTable.Bones];
+            _fingerRestLocal = new Quaternion[HandPoseTable.Bones];
+            _fingerRestModel = new Quaternion[HandPoseTable.Bones];
+            FingerBoneCount = 0;
+            for (int i = 0; i < HandPoseTable.Bones; i++)
+            {
+                var b = Bone(t.BoneNames[i]);
+                _fingers[i] = b;
+                if (b == null) continue;
+                FingerBoneCount++;
+                _fingerRestLocal[i] = _restLocal.TryGetValue(b, out var rl) ? rl : b.localRotation;
+                var q = Quaternion.identity;
+                for (var x = b; x != null && x != transform; x = x.parent)
+                    q = (_restLocal.TryGetValue(x, out var r) ? r : x.localRotation) * q;
+                _fingerRestModel[i] = q;
+            }
+        }
+
+        /// <summary>손가락 회전 델타(레스트 축, 선수 = Unity 좌표)를 뼈 local로 바꿔 적용한다. 클립·IK 평가 뒤에 부른다. 할당 없음.</summary>
+        public void ApplyFingers(ReadOnlySpan<Quat4> delta)
+        {
+            if (_fingers == null) return;
+            for (int i = 0; i < _fingers.Length && i < delta.Length; i++)
+            {
+                var b = _fingers[i];
+                if (b == null) continue;
+                var d = new Quaternion(delta[i].X, delta[i].Y, delta[i].Z, delta[i].W);
+                var m = _fingerRestModel[i];
+                b.localRotation = _fingerRestLocal[i] * (Quaternion.Inverse(m) * d * m);
+            }
         }
 
         public Transform Bone(string name) => _bones.TryGetValue(name, out var t) ? t : null;
@@ -138,7 +189,7 @@ namespace RoadToPro.Presentation.Players
         /// <summary>메시를 서브메시 하나로 합친 복사본 (그림자 전용).</summary>
         static Mesh SingleSubmesh(Mesh src)
         {
-            var m = Object.Instantiate(src);
+            var m = UnityEngine.Object.Instantiate(src);
             m.name = src.name + " (shadow)";
             var tris = new List<int>();
             for (int i = 0; i < m.subMeshCount; i++) tris.AddRange(m.GetTriangles(i));
@@ -214,7 +265,7 @@ namespace RoadToPro.Presentation.Players
 
         void TrackShadow(Mesh m) => _shadowMesh = m;
 
-        static void Release(Object o)
+        static void Release(UnityEngine.Object o)
         {
             if (Application.isPlaying) Destroy(o);
             else DestroyImmediate(o); // EditMode 테스트·에디터 도구
@@ -237,6 +288,8 @@ namespace RoadToPro.Presentation.Players
                 ["Thin"] = BodyShapeMap.Thin(a),
                 ["Muscular"] = BodyShapeMap.Muscular(a),
                 ["Heavy"] = BodyShapeMap.Heavy(a),
+                ["Broad"] = BodyShapeMap.Broad(a),   // 062 FR-01
+                ["Limb"] = BodyShapeMap.Limb(a),
             };
             int beard = 0;
             if (face != null && data != null)
