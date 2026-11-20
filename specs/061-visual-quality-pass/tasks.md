@@ -1,6 +1,6 @@
 # 061 — 그래픽 품질 2차 · 태스크
 
-상태: 승인됨 (2026-11-20 사용자 "네")
+상태: 완료 (2026-11-20 T22 검증): AC-01·03·04·05·06(평균 L*·채도)·08·09·11·12·13·14 통과, 로직 2031개 중 실패 0, Blender 35/35, 60 fps 통과(mac-m1-1600p 세 프리셋·두 모드). AC-13 육안 승인 2026-11-20 "일단 ㅇㅋ". AC-07 계단 현상·FR-06 대비 폭 일부·FR-83 High 선명도·AC-10 화면 1곳은 Q14대로 후속 스펙(D32)으로 넘겨 완료 조건에서 뺌. 리포트 https://claude.ai/artifact/VsX4BPo4AXGZ27UrA7oxfz (태스크 승인 2026-11-20)
 플랜: ./plan.md
 
 규칙: 위에서부터 순서대로. 한 태스크 = 한 커밋 크기. 테스트 태스크를 구현보다 먼저 둔다 (Unity 실행 횟수를 줄이려 테스트와 구현을 한 번에 컴파일·실행해도 된다 — 결과 줄에 적는다).
@@ -45,4 +45,4 @@
 
 ## H. 마무리
 - [x] T21 전체 AC 통과 — `farm.py logic --spec 061 --scope auto`(presentation + verification), `farm.py art --spec 061`(정점 AO, ≈ 7분), `farm.py shot` 061-visual-* 6개 (Low·Medium·High) + `048-upscale`·`044-line-sharpness`·`043-kit-lineup` 회귀, 성능 `061-perf-highlight`(Low·Medium·High)·`061-mode-transition-release`(릴리스) 각 1회 — 실패 0, 콘솔 에러·경고 0, 60fps 판정 통과, 결과를 `E/`에 (AC-01~14) — 결과: 로직 `--scope auto`(설정·asmdef 변경 → 전체) **2031개 중 통과 2012·실패 0·컴파일 에러 0**(19 Explicit 진단). `farm.py art` 35/35 — 1차에 `test_generator_record`가 Blender 5.1.1 고정이라 실패 → 2026-11-20 Blender 5.3 설치(080 사용자 결정)에 맞춰 기대값 5.3.0으로(경기장은 061 정점 AO로 5.3에서 재생성). 장면: `061-perf-highlight`·`061-mode-transition-release` **pass**(78 ms 스파이크 재현 없음), `061-visual-broadcast` 21/21, `environment` 4/4, `grass` 11/12(반복 캡처 medium-S1 다른 픽셀 1.22% > 1%), `cinematic` 7/8(High S4 선명도 0.947), `color` 38/48(실패 10개는 전부 대비 폭 — 잔디 70% 미만 장면 S1·S6 43~49 < 50, S4 32~33, 나이트 S5 35~36 < 45; 평균 L*·채도·잔디 색상은 18장 모두 통과), `aa` 3/15(**AC-07 미달**: 기준선 대비 50% 기준을 어느 프리셋도 못 넘김, 팬 깜빡임 3/3 통과). 회귀 `048-upscale`·`044-line-sharpness`·`043-kit-lineup` 통과. 콘솔 에러 0
-- [ ] T22 `/verify 061` — `E/report.html`: S1~S6 전·후, 프리셋 × 모드, 시퀀스 연속 캡처, 지표 표, 성능 표(판정·잠정 구분), 영향받은 기존 장면 목록 → **사용자 육안 승인 ①~④ (AC-13)** 기록, 아티팩트 발행, 스펙·플랜·태스크 상태 `완료`
+- [x] T22 `/verify 061` — `E/report.html`: S1~S6 전·후, 프리셋 × 모드, 시퀀스 연속 캡처, 지표 표, 성능 표(판정·잠정 구분), 영향받은 기존 장면 목록 → **사용자 육안 승인 ①~④ (AC-13)** 기록, 아티팩트 발행, 스펙·플랜·태스크 상태 `완료` — 결과: 리포트 발행 https://claude.ai/artifact/VsX4BPo4AXGZ27UrA7oxfz (맨 위 AC 판정 요약 + main ↔ 061 전·후 Low·Medium·High × S1~S6), 원본 해상도 비교 `E/fullres/`. 육안 승인 2026-11-20 "일단 ㅇㅋ"(`E/approval.md`), 미달 4건은 사용자 결정 "2은 후속 스팩으로" → D32. 커밋 dfd9d09·32786de 푸시. 사용자 의견: 선수 비주얼(062)이 들어가야 실사감을 판단할 수 있음 → 다음 062
