@@ -1,0 +1,393 @@
+{
+  "schemaVersion": 1,
+  "id": "061-visual-grass",
+  "spec": "061",
+  "description": "061 근거리 입체 잔디 (FR-50~58): 피치 레벨 S7 지면 경계선 높이 잔여 표준편차 ≥ 2 px·잎 켬/끔 차이, S1(일반 모드) 켬/끔 같음(FR-51), S4 잔디 포함 두 모드 밝기·색 낙차(FR-53). Low 포함 전 프리셋(FR-58)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261110
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-08"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "preset.Low"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S7"
+    },
+    {
+      "type": "capture",
+      "name": "low-S7",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "low-S7-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S4"
+    },
+    {
+      "type": "capture",
+      "name": "low-S4",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "low-S4-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S1"
+    },
+    {
+      "type": "capture",
+      "name": "low-S1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "low-S1-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Medium"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S7"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S7",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S7-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S4"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S4",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S4-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S1"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S1-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.High"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S7"
+    },
+    {
+      "type": "capture",
+      "name": "high-S7",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "high-S7-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S4"
+    },
+    {
+      "type": "capture",
+      "name": "high-S4",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "high-S4-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S1"
+    },
+    {
+      "type": "capture",
+      "name": "high-S1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "high-S1-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    }
+  ],
+  "imageChecks": [
+    {
+      "type": "groundLineStd",
+      "capture": "low-S7",
+      "minStd": 2.0,
+      "ac": "AC-08"
+    },
+    {
+      "type": "differentImage",
+      "capture": "low-S7",
+      "other": "low-S7-normal",
+      "minDiffRatio": 0.001,
+      "ac": "AC-08"
+    },
+    {
+      "type": "sameImage",
+      "capture": "low-S1",
+      "other": "low-S1-normal",
+      "maxMeanDiff": 1.0,
+      "maxDiffRatio": 0.01,
+      "ac": "AC-08"
+    },
+    {
+      "type": "modeGap",
+      "capture": "low-S4",
+      "other": "low-S4-normal",
+      "ac": "AC-08"
+    },
+    {
+      "type": "groundLineStd",
+      "capture": "medium-S7",
+      "minStd": 2.0,
+      "ac": "AC-08"
+    },
+    {
+      "type": "differentImage",
+      "capture": "medium-S7",
+      "other": "medium-S7-normal",
+      "minDiffRatio": 0.001,
+      "ac": "AC-08"
+    },
+    {
+      "type": "sameImage",
+      "capture": "medium-S1",
+      "other": "medium-S1-normal",
+      "maxMeanDiff": 1.0,
+      "maxDiffRatio": 0.01,
+      "ac": "AC-08"
+    },
+    {
+      "type": "modeGap",
+      "capture": "medium-S4",
+      "other": "medium-S4-normal",
+      "ac": "AC-08"
+    },
+    {
+      "type": "groundLineStd",
+      "capture": "high-S7",
+      "minStd": 2.0,
+      "ac": "AC-08"
+    },
+    {
+      "type": "differentImage",
+      "capture": "high-S7",
+      "other": "high-S7-normal",
+      "minDiffRatio": 0.001,
+      "ac": "AC-08"
+    },
+    {
+      "type": "sameImage",
+      "capture": "high-S1",
+      "other": "high-S1-normal",
+      "maxMeanDiff": 1.0,
+      "maxDiffRatio": 0.01,
+      "ac": "AC-08"
+    },
+    {
+      "type": "modeGap",
+      "capture": "high-S4",
+      "other": "high-S4-normal",
+      "ac": "AC-08"
+    }
+  ]
+}

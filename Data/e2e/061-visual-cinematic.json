@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "id": "061-visual-cinematic",
+  "spec": "061",
+  "description": "061 연출 장면 고품질 모드 (FR-80~84): S4 세리머니 클로즈업(낮)·S5 슈터 추적(나이트)을 일반·고품질 두 모드로 같은 프레임 캡처 — 낙차 밝기·대비·채도·ΔE, 득점자 선명도 ≥ 95%(DoF 초점), 컷 진입 반대 모드 ΔE. Medium·High",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261110
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-09"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "preset.Medium"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S4"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S4",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S4-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Medium"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.night"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S5"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S5",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S5-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.High"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S4"
+    },
+    {
+      "type": "capture",
+      "name": "high-S4",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "high-S4-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.High"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.night"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S5"
+    },
+    {
+      "type": "capture",
+      "name": "high-S5",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.normal"
+    },
+    {
+      "type": "capture",
+      "name": "high-S5-normal",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.auto"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    }
+  ],
+  "imageChecks": [
+    {
+      "type": "modeGap",
+      "capture": "medium-S4",
+      "other": "medium-S4-normal",
+      "ac": "AC-09"
+    },
+    {
+      "type": "modeGap",
+      "capture": "medium-S5",
+      "other": "medium-S5-normal",
+      "ac": "AC-09"
+    },
+    {
+      "type": "sharpness",
+      "capture": "medium-S4",
+      "other": "medium-S4-normal",
+      "ac": "AC-09"
+    },
+    {
+      "type": "frameDeltaE",
+      "capture": "medium-S4-normal",
+      "others": [
+        "medium-S4"
+      ],
+      "maxDe": 3.0,
+      "ac": "AC-09"
+    },
+    {
+      "type": "modeGap",
+      "capture": "high-S4",
+      "other": "high-S4-normal",
+      "ac": "AC-09"
+    },
+    {
+      "type": "modeGap",
+      "capture": "high-S5",
+      "other": "high-S5-normal",
+      "ac": "AC-09"
+    },
+    {
+      "type": "sharpness",
+      "capture": "high-S4",
+      "other": "high-S4-normal",
+      "ac": "AC-09"
+    },
+    {
+      "type": "frameDeltaE",
+      "capture": "high-S4-normal",
+      "others": [
+        "high-S4"
+      ],
+      "maxDe": 3.0,
+      "ac": "AC-09"
+    }
+  ]
+}

@@ -50,8 +50,8 @@ namespace RoadToPro.Verification.Editor
             }
             table.Entries = new[]
             {
-                new FarmRenderAssets.Entry { name = "Mobile", asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.RenderPipelineAsset>("Assets/Settings/Mobile_RPAsset.asset") },
-                new FarmRenderAssets.Entry { name = "PC", asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.RenderPipelineAsset>("Assets/Settings/PC_RPAsset.asset") },
+                new FarmRenderAssets.Entry { name = "Medium", asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.RenderPipelineAsset>("Assets/Settings/Medium_RPAsset.asset") },
+                new FarmRenderAssets.Entry { name = "High", asset = AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.RenderPipelineAsset>("Assets/Settings/High_RPAsset.asset") },
             };
             foreach (var en in table.Entries)
                 if (en.asset == null) throw new System.InvalidOperationException("렌더 에셋 없음: " + en.name);

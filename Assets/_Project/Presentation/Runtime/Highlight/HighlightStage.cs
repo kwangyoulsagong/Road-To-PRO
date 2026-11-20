@@ -24,5 +24,9 @@ namespace RoadToPro.Presentation.Highlight
         public virtual Light Sun => null;
         /// <summary>나이트 경기면 광원 위치(4개 이상), 낮이면 null.</summary>
         public virtual IReadOnlyList<Vector3> NightEmitters => null;
+        /// <summary>경기장 조명 (specs/061: 하늘 구름 시각·림). null이면 하늘 시각 갱신 없음.</summary>
+        public virtual Stadium.StadiumLighting Lighting => null;
+        /// <summary>피치 렌더러 (specs/061 근거리 셸 잔디). null이면 잔디를 그리지 않는다.</summary>
+        public virtual Renderer PitchRenderer => null;
     }
 }

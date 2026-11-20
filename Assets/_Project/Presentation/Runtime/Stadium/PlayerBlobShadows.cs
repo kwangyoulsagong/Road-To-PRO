@@ -7,7 +7,8 @@ using Object = UnityEngine.Object;
 namespace RoadToPro.Presentation.Stadium
 {
     /// <summary>
-    /// Low 프리셋 선수 발밑 블롭 그림자 (specs/048 FR-01 Low: "발밑 블롭 섀도 (나이트 경기 4장)").
+    /// 선수 발밑 블롭 (specs/048 FR-01 Low: "발밑 블롭 섀도 (나이트 경기 4장)", specs/061 FR-44: 모든 프리셋 접촉 어둡기).
+    /// 접촉 어둡기(발 바로 아래 작은 원)는 모든 프리셋·낮/나이트에서 그리고, 모양 그림자(낮 1장·나이트 4장)는 블롭 프리셋(Low)만.
     /// 낮: 선수마다 1장, 태양 반대쪽으로 고도에 따라 조금 늘린다. 나이트: 광원 4개마다 1장 (<see cref="BlobShadow4.Compute"/> 재사용).
     /// 공유 머티리얼 + GPU 인스턴싱 한 번에 그린다 (최대 25명 × 4장 = 100 인스턴스 → 드로우콜 1). 프레임 경로 할당 없음.
     /// </summary>
@@ -23,6 +24,12 @@ namespace RoadToPro.Presentation.Stadium
         /// 같은 셰이더로 하이라이트용 텍스처를 만든다. 나이트는 4장이 겹치므로 장당 더 옅게.
         /// </summary>
         public const float DayAlpha = 0.75f, NightAlpha = 0.45f;
+        /// <summary>
+        /// 접촉 어둡기 반지름 m·세기 [제안] (FR-44: 발 0.3 m 안이 0.6~1.0 m 고리보다 15% 이상 어둡게). 피치·셸 잔디 셰이더가
+        /// 발 위치 전역 배열로 바닥을 직접 어둡게 한다 (T19: 반투명 블롭 쿼드는 발에 가려 대비가 0.08~0.14에 그침).
+        /// </summary>
+        public const float ContactRadius = 0.55f, ContactStrength = 0.5f;
+        static readonly int IdFeet = Shader.PropertyToID("_ContactFeet"), IdContact = Shader.PropertyToID("_ContactParams");
         const int TexSize = 64;
         const float GroundOffset = 0.03f;
 
@@ -36,15 +43,27 @@ namespace RoadToPro.Presentation.Stadium
         Vector3[] _emitters = Array.Empty<Vector3>();
         readonly BlobShadowPose[] _poses = new BlobShadowPose[NightBlobs];
         readonly Matrix4x4[] _matrices = new Matrix4x4[MaxTargets * NightBlobs];
+        readonly Vector4[] _feet = new Vector4[MaxTargets];
+        bool _shaped = true;
+
+        /// <summary>false면 접촉 어둡기만 (방향광 그림자가 있는 Medium·High).</summary>
+        public bool Shaped => _shaped;
 
         public bool IsNight => _night;
         /// <summary>마지막 프레임에 그린 블롭 수 (검증용).</summary>
         public int LastCount { get; private set; }
+        /// <summary>마지막 프레임에 그린 접촉 어둡기 수 (검증용, FR-44).</summary>
+        public int LastContactCount { get; private set; }
 
         /// <param name="nightEmitters">null이면 낮. 4개 미만이면 낮 방식으로 그리고 진단 1건.</param>
         public void Configure(IReadOnlyList<Transform> targets, Mesh quad, Material material, Vector3 sunForward,
-            IReadOnlyList<Vector3> nightEmitters, Action<string> diagnostic)
+            IReadOnlyList<Vector3> nightEmitters, Action<string> diagnostic) => Configure(targets, quad, material, sunForward, nightEmitters, true, diagnostic);
+
+        /// <param name="shaped">false면 모양 그림자 없이 접촉 어둡기만.</param>
+        public void Configure(IReadOnlyList<Transform> targets, Mesh quad, Material material, Vector3 sunForward,
+            IReadOnlyList<Vector3> nightEmitters, bool shaped, Action<string> diagnostic)
         {
+            _shaped = shaped;
             if (targets == null) throw new ArgumentNullException(nameof(targets));
             int n = Math.Min(targets.Count, MaxTargets);
             if (targets.Count > MaxTargets) diagnostic?.Invoke($"블롭 대상 {targets.Count}명 중 {MaxTargets}명만 그린다");
@@ -113,7 +132,13 @@ namespace RoadToPro.Presentation.Stadium
             if (_ownQuad && _quad != null) Release(_quad);
             if (_material != null) Release(_material);
             if (_tex != null) Release(_tex);
+            Shader.SetGlobalVector(IdContact, Vector4.zero); // 3D를 내리면 접촉 어둡기 끔
         }
+
+        void OnDisable() => Shader.SetGlobalVector(IdContact, Vector4.zero);
+
+        /// <summary>접촉 어둡기 중심 (발 바로 아래 바닥, 방향 없음).</summary>
+        public static Vector4 ContactPoint(Vector3 foot) => new Vector4(foot.x, 0f, foot.z, 1f);
 
         static void Release(Object o)
         {
@@ -149,12 +174,14 @@ namespace RoadToPro.Presentation.Stadium
         {
             LastCount = 0;
             if (_quad == null || _material == null) return;
-            int count = 0;
+            int count = 0, contacts = 0;
             for (int i = 0; i < _targets.Length; i++)
             {
                 var t = _targets[i];
                 if (t == null || !t.gameObject.activeInHierarchy) continue;
                 var foot = t.position;
+                _feet[contacts++] = ContactPoint(foot);
+                if (!_shaped) continue;
                 if (_night)
                 {
                     BlobShadow4.Compute(foot, _emitters, _poses, BlobShadow4.DefaultLength, BlobShadow4.DefaultWidth);
@@ -166,9 +193,12 @@ namespace RoadToPro.Presentation.Stadium
                     _matrices[count++] = ToMatrix(p);
                 }
             }
-            if (count == 0) return;
-            Graphics.DrawMeshInstanced(_quad, 0, _material, _matrices, count, null, ShadowCastingMode.Off, false);
+            if (count > 0) Graphics.DrawMeshInstanced(_quad, 0, _material, _matrices, count, null, ShadowCastingMode.Off, false);
+            for (int i = contacts; i < _feet.Length; i++) _feet[i] = Vector4.zero;
+            Shader.SetGlobalVectorArray(IdFeet, _feet);
+            Shader.SetGlobalVector(IdContact, new Vector4(ContactRadius, ContactStrength, contacts, 0f));
             LastCount = count;
+            LastContactCount = contacts;
         }
     }
 }

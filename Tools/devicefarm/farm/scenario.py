@@ -179,6 +179,9 @@ def parse(data):
             raise RunnerError(f"시나리오 {sid} imageChecks #{k}: 캡처 '{c.get('capture')}' 없음")
         if c["type"] in imagechecks.PAIRED and c.get("other") not in captures:
             raise RunnerError(f"시나리오 {sid} imageChecks #{k}: {c['type']}는 other(두 번째 캡처) 필요")
+        for extra in list(c.get("others") or []) + list(c.get("refs") or []) + ([c["mask"]] if c.get("mask") else []):
+            if extra not in captures:
+                raise RunnerError(f"시나리오 {sid} imageChecks #{k}: 캡처 '{extra}' 없음")
 
     return Scenario(
         id=data["id"],

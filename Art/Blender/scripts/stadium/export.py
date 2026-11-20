@@ -28,6 +28,7 @@ def write_glb(path):
         export_apply=True,
         export_texcoords=True,
         export_normals=True,
+        export_vertex_color="ACTIVE",  # specs/061 FR-30: 구조물 차폐 `ao` (없는 물체는 내보내지 않음)
         export_tangents=False,
         export_materials="EXPORT",
         export_image_format="NONE",

@@ -1,0 +1,404 @@
+{
+  "schemaVersion": 1,
+  "id": "061-perf-highlight",
+  "spec": "061",
+  "description": "061 성능 (AC-11·12, 스펙 Q10 2026-11-20 사용자 결정 \"60은 만들어야 돼\"): mac-m1-1600p에서 Low·Medium·High 각각 합성 골 시퀀스 재생(일반 → 고품질 → 일반)·제한 해제 재생·일반 모드(S1)·고품질 모드(S4) 고정 프레임 — 프레임 p95 ≤ 16.6 ms(60 fps)·드로우콜 ≤ 300·삼각형 ≤ 50만·텍스처 ≤ 1 GB 판정, GPU·메인 스레드는 기록(잠정). 재생 중 셰이더 컴파일·동기 로드 0, 진입 로딩 ≤ 4 s, 배터리 절약 30 fps. 개발 빌드라 최대 프레임·GC는 기록만 (판정은 061-mode-transition-release)",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261110
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-11",
+    "AC-12"
+  ],
+  "defaults": {
+    "timeoutSec": 300
+  },
+  "budgets": {
+    "low-playback": {
+      "custom.shaderCompiles.max": 0,
+      "custom.syncLoads.max": 0
+    },
+    "low-uncapped": {
+      "frameMs.p95": 16.6,
+      "drawCalls.max": 300,
+      "triangles.max": 500000,
+      "textureMemoryBytes": 1073741824
+    },
+    "low-normal": {
+      "frameMs.p95": 16.6,
+      "drawCalls.max": 300,
+      "triangles.max": 500000,
+      "textureMemoryBytes": 1073741824
+    },
+    "low-cinematic": {
+      "frameMs.p95": 16.6,
+      "drawCalls.max": 300,
+      "triangles.max": 500000,
+      "textureMemoryBytes": 1073741824
+    },
+    "medium-playback": {
+      "custom.shaderCompiles.max": 0,
+      "custom.syncLoads.max": 0
+    },
+    "medium-uncapped": {
+      "frameMs.p95": 16.6,
+      "drawCalls.max": 300,
+      "triangles.max": 500000,
+      "textureMemoryBytes": 1073741824
+    },
+    "medium-normal": {
+      "frameMs.p95": 16.6,
+      "drawCalls.max": 300,
+      "triangles.max": 500000,
+      "textureMemoryBytes": 1073741824
+    },
+    "medium-cinematic": {
+      "frameMs.p95": 16.6,
+      "drawCalls.max": 300,
+      "triangles.max": 500000,
+      "textureMemoryBytes": 1073741824
+    },
+    "high-playback": {
+      "custom.shaderCompiles.max": 0,
+      "custom.syncLoads.max": 0
+    },
+    "high-uncapped": {
+      "frameMs.p95": 16.6,
+      "drawCalls.max": 300,
+      "triangles.max": 500000,
+      "textureMemoryBytes": 1073741824
+    },
+    "high-normal": {
+      "frameMs.p95": 16.6,
+      "drawCalls.max": 300,
+      "triangles.max": 500000,
+      "textureMemoryBytes": 1073741824
+    },
+    "high-cinematic": {
+      "frameMs.p95": 16.6,
+      "drawCalls.max": 300,
+      "triangles.max": 500000,
+      "textureMemoryBytes": 1073741824
+    },
+    "battery": {
+      "frameMs.avg": 34.5
+    }
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "highlightEmpty"
+    },
+    {
+      "type": "perfBegin",
+      "name": "empty",
+      "warmupFrames": 60,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "empty"
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Low"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "assertNumberRange",
+      "element": "loadLabel",
+      "min": 0,
+      "max": 4,
+      "ac": "AC-12"
+    },
+    {
+      "type": "perfBegin",
+      "name": "low-playback",
+      "warmupFrames": 60,
+      "minFrames": 1200
+    },
+    {
+      "type": "perfEnd",
+      "name": "low-playback"
+    },
+    {
+      "type": "perfBegin",
+      "name": "low-uncapped",
+      "warmupFrames": 60,
+      "minFrames": 900,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "low-uncapped"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S1"
+    },
+    {
+      "type": "perfBegin",
+      "name": "low-normal",
+      "warmupFrames": 30,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "low-normal"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S4"
+    },
+    {
+      "type": "perfBegin",
+      "name": "low-cinematic",
+      "warmupFrames": 30,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "low-cinematic"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Medium"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "assertNumberRange",
+      "element": "loadLabel",
+      "min": 0,
+      "max": 4,
+      "ac": "AC-12"
+    },
+    {
+      "type": "perfBegin",
+      "name": "medium-playback",
+      "warmupFrames": 60,
+      "minFrames": 1200
+    },
+    {
+      "type": "perfEnd",
+      "name": "medium-playback"
+    },
+    {
+      "type": "perfBegin",
+      "name": "medium-uncapped",
+      "warmupFrames": 60,
+      "minFrames": 900,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "medium-uncapped"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S1"
+    },
+    {
+      "type": "perfBegin",
+      "name": "medium-normal",
+      "warmupFrames": 30,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "medium-normal"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S4"
+    },
+    {
+      "type": "perfBegin",
+      "name": "medium-cinematic",
+      "warmupFrames": 30,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "medium-cinematic"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.High"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "assertNumberRange",
+      "element": "loadLabel",
+      "min": 0,
+      "max": 4,
+      "ac": "AC-12"
+    },
+    {
+      "type": "perfBegin",
+      "name": "high-playback",
+      "warmupFrames": 60,
+      "minFrames": 1200
+    },
+    {
+      "type": "perfEnd",
+      "name": "high-playback"
+    },
+    {
+      "type": "perfBegin",
+      "name": "high-uncapped",
+      "warmupFrames": 60,
+      "minFrames": 900,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "high-uncapped"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S1"
+    },
+    {
+      "type": "perfBegin",
+      "name": "high-normal",
+      "warmupFrames": 30,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "high-normal"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S4"
+    },
+    {
+      "type": "perfBegin",
+      "name": "high-cinematic",
+      "warmupFrames": 30,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "high-cinematic"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Low"
+    },
+    {
+      "type": "goto",
+      "screen": "battery.on"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "perfBegin",
+      "name": "battery",
+      "warmupFrames": 60,
+      "minFrames": 600
+    },
+    {
+      "type": "perfEnd",
+      "name": "battery"
+    },
+    {
+      "type": "goto",
+      "screen": "battery.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    }
+  ]
+}

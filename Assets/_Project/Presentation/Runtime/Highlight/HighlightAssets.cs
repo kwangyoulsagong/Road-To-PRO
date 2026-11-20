@@ -46,11 +46,15 @@ namespace RoadToPro.Presentation.Highlight
             Blobs = AttachBlobs(Stage);
         }
 
-        /// <summary>블롭 프리셋(실제 Low)이면 선수 발밑 블롭을 붙인다 (specs/048 FR-01). 대역 프리셋은 기존 그림자 그대로.</summary>
+        /// <summary>
+        /// 선수 발밑 블롭 (specs/048 FR-01, 061 FR-44): 모든 실제 프리셋에서 접촉 어둡기를 그리고, 블롭 프리셋(Low)은 모양 그림자도 그린다
+        /// (방향광 그림자는 끔). Medium·High는 방향광 그림자 + 접촉 어둡기.
+        /// </summary>
         static Stadium.PlayerBlobShadows AttachBlobs(HighlightStage stage)
         {
             var preset = Rendering.RenderQualityApplier.Current;
-            if (preset == null || preset.IsStandIn || preset.Shadows != Rendering.Logic.ShadowMode.Blob) return null;
+            if (preset == null || preset.IsStandIn) return null;
+            bool shaped = preset.Shadows == Rendering.Logic.ShadowMode.Blob;
             if (stage.BlobMaterial == null)
             {
                 Debug.LogWarning("[highlight] 블롭 프리셋인데 무대에 블롭 머티리얼이 없다");
@@ -60,12 +64,12 @@ namespace RoadToPro.Presentation.Highlight
             foreach (var r in stage.Rigs)
                 if (r != null) targets.Add(r.transform);
             var sun = stage.Sun;
-            if (sun != null) sun.shadows = LightShadows.None;
+            if (sun != null && shaped) sun.shadows = LightShadows.None;
             var blobs = stage.gameObject.AddComponent<Stadium.PlayerBlobShadows>();
             blobs.Configure(targets, null, stage.BlobMaterial,
-                sun != null ? sun.transform.forward : new Vector3(0.3f, -0.8f, 0.5f), stage.NightEmitters,
+                sun != null ? sun.transform.forward : new Vector3(0.3f, -0.8f, 0.5f), stage.NightEmitters, shaped,
                 m => Debug.LogWarning("[highlight] " + m));
-            Debug.Log($"[highlight] 블롭 그림자 {targets.Count}명 ({(blobs.IsNight ? "나이트 4장" : "낮 1장")})");
+            Debug.Log($"[highlight] 블롭 {targets.Count}명 ({(!shaped ? "접촉 어둡기만" : blobs.IsNight ? "나이트 4장 + 접촉" : "낮 1장 + 접촉")})");
             return blobs;
         }
 

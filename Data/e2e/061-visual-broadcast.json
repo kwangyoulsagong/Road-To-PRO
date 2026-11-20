@@ -1,0 +1,462 @@
+{
+  "schemaVersion": 1,
+  "id": "061-visual-broadcast",
+  "spec": "061",
+  "description": "061 일반 중계 S1(낮)·S2(나이트) × Low·Medium·High: 하늘 지표(FR-11)·그림자 안 환경광(FR-12)·경기장 밖 회색(FR-15)·클리핑(FR-31)·림 대비(FR-42)·발 접촉 어둡기(FR-44). 팀 ΔE는 043-kit-lineup 회귀",
+  "scene": "Highlight041",
+  "fixture": {
+    "save": null,
+    "seed": 20261110
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-04"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "preset.Low"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S1"
+    },
+    {
+      "type": "capture",
+      "name": "low-S1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.mask"
+    },
+    {
+      "type": "capture",
+      "name": "low-S1-mask",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.unmask"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Low"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.night"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S2"
+    },
+    {
+      "type": "capture",
+      "name": "low-S2",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.mask"
+    },
+    {
+      "type": "capture",
+      "name": "low-S2-mask",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.unmask"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Medium"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S1"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.mask"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S1-mask",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.unmask"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.Medium"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.night"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S2"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S2",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.mask"
+    },
+    {
+      "type": "capture",
+      "name": "medium-S2-mask",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.unmask"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.High"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.day"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S1"
+    },
+    {
+      "type": "capture",
+      "name": "high-S1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.mask"
+    },
+    {
+      "type": "capture",
+      "name": "high-S1-mask",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.unmask"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "preset.High"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.night"
+    },
+    {
+      "type": "waitFor",
+      "highlightScene": 0,
+      "timeoutSec": 120
+    },
+    {
+      "type": "goto",
+      "screen": "highlightHud.off"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.S2"
+    },
+    {
+      "type": "capture",
+      "name": "high-S2",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.mask"
+    },
+    {
+      "type": "capture",
+      "name": "high-S2-mask",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.unmask"
+    },
+    {
+      "type": "goto",
+      "screen": "visual061.release"
+    },
+    {
+      "type": "goto",
+      "screen": "highlightExit"
+    },
+    {
+      "type": "waitFor",
+      "element": "waitLabel",
+      "timeoutSec": 120
+    }
+  ],
+  "imageChecks": [
+    {
+      "type": "sky",
+      "capture": "low-S1",
+      "mask": "low-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "grassShade",
+      "capture": "low-S1",
+      "mask": "low-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "grayRatio",
+      "capture": "low-S1",
+      "mask": "low-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "clipping",
+      "capture": "low-S1",
+      "mask": "low-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "clipping",
+      "capture": "low-S2",
+      "mask": "low-S2-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "rimContrast",
+      "capture": "low-S2",
+      "mask": "low-S2-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "contactDarkening",
+      "capture": "low-S2",
+      "mask": "low-S2-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "sky",
+      "capture": "medium-S1",
+      "mask": "medium-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "grassShade",
+      "capture": "medium-S1",
+      "mask": "medium-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "grayRatio",
+      "capture": "medium-S1",
+      "mask": "medium-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "clipping",
+      "capture": "medium-S1",
+      "mask": "medium-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "clipping",
+      "capture": "medium-S2",
+      "mask": "medium-S2-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "rimContrast",
+      "capture": "medium-S2",
+      "mask": "medium-S2-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "contactDarkening",
+      "capture": "medium-S2",
+      "mask": "medium-S2-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "sky",
+      "capture": "high-S1",
+      "mask": "high-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "grassShade",
+      "capture": "high-S1",
+      "mask": "high-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "grayRatio",
+      "capture": "high-S1",
+      "mask": "high-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "clipping",
+      "capture": "high-S1",
+      "mask": "high-S1-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "clipping",
+      "capture": "high-S2",
+      "mask": "high-S2-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "rimContrast",
+      "capture": "high-S2",
+      "mask": "high-S2-mask",
+      "ac": "AC-04"
+    },
+    {
+      "type": "contactDarkening",
+      "capture": "high-S2",
+      "mask": "high-S2-mask",
+      "ac": "AC-04"
+    }
+  ]
+}

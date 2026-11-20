@@ -237,3 +237,215 @@ class GlyphBandMixedColors(unittest.TestCase):
         r = IC.glyph_inside(a, reg, min_glyph_px=12)
         self.assertTrue(r["ok"], r["detail"])
 
+
+
+# ---------------------------------------------------------------- specs/061
+def _mask(h, w, layout):
+    """layout: [(분류, (y0, y1, x0, x1))] → 분류 색 마스크 캡처."""
+    m = np.zeros((h, w, 3), dtype=np.uint8)
+    for k, (y0, y1, x0, x1) in layout:
+        m[y0:y1, x0:x1] = ic.MASK_COLORS[k]
+    return m
+
+
+def _noise(h, w, base, amp, seed=1):
+    rng = np.random.default_rng(seed)
+    a = np.array(base, dtype=np.float64) + rng.normal(0, amp, (h, w, 1))
+    return a.clip(0, 255).astype(np.uint8)
+
+
+class ColorStats(unittest.TestCase):
+    def test_muted_passes(self):
+        a = _noise(100, 100, (80, 100, 70), 6)
+        m = _mask(100, 100, [("grass", (0, 100, 0, 100))])
+        r = ic.color_stats(a, {}, ic.masks_from(m), grass_sat=(0.2, 0.55), baseline_mean_sat=0.6)
+        self.assertTrue(r["ok"], r)
+
+    def test_primary_colors_fail(self):
+        a = grass(100, 100, (230, 10, 10))
+        r = ic.color_stats(a, {}, None)
+        self.assertFalse(r["ok"], r)
+
+    def test_grass_hue_out_of_range_fails(self):
+        a = _noise(100, 100, (40, 90, 110), 4)  # 청록
+        m = _mask(100, 100, [("grass", (0, 100, 0, 100))])
+        self.assertFalse(ic.color_stats(a, {}, ic.masks_from(m))["ok"])
+
+
+class Exposure(unittest.TestCase):
+    def test_in_range(self):
+        a = np.zeros((100, 100, 3), dtype=np.uint8)
+        a[:, :] = np.linspace(20, 230, 100, dtype=np.uint8)[None, :, None]
+        self.assertTrue(ic.exposure(a, {}, None, mean_range=(40, 65), width_range=(50, 90))["ok"])
+
+    def test_too_dark(self):
+        self.assertFalse(ic.exposure(grass(50, 50, (10, 10, 10)), {}, None)["ok"])
+
+    def test_match(self):
+        self.assertTrue(ic.exposure_match([grass(10, 10, (100, 100, 100)), grass(10, 10, (110, 110, 110))])["ok"])
+        self.assertFalse(ic.exposure_match([grass(10, 10, (60, 60, 60)), grass(10, 10, (160, 160, 160))])["ok"])
+
+
+class Sky(unittest.TestCase):
+    def test_flat_gray_fails(self):
+        a = grass(100, 100, (160, 160, 160))
+        m = _mask(100, 100, [("sky", (0, 50, 0, 100))])
+        self.assertFalse(ic.sky(a, {}, ic.masks_from(m))["ok"])
+
+    def test_gradient_passes(self):
+        a = np.zeros((100, 100, 3), dtype=np.uint8)
+        for y in range(50):
+            a[y] = (90 + y * 2, 140 + y, 220)
+        m = _mask(100, 100, [("sky", (0, 50, 0, 100))])
+        self.assertTrue(ic.sky(a, {}, ic.masks_from(m))["ok"])
+
+    def test_small_sky_not_applicable(self):
+        a = grass(100, 100, (160, 160, 160))
+        m = _mask(100, 100, [("sky", (0, 2, 0, 100))])
+        r = ic.sky(a, {}, ic.masks_from(m))
+        self.assertTrue(r["ok"] and r.get("na"), r)
+
+
+class RegionsAndGray(unittest.TestCase):
+    def test_shade_ratio(self):
+        a = grass(100, 100, (80, 120, 60))
+        a[:, 50:] = (35, 55, 28)
+        m = _mask(100, 100, [("sun", (0, 100, 0, 50)), ("shade", (0, 100, 50, 100))])
+        self.assertTrue(ic.region_ratio(a, {}, ic.masks_from(m))["ok"])
+        a[:, 50:] = (4, 6, 3)
+        self.assertFalse(ic.region_ratio(a, {}, ic.masks_from(m))["ok"])
+
+    def test_gray_outside(self):
+        m = _mask(100, 100, [("outside", (0, 30, 0, 100))])
+        self.assertFalse(ic.gray_ratio(grass(100, 100, (128, 128, 128)), {}, ic.masks_from(m))["ok"])
+        self.assertTrue(ic.gray_ratio(_noise(100, 100, (90, 120, 160), 8), {}, ic.masks_from(m))["ok"])
+
+    def test_clipping(self):
+        self.assertTrue(ic.clipping(grass(50, 50, (120, 120, 120)), {}, None)["ok"])
+        self.assertFalse(ic.clipping(grass(50, 50, (255, 255, 255)), {}, None)["ok"])
+
+
+class PlayerLight(unittest.TestCase):
+    def _scene(self, rim):
+        a = grass(100, 100, (40, 70, 35))
+        a[30:70, 40:60] = (150, 60, 60)
+        a[30:70, 40:42] = rim
+        a[30:70, 58:60] = rim
+        a[30:32, 40:60] = rim
+        a[68:70, 40:60] = rim
+        m = _mask(100, 100, [("grass", (0, 100, 0, 100)), ("player", (30, 70, 40, 60))])
+        return a, ic.masks_from(m)
+
+    def test_rim_gain_vs_baseline(self):
+        a0, m = self._scene((150, 60, 60))
+        base = ic.rim_contrast(a0, {}, m)["contrast"]
+        a1, _ = self._scene((180, 90, 90))
+        self.assertTrue(ic.rim_contrast(a1, {}, m, baseline=base)["ok"])
+
+    def test_glowing_rim_fails(self):
+        a, m = self._scene((255, 255, 255))
+        self.assertFalse(ic.rim_contrast(a, {}, m)["ok"])
+
+    def test_contact_darkening(self):
+        a = grass(100, 100, (80, 120, 60))
+        yy, xx = np.mgrid[0:100, 0:100]
+        a[np.hypot(xx - 50, yy - 50) <= 6] = (50, 80, 40)
+        self.assertTrue(ic.contact_darkening(a, {"feet": [[50, 50, 6]]}, None)["ok"])
+        self.assertFalse(ic.contact_darkening(grass(100, 100), {"feet": [[50, 50, 6]]}, None)["ok"])
+
+
+class ModeGap(unittest.TestCase):
+    def test_same_look_passes(self):
+        a = _noise(80, 80, (90, 110, 80), 10)
+        b = a.copy()
+        blk = a[:, :40].astype(np.float64).reshape(10, 8, 5, 8, 3).mean(axis=(1, 3))
+        b[:, :40] = np.repeat(np.repeat(blk, 8, axis=0), 8, axis=1).astype(np.uint8)  # 8px 상자 흐림 흉내
+        self.assertTrue(ic.mode_gap(a, {}, b, {})["ok"])
+
+    def test_brighter_fails(self):
+        a = _noise(80, 80, (90, 110, 80), 10)
+        b = (a.astype(np.int16) + 20).clip(0, 255).astype(np.uint8)
+        self.assertFalse(ic.mode_gap(a, {}, b, {})["ok"])
+
+    def test_frame_delta(self):
+        seq = [grass(10, 10, (100 + i, 100, 100)) for i in range(4)]
+        self.assertTrue(ic.frame_delta_e(seq)["ok"])
+        self.assertFalse(ic.frame_delta_e([grass(10, 10, (100, 100, 100)), grass(10, 10, (160, 60, 60))])["ok"])
+
+
+class AntiAliasing(unittest.TestCase):
+    def _edge(self, scale, aa):
+        n = 64 * scale
+        a = np.zeros((n, n, 3), dtype=np.uint8)
+        yy, xx = np.mgrid[0:n, 0:n]
+        a[yy > xx * 0.37 + n * 0.2] = 230
+        if aa:
+            return a
+        return a
+
+    def test_supersample_reference(self):
+        ref = self._edge(4, True)
+        smooth = ic._down(ref, 4).astype(np.uint8)
+        r = ic.aa_edge(smooth, {}, ref, {})
+        self.assertTrue(r["ok"], r)
+        jag = self._edge(1, False)
+        r2 = ic.aa_edge(jag, {}, ref, {}, max_abs=6)
+        self.assertGreater(r2["edgeDiff"], r["edgeDiff"])
+
+    def test_pan_flicker(self):
+        base = [self._edge(1, False) for _ in range(3)]
+        noisy = [(f.astype(np.int16) + (i % 2) * 30).clip(0, 255).astype(np.uint8) for i, f in enumerate(base)]
+        self.assertTrue(ic.pan_flicker(base, noisy)["ok"])
+        self.assertFalse(ic.pan_flicker(noisy, base)["ok"])
+
+
+class GrassDepth(unittest.TestCase):
+    def _ground(self, rough):
+        a = np.zeros((120, 200, 3), dtype=np.uint8)
+        a[:] = (140, 170, 220)
+        rng = np.random.default_rng(3)
+        for x in range(200):
+            top = 60 + (int(rng.integers(-4, 5)) if rough else 0)
+            a[top:, x] = (50, 110, 40)
+        return a
+
+    def test_blades_raise_std(self):
+        reg = {"groundBand": [0, 20, 200, 90]}
+        self.assertTrue(ic.ground_line_std(self._ground(True), reg, None)["ok"])
+        self.assertFalse(ic.ground_line_std(self._ground(False), reg, None)["ok"])
+
+    def test_region_std(self):
+        m = ic.masks_from(_mask(50, 50, [("grass", (0, 50, 0, 50))]))
+        r = ic.region_std(_noise(50, 50, (60, 100, 50), 8), {}, m, baseline=2.0, min_ratio=1.5)
+        self.assertTrue(r["ok"], r)
+
+
+class Run061(unittest.TestCase):
+    def test_dispatch_with_mask_and_others(self):
+        a = grass(60, 60, (100, 100, 100))
+        m = _mask(60, 60, [("sky", (0, 30, 0, 60))])
+        caps = {"a": (a, {}), "b": (a.copy(), {}), "m": (m, {})}
+        rows = ic.run([{"type": "sky", "capture": "a", "mask": "m"},
+                       {"type": "exposureMatch", "capture": "a", "others": ["b"]},
+                       {"type": "modeGap", "capture": "a", "other": "b"}], caps)
+        self.assertEqual([r["ok"] for r in rows], [False, True, True], rows)
+
+
+class SharpnessAndShade(unittest.TestCase):
+    def test_sharpness_blurred_subject_fails(self):
+        sharp = _noise(60, 60, (120, 120, 120), 30)
+        blk = sharp.astype(np.float64).reshape(15, 4, 15, 4, 3).mean(axis=(1, 3))
+        blur = np.repeat(np.repeat(blk, 4, axis=0), 4, axis=1).astype(np.uint8)
+        reg = {"scorer": [5, 5, 50, 50]}
+        self.assertTrue(ic.sharpness(sharp, reg, sharp.copy(), reg)["ok"])
+        self.assertFalse(ic.sharpness(blur, reg, sharp, reg)["ok"])
+
+    def test_grass_shade_ratio(self):
+        a = grass(100, 100, (80, 130, 60))
+        a[:, 50:] = (30, 50, 22)
+        m = ic.masks_from(_mask(100, 100, [("grass", (0, 100, 0, 100))]))
+        self.assertTrue(ic.grass_shade(a, {}, m)["ok"])
+        a[:, 50:] = (5, 7, 4)
+        self.assertFalse(ic.grass_shade(a, {}, m)["ok"])
+        r = ic.grass_shade(grass(100, 100, (80, 130, 60)), {}, m)
+        self.assertTrue(r["ok"] and r.get("na"), r)

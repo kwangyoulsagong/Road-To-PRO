@@ -41,12 +41,15 @@ namespace RoadToPro.Tests.EditMode.Presentation.Rendering
         }
 
         [Test]
-        public void RenderPreset_MediumHigh_AreStandInsForExistingAssets()
+        public void RenderPreset_MediumHigh_AreRealPresets()
         {
-            Assert.IsTrue(RenderPresetTable.Medium.IsStandIn);
-            Assert.IsTrue(RenderPresetTable.High.IsStandIn);
-            Assert.AreEqual("Mobile", RenderPresetTable.Medium.QualityLevel);
-            Assert.AreEqual("PC", RenderPresetTable.High.QualityLevel);
+            // specs/061 T06: 대역(Mobile·PC) → 실제 Medium·High 레벨 (2026-11-20 사용자 결정 — PC 전용, 템플릿 이름 정리)
+            Assert.IsFalse(RenderPresetTable.Medium.IsStandIn);
+            Assert.IsFalse(RenderPresetTable.High.IsStandIn);
+            Assert.AreEqual("Medium", RenderPresetTable.Medium.QualityLevel);
+            Assert.AreEqual("High", RenderPresetTable.High.QualityLevel);
+            Assert.AreEqual(Upscaler.Stp, RenderPresetTable.Medium.Upscaler, "061 FR-34: AA는 세 프리셋 모두 STP");
+            Assert.AreEqual(Upscaler.Stp, RenderPresetTable.High.Upscaler);
         }
 
         [TestCase("Low", PresetId.Low)]

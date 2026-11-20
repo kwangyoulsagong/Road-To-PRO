@@ -40,6 +40,10 @@ namespace RoadToPro.Presentation.Highlight
         int _applied = -1;
         bool _loaded, _unloading, _loadRunning;
         IMotionDiagnostics _diagnostics;
+        Rendering.CinematicModeController _cinematic;
+
+        /// <summary>specs/061 연출 장면 고품질 모드 (실제 프리셋에서만, 로딩 뒤). 검증용.</summary>
+        public Rendering.CinematicModeController Cinematic => _cinematic;
 
         public HighlightSequencer Sequencer => _seq;
         public HighlightAssets Assets => _assets;
@@ -110,6 +114,15 @@ namespace RoadToPro.Presentation.Highlight
             if (Cancelled()) yield break;
 
             _scenes.AddRange(_builder.Built);
+            CreateCinematic();
+            if (_cinematic != null)
+            {
+                // 061 FR-85: 고품질 모드 셰이더(DoF·SSAO·셸 잔디)를 로딩 화면 뒤에서 한 프레임 그려 준비 — 전환 순간 컴파일 0
+                _cinematic.BeginWarmUp();
+                yield return null;
+                _cinematic.EndWarmUp();
+                if (Cancelled()) yield break;
+            }
             if (_scenes.Count > 0)
             {
                 var stage = _assets.Stage;
@@ -123,6 +136,25 @@ namespace RoadToPro.Presentation.Highlight
             _loaded = true;
             _ports.Hud.OnLoadingProgress(1f);
             _seq.OnLoaded(_builder.Scenes(), _builder.Cues());
+        }
+
+        /// <summary>specs/061: 실제 프리셋이면 고품질 모드 컨트롤러를 만들고 장면마다 구간을 계산한다 (로딩 중 — 재생 중 생성 없음, FR-85).</summary>
+        void CreateCinematic()
+        {
+            _cinematic?.Dispose();
+            _cinematic = null;
+            var preset = Rendering.RenderQualityApplier.Current;
+            if (preset == null || preset.IsStandIn || !(_ports.Camera is Broadcast.BroadcastCamera)) return;
+            var stage = _assets.Stage;
+            _cinematic = new Rendering.CinematicModeController(_camera, preset.Id, stage != null ? stage.Lighting : null, stage != null ? stage.PitchRenderer : null);
+            foreach (var s in _scenes) BuildCinematic(s);
+        }
+
+        void BuildCinematic(BuiltScene s)
+        {
+            if (_cinematic == null || !(_ports.Camera is Broadcast.BroadcastCamera bc)) return;
+            var brief = bc.BriefOf(s.Scene.Id);
+            _cinematic.OnSceneBuilt(s.Scene.Id, bc.TrackOf(s.Scene.Id), s.Data, brief != null ? brief.Scorer : -1);
         }
 
         /// <summary>
@@ -139,6 +171,7 @@ namespace RoadToPro.Presentation.Highlight
             int keep = _seq.SceneIndex + 1;
             _scenes.RemoveRange(keep, _scenes.Count - keep);
             _scenes.AddRange(followingBuilder.Built);
+            for (int i = keep; i < _scenes.Count; i++) BuildCinematic(_scenes[i]);
             _seq.ResolveKeyMoment(followingBuilder.Scenes(), followingBuilder.Cues());
         }
 
@@ -154,6 +187,8 @@ namespace RoadToPro.Presentation.Highlight
                 _system.SwapPlan(_current.Plan);
                 Rendering.RenderQualityApplier.ResetHistory(_camera);
             }
+            if (_cinematic != null && _current != null && _seq.State == SequencerState.Playing)
+                _cinematic.Apply(_current.Scene.Id, _seq.Clock.Position, _current.Data);
 
             if (!_unloading && !_loadRunning && !_seq.Wants3D && (_loaded || _seq.State == SequencerState.Cancelled))
             {
@@ -168,6 +203,8 @@ namespace RoadToPro.Presentation.Highlight
             _system = null;
             _current = null;
             _loaded = false;
+            _cinematic?.Dispose();
+            _cinematic = null;
             _scenes.Clear();
             _builder = null;
             yield return _assets.Unload();

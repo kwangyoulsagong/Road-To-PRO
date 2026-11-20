@@ -71,32 +71,7 @@ Shader "RoadToPro/Pitch"
                 return o;
             }
 
-            // 띠마다 잎이 눕는 방향(±X 또는 ±Z). 시선과 같은 쪽으로 누운 띠가 밝다 → 카메라가 반대로 돌면 뒤집힌다 (FR-31)
-            float StripeShade(float3 posWS, float3 viewDirWS)
-            {
-                float w = max(_StripeParams.x, 0.1);
-                int pattern = (int)_StripeParams.y;
-                float2 p = posWS.xz;
-                float2 blade;
-                if (pattern == 2)
-                {
-                    float band = floor(length(p) / w);
-                    float s = fmod(band, 2.0) < 0.5 ? 1.0 : -1.0;
-                    blade = normalize(p + 1e-4) * s;
-                }
-                else
-                {
-                    float bx = floor(p.x / w);
-                    float parity = pattern == 1 ? bx + floor(p.y / w) : bx;
-                    float s = abs(fmod(parity, 2.0)) < 0.5 ? 1.0 : -1.0;
-                    blade = float2(s, 0.0);
-                }
-                float2 vh = viewDirWS.xz;
-                float lenV = length(vh);
-                vh = lenV > 1e-4 ? vh / lenV : float2(0, 0);
-                // 잎이 시선에서 멀어지는 쪽으로 누우면(= 잎 방향 · 시선 방향(카메라→점) > 0) 밝다
-                return 1.0 - _StripeStrength * dot(blade, vh);
-            }
+            #include "GrassCommon.hlsl" // StripeShade (061: 셸 잔디와 공유)
 
             half4 Frag(Varyings i) : SV_Target
             {
@@ -114,6 +89,7 @@ Shader "RoadToPro/Pitch"
                 float3 viewDir = GetWorldSpaceNormalizeViewDir(i.positionWS); // 점 → 카메라
                 albedo *= StripeShade(i.positionWS, -viewDir);
 
+                albedo *= ContactShade(p); // 061 FR-44 발 접촉 어둡기 (모든 프리셋)
                 half cover = (half)PitchLineCoverage(p);
                 albedo = lerp(albedo, (half3)_LineColor.rgb, cover);
                 n = normalize(lerp(n, half3(0, 1, 0), cover));

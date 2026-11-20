@@ -8,8 +8,13 @@ import re
 import numpy as np
 
 TYPES = ("notBlank", "bandFlip", "lineContinuity", "blobX", "deltaE", "glyphInside", "contactDistance", "sameImage",
-         "differentImage")
-PAIRED = ("bandFlip", "sameImage", "differentImage")  # 캡처 두 장 (capture + other)
+         "differentImage",
+         # specs/061 그래픽 품질 지표
+         "colorStats", "exposure", "exposureMatch", "sky", "regionRatio", "grayRatio", "clipping", "rimContrast",
+         "contactDarkening", "modeGap", "frameDeltaE", "aaEdge", "panFlicker", "groundLineStd", "regionStd",
+         "sharpness", "grassShade")
+PAIRED = ("bandFlip", "sameImage", "differentImage", "modeGap", "aaEdge", "sharpness")  # 캡처 두 장 (capture + other)
+MULTI = ("exposureMatch", "frameDeltaE", "panFlicker")  # 캡처 여러 장 (capture + others)
 
 
 def _lum(a):
@@ -325,7 +330,7 @@ def run(checks, captures):
     for c in checks:
         t = c["type"]
         params = {re.sub(r"([A-Z])", lambda m: "_" + m.group(1).lower(), k): v
-                  for k, v in c.items() if k not in ("type", "capture", "other", "ac")}
+                  for k, v in c.items() if k not in ("type", "capture", "other", "others", "ac")}
         row = {"type": t, "capture": c["capture"], "ac": c.get("ac"), "ok": False, "detail": ""}
         try:
             if c["capture"] not in captures:
@@ -358,6 +363,8 @@ def run(checks, captures):
                     raise KeyError(f"캡처 없음: {c['other']}")
                 arr2, reg2 = captures[c["other"]]
                 r = different_image(arr, reg, arr2, reg2, **params)
+            elif t in TYPES:
+                r = run_061(t, c, params, captures)
             else:
                 raise KeyError(f"알 수 없는 검사 {t}")
             row.update(ok=bool(r["ok"]), detail=r["detail"])
@@ -365,3 +372,433 @@ def run(checks, captures):
             row["detail"] = str(e).strip("'")
         out.append(row)
     return out
+
+
+# ---------------------------------------------------------------- specs/061 그래픽 품질 지표
+# 마스크: 드라이버가 같은 프레임을 분류 색으로 다시 그린 캡처(시나리오 `mask` 인자에 그 캡처 이름).
+# 분류 색 (±MASK_TOL): 하늘·잔디·선수·경기장 밖·라인·구조물. 마스크가 없으면 화면 전체(HUD는 꺼서 캡처).
+
+MASK_COLORS = {"sky": (255, 0, 255), "grass": (0, 255, 0), "player": (255, 0, 0), "outside": (0, 0, 255),
+               "line": (255, 255, 255), "structure": (128, 128, 128), "shade": (0, 255, 255), "sun": (255, 255, 0)}
+MASK_TOL = 30
+
+
+def masks_from(arr):
+    """분류 색 캡처 → {분류: bool 배열}."""
+    a = arr[..., :3].astype(np.int16)
+    return {k: (np.abs(a - np.array(c, dtype=np.int16)).max(axis=-1) <= MASK_TOL) for k, c in MASK_COLORS.items()}
+
+
+def _sel(arr, masks, include=None, exclude=None):
+    """include 분류의 합집합(없으면 전체)에서 exclude 분류를 뺀 bool 배열."""
+    H, W = arr.shape[:2]
+    if masks is None or not include:
+        m = np.ones((H, W), dtype=bool)
+    else:
+        m = np.zeros((H, W), dtype=bool)
+        for k in include:
+            m |= masks[k]
+    if masks is not None:
+        for k in exclude or ():
+            m &= ~masks[k]
+    return m
+
+
+def _hsv(arr):
+    """RGB 0~255 → (색상°, 채도 0~1, 명도 0~1)."""
+    a = arr[..., :3].astype(np.float64) / 255.0
+    mx, mn = a.max(axis=-1), a.min(axis=-1)
+    d = mx - mn
+    sat = np.where(mx > 0, d / np.maximum(mx, 1e-9), 0.0)
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    dd = np.maximum(d, 1e-9)
+    h = np.where(mx == r, ((g - b) / dd) % 6, np.where(mx == g, (b - r) / dd + 2, (r - g) / dd + 4)) * 60.0
+    h = np.where(d > 0, h, 0.0)
+    return h, sat, mx
+
+
+def _lstar(arr):
+    return srgb_to_lab(arr[..., :3])[..., 0]
+
+
+def color_stats(arr, regions, masks, max_mean_sat=0.40, high_sat=0.85, max_high_ratio=0.05,
+                grass_sat=(0.30, 0.55), grass_hue=(75.0, 110.0), baseline_mean_sat=None):
+    """FR-05: 화면 평균 채도·고채도 비율(하늘 제외), 잔디 영역 평균 채도·색상, 기준선보다 낮아졌나."""
+    h, s, _ = _hsv(arr)
+    m = _sel(arr, masks, exclude=["sky"])
+    mean = float(s[m].mean())
+    high = float((s[m] >= high_sat).mean())
+    ok = mean <= max_mean_sat and high <= max_high_ratio
+    detail = f"평균 채도 {mean:.3f} (≤ {max_mean_sat}), 채도 ≥ {high_sat} {high * 100:.2f}% (≤ {max_high_ratio * 100:.1f}%)"
+    if masks is not None and masks["grass"].any():
+        g = masks["grass"]
+        gs, gh = float(s[g].mean()), float(np.median(h[g]))
+        ok &= grass_sat[0] <= gs <= grass_sat[1] and grass_hue[0] <= gh <= grass_hue[1]
+        detail += f", 잔디 채도 {gs:.3f} ({grass_sat[0]}~{grass_sat[1]}) 색상 {gh:.0f}° ({grass_hue[0]:.0f}~{grass_hue[1]:.0f})"
+    if baseline_mean_sat is not None:
+        ok &= mean < baseline_mean_sat
+        detail += f", 기준선 {baseline_mean_sat:.3f}보다 낮음"
+    return {"ok": ok, "detail": detail, "meanSat": mean}
+
+
+def exposure(arr, regions, masks, mean_range=(45.0, 62.0), width_range=(50.0, 85.0), max_grass_for_width=None):
+    """FR-06: 화면 평균 L*와 L* 5~95 퍼센타일 폭. max_grass_for_width: 잔디(마스크)가 화면의 이 비율 이상이면 폭은 해당 없음 (061 Q11)."""
+    L = _lstar(arr)
+    mean = float(L.mean())
+    p5, p95 = (float(v) for v in np.percentile(L, [5, 95]))
+    w = p95 - p5
+    grass = float(masks["grass"].mean()) if masks is not None else None
+    width_na = max_grass_for_width is not None and grass is not None and grass >= max_grass_for_width
+    ok = mean_range[0] <= mean <= mean_range[1] and (width_na or width_range[0] <= w <= width_range[1])
+    wtxt = f"5~95% 폭 {w:.1f} — 잔디 {grass * 100:.0f}% ≥ {max_grass_for_width * 100:.0f}%라 해당 없음" if width_na else f"5~95% 폭 {w:.1f} ({width_range[0]}~{width_range[1]})"
+    return {"ok": ok, "meanL": mean, "detail": f"평균 L* {mean:.1f} ({mean_range[0]}~{mean_range[1]}), {wtxt}"}
+
+
+def exposure_match(arrs, max_diff=8.0):
+    """FR-06: 같은 시간대 장면끼리 평균 L* 차."""
+    means = [float(_lstar(a).mean()) for a in arrs]
+    d = max(means) - min(means)
+    return {"ok": d <= max_diff, "detail": f"평균 L* {', '.join(f'{m:.1f}' for m in means)} — 최대 차 {d:.1f} (≤ {max_diff})"}
+
+
+def sky(arr, regions, masks, min_area=0.05, max_modal_ratio=0.60, min_std=4.0, min_top_bottom=8.0, day=True):
+    """FR-11: 하늘 단색 비율·밝기 표준편차·(낮) 위아래 밝기 차. 하늘이 화면 5% 미만이면 해당 없음."""
+    if masks is None:
+        raise KeyError("sky 검사는 mask 캡처가 필요")
+    m = masks["sky"]
+    area = float(m.mean())
+    if area < min_area:
+        return {"ok": True, "detail": f"하늘 {area * 100:.1f}% < {min_area * 100:.0f}% — 해당 없음", "na": True}
+    px = arr[..., :3][m].astype(np.int16)
+    vals, counts = np.unique(px // 1, axis=0, return_counts=True)
+    modal = vals[counts.argmax()]
+    modal_ratio = float((np.abs(px - modal).max(axis=-1) <= 2).mean())
+    lum = _lum(arr)
+    std = float(lum[m].std())
+    ok = modal_ratio <= max_modal_ratio and std >= min_std
+    detail = f"하늘 {area * 100:.1f}%, 최빈색 ±2 {modal_ratio * 100:.1f}% (≤ {max_modal_ratio * 100:.0f}%), 밝기 표준편차 {std:.1f} (≥ {min_std})"
+    if day:
+        rows = np.where(m.any(axis=1))[0]
+        n = max(1, int(len(rows) * 0.1))
+        top = lum[rows[:n]][m[rows[:n]]].mean()
+        bot = lum[rows[-n:]][m[rows[-n:]]].mean()
+        tb = float(abs(bot - top))
+        ok &= tb >= min_top_bottom
+        detail += f", 위·아래 10% 밝기 차 {tb:.1f} (≥ {min_top_bottom})"
+    return {"ok": ok, "detail": detail}
+
+
+def _region_mask(arr, regions, masks, spec):
+    """spec: 마스크 분류 이름 목록(문자열·목록) 또는 regions 키(사각형 목록)."""
+    H, W = arr.shape[:2]
+    if isinstance(spec, str) and spec in regions:
+        m = np.zeros((H, W), dtype=bool)
+        rects = regions[spec]
+        rects = [rects] if rects and not isinstance(rects[0], (list, tuple)) else rects
+        for r in rects:
+            x, y, w, h = (int(round(v)) for v in r)
+            m[max(0, y):min(H, y + h), max(0, x):min(W, x + w)] = True
+        return m
+    names = [spec] if isinstance(spec, str) else list(spec)
+    if masks is None:
+        raise KeyError(f"영역 {spec}: mask 캡처 또는 regions 필요")
+    return _sel(arr, masks, include=names)
+
+
+def region_ratio(arr, regions, masks, a="shade", b="sun", min_ratio=0.35, dark_below=10.0, max_dark_ratio=0.01):
+    """FR-12·13: 영역 A 평균 밝기 / 영역 B 평균 밝기 ≥ 비율, A 안 아주 어두운 픽셀 비율."""
+    lum = _lum(arr)
+    ma, mb = _region_mask(arr, regions, masks, a), _region_mask(arr, regions, masks, b)
+    if not ma.any() or not mb.any():
+        raise ValueError(f"영역 비었음 A {int(ma.sum())}px, B {int(mb.sum())}px")
+    ra, rb = float(lum[ma].mean()), float(lum[mb].mean())
+    ratio = ra / max(rb, 1e-6)
+    dark = float((lum[ma] < dark_below).mean())
+    ok = ratio >= min_ratio and dark <= max_dark_ratio
+    return {"ok": ok, "detail": f"A {ra:.1f} / B {rb:.1f} = {ratio:.2f} (≥ {min_ratio}), A 안 밝기 < {dark_below} {dark * 100:.2f}% (≤ {max_dark_ratio * 100:.1f}%)"}
+
+
+def gray_ratio(arr, regions, masks, region="outside", max_ratio=0.10, max_sat=0.05):
+    """FR-15: 경기장 밖 영역 중 단색 회색(채도 < 0.05이고 최빈색 ±2) 비율."""
+    m = _region_mask(arr, regions, masks, region)
+    if not m.any():
+        return {"ok": True, "detail": "경기장 밖 영역 없음 — 해당 없음", "na": True}
+    _, s, _ = _hsv(arr)
+    px = arr[..., :3][m].astype(np.int16)
+    vals, counts = np.unique(px, axis=0, return_counts=True)
+    modal = vals[counts.argmax()]
+    gray = (s[m] < max_sat) & (np.abs(px - modal).max(axis=-1) <= 2)
+    r = float(gray.mean())
+    return {"ok": r <= max_ratio, "detail": f"단색 회색 {r * 100:.1f}% (≤ {max_ratio * 100:.0f}%)"}
+
+
+def clipping(arr, regions, masks, max_white=0.01, max_black=0.01, exclude_sky_black=True, white_kit_max=250.0):
+    """FR-31: 255 클리핑·0~2 비율, 흰 키트 영역(regions.whiteKit) 평균."""
+    lum = _lum(arr)
+    m = _sel(arr, masks)
+    white = float((arr[..., :3][m].max(axis=-1) >= 255).mean())
+    mb = _sel(arr, masks, exclude=["sky"] if exclude_sky_black else None)
+    black = float((lum[mb] <= 2).mean())
+    ok = white <= max_white and black <= max_black
+    detail = f"255 클리핑 {white * 100:.2f}% (≤ {max_white * 100:.0f}%), 0~2 {black * 100:.2f}% (≤ {max_black * 100:.0f}%)"
+    if regions.get("whiteKit"):
+        k = float(lum[_region_mask(arr, regions, masks, "whiteKit")].mean())
+        ok &= k <= white_kit_max
+        detail += f", 흰 키트 평균 {k:.1f} (≤ {white_kit_max})"
+    return {"ok": ok, "detail": detail}
+
+
+def _erode(m, n):
+    out = m.copy()
+    for _ in range(n):
+        o = out.copy()
+        o[1:, :] &= out[:-1, :]
+        o[:-1, :] &= out[1:, :]
+        o[:, 1:] &= out[:, :-1]
+        o[:, :-1] &= out[:, 1:]
+        out = o
+    return out
+
+
+def _dilate(m, n):
+    return ~_erode(~m, n)
+
+
+def rim_contrast(arr, regions, masks, band=2, baseline=None, min_gain=0.20, max_band_body=1.4):
+    """FR-42: 선수 윤곽 안쪽 band px 띠와 바로 바깥 잔디의 밝기 대비(기준선 대비 +20%), 띠 / 몸 안쪽 ≤ 1.4배."""
+    if masks is None:
+        raise KeyError("rimContrast는 mask 캡처가 필요")
+    p = masks["player"]
+    if not p.any():
+        raise ValueError("선수 마스크 비었음")
+    lum = _lum(arr)
+    inner = _erode(p, band)
+    rim = p & ~inner
+    ring = _dilate(p, band) & ~p & masks["grass"]
+    if not rim.any() or not ring.any() or not inner.any():
+        raise ValueError("윤곽 띠·바깥 잔디·몸 안쪽 중 비었음")
+    rm, gm, bm = float(lum[rim].mean()), float(lum[ring].mean()), float(lum[inner].mean())
+    contrast = abs(rm - gm) / max(gm, 1e-6)
+    bb = rm / max(bm, 1e-6)
+    ok = bb <= max_band_body
+    detail = f"띠 {rm:.1f} / 바깥 잔디 {gm:.1f} 대비 {contrast:.3f}, 띠 / 몸 {bb:.2f} (≤ {max_band_body})"
+    if baseline is not None:
+        ok &= contrast >= baseline * (1 + min_gain)
+        detail += f", 기준선 {baseline:.3f} × {1 + min_gain:.2f} 이상"
+    return {"ok": ok, "detail": detail, "contrast": contrast}
+
+
+def contact_darkening(arr, regions, masks, min_darkening=0.15):
+    """FR-44: regions.feet = [[x, y, r_px(, ry_px)], …] — 발 중심 바닥 반경 0.3 m(화면 타원) 안 평균이 0.6~1.0 m 고리보다 15% 이상 어둡다."""
+    lum = _lum(arr)
+    H, W = lum.shape
+    yy, xx = np.mgrid[0:H, 0:W]
+    excl = masks["player"] if masks is not None else np.zeros((H, W), dtype=bool)
+    rows, ok = [], True
+    for foot in regions["feet"]:
+        x, y, r = foot[0], foot[1], foot[2]
+        ry = foot[3] if len(foot) > 3 else r  # 061: 바닥 원의 화면 타원 세로 반지름 (없으면 원)
+        d = np.hypot(xx - x, (yy - y) * (r / max(ry, 1e-6)))  # 타원 거리를 가로 반지름 단위로
+        inner = (d <= r) & ~excl
+        ring = (d >= 2 * r) & (d <= 3.33 * r) & ~excl
+        if not inner.any() or not ring.any():
+            raise ValueError(f"발 ({x:.0f},{y:.0f}) 주변 지면 픽셀 없음")
+        iv, rv = float(lum[inner].mean()), float(lum[ring].mean())
+        dk = (rv - iv) / max(rv, 1e-6)
+        ok &= dk >= min_darkening
+        rows.append(f"{dk:.2f}")
+    return {"ok": ok and bool(rows), "detail": f"접촉 어둡기 {', '.join(rows)} (≥ {min_darkening})"}
+
+
+def _down(arr, f):
+    H, W = arr.shape[:2]
+    h, w = H // f * f, W // f * f
+    return arr[:h, :w, :3].astype(np.float64).reshape(h // f, f, w // f, f, 3).mean(axis=(1, 3))
+
+
+def mode_gap(arr_a, reg_a, arr_b, reg_b, max_lum=3.0, max_std_ratio=0.10, max_sat=0.03, max_de=3.0, down=8):
+    """FR-84: 일반·고품질 모드 같은 프레임 — 평균 밝기 차, 대비(표준편차) 차, 평균 채도 차, 평균 색 ΔE.
+    피사계 심도 흐림 영향을 줄이려 둘 다 down배 줄여 비교한다."""
+    a, b = _down(arr_a, down), _down(arr_b, down)
+    la, lb = _lum(a), _lum(b)
+    dl = abs(float(la.mean() - lb.mean()))
+    ds = abs(float(la.std() - lb.std())) / max(float(la.std()), 1e-6)
+    _, sa, _ = _hsv(a.clip(0, 255).astype(np.uint8))
+    _, sb, _ = _hsv(b.clip(0, 255).astype(np.uint8))
+    dsat = abs(float(sa.mean() - sb.mean()))
+    de = delta_e2000(srgb_to_lab(a.reshape(-1, 3).mean(axis=0)), srgb_to_lab(b.reshape(-1, 3).mean(axis=0)))
+    ok = dl <= max_lum and ds <= max_std_ratio and dsat <= max_sat and de <= max_de
+    return {"ok": ok, "detail": f"밝기 차 {dl:.2f} (≤ {max_lum}), 대비 차 {ds * 100:.1f}% (≤ {max_std_ratio * 100:.0f}%), "
+                                f"채도 차 {dsat:.3f} (≤ {max_sat}), 평균 색 ΔE {de:.2f} (≤ {max_de})"}
+
+
+def frame_delta_e(arrs, max_de=1.5):
+    """FR-84: 연속 프레임 평균 색 변화 ΔE의 최대값."""
+    labs = [srgb_to_lab(a[..., :3].reshape(-1, 3).astype(np.float64).mean(axis=0)) for a in arrs]
+    des = [delta_e2000(labs[i], labs[i + 1]) for i in range(len(labs) - 1)]
+    m = max(des) if des else 0.0
+    return {"ok": m <= max_de, "detail": f"프레임 {len(arrs)}장 연속 평균 색 ΔE 최대 {m:.2f} (≤ {max_de})"}
+
+
+def _edges(ref, thr=40.0):
+    lum = _lum(ref)
+    gx = np.zeros_like(lum)
+    gy = np.zeros_like(lum)
+    gx[:, 1:-1] = lum[:, 2:] - lum[:, :-2]
+    gy[1:-1, :] = lum[2:, :] - lum[:-2, :]
+    return np.hypot(gx, gy) >= thr
+
+
+def aa_edge(arr, reg, ref, reg_ref, max_abs=6.0, baseline=None, max_baseline_ratio=0.5, edge_threshold=40.0, absolute_advisory=False):
+    """FR-60: 4배 슈퍼샘플을 줄인 기준(other)과 고대비 경계 영역 평균 절대 차이 — ≤ 6/255, 기준선의 50% 이하."""
+    if ref.shape != arr.shape:
+        f = ref.shape[0] // arr.shape[0]
+        if f < 1 or ref.shape[0] != arr.shape[0] * f:
+            raise ValueError(f"슈퍼샘플 크기가 배수가 아님 {ref.shape} vs {arr.shape}")
+        ref = _down(ref, f)
+    e = _dilate(_edges(ref, edge_threshold), 1)
+    if not e.any():
+        raise ValueError("경계 픽셀 없음")
+    d = np.abs(arr[..., :3].astype(np.float64) - ref[..., :3].astype(np.float64)).max(axis=-1)
+    m = float(d[e].mean())
+    # absolute_advisory: 절대값은 기록만, 기준선 대비만 판정 (061 Q12)
+    ok = True if (absolute_advisory and baseline is not None) else m <= max_abs
+    detail = f"경계 평균 차 {m:.2f} ({'기록: ' if absolute_advisory and baseline is not None else ''}≤ {max_abs})"
+    if baseline is not None:
+        ok &= m <= baseline * max_baseline_ratio
+        detail += f", 기준선 {baseline:.2f} × {max_baseline_ratio} 이하"
+    return {"ok": ok, "detail": detail, "edgeDiff": m}
+
+
+def pan_flicker(arrs, refs, max_ratio=1.5, edge_threshold=40.0):
+    """FR-60·58 류: 느린 팬 연속 프레임의 경계 깜빡임(프레임 간 경계 영역 평균 차)이 기준 시퀀스의 max_ratio배 이하."""
+    def flick(seq):
+        vals = []
+        for i in range(len(seq) - 1):
+            a, b = seq[i], seq[i + 1]
+            e = _dilate(_edges(a, edge_threshold), 1)
+            if e.any():
+                vals.append(float(np.abs(_lum(a) - _lum(b))[e].mean()))
+        return float(np.mean(vals)) if vals else 0.0
+    f, r = flick(arrs), flick(refs)
+    ok = f <= r * max_ratio if r > 0 else f == 0
+    return {"ok": ok, "detail": f"깜빡임 {f:.2f} / 기준 {r:.2f} = {f / max(r, 1e-6):.2f}배 (≤ {max_ratio})"}
+
+
+def ground_line_std(arr, regions, masks, region="groundBand", min_std=2.0, smooth=31):
+    """AC-08 ①: 피치 레벨 캡처에서 지면(잔디) 위 경계선의 높이 표준편차 — 이동 평균을 뺀 잔여(px)."""
+    m = _region_mask(arr, regions, masks, region)
+    ys, xs = np.where(m)
+    if not len(xs):
+        raise ValueError("지면 경계 영역 없음")
+    y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+    h, s, v = _hsv(arr[y0:y1, x0:x1])
+    green = (h >= 60) & (h <= 140) & (s >= 0.15)
+    tops = []
+    for c in range(green.shape[1]):
+        col = np.where(green[:, c])[0]
+        tops.append(col.min() if len(col) else np.nan)
+    t = np.array(tops, dtype=np.float64)
+    t = t[~np.isnan(t)]
+    if len(t) < smooth * 2:
+        raise ValueError(f"경계 열 {len(t)}개 부족")
+    k = np.ones(smooth) / smooth
+    trend = np.convolve(t, k, mode="same")
+    res = (t - trend)[smooth:-smooth]
+    std = float(res.std())
+    return {"ok": std >= min_std, "detail": f"지면 경계 높이 잔여 표준편차 {std:.2f}px (≥ {min_std})", "std": std}
+
+
+def region_std(arr, regions, masks, region="grass", baseline=None, min_ratio=1.0, min_std=0.0):
+    """영역 밝기 표준편차 (기준선 대비 배수)."""
+    m = _region_mask(arr, regions, masks, region)
+    if not m.any():
+        raise ValueError(f"영역 {region} 비었음")
+    std = float(_lum(arr)[m].std())
+    ok = std >= min_std
+    detail = f"{region} 밝기 표준편차 {std:.2f}"
+    if baseline is not None:
+        ok &= std >= baseline * min_ratio
+        detail += f" (기준선 {baseline:.2f} × {min_ratio} 이상)"
+    return {"ok": ok, "detail": detail, "std": std}
+
+
+_SINGLE_061 = {"colorStats": color_stats, "exposure": exposure, "sky": sky, "regionRatio": region_ratio,
+               "grayRatio": gray_ratio, "clipping": clipping, "rimContrast": rim_contrast,
+               "contactDarkening": contact_darkening, "groundLineStd": ground_line_std, "regionStd": region_std}
+
+
+def run_061(t, c, params, captures):
+    """061 검사 하나. params에서 mask(캡처 이름)·others(캡처 이름 목록)를 꺼내 해석한다."""
+    def get(name):
+        if name not in captures:
+            raise KeyError(f"캡처 없음: {name}")
+        return captures[name]
+    mask_name = params.pop("mask", None)
+    masks = masks_from(get(mask_name)[0]) if mask_name else None
+    for k in ("mean_range", "width_range", "grass_sat", "grass_hue"):
+        if k in params:
+            params[k] = tuple(params[k])
+    arr, reg = get(c["capture"])
+    if t in _SINGLE_061:
+        return _SINGLE_061[t](arr, reg, masks, **params)
+    if t == "modeGap":
+        arr2, reg2 = get(c["other"])
+        return mode_gap(arr, reg, arr2, reg2, **params)
+    if t == "aaEdge":
+        arr2, reg2 = get(c["other"])
+        return aa_edge(arr, reg, arr2, reg2, **params)
+    if t == "sharpness":
+        arr2, reg2 = get(c["other"])
+        return sharpness(arr, reg, arr2, reg2, **params)
+    if t == "grassShade":
+        return grass_shade(arr, reg, masks, **params)
+    others = [get(n)[0] for n in c.get("others") or []]
+    if t == "exposureMatch":
+        return exposure_match([arr] + others, **params)
+    if t == "frameDeltaE":
+        return frame_delta_e([arr] + others, **params)
+    if t == "panFlicker":
+        refs = [get(n)[0] for n in params.pop("refs")]
+        return pan_flicker([arr] + others, refs, **params)
+    raise KeyError(f"알 수 없는 검사 {t}")
+
+
+def sharpness(arr_a, reg_a, arr_b, reg_b, region="scorer", min_ratio=0.95):
+    """FR-83: 대상 영역 선명도(라플라시안 분산) — 고품질 모드(capture) / 일반 모드(other) ≥ 0.95."""
+    def lap_var(arr, reg):
+        if region not in reg:
+            raise KeyError(f"영역 {region} 없음")
+        a = _lum(_crop(arr, reg[region]))
+        l = a[1:-1, 1:-1] * 4 - a[:-2, 1:-1] - a[2:, 1:-1] - a[1:-1, :-2] - a[1:-1, 2:]
+        return float(l.var())
+    va, vb = lap_var(arr_a, reg_a), lap_var(arr_b, reg_b)
+    r = va / max(vb, 1e-6)
+    return {"ok": r >= min_ratio, "detail": f"대상 선명도 {va:.1f} / 일반 모드 {vb:.1f} = {r:.3f} (≥ {min_ratio})"}
+
+
+def grass_shade(arr, regions, masks, min_ratio=0.35, dark_below=10.0, max_dark_ratio=0.01, min_separation=12.0):
+    """FR-12: 잔디 영역 밝기를 두 무리(오츠)로 나눠 그림자 안 평균 / 햇빛 평균 ≥ 0.35, 그림자 안 아주 어두운 픽셀 ≤ 1%.
+    두 무리 차가 작으면(그림자 없음) 해당 없음."""
+    if masks is None:
+        raise KeyError("grassShade는 mask 캡처가 필요")
+    g = _lum(arr)[masks["grass"]]
+    if g.size < 1000:
+        return {"ok": True, "detail": "잔디 영역 작음 — 해당 없음", "na": True}
+    hist, edges = np.histogram(g, bins=256, range=(0, 256))
+    p = hist / hist.sum()
+    omega = np.cumsum(p)
+    mu = np.cumsum(p * np.arange(256))
+    with np.errstate(divide="ignore", invalid="ignore"):
+        sb = (mu[-1] * omega - mu) ** 2 / (omega * (1 - omega))
+    if not np.isfinite(sb).any():
+        return {"ok": True, "detail": "잔디 밝기가 한 값 — 그림자 구역 없음, 해당 없음", "na": True}
+    t = int(np.nanargmax(sb))
+    cut = edges[t + 1]  # 오츠 경계(구간 위쪽) — 실수 밝기를 구간 경계로 나눈다
+    dark, bright = g[g < cut], g[g >= cut]
+    if dark.size == 0 or bright.size == 0 or bright.mean() - dark.mean() < min_separation:
+        return {"ok": True, "detail": "잔디에 그림자 구역 없음 — 해당 없음", "na": True}
+    ratio = float(dark.mean() / bright.mean())
+    tiny = float((dark < dark_below).mean())
+    return {"ok": ratio >= min_ratio and tiny <= max_dark_ratio,
+            "detail": f"그림자 안 {dark.mean():.1f} / 햇빛 {bright.mean():.1f} = {ratio:.2f} (≥ {min_ratio}), 아주 어두움 {tiny * 100:.2f}% (≤ {max_dark_ratio * 100:.0f}%)"}

@@ -47,6 +47,8 @@ namespace RoadToPro.Verification.Samples.Highlight
         public StadiumLayout Layout => binder != null ? binder.Layout : null;
         public override Material BlobMaterial => blobMaterial;
         public override Light Sun => sun;
+        public override StadiumLighting Lighting => lighting;
+        public override Renderer PitchRenderer => binder != null ? binder.PitchRenderer : null;
         public override System.Collections.Generic.IReadOnlyList<Vector3> NightEmitters => _night && Layout != null ? Layout.LightEmitters : null;
 
         public void Configure(in PlayerScreen.PlayerAssets a, Light s, Material e, StadiumLighting l, StadiumLightingPreset d, PitchMaterialBinder b,
@@ -118,8 +120,9 @@ namespace RoadToPro.Verification.Samples.Highlight
             go.transform.localScale = Vector3.one * 0.22f;
             var r = go.GetComponent<Renderer>();
             _ballMaterial = new Material(assets.kitShader) { name = "BallStandIn" };
-            _ballMaterial.SetColor("_Primary", Color.white);
-            _ballMaterial.SetColor("_BootColor", Color.white);
+            var ballWhite = new Color(0.84f, 0.84f, 0.83f); // specs/061 FR-07: 공 흰 면 190~230 (214) — 순백 금지
+            _ballMaterial.SetColor("_Primary", ballWhite);
+            _ballMaterial.SetColor("_BootColor", ballWhite);
             _ballMaterial.SetVector("_TextCell", Vector4.zero);
             r.sharedMaterial = _ballMaterial;
             _ball = go.transform;

@@ -303,7 +303,7 @@ class LayoutContents(unittest.TestCase):
 
     def test_generator_record(self):
         gen = generated("default").layout["generator"]
-        self.assertEqual(gen["blender"], "5.1.1")
+        self.assertEqual(gen["blender"], "5.3.0")  # 2026-11-20 Blender 5.3 설치(사용자 결정, 080) — 061에서 정점 AO로 경기장 재생성
         self.assertEqual(gen["args"], params.PRESETS["default"])
 
     def test_cameras_and_lights(self):

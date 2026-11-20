@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "comment": "specs/000 FR-11. qualityMap: Low는 048 Low 품질 레벨(Low_RPAsset), Medium/High는 048 후속 스펙 전까지 기존 Mobile/PC 대역 (2026-11-10).",
+  "comment": "specs/000 FR-11. qualityMap: Low는 048 Low 품질 레벨(Low_RPAsset), Medium/High는 061 실제 프리셋(Medium_RPAsset·High_RPAsset, 2026-11-20 Mobile·PC 레벨 정리).",
   "qualityMap": {
     "Low": "Low",
-    "Medium": "Mobile",
-    "High": "PC"
+    "Medium": "Medium",
+    "High": "High"
   },
   "profiles": [
     {

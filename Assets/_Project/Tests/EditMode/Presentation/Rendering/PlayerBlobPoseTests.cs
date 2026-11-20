@@ -71,5 +71,35 @@ namespace RoadToPro.Tests.EditMode.Presentation.Rendering
                 Object.DestroyImmediate(go);
             }
         }
+
+        [Test]
+        public void ContactPose_UnderFoot_AllPresets()
+        {
+            // specs/061 FR-44: 발 바로 아래(중심–발 접지점 ≤ 5 cm), 0.3 m 반경을 덮고 고리(0.6~1.0 m)는 덮지 않는 크기
+            var foot = new Vector3(3f, 0.9f, -2f);
+            var p = PlayerBlobShadows.ContactPoint(foot);
+            Assert.LessOrEqual(Vector2.Distance(new Vector2(p.x, p.z), new Vector2(foot.x, foot.z)), 0.05f);
+            Assert.AreEqual(1f, p.w);
+            Assert.GreaterOrEqual(PlayerBlobShadows.ContactRadius, 0.3f);
+            Assert.Less(PlayerBlobShadows.ContactRadius, 0.6f, "고리(0.6~1.0 m)는 덮지 않는다 — 대비가 생겨야 함");
+        }
+
+        [Test]
+        public void Configure_ContactOnly_NotShaped()
+        {
+            var go = new GameObject("blob-test");
+            try
+            {
+                var b = go.AddComponent<PlayerBlobShadows>();
+                b.Configure(new[] { go.transform }, null, null, Vector3.down, null, false, null);
+                Assert.IsFalse(b.Shaped, "Medium·High: 접촉 어둡기만 (방향광 그림자가 모양을 맡음)");
+                b.Configure(new[] { go.transform }, null, null, Vector3.down, null, null);
+                Assert.IsTrue(b.Shaped, "기존 호출(Low)은 모양 그림자 + 접촉");
+            }
+            finally
+            {
+                Object.DestroyImmediate(go);
+            }
+        }
     }
 }

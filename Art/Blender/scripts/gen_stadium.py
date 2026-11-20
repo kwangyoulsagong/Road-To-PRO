@@ -49,7 +49,7 @@ def generate(p, stem, preview):
     import bpy  # noqa: F401
 
     from stadium import boards, camera_data, checks, export, geometry, goals, layout as L, lights, markings
-    from stadium import materials, pitch, roof, stands, uv2
+    from stadium import ao, materials, pitch, roof, stands, uv2
 
     blender = export.check_version()
     geometry.reset_scene()
@@ -64,6 +64,7 @@ def generate(p, stem, preview):
     boards.build(p, mats)
     for o in checks.mesh_objects():
         uv2.assign(o)
+    ao_stats = ao.bake(checks.mesh_objects())  # specs/061 FR-30 구조물 차폐 (정점 모서리 색)
 
     meas = checks.measure()
     spec = checks.spec_check(meas)
@@ -84,6 +85,7 @@ def generate(p, stem, preview):
         "visibility": checks.visibility(mount),
         "uv2": checks.uv2_check(),
         "seats": checks.seats_on_mesh(seat_rows),
+        "ao": dict(ao_stats, ok=ao.check(ao_stats)),
         "budget": {"triangles": counts["triangles"]["total"] <= TRIANGLE_BUDGET, "materials": counts["materials"] <= MATERIAL_BUDGET},
     }
     summary["measured"] = meas
@@ -112,7 +114,8 @@ def generate(p, stem, preview):
         pv.render(stem, mount)
     ok = spec["ok"] and all(summary["checks"]["budget"].values()) and not summary["checks"]["runoff"]["intrusions"] \
         and not summary["checks"]["visibility"]["blockedCorners"] and summary["checks"]["uv2"]["overlapRatio"] == 0.0 \
-        and not summary["checks"]["uv2"]["missing"] and summary["checks"]["seats"]["maxDistance"] <= 0.05
+        and not summary["checks"]["uv2"]["missing"] and summary["checks"]["seats"]["maxDistance"] <= 0.05 \
+        and summary["checks"]["ao"]["ok"]
     return ok, lay
 
 
@@ -135,7 +138,7 @@ def main(argv):
         for k, v in s["triangles"].items():
             print(f"[stadium]   triangles {k}: {v}")
         print(f"[stadium] 검사: 규격 {s['checks']['spec']} · 런오프 {s['checks']['runoff']} · 가시성 {s['checks']['visibility']['blockedCorners']} · "
-              f"UV2 {s['checks']['uv2']} · 좌석 {s['checks']['seats']} · 예산 {s['checks']['budget']}")
+              f"UV2 {s['checks']['uv2']} · 좌석 {s['checks']['seats']} · 예산 {s['checks']['budget']} · AO {s['checks']['ao']}")
         for n in s["notes"]:
             print("[stadium] 참고: " + n)
         if not ok:
