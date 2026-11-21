@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "id": "062-suit",
+  "spec": "062",
+  "description": "정장 (AC-15, FR-27): 같은 선수(같은 외형·얼굴·헤어) 왼쪽 유니폼 · 오른쪽 정장(시드 색) 정면·3/4, 정장 쪽 상반신 클로즈업(클로즈업 머리). 076 3D 시상 장면 대체 픽스처(076 구현 전). 로고·문자 없음은 육안 + 마스크 설계(셔츠 V존·넥타이·소맷부리만).",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261121
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-15"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "suitFront"
+    },
+    {
+      "type": "capture",
+      "name": "suitFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "suitThree"
+    },
+    {
+      "type": "capture",
+      "name": "suitThree",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "suitFace"
+    },
+    {
+      "type": "capture",
+      "name": "suitFace",
+      "kind": "3d"
+    }
+  ],
+  "imageChecks": [],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

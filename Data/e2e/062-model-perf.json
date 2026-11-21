@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "id": "062-model-perf",
+  "spec": "062",
+  "description": "062 선수 비주얼 업그레이드 성능 (AC-13, FR-80~84·92): 선수 25명 1.5x 재생(players), 같은 장면 + 최고 품질 등급 3명(클로즈업 머리 2·LOD0 고정 1, 표정·땀) + 손가락·키트 보조 뼈·표정 갱신(tier), 클로즈업 머리 전환(closeup). 판정(empty·players·tier는 제한 해제 — 60 fps 대기가 p95에 잡히지 않게, 048 uncapped 방식): 프레임 p95 ≤ 16.6 ms(60 fps), 애니메이션 구간(custom.animCpuMs, ApplyAt = 클립·IK·Players.MotionExtras) p95 ≤ 2 ms, GC 0, 클로즈업 전환 ≤ 2 ms, 선수 몫 드로우콜 ≤ 75·삼각형 ≤ 15만(FR-82), 선수 텍스처 메모리 ≤ 160 MB(FR-83 [제안], custom.playerTextureMB = 선수 렌더러가 쓰는 텍스처 중복 제외 합). GPU 몫은 개발 맥 기록만(내장 GPU 판정은 실기기 확보 후, 2026-11-11 결정). 넘으면 LOD1 이하 손가락·보조 뼈 갱신 끄기 → 그래도 넘으면 멈추고 묻는다(T36).",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261121
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "perfEmpty"
+    },
+    {
+      "type": "perfBegin",
+      "name": "empty",
+      "warmupFrames": 60,
+      "minFrames": 300,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "empty"
+    },
+    {
+      "type": "goto",
+      "screen": "perfPlayers"
+    },
+    {
+      "type": "perfBegin",
+      "name": "players",
+      "warmupFrames": 60,
+      "minFrames": 600,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "players"
+    },
+    {
+      "type": "goto",
+      "screen": "perfTier"
+    },
+    {
+      "type": "perfBegin",
+      "name": "tier",
+      "warmupFrames": 60,
+      "minFrames": 600,
+      "uncapped": true
+    },
+    {
+      "type": "perfEnd",
+      "name": "tier"
+    },
+    {
+      "type": "goto",
+      "screen": "perfCloseup"
+    },
+    {
+      "type": "perfBegin",
+      "name": "closeup",
+      "warmupFrames": 60,
+      "minFrames": 400
+    },
+    {
+      "type": "perfEnd",
+      "name": "closeup"
+    }
+  ],
+  "acs": [
+    "AC-13"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "budgets": {
+    "players": {
+      "frameMs.p95": 16.6,
+      "custom.animGcBytes.max": 0
+    },
+    "tier": {
+      "frameMs.p95": 16.6,
+      "custom.animCpuMs.p95": 2.0,
+      "custom.animGcBytes.max": 0,
+      "custom.playerTextureMB.max": 160
+    },
+    "closeup": {
+      "custom.closeupSwitchMs.max": 2.0
+    }
+  },
+  "derived": {
+    "playersRender": {
+      "of": "players",
+      "minus": "empty",
+      "budget": {
+        "drawCalls.avg": 75,
+        "triangles.avg": 150000
+      }
+    },
+    "tierRender": {
+      "of": "tier",
+      "minus": "empty",
+      "budget": {
+        "drawCalls.avg": 75,
+        "triangles.avg": 150000
+      }
+    }
+  },
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

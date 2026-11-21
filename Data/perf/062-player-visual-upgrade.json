@@ -1,0 +1,14 @@
+{
+  "spec": "062",
+  "profile": "mac-m1-1600p",
+  "note": "specs/062 AC-13 성능 예산의 기계용 사본. 시뮬 틱 경로 변경 없음 → IL2CPP bench 없음(Q-P1, 05-sdd). 프레임 p95·애니메이션 구간·GC·클로즈업 전환·드로우콜·삼각형·텍스처 메모리는 E2E 062-model-perf, 굽기 시간(057 예산 × 1.3)·텍스처 해상도 표는 EditMode PlayerMeshBakerTests·PlayerImportTests, 폴리곤·glb 크기는 Blender test_player.",
+  "tests": [
+    "RoadToPro.Tests.EditMode.Presentation.Players"
+  ],
+  "budgets": [],
+  "e2e": "062-model-perf",
+  "manual": {
+    "AC-12": "evidence/approval.md",
+    "AC-15": "evidence/approval.md"
+  }
+}

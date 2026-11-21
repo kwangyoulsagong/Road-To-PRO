@@ -50,6 +50,7 @@ namespace RoadToPro.Verification.Editor
                 prefab = Load<GameObject>(Gen + "/player.glb"),
                 clipsJson = clipsJson,
                 mapJson = Load<TextAsset>("Assets/_Project/Presentation/Players/Data/043-anim-map.json"),
+                expressionsJson = Load<TextAsset>("Assets/_Project/Presentation/Players/Data/expressions.json"),
                 glyphJson = Load<TextAsset>(Fonts + "/kit-glyphs.json"),
                 body = new PlayerBodyAssets
                 {
@@ -67,6 +68,8 @@ namespace RoadToPro.Verification.Editor
                     kitDetailAO = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.KitDetailAO),
                     kitWeave = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.KitWeave),
                     kitRegion = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.KitRegion),
+                    beardMask = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.BeardMask),
+                    suitMask = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.SuitMask),
                 },
                 fabric = Load<Texture2D>(Gen + "/Textures/kit_normal.png"),
                 names = Load<Texture2D>(Fonts + "/kit-glyphs-names.png"),

@@ -33,6 +33,7 @@ namespace RoadToPro.Verification.Samples
             public AnimationClip[] clips; // ClipLibrary 인덱스 순서
             public TextAsset gaitReferenceJson; // 055 연구 기준 스틱 피겨 (player.gait-reference.json)
             public Material stickMaterial;      // 055 스틱 피겨 선 (URP Unlit)
+            public TextAsset expressionsJson;   // 062 FR-70 반응·이벤트 → 표정 (Presentation/Players/Data/expressions.json)
         }
 
         // 엔티티: 0 홈 GK, 1~10 홈 필드, 11 원정 GK, 12~21 원정 필드, 22~24 심판
@@ -158,6 +159,7 @@ namespace RoadToPro.Verification.Samples
             FarmContext.Screens["speed3x"] = () => ShowSpeed(3f, 30);
             // 062 FR-21 자리 장면 (T17): 0.5x 질주 상체 근접 — 보조 뼈 2차 움직임·손가락 포즈 켬. 시나리오 완성은 T29
             FarmContext.Screens["kitMotion"] = () => ShowKitMotion(0.5f, 180);
+            Register062();   // 062 T35: 체형·손·키트 움직임·얼굴·표정·등급·정장 (PlayerScreen.062.cs)
             FarmContext.CaptureRegions = Regions;
             FarmContext.PerfCounters["animCpuMs"] = () => _perf ? _cpuMs : (double?)null;
             FarmContext.PerfCounters["animGcBytes"] = () => _perf ? _gcBytes : (double?)null;
@@ -173,6 +175,7 @@ namespace RoadToPro.Verification.Samples
             FarmContext.PerfCounters.Remove("animGcBytes");
             FarmContext.PerfCounters.Remove("closeupSwitchMs");
             FarmContext.PerfCounters.Remove("faceFlicker");
+            FarmContext.PerfCounters.Remove("poseHash");
             KitCompositor.PlaybackActive = false;
         }
 

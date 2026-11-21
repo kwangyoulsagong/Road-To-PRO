@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "062-kit-motion",
   "spec": "062",
-  "description": "자리 장면 (T17): 질주를 0.5x 재생으로 시작 + 1.5 s에 멈춰 상체 옆에서 캡처 — 보조 뼈 2차 움직임(상의 밑단·소매·반바지)과 손가락 포즈가 켜진 상태. 고정 재생 시각 6개·배속 비교는 T29에서 완성 (AC-10)",
+  "description": "키트 2차 움직임 (AC-10·14, FR-20~22): 질주 0.5x 재생을 고정 재생 시각 6개(0.6~2.1 s)에서 멈춰 상체 옆 캡처 — 상의 밑단·소매·반바지 보조 뼈와 손가락 포즈 켬. 배속 0.5x·1x·1.5x·3x에서 같은 재생 시각(1.5 s) 캡처 → custom.poseHash가 모두 같아야 한다(프레임 누적 상태 없음, AC-14).",
   "scene": "Player043",
   "fixture": {
     "save": null,
@@ -10,10 +10,11 @@
   },
   "profiles": "smoke",
   "acs": [
-    "AC-10"
+    "AC-10",
+    "AC-14"
   ],
   "defaults": {
-    "timeoutSec": 30
+    "timeoutSec": 60
   },
   "steps": [
     {
@@ -23,6 +24,87 @@
     {
       "type": "capture",
       "name": "kitMotion",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "kitT1"
+    },
+    {
+      "type": "capture",
+      "name": "kitT1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "kitT2"
+    },
+    {
+      "type": "capture",
+      "name": "kitT2",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "kitT3"
+    },
+    {
+      "type": "capture",
+      "name": "kitT3",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "kitT5"
+    },
+    {
+      "type": "capture",
+      "name": "kitT5",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "kitT6"
+    },
+    {
+      "type": "capture",
+      "name": "kitT6",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "kitRate5"
+    },
+    {
+      "type": "capture",
+      "name": "kitRate5",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "kitRate10"
+    },
+    {
+      "type": "capture",
+      "name": "kitRate10",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "kitRate15"
+    },
+    {
+      "type": "capture",
+      "name": "kitRate15",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "kitRate30"
+    },
+    {
+      "type": "capture",
+      "name": "kitRate30",
       "kind": "3d"
     }
   ],

@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "id": "062-body-closeup",
+  "spec": "062",
+  "description": "체형·손 클로즈업 (AC-09, FR-01~05·10~13·30~35·85~89): 근육 최대 체형 상반신 정면·3/4·뒤(LOD0 고정·고해상도), 오른손 클로즈업(5손가락·힘줄), 056 체형 라인업 정면·옆·뒤·방송, 품질 등급 전환 4단계 연속(원거리 일반 → 3명 LOD0 고정 → 앞 2명 클로즈업 머리 + 3번째 LOD0 고정 → 근접). 판정·육안 승인은 T37·T39 (프로필 mac-m1-1600p 1개, 기준 이미지 비교 없음 — 2026-11-11 결정).",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261121
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-09"
+  ],
+  "defaults": {
+    "timeoutSec": 90
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "upperFront"
+    },
+    {
+      "type": "capture",
+      "name": "upperFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "upperThree"
+    },
+    {
+      "type": "capture",
+      "name": "upperThree",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "upperBack"
+    },
+    {
+      "type": "capture",
+      "name": "upperBack",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "handCloseup"
+    },
+    {
+      "type": "capture",
+      "name": "handCloseup",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodyFront"
+    },
+    {
+      "type": "capture",
+      "name": "bodyFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodySide"
+    },
+    {
+      "type": "capture",
+      "name": "bodySide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodyBack"
+    },
+    {
+      "type": "capture",
+      "name": "bodyBack",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodyBroadcast"
+    },
+    {
+      "type": "capture",
+      "name": "bodyBroadcast",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tier1"
+    },
+    {
+      "type": "capture",
+      "name": "tier1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tier2"
+    },
+    {
+      "type": "capture",
+      "name": "tier2",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tier3"
+    },
+    {
+      "type": "capture",
+      "name": "tier3",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tier4"
+    },
+    {
+      "type": "capture",
+      "name": "tier4",
+      "kind": "3d"
+    }
+  ],
+  "imageChecks": [],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}
