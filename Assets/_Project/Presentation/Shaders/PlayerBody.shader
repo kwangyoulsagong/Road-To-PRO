@@ -22,6 +22,9 @@ Shader "RoadToPro/PlayerBody"
         _HairColor2 ("머리카락 위·끝 색 (컬러 포인트)", Color) = (0.15, 0.10, 0.07, 1)
         _EyeColor ("홍채 색", Color) = (0.30, 0.18, 0.10, 1)
         _BeardLevel ("수염 0~1", Range(0, 1)) = 0
+        _BeardMask ("수염 영역 RGBA (full·콧수염·염소수염·진한 스텁블)", 2D) = "black" {}
+        _BeardChannel ("수염 영역 선택", Vector) = (1, 0, 0, 0)
+        _BeardMaskOn ("수염 마스크 사용", Float) = 0
         _NormalStrength ("노멀 세기", Range(0, 2)) = 0.6
         _MuscleN ("근육·손 구운 노멀", 2D) = "bump" {}
         _MuscleAO ("근육·손 구운 차폐", 2D) = "white" {}
@@ -43,6 +46,7 @@ Shader "RoadToPro/PlayerBody"
         TEXTURE2D(_MuscleN); SAMPLER(sampler_MuscleN);
         TEXTURE2D(_MuscleAO); SAMPLER(sampler_MuscleAO);
         TEXTURE2D(_ThicknessTex); SAMPLER(sampler_ThicknessTex);
+        TEXTURE2D(_BeardMask); SAMPLER(sampler_BeardMask);
         CBUFFER_START(UnityPerMaterial)
             float4 _SkinTex_ST;
             half4 _SkinColor;
@@ -50,6 +54,8 @@ Shader "RoadToPro/PlayerBody"
             half4 _HairColor2;
             half4 _EyeColor;
             half _BeardLevel;
+            half4 _BeardChannel;
+            half _BeardMaskOn;
             half _NormalStrength;
             half _MuscleDef, _Translucency, _Sweat, _Wetness;
         CBUFFER_END
@@ -175,10 +181,17 @@ Shader "RoadToPro/PlayerBody"
                 half3 skin = _SkinColor.rgb * (s.r * 1.25h);
                 skin *= lerp(half3(1, 1, 1), half3(1.10h, 0.86h, 0.82h), s.g * 0.7h);
                 // 057 FR-24: 수염 = 밀도(s.b)의 부드러운 문턱(경계 흐림) × 종류별 덮임. 짧을수록 피부가 비치는 옅은 색조(잔털), 길수록 짙다.
+                // 062 FR-66: 밀도 = 수염 영역 마스크(beard_mask0)에서 종류별 채널 하나 — 없으면 057 피부 B(full)
                 half lvl = _BeardLevel;
                 half lo = 0.75h - lvl * 0.6h;
-                half beard = smoothstep(lo, lo + 0.45h, s.b) * lvl * step(0.01h, lvl);
-                half3 beardCol = _HairColor.rgb * lerp(0.75h, 0.55h, lvl) * lerp(0.9h, 1.1h, s.b);
+                half bden = lerp(s.b, dot(SAMPLE_TEXTURE2D(_BeardMask, sampler_BeardMask, frac(i.uv)).rgba, _BeardChannel), _BeardMaskOn);
+                // 062 T35 육안: 경계 폭 0.45 → 0.65(흐린 가장자리), 털 결(피부 밝기 디테일 R)로 덮임을 흔들어 평면 색 조각처럼 보이지 않게,
+                // 회색·밝은 수염은 피부 그늘을 조금 섞어 분칠처럼 뜨지 않게
+                half beard = smoothstep(lo, lo + 0.65h, bden) * lvl * step(0.01h, lvl);
+                beard *= saturate(0.88h + (s.r - 0.8h) * 1.5h);
+                half3 beardCol = _HairColor.rgb * lerp(0.75h, 0.55h, lvl) * lerp(0.9h, 1.1h, bden);
+                half hairLum = dot(_HairColor.rgb, half3(0.3h, 0.59h, 0.11h));
+                beardCol = lerp(beardCol, skin * 0.55h, 0.35h * saturate((hairLum - 0.25h) * 2.0h));   // 밝은(회색·금발) 수염만
                 skin = lerp(skin, beardCol, beard * lerp(0.55h, 0.92h, lvl));
                 half skinRough = saturate(s.a + beard * 0.3h);
                 skinRough = saturate(skinRough - 0.04h * thk.g * _Sweat);                 // FR-33 땀 (heightfield.SWEAT_DROP)

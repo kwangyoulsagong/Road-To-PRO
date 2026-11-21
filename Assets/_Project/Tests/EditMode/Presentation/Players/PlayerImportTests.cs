@@ -16,10 +16,10 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             const string gen = "Assets/_Project/Presentation/Players/Generated";
             var root = AssetDatabase.LoadAssetAtPath<GameObject>(gen + "/player.glb");
             Assert.IsNotNull(root);
-            int[] max = { 11000, 3000, 1000 }; // LOD0 상한 11k (2026-11-20 사용자 결정, 062 T17a에서 앞당김 — 나머지 예산 갱신은 T31)
+            int[] max = { 11000, 3000, 1000 }; // 062 FR-81: LOD0 6~11k (2026-11-20 사용자 결정), LOD1 2~3k, LOD2 ≤ 1k
             // 057: 몸 LOD 3 + 헤어 조각 34종(062 35종, 삭발 제외) × 3 + 클로즈업 머리. 몸 + 가장 무거운 헤어 조각 ≤ LOD 예산(056 FR-60, 057 FR-40)
             var smrs = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-            Assert.AreEqual(3 + 34 * 3 + 1, smrs.Length);
+            Assert.AreEqual(3 + 34 * 3 + 1 + 3, smrs.Length);   // 062 FR-27: + 정장 LOD 3
             foreach (var h in RoadToPro.Presentation.Players.PlayerLook.HairMeshes)
                 if (h != null)
                     for (int l = 0; l < 3; l++)
@@ -37,25 +37,49 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 if (smr.name == "Head_Closeup")
                 {
                     Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3, 6000, smr.name);
+                    var cn = Enumerable.Range(0, smr.sharedMesh.blendShapeCount).Select(i => smr.sharedMesh.GetBlendShapeName(i)).ToList();
+                    Assert.AreEqual(4, cn.Count(n => n.StartsWith("Expr_")), smr.name + " 표정 4 (FR-71)");
+                    Assert.AreEqual(8, cn.Count(n => n.StartsWith("Base_")), smr.name + " 바탕 머리 8");
                     continue;
                 }
-                if (!smr.name.StartsWith("Player_LOD")) continue;
+                if (!smr.name.StartsWith("Player_LOD") && !smr.name.StartsWith("Suit_LOD")) continue;
                 int lod = smr.name[smr.name.Length - 1] - '0';
                 Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3 + hairMax[lod], max[lod], smr.name);
                 var names = Enumerable.Range(0, smr.sharedMesh.blendShapeCount).Select(i => smr.sharedMesh.GetBlendShapeName(i)).ToList();
                 foreach (var k in new[] { "Thin", "Muscular", "Heavy", "HideHead" }) CollectionAssert.Contains(names, k, smr.name);
                 Assert.GreaterOrEqual(names.Count(n => n.StartsWith("Face_")), 20, smr.name);
+                // 062 FR-60·71: 바탕 머리 8은 모든 LOD, 표정 4는 LOD0만 (LOD1 이하 무표정)
+                Assert.AreEqual(8, names.Count(n => n.StartsWith("Base_")), smr.name);
+                Assert.AreEqual(lod == 0 ? 4 : 0, names.Count(n => n.StartsWith("Expr_")), smr.name);
+                Assert.GreaterOrEqual(smr.sharedMesh.triangles.Length / 3 + hairMax[lod], lod == 0 ? 6000 : lod == 1 ? 2000 : 0, smr.name + " 하한");
             }
             foreach (var smr in smrs)
                 Assert.AreEqual(smrs[0].sharedMesh.bindposeCount, smr.sharedMesh.bindposeCount, smr.name + ": 뼈대 공유");
+            // 062 FR-92·83: 파일별 해상도 상한(Blender checks.TEXTURE_RES와 같은 표), 표 밖 텍스처 0. 메모리는 기록만(판정 G단계 062-model-perf)
+            long bytes = 0;
             foreach (var guid in AssetDatabase.FindAssets("t:Texture2D", new[] { gen + "/Textures" }))
             {
                 var t = AssetDatabase.LoadAssetAtPath<Texture2D>(AssetDatabase.GUIDToAssetPath(guid));
                 Assert.LessOrEqual(Mathf.Max(t.width, t.height), 2048, t.name);
+                Assert.IsTrue(TextureRes.TryGetValue(t.name, out int lim), "FR-92 표에 없는 텍스처 " + t.name);
+                Assert.LessOrEqual(Mathf.Max(t.width, t.height), lim, t.name);
+                bytes += UnityEngine.Profiling.Profiler.GetRuntimeMemorySizeLong(t);
             }
+            TestContext.WriteLine($"[062] sharedPlayerTextureMB={bytes / 1048576.0:0.0}");
+            Debug.Log($"[062] sharedPlayerTextureMB={bytes / 1048576.0:0.0}");
             var clips = AssetDatabase.LoadAllAssetsAtPath(gen + "/player.glb").OfType<AnimationClip>().Count(c => !c.name.StartsWith("__preview"));
             Assert.GreaterOrEqual(clips, 75);
         }
+
+        /// <summary>062 FR-92 파일별 최대 해상도 (Art/Blender/scripts/player/checks.py TEXTURE_RES와 같다).</summary>
+        static readonly System.Collections.Generic.Dictionary<string, int> TextureRes = new System.Collections.Generic.Dictionary<string, int>
+        {
+            ["skin"] = 1024, ["skin_normal"] = 1024, ["parts"] = 1024, ["skin_closeup"] = 2048, ["skin_closeup_normal"] = 2048,
+            ["body_detail_n"] = 2048, ["body_detail_ao"] = 2048, ["kit_detail_n"] = 2048, ["kit_detail_ao"] = 2048,
+            ["kit_region"] = 1024, ["beard_mask0"] = 1024, ["skin_thickness"] = 512, ["kit_normal"] = 512, ["kit_weave"] = 256,
+            ["kit_mask_plain"] = 1024, ["kit_mask_stripes"] = 1024, ["kit_mask_hoops"] = 1024, ["kit_mask_halves"] = 1024,
+            ["kit_mask_sash"] = 1024, ["kit_mask_yoke"] = 1024, ["kit_mask_suit"] = 1024,
+        };
 
         /// <summary>055 기준선(043·056 클립 82개) 클립 메모리 합(바이트, 에디터 측정, 2026-11-05 T04).</summary>
         const long ClipMemoryBaseline055 = 23555936;

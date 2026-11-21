@@ -12,7 +12,7 @@ namespace RoadToPro.Presentation.Editor.Players
         public const string GeneratedDir = PlayersDir + "/Generated";
 
         /// <summary>규칙이 바뀌면 올린다 — Unity가 이 후처리기를 거친 에셋을 다시 임포트한다 (062: 디테일 노멀·짜임 타일 규칙).</summary>
-        public override uint GetVersion() => 2;
+        public override uint GetVersion() => 3;   // 062 T36: AO 맵 1K
 
         void OnPreprocessTexture()
         {
@@ -27,7 +27,8 @@ namespace RoadToPro.Presentation.Editor.Players
                 t.textureType = normal ? TextureImporterType.NormalMap : TextureImporterType.Default;
                 t.sRGBTexture = false;
                 t.mipmapEnabled = true;
-                t.maxTextureSize = 2048;
+                // 062 T36 FR-83·92: 몸·키트 AO는 저주파 → 1K (선수 텍스처 165.7 → 약 134 MB, 예산 160 MB)
+                t.maxTextureSize = file == "body_detail_ao.png" || file == "kit_detail_ao.png" ? 1024 : 2048;
                 t.wrapMode = tile ? UnityEngine.TextureWrapMode.Repeat : UnityEngine.TextureWrapMode.Clamp;
                 t.textureCompression = TextureImporterCompression.Uncompressed;
                 // 057 FR-22·062 FR-94: 디테일 노멀·짜임 높이는 먼 밉일수록 평탄하게(노멀 = 위, 높이 = 회색 0.5) — 방송 시점 원거리 깜빡임 방지.

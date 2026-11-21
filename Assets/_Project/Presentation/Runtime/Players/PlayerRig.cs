@@ -5,6 +5,9 @@ using UnityEngine;
 
 namespace RoadToPro.Presentation.Players
 {
+    /// <summary>062 FR-27 의상: 유니폼(기본) · 정장(076 시상 장면).</summary>
+    public enum PlayerOutfit { Uniform, Suit }
+
     /// <summary>
     /// 선수 한 명 (specs/043 FR-01·10·11·13·20, 056 FR-22·40·61). player.glb 인스턴스 루트에 붙는다.
     /// LOD 3단(히스테리시스), 루트 균등 스케일 = 키/180 cm, 머티리얼 2개(Body·Kit) 인스턴스.
@@ -35,6 +38,8 @@ namespace RoadToPro.Presentation.Players
         float _baseScale = 1f;
 
         public SkinnedMeshRenderer Lod(int i) => _lods[i];
+        /// <summary>지금 그리는 LOD (0~2, 아직 정하지 않았으면 0).</summary>
+        public int CurrentLod => _lod < 0 ? 0 : _lod;
         public Animator Animator => _animator;
         public Material BodyMaterial => _body;
         public Material KitMaterial => _kit;
@@ -65,12 +70,18 @@ namespace RoadToPro.Presentation.Players
                     rig._closeupSrc = smr.sharedMesh;
                     smr.enabled = false;
                 }
+                else if (smr.name.StartsWith("Suit_LOD"))
+                {
+                    rig._suitSrc[smr.name[smr.name.Length - 1] - '0'] = smr.sharedMesh;
+                    smr.enabled = false; // 정장 몸 LOD는 ApplyOutfit 굽기 재료
+                }
                 else if (smr.name.StartsWith("Hair_"))
                 {
                     rig._parts[smr.name] = smr;
                     smr.enabled = false; // 헤어 조각은 굽기 재료 — 직접 그리지 않는다
                 }
             }
+            rig._suitMask = bodyTex.suitMask;
             rig._body = new Material(bodyShader) { name = "PlayerBody (instance)" };
             rig._kit = new Material(kitShader) { name = "PlayerKit (instance)" };
             SetBodyTextures(rig._body, bodyTex.skin, bodyTex.skinNormal, bodyTex.parts);
@@ -97,6 +108,9 @@ namespace RoadToPro.Presentation.Players
             rig._kit.SetVector("_NameSub", PlayerLook.NameSub);
             rig._kit.SetVector("_NumberSub", PlayerLook.NumberSub);
             var mats = new[] { rig._body, rig._kit };
+            rig._matsNormal = mats;
+            // 062 FR-86: LOD0 고정 등급의 고해상도 머티리얼 = 클로즈업 머리 머티리얼(같은 셰이더·같은 값, 2K 피부 텍스처만 다름 → FR-88)
+            rig._matsHigh = rig._closeupMat != null ? new[] { rig._closeupMat, rig._kit } : mats;
             foreach (var smr in rig._lods)
             {
                 smr.sharedMaterials = mats;
@@ -256,11 +270,90 @@ namespace RoadToPro.Presentation.Players
             SetIf(m, "_MuscleN", a.bodyDetailN);
             SetIf(m, "_MuscleAO", a.bodyDetailAO);
             SetIf(m, "_ThicknessTex", a.skinThickness);
+            // 062 FR-66: 수염 영역 4채널 마스크(full·mustache·goatee·heavy). 없으면 057 피부 텍스처 B 채널(full)로 그린다
+            if (a.beardMask != null)
+            {
+                m.SetTexture("_BeardMask", a.beardMask);
+                m.SetFloat("_BeardMaskOn", 1f);
+            }
         }
 
         static void SetIf(Material m, string name, Texture t)
         {
             if (t != null) m.SetTexture(name, t);
+        }
+
+        // ---------------------------------------------------------------- 062 FR-85~89 품질 등급
+        Material[] _matsNormal, _matsHigh;
+        bool _topTier;
+        float _sweat;
+
+        /// <summary>LOD0 고정 + 고해상도 등급(QualityTierPolicy의 3번째 선수 등).</summary>
+        public bool TopTierPinned => _topTier;
+
+        /// <summary>최고 품질 등급(클로즈업 머리 또는 LOD0 고정) — 땀은 이때만 보인다 (FR-85). 표정은 LOD0·클로즈업 전부(FR-71, 전환 튐 방지).</summary>
+        public bool HighQuality => _topTier || _closeupOn;
+
+        /// <summary>
+        /// LOD0 고정·고해상도 머티리얼 켜기/끄기 (FR-86). 끄면 다음 UpdateLod부터 히스테리시스로 내려간다(LOD 0에서 출발 — 튐 없음, FR-89).
+        /// 할당 없음(머티리얼 배열은 Create에서).
+        /// </summary>
+        public void SetTopTier(bool on)
+        {
+            if (on == _topTier) return;
+            _topTier = on;
+            if (_lods[0] != null) _lods[0].sharedMaterials = on ? _matsHigh : _matsNormal;
+            if (on) ForceLod(0);
+            ApplyTierState();
+        }
+
+        /// <summary>땀 0~1 (FR-33). 선수 상태 — 셰이더 값은 최고 품질 등급일 때만 두 머티리얼에 같게 넣는다.</summary>
+        public void SetSweat(float v)
+        {
+            _sweat = Mathf.Clamp01(v);
+            ApplyTierState();
+        }
+
+        void ApplyTierState()
+        {
+            float sw = HighQuality ? _sweat : 0f;
+            if (_body != null) _body.SetFloat("_Sweat", sw);
+            if (_closeupMat != null) _closeupMat.SetFloat("_Sweat", sw);
+        }
+
+        // ---------------------------------------------------------------- 062 FR-70·71 표정
+        /// <summary>표정 교차 섞기 상태 (선수 단위 — 클로즈업 머리와 LOD0에 같은 값). 반응을 받는 쪽이 Set(표정, 재생 시각, 섞기)을 부른다.</summary>
+        public readonly ExpressionBlend ExpressionState = new ExpressionBlend();
+        readonly float[] _expr = new float[ExpressionLogic.Keys.Length];
+
+        /// <summary>
+        /// 표정 키 가중치 0~1 (ExpressionLogic.Keys 순서)을 LOD0·클로즈업 머리 블렌드셰이프 1~4번에 넣는다(프레임 가중치 1로 구움).
+        /// LOD1 이하는 표정 키가 없어 무표정(FR-71). 값이 같으면 건드리지 않는다. 할당 없음.
+        /// </summary>
+        public void SetExpression(ReadOnlySpan<float> w)
+        {
+            int n = Math.Min(w.Length, _expr.Length);
+            bool changed = false;
+            for (int k = 0; k < n; k++)
+                if (_expr[k] != w[k])
+                {
+                    _expr[k] = w[k];
+                    changed = true;
+                }
+            if (changed) PushExpression();
+        }
+
+        void PushExpression()
+        {
+            PushExpression(_lods[0]);
+            PushExpression(_closeup);
+        }
+
+        void PushExpression(SkinnedMeshRenderer r)
+        {
+            if (r == null || r.sharedMesh == null || r.sharedMesh.blendShapeCount < 1 + _expr.Length) return;
+            // FR-71: LOD0·클로즈업 머리 모두 같은 값 — 등급 전환(클로즈업 ↔ LOD0 고정 ↔ 일반 LOD0)에서 표정이 튀지 않는다(FR-89)
+            for (int k = 0; k < _expr.Length; k++) r.SetBlendShapeWeight(1 + k, _expr[k]);
         }
 
         public bool CloseupActive => _closeupOn;
@@ -278,6 +371,19 @@ namespace RoadToPro.Presentation.Players
             float w = on ? 1f : 0f;
             foreach (var l in _lods)
                 if (l != null && l.sharedMesh != null && l.sharedMesh.blendShapeCount > 0) l.SetBlendShapeWeight(0, w);
+            ApplyTierState();   // 062: 등급이 바뀌면 표정·땀 표시도 같이
+        }
+
+        /// <summary>피부 정점(UV u &lt; 1 — 머리카락·눈·카드 제외) 최고 높이 = 정수리 (메시 좌표).</summary>
+        static float SkinTop(Mesh m)
+        {
+            var v = m.vertices;
+            var uv = new List<Vector2>(v.Length);
+            m.GetUVs(0, uv);
+            float top = 0f;
+            for (int i = 0; i < v.Length && i < uv.Count; i++)
+                if (uv[i].x < 1f && v[i].y > top) top = v[i].y;
+            return top;
         }
 
         /// <summary>메시를 서브메시 하나로 합친 복사본 (그림자 전용).</summary>
@@ -321,6 +427,7 @@ namespace RoadToPro.Presentation.Players
         /// </summary>
         public int UpdateLod(Camera cam)
         {
+            if (_topTier) return _lod;   // 062 FR-86: 등급 대상은 LOD0 고정
             if (cam == null) return _lod;
             float dist = Vector3.Distance(cam.transform.position, transform.position + Vector3.up * (0.9f * transform.localScale.y));
             float h = 1.8f * transform.localScale.y / Mathf.Max(1e-3f, 2f * dist * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad));
@@ -375,6 +482,8 @@ namespace RoadToPro.Presentation.Players
         public void ApplyAppearance(in PlayerAppearance a, FaceShape face, FaceData data)
         {
             Appearance = a;
+            _face = face;
+            _faceData = data;
             _baseScale = a.Scale;
             transform.localScale = new Vector3(_baseScale, _baseScale, _baseScale);
             var w = new Dictionary<string, float>
@@ -385,7 +494,8 @@ namespace RoadToPro.Presentation.Players
                 ["Broad"] = BodyShapeMap.Broad(a),   // 062 FR-01
                 ["Limb"] = BodyShapeMap.Limb(a),
             };
-            int beard = 0;
+            // 062 FR-66: 수염은 외형(PlayerAppearance.Beard)에서
+            int beard = a.Beard;
             if (face != null && data != null)
             {
                 for (int i = 0; i < face.Axis.Length; i++)
@@ -393,8 +503,13 @@ namespace RoadToPro.Presentation.Players
                     face.Key(data, i, out var key, out var v);
                     if (v > 0f) w[key] = v;
                 }
-                beard = face.Beard;
-                if (beard > 0) w["Beard_" + data.Beards[beard]] = 1f;
+                if (beard > 0 && beard < data.Beards.Count) w["Beard_" + data.Beards[beard]] = 1f;
+                // 062 FR-60·61: 바탕 머리 2~3개 혼합 (천분율 → 0~1). 굽기는 키 이름 정렬 순서로 더해 결정론
+                for (int k = 0; k < 3; k++)
+                {
+                    a.Base(k, out int head, out int pm);
+                    if (pm > 0 && head >= 0 && head < data.BaseHeads.Count) w[data.BaseHeads[head]] = pm * 0.001f;
+                }
             }
             foreach (var m in _baked)
                 if (m != null) Release(m);
@@ -419,6 +534,17 @@ namespace RoadToPro.Presentation.Players
                 _closeup.sharedMesh = baked;
                 // localBounds는 루트 뼈 기준 — 임포트 값 유지(메시 좌표 bounds를 넣으면 머리가 컬링된다)
             }
+            // 062 FR-61: 바탕 머리 혼합이 정수리를 옮긴다(긴 머리형 최대 ≈ 1.3 cm) → 구운 LOD0 정수리 / 원본 정수리로 루트 스케일을 보정해
+            // 키(043 FR-01 ±1 cm)를 입력값 그대로 둔다
+            if (_lods[0] != null && _srcLods[0] != null)
+            {
+                float src = SkinTop(_srcLods[0]), baked = SkinTop(_lods[0].sharedMesh);
+                if (src > 0f && baked > 0f)
+                {
+                    _baseScale = a.Scale * src / baked;
+                    transform.localScale = new Vector3(_baseScale, _baseScale, _baseScale);
+                }
+            }
             if (_shadow != null)
             {
                 var old = _shadowMesh;
@@ -435,8 +561,11 @@ namespace RoadToPro.Presentation.Players
                 // 062 FR-54: 위·끝 색 — 컬러 포인트가 없으면 같은 색(셰이더는 분기 없이 정점 마스크로 섞는다)
                 m.SetColor("_HairColor2", a.ColorPoint > 0 ? PlayerLook.ColorPointColors[a.ColorPoint - 1] : PlayerLook.HairColors[a.HairColor]);
                 m.SetColor("_EyeColor", PlayerLook.EyeColors[(a.SkinTone * 7 + a.Face) % PlayerLook.EyeColors.Length]);
-                m.SetFloat("_BeardLevel", PlayerLook.BeardLevels[Mathf.Clamp(beard, 0, PlayerLook.BeardLevels.Length - 1)]);
+                int bi = Mathf.Clamp(beard, 0, PlayerLook.BeardLevels.Length - 1);
+                m.SetFloat("_BeardLevel", PlayerLook.BeardLevels[bi]);
+                m.SetVector("_BeardChannel", PlayerLook.BeardChannels[bi]);
             }
+            PushExpression();   // 새로 구운 메시에 현재 표정 유지
             if (_closeupOn)
             {
                 _closeupOn = false;
@@ -444,9 +573,73 @@ namespace RoadToPro.Presentation.Players
             }
         }
 
+        // ---------------------------------------------------------------- 062 FR-27 정장
+        readonly Mesh[] _suitSrc = new Mesh[3];
+        Mesh[] _uniformSrc;
+        Texture _suitMask;
+        FaceShape _face;
+        FaceData _faceData;
+        bool _kitSet;
+        KitColors _kitColors;
+        Texture _kitMask, _kitText;
+        int _kitCell;
+        public PlayerOutfit Outfit { get; private set; }
+        Texture _regionUniform;
+        float? _weaveUniform, _detailUniform;
+        Texture _aoUniform;
+
+        /// <summary>
+        /// 의상 바꾸기 (로딩 단계 — 몸 LOD를 다시 굽는다). 정장: 몸 LOD 원본 = Suit_LOD*, 키트 머티리얼 = 정장 마스크·PlayerLook.SuitColors[color]
+        /// (셔츠 흰색·넥타이·구두), 번호·이름 없음. 유니폼: 원래 원본·마지막 ApplyKit 값으로 되돌린다(왕복 동일, plan 위험).
+        /// 얼굴·헤어·체형은 그대로(같은 외형으로 다시 굽는다).
+        /// </summary>
+        public void ApplyOutfit(PlayerOutfit outfit, int color)
+        {
+            if (outfit == PlayerOutfit.Suit && (_suitSrc[0] == null || _suitMask == null))
+                throw new InvalidOperationException("정장 메시(Suit_LOD*)·마스크(kit_mask_suit.png)가 없다 — 062 생성물 필요");
+            _uniformSrc ??= new[] { _srcLods[0], _srcLods[1], _srcLods[2] };
+            for (int l = 0; l < 3; l++) _srcLods[l] = outfit == PlayerOutfit.Suit ? _suitSrc[l] : _uniformSrc[l];
+            Outfit = outfit;
+            ApplyAppearance(Appearance, _face, _faceData);
+            if (outfit == PlayerOutfit.Suit)
+            {
+                _kit.SetTexture("_MaskTex", _suitMask);
+                _kit.SetColor("_Primary", PlayerLook.SuitColors[Mathf.Clamp(color, 0, PlayerLook.SuitColors.Length - 1)]);
+                _kit.SetColor("_Secondary", PlayerLook.SuitTie);
+                _kit.SetColor("_Accent", PlayerLook.SuitShirt);
+                _kit.SetVector("_TextCell", Vector4.zero);
+                // 062 T35 육안: 유니폼 영역 맵(밑단 광택)·짜임 타일(깃 골지)이 정장에 남는다 → 정장은 고른 무광 천
+                // 구운 주름 노멀·AO도 유니폼 형태(셔츠 밑단·골지 깃)라 끈다
+                _regionUniform ??= _kit.GetTexture("_RegionTex");
+                _weaveUniform ??= _kit.GetFloat("_WeaveStrength");
+                _detailUniform ??= _kit.GetFloat("_DetailStrength");
+                _aoUniform ??= _kit.GetTexture("_DetailAO");
+                _kit.SetTexture("_RegionTex", Texture2D.whiteTexture);
+                _kit.SetFloat("_WeaveStrength", 0f);
+                _kit.SetFloat("_DetailStrength", 0f);
+                _kit.SetTexture("_DetailAO", Texture2D.whiteTexture);
+            }
+            else
+            {
+                if (_weaveUniform.HasValue)
+                {
+                    _kit.SetTexture("_RegionTex", _regionUniform);
+                    _kit.SetFloat("_WeaveStrength", _weaveUniform.Value);
+                    _kit.SetFloat("_DetailStrength", _detailUniform.Value);
+                    _kit.SetTexture("_DetailAO", _aoUniform);
+                }
+                if (_kitSet) ApplyKit(_kitColors, _kitMask, _kitText, _kitCell);
+            }
+        }
+
         /// <summary>키트 색·패턴·번호/이름 칸 (FR-20·21). textAtlas가 null이면 번호·이름 없음.</summary>
         public void ApplyKit(in KitColors k, Texture mask, Texture textAtlas, int cell)
         {
+            _kitSet = true;
+            _kitColors = k;
+            _kitMask = mask;
+            _kitText = textAtlas;
+            _kitCell = cell;
             _kit.SetTexture("_MaskTex", mask);
             _kit.SetColor("_Primary", PlayerLook.ToColor(k.Primary));
             _kit.SetColor("_Secondary", PlayerLook.ToColor(k.Secondary));

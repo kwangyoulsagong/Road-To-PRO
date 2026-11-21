@@ -162,12 +162,12 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             }
         }
 
-        // 057 AC-10: 하이라이트 로딩 시 선수 25명 굽기 시간 ≤ 056 측정 × 1.2.
+        // 057 AC-10: 하이라이트 로딩 시 선수 25명 굽기 시간 ≤ 056 측정 × 1.2. 062 FR-84: 057 예산(× 1.2) 대비 +30 % (바탕 머리·표정 키·입 안).
         // Mono EditMode ms 값은 부하에 흔들려 5회 최소값으로 판정한다. 056 기준은 057 T03에서 056 산출물로 측정.
         internal const double Bake25Ms056 = 309.5;  // 2026-11-05 056 산출물, Mono EditMode 5회 최소
 
         [Test]
-        public void Bake25Players_Time_Within056Plus20()
+        public void Bake25Players_Time_Within057Plus30()
         {
             var data = FaceGeneratorTests.Data;
             var rigs = new PlayerRig[25];
@@ -190,7 +190,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 }
                 TestContext.WriteLine($"[057] bake25Ms={best:0.0}");
                 UnityEngine.Debug.Log($"[057] bake25Ms={best:0.0}");
-                if (Bake25Ms056 > 0) Assert.LessOrEqual(best, Bake25Ms056 * 1.2, "057 AC-10 굽기 시간 056 대비 +20%");
+                if (Bake25Ms056 > 0) Assert.LessOrEqual(best, Bake25Ms056 * 1.2 * 1.3, "062 FR-84 굽기 시간 057 예산 대비 +30%");
             }
             finally
             {

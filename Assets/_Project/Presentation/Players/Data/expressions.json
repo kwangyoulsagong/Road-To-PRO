@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "defaultBlend": 0.2,
+  "map": [
+    { "trigger": "Scorer", "expression": "Cheer", "blend": 0.2 },
+    { "trigger": "Teammate", "expression": "Smile", "blend": 0.25 },
+    { "trigger": "ConcedingTeam", "expression": "Disappoint", "blend": 0.3 },
+    { "trigger": "Goal", "expression": "Cheer", "blend": 0.2 },
+    { "trigger": "Conceded", "expression": "Disappoint", "blend": 0.3 },
+    { "trigger": "ChanceMissed", "expression": "Disappoint", "blend": 0.2 },
+    { "trigger": "Card", "expression": "Focus", "blend": 0.2 }
+  ]
+}

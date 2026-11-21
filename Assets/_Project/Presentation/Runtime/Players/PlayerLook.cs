@@ -11,7 +11,8 @@ namespace RoadToPro.Presentation.Players
     {
         public static readonly Color[] SkinTones =
         {
-            new Color32(255, 220, 190, 255), new Color32(240, 198, 160, 255), new Color32(222, 172, 130, 255), new Color32(198, 145, 105, 255),
+            // 062: 0·1번이 061 조명에서 흰색으로 떠 낮춤 (T35 육안)
+            new Color32(236, 200, 170, 255), new Color32(226, 186, 150, 255), new Color32(222, 172, 130, 255), new Color32(198, 145, 105, 255),
             new Color32(170, 118, 82, 255), new Color32(140, 92, 62, 255), new Color32(110, 70, 46, 255), new Color32(80, 52, 36, 255),
         };
 
@@ -47,8 +48,23 @@ namespace RoadToPro.Presentation.Players
             new Color32(70, 90, 60, 255), new Color32(70, 100, 130, 255),
         };
 
-        /// <summary>수염 종류(face.json beards 순서: none·stubble·short·full) → 셰이더 _BeardLevel.</summary>
-        public static readonly float[] BeardLevels = { 0f, 0.45f, 0.75f, 1f };
+        /// <summary>수염 종류(face.json beards 순서: none·stubble·short·full + 062 mustache·goatee·heavy_stubble) → 셰이더 _BeardLevel (굵기).</summary>
+        public static readonly float[] BeardLevels = { 0f, 0.45f, 0.75f, 1f, 0.7f, 0.7f, 0.6f };   // 062: 콧수염·염소수염 0.85 → 0.7 (평면 조각처럼 보임, T35 육안)
+
+        /// <summary>062 FR-66: 수염 종류 → beard_mask0 영역 채널 선택 (R full · G mustache · B goatee · A heavy, face.py BEARD_REGION).</summary>
+        public static readonly Vector4[] BeardChannels =
+        {
+            new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0),
+            new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0), new Vector4(0, 0, 0, 1),
+        };
+
+        /// <summary>062 FR-27 정장 천 중립 3색 [제안] (가상): 차콜 · 네이비 · 미드 그레이. 셔츠 흰색·넥타이 짙은 회색.</summary>
+        public static readonly Color[] SuitColors =
+        {
+            new Color32(52, 54, 58, 255), new Color32(30, 38, 60, 255), new Color32(96, 98, 102, 255),
+        };
+        public static readonly Color SuitShirt = new Color32(236, 236, 232, 255);
+        public static readonly Color SuitTie = new Color32(44, 44, 52, 255);
 
         public const int AtlasSize = 1024;
         public const int CellW = 256, CellH = 160, Cols = 4, Rows = 6;
