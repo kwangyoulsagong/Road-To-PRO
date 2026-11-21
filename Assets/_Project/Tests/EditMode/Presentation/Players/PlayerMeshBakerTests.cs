@@ -64,12 +64,32 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         }
 
         [Test]
-        public void Baked_OnlyHideHeadBlendShape_TwoSubmeshes()
+        public void KeepsHideHeadAndExpr()
         {
+            // 062 FR-70·71: 구운 LOD0·클로즈업 머리 = HideHead(0번, SetCloseup이 0번을 쓴다) + 표정 4 (Expr_*), 서브메시 2
             var rig = Rig(5, out _, out _);
             try
             {
-                for (int l = 0; l < 3; l++)
+                foreach (var m in new[] { rig.Lod(0).sharedMesh, rig.CloseupRenderer.sharedMesh })
+                {
+                    Assert.AreEqual(PlayerMeshBaker.HideHead, m.GetBlendShapeName(0), m.name);
+                    var names = new List<string>();
+                    for (int i = 1; i < m.blendShapeCount; i++) names.Add(m.GetBlendShapeName(i));
+                    CollectionAssert.AreEqual(ExpressionLogic.Keys, names, m.name);
+                    Assert.AreEqual(2, m.subMeshCount);
+                }
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
+        }
+
+        [Test]
+        public void Lod1_NoExpressionShapes()
+        {
+            // FR-71: LOD1·LOD2는 HideHead 하나만 (표정 없음 — 무표정 고정)
+            var rig = Rig(6, out _, out _);
+            try
+            {
+                for (int l = 1; l < 3; l++)
                 {
                     var m = rig.Lod(l).sharedMesh;
                     Assert.AreEqual(1, m.blendShapeCount, "LOD" + l);

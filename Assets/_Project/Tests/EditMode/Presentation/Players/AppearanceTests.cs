@@ -405,5 +405,50 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 Assert.AreEqual(a, a.WithCombo(a.ComboKey), "조합 왕복 id " + id);
             }
         }
+
+        // ---------------------------------------------------------------- specs/062 지역 피부톤·수염 7종 (T28, AC-07)
+        // T29 API: AppearanceGenerator.Regions(7)·BaseHeads(8)·RegionOf(baseHead)·SkinTonesOf(region) (int[]), Beards(7),
+        // PlayerAppearance.BaseA·B·C / WeightA·B·C(천분율)·Beard. 피부톤은 주 바탕 머리 지역의 톤 목록에서 뽑는다.
+
+        [Test]
+        public void SkinTones_PerRegion_AtLeastTwo()
+        {
+            // FR-63: 지역 7개 각각 피부톤 ≥ 2단계, 단계는 팔레트 안(≤ 12), 모든 톤이 어느 지역엔가 쓰인다, 생성 결과가 지역 목록을 따른다
+            Assert.AreEqual(7, AppearanceGenerator.Regions);
+            Assert.LessOrEqual(AppearanceGenerator.SkinTones, 12);
+            Assert.AreEqual(AppearanceGenerator.SkinTones, RoadToPro.Presentation.Players.PlayerLook.SkinTones.Length);
+            var used = new bool[AppearanceGenerator.SkinTones];
+            for (int r = 0; r < AppearanceGenerator.Regions; r++)
+            {
+                var tones = AppearanceGenerator.SkinTonesOf(r);
+                Assert.GreaterOrEqual(tones.Length, 2, "지역 " + r);
+                foreach (int t in tones)
+                {
+                    Assert.That(t, Is.InRange(0, AppearanceGenerator.SkinTones - 1));
+                    used[t] = true;
+                }
+            }
+            for (int t = 0; t < used.Length; t++) Assert.IsTrue(used[t], "어느 지역에도 없는 피부톤 " + t);
+            for (int b = 0; b < AppearanceGenerator.BaseHeads; b++) Assert.That(AppearanceGenerator.RegionOf(b), Is.InRange(0, 6));
+            for (int id = 1; id <= 5000; id++)
+            {
+                var a = AppearanceGenerator.Generate(new BodyInput(id));
+                CollectionAssert.Contains(AppearanceGenerator.SkinTonesOf(AppearanceGenerator.RegionOf(a.BaseA)), a.SkinTone, "id " + id);
+            }
+        }
+
+        [Test]
+        public void Beards_Seven_Distribution()
+        {
+            // FR-66 [제안]: 056 4종은 서로 비슷하게, 신규 3종(콧수염·염소수염·진한 스텁블)은 각 3~6 %
+            Assert.AreEqual(7, AppearanceGenerator.Beards);
+            const int n = 20000;
+            var c = new int[AppearanceGenerator.Beards];
+            for (int id = 1; id <= n; id++) c[AppearanceGenerator.Generate(new BodyInput(id)).Beard]++;
+            for (int k = 4; k < 7; k++) Assert.That(c[k], Is.InRange(n * 3 / 100, n * 6 / 100), "신규 수염 " + k + ": " + string.Join(",", c));
+            int lo = System.Math.Min(System.Math.Min(c[0], c[1]), System.Math.Min(c[2], c[3]));
+            int hi = System.Math.Max(System.Math.Max(c[0], c[1]), System.Math.Max(c[2], c[3]));
+            Assert.LessOrEqual(hi - lo, n * 3 / 100, "056 4종 고르게: " + string.Join(",", c));
+        }
     }
 }

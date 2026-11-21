@@ -24,10 +24,13 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         }
 
         [Test]
-        public void Data_AtLeast20Keys_4Beards_Landmarks()
+        public void Data_AtLeast20Keys_7Beards_8BaseHeads_Landmarks()
         {
+            // 062 FR-60·66: 수염 7종(056 4종 순서 + 신규 3종), 바탕 머리 8개(지역 태그), 표정 4종
             Assert.GreaterOrEqual(Data.Axes.Count * 2, 20);
-            CollectionAssert.AreEqual(new[] { "none", "stubble", "short", "full" }, Data.Beards);
+            CollectionAssert.AreEqual(new[] { "none", "stubble", "short", "full", "mustache", "goatee", "heavy_stubble" }, Data.Beards);
+            Assert.AreEqual(AppearanceGenerator.BaseHeads, Data.BaseHeads.Count);
+            Assert.AreEqual(4, Data.Expressions.Count);
             Assert.GreaterOrEqual(Data.Landmarks.Count, 24);
         }
 
@@ -50,12 +53,67 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             }
         }
 
+        // 062: 수염은 PlayerAppearance.Beard로 옮겼다(plan '데이터') — 분포는 AppearanceTests.Beards_Seven_Distribution
+
         [Test]
-        public void Beard_RoughlyUniform()
+        public void BaseHeads_BlendTwoToThree()
         {
-            var n = new int[Data.Beards.Count];
-            for (int id = 1; id <= 4000; id++) n[FaceGenerator.Generate(Data, id).Beard]++;
-            foreach (var c in n) Assert.That(c, Is.InRange(850, 1150), string.Join(",", n));
+            // FR-61·62: 선수 얼굴 = 바탕 머리 2~3개 혼합(정수 천분율 합 1000, 서로 다름, 주 바탕 = 가장 큰 가중치),
+            // 주 바탕의 지역은 균등(지역 7개 각 1/7 ± 30 %, FR-62 [미정] 전까지 균등)
+            const int n = 7000;
+            var region = new int[AppearanceGenerator.Regions];
+            int three = 0;
+            for (int id = 1; id <= n; id++)
+            {
+                var a = AppearanceGenerator.Generate(new BodyInput(id));
+                int[] hs = { a.BaseA, a.BaseB, a.BaseC };
+                int[] ws = { a.WeightA, a.WeightB, a.WeightC };
+                Assert.That(hs[0], Is.InRange(0, AppearanceGenerator.BaseHeads - 1));
+                Assert.That(hs[1], Is.InRange(0, AppearanceGenerator.BaseHeads - 1));
+                Assert.AreNotEqual(hs[0], hs[1]);
+                Assert.Greater(ws[1], 0, "최소 2개");
+                if (ws[2] > 0)
+                {
+                    three++;
+                    Assert.That(hs[2], Is.InRange(0, AppearanceGenerator.BaseHeads - 1));
+                    Assert.AreNotEqual(hs[2], hs[0]);
+                    Assert.AreNotEqual(hs[2], hs[1]);
+                }
+                Assert.AreEqual(1000, ws[0] + ws[1] + ws[2], "천분율 합");
+                Assert.GreaterOrEqual(ws[0], ws[1]);
+                Assert.GreaterOrEqual(ws[1], ws[2]);
+                region[AppearanceGenerator.RegionOf(hs[0])]++;
+            }
+            Assert.Greater(three, 0, "3개 혼합도 나온다");
+            Assert.Less(three, n, "2개 혼합도 나온다");
+            foreach (int c in region) Assert.That(c, Is.InRange(n / 7 * 7 / 10, n / 7 * 13 / 10), string.Join(",", region));
+        }
+
+        [Test]
+        public void Inputs_NoPhotoOrName()
+        {
+            // FR-61: 생성 경로 입력에 사진·이름이 없다 — 외형·얼굴 생성 공개 메서드의 매개변수와 BodyInput 필드 형식을 검사
+            var banned = new[] { typeof(string), typeof(byte[]), typeof(Texture), typeof(Texture2D), typeof(char[]) };
+            var methods = new List<System.Reflection.MethodInfo>();
+            methods.AddRange(typeof(AppearanceGenerator).GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static));
+            methods.AddRange(typeof(FaceGenerator).GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static));
+            methods.AddRange(typeof(AppearanceDistance).GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static));
+            foreach (var m in methods)
+            {
+                if (!m.Name.StartsWith("Generate")) continue;
+                foreach (var prm in m.GetParameters())
+                {
+                    var t = prm.ParameterType.IsByRef ? prm.ParameterType.GetElementType() : prm.ParameterType;
+                    CollectionAssert.DoesNotContain(banned, t, $"{m.Name}({prm.Name})");
+                    string nm = prm.Name.ToLowerInvariant();
+                    Assert.IsFalse(nm.Contains("name") || nm.Contains("photo") || nm.Contains("image"), $"{m.Name}({prm.Name})");
+                }
+            }
+            foreach (var f in typeof(BodyInput).GetFields())
+            {
+                CollectionAssert.DoesNotContain(banned, f.FieldType, "BodyInput." + f.Name);
+                Assert.IsFalse(f.Name.ToLowerInvariant().Contains("name"), "BodyInput." + f.Name);
+            }
         }
 
         [Test]
