@@ -125,6 +125,7 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
                                         VM.load_image(os.path.join(stem_dir, "Textures", "parts.png")), R)
         from player import hands as HD
         summary["hands"] = HD.hand_metrics(mm)
+        summary["face062"] = checks.face062(R, mm, pm[HL.NAME], face_json, SK.LAST_METRICS)  # 062 AC-07·08
     if 0 in mm:
         summary["proportions"] = checks.proportions(mm)
         summary["penetration"] = checks.penetration(clips, mm, pm, 0)

@@ -438,7 +438,7 @@ def build(R, style, lod):
     W = np.zeros((len(co), len(MS.OUR_NAMES)))
     W[:, hi] = 1.0
     alld = B._all_deltas(R)
-    D = {k2: bind.apply(v) for k2, v in sorted(alld.items())}
+    D = {k2: bind.apply(v) for k2, v in sorted(alld.items()) if lod == 0 or not k2.startswith(B.EXPR_PREFIX)}  # 062 FR-71
     m = B.Mesh()
     m.verts, m.W, m.deltas, m.vpart = P, W, D, ["hair"] * len(P)
     m.style = style

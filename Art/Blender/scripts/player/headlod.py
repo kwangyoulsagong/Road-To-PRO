@@ -44,4 +44,5 @@ def build(R):
     for f, u in zip(fl, fu):
         m.faces.append((tuple(f), B.BODY, tuple(u), "skin", None))
     B._append_eyes(R, m, 0)
+    B._append_mouth(R, m, "closeup")  # 062 FR-72 입 안
     return m

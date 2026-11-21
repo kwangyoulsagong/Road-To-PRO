@@ -797,9 +797,13 @@ def build(lod):
         W = _mitten(W)  # 062 FR-12: LOD1 이하 = 손가락을 합친 장갑형 (손가락 뼈 가중치 → 손)
     deltas = {k: bind.apply(d) for k, d in sorted(R.body_deltas.items())}
     for k, d in sorted(R.extra_deltas.items()):
+        if lod >= 1 and k.startswith(EXPR_PREFIX):
+            continue  # 062 FR-71: 표정은 LOD0·클로즈업 머리에만 (LOD1 이하 무표정)
         deltas[k] = bind.apply(d)
     m = _assemble(pos, W, faces, fuv, fpart, deltas, border_plane)
     _append_eyes(R, m, lod)
+    if lod == 0:
+        _append_mouth(R, m, "lod0")  # 062 FR-72: 입 안 (치아·혀·입안 캡)
     _kit_bone_weights(m, lod)  # 062 FR-21
     return m
 
@@ -983,6 +987,98 @@ def _append_eyes(R, m, lod):
         W[:, hi] = 1.0  # 안구는 머리에 고정
         uvs = [tuple(F.eye_uv(R, P[i]) for i in f) for f in fl]
         append_part(m, P, W, D, fl, BODY, uvs, "eye")
+
+
+EXPR_PREFIX = "Expr_"
+# 062 FR-72 입 안: MakeHuman 기준 메시(CC0) 치아·혀 헬퍼 + 절차 입안 캡. 감량 목표(삼각형) — LOD0 ≈ 160, 클로즈업 ≈ 230 (≤ 6k)
+MOUTH_TRIS = {"lod0": {"teeth": 32, "tongue": 32, "cap": (3, 8)}, "closeup": {"teeth": 48, "tongue": 64, "cap": (4, 10)}}
+MOUTH_GROUPS = {"teeth_upper": "helper-upper-teeth", "teeth_lower": "helper-lower-teeth", "tongue": "helper-tongue"}
+# UV: 치아 = parts 눈 칸 흰자(밝고 매끈), 혀 = 피부 UV 입술(붉은 기운), 입안 캡 = parts 눈 칸 동공(거의 검정)
+MOUTH_UV_TEETH = (1.21875, 0.875)
+MOUTH_UV_CAP = (1.125, 0.875)
+
+
+def _mouth_tongue_uv(R):
+    """아랫입술 가운데 정점의 피부 UV (혀 색 = 입술 붉은 기운)."""
+    lips = R.groups["lips"]
+    P = R.verts[lips]
+    v = lips[int(np.argmin(np.abs(P[:, 0]) + np.abs(P[:, 1] - P[:, 1].min()) * 2))]
+    for f, u in zip(R.faces, R.face_uvs):
+        if v in f:
+            return tuple(u[list(f).index(v)])
+    return (0.5, 0.5)
+
+
+def _append_mouth(R, m, which):
+    """062 FR-72: 치아(위·아래)·혀(헬퍼, 감량)·입안 캡(치아 뒤 반타원체, 앞이 열림). 머리 뼈 고정, 기준 델타(표정·얼굴·바탕 머리)를
+    정점 묶음으로 받는다 — 입을 벌리면 아래 치아·혀가 MPFB 표정 단위를 따라 내려간다(위 치아는 그대로)."""
+    tri = MOUTH_TRIS[which]
+    hi = MS.OUR_NAMES.index("Head")
+    alld = _all_deltas(R)
+    all_ids = []
+    for part, grp in MOUTH_GROUPS.items():
+        gs = set(R.groups[grp])
+        faces = [f for f in R.faces if all(v in gs for v in f)]
+        ids = sorted({v for f in faces for v in f})
+        all_ids += ids
+        remap = {v: i for i, v in enumerate(ids)}
+        target = tri["tongue" if part == "tongue" else "teeth"]
+        co, fl = _decimate_faces(R.verts[ids], [tuple(remap[v] for v in f) for f in faces], target)
+        tree = _subset_tree(R, faces)
+        b = Binding.__new__(Binding)
+        b.tri = np.zeros((len(co), 3), dtype=np.int64)
+        b.bc = np.zeros((len(co), 3))
+        for i, p in enumerate(co):
+            (t, bc), _ = _bind_point(R, tree, p)
+            b.tri[i], b.bc[i] = t, bc
+        P = b.apply(R.verts)
+        W = np.zeros((len(P), m.W.shape[1]))
+        W[:, hi] = 1.0
+        D = {k: (b.apply(alld[k]) if k in alld else np.zeros_like(P)) for k in m.deltas}
+        uv = MOUTH_UV_TEETH if part != "tongue" else _mouth_tongue_uv(R)
+        append_part(m, P, W, D, fl, BODY, [tuple(uv for _ in f) for f in fl], "mouth_" + part)
+    # 입안 캡: 치아·혀를 감싸는 반타원체(뒤·위·아래·옆), 앞(입술 쪽)이 열린 그릇. 정점은 가까운 치아·혀·입술 면에 묶는다.
+    lips = R.verts[R.groups["lips"]]
+    inner = R.verts[all_ids]
+    cx = 0.0
+    cy = float((inner[:, 1].min() + inner[:, 1].max()) / 2)
+    z_front = float(lips[:, 2].min()) - 0.008   # 입술 안쪽 뒤 — 입을 크게 벌려도 테두리가 입꼬리·볼 밖으로 나오지 않게 (T27 렌더)
+    z_back = float(inner[:, 2].min()) - 0.004
+    rx = float(np.abs(inner[:, 0]).max()) - 0.002
+    ry = float((inner[:, 1].max() - inner[:, 1].min()) / 2) + 0.002
+    rz = z_front - z_back
+    rings, segs = tri["cap"]
+    pts = [np.array([cx, cy, z_back])]
+    for r in range(1, rings + 1):
+        th = 0.5 * math.pi * r / rings          # 0 = 뒤 꼭짓점 → π/2 = 앞 테두리(열림)
+        for k in range(segs):
+            ph = 2 * math.pi * k / segs
+            pts.append(np.array([cx + rx * math.sin(th) * math.cos(ph), cy + ry * math.sin(th) * math.sin(ph),
+                                 z_back + rz * (1 - math.cos(th))]))
+    fl = []
+    for k in range(segs):  # 안쪽에서 보이게 감는다 (입 안을 앞에서 들여다본다)
+        fl.append((0, 1 + k, 1 + (k + 1) % segs))
+    for r in range(rings - 1):
+        for k in range(segs):
+            a, b2 = 1 + r * segs + k, 1 + r * segs + (k + 1) % segs
+            c2, d2 = 1 + (r + 1) * segs + (k + 1) % segs, 1 + (r + 1) * segs + k
+            fl.append((a, d2, c2, b2))
+    P = np.array(pts)
+    keep = [f for f in R.faces if all(v in set(all_ids) for v in f)] + \
+           [f for f in R.faces if all(v in set(R.groups["lips"]) for v in f)]
+    tree = _subset_tree(R, keep)
+    b = Binding.__new__(Binding)
+    b.tri = np.zeros((len(P), 3), dtype=np.int64)
+    b.bc = np.zeros((len(P), 3))
+    off = np.zeros_like(P)
+    for i, p in enumerate(P):
+        (t, bc), _ = _bind_point(R, tree, p)
+        b.tri[i], b.bc[i] = t, bc
+        off[i] = p - (R.verts[t] * bc[:, None]).sum(axis=0)
+    W = np.zeros((len(P), m.W.shape[1]))
+    W[:, hi] = 1.0
+    D = {k: (b.apply(alld[k]) if k in alld else np.zeros_like(P)) for k in m.deltas}
+    append_part(m, b.apply(R.verts) + off, W, D, fl, BODY, [tuple(MOUTH_UV_CAP for _ in f) for f in fl], "mouth_cap")
 
 
 def _all_deltas(R):

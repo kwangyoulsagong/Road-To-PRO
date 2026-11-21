@@ -880,3 +880,218 @@ def baked_maps(hf_feat, skin_feat):
     # 모든 텍스처는 이 생성기 함수가 그린다(외부 이미지 입력 없음) — 외부 원천은 licenses 검사가 따로 본다
     return {"ok": bool(ok), "parts": parts, "values": vals, "procedural": True}
 
+
+
+# ---------------------------------------------------------------- 062 AC-07·08 얼굴 · 수염 · 표정 (T27)
+
+def _lm_dist_vec(P):
+    n = len(P)
+    iu = np.triu_indices(n, 1)
+    D = np.linalg.norm(P[:, None, :] - P[None, :, :], axis=2)
+    return D[iu]
+
+
+def _lm_distance(a, b):
+    """Unity FaceLandmarks.Distance와 같은 식: 거리 벡터 차의 RMS."""
+    return float(np.sqrt(np.mean((a - b) ** 2)))
+
+
+def face_base_heads(R, face_json):
+    """바탕 머리 랜드마크 최소 쌍 vs 056 AC-04 기준(무작위 얼굴 400명 평균 쌍 거리 × 0.25 — FaceGenerator 분포·FaceLandmarks 정의)."""
+    from . import face as F
+    lms = face_json["landmarks"]
+    base = np.array([l["base"] for l in lms])
+
+    def pos(weights):
+        P = base.copy()
+        for i, l in enumerate(lms):
+            for k, w in weights.items():
+                if k in l["deltas"]:
+                    P[i] += np.array(l["deltas"][k]) * w
+        return P
+
+    rng = np.random.default_rng(56)  # 통계량이라 Unity와 같은 난수일 필요 없다 (분포만 같게)
+    vs = []
+    for _ in range(400):
+        w = {}
+        for a, _, _, r in F.AXES:
+            x = r * (rng.random() + rng.random() - 1.0)
+            w[f"Face_{a}_{'pos' if x >= 0 else 'neg'}"] = abs(x)
+        vs.append(_lm_dist_vec(pos(w)))
+    n = len(vs)
+    mean = np.mean([_lm_distance(vs[i], vs[(i + 1) % n]) for i in range(n)] +
+                   [_lm_distance(vs[i], vs[(i + n // 2) % n]) for i in range(n)])
+    ids = [b[0] for b in F.BASE_HEADS]
+    bv = {b: _lm_dist_vec(pos({b: 1.0})) for b in ids}
+    pairs = sorted((_lm_distance(bv[a], bv[b]), a, b) for i, a in enumerate(ids) for b in ids[i + 1:])
+    # 실루엣: 머리 영역(head_mask > 0.02) 정면·옆 마스크, 쌍별 두 방향 중 큰 1 − IoU
+    from . import visual_metrics as VM
+    k = F.head_mask(R)
+    keep = set(v for v in R.groups["body"] if k[v] > 0.02)
+    tris = []
+    for f in R.faces:
+        if all(v in keep for v in f):
+            tris += [(f[0], f[j], f[j + 1]) for j in range(1, len(f) - 1)]
+    c, d = F.eye_frame(R)
+    lo = np.array([-0.2, c[1] - 0.25])
+    masks = {}
+    for b in ids:
+        P = R.verts + R.extra_deltas[b]
+        masks[b] = [VM._tri_mask(np.stack([P[:, 0], P[:, 1]], 1), tris, lo, 0.4),
+                    VM._tri_mask(np.stack([P[:, 2], P[:, 1]], 1), tris, lo + np.array([-0.05, 0.0]), 0.4)]
+    sil = []
+    for i, a in enumerate(ids):
+        for b in ids[i + 1:]:
+            dmax = 0.0
+            for va, vb in zip(masks[a], masks[b]):
+                u = np.logical_or(va, vb).sum()
+                dmax = max(dmax, 1.0 - np.logical_and(va, vb).sum() / u if u else 0.0)
+            sil.append((dmax, a, b))
+    sil.sort()
+    return {"count": len(ids), "regions": sorted({b[1] for b in F.BASE_HEADS}),
+            "landmarkMinPair": round(pairs[0][0], 6), "landmarkPair": list(pairs[0][1:]), "landmark056Min": round(float(mean) * 0.25, 6),
+            "landmarkMean056": round(float(mean), 6), "silhouetteMinPair": round(sil[0][0], 4), "silhouettePair": list(sil[0][1:])}
+
+
+def _region_faces(m, part_pred, box=None, centers=None, radius=None):
+    out = []
+    for f, _mat, _uv, part, _ in m.faces:
+        if not part_pred(part):
+            continue
+        cpos = m.verts[list(f)].mean(axis=0)
+        if box is not None and not (np.all(cpos >= box[0]) and np.all(cpos <= box[1])):
+            continue
+        if centers is not None and min(np.linalg.norm(cpos - cc) for cc in centers) > radius:
+            continue
+        out.append(f)
+    return out
+
+
+def face_expressions(R, mm, closeup):
+    """표정 키가 있는 LOD, 최대치(1)에서 안구·치아·혀가 피부(눈꺼풀·입술)를 뚫고 나온 정점 수(LOD0 + 클로즈업, eyes_covered와 같은
+    정면 광선 판정 — 면 교차 쌍은 안구가 머리 안에 박힌 기준 메시 구조상 무표정에서도 수백 개라 쓰지 않는다), 환호 입 안 보임 비율."""
+    from . import face as F
+    keys = [e[0] for e in F.EXPRESSIONS]
+    out = {"lod": {str(l): sorted(k for k in m.deltas if k.startswith("Expr_") and float(np.abs(m.deltas[k]).max()) > 1e-6)
+                   for l, m in sorted(mm.items())},
+           "closeup": sorted(k for k in closeup.deltas if k.startswith("Expr_") and float(np.abs(closeup.deltas[k]).max()) > 1e-6),
+           "penetration": {k: 0 for k in keys}, "penetrationRest": {}, "mouthInterior": {}}
+    lips = R.verts[R.groups["lips"]]
+    mbox = (lips.min(axis=0) - np.array([0.006, 0.006, 0.02]), lips.max(axis=0) + np.array([0.006, 0.006, 0.004]))
+    eyes = [R.verts[R.groups[g]].mean(axis=0) for g in F.EYE_GROUPS]
+    for name, m in (("lod0", mm[min(mm)]), ("closeup", closeup)):
+        out["penetrationRest"][name] = _poke_through(m, m.verts, eyes)
+        for k in keys:
+            if k in m.deltas:
+                out["penetration"][k] += _poke_through(m, m.verts + m.deltas[k], eyes)
+    m = mm[min(mm)]
+    lip_f = _region_faces(m, lambda p: p == "skin", box=mbox)
+    for k in keys:
+        P = m.verts + m.deltas.get(k, 0.0)
+        L = P[sorted({v for f in lip_f for v in f})]
+        out["mouthInterior"][k] = _mouth_interior(m, P, (L.min(axis=0) - 0.002, L.max(axis=0) + 0.002))
+    return out
+
+
+def _poke_through(m, P, eye_centers):
+    """안구(앞 반구)·치아·혀 정점 중 정면에서 처음 맞는 피부가 그 점 바로 뒤(0.5~6 mm)에 있는 수 = 피부를 뚫고 나옴.
+    입 틈·눈 틈으로 보이는 경우는 광선이 머리 안쪽 깊은 곳(입안 캡·머리 뒤)에 맞아 세지 않는다 (face.eyes_covered와 같은 규칙)."""
+    from mathutils import Vector
+    skin = [f for f, _mat, _uv, part, _ in m.faces if part == "skin"]
+    tree = _bvh(P, skin)
+    bad = 0
+    for i, part in enumerate(m.vpart):
+        if part not in ("eye", "mouth_teeth_upper", "mouth_teeth_lower", "mouth_tongue", "mouth_cap"):
+            continue
+        p = P[i]
+        if part == "eye" and p[2] < min(eye_centers, key=lambda c: abs(c[0] - p[0]))[2]:
+            continue
+        loc, _n, _idx, _d = tree.ray_cast(Vector((p[0], p[1], p[2] + 0.5)), Vector((0, 0, -1)))
+        if loc is not None and 0.0005 < p[2] - loc[2] < 0.006:
+            bad += 1
+    # 실루엣: 정면·좌우 45°·좌우 90°·아래에서 입 안 부품 정점이 머리 실루엣 밖(1 px 여유)에 나오면 볼·턱을 뚫고 나온 것
+    from . import visual_metrics as VM
+    mouth = [i for i, part in enumerate(m.vpart) if part.startswith("mouth_")]
+    if mouth:
+        hc = P[mouth].mean(axis=0)
+        tris = []
+        for f in skin:
+            tris += [(f[0], f[k], f[k + 1]) for k in range(1, len(f) - 1)]
+        span = 0.12
+        for yaw, pitch in ((0, 0), (45, 0), (-45, 0), (90, 0), (-90, 0), (0, -60)):
+            ry, rp = math.radians(yaw), math.radians(pitch)
+            X = P - hc
+            x1 = X[:, 0] * math.cos(ry) + X[:, 2] * math.sin(ry)
+            z1 = -X[:, 0] * math.sin(ry) + X[:, 2] * math.cos(ry)
+            y2 = X[:, 1] * math.cos(rp) - z1 * math.sin(rp)
+            P2 = np.stack([x1, y2], axis=1)
+            lo = np.array([-span / 2, -span / 2])
+            mask = VM._tri_mask(P2, tris, lo, span)
+            mask = mask | np.roll(mask, 1, 0) | np.roll(mask, -1, 0) | np.roll(mask, 1, 1) | np.roll(mask, -1, 1)
+            q = ((P2[mouth] - lo) / span * (VM.SIL - 1)).astype(int)
+            inside = (q >= 0).all(axis=1) & (q < VM.SIL).all(axis=1)
+            bad += int((~inside).sum()) + int((~mask[q[inside, 1], q[inside, 0]]).sum())
+    return bad
+
+
+def _mouth_interior(m, P, mbox, res=0.00025):
+    """정면 직교 래스터(표정을 건 입술 상자): 가장 가까운 면 = 피부(1) / 입 안(3) / 없음(0).
+    입 틈 = 열마다 위·아래 피부(입술) 사이의 피부 아닌 픽셀. 반환 = 틈 중 입 안이 보이는 비율(틈이 없으면 0)."""
+    x0, y0 = mbox[0][0], mbox[0][1]
+    W = int((mbox[1][0] - x0) / res) + 1
+    H = int((mbox[1][1] - y0) / res) + 1
+    depth = np.full((H, W), -1e9)
+    lab = np.zeros((H, W), dtype=np.int8)
+    for f, _mat, _uv, part, _ in m.faces:
+        q = P[list(f)]
+        cpos = q.mean(axis=0)
+        if not (np.all(cpos[:2] >= mbox[0][:2] - 0.01) and np.all(cpos[:2] <= mbox[1][:2] + 0.01)) or cpos[2] < mbox[0][2] - 0.04:
+            continue
+        if part.startswith("mouth_"):
+            L = 3
+        elif part in ("skin", "head"):
+            L = 1
+        else:
+            continue
+        for j in range(1, len(f) - 1):
+            a, b, c = q[0], q[j], q[j + 1]
+            xs = np.array([a[0], b[0], c[0]]); ys = np.array([a[1], b[1], c[1]])
+            i0, i1 = int(max((xs.min() - x0) / res, 0)), int(min((xs.max() - x0) / res + 1, W))
+            j0, j1 = int(max((ys.min() - y0) / res, 0)), int(min((ys.max() - y0) / res + 1, H))
+            if i1 <= i0 or j1 <= j0:
+                continue
+            gx, gy = np.meshgrid(x0 + (np.arange(i0, i1) + 0.5) * res, y0 + (np.arange(j0, j1) + 0.5) * res)
+            den = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1])
+            if abs(den) < 1e-14:
+                continue
+            l0 = ((b[1] - c[1]) * (gx - c[0]) + (c[0] - b[0]) * (gy - c[1])) / den
+            l1 = ((c[1] - a[1]) * (gx - c[0]) + (a[0] - c[0]) * (gy - c[1])) / den
+            l2 = 1 - l0 - l1
+            ins = (l0 >= 0) & (l1 >= 0) & (l2 >= 0)
+            z = l0 * a[2] + l1 * b[2] + l2 * c[2]
+            sub = depth[j0:j1, i0:i1]
+            sl = lab[j0:j1, i0:i1]
+            upd = ins & (z > sub)
+            sub[upd] = z[upd]
+            sl[upd] = L
+    skin = lab == 1
+    gap = np.zeros_like(skin)
+    for i in range(W):
+        idx = np.flatnonzero(skin[:, i])
+        if len(idx) < 2:
+            continue
+        for a_, b_ in zip(idx[:-1], idx[1:]):
+            if b_ - a_ > 2:
+                gap[a_ + 1:b_, i] = True
+    n = int(gap.sum())
+    if n < 20:
+        return 0.0
+    return round(float((lab[gap] == 3).sum()) / n, 4)
+
+
+def face062(R, mm, closeup, face_json, skin_metrics):
+    """summary["face062"] (test_face.py 약속)."""
+    return {"ok": True,  # 기록용 — 판정은 test_face
+            "baseHeads": face_base_heads(R, face_json),
+            "beards": skin_metrics.get("beards", {}),
+            "expressions": face_expressions(R, mm, closeup)}

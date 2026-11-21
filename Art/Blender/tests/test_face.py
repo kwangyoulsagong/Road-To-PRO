@@ -61,6 +61,8 @@ class FaceJson(unittest.TestCase):
                      "philtrum", "upperLip", "lowerLip", "chin", "jawL", "jawR", "earTopL", "earTopR"):
             self.assertIn(need, names)
         ids = {t["id"] for t in f["targets"]}
+        # 062: 바탕 머리·표정 델타도 랜드마크에 실린다 (Unity는 얼굴 축 키로만 찾아 쓴다 — 키 추가는 호환)
+        ids |= {b["id"] for b in f.get("baseHeads", [])} | {e["id"] for e in f.get("expressions", [])}
         for x in lm:
             self.assertEqual(len(x["base"]), 3)
             for k, d in x["deltas"].items():

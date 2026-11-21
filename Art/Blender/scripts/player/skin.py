@@ -26,6 +26,7 @@ PORE_BODY = 0.6     # 057: 얼굴 밖 몸 피부 모공 가중치 (원거리 깜
 CLOSEUP = 2048
 PARTS = 1024
 THICK = 512         # plan 데이터·스키마: skin_thickness 512
+BEARD_MAP = 1024    # 062 plan: beard_mask 1K
 FEAT = {}           # 062 T19: FR-91 얼굴 디테일 → 기여 최대값 (높이장 단위 / 밝기 배율), summary bakedMaps 근거
 LIP_GRAIN = 0.05    # 062 FR-91 입술 세로 결 진폭 (높이장 단위, 모공 0.45 × 0.5 대비 작게)
 WRINKLE_EYE = 0.06  # 062 FR-91 눈가 잔주름(까마귀발) 진폭
@@ -167,7 +168,44 @@ def skin_maps(R, size, seed, metrics=None):
     nrm = _dilate(nrm, valid)
     if metrics is not None:
         metrics.update(detail_metrics(R, pos, valid, rgba, nrm))
+        # 062 FR-66: 수염 종류별 057 FR-24 지표 + 볼 밀도 (영역 마스크 × 같은 결)
+        bmaps = beard_fields(R, pos, valid, size, seed)
+        stack = _dilate(np.stack([bmaps[k] for k in F.BEARD_CHANNELS], axis=-1), valid)   # 텍스처와 같게 섬 밖을 채운 뒤 잰다
+        bmaps = {k: stack[..., i] for i, k in enumerate(F.BEARD_CHANNELS)}
+        metrics["beards"] = {}
+        for bid, region in F.BEARD_REGION.items():
+            m = beard_metrics(R, pos, valid, bmaps[region])
+            m["cheek"] = cheek_density(R, pos, valid, bmaps[region])
+            metrics["beards"][bid] = m
     return _to8(rgba), _to8(nrm)
+
+
+def beard_fields(R, pos, valid, size, seed):
+    """062 FR-66: 수염 영역 4개(face.beard_masks) × 057 털 결 (skin._fields 수염과 같은 결)."""
+    u, v = np.meshgrid((np.arange(size) + 0.5) / size, ((np.arange(size) + 0.5) / size)[::-1])
+    grain = _noise(u * 1.0, v * 0.35, 13 + seed, size // 2) * 0.6 + _noise(u, v * 0.5, 14 + seed, size // 4) * 0.4
+    out = {}
+    for k, m in F.beard_masks(R, pos).items():
+        out[k] = np.clip(m * valid * (0.88 + 0.12 * grain), 0, 1)
+    return out
+
+
+def cheek_density(R, pos, valid, b):
+    """볼 영역(입꼬리 바깥, 광대 아래) 평균 밀도 — 콧수염·염소수염은 ≤ 0.01 (062 FR-66)."""
+    c, d = F.eye_frame(R)
+    rx = np.abs(pos[..., 0] - c[0]) / d
+    ry = (pos[..., 1] - c[1]) / d
+    rz = (pos[..., 2] - c[2]) / d
+    m = valid & (rz > -1.6) & (rx > 0.75) & (rx < 1.10) & (ry > -1.40) & (ry < -0.95)
+    return round(float(b[m].mean()) if m.any() else 0.0, 6)
+
+
+def beard_map(R, size, seed):
+    """beard_mask0.png (RGBA = full · mustache · goatee · heavy, 피부 UV) — 셰이더가 수염 종류별 채널을 고른다(T29)."""
+    pos, valid = _raster(R, size)
+    bm = beard_fields(R, pos, valid, size, seed)
+    rgba = np.stack([bm[k] for k in F.BEARD_CHANNELS], axis=-1)
+    return _to8(_dilate(rgba, valid))
 
 
 # ---------------------------------------------------------------- 057 피부 디테일 지표 (AC-05, FR-20·21·23)
@@ -325,6 +363,8 @@ def write_all(out_dir, R, seed=0):
     out["parts.png"] = (PARTS, PARTS)
     write_png(os.path.join(out_dir, "skin_thickness.png"), thickness_map(R))   # 062 FR-32·33
     out["skin_thickness.png"] = (THICK, THICK)
+    write_png(os.path.join(out_dir, "beard_mask0.png"), beard_map(R, BEARD_MAP, seed))   # 062 FR-66 수염 영역 4채널
+    out["beard_mask0.png"] = (BEARD_MAP, BEARD_MAP)
     return out
 
 

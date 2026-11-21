@@ -48,7 +48,25 @@ AXES = [
     ("ear_size", ["l-ear-scale-decr", "r-ear-scale-decr"], ["l-ear-scale-incr", "r-ear-scale-incr"], 0.6),
     ("ear_flap", ["l-ear-flap-decr", "r-ear-flap-decr"], ["l-ear-flap-incr", "r-ear-flap-incr"], 0.6),
 ]
-BEARDS = [("none", 0.0), ("stubble", 0.0006), ("short", 0.0022), ("full", 0.0055)]  # (id, 두께 m)
+# (id, 두께 m). 056 4종 순서 유지 + 062 FR-66 신규 3종(콧수염·염소수염·진한 스텁블)은 뒤에 (Unity 수염 인덱스 호환)
+BEARDS = [("none", 0.0), ("stubble", 0.0006), ("short", 0.0022), ("full", 0.0055),
+          ("mustache", 0.0030), ("goatee", 0.0040), ("heavy_stubble", 0.0012)]
+# 062: 수염 종류 → 영역 마스크 (beard_masks). 7종 = 영역 4 × 굵기 — 텍스처는 beard_mask0.png RGBA(full·mustache·goatee·heavy)
+BEARD_REGION = {"stubble": "full", "short": "full", "full": "full", "mustache": "mustache", "goatee": "goatee",
+                "heavy_stubble": "heavy"}
+BEARD_CHANNELS = ("full", "mustache", "goatee", "heavy")
+
+# 062 FR-70: 표정 4종(+ 무표정 = 키 0). MPFB CC0 표정 단위 타깃(FACS 계열) 조합. LOD0·클로즈업 머리에만(FR-71).
+# 시선은 셰이프가 아니라 눈 뼈가 없어 다루지 않는다(실망 = 눈꺼풀을 조금 내려 시선이 아래로 가는 인상).
+EXPRESSIONS = [
+    ("Expr_cheer", [(["mouth-open"], 0.85), (["mouth-corner-puller"], 0.35), (["eyebrows-left-up", "eyebrows-right-up"], 0.8),
+                    (["eye-left-opened-up", "eye-right-opened-up"], 0.4)]),
+    ("Expr_smile", [(["mouth-corner-puller"], 0.8), (["mouth-elevation"], 0.15), (["eye-left-slit", "eye-right-slit"], 0.3)]),
+    ("Expr_disappoint", [(["eyebrows-left-inner-up", "eyebrows-right-inner-up"], 0.8), (["mouth-depression"], 0.7),
+                         (["eye-left-closure", "eye-right-closure"], 0.2)]),
+    ("Expr_focus", [(["mouth-compression"], 0.6), (["mouth-retraction"], 0.4), (["eyebrows-left-down", "eyebrows-right-down"], 0.6),
+                    (["eye-left-slit", "eye-right-slit"], 0.4)]),
+]
 EYE_GROUPS = ("helper-l-eye", "helper-r-eye")
 
 # ---------------------------------------------------------------- 062 FR-60~62 바탕 머리 (T25 시안)
@@ -127,7 +145,7 @@ def key_names():
     out = []
     for a, _, _, _ in AXES:
         out += [f"Face_{a}_pos", f"Face_{a}_neg"]
-    return out
+    return out + [b[0] for b in BASE_HEADS] + [e[0] for e in EXPRESSIONS]   # 062: 랜드마크 deltas에 바탕 머리·표정도
 
 
 # ---------------------------------------------------------------- 기준 표면 도우미
@@ -193,6 +211,39 @@ def beard_mask(R, p):
     return m
 
 
+def _ramp(x, w):
+    """0 → 1 부드러운 경사 (폭 w, smoothstep) — 수염 경계를 057처럼 흐리게."""
+    t = np.clip(x / w, 0.0, 1.0)
+    return t * t * (3 - 2 * t)
+
+
+def beard_masks(R, p):
+    """062 FR-66 수염 영역 4개 {full, mustache, goatee, heavy} (0~1). full = 057 beard_mask 그대로(턱·볼·입 둘레),
+    heavy = full을 볼 위로 조금 넓힌 진한 스텁블, mustache = 윗입술 위 띠(입꼬리에서 살짝 내려옴), goatee = 턱 + 콧수염 + 입꼬리 연결.
+    경계는 057처럼 넓게 흐린다. 콧수염·염소수염은 볼(입꼬리 바깥 0.6d 넘게)에 번지지 않는다(볼 밀도 ≤ 0.01)."""
+    c, d = eye_frame(R)
+    x, y, z = p[..., 0], p[..., 1], p[..., 2]
+    ry = (y - c[1]) / d
+    rx = np.abs(x - c[0]) / d
+    front = np.clip((z - (c[2] - 1.7 * d)) / (0.25 * d), 0, 1)
+    full = beard_mask(R, p)
+    # 진한 스텁블: 볼 위 경계를 0.15d 올리고 밀도를 고르게 (턱·볼 차이 작게)
+    sx = np.clip(rx - 0.45, 0, 2)
+    top = -0.80 - 0.30 * sx
+    heavy = np.clip((top - ry) / 0.30, 0, 1) * np.clip((ry - (-2.55 + 0.75 * sx ** 1.3)) / 0.30, 0, 1)
+    lip = ((rx / 0.40) ** 2 + ((ry + 1.50) / 0.10) ** 2)
+    heavy = heavy * np.clip((lip - 1.0) / 0.6, 0, 1) * front * np.clip((1.30 - rx) / 0.25, 0, 1) * 0.9
+    # 콧수염: 윗입술 위 (ry −1.42 ~ −1.10), 가로 ≤ 0.52d, 입꼬리에서 −1.55까지 살짝 내려온다. 경계 경사 ≥ 0.12d (057 흐린 경계)
+    droop = 0.25 * np.clip((rx - 0.30) / 0.20, 0, 1)
+    must = (_ramp(ry - (-1.46 - droop), 0.14) * _ramp(-1.06 - ry, 0.14) * _ramp(0.56 - rx, 0.14))
+    must = must * np.clip((lip - 1.0) / 0.8, 0, 1) * front
+    # 염소수염: 턱(ry −2.40 ~ −1.60, 가로 ≤ 0.46d) + 입꼬리 세로 띠(0.32~0.54d) + 콧수염
+    chin = _ramp(ry - (-2.42), 0.16) * _ramp(-1.58 - ry, 0.14) * _ramp(0.48 - rx, 0.14)
+    side = _ramp(rx - 0.30, 0.10) * _ramp(0.56 - rx, 0.10) * _ramp(ry - (-1.80), 0.12) * _ramp(-1.36 - ry, 0.12)
+    goat = np.maximum(np.maximum(chin, side), must) * np.clip((lip - 1.0) / 0.8, 0, 1) * front
+    return {"full": full, "mustache": must, "goatee": goat, "heavy": heavy}
+
+
 # ---------------------------------------------------------------- 델타 등록
 
 def register(R):
@@ -201,12 +252,19 @@ def register(R):
     for a, neg, pos, rng in AXES:
         out[f"Face_{a}_pos"] = R.target_delta(pos)
         out[f"Face_{a}_neg"] = R.target_delta(neg)
+    out.update(base_head_deltas(R))   # 062 FR-60·61 바탕 머리 8개 (T25 승인 v2)
+    for eid, units in EXPRESSIONS:    # 062 FR-70
+        d = np.zeros_like(R.verts)
+        for names, w in units:
+            d = d + R.target_delta(names) * w
+        out[eid] = d
     N = vertex_normals(R)
     bm = beard_mask(R, R.verts)
+    masks = beard_masks(R, R.verts)
     hi = MS.OUR_NAMES.index("Head")
     headw = R.weights[:, hi]
     for bid, th in BEARDS[1:]:
-        out[f"Beard_{bid}"] = N * (bm * th)[:, None]
+        out[f"Beard_{bid}"] = N * (masks[BEARD_REGION[bid]] * th)[:, None]
     hc = np.array(S.HEAD["Head"]) + np.array([0.0, 0.06, 0.0])
     k = np.clip((headw - 0.3) / 0.4, 0, 1)
     out["HideHead"] = (hc[None, :] - R.verts) * k[:, None]
@@ -274,7 +332,10 @@ def landmarks(R, tree_tri):
 
 
 def face_json(R, tree_tri):
-    return {"schemaVersion": 1, "targets": axes_json(), "beards": [{"id": b, "thickness": t} for b, t in BEARDS],
+    return {"schemaVersion": 1, "targets": axes_json(),
+            "beards": [{"id": b, "thickness": t, "region": BEARD_REGION.get(b)} for b, t in BEARDS],
+            "baseHeads": [{"id": b, "region": r} for b, r, _, _ in BASE_HEADS],   # 062 FR-60~62 (필드 추가만)
+            "expressions": [{"id": e} for e, _ in EXPRESSIONS],                   # 062 FR-70
             "landmarks": landmarks(R, tree_tri), "eyeDistance": round(eye_frame(R)[1], 6)}
 
 
