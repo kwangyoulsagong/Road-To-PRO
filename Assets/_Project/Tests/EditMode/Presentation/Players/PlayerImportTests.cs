@@ -16,7 +16,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             const string gen = "Assets/_Project/Presentation/Players/Generated";
             var root = AssetDatabase.LoadAssetAtPath<GameObject>(gen + "/player.glb");
             Assert.IsNotNull(root);
-            int[] max = { 10000, 3000, 1000 };
+            int[] max = { 11000, 3000, 1000 }; // LOD0 상한 11k (2026-11-20 사용자 결정, 062 T17a에서 앞당김 — 나머지 예산 갱신은 T31)
             // 057: 몸 LOD 3 + 헤어 조각 29종(삭발 제외) × 3 + 클로즈업 머리. 몸 + 가장 무거운 헤어 조각 ≤ LOD 예산(056 FR-60, 057 FR-40)
             var smrs = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             Assert.AreEqual(3 + 29 * 3 + 1, smrs.Length);
@@ -82,6 +82,39 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 Assert.AreEqual(TextureImporterType.NormalMap, ti.textureType, name);
                 Assert.IsTrue(ti.fadeout, name);
                 Assert.Less(ti.mipmapFadeDistanceStart, ti.mipmapFadeDistanceEnd, name);
+            }
+        }
+
+        [Test]
+        public void DetailMaps_MipFade()
+        {
+            // 062 FR-94·AC-04: 구운 디테일 노멀은 노멀맵 + 밉 페이드(먼 밉 평탄), 짜임 타일은 반복 + 페이드(회색 = 평탄),
+            // AO·영역·두께 맵은 값 데이터라 페이드 없음·선형. 모두 2K 이하
+            const string dir = "Assets/_Project/Presentation/Players/Generated/Textures/";
+            foreach (var name in new[] { "body_detail_n.png", "kit_detail_n.png" })
+            {
+                var ti = (TextureImporter)AssetImporter.GetAtPath(dir + name);
+                Assert.IsNotNull(ti, name);
+                Assert.AreEqual(TextureImporterType.NormalMap, ti.textureType, name);
+                Assert.IsTrue(ti.fadeout, name);
+                Assert.Less(ti.mipmapFadeDistanceStart, ti.mipmapFadeDistanceEnd, name);
+            }
+            var weave = (TextureImporter)AssetImporter.GetAtPath(dir + "kit_weave.png");
+            Assert.IsNotNull(weave);
+            Assert.AreEqual(TextureWrapMode.Repeat, weave.wrapMode);
+            Assert.IsTrue(weave.fadeout);
+            foreach (var name in new[] { "body_detail_ao.png", "kit_detail_ao.png", "kit_region.png", "skin_thickness.png" })
+            {
+                var ti = (TextureImporter)AssetImporter.GetAtPath(dir + name);
+                Assert.IsNotNull(ti, name);
+                Assert.IsFalse(ti.fadeout, name);
+                Assert.IsFalse(ti.sRGBTexture, name);
+            }
+            foreach (var name in new[] { "body_detail_n.png", "body_detail_ao.png", "kit_detail_n.png", "kit_detail_ao.png", "kit_region.png", "skin_thickness.png", "kit_weave.png" })
+            {
+                var tex = AssetDatabase.LoadAssetAtPath<Texture2D>(dir + name);
+                Assert.IsNotNull(tex, name);
+                Assert.LessOrEqual(Mathf.Max(tex.width, tex.height), 2048, name);
             }
         }
 

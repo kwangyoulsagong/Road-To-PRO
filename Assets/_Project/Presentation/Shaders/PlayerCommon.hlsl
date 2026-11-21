@@ -54,6 +54,30 @@ half3 PlayerLight(half3 albedo, PlayerVaryings i, half detail)
     return MixFog(c, i.fog);
 }
 
+// 062 FR-30: 정규화 블린-퐁 정반사 (PlayerBody 피부 Spec와 같은 식 — Blender heightfield.spec_peak가 같은 값으로 순서를 검사한다)
+half PlayerSpec(half3 n, half3 h, half ndl, half rough)
+{
+    half ndh = saturate(dot(n, h));
+    half power = exp2(10.0h * (1.0h - rough) + 1.0h);
+    return (power + 8.0h) * (1.0h / 25.1327h) * pow(ndh, power) * ndl;
+}
+
+// 062: 섭동 노멀 n으로 PlayerLight와 같은 확산 + 림 + 정반사 (키트). occlusion은 확산·환경광에만
+half3 PlayerLightSpec(half3 albedo, float3 positionWS, half3 n, half fog, half occlusion, half f0, half rough)
+{
+    float4 shadowCoord = TransformWorldToShadowCoord(positionWS);
+    Light light = GetMainLight(shadowCoord);
+    half ndl = saturate(dot(n, light.direction));
+    half3 sh = SampleSH(n);
+    half3 lc = light.color * light.shadowAttenuation;
+    half3 v = normalize(GetWorldSpaceViewDir(positionWS));
+    half3 h = normalize(light.direction + v);
+    half3 c = albedo * (lc * ndl + sh) * occlusion + lc * f0 * PlayerSpec(n, h, ndl, rough);
+    half fres = pow(1.0h - saturate(dot(n, v)), 3.0h);
+    c += fres * _RoadToProRim * (sh + light.color * 0.25h * light.shadowAttenuation) * lerp(0.6h, 1.0h, albedo);
+    return MixFog(c, fog);
+}
+
 // 그림자·깊이 공통
 float3 _LightDirection;
 

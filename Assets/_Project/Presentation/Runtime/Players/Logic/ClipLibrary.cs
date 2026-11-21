@@ -110,6 +110,8 @@ namespace RoadToPro.Presentation.Players.Logic
         public string HandPose;
         /// <summary>062: <see cref="ClipLibrary.HandPoses"/> 포즈 인덱스 (Parse가 채운다, 표가 없으면 −1).</summary>
         public int HandPoseIndex = -1;
+        /// <summary>062 FR-21: 프레임별(30 Hz, 0..Frames) 골반 가속도 m/s² (선수 = Unity 좌표). 옛 파일이면 null.</summary>
+        public Vec3[] PelvisAccel;
         public float ApproachMin = -180, ApproachMax = 180, BallHeightMin, BallHeightMax = 3, BallSpeedMin, BallSpeedMax = 40;
 
         public float Length => Frames / Fps;
@@ -263,6 +265,12 @@ namespace RoadToPro.Presentation.Players.Logic
                 if (o.TryGet("cut", out var cu)) c.Cut = F(cu);
                 if (o.TryGet("plantFrame", out var pf)) c.PlantFrame = (int)(double)pf;
                 c.PlantLeft = S(o, "plantFoot") == "Left";
+                var pa = L(o, "pelvisAccel");
+                if (pa != null)
+                {
+                    c.PelvisAccel = new Vec3[pa.Count];
+                    for (int i = 0; i < pa.Count; i++) { var v = (List<object>)pa[i]; c.PelvisAccel[i] = new Vec3(F(v[0]), F(v[1]), F(v[2])); }
+                }
                 if (o.TryGet("stancePaths", out var sp2) && sp2 is JsonObject spo)
                 {
                     c.StanceL = Spans(L(spo, "Left"));

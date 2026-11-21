@@ -992,6 +992,210 @@
   }
  },
  "headCloseup": "Head_Closeup",
+ "kitBones": {
+  "bones": [
+   {
+    "axes": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "hipGate": [
+     1,
+     15.0,
+     35.0
+    ],
+    "max": [
+     0.0,
+     0.03,
+     0.03
+    ],
+    "min": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "name": "Kit_HemF",
+    "parent": "Hips"
+   },
+   {
+    "axes": [
+     [
+      1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      1.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      1.0
+     ]
+    ],
+    "hipGate": [
+     -1,
+     5.0,
+     15.0
+    ],
+    "max": [
+     0.0,
+     0.03,
+     0.0
+    ],
+    "min": [
+     0.0,
+     0.0,
+     -0.03
+    ],
+    "name": "Kit_HemB",
+    "parent": "Hips"
+   },
+   {
+    "axes": [
+     [
+      -0.707107,
+      -0.707107,
+      0.0
+     ],
+     [
+      -0.707107,
+      0.707107,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    ],
+    "hipGate": null,
+    "max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "min": [
+     -0.012,
+     0.0,
+     0.0
+    ],
+    "name": "Kit_Sleeve.L",
+    "parent": "LeftUpperArm"
+   },
+   {
+    "axes": [
+     [
+      0.707107,
+      -0.707107,
+      0.0
+     ],
+     [
+      -0.707107,
+      -0.707107,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    ],
+    "hipGate": null,
+    "max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "min": [
+     -0.012,
+     0.0,
+     0.0
+    ],
+    "name": "Kit_Sleeve.R",
+    "parent": "RightUpperArm"
+   },
+   {
+    "axes": [
+     [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    ],
+    "hipGate": null,
+    "max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "min": [
+     -0.01,
+     0.0,
+     0.0
+    ],
+    "name": "Kit_Short.L",
+    "parent": "LeftUpperLeg"
+   },
+   {
+    "axes": [
+     [
+      0.0,
+      -1.0,
+      0.0
+     ],
+     [
+      -1.0,
+      0.0,
+      0.0
+     ],
+     [
+      0.0,
+      0.0,
+      -1.0
+     ]
+    ],
+    "hipGate": null,
+    "max": [
+     0.0,
+     0.0,
+     0.0
+    ],
+    "min": [
+     -0.01,
+     0.0,
+     0.0
+    ],
+    "name": "Kit_Short.R",
+    "parent": "RightUpperLeg"
+   }
+  ]
+ },
  "materials": [
   "PlayerBody",
   "PlayerKit"
@@ -1797,6 +2001,90 @@
      0.956094,
      -0.059764
     ]
+   },
+   {
+    "head": [
+     0.0,
+     1.004006,
+     0.09
+    ],
+    "name": "Kit_HemF",
+    "parent": "Hips",
+    "tail": [
+     0.0,
+     0.944006,
+     0.09
+    ]
+   },
+   {
+    "head": [
+     0.0,
+     1.004006,
+     -0.09
+    ],
+    "name": "Kit_HemB",
+    "parent": "Hips",
+    "tail": [
+     0.0,
+     0.944006,
+     -0.09
+    ]
+   },
+   {
+    "head": [
+     -0.314046,
+     1.351914,
+     0.018142
+    ],
+    "name": "Kit_Sleeve.L",
+    "parent": "LeftUpperArm",
+    "tail": [
+     -0.342784,
+     1.323176,
+     0.018142
+    ]
+   },
+   {
+    "head": [
+     0.314046,
+     1.351914,
+     0.018142
+    ],
+    "name": "Kit_Sleeve.R",
+    "parent": "RightUpperArm",
+    "tail": [
+     0.342784,
+     1.323176,
+     0.018142
+    ]
+   },
+   {
+    "head": [
+     -0.106784,
+     0.829046,
+     -0.006074
+    ],
+    "name": "Kit_Short.L",
+    "parent": "LeftUpperLeg",
+    "tail": [
+     -0.106784,
+     0.756847,
+     -0.006074
+    ]
+   },
+   {
+    "head": [
+     0.106784,
+     0.829046,
+     -0.006074
+    ],
+    "name": "Kit_Short.R",
+    "parent": "RightUpperLeg",
+    "tail": [
+     0.106784,
+     0.756847,
+     -0.006074
+    ]
    }
   ],
   "heightRangeCm": [
@@ -1806,6 +2094,76 @@
   "refHeight": 1.8
  },
  "summary": {
+  "bakedMaps": {
+   "ok": true,
+   "parts": {
+    "body": {
+     "boneOutline": true,
+     "muscleEdges": true,
+     "tendons": true
+    },
+    "boot": {
+     "heelCounter": true,
+     "panelSeams": true,
+     "soleStuds": true
+    },
+    "face": {
+     "eyelidCreases": true,
+     "fineWrinkles": true,
+     "lipGrain": true,
+     "pores": true
+    },
+    "hand": {
+     "knuckleCreases": true,
+     "nailEdge": true,
+     "palmCreases": true
+    },
+    "shirt": {
+     "collarRib": true,
+     "folds": true,
+     "seams": true,
+     "weave": true
+    },
+    "shorts": {
+     "folds": true,
+     "hemFold": true,
+     "sideSeam": true
+    },
+    "sock": {
+     "ankleFolds": true,
+     "ribbing": true,
+     "shinGuard": true
+    }
+   },
+   "procedural": true,
+   "values": {
+    "body.boneOutline": 0.003999,
+    "body.muscleEdges": 0.008,
+    "body.tendons": 0.0025,
+    "boot.heelCounter": 0.0005,
+    "boot.panelSeams": 0.0005,
+    "boot.soleStuds": 0.000599,
+    "face.eyelidCreases": 0.249984,
+    "face.fineWrinkles": 0.059803,
+    "face.lipGrain": 0.049966,
+    "face.pores": 0.220412,
+    "hand.knuckleCreases": 0.0006,
+    "hand.nailEdge": 0.0004,
+    "hand.palmCreases": 0.0005,
+    "shirt.collarRib": 0.0003,
+    "shirt.folds": 0.001378,
+    "shirt.seams": 0.0006,
+    "shirt.weave": 9.8e-05,
+    "shorts.folds": 0.001015,
+    "shorts.hemFold": 0.0006,
+    "shorts.sideSeam": 0.0005,
+    "skin.sweat": 1.0,
+    "skin.thickness": 1.0,
+    "sock.ankleFolds": 0.000554,
+    "sock.ribbing": 0.00012,
+    "sock.shinGuard": 0.004
+   }
+  },
   "bodyShapes": {
    "flipParts": {},
    "flipped": 0,
@@ -2277,28 +2635,28 @@
    },
    "lods": {
     "0": {
-     "body": 8666,
+     "body": 8469,
      "hairMax": 1320,
      "headTriangles": 2942,
      "materials": 2,
      "ok": true,
-     "triangles": 9986
+     "triangles": 9789
     },
     "1": {
-     "body": 2502,
+     "body": 2482,
      "hairMax": 438,
      "headTriangles": 788,
      "materials": 2,
      "ok": true,
-     "triangles": 2940
+     "triangles": 2920
     },
     "2": {
-     "body": 752,
+     "body": 736,
      "hairMax": 151,
      "headTriangles": 210,
      "materials": 2,
      "ok": true,
-     "triangles": 903
+     "triangles": 887
     }
    },
    "ok": true,
@@ -2308,6 +2666,14 @@
      2048
     ],
     "body_detail_n.png": [
+     2048,
+     2048
+    ],
+    "kit_detail_ao.png": [
+     2048,
+     2048
+    ],
+    "kit_detail_n.png": [
      2048,
      2048
     ],
@@ -2339,6 +2705,14 @@
      512,
      512
     ],
+    "kit_region.png": [
+     1024,
+     1024
+    ],
+    "kit_weave.png": [
+     256,
+     256
+    ],
     "parts.png": [
      1024,
      1024
@@ -2358,6 +2732,10 @@
     "skin_normal.png": [
      1024,
      1024
+    ],
+    "skin_thickness.png": [
+     512,
+     512
     ]
    }
   },
@@ -2791,6 +3169,62 @@
    },
    "ok": true
   },
+  "kitCover": {
+   "bones": {
+    "Kit_HemB": {
+     "cover": 0.035,
+     "ok": true,
+     "travel": 0.0255
+    },
+    "Kit_HemF": {
+     "cover": 0.035,
+     "ok": true,
+     "travel": 0.0255
+    },
+    "Kit_Short.L": {
+     "cover": 0.02,
+     "ok": true,
+     "travel": 0.0085
+    },
+    "Kit_Short.R": {
+     "cover": 0.02,
+     "ok": true,
+     "travel": 0.0085
+    },
+    "Kit_Sleeve.L": {
+     "cover": 0.02,
+     "ok": true,
+     "travel": 0.0102
+    },
+    "Kit_Sleeve.R": {
+     "cover": 0.02,
+     "ok": true,
+     "travel": 0.0102
+    }
+   },
+   "ok": true,
+   "underFaces": {
+    "0": 207,
+    "1": 32,
+    "2": 0
+   }
+  },
+  "kitMotion": {
+   "bandFaces": 340,
+   "baseHemClips": {
+    "gk_claim_jump": 8
+   },
+   "baseHemShorts": 8,
+   "baseKitSkin": 648,
+   "basePoses": 848,
+   "byCorner": {},
+   "clips": 53,
+   "freshContacts": 0,
+   "ok": true,
+   "penetration": 0,
+   "poses": 20352,
+   "worst": []
+  },
   "kitRimUv": {
    "bleed": 0,
    "collarRimCorners": 304,
@@ -2804,9 +3238,35 @@
    "missing": [],
    "ok": true
   },
+  "material062": {
+   "hairAniso": {
+    "all": 4.132
+   },
+   "ok": true,
+   "rough": {
+    "boot": 0.3,
+    "print": 0.42,
+    "shirt": 0.66,
+    "shorts": 0.7,
+    "skin": 0.566366,
+    "sleeve": 0.66,
+    "sock": 0.82
+   },
+   "skinSpecCap": 0.060616,
+   "skinSweatPeak": 0.068305,
+   "specPeak": {
+    "boot": 0.420169,
+    "print": 0.190079,
+    "shirt": 0.046333,
+    "shorts": 0.038197,
+    "skin": 0.053923,
+    "sock": 0.023817
+   },
+   "sweatDrop": 0.04
+  },
   "outline": {
    "ok": true,
-   "sleeveSeamRatio": 0.945,
+   "sleeveSeamRatio": 0.666,
    "turnDeg": {
     "elbow": 10.39,
     "knee": 14.23,
@@ -2816,7 +3276,7 @@
   },
   "penetration": {
    "clipHits": {},
-   "creaseFolds": 25204,
+   "creaseFolds": 28554,
    "flipped": 0,
    "hairBody": 0,
    "hairPoses": 17864,
@@ -2860,7 +3320,7 @@
    },
    "face": {
     "lumHf": 0.002458,
-    "normalHf": 0.019534
+    "normalHf": 0.020027
    },
    "forehead": {
     "lumHf": 0.00246,
@@ -2870,7 +3330,7 @@
    },
    "lips": {
     "lumHf": 0.002299,
-    "normalHf": 0.011574,
+    "normalHf": 0.017712,
     "rough": 0.521222,
     "texels": 6139
    },
@@ -3949,17 +4409,17 @@
     "strandHf": 0.076131
    },
    "kit": {
-    "clothBandVar": 0.002065,
-    "kitLStd": 6.051886,
+    "clothBandVar": 0.002795,
+    "kitLStd": 6.121988,
     "kitSaturated": 1.0,
     "texels": 22466
    },
    "lod": 0,
    "muscle": {
-    "bandRms": 0.095277,
-    "bandRmsMax": 0.10342,
-    "bandRmsMin": 0.085549,
-    "texels": 9200
+    "bandRms": 0.094226,
+    "bandRmsMax": 0.102922,
+    "bandRmsMin": 0.083886,
+    "texels": 12474
    },
    "ok": true
   }
@@ -3970,6 +4430,14 @@
    2048
   ],
   "body_detail_n.png": [
+   2048,
+   2048
+  ],
+  "kit_detail_ao.png": [
+   2048,
+   2048
+  ],
+  "kit_detail_n.png": [
    2048,
    2048
   ],
@@ -4001,6 +4469,14 @@
    512,
    512
   ],
+  "kit_region.png": [
+   1024,
+   1024
+  ],
+  "kit_weave.png": [
+   256,
+   256
+  ],
   "parts.png": [
    1024,
    1024
@@ -4020,6 +4496,10 @@
   "skin_normal.png": [
    1024,
    1024
+  ],
+  "skin_thickness.png": [
+   512,
+   512
   ]
  },
  "uv": {

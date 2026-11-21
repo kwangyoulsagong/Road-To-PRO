@@ -102,7 +102,7 @@ def layout_json():
 def clips_json():
     """Unity HandPoseTable: 손가락 뼈 30개 순서 + 포즈별 레스트 축(선수 = Unity 좌표) 회전 델타 [x, y, z, w].
     런타임: 뼈 local = restLocal · (restModel⁻¹ · 델타 · restModel) — 손가락은 클립 키가 없어 레스트에서 시작한다."""
-    bones = [n for n in S.NAMES[MS.CORE_BONES:]]
+    bones = list(MS.OUR_NAMES[MS.CORE_BONES:])  # 손가락 30개만 (062 보조 뼈 Kit_*는 S.NAMES 뒤에 있다)
     poses = {}
     for name in sorted(HAND_POSES):
         rot = pose_rotations(name)
@@ -113,7 +113,7 @@ def clips_json():
 # ---------------------------------------------------------------- 지표
 
 def finger_set():
-    return {i for i, n in enumerate(S.NAMES) if i >= MS.CORE_BONES}
+    return {i for i, n in enumerate(S.NAMES) if MS.CORE_BONES <= i < len(MS.OUR_NAMES)}
 
 
 def hand_silhouette(m, P, side, px=0.0007):
@@ -243,7 +243,7 @@ def hand_metrics(meshes):
     out["openConcave"] = int(min(concave))
     out["openGapPx"] = int(min(gaps))   # 가운데 마디 높이 가로줄에서 손가락 사이 빈칸 수 (≥ 1 = 틈 있음)
     if 1 in meshes:
-        w1 = meshes[1].W[:, MS.CORE_BONES:]
+        w1 = meshes[1].W[:, MS.CORE_BONES:len(MS.OUR_NAMES)]  # 손가락 열만 (062 보조 뼈 열 제외)
         out["lod1Mitten"] = bool(np.abs(w1).max() < 1e-6)
     else:
         out["lod1Mitten"] = True

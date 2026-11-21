@@ -129,6 +129,7 @@ namespace RoadToPro.Presentation.Highlight
                 _system = stage.gameObject.AddComponent<PlayerAnimationSystem>();
                 _system.Init(_scenes[0].Plan, stage.Rigs, stage.Clips, _seq.Clock, stage.Ball, _camera);
                 _system.BallFilter = this;
+                _system.EnableMotionExtras(stage.KitMotion); // 062 FR-10~13·21
                 if (_diagnostics != null) _system.Diagnostics = _diagnostics;
                 _current = _scenes[0];
                 _applied = 0;

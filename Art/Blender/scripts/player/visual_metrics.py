@@ -75,7 +75,7 @@ def uv_shading(m, mat, normal_tex, tile=1.0, size=RASTER, face_pred=None, detail
     co = m.verts
     faces = [f[0] for f in m.faces]
     vn = B._normals(co, faces)
-    dom = np.argmax(m.W, axis=1)
+    dom = np.argmax(m.W[:, :len(MS.OUR_NAMES)], axis=1)  # 062: 보조 뼈 열 제외
     S = np.zeros((size, size))
     valid = np.zeros((size, size), dtype=bool)
     bone = np.full((size, size), -1, dtype=np.int64)

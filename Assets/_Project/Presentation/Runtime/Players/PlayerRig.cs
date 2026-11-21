@@ -74,16 +74,23 @@ namespace RoadToPro.Presentation.Players
             rig._body = new Material(bodyShader) { name = "PlayerBody (instance)" };
             rig._kit = new Material(kitShader) { name = "PlayerKit (instance)" };
             SetBodyTextures(rig._body, bodyTex.skin, bodyTex.skinNormal, bodyTex.parts);
+            SetBodyDetail(rig._body, bodyTex);
             if (rig._closeup != null)
             {
                 rig._closeupMat = new Material(bodyShader) { name = "PlayerBody closeup (instance)" };
                 SetBodyTextures(rig._closeupMat, bodyTex.closeupSkin, bodyTex.closeupNormal, bodyTex.parts);
+                SetBodyDetail(rig._closeupMat, bodyTex);
                 rig._closeup.sharedMaterials = new[] { rig._closeupMat, rig._closeupMat };
                 rig._closeup.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
                 rig._closeup.updateWhenOffscreen = false;
                 rig._closeup.skinnedMotionVectors = false;
             }
-            rig._kit.SetTexture("_FabricTex", fabricTex);
+            // 062: 043 원단 노멀(fabricTex, kit_normal.png)은 구운 주름 노멀 + 짜임 타일로 대체 — 인자는 호출부 호환으로만 남는다
+            // 062 FR-20·25·26·30·31: 구운 주름·봉제선 노멀·AO, 짜임 타일, 영역 맵(거칠기·인쇄 거칠기·결 선택·젖음 대상)
+            SetIf(rig._kit, "_DetailN", bodyTex.kitDetailN);
+            SetIf(rig._kit, "_DetailAO", bodyTex.kitDetailAO);
+            SetIf(rig._kit, "_WeaveTex", bodyTex.kitWeave);
+            SetIf(rig._kit, "_RegionTex", bodyTex.kitRegion);
             rig._kit.SetVector("_NameArea", PlayerLook.NameArea);
             rig._kit.SetVector("_NumberArea", PlayerLook.NumberArea);
             rig._kit.SetVector("_FrontArea", PlayerLook.FrontArea);
@@ -160,6 +167,80 @@ namespace RoadToPro.Presentation.Players
             }
         }
 
+        // ---------------------------------------------------------------- 062 FR-21 키트 보조 뼈
+        Transform[] _kit6;
+        Vector3[] _kitRestPos;
+        Quaternion[] _kitParentRestModelInv;
+        Transform _hips, _thighL, _thighR, _kneeL, _kneeR;
+        Quaternion _hipsRestModelInv;
+        KitSecondaryMotion _kitMotion;
+
+        /// <summary>보조 뼈 수 (glb에 Kit_* 뼈가 없으면 0 — 062 T15 이전 생성물).</summary>
+        public int KitBoneCount { get; private set; }
+
+        /// <summary>레스트 회전을 루트(선수) 틀로 누적한다.</summary>
+        Quaternion RestModel(Transform b)
+        {
+            var q = Quaternion.identity;
+            for (var x = b; x != null && x != transform; x = x.parent)
+                q = (_restLocal.TryGetValue(x, out var r) ? r : x.localRotation) * q;
+            return q;
+        }
+
+        /// <summary>보조 뼈 6개와 고관절 굴곡 계산용 뼈를 찾고 레스트 위치·부모 레스트 회전을 기억한다. 한 번만.
+        /// glb 임포트가 이름의 '.'을 바꿀 수 있어 '_'·' ' 변형도 찾는다.</summary>
+        public void BindKitBones(KitSecondaryMotion m)
+        {
+            if (m == null || ReferenceEquals(m, _kitMotion)) return;
+            _kitMotion = m;
+            _kit6 = new Transform[KitSecondaryMotion.Bones];
+            _kitRestPos = new Vector3[KitSecondaryMotion.Bones];
+            _kitParentRestModelInv = new Quaternion[KitSecondaryMotion.Bones];
+            KitBoneCount = 0;
+            for (int i = 0; i < KitSecondaryMotion.Bones; i++)
+            {
+                string n = m.BoneName(i);
+                var b = Bone(n) ?? Bone(n.Replace('.', '_')) ?? Bone(n.Replace('.', ' '));
+                _kit6[i] = b;
+                if (b == null) continue;
+                KitBoneCount++;
+                _kitRestPos[i] = b.localPosition;
+                _kitParentRestModelInv[i] = Quaternion.Inverse(RestModel(b.parent));
+            }
+            _hips = Bone("Hips");
+            _thighL = Bone("LeftUpperLeg"); _thighR = Bone("RightUpperLeg");
+            _kneeL = Bone("LeftLowerLeg"); _kneeR = Bone("RightLowerLeg");
+            if (_hips != null) _hipsRestModelInv = Quaternion.Inverse(RestModel(_hips));
+        }
+
+        /// <summary>현재 포즈의 고관절 굴곡 각(°): 골반 틀에서 허벅지 방향의 앞뒤 기울기 (아래 = 0, 앞 = +). skeleton.hip_flex와 같은 정의.</summary>
+        public void HipFlex(out float left, out float right)
+        {
+            left = right = 0f;
+            if (_hips == null || _thighL == null || _kneeL == null || _thighR == null || _kneeR == null) return;
+            var rootInv = Quaternion.Inverse(transform.rotation);
+            var d = rootInv * _hips.rotation * _hipsRestModelInv; // 골반 레스트 → 현재 (선수 틀)
+            Vector3 down = d * Vector3.down, fwd = d * Vector3.forward;
+            left = Flex(rootInv * (_kneeL.position - _thighL.position), down, fwd);
+            right = Flex(rootInv * (_kneeR.position - _thighR.position), down, fwd);
+        }
+
+        static float Flex(Vector3 thigh, Vector3 down, Vector3 fwd) =>
+            Mathf.Atan2(Vector3.Dot(thigh, fwd), Vector3.Dot(thigh, down)) * Mathf.Rad2Deg;
+
+        /// <summary>오프셋(선수 레스트 틀 벡터, m)을 부모 레스트 틀로 바꿔 레스트 위치에 더한다 — 포즈에서는 부모 회전을 따라 돈다. 할당 없음.</summary>
+        public void ApplyKitBones(ReadOnlySpan<RoadToPro.Core.Math.Vec3> offsets)
+        {
+            if (_kit6 == null) return;
+            for (int i = 0; i < _kit6.Length && i < offsets.Length; i++)
+            {
+                var b = _kit6[i];
+                if (b == null) continue;
+                var o = new Vector3(offsets[i].X, offsets[i].Y, offsets[i].Z);
+                b.localPosition = _kitRestPos[i] + _kitParentRestModelInv[i] * o;
+            }
+        }
+
         public Transform Bone(string name) => _bones.TryGetValue(name, out var t) ? t : null;
 
         static void SetBodyTextures(Material m, Texture skin, Texture normal, Texture parts)
@@ -167,6 +248,19 @@ namespace RoadToPro.Presentation.Players
             m.SetTexture("_SkinTex", skin);
             m.SetTexture("_SkinNormal", normal);
             m.SetTexture("_PartsTex", parts);
+        }
+
+        /// <summary>062 FR-30~33·90·91 몸 구운 맵: 근육·손 디테일 노멀·AO, 피부 두께(R)·땀 마스크(G). 몸·클로즈업 머리 머티리얼 공통.</summary>
+        static void SetBodyDetail(Material m, PlayerBodyAssets a)
+        {
+            SetIf(m, "_MuscleN", a.bodyDetailN);
+            SetIf(m, "_MuscleAO", a.bodyDetailAO);
+            SetIf(m, "_ThicknessTex", a.skinThickness);
+        }
+
+        static void SetIf(Material m, string name, Texture t)
+        {
+            if (t != null) m.SetTexture(name, t);
         }
 
         public bool CloseupActive => _closeupOn;

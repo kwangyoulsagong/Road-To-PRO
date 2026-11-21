@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "id": "062-kit-motion",
+  "spec": "062",
+  "description": "자리 장면 (T17): 질주를 0.5x 재생으로 시작 + 1.5 s에 멈춰 상체 옆에서 캡처 — 보조 뼈 2차 움직임(상의 밑단·소매·반바지)과 손가락 포즈가 켜진 상태. 고정 재생 시각 6개·배속 비교는 T29에서 완성 (AC-10)",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261121
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-10"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "kitMotion"
+    },
+    {
+      "type": "capture",
+      "name": "kitMotion",
+      "kind": "3d"
+    }
+  ],
+  "imageChecks": [],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

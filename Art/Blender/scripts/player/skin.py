@@ -25,6 +25,11 @@ LAST_METRICS = {}   # 마지막 write_all의 클로즈업 피부 지표 (checks.
 PORE_BODY = 0.6     # 057: 얼굴 밖 몸 피부 모공 가중치 (원거리 깜빡임 완화, FR-22)
 CLOSEUP = 2048
 PARTS = 1024
+THICK = 512         # plan 데이터·스키마: skin_thickness 512
+FEAT = {}           # 062 T19: FR-91 얼굴 디테일 → 기여 최대값 (높이장 단위 / 밝기 배율), summary bakedMaps 근거
+LIP_GRAIN = 0.05    # 062 FR-91 입술 세로 결 진폭 (높이장 단위, 모공 0.45 × 0.5 대비 작게)
+WRINKLE_EYE = 0.06  # 062 FR-91 눈가 잔주름(까마귀발) 진폭
+WRINKLE_NL = 0.05   # 062 FR-91 팔자 주름 진폭
 
 
 # ---------------------------------------------------------------- 래스터화
@@ -107,6 +112,7 @@ def _fields(R, pos, valid, size, seed):
     # 눈가 속눈썹 선·눈꺼풀 주름 살짝 어둡게
     lid = np.exp(-((ry - 0.06) / 0.05) ** 2) * np.exp(-((ax - 0.52) / 0.3) ** 2) * face
     lum = lum * (1 - 0.25 * lid)
+    FEAT["face.eyelidCreases"] = max(FEAT.get("face.eyelidCreases", 0.0), float((0.25 * lid).max()))
     # 붉은 기운
     red = 0.10
     red = red + 0.55 * _blob(ax, ry, 0.78, -0.62, 0.38, 0.32) * face          # 볼
@@ -132,7 +138,16 @@ def _fields(R, pos, valid, size, seed):
     pw = np.where(face, PORE_SMOOTH + (1.0 - PORE_SMOOTH) * pw, PORE_BODY)
     pores = (_noise(u, v, 21 + seed, size // 2) * 0.6 + _noise(u, v, 23 + seed, size) * 0.4 - 0.5) * PORE_AMP * pw + 0.5
     wr = 0.5 + 0.5 * np.sin(ry * 60.0) * _blob(rx, ry, 0.0, 1.0, 0.8, 0.25) * face * 0.3
-    height = pores * 0.7 + wr * 0.3
+    # 062 FR-91: 눈가 잔주름(눈꼬리에서 부채꼴) + 팔자 주름(코 날개 → 입꼬리 사선 골) + 입술 세로 결
+    ang = np.arctan2(ry - 0.0, ax - 1.0)
+    crow = np.sin(ang * 9.0) * _blob(ax, ry, 1.05, 0.0, 0.18, 0.16) * face * (ax > 0.9)
+    nl_line = ry - (-0.95 - 1.1 * (ax - 0.35))                       # 코 날개(ax 0.35, ry −0.95)에서 입꼬리 쪽으로 내려가는 선
+    nasolab = -np.exp(-(nl_line / 0.06) ** 2) * _blob(ax, ry, 0.5, -1.2, 0.22, 0.3) * face
+    lipg = np.sin(rx * 160.0) * lips
+    wr2 = WRINKLE_EYE * crow + WRINKLE_NL * nasolab
+    height = pores * 0.7 + wr * 0.3 + wr2 + LIP_GRAIN * lipg
+    for k, t in (("face.pores", (pores - 0.5) * face), ("face.fineWrinkles", (wr - 0.5) * 0.3 + wr2), ("face.lipGrain", LIP_GRAIN * lipg)):
+        FEAT[k] = max(FEAT.get(k, 0.0), float(np.abs(t).max()))
     return lum, red, beard, rough, height
 
 
@@ -257,9 +272,54 @@ def parts_map(R, seed):
     return _to8(out)
 
 
+def thickness_map(R, size=THICK):
+    """062 FR-32·33 skin_thickness.png (피부 UV, RGBA 선형): R 얇은 부위 두께(1 = 역광 비침 최대: 귀·코끝·손가락 끝),
+    G 땀 마스크(이마·관자·목·팔), B 0, A 1. 셰이더: wrap 역광 × R, `_Sweat`이면 G 부위 거칠기 − SWEAT_DROP."""
+    from . import mpfb_src as MS
+    pos, valid = _raster(R, size)
+    c, d = F.eye_frame(R)
+    rx = (pos[..., 0] - c[0]) / d
+    ax = np.abs(rx)
+    ry = (pos[..., 1] - c[1]) / d
+    rz = (pos[..., 2] - c[2]) / d
+    face = (rz > -1.4) & (ry > -3.0) & (ry < 2.2)
+    ear = np.clip((ax - 1.15) / 0.2, 0, 1) * (ry > -1.2) * (ry < 0.6)
+    nose = _blob(rx, ry, 0.0, -0.85, 0.18, 0.2) * face * (rz > 0.3)
+
+    def seg_dist(p, a, b):
+        a, b = np.asarray(a, float), np.asarray(b, float)
+        ab = b - a
+        t = np.clip(((p - a) @ ab) / (ab @ ab), 0, 1)
+        return np.linalg.norm(p - (a + t[..., None] * ab), axis=-1)
+
+    tips = np.zeros(valid.shape)
+    for side in ("Left", "Right"):
+        for Fn, _ in MS.FINGERS:
+            h, t_ = R.joints[side + Fn + "Distal"]
+            dd = np.linalg.norm(pos - np.asarray(t_, float), axis=-1)
+            tips = np.maximum(tips, np.clip(1 - dd / 0.012, 0, 1))
+    thick = np.clip(np.maximum(np.maximum(ear, nose), tips), 0, 1)
+    fore = _blob(rx, ry, 0.0, 0.95, 0.75, 0.35) * face
+    temple = _blob(ax, ry, 1.0, 0.45, 0.2, 0.3) * face
+    nh, nt = R.joints["Neck"]
+    neck = np.clip(1 - seg_dist(pos, nh, nt) / 0.075, 0, 1) * (~face)
+    arm = np.zeros(valid.shape)
+    for side in ("Left", "Right"):
+        for b in ("UpperArm", "LowerArm"):
+            h, t_ = R.joints[side + b]
+            arm = np.maximum(arm, np.clip(1 - (seg_dist(pos, h, t_) - 0.04) / 0.06, 0, 1))   # 위팔 반지름 ≈ 5 cm까지 1
+    sweat = np.clip(np.maximum.reduce([fore, temple, neck, arm]), 0, 1)
+    img = np.stack([thick, sweat, np.zeros_like(thick), np.ones_like(thick)], axis=-1) * valid[..., None]
+    img = _dilate(img, valid)
+    FEAT["skin.thickness"] = float(thick[valid].max())
+    FEAT["skin.sweat"] = float(sweat[valid].max())
+    return _to8(img)
+
+
 def write_all(out_dir, R, seed=0):
     import os
     out = {}
+    FEAT.clear()
     s, n = skin_maps(R, SKIN, seed)
     write_png(os.path.join(out_dir, "skin.png"), s)
     write_png(os.path.join(out_dir, "skin_normal.png"), n)
@@ -271,6 +331,8 @@ def write_all(out_dir, R, seed=0):
     out["skin_closeup.png"] = out["skin_closeup_normal.png"] = (CLOSEUP, CLOSEUP)
     write_png(os.path.join(out_dir, "parts.png"), parts_map(R, seed))
     out["parts.png"] = (PARTS, PARTS)
+    write_png(os.path.join(out_dir, "skin_thickness.png"), thickness_map(R))   # 062 FR-32·33
+    out["skin_thickness.png"] = (THICK, THICK)
     return out
 
 

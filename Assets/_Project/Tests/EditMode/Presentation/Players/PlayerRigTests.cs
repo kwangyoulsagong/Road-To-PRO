@@ -27,6 +27,9 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 skin = T(PlayerBodyAssets.Skin), skinNormal = T(PlayerBodyAssets.SkinNormal), parts = T(PlayerBodyAssets.Parts),
                 closeupSkin = T(PlayerBodyAssets.CloseupSkin), closeupNormal = T(PlayerBodyAssets.CloseupNormal),
                 faceJson = AssetDatabase.LoadAssetAtPath<TextAsset>(Gen + "/" + PlayerBodyAssets.FaceJson),
+                bodyDetailN = T(PlayerBodyAssets.BodyDetailN), bodyDetailAO = T(PlayerBodyAssets.BodyDetailAO),
+                skinThickness = T(PlayerBodyAssets.SkinThickness), kitDetailN = T(PlayerBodyAssets.KitDetailN),
+                kitDetailAO = T(PlayerBodyAssets.KitDetailAO), kitWeave = T(PlayerBodyAssets.KitWeave), kitRegion = T(PlayerBodyAssets.KitRegion),
             };
         }
 

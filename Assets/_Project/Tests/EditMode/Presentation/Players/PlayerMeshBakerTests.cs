@@ -93,7 +93,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 r1.ApplyAppearance(afro);
                 r2.ApplyAppearance(bald);
                 Assert.Greater(r1.Lod(0).sharedMesh.triangles.Length, r2.Lod(0).sharedMesh.triangles.Length + 300 * 3);
-                Assert.LessOrEqual(r1.Lod(0).sharedMesh.triangles.Length / 3, 10_000, "FR-60 LOD0 ≤ 10k (헤어 포함)");
+                Assert.LessOrEqual(r1.Lod(0).sharedMesh.triangles.Length / 3, 11_000, "062 FR-81 LOD0 ≤ 11k (헤어 포함)");
                 Assert.LessOrEqual(r1.Lod(1).sharedMesh.triangles.Length / 3, 3_000);
                 Assert.LessOrEqual(r1.Lod(2).sharedMesh.triangles.Length / 3, 1_000);
             }

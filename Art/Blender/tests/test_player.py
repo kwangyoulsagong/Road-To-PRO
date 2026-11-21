@@ -496,3 +496,67 @@ class Kit062_Detail(unittest.TestCase):
         p = generated("default").layout["summary"]["kitMotion"]
         self.assertEqual(p["penetration"], 0, p)
         self.assertTrue(p["ok"])
+
+# 062 FR-91 부위 → 구운 디테일 (생성기 summary["bakedMaps"]["parts"]의 키와 같다)
+BAKED_062 = {
+    "body": ("muscleEdges", "boneOutline", "tendons"),
+    "hand": ("knuckleCreases", "palmCreases", "nailEdge"),
+    "face": ("pores", "fineWrinkles", "lipGrain", "eyelidCreases"),
+    "shirt": ("folds", "seams", "weave", "collarRib"),
+    "shorts": ("folds", "sideSeam", "hemFold"),
+    "sock": ("ribbing", "shinGuard", "ankleFolds"),
+    "boot": ("panelSeams", "soleStuds", "heelCounter"),
+}   # 인쇄(테두리 두께감·원단 결 위 인쇄)는 런타임 합성(KitCompositor·PlayerKit)이라 062-body-closeup 육안 (T20)
+# FR-92: 몸·의상 맵 최대 2K(Medium·High), 클로즈업 머리 2K — 생성 원본 상한
+TEX_MAX_062 = 2048
+# FR-30 정반사 하이라이트 세기 순서 (기준 조명 재질 구 렌더)
+SPEC_ORDER_062 = ("boot", "print", "skin", "shirt", "shorts", "sock")
+
+
+class Material062_Order(unittest.TestCase):
+    """062 AC-04 (Blender 몫): 기준 조명 재질 구 렌더 정반사 순서 축구화 > 인쇄 > 피부 > 셔츠 > 반바지 > 양말,
+    피부 정반사 ≤ 056 FR-31 상한(땀 켬 ≤ 1.3배), 머리카락 하이라이트 이방성 ≥ 2:1 (FR-30·32·33·34)."""
+
+    def test_material_order(self):
+        m = generated("default").layout["summary"]["material062"]
+        spec = m["specPeak"]
+        for a, b in zip(SPEC_ORDER_062, SPEC_ORDER_062[1:]):
+            self.assertGreater(spec[a], spec[b], f"{a} > {b}: {spec}")
+        self.assertLessEqual(spec["skin"], m["skinSpecCap"], m)               # 056 FR-31 플라스틱 금지 상한
+        self.assertLessEqual(m["skinSweatPeak"], m["skinSpecCap"] * 1.3, m)   # FR-33 땀 켬
+        self.assertGreater(m["skinSweatPeak"], spec["skin"], m)               # 땀이 실제로 광택을 늘린다
+        for color, r in m["hairAniso"].items():
+            self.assertGreaterEqual(r, 2.0, f"{color}: {r}")                   # FR-34
+        self.assertTrue(m["ok"], m)
+
+
+class BakedMaps062(unittest.TestCase):
+    """062 AC-04 (Blender 몫): FR-91 부위별 구운 디테일 전부 존재, 해상도 ≤ FR-92, 2회 생성 해시 동일, 절차 생성·라이선스 (FR-35·90~96)."""
+
+    MAPS = ("body_detail_n.png", "body_detail_ao.png", "kit_detail_n.png", "kit_detail_ao.png", "kit_region.png",
+            "skin_thickness.png", "skin_closeup_normal.png")
+
+    def test_baked_maps(self):
+        g = generated("default")
+        b = g.layout["summary"]["bakedMaps"]
+        for part, details in BAKED_062.items():
+            got = b["parts"][part]
+            for d in details:
+                self.assertTrue(got.get(d), f"{part}.{d} 없음: {got}")      # 부위 영역 안에서 디테일 에너지 > 0
+        for name in self.MAPS:
+            path = g.path("Textures/" + name)
+            self.assertTrue(os.path.exists(path), name)
+            w, h = png_size(path)
+            self.assertLessEqual(max(w, h), TEX_MAX_062, name)
+        for name in g.files():
+            if name.startswith("Textures/") and name.endswith(".png"):
+                self.assertLessEqual(max(png_size(g.path(name))), TEX_MAX_062, name)
+        # 같은 입력 2회 → 구운 맵 바이트 동일 (FR-95)
+        g2 = generated("default2")
+        for name in self.MAPS:
+            self.assertEqual(g.sha("Textures/" + name), g2.sha("Textures/" + name), name)
+        # 원천: 전부 절차 생성(bpy) 또는 LICENSES.csv 기록 (FR-35·93)
+        lic = g.layout["summary"]["licenses"]
+        self.assertTrue(lic["ok"], lic)
+        self.assertTrue(b["procedural"], b)
+        self.assertTrue(b["ok"], b)

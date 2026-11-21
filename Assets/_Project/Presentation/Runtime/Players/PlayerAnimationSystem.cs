@@ -27,6 +27,8 @@ namespace RoadToPro.Presentation.Players
         Transform _ball;
         Camera _cam;
         PoseSample _s;
+        PlayerMotionExtras _extras;
+        PlayerRig[] _rigs;
 
         public AnimPlan Plan => _plan;
         public float LastTime { get; private set; } = float.NaN;
@@ -53,6 +55,8 @@ namespace RoadToPro.Presentation.Players
             _lock = new FootLock[rigs.Length];
             _hands = new HandReachIk[rigs.Length];
             _poses = new PoseSample[rigs.Length];
+            _rigs = rigs;
+            _extras = null;
             _graph = UnityEngine.Playables.PlayableGraph.Create("Players");
             _graph.SetTimeUpdateMode(UnityEngine.Playables.DirectorUpdateMode.Manual);
             for (int e = 0; e < rigs.Length; e++)
@@ -63,6 +67,18 @@ namespace RoadToPro.Presentation.Players
                     _hands[e] = new HandReachIk(rigs[e]);
                 }
         }
+
+        /// <summary>
+        /// 062 FR-10~13·21: 손가락 포즈(clips.json 표)와 키트 보조 뼈 2차 움직임을 켠다. kit이 null이면 손가락만. Init 뒤, 재생 전에 한 번.
+        /// </summary>
+        public void EnableMotionExtras(KitSecondaryMotion kit)
+        {
+            if (_anim == null) throw new System.InvalidOperationException("Init 뒤에 호출한다");
+            _extras = new PlayerMotionExtras(_plan.Library, kit, _rigs);
+            LastTime = float.NaN;
+        }
+
+        public PlayerMotionExtras MotionExtras => _extras;
 
         /// <summary>
         /// 장면 전환 (specs/041 FR-31): 그래프·애니메이터를 재사용하고 계획만 바꾼다. 발 고정은 포즈 = f(t)라 넘길 상태가 없다.
@@ -120,6 +136,14 @@ namespace RoadToPro.Presentation.Players
                         _plan.HandReachAt(e, t, out var reach, out var hands, out _); // 080 FR-04: 발 접지 뒤 GK 손 IK
                         if (hands != 0) _hands[e].Apply(new Vector3(reach.X, reach.Y, reach.Z), hands);
                     }
+                if (_extras != null)
+                    using (PlayerMotionExtras.Marker.Auto())
+                        for (int e = 0; e < _anim.Length; e++)
+                        {
+                            var a = _anim[e];
+                            if (a == null || !a.Rig.gameObject.activeSelf) continue;
+                            _extras.Apply(a.Rig, _poses[e], _plan.Data, e, t);
+                        }
                 if (TimeMotion) LastMotionMs = (System.Diagnostics.Stopwatch.GetTimestamp() - t0) * 1000.0 / System.Diagnostics.Stopwatch.Frequency;
                 MaxGroundLift = lift;
                 if (_ball != null)

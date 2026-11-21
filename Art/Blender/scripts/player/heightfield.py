@@ -21,6 +21,16 @@ DETAIL = 2048
 NORMAL_GAIN = 4.0   # 1 = 물리적 기울기. 클로즈업 판독성을 위해 과장 (T06 측정)
 
 
+FEAT = {}   # 062 T19: FR-91 디테일 항목 → 구운 높이 기여 최대 |m| (summary bakedMaps 근거, 맵을 쓸 때마다 다시 채운다)
+
+
+def _reg(key, term):
+    """디테일 항 term(배열)을 FEAT[key]에 기록하고 그대로 돌려준다."""
+    v = float(np.max(np.abs(term))) if np.size(term) else 0.0
+    FEAT[key] = max(FEAT.get(key, 0.0), v)
+    return term
+
+
 def _smooth(x, e0, e1):
     t = np.clip((x - e0) / max(e1 - e0, 1e-9), 0.0, 1.0)
     return t * t * (3 - 2 * t)
@@ -52,8 +62,8 @@ MUSCLES = [
     ("LowerLeg", 0.02, 0.50, 165, 60, 0.0080, 0.25),    # 장딴지근 안·바깥 갈래
     ("LowerLeg", 0.05, 0.70, 45, 25, 0.0032, 0.30),     # 앞정강근
     # 목·어깨(셔츠 밖으로 보이는 부분)
-    ("Neck", 0.00, 0.95, 35, 18, 0.0048, 0.35),         # 목빗근 (좌우 따로: 아래 _frame에서 θ 거울)
-    ("Neck", 0.00, 0.95, -35, 18, 0.0048, 0.35),
+    # ("Neck", 0.00, 0.95, 35, 18, 0.0048, 0.35),  062 T20: 목빗근 제외 (위 FORM_BONES와 같은 이유)         # 목빗근 (좌우 따로: 아래 _frame에서 θ 거울)
+    # ("Neck", 0.00, 0.95, -35, 18, 0.0048, 0.35),
 ]
 # 뼈 돌출 (뼈, t, θc, 각 반폭, 축 반폭(t), 높이)
 BONY = [
@@ -110,7 +120,7 @@ def smooth_noise3(P, cell, seed):
 
 # 피하 형태 굴곡: 팔다리 피부의 잔잔한 높낮이(근섬유 묶음·피하 지방 고르지 않음). (격자 m, 높이 m) 두 옥타브.
 FORM_OCTAVES = ((0.035, 0.0008), (0.018, 0.0004))
-FORM_BONES = ("UpperArm", "LowerArm", "UpperLeg", "LowerLeg", "Shoulder", "Neck")
+FORM_BONES = ("UpperArm", "LowerArm", "UpperLeg", "LowerLeg", "Shoulder")   # 062 T20: 목 제외 (클로즈업에서 목에 가로 띠·회색 막, FR-91 몸 목록에 목 없음)
 
 
 def _frame(R, name):
@@ -161,7 +171,7 @@ def muscle_height(R, pos, valid, dom):
             # 가장자리가 가팔라 이웃 근육과 만나는 곳에 골이 생긴다). edge가 작을수록 가장자리가 가파르다.
             tc, ht = 0.5 * (t0 + t1), 0.5 * (t1 - t0)
             d2 = ((t - tc) / ht) ** 2 + (_angdist(th, thc) / hw) ** 2
-            hgt += amp * np.clip(1.0 - d2, 0.0, 1.0) ** (0.6 + edge) * near
+            hgt += _reg("body.muscleEdges", amp * np.clip(1.0 - d2, 0.0, 1.0) ** (0.6 + edge) * near)
     for suffix, t0, t1, th0, ta, nw, ph, width, amp in VEINS:
         for side in sides:
             name = side + suffix
@@ -189,14 +199,14 @@ def muscle_height(R, pos, valid, dom):
             bi = MS.OUR_NAMES.index(name)
             near = valid & ((dom == bi) | _neighbor_bone(dom, R, name))
             t, th = _bone_coords(R, pos, name)
-            hgt += amp * np.exp(-((t - tc) / ht) ** 2) * np.exp(-(_angdist(th, thc) / hw) ** 2) * near
+            hgt += _reg("body.boneOutline", amp * np.exp(-((t - tc) / ht) ** 2) * np.exp(-(_angdist(th, thc) / hw) ** 2) * near)
     for suffix, t0, t1, thc, hw, amp in TENDONS:
         for side in sides:
             name = side + suffix
             bi = MS.OUR_NAMES.index(name)
             t, th = _bone_coords(R, pos, name)
             band = _smooth(t, t0, t0 + 0.08) * (1 - _smooth(t, t1 - 0.05, t1))
-            hgt += amp * band * np.exp(-(_angdist(th, thc) / hw) ** 2) * valid * (dom == bi)
+            hgt += _reg("body.tendons", amp * band * np.exp(-(_angdist(th, thc) / hw) ** 2) * valid * (dom == bi))
     return hgt
 
 
@@ -295,15 +305,15 @@ def hand_height(R, pos, valid, dom):
                 th = np.abs(np.degrees(np.arctan2(r @ side_v, r @ fr)))  # 0 = 손바닥, 180 = 손등
                 palm = 1 - _smooth(th, 60, 90)
                 back = _smooth(th, 110, 140)
-                hgt += -0.0006 * np.exp(-(along / 0.0012) ** 2) * palm * near            # 손바닥 쪽 마디 골
+                hgt += _reg("hand.knuckleCreases", -0.0006 * np.exp(-(along / 0.0012) ** 2) * palm * near)   # 손바닥 쪽 마디 골
                 for j in range(3):                                                    # 손등 마디 잔주름
-                    hgt += -0.00025 * np.exp(-((along - (j - 1) * 0.0016) / 0.0004) ** 2) * back * near
+                    hgt += _reg("hand.knuckleCreases", -0.00025 * np.exp(-((along - (j - 1) * 0.0016) / 0.0004) ** 2) * back * near)
                 if g == "Distal":
                     tt = along / ln
                     plate = _smooth(tt, 0.35, 0.45) * (1 - _smooth(tt, 0.92, 1.0)) * _smooth(th, 130, 145)
-                    hgt += 0.0003 * plate * near
+                    hgt += _reg("hand.nailEdge", 0.0003 * plate * near)
                     edge = np.exp(-((tt - 0.40) / 0.025) ** 2) * _smooth(th, 125, 140)
-                    hgt += -0.0004 * edge * near                                      # 손톱 뿌리 골
+                    hgt += _reg("hand.nailEdge", -0.0004 * edge * near)               # 손톱 뿌리 골
         # 손바닥 주름 (손바닥 쪽, 손 뼈 주 텍셀): 손 방향 길이 비율 t, 가로 비율 u (엄지 쪽 0 → 새끼 쪽 1)
         name = side + "Hand"
         bi = MS.OUR_NAMES.index(name)
@@ -316,9 +326,9 @@ def hand_height(R, pos, valid, dom):
         palm_side = (P @ n) > 0
         for c0, c1, amp in ((0.42, 0.30, -0.0005), (0.36, 0.26, -0.0005)):   # 감정선·두뇌선 (가상 곡선)
             line = c0 + (c1 - c0) * u + 0.03 * np.sin(u * 3.0)
-            hgt += amp * np.exp(-((tt - line) / 0.012) ** 2) * near * palm_side
+            hgt += _reg("hand.palmCreases", amp * np.exp(-((tt - line) / 0.012) ** 2) * near * palm_side)
         life = 0.18 + 0.25 * np.clip(u, 0, 1) ** 0.5                            # 생명선 (엄지 뿌리 둘레)
-        hgt += -0.0005 * np.exp(-((tt - life) / 0.012) ** 2) * (u < 0.45) * near * palm_side
+        hgt += _reg("hand.palmCreases", -0.0005 * np.exp(-((tt - life) / 0.012) ** 2) * (u < 0.45) * near * palm_side)
     return hgt
 
 
@@ -327,7 +337,9 @@ def body_detail(R, size=DETAIL):
     pos, valid, dom, m_per_uv = raster_bones(R, size)
     hgt = muscle_height(R, pos, valid, dom) + hand_height(R, pos, valid, dom)
     texel_m = m_per_uv / size  # 텍셀 한 칸의 평균 몸 표면 길이(m) — 높이 기울기를 실제 단위로
-    nrm = SK._normal_from_height(hgt / texel_m, NORMAL_GAIN)
+    # 062 T20: 섬 밖으로 높이를 먼저 번진다 — 섬 밖 0과 미분하면 섬 가장자리마다 테두리 띠가 생겨 Unity 목·팔에 줄이 보였다 (키트 T14와 같은 처리)
+    hd = SK._dilate(hgt[..., None], valid, iters=4)[..., 0]
+    nrm = SK._normal_from_height(hd / texel_m, NORMAL_GAIN)
     nrm = SK._dilate(nrm, valid)
     ao = cavity_ao(hgt, valid, size // 128, 120.0)
     ao = SK._dilate(np.repeat(ao[..., None], 3, axis=-1), valid)
@@ -346,23 +358,29 @@ def write_all(out_dir, R):
 # ---------------------------------------------------------------- 062 FR-20·23·24·31·91 키트 구운 지도
 
 KIT_DETAIL = 2048
-KIT_GAIN = 3.5     # 천 주름 노멀 과장 (T14 측정)
+KIT_GAIN = 5.0     # 천 주름 노멀 과장 (T14 3.5 → T20 야코비안 굽기에서 FR-20 ≥ 1.3배 유지로 5.0; Unity 표시는 PlayerKit _DetailStrength)
 PART_CODE = {"shirt": 1, "sleeve": 2, "shorts": 3, "sock": 4, "boot": 5}
 
 
+RASTER_J = {}   # 마지막 raster_kit의 텍셀별 UV 야코비안: "du"·"dv" (S,S,3) = 텍셀 한 칸당 표면 이동 (m)
+
+
 def raster_kit(m, size):
-    """LOD0 키트 면(턱 포함)을 키트 UV에 래스터 → (위치, 법선, 부위 코드, 유효, UV당 표면 길이)."""
+    """LOD0 키트 면(턱 제외)을 키트 UV에 래스터 → (위치, 법선, 부위 코드, 유효, UV당 표면 길이).
+    062 T20: 턱 면은 셔츠와 같은 UV 규칙이라 밑단·칼라 띠 텍셀을 덮어써(세로 면의 위치·법선) Unity에서 각진 얼룩이 됐다 → 뺀다."""
     from . import body as B
     vn = B._normals(m.verts, [f[0] for f in m.faces])
     pos = np.zeros((size, size, 3))
     nrm = np.zeros((size, size, 3))
     code = np.zeros((size, size), dtype=np.int64)
     valid = np.zeros((size, size), dtype=bool)
+    jdu = np.zeros((size, size, 3))
+    jdv = np.zeros((size, size, 3))
     a3 = auv = 0.0
     for f, mat, uvs, part, _ in m.faces:
-        if mat != B.KIT:
+        if mat != B.KIT or part.endswith("_rim"):
             continue
-        pc = PART_CODE.get(part.replace("_rim", ""), 0)
+        pc = PART_CODE.get(part, 0)
         for k in range(1, len(f) - 1):
             idx = (0, k, k + 1)
             uv1 = np.array([uvs[i] for i in idx], dtype=float)
@@ -394,7 +412,45 @@ def raster_kit(m, size):
             nrm[rows, cols] = nn / np.maximum(np.linalg.norm(nn, axis=1, keepdims=True), 1e-9)
             code[rows, cols] = pc
             valid[rows, cols] = True
+            # 삼각형 UV 야코비안: [P1−P0, P2−P0] = [dP/du dP/dv]·[uv1−uv0, uv2−uv0] (uv = 텍셀 단위, v는 위쪽 +)
+            E = np.stack([P[1] - P[0], P[2] - P[0]], axis=1)                   # (3, 2)
+            T = np.stack([uv[1] - uv[0], uv[2] - uv[0]], axis=1)               # (2, 2)
+            if abs(np.linalg.det(T)) > 1e-12:
+                Jm = E @ np.linalg.inv(T)                                      # (3, 2)
+                jdu[rows, cols] = Jm[:, 0]
+                jdv[rows, cols] = Jm[:, 1]
+    RASTER_J.clear()
+    RASTER_J.update(du=jdu, dv=jdv)
     return pos, nrm, code, valid, math.sqrt(a3 / max(auv, 1e-12))
+
+
+def tangent_normal(hgt, valid, nrm, gain):
+    """062 T20: 높이(m) → 탄젠트 공간 노멀(0~1). 텍셀 차분(dh/du, dh/dv)을 삼각형 UV 야코비안으로 실제 표면 기울기로 바꾸고
+    Unity 탄젠트(= dP/du 방향)·바이탄젠트(법선 × 탄젠트, dP/dv 쪽 부호)에 투영한다. UV가 늘어나거나 비틀린 곳(칼라·어깨)에서
+    평균 텍셀 길이 하나로 나누면 삼각형마다 기울기가 달라져 Unity에서 면 단위로 각져 보였다."""
+    du, dv = RASTER_J["du"], RASTER_J["dv"]
+    gy, gx = np.gradient(hgt)
+    hu, hv = gx, -gy                                             # 행 0 = v 1
+    aa = np.einsum("...k,...k->...", du, du)
+    ab = np.einsum("...k,...k->...", du, dv)
+    bb = np.einsum("...k,...k->...", dv, dv)
+    det = aa * bb - ab * ab
+    ok = valid & (det > 1e-20)
+    det = np.where(ok, det, 1.0)
+    c0 = (bb * hu - ab * hv) / det
+    c1 = (aa * hv - ab * hu) / det
+    g = c0[..., None] * du + c1[..., None] * dv                  # 표면 기울기 (무차원)
+    t = du / np.maximum(np.linalg.norm(du, axis=-1, keepdims=True), 1e-12)
+    n = nrm
+    bt = np.cross(n, t)
+    sgn = np.sign(np.einsum("...k,...k->...", bt, dv))
+    bt = bt * np.where(sgn == 0, 1.0, sgn)[..., None]
+    x = -gain * np.einsum("...k,...k->...", g, t)
+    y = -gain * np.einsum("...k,...k->...", g, bt)
+    out = np.stack([x, y, np.ones_like(x)], axis=-1)
+    out /= np.linalg.norm(out, axis=-1, keepdims=True)
+    out[~ok] = (0.0, 0.0, 1.0)
+    return out * 0.5 + 0.5
 
 
 def kit_height(pos, nrm, code, valid):
@@ -414,12 +470,13 @@ def kit_height(pos, nrm, code, valid):
     phase = smooth_noise3(pos * np.array([1.0, 0.0, 1.0]), 0.06, 631) * 6.0
     amp_n = smooth_noise3(pos, 0.05, 633)                       # 주름마다 깊이가 다르게
     lam = 0.024 + 0.012 * smooth_noise3(pos, 0.09, 634)          # 간격도 고르지 않게
-    h += 0.0011 * np.sin(2 * math.pi * dh / lam + phase) * env * (0.3 + 0.9 * amp_n) * (0.6 + 0.4 * np.clip(-nz, 0, 1)) * torso
+    patch = np.clip((amp_n - 0.35) / 0.35, 0, 1)                 # 주름이 끊겨 군데군데만 (띠처럼 한 바퀴 돌지 않게)
+    h += _reg("shirt.folds", 0.0009 * np.sin(2 * math.pi * dh / lam + phase) * env * patch * (0.6 + 0.4 * np.clip(-nz, 0, 1)) * torso)
     # 늘어짐 주름: 길쭉한 매끈 노이즈(세로로 길게 + 겨드랑이에서 허리 쪽 대각) — 몸판 전체의 부드러운 천 굴곡
     vert = smooth_noise3(pos * np.array([1.0, 0.25, 1.0]), 0.035, 641) - 0.5
     diag_pos = np.stack([np.abs(pos[..., 0]) + 0.6 * pos[..., 1], pos[..., 1] * 0.3, pos[..., 2]], axis=-1)  # 좌우 대칭, 가운데 이음 없음
     diag = smooth_noise3(diag_pos, 0.04, 642) - 0.5
-    h += (0.0020 * vert + 0.0014 * diag) * torso
+    h += _reg("shirt.folds", (0.0020 * vert + 0.0014 * diag) * torso)
     h += 0.0012 * (smooth_noise3(pos * np.array([1.0, 0.4, 1.0]), 0.03, 643) - 0.5) * valid * (code == 2)   # 소매
     # 겨드랑이 방사 주름: 겨드랑이 점에서 12 cm 안, 각 방향 사인
     for s_ in ("Left", "Right"):
@@ -428,35 +485,35 @@ def kit_height(pos, nrm, code, valid):
         d = pos - c
         r = np.linalg.norm(d, axis=-1)
         ang = np.arctan2(d[..., 2], d[..., 1])
-        h += 0.0015 * np.sin(ang * 7.0) * np.clip(1 - r / 0.12, 0, 1) ** 1.5 * shirt
+        h += _reg("shirt.folds", 0.0015 * np.sin(ang * 7.0) * np.clip(1 - r / 0.12, 0, 1) ** 1.5 * shirt)
     # 어깨 봉제선: 몸통 위쪽에서 앞뒤 경계(z ≈ 0) 홈 + 땀 점선
     top = np.clip((y - (S.HEAD["RightUpperArm"][1] - 0.04)) / 0.04, 0, 1)
     seam = np.exp(-(z / 0.0018) ** 2)
     stitch = 0.5 + 0.5 * np.sign(np.sin(np.hypot(x, y) / 0.003 * math.pi))
-    h += -0.0006 * seam * top * shirt + -0.0002 * np.exp(-((np.abs(z) - 0.004) / 0.0007) ** 2) * stitch * top * shirt
+    h += _reg("shirt.seams", -0.0006 * seam * top * shirt + -0.0002 * np.exp(-((np.abs(z) - 0.004) / 0.0007) ** 2) * stitch * top * shirt)
     # 옆구리 봉제선: 몸통 옆면(법선 z ≈ 0, |x| 큼)
     side = np.exp(-(nz / 0.06) ** 2) * (np.abs(nx) > 0.7)
-    h += -0.0005 * side * torso
+    h += _reg("shirt.seams", -0.0005 * side * torso)
     # 소매 끝 박음질 두 줄 · 반바지·셔츠 밑단 접힘 턱
     for s_ in ("L", "R"):
         d = np.abs(np.einsum("...k,k->...", pos - np.array(planes["sleeve" + s_][1]), np.array(planes["sleeve" + s_][2])))
-        h += -0.0003 * (np.exp(-((d - 0.006) / 0.0008) ** 2) + np.exp(-((d - 0.010) / 0.0008) ** 2)) * valid * (code == 2)
+        h += _reg("shirt.seams", -0.0003 * (np.exp(-((d - 0.006) / 0.0008) ** 2) + np.exp(-((d - 0.010) / 0.0008) ** 2)) * valid * (code == 2))
         ds = np.abs(y - planes["shorts" + s_][1][1])
-        h += 0.0006 * np.clip(1 - ds / 0.015, 0, 1) * valid * (code == 3) * (np.sign(x) == (-1 if s_ == "L" else 1))
+        h += _reg("shorts.hemFold", 0.0006 * np.clip(1 - ds / 0.015, 0, 1) * valid * (code == 3) * (np.sign(x) == (-1 if s_ == "L" else 1)))
     # 칼라 리브: 칼라 평면 위 2 cm 띠의 세로 골
     cpl = planes["collar"]
     dc = np.einsum("...k,k->...", pos - np.array(cpl[1]), np.array(cpl[2]))
     neck_ang = np.arctan2(x, z)
-    h += 0.0003 * np.sin(neck_ang * 90.0) * (np.abs(dc) < 0.02) * shirt
+    h += _reg("shirt.collarRib", 0.0003 * np.sin(neck_ang * 90.0) * (np.abs(dc) < 0.02) * shirt)
     # 반바지: 사타구니 방사 주름 + 옆선
     shorts = valid & (code == 3)
     crotch = np.array([0.0, S.HEAD["LeftUpperLeg"][1] - 0.06, 0.0])
     d = pos - crotch
     r = np.linalg.norm(d, axis=-1)
     ang = np.arctan2(d[..., 0], d[..., 2])
-    h += 0.0014 * np.sin(ang * 6.0) * np.clip(1 - r / 0.14, 0, 1) ** 1.5 * shorts
-    h += 0.0016 * (smooth_noise3(pos * np.array([1.0, 0.35, 1.0]), 0.035, 644) - 0.5) * shorts   # 반바지 늘어짐
-    h += -0.0005 * np.exp(-(nz / 0.06) ** 2) * (np.abs(nx) > 0.7) * shorts
+    h += _reg("shorts.folds", 0.0014 * np.sin(ang * 6.0) * np.clip(1 - r / 0.14, 0, 1) ** 1.5 * shorts)
+    h += _reg("shorts.folds", 0.0016 * (smooth_noise3(pos * np.array([1.0, 0.35, 1.0]), 0.035, 644) - 0.5) * shorts)   # 반바지 늘어짐
+    h += _reg("shorts.sideSeam", -0.0005 * np.exp(-(nz / 0.06) ** 2) * (np.abs(nx) > 0.7) * shorts)
     # 양말: 세로 골지 + 발목 가로 주름
     sock = valid & (code == 4)
     for s_ in ("Left", "Right"):
@@ -465,21 +522,20 @@ def kit_height(pos, nrm, code, valid):
         rr = pos - hd - np.einsum("...k,k->...", pos - hd, ax)[..., None] * ax
         ang = np.arctan2(rr[..., 0], rr[..., 2])
         mine = sock & (np.sign(x) == np.sign(hd[0]))
-        h += 0.0004 * np.sin(ang * 48.0) * mine
+        h += _reg("sock.ribbing", 0.00012 * np.sin(ang * 48.0) * mine)   # 골지 형태만 약하게 (미세 결은 kit_weave 골지)
         ank = S.HEAD[s_ + "Foot"][1]
-        h += 0.0006 * np.sin((y - ank) / 0.006 * math.pi) * np.clip(1 - (y - ank - 0.03) / 0.04, 0, 1) * (y > ank) * mine
+        h += _reg("sock.ankleFolds", 0.0006 * np.sin((y - ank) / 0.006 * math.pi) * np.clip(1 - (y - ank - 0.03) / 0.04, 0, 1) * (y > ank) * mine)
     # 축구화: 끈 없는 니트 갑피 결(대각) + 앞코 덮개·뒤꿈치 보강 이음선 + 밑창 경계
     boot = valid & (code == 5)
-    knit = np.sin((x + z) / 0.0025 * math.pi) * np.sin((x - z) / 0.0025 * math.pi)
-    h += 0.00015 * knit * boot * (y > 0.03)
+    # 니트 미세 결은 반복 타일(kit_weave)이 맡는다 — 구운 지도에 넣으면 2.5 mm 주기가 텍셀보다 작아 모아레
     for s_ in ("Left", "Right"):
         toe = np.array(S.TAIL[s_ + "Toes"])
         dt = np.linalg.norm((pos - toe) * np.array([1.0, 0.6, 1.0]), axis=-1)
-        h += -0.0005 * np.exp(-((dt - 0.055) / 0.0012) ** 2) * boot * (np.sign(x) == np.sign(toe[0]))
+        h += _reg("boot.panelSeams", -0.0005 * np.exp(-((dt - 0.055) / 0.0012) ** 2) * boot * (np.sign(x) == np.sign(toe[0])))
         heel = np.array(S.HEAD[s_ + "Foot"]) + np.array([0.0, -0.04, -0.05])
         dhl = np.linalg.norm((pos - heel) * np.array([1.0, 0.8, 1.0]), axis=-1)
-        h += -0.0005 * np.exp(-((dhl - 0.06) / 0.0012) ** 2) * boot * (np.sign(x) == np.sign(heel[0]))
-    h += -0.0006 * np.exp(-((y - 0.022) / 0.0015) ** 2) * boot
+        h += _reg("boot.heelCounter", -0.0005 * np.exp(-((dhl - 0.06) / 0.0012) ** 2) * boot * (np.sign(x) == np.sign(heel[0])))
+    h += _reg("boot.soleStuds", -0.0006 * np.exp(-((y - 0.022) / 0.0015) ** 2) * boot)
     return h
 
 
@@ -488,9 +544,11 @@ def kit_detail(m, size=KIT_DETAIL):
     pos, nrm, code, valid, m_per_uv = raster_kit(m, size)
     hgt = kit_height(pos, nrm, code, valid)
     texel_m = m_per_uv / size
-    n = SK._normal_from_height(hgt / texel_m, KIT_GAIN)
+    # 섬 밖으로 높이를 먼저 번진다 — 안 그러면 경계에서 섬 밖 0과의 단차가 기울기가 돼 UV 이음매마다 밝은 줄이 생긴다
+    hd = SK._dilate(hgt[..., None], valid, iters=4)[..., 0]
+    n = tangent_normal(hd, valid, nrm, KIT_GAIN)               # 062 T20: 삼각형 야코비안 (평균 텍셀 길이 대신)
     n = SK._dilate(n, valid)
-    ao = cavity_ao(hgt, valid, size // 160, 150.0)
+    ao = cavity_ao(hd, valid, size // 160, 150.0)
     ao = SK._dilate(np.repeat(ao[..., None], 3, axis=-1), valid)
     return SK._to8(n), SK._to8(ao), hgt
 
@@ -506,15 +564,68 @@ def weave_tiles():
     mesh = np.clip(mesh, 0.15, 1.0)
     plain = 0.5 + 0.25 * np.sign(np.sin(k * 16 * u)) * np.sin(k * 16 * v) + 0.25 * np.sin(k * 16 * u) * np.sign(np.sin(k * 16 * v))
     rib = 0.5 + 0.5 * np.sin(k * 12 * u) ** 2
+    _reg("shirt.weave", (mesh - mesh.mean()) * 0.0002)   # 타일 높이 1 = 0.2 mm 기준 (셰이더 결 노멀 세기와 무관한 존재 기록)
+    _reg("sock.ribbing", (rib - rib.mean()) * 0.0002)
     return SK._to8(np.stack([mesh, plain, rib], axis=-1))
 
 
+# 062 FR-30 재질 값 표 [제안] (plan D, T19): 셰이더 정반사 = F0 × (p + 8)/(8π) × (n·h)^p, p = 2^(10(1 − 거칠기) + 1)
+# (PlayerBody `Spec`와 같은 정규화 Blinn-Phong). 기준 조명 하이라이트 순서 축구화 > 인쇄 > 피부 > 셔츠 > 반바지 > 양말.
+KIT_F0 = 0.04
+SKIN_F0 = 0.028          # PlayerBody 피부 정반사 배율 (056)
+ROUGH = {"shirt": 0.66, "sleeve": 0.66, "shorts": 0.70, "sock": 0.82, "boot": 0.30, "print": 0.42}
+SWEAT_DROP = 0.04        # FR-33 땀: 피부 거칠기를 이만큼 낮춘다 (정반사 ≈ 1.27배 ≤ 1.3배)
+HAIR_KK_POWER = 60.0     # PlayerBody 머리카락 Kajiya-Kay 지수
+
+
+def spec_peak(f0, rough):
+    p = 2.0 ** (10.0 * (1.0 - rough) + 1.0)
+    return f0 * (p + 8.0) / (8.0 * math.pi)
+
+
+def hair_anisotropy(size=96):
+    """기준 조명 구 렌더(정면 시점, 광원 위·옆 45°, 가닥 = 위쪽 접선)에서 KK 하이라이트(최대의 절반 이상) 영역의 주축 길이 비."""
+    yy, xx = np.meshgrid(np.linspace(1, -1, size), np.linspace(-1, 1, size), indexing="ij")
+    r2 = xx ** 2 + yy ** 2
+    ok = r2 < 0.98
+    nz = np.sqrt(np.clip(1 - r2, 0, 1))
+    n = np.stack([xx, yy, nz], axis=-1)
+    up = np.array([0.0, 1.0, 0.0])
+    t = up - (n @ up)[..., None] * n
+    t /= np.maximum(np.linalg.norm(t, axis=-1, keepdims=True), 1e-6)
+    lgt = np.array([0.5, 0.5, 0.707]); lgt /= np.linalg.norm(lgt)
+    v = np.array([0.0, 0.0, 1.0])
+    h = (lgt + v) / np.linalg.norm(lgt + v)
+    th = t @ h
+    kk = np.clip(np.sqrt(np.clip(1 - th ** 2, 0, 1)), 0, 1) ** HAIR_KK_POWER * np.clip(n @ lgt, 0, 1) * ok
+    m = kk >= 0.5 * kk.max()
+    pts = np.stack([xx[m], yy[m]], axis=-1)
+    ev = np.linalg.eigvalsh(np.cov(pts.T))
+    return float(np.sqrt(ev[-1] / max(ev[0], 1e-9)))
+
+
+def material_summary(skin_metrics, rough_056):
+    """062 AC-04 summary["material062"]: 재질별 정반사 피크(값 표 + 피부 텍스처 거칠기), 피부 상한, 땀, 머리카락 이방성."""
+    skin_r = min(skin_metrics["forehead"]["rough"], skin_metrics["nose"]["rough"])   # 가장 번들한 피부 부위
+    cap_r = min(rough_056["forehead"], rough_056["nose"]) - 0.02                     # 057 FR-23 허용 하한 (056 − 0.02)
+    spec = {k: round(spec_peak(KIT_F0, ROUGH[k]), 6) for k in ("boot", "print", "shirt", "shorts", "sock")}
+    spec["skin"] = round(spec_peak(SKIN_F0, skin_r), 6)
+    cap = round(spec_peak(SKIN_F0, cap_r), 6)
+    sweat = round(spec_peak(SKIN_F0, skin_r - SWEAT_DROP), 6)
+    aniso = round(hair_anisotropy(), 3)
+    order = ("boot", "print", "skin", "shirt", "shorts", "sock")
+    ok = all(spec[a] > spec[b] for a, b in zip(order, order[1:])) and spec["skin"] <= cap and spec["skin"] < sweat <= cap * 1.3 and aniso >= 2.0
+    return {"ok": bool(ok), "specPeak": spec, "skinSpecCap": cap, "skinSweatPeak": sweat, "hairAniso": {"all": aniso},
+            "rough": dict(ROUGH, skin=round(skin_r, 6)), "sweatDrop": SWEAT_DROP}
+
+
 def kit_region(m, size=1024):
-    """영역 맵: R 거칠기(0~1), G 인쇄 광택 배율(셰이더가 인쇄 픽셀에만), B 결 선택(0 메시·0.5 평직·1 골지), A 젖음 대상(1).
-    재질 값 표는 specs/062 plan D단계(T19)에서 확정 — 여기서는 부위별 기본값."""
+    """영역 맵: R 거칠기(0~1, 값 표 ROUGH), G 인쇄 거칠기(셰이더가 인쇄 픽셀에서 R 대신), B 결 선택(0 메시·0.5 평직·1 골지),
+    A 젖음 대상(1). plan의 'B 땀 마스크'는 땀이 피부(몸 UV)라 skin_thickness.png G로 옮겼다 (T19)."""
     pos, nrm, code, valid, _ = raster_kit(m, size)
-    rough = np.select([code == 1, code == 2, code == 3, code == 4, code == 5], [0.62, 0.62, 0.70, 0.80, 0.35], 0.6)
-    gloss = np.full(code.shape, 0.75)
+    rough = np.select([code == 1, code == 2, code == 3, code == 4, code == 5],
+                      [ROUGH["shirt"], ROUGH["sleeve"], ROUGH["shorts"], ROUGH["sock"], ROUGH["boot"]], ROUGH["shirt"])
+    gloss = np.full(code.shape, ROUGH["print"])
     weave = np.select([code == 3, code == 4], [0.5, 1.0], 0.0)
     wet = (code > 0).astype(float)
     img = np.stack([rough, gloss, weave, wet], axis=-1)

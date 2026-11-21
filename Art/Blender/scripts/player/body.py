@@ -115,6 +115,7 @@ class Mesh:
         self.vpart = []
         self.faces = []
         self.deltas = {}
+        self.under = []   # 062 T17a 밑깔개 면 인덱스
 
     @property
     def triangles(self):
@@ -126,7 +127,7 @@ class Mesh:
         out = []
         for row in self.W:
             idx = np.argsort(-row, kind="stable")[:4]
-            out.append({MS.OUR_NAMES[i]: float(row[i]) for i in idx if row[i] > 1e-6})
+            out.append({S.NAMES[i]: float(row[i]) for i in idx if row[i] > 1e-6})  # 열 = S.NAMES 앞부분 (손가락까지 = OUR_NAMES, 몸 LOD는 + 보조 뼈)
         return out
 
 
@@ -681,10 +682,14 @@ def classify(p, w):
     return "boot"  # Foot, Toes
 
 
-def _boot_hull(P, parts, border):
-    """축구화: 발(발가락 사이 골)을 발마다 볼록 껍질에 투영 → 신발 모양. 경계(양말과 닿는 고리)는 그대로. 정점 위치만 바꾼다(델타·가중치 유지)."""
+def _boot_hull(P, parts, border, N=None, faces=None):
+    """축구화 셸 = 발마다 축구화 정점의 볼록 껍질 면 (062 T17b). 원래 발 위상을 껍질에 투영하면 발가락 사이에서 서로 마주 보던
+    옆면이 반드시 뒤집혀(앞코 349면 중 ≈ 20면, 3,000 mm²) Unity 용접 법선에 발가락 줄이 보인다 → 껍질 면 자체를 축구화 표면으로 쓴다.
+    껍질 정점은 원래 축구화 정점의 일부라 가중치·체형 키·UV 규칙이 그대로 이어진다. 발목 고리(경계)만으로 된 뚜껑 면은 버린다.
+    faces(원래 면 목록, 같은 정점 번호)가 있으면 그 감김 방향(다수결)에 맞춘다. N이 있으면 껍질 정점 띄움 방향 = 바깥 껍질 법선 평균.
+    → [(정점 번호 튜플, ...)] 새 축구화 면 (껍질 밖 정점은 어느 면에도 안 쓰인다)."""
     import bmesh
-    from mathutils.bvhtree import BVHTree
+    out = []
     for sgn in (-1.0, 1.0):
         idx = [i for i in range(len(P)) if parts[i] == "boot" and P[i, 0] * sgn > 0]
         if len(idx) < 8:
@@ -692,19 +697,40 @@ def _boot_hull(P, parts, border):
         bm = bmesh.new()
         for i in idx:
             bm.verts.new(tuple(P[i]))
-        res = bmesh.ops.convex_hull(bm, input=list(bm.verts))
-        for g in res.get("geom_interior", []):
-            if isinstance(g, bmesh.types.BMVert):
-                bm.verts.remove(g)
         bm.verts.ensure_lookup_table()
-        tree = BVHTree.FromBMesh(bm)
-        for i in idx:
-            if border[i]:
-                continue
-            loc = tree.find_nearest(tuple(P[i]))[0]
-            if loc is not None:
-                P[i] = np.array(loc)
+        res = bmesh.ops.convex_hull(bm, input=list(bm.verts), use_existing_faces=False)
+        ctr = P[idx].mean(axis=0)
+        # 원래 축구화 면의 감김 규칙: 법선 · (면 중심 − 중심) 부호 다수결
+        sign = 1.0
+        if faces is not None:
+            sel = set(idx)
+            votes = 0.0
+            for f in faces:
+                if len(f) >= 3 and all(v in sel for v in f):
+                    a, b, c = P[f[0]], P[f[1]], P[f[2]]
+                    votes += np.sign(np.cross(b - a, c - a) @ ((a + b + c) / 3 - ctr))
+            sign = 1.0 if votes >= 0 else -1.0
+        hull = [fa for fa in res.get("geom", []) if isinstance(fa, bmesh.types.BMFace)]
+        vnorm = {}
+        for fa in hull:
+            t = [idx[v.index] for v in fa.verts]
+            if all(border[i] for i in t):
+                continue  # 발목 뚜껑
+            a, b, c = P[t[0]], P[t[1]], P[t[2]]
+            n = np.cross(b - a, c - a)
+            outw = n @ ((a + b + c) / 3 - ctr) >= 0
+            if outw != (sign > 0):
+                t = t[::-1]
+            nn = n / (np.linalg.norm(n) + 1e-12) * (1 if outw else -1)
+            for i in t:
+                vnorm[i] = vnorm.get(i, 0) + nn
+            out.append(tuple(t))
+        if N is not None:
+            for i, q in vnorm.items():
+                if not border[i]:
+                    N[i] = q / (np.linalg.norm(q) + 1e-12)
         bm.free()
+    return out
 
 
 def _neighbors(nv, faces):
@@ -774,7 +800,90 @@ def build(lod):
         deltas[k] = bind.apply(d)
     m = _assemble(pos, W, faces, fuv, fpart, deltas, border_plane)
     _append_eyes(R, m, lod)
+    _kit_bone_weights(m, lod)  # 062 FR-21
     return m
+
+
+# 062 T17a 밑깔개: 보조 뼈가 밑단을 움직이면 턱 띠가 피부(셔츠 밑은 반바지) 경계에서 떨어져 구멍이 난다 →
+# 바깥 옷 밑단 띠 아래에 안쪽 면을 이만큼(m, 절단 평면에서 몸통 쪽으로) 더 깔아 둔다. 경계 정점을 공유해 이어진다.
+# 폭 ≥ 밑단 접선 이동(상자 × KIT_SHARE) + 5 mm (checks.kit_cover). 셔츠 밑 반바지 허리는 셔츠 셸보다 안쪽(UNDER_SHORTS_OFF)
+UNDER = {"hem": 0.035, "sleeve": 0.02, "short": 0.02}
+UNDER_SHORTS_OFF = 0.0   # 피부 높이 — 4 mm면 셔츠 앞 밑단을 앞으로 밀 때 닿는다 (T17a 진단)
+UNDER_SINK = {"sleeve": 0.6, "short": 0.35, "hem": 0.35}   # 피부 밑깔개: 경계에서 멀어질수록 이 기울기로 안쪽으로 (허벅지·위팔이 몸통 쪽으로 굵어져 소매·반바지를 올리면 닿는다, T17a 진단 — 위팔은 팔 포즈에서 더 굵어져 0.35로 부족)
+UNDER_LODS = {0: ("hem", "sleeve", "short"), 1: ("hem",)}   # 보조 뼈가 있는 LOD만 (KIT_LODS와 짝)
+
+
+def underlay_kind(fp, part, planes, lod):
+    """면 정점 위치 fp(k,3)·부위 → 밑깔개 (밑단 종류, 안쪽 부위, 절단 평면 이름) 또는 None.
+    면이 밑단 띠(절단 평면에서 몸통 쪽 0 ~ UNDER)에 한 정점이라도 걸치면 넣는다 — 큰 감량 면도 빠지지 않게(띠가 끊기면 구멍)."""
+    use = UNDER_LODS.get(lod, ())
+    c = fp.mean(axis=0)
+    side = "L" if c[0] < 0 else "R"
+
+    def touch(name, w):
+        d = [_side(p, planes[name]) for p in fp]
+        return _side(c, planes[name]) > 0.0 and min(d) < w
+
+    if part == "shirt" and "hem" in use and touch("hem", UNDER["hem"]):
+        return "hem", "shorts", "hem"
+    if part == "sleeve" and "sleeve" in use and touch("sleeve" + side, UNDER["sleeve"]):
+        return "sleeve", "skin", "sleeve" + side
+    if part == "shorts" and "short" in use and touch("shorts" + side, UNDER["short"]):
+        return "short", "skin", "shorts" + side
+    return None
+
+
+KIT_BAND = {"hem": 0.10, "sleeve": 0.06, "short": 0.07}   # 밑단에서 이 거리(m) 안에서만 보조 뼈가 끈다 (관통 방지: 밑단 띠 한정)
+KIT_SHARE = 0.85                                          # 밑단 끝 정점의 보조 뼈 몫 (나머지는 원래 몸 뼈)
+KIT_LODS = {0: ("Kit_HemF", "Kit_HemB", "Kit_Sleeve.L", "Kit_Sleeve.R", "Kit_Short.L", "Kit_Short.R"),
+            1: ("Kit_HemF", "Kit_HemB")}                  # LOD1은 상의 밑단만, LOD2는 없음 (plan 성능 절)
+
+
+def _kit_bone_weights(m, lod):
+    """062 FR-21: 보조 뼈 열 6개를 W 뒤에 붙인다(S.NAMES 순서). 상의 밑단 띠 → 앞·뒤(z로 섞음), 소매 끝 띠 → 소매,
+    반바지 밑단 띠 → 반바지. 띠 안 몫 = KIT_SHARE × smoothstep(1 − 거리/띠), 원래 뼈 가중치는 그만큼 줄인다."""
+    nb = len(MS.OUR_NAMES)
+    assert list(S.NAMES[:nb]) == list(MS.OUR_NAMES) and len(S.NAMES) == nb + len(S.KIT_NAMES)
+    W = m.W[:, :nb].copy()
+    add = np.zeros((len(W), len(S.KIT_NAMES)))
+    use = set(KIT_LODS.get(lod, ()))
+    col = {n: j for j, n in enumerate(S.KIT_NAMES)}
+    planes = {pl[0]: pl for pl in cut_planes()}
+    hem_y = planes["hem"][1][1]
+
+    def band(d, w):
+        t = 1.0 - min(max(d / w, 0.0), 1.0)
+        return t * t * (3 - 2 * t)
+
+    hips_mask = np.array([1 if n == "Hips" else 0 for n in MS.OUR_NAMES])
+
+    for i, part in enumerate(m.vpart):
+        if part not in ("top", "shorts"):
+            continue
+        p = m.verts[i]
+        b = MS.OUR_NAMES[int(np.argmax(W[i]))]
+        side = "L" if p[0] < 0 else "R"
+        if part == "top" and not b.endswith(("UpperArm", "LowerArm", "Hand")):
+            s_ = band(max(p[1] - hem_y, 0.0), KIT_BAND["hem"])
+            f = min(max(0.5 + p[2] / 0.12, 0.0), 1.0)            # 앞(z+) ↔ 뒤, 옆구리에서 섞인다
+            targets = (("Kit_HemF", s_ * f), ("Kit_HemB", s_ * (1 - f)))
+        elif part == "top":
+            targets = (("Kit_Sleeve." + side, band(abs(_side(p, planes["sleeve" + side])), KIT_BAND["sleeve"])),)
+        elif b.endswith(("UpperLeg", "LowerLeg")):
+            targets = (("Kit_Short." + side, band(abs(_side(p, planes["shorts" + side])), KIT_BAND["short"])),)
+        else:
+            continue
+        # 062 T17c: 상의 밑단은 보조 뼈(골반 자식) 몫을 골반 가중치에서만 뗀다 — 허벅지·척추 몫까지 떼면 질주·웅크림에서 셔츠 밑단이
+        # 그 뼈들을 안 따라가 같은 원래 가중치의 반바지 경계·밑깔개가 셔츠를 뚫는다 (T17c 진단: 오프셋 0에서도 밑단 위 1~3 cm 고리 전체 교차)
+        pool = W[i] * hips_mask if part == "top" and not b.endswith(("UpperArm", "LowerArm", "Hand")) else W[i]
+        avail = float(pool.sum())
+        tot = 0.0
+        for n, s_ in targets:
+            if n in use and s_ > 0:
+                add[i, col[n]] = KIT_SHARE * s_ * avail
+                tot += KIT_SHARE * s_
+        W[i] = W[i] - pool * tot
+    m.W = np.hstack([W, add])
 
 
 def _mitten(W):
@@ -940,7 +1049,14 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
             q = q - (q @ tg) * tg
             ln = np.linalg.norm(q)
             N[i] = q / ln if ln > 1e-6 else outw  # 5정점 평균이면 얇은 면 법선 뒤집힘은 묻힌다 — 바깥 방향 판정(중심 기준)은 볼록하지 않은 고리에서 틀려 쓰지 않는다
-    _boot_hull(P, parts, border)
+    fuv0 = fuv   # 원래 면 번호 기준 (밑깔개가 쓴다)
+    boot_faces = _boot_hull(P, parts, border, N, nf)
+    if boot_faces:
+        keep = [k for k in range(len(nf)) if parts[nf[k][0]] != "boot"]
+        drop = len(nf) - len(keep)
+        nf = [nf[k] for k in keep] + boot_faces
+        face_part = [face_part[k] for k in keep] + ["boot"] * len(boot_faces)
+        fuv = [fuv[k] for k in keep] + [None] * len(boot_faces)   # 축구화는 kit_uvs
     base = P.copy()
     planes = {pl[0]: pl for pl in cut_planes()}
     for i in range(len(P)):
@@ -1006,6 +1122,30 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
         da, db = rim_vert(oa, 0.0, outer=True), rim_vert(ob, 0.0, outer=True)
         # 면 방향: 바깥 면의 변 a→b 와 반대로 감아 바깥을 향하게. UV 부위는 바깥 면의 부위
         rim_faces.append(((db, da, ra, rb), face_part[f0] if part == parts[a0] else face_part[f1]))
+    # 062 T17a 밑깔개: 바깥 옷 밑단 띠 면을 안쪽 부위로 한 겹 더 (경계 정점은 안쪽 부위 정점을 그대로 써서 이어진다)
+    under_faces = []
+    under_of = {}
+    for fi, (f, part) in enumerate(zip(faces, fpart)):
+        uk = underlay_kind(pos[list(f)], part, planes, _LOD[0])
+        if uk is None:
+            continue
+        inner = uk[1]
+        g = GROUP[inner]
+        idx = []
+        for v in f:
+            if (v, g) in key_of:
+                idx.append(key_of[(v, g)])
+                continue
+            if (v, g) not in under_of:
+                under_of[(v, g)] = len(P) + len(extra_P)
+                off = (UNDER_SHORTS_OFF if inner == "shorts" else 0.0) - UNDER_SINK[uk[0]] * max(_side(pos[v], planes[uk[2]]), 0.0)
+                extra_P.append(pos[v] + N0[v] * off)
+                extra_W.append(W[v])   # 셔츠 밑단 띠와 같은 원래 가중치 (보조 뼈 몫은 셔츠에만 — 허벅지 몫은 둘 다 그대로, T17c)
+                for k in D:
+                    extra_D[k].append(deltas[k][v])
+                extra_part.append(g)
+            idx.append(under_of[(v, g)])
+        under_faces.append((tuple(idx), fi, inner))
     if extra_P:
         P = np.vstack([P, np.array(extra_P)])
         Wn = np.vstack([Wn, np.array(extra_W)])
@@ -1022,6 +1162,13 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
     for f, part in rim_faces:
         uvs = kit_uvs(P, f, part)
         m.faces.append((f, KIT, uvs, part + "_rim", None))
+    m.under = []   # 밑깔개 면 인덱스 (검사용)
+    for f, fi, inner in under_faces:
+        m.under.append(len(m.faces))
+        if inner == "skin":
+            m.faces.append((f, BODY, tuple(fuv0[fi]), "skin", None))
+        else:
+            m.faces.append((f, KIT, kit_uvs(P, f, inner), inner, None))
     m.verts = P
     m.W = Wn
     m.vpart = parts

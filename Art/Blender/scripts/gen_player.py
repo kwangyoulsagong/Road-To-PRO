@@ -5,7 +5,7 @@
 산출물(<폴더>):
   player.glb            Player_LOD0..2·Hair_<스타일>_LOD0..2·Head_Closeup(스킨·셰이프키) + PlayerRig + 클립(NLA 트랙)
   player.face.json      얼굴 축·수염·랜드마크 (specs/056 FR-22, Unity FaceGenerator·FaceLandmarks)
-  player.clips.json     클립 태그 (FR-32)
+  player.clips.json     클립 태그 (FR-32), 062 handPose·pelvisAccel(30 Hz 골반 가속도)
   player.gait-metrics.json / player.gait-reference.json  055 형태 지표·연구 기준 스틱 피겨 (FR-70·71)
   player.layout.json    뼈대·UV 영역·번호/이름 영역·검사 요약
   Textures/*.png        키트 마스크 6종·원단 노말·몸(얼굴 8종·피부·머리카락)
@@ -112,6 +112,10 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     summary["kitRimUv"] = checks.kit_rim_uv(mm[min(mm)])
     from player import skin as SK
     summary["skinDetail"] = checks.skin_detail(SK.LAST_METRICS)
+    if 0 in mm:  # 062 AC-04: 재질 값 표·구운 디테일 (heightfield.FEAT·skin.FEAT는 텍스처를 쓸 때 채워진다)
+        from player import heightfield as HF
+        summary["material062"] = HF.material_summary(SK.LAST_METRICS, checks.SKIN_056_ROUGH)
+        summary["bakedMaps"] = checks.baked_maps(HF.FEAT, SK.FEAT)
     summary["bodyShapes"] = checks.body_shapes(R, mm[min(mm)])  # 062 AC-01
     if 0 in mm:  # 062 T01: 시각 지표 (기준선·이후 비교, player/visual_metrics.py)
         from player import visual_metrics as VM
@@ -122,6 +126,8 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     if 0 in mm:
         summary["proportions"] = checks.proportions(mm)
         summary["penetration"] = checks.penetration(clips, mm, pm, 0)
+        summary["kitMotion"] = checks.kit_motion(clips, mm, 0)  # 062 FR-21: 보조 뼈 상자 꼭짓점 관통 0
+        summary["kitCover"] = checks.kit_cover(mm)  # 062 T17a: 밑단 이동 ≤ 밑깔개 폭 (구멍 0)
     export.write_glb(os.path.join(stem_dir, "player.glb"))
     export.strip_animation_channels(os.path.join(stem_dir, "player.glb"), skeleton.NAMES[MS.CORE_BONES:])  # 062: 손가락 채널 제거
     from player import hands as HD
@@ -154,6 +160,7 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
                         "meshes": [f"{st}_LOD{l}" for l in lods] if st in H.MESH_STYLES else None} for st in H.STYLES],
         "headCloseup": HL.NAME,
         "handPoses": __import__("player.hands", fromlist=["layout_json"]).layout_json(),  # 062 FR-11 (Unity HandPose)
+        "kitBones": skeleton.kit_layout(),  # 062 FR-21 (Unity KitSecondaryMotion: 축·이동 상자)
         "materials": list(rig.MATERIALS),
         "textures": {k: list(v) for k, v in sorted(tex.items())},
         "summary": summary,

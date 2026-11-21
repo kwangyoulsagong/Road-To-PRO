@@ -109,7 +109,7 @@ def _blend(m, weights):
 def _skin(m, V, rw, head):
     """선형 블렌드 스키닝: v' = Σ w_b (head_b + R_b (v − rest_head_b))."""
     out = np.zeros_like(V)
-    for bi, n in enumerate(S.NAMES):
+    for bi, n in enumerate(S.NAMES[:m.W.shape[1]]):  # 헤어·머리 조각은 보조 뼈 열이 없다 (062)
         w = m.W[:, bi]
         nz = w > 1e-6
         if not nz.any():
@@ -192,7 +192,8 @@ ADJACENT_HOPS = 2  # 043 CHECK_PAIRS와 같은 뜻: 붙어 있는 부위(관절�
 
 
 def _dom(m, faces):
-    return [S.NAMES[int(np.argmax(m.W[list(f)].sum(axis=0)))] for f in faces]
+    nb = len(MS.OUR_NAMES)  # 062: 보조 뼈 열 제외 — 밑단이 Kit_*로 잡히면 몸 뼈 거리(hops)가 1 늘어 이웃 판정이 바뀐다
+    return [S.NAMES[int(np.argmax(m.W[list(f), :nb].sum(axis=0)))] for f in faces]
 
 
 def _overlaps(m, P, fa, fb, da, db):
@@ -396,7 +397,8 @@ def body_shapes(R, m0, samples=200, seed=62):
         base = {k: v for k, v in w.items() if k in ("Thin", "Heavy")}
         for mu in (0.0, 1.0):
             W.append(dict(base, Muscular=mu, Broad=mu, Limb=mu))
-    sel_f = [(f, part) for f, _mat, _uv, part, _ in m0.faces if all(m0.vpart[v] not in ("hair", "eye") for v in f)]
+    under = set(getattr(m0, "under", []))  # 062 T17a: 밑깔개는 셸 밑이라 보이지 않는다 (가라앉힌 피부가 체형 키에서 접힐 수 있다)
+    sel_f = [(f, part) for fi, (f, _mat, _uv, part, _) in enumerate(m0.faces) if fi not in under and all(m0.vpart[v] not in ("hair", "eye") for v in f)]
     tris = np.array([(f[0], f[k], f[k + 1]) for f, _ in sel_f for k in range(1, len(f) - 1)])
     tpart = [part for f, part in sel_f for k in range(1, len(f) - 1)]
     def fn(V):
@@ -419,7 +421,7 @@ def body_shapes(R, m0, samples=200, seed=62):
         flipped += int(fl.sum())
         a0 = area0
         for ti in np.flatnonzero(fl):
-            k2 = f"{tpart[ti]}|{MS.OUR_NAMES[int(np.argmax(m0.W[tris[ti][0]]))]}|{a0[ti]*1e6:.2f}mm2|{tuple(int(x) for x in tris[ti])}|{ {k: round(v, 2) for k, v in w.items() if v} }"
+            k2 = f"{tpart[ti]}|{MS.OUR_NAMES[int(np.argmax(m0.W[tris[ti][0], :len(MS.OUR_NAMES)]))]}|{a0[ti]*1e6:.2f}mm2|{tuple(int(x) for x in tris[ti])}|{ {k: round(v, 2) for k, v in w.items() if v} }"
             flip_parts[k2] = flip_parts.get(k2, 0) + 1
         Vb0 = _blend(m0, {k: v for k, v in w.items() if k not in ("Broad", "Limb")})
         flip_base += int((((fn(Vb0) * n0).sum(axis=1) < 0) & (area0 >= SLIVER_M2)).sum())
@@ -594,8 +596,9 @@ def kit_boundary(m, lod=0):
         return out
     # 절단선(피부 쪽 경계 = 피부 면에서 한 번만 쓰인 변) — 평면 이탈은 이 선에서 잰다(셸 턱은 띄움 두께만큼 법선으로 떠 있다)
     se = {}
-    for f, mat, uvs, part, _ in m.faces:
-        if part == "skin":
+    under = set(getattr(m, "under", []))  # 062 T17a: 밑깔개는 절단선이 아니다 (경계 정점만 공유하고 끝은 셸 밑에 열려 있다)
+    for fi, (f, mat, uvs, part, _) in enumerate(m.faces):
+        if part == "skin" and fi not in under:
             for i in range(len(f)):
                 a, b = f[i], f[(i + 1) % len(f)]
                 se[(min(a, b), max(a, b))] = se.get((min(a, b), max(a, b)), 0) + 1
@@ -688,3 +691,192 @@ def skin_detail(metrics):
     ok &= bd["coreHf"] <= 0.05 and bd["lowNeck"] <= 0.01 and bd["mouthCorner"] >= 0.3
     out["ok"] = bool(ok)
     return out
+
+
+KIT_MOTION_CLIPS = ("sprint", "run", "turn", "cut", "jump", "celebr", "header", "stop")  # FR-21 대상 (질주·방향 전환·점프·세리머니)
+
+
+def _kit_corner(k):
+    """상자 꼭짓점 k(0..7) → 보조 뼈별 오프셋 (선수 레스트 좌표)."""
+    out = {}
+    for n in S.KIT_NAMES:
+        _, lo, hi = S.KIT_BOX[n]
+        ax = S.kit_axes(n)
+        c = [hi[a] if (k >> a) & 1 else lo[a] for a in range(3)]
+        out[n] = Vector(tuple(sum(c[a] * ax[a][i] for a in range(3)) for i in range(3)))
+    return out
+
+
+BASE_HEM_CLIPS = {}
+KIT_FRACTIONS = (1 / 3, 2 / 3, 1.0)  # 상자 꼭짓점 × 비율
+
+
+KITPAIRS = {}
+
+
+def kit_motion(clips, meshes, lod=0):
+    """062 FR-21 (T15): 보조 뼈를 이동 상자 꼭짓점 8개(고관절 게이트 적용)로 밀었을 때 새로 생기는 관통 0.
+    극단 체형 4 × 대상 클립 × 4프레임. 짝: 밑단 띠 천(보조 뼈 가중치 > 0, 턱 제외) × 피부 전체, 상의 밑단 띠 × 보이는 반바지.
+    관통 = (꼭짓점 오프셋 교차 수) − (오프셋 0 교차 수) > 0 — 오프셋과 무관한 기존 접촉(056 penetration 몫)은 세지 않는다."""
+    from . import hands as HD
+    m = meshes[lod]
+    nb = len(MS.OUR_NAMES)
+    kitw = m.W[:, nb:].sum(axis=1) if m.W.shape[1] > nb else np.zeros(len(m.verts))
+    band = [f[0] for f in m.faces if f[1] == B.KIT and not f[3].endswith("_rim") and kitw[list(f[0])].max() > 1e-6]
+    hem = [f[0] for f in m.faces if f[3] == "shirt" and not f[3].endswith("_rim") and kitw[list(f[0])].max() > 1e-6]
+    skin = [f[0] for f in m.faces if f[3] == "skin"]
+    # 반바지 윗부분은 셔츠 밑단 아래 겹침 구조(가려짐)라 레스트에서도 교차한다 → 셔츠 밑단보다 3 cm 넘게 아래(보이는 허벅지 쪽)만
+    hem_y = {pl[0]: pl for pl in B.cut_planes()}["hem"][1][1]
+    shorts = [f[0] for f in m.faces if f[3] == "shorts" and m.verts[list(f[0]), 1].max() < hem_y - 0.03]
+    # 062 T17a·c: 셔츠 밑 반바지 밑깔개(허리, 밑단 위 3.5 cm)도 짝에 넣는다 — 들리거나 벌어진 셔츠 밑단이 밑깔개를 뚫으면 안 된다.
+    # (T17c 전에는 셔츠 밑단이 허벅지를 안 따라가 오프셋 0에서도 고리 전체가 교차했다.) PLAYER_KITPAIRS=1|base: 교차 면 쌍 위치 출력
+    import os
+    n_vis = len(shorts)
+    shorts += [m.faces[i][0] for i in getattr(m, "under", []) if m.faces[i][3] == "shorts"]
+    sel = [c for c in clips if any(k in c.id for k in KIT_MOTION_CLIPS)] or list(clips)
+    # 꼭짓점만 보면 안 된다: 관통이 이동량에 단조롭지 않다(T15: 반바지 1.0 cm 관통, 1.5 cm 통과) — 런타임은 0~최대를 연속으로 지난다
+    corners = [{n: o * fr for n, o in _kit_corner(k).items()} for fr in KIT_FRACTIONS for k in range(8)]
+    import os
+    diag = os.environ.get("PLAYER_KITDIAG")  # 조정용: 뼈 하나 × 축 하나씩 (끝값) — 요약 "diag"
+    if diag:
+        corners = []
+        for n in S.KIT_NAMES:
+            _, lo, hi = S.KIT_BOX[n]
+            ax = S.kit_axes(n)
+            for a in range(3):
+                for v in (lo[a], hi[a]):
+                    for fr in KIT_FRACTIONS:
+                        corners.append({n: Vector(tuple(v * fr * ax[a][i] for i in range(3)))})
+        labels = [f"{n}:{a}:{s_}:{fr:.2f}" for n in S.KIT_NAMES for a in range(3) for s_ in ("lo", "hi") for fr in KIT_FRACTIONS]
+        per = {}
+    poses, new_hits, worst = 0, 0, []
+    base_pose = base_skin = base_hem = 0
+    by_corner = {}
+    BASE_HEM_CLIPS.clear()
+    fresh_total = [0]
+    for name, (height, weights, _style) in EXTREMES.items():
+        V = _blend(m, weights)
+        for c in sel:
+            hp = HD.hand_pose_for(c.id, c.group)
+            hand_q = HANDQ.setdefault(hp, HD.pose_rotations(hp))
+            for f in _sample_frames(c):
+                pz = c.sample(f / 30.0)
+                for k, qv in hand_q.items():
+                    pz.local.setdefault(k, qv)
+                rw, head, tail = PO.fk(pz)
+                fl = [S.hip_flex(rw["Hips"], (tail[sd + "UpperLeg"] - head[sd + "UpperLeg"]).normalized()) for sd in ("Left", "Right")]
+
+                def hits(off):
+                    hd = dict(head)
+                    if off:
+                        for n, o in off.items():
+                            hd[n] = head[n] + rw[S.PARENT[n]] @ (o * S.kit_gate(n, fl[0], fl[1]))  # 런타임과 같은 게이트
+                    P = _skin(m, V, rw, hd)
+                    tb = _bvh(P, band)
+                    a = len(tb.overlap(_bvh(P, skin))) if band and skin else 0
+                    if hem and shorts:
+                        ov = _bvh(P, hem).overlap(_bvh(P, shorts))
+                        b = len(ov)
+                        if os.environ.get("PLAYER_KITPAIRS") and (off or os.environ.get("PLAYER_KITPAIRS") == "base"):   # 조정용: 교차 면 쌍 위치 (레스트 좌표 y·z, 밑깔개 여부)
+                            for i, j in ov:
+                                hc, sc = m.verts[list(hem[i])].mean(axis=0), m.verts[list(shorts[j])].mean(axis=0)
+                                k = (round(float(hc[1] - hem_y), 2), round(float(hc[2]), 2), round(float(sc[1] - hem_y), 2), round(float(sc[2]), 2), j >= n_vis)
+                                KITPAIRS[k] = KITPAIRS.get(k, 0) + 1
+                    else:
+                        b = 0
+                    return a, b
+
+                a0, b0 = hits(None)
+                base_pose += 1
+                if a0:
+                    base_skin += 1
+                if b0:
+                    base_hem += 1
+                    BASE_HEM_CLIPS[c.id] = BASE_HEM_CLIPS.get(c.id, 0) + 1
+                fresh = 0
+                for k, off in enumerate(corners):
+                    a, b = hits(off)
+                    poses += 1
+                    d = max(a - a0, 0) + max(b - b0, 0)
+                    if (a and not a0) or (b and not b0):
+                        fresh += 1
+                    if d and diag:
+                        per[labels[k]] = per.get(labels[k], 0) + d
+                        per["case:" + name] = per.get("case:" + name, 0) + d
+                        per["clip:" + c.id] = per.get("clip:" + c.id, 0) + d
+                    if d:
+                        new_hits += d
+                        key = f"{k % 8}@{KIT_FRACTIONS[k // 8]:.2f}|skin{int(a > a0)}hem{int(b > b0)}" if not diag else labels[k]
+                        by_corner[key] = by_corner.get(key, 0) + d
+                        if len(worst) < 16:
+                            worst.append({"case": name, "clip": c.id, "frame": f, "corner": k, "kitSkin": a - a0, "hemShorts": b - b0})
+                fresh_total[0] += fresh
+    if os.environ.get("PLAYER_KITPAIRS"):
+        print("KITPAIRS (hem dy, hem z, shorts dy, shorts z, under):", sorted(KITPAIRS.items(), key=lambda x: -x[1])[:25])
+    return {"ok": new_hits == 0, "penetration": new_hits, "poses": poses, "clips": len(sel),
+            "bandFaces": len(band), "basePoses": base_pose, "baseKitSkin": base_skin, "baseHemShorts": base_hem,
+            "baseHemClips": dict(BASE_HEM_CLIPS), "freshContacts": fresh_total[0], "byCorner": by_corner, "worst": worst, **({"diag": per} if diag else {})}
+
+
+def kit_cover(meshes):
+    """062 T17a: 밑단 접선 이동(상자 크기 × 밑단 끝 몫, 런타임 3 cm 상한)이 밑깔개 폭 − 5 mm 안이어야 구멍이 안 보인다.
+    접선 = 상의 밑단은 위(y), 소매·반바지는 뼈 방향 축. 바깥으로 벌어지는 몫은 아래 밑깔개가 보일 뿐이라 세지 않는다.
+    + LOD마다 밑깔개 면이 있는지(보조 뼈가 있는 밑단만)."""
+    cases = {}
+    for n in S.KIT_NAMES:
+        frame, lo, hi = S.KIT_BOX[n]
+        if n.startswith("Kit_Hem"):
+            travel, key = max(abs(lo[1]), abs(hi[1])), "hem"
+        else:
+            travel, key = max(abs(lo[0]), abs(hi[0])), ("sleeve" if "Sleeve" in n else "short")
+        travel = min(travel, 0.03) * B.KIT_SHARE
+        cases[n] = {"travel": round(travel, 4), "cover": B.UNDER[key], "ok": travel + 0.005 <= B.UNDER[key]}
+    faces = {str(l): len(getattr(m, "under", [])) for l, m in sorted(meshes.items())}
+    need = {str(l): bool(B.UNDER_LODS.get(l)) for l in sorted(meshes)}
+    lod_ok = all((faces[k] > 0) == need[k] for k in faces)
+    return {"ok": all(c["ok"] for c in cases.values()) and lod_ok, "bones": cases, "underFaces": faces}
+
+
+# 062 FR-91 부위 → 디테일 → 기록 키 (heightfield.FEAT·skin.FEAT, 높이 m / 얼굴은 높이장 단위·밝기 배율)
+BAKED_KEYS = {
+    "body": {"muscleEdges": "body.muscleEdges", "boneOutline": "body.boneOutline", "tendons": "body.tendons"},
+    "hand": {"knuckleCreases": "hand.knuckleCreases", "palmCreases": "hand.palmCreases", "nailEdge": "hand.nailEdge"},
+    "face": {"pores": "face.pores", "fineWrinkles": "face.fineWrinkles", "lipGrain": "face.lipGrain", "eyelidCreases": "face.eyelidCreases"},
+    "shirt": {"folds": "shirt.folds", "seams": "shirt.seams", "weave": "shirt.weave", "collarRib": "shirt.collarRib"},
+    "shorts": {"folds": "shorts.folds", "sideSeam": "shorts.sideSeam", "hemFold": "shorts.hemFold"},
+    "sock": {"ribbing": "sock.ribbing", "ankleFolds": "sock.ankleFolds"},
+    "boot": {"panelSeams": "boot.panelSeams", "soleStuds": "boot.soleStuds", "heelCounter": "boot.heelCounter"},
+}
+BAKED_MIN_M = 1e-5      # 구운 높이 기여 하한 (0.01 mm)
+BAKED_MIN_FACE = 1e-3   # 얼굴 높이장·밝기 기여 하한
+
+
+def baked_maps(hf_feat, skin_feat):
+    """062 AC-04 summary["bakedMaps"]: FR-91 부위별 디테일이 구운 지도에 실제로 기여했는지(최대 |기여| > 하한).
+    정강이 보호대 윤곽은 셸 형상(body._kit_extra)이 만든 음영이라 정강이 앞 점에서 띄움을 잰다. 인쇄 두 항목은 런타임 합성
+    (KitCompositor·셰이더)이라 여기서 판정하지 않는다 → 062-body-closeup 육안 (T20)."""
+    feat = dict(hf_feat)
+    feat.update(skin_feat)
+    parts, vals = {}, {}
+    for part, items in BAKED_KEYS.items():
+        parts[part] = {}
+        for name, key in items.items():
+            v = float(feat.get(key, 0.0))
+            vals[key] = round(v, 6)
+            parts[part][name] = v > (BAKED_MIN_FACE if part == "face" else BAKED_MIN_M)
+    # 정강이 보호대: 왼 정강이 가운데 앞면 점의 셸 추가 띄움
+    planes = {pl[0]: pl for pl in B.cut_planes()}
+    knee_y, ank_y = S.HEAD["LeftLowerLeg"][1], S.HEAD["LeftFoot"][1]
+    w = np.zeros(len(MS.OUR_NAMES))
+    w[MS.OUR_NAMES.index("LeftLowerLeg")] = 1.0
+    hx = S.HEAD["LeftLowerLeg"][0]
+    p = np.array([hx, 0.5 * ((knee_y - 0.09) + (ank_y + 0.07)), S.HEAD["LeftLowerLeg"][2] + 0.04])
+    shin = float(B._kit_extra(p, "sock", w, np.array([0.0, 0.0, 1.0]), planes))
+    vals["sock.shinGuard"] = round(shin, 6)
+    parts["sock"]["shinGuard"] = shin > 0.001
+    vals["skin.thickness"] = round(float(skin_feat.get("skin.thickness", 0.0)), 6)
+    vals["skin.sweat"] = round(float(skin_feat.get("skin.sweat", 0.0)), 6)
+    ok = all(all(d.values()) for d in parts.values()) and vals["skin.thickness"] > 0.5 and vals["skin.sweat"] > 0.5
+    # 모든 텍스처는 이 생성기 함수가 그린다(외부 이미지 입력 없음) — 외부 원천은 licenses 검사가 따로 본다
+    return {"ok": bool(ok), "parts": parts, "values": vals, "procedural": True}
+

@@ -5,6 +5,8 @@
 //            투명 큐·정렬 없이 불투명 패스 안에서 그린다(드로우콜 증가 0). 깊이·그림자 패스도 같은 클립.
 // 조명: 피부는 채널별 랩 조명(그림자 경계가 붉고 부드러움 — 저비용 산란 근사) + 정규화 블린-퐁(정반사 세기 상한, "플라스틱 피부" 방지),
 //       눈은 매끈한 정반사, 머리카락은 Kajiya-Kay 이방성 하이라이트(가닥 = UV v 방향). 시간 의존 항 없음.
+// 062 FR-02·12·32·33·91·97: 근육·손 구운 노멀(_MuscleN, 피부 UV)·차폐(_MuscleAO), 피부 두께(_ThicknessTex R: 귀·코끝·손가락 끝 역광 비침),
+//       땀(_ThicknessTex G 부위 거칠기 − 0.04 × _Sweat, 정반사 ≤ 1.3배), 젖음(_Wetness, 078 입력).
 Shader "RoadToPro/PlayerBody"
 {
     Properties
@@ -17,6 +19,13 @@ Shader "RoadToPro/PlayerBody"
         _EyeColor ("홍채 색", Color) = (0.30, 0.18, 0.10, 1)
         _BeardLevel ("수염 0~1", Range(0, 1)) = 0
         _NormalStrength ("노멀 세기", Range(0, 2)) = 0.6
+        _MuscleN ("근육·손 구운 노멀", 2D) = "bump" {}
+        _MuscleAO ("근육·손 구운 차폐", 2D) = "white" {}
+        _ThicknessTex ("피부 두께(R)·땀(G)", 2D) = "black" {}
+        _MuscleDef ("근육 노멀 세기", Range(0, 2)) = 0.5
+        _Translucency ("얇은 부위 역광 비침", Range(0, 1)) = 0.35
+        _Sweat ("땀 0/1", Range(0, 1)) = 0
+        _Wetness ("젖음 0~1 (078 입력)", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -27,6 +36,9 @@ Shader "RoadToPro/PlayerBody"
         TEXTURE2D(_SkinTex); SAMPLER(sampler_SkinTex);
         TEXTURE2D(_SkinNormal); SAMPLER(sampler_SkinNormal);
         TEXTURE2D(_PartsTex); SAMPLER(sampler_PartsTex);
+        TEXTURE2D(_MuscleN); SAMPLER(sampler_MuscleN);
+        TEXTURE2D(_MuscleAO); SAMPLER(sampler_MuscleAO);
+        TEXTURE2D(_ThicknessTex); SAMPLER(sampler_ThicknessTex);
         CBUFFER_START(UnityPerMaterial)
             float4 _SkinTex_ST;
             half4 _SkinColor;
@@ -34,6 +46,7 @@ Shader "RoadToPro/PlayerBody"
             half4 _EyeColor;
             half _BeardLevel;
             half _NormalStrength;
+            half _MuscleDef, _Translucency, _Sweat, _Wetness;
         CBUFFER_END
 
         // 057: 카드 픽셀 알파(u ≥ 2만, 나머지 1). 화면 4×4 베이어 디더 문턱 — MSAA·TAA 없이도 가장자리가 가닥처럼 끊긴다
@@ -127,13 +140,16 @@ Shader "RoadToPro/PlayerBody"
                 half isCard = (half)step(2.0, i.uv.x);
                 half4 s = SAMPLE_TEXTURE2D(_SkinTex, sampler_SkinTex, frac(i.uv));
                 half3 tn = UnpackNormal(SAMPLE_TEXTURE2D(_SkinNormal, sampler_SkinNormal, frac(i.uv)));
+                half3 mn = UnpackNormal(SAMPLE_TEXTURE2D(_MuscleN, sampler_MuscleN, frac(i.uv)));
+                half mao = SAMPLE_TEXTURE2D(_MuscleAO, sampler_MuscleAO, frac(i.uv)).r;
+                half2 thk = SAMPLE_TEXTURE2D(_ThicknessTex, sampler_ThicknessTex, frac(i.uv)).rg;
                 half4 pt = SAMPLE_TEXTURE2D(_PartsTex, sampler_PartsTex, float2(i.uv.x - 1.0 - isCard, i.uv.y));
                 pt.g = lerp(pt.g, 0.5h, isCard); // 카드의 G는 알파 — 결 위상은 가운데
 
                 half3 nG = normalize(i.normalWS);
                 half3 t = normalize(i.tangentWS.xyz);
                 half3 b = cross(nG, t) * i.tangentWS.w;
-                tn.xy *= _NormalStrength * (1.0h - isPart);
+                tn.xy = (tn.xy * _NormalStrength + mn.xy * _MuscleDef) * (1.0h - isPart);   // 모공·잔주름 + 근육·손 형태 (피부만)
                 half3 n = normalize(tn.x * t + tn.y * b + tn.z * nG);
 
                 float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
@@ -156,14 +172,20 @@ Shader "RoadToPro/PlayerBody"
                 half3 beardCol = _HairColor.rgb * lerp(0.75h, 0.55h, lvl) * lerp(0.9h, 1.1h, s.b);
                 skin = lerp(skin, beardCol, beard * lerp(0.55h, 0.92h, lvl));
                 half skinRough = saturate(s.a + beard * 0.3h);
-                half3 cSkin = skin * (lc * SkinDiffuse(ndlRaw) + amb) + lc * 0.028h * Spec(n, h, ndl, skinRough);
+                skinRough = saturate(skinRough - 0.04h * thk.g * _Sweat);                 // FR-33 땀 (heightfield.SWEAT_DROP)
+                skinRough = lerp(skinRough, skinRough * 0.6h, _Wetness);                 // FR-97 젖음
+                half occ = lerp(1.0h, mao, 1.0h - isPart);
+                half3 cSkin = skin * (lc * SkinDiffuse(ndlRaw) + amb) * occ + lc * 0.028h * Spec(n, h, ndl, skinRough);
+                // FR-32 얇은 부위 역광: 빛이 뒤에서 올 때(시선과 빛이 마주볼 때) 두께 맵만큼 붉게 비친다
+                half back = pow(saturate(dot(vdir, -l)), 3.0h) * thk.r * _Translucency;
+                cSkin += light.color * back * skin * half3(1.0h, 0.45h, 0.35h);
 
                 // parts: 눈 / 머리카락
                 half hairM = pt.b;
                 half iris = pt.g * (1.0h - hairM);
                 half3 eye = lerp(half3(0.88h, 0.86h, 0.83h) * pt.r, _EyeColor.rgb * (0.5h + pt.r), iris);
                 half3 cEye = eye * (lc * ndl + amb) + lc * 0.06h * Spec(nG, h, ndl, pt.a) + pt.r * step(0.97h, pt.r) * 0.35h;
-                half3 hairA = _HairColor.rgb * lerp(0.6h, 1.3h, pt.r);
+                half3 hairA = _HairColor.rgb * lerp(0.6h, 1.3h, pt.r) * lerp(1.0h, 0.7h, _Wetness);   // FR-97 젖은 머리는 어둡다
                 half3 strand = normalize(b + nG * (pt.g - 0.5h) * 0.4h); // 가닥 방향 = UV v(바이탄젠트), 결 위상으로 흔든다
                 half th = dot(strand, h);
                 half kk = pow(saturate(sqrt(saturate(1.0h - th * th))), 60.0h) * ndl;
