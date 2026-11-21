@@ -188,7 +188,14 @@ namespace RoadToPro.Verification.Samples
             var rig = _rigs[ent];
             rig.SetTopTier(true);
             float s = rig.transform.localScale.y;
-            Frame(rig.Bone("RightHand").position + Vector3.down * 0.06f * s, 0.2f * s, 0.4f, 30f, 0.05f);
+            // 손 중심(손목 뼈 + 손바닥 쪽 8 cm)을 선수 오른쪽 앞 비스듬히에서 — 손이 화면 높이 40 % (T37 캡처에서 손이 가장자리에 잘림)
+            var hand = rig.Bone("RightHand");
+            var c = hand.position + (hand.childCount > 0 ? (hand.GetChild(0).position - hand.position).normalized : Vector3.down) * 0.08f * s;
+            float vHalf = cam.fieldOfView * 0.5f * Mathf.Deg2Rad;
+            float dist = 0.2f * s / (0.4f * 2f * Mathf.Tan(vHalf));
+            var dir = (rig.transform.right * 0.8f + rig.transform.forward * 0.6f).normalized;
+            cam.transform.position = c + dir * dist + Vector3.up * 0.03f;
+            cam.transform.rotation = Quaternion.LookRotation(c - cam.transform.position, Vector3.up);
         }
 
         /// <summary>
