@@ -1,7 +1,7 @@
 """생성 검사 (specs/043 AC-02·03·09, FR-31·32 + specs/056 AC-01~03, FR-12·41·50·60·61). 실패 항목이 있으면 gen_player가 종료 코드 3.
 056: 몸 메시는 body.Mesh(numpy). 포즈는 pose.fk 결과로 직접 선형 블렌드 스키닝(Blender 평가 없이 — 빠르고 결정론).
 
-- 예산(AC-03): LOD0 6k~10k, LOD1 2k~3k, LOD2 ≤ 1k tris, 머티리얼 ≤ 3, 텍스처 ≤ 2048.
+- 예산(AC-03, 062 FR-81): LOD0 6k~11k, LOD1 2k~3k, LOD2 ≤ 1k tris, 머티리얼 ≤ 3, 텍스처 ≤ 2048.
 - 극단 체형(AC-02): 키 최소·최대(루트 균등 스케일 160/180·200/180) × 체중 최소(Thin)·최대(Heavy+Muscular) 4조합에서
   발 최저점 높이 0(오차 ≤ 2 cm), 붙어 있지 않은 부위 쌍(body.CHECK_PAIRS) 사이 삼각형 교차 0. 긴 머리도 함께 본다.
 - 클립(FR-31·32): 목록 분류 전부, 접촉 프레임 범위·접촉점 높이가 선언한 공 높이 범위 안.
@@ -52,6 +52,30 @@ HEAD_MIN = 2000
 HAND_BALL_SLACK = 0.30  # 080: 손목(Hand 본 머리) → 손바닥 → 공 중심 (손 ≈ 0.10 + 손바닥 앞 0.06 + 공 반지름 0.11 + 여유)
 CLOSEUP_MAX = 6000
 HAIR_LOD0_MAX = 1350  # 057 plan T01: 몸 LOD0 + 헤어(셸 + 카드 + 부속) ≤ 10k
+# 062 FR-92·83 (plan '데이터' 텍스처 표): 파일별 최대 해상도. 표에 없는 텍스처는 실패(예산 밖 맵이 몰래 늘지 않게).
+# 선수별 텍스처는 키트 합성(팀당 1회)뿐이고 나머지는 공유. 메모리 판정(≤ 160 MB)은 G단계 062-model-perf 실측, 여기선 추정치 기록.
+TEXTURE_RES = {
+    "skin.png": 1024, "skin_normal.png": 1024, "parts.png": 1024,               # LOD0 얼굴·머리 1K
+    "skin_closeup.png": 2048, "skin_closeup_normal.png": 2048,                  # 클로즈업 머리 2K (056 FR-32)
+    "body_detail_n.png": 2048, "body_detail_ao.png": 2048,                      # 몸 디테일 2K (Medium·High)
+    "kit_detail_n.png": 2048, "kit_detail_ao.png": 2048,                        # 키트 디테일 2K
+    "kit_region.png": 1024, "beard_mask0.png": 1024, "skin_thickness.png": 512,
+    "kit_normal.png": 512, "kit_weave.png": 256, "kit_mask_suit.png": 1024,
+    **{f"kit_mask_{p}.png": 1024 for p in ("plain", "stripes", "hoops", "halves", "sash", "yoke")},
+}
+
+
+def texture_budget(textures):
+    """FR-92: 파일별 해상도 ≤ 표, 표에 없는 파일 0. 메모리 추정 = RGBA8 비압축 × 밉 4/3 (Unity 임포트 Uncompressed 규칙)."""
+    over, unknown, mb = {}, [], 0.0
+    for name, (w, h) in sorted(textures.items()):
+        lim = TEXTURE_RES.get(name)
+        if lim is None:
+            unknown.append(name)
+        elif w > lim or h > lim:
+            over[name] = [w, h, lim]
+        mb += w * h * 4 * 4 / 3 / (1 << 20)
+    return {"ok": not over and not unknown, "over": over, "unknown": unknown, "estimatedMB": round(mb, 1)}
 
 
 def budgets(meshes, parts, textures):
@@ -78,6 +102,8 @@ def budgets(meshes, parts, textures):
     hc = parts[HL.NAME].triangles
     out["headCloseup"] = {"triangles": hc, "ok": hc <= CLOSEUP_MAX}
     out["ok"] &= hc <= CLOSEUP_MAX
+    # 062 FR-81: 스타일마다 몸 + 그 헤어 조각이 LOD 예산 안(가장 무거운 헤어만 보던 것을 스타일별로)
+    style_tot = {}
     # 057 스타일별: 헤어 삼각형(LOD별), 카드 삼각형 — 클로즈업 머리는 LOD0 헤어 조각을 그대로 쓴다(056 구조)
     out["hair"] = {}
     for st in H.MESH_STYLES:
@@ -89,12 +115,20 @@ def budgets(meshes, parts, textures):
         rec["cards"]["closeup"] = rec["cards"].get("0", 0)
         ok = rec["tris"].get("0", 0) <= HAIR_LOD0_MAX and (0 not in meshes or 0 < rec["cards"]["0"] <= H.CARD_MAX)
         ok &= all(rec["cards"][str(l)] == 0 for l in sorted(meshes) if l > 0)
+        tot = {str(l): meshes[l].triangles + rec["tris"][str(l)] for l in sorted(meshes)}
+        rec["lodTotals"] = tot
+        ok &= all(TRI_BUDGET[l][0] <= tot[str(l)] <= TRI_BUDGET[l][1] for l in sorted(meshes))
+        style_tot[st] = tot
         rec["ok"] = ok
         out["hair"][st] = rec
         out["ok"] &= ok
     for name, (w, h) in textures.items():
         if w > TEXTURE_MAX or h > TEXTURE_MAX:
             out["ok"] = False
+    if style_tot:
+        out["styleMax"] = {l: max(t[l] for t in style_tot.values()) for l in next(iter(style_tot.values()))}
+    out["textureBudget"] = texture_budget(textures)
+    out["ok"] &= out["textureBudget"]["ok"]
     return out
 
 

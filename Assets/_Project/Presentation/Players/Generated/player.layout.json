@@ -85,6 +85,10 @@
      "sha256": "b750b941a75badd7281db378356438dd8647ef043e3470f9e34bbf873e711e71"
     },
     {
+     "path": "targets/chin/chin-prognathism-incr.target.gz",
+     "sha256": "d5453730848d4d3ad12680532c1e1d649194de652eba115fa733e2fb784167e3"
+    },
+    {
      "path": "targets/chin/chin-prominent-decr.target.gz",
      "sha256": "4ed14cb51e7ea7b3ecd469a537733924353c683f3cfe545be182d18a220dcb4e"
     },
@@ -133,6 +137,78 @@
      "sha256": "a3d8c08e86449d1c9c03bc00e58418e0d633a5f7f4ad745c2b9eacf88e6bcd50"
     },
     {
+     "path": "targets/expression/units/african/eye-left-closure.target.gz",
+     "sha256": "2d358745e955ead9d73f85ed224568a8d347f3f3b897c26cbd412faf2bfa9f3a"
+    },
+    {
+     "path": "targets/expression/units/african/eye-left-opened-up.target.gz",
+     "sha256": "842d95f9f0af1807ecf45c79a1def61152a253f0696afce41aa76156be697117"
+    },
+    {
+     "path": "targets/expression/units/african/eye-left-slit.target.gz",
+     "sha256": "6dc3efbda318d639b8ca0d65e36aefd43b97db1f118b9272629598843479a9bb"
+    },
+    {
+     "path": "targets/expression/units/african/eye-right-closure.target.gz",
+     "sha256": "c1b0c3609d9fb59a97dabe8ace10622da58969f4566125b38f47285afef320d5"
+    },
+    {
+     "path": "targets/expression/units/african/eye-right-opened-up.target.gz",
+     "sha256": "56f07d192a9321437cf6bdadc7800331316e3430ae29e9ce24f957639ccc0224"
+    },
+    {
+     "path": "targets/expression/units/african/eye-right-slit.target.gz",
+     "sha256": "f6fd9c311c0537db93e745bce83f4ce3204431b2c3e4b39d4831213b05e1aa98"
+    },
+    {
+     "path": "targets/expression/units/african/eyebrows-left-down.target.gz",
+     "sha256": "f0cabdd8a225779806b8faabb1afcc4ee830a3eb3c6b1abe045d797328cff323"
+    },
+    {
+     "path": "targets/expression/units/african/eyebrows-left-inner-up.target.gz",
+     "sha256": "bcbc99d31303df7855734d74dde0c1625e3a301dcdd9392d6b407616fd7679a8"
+    },
+    {
+     "path": "targets/expression/units/african/eyebrows-left-up.target.gz",
+     "sha256": "e0be77b6846c62ecc54d589ad1430a2b1a145e8ec067507fae181bd7e6a4eb54"
+    },
+    {
+     "path": "targets/expression/units/african/eyebrows-right-down.target.gz",
+     "sha256": "ac4ad201d160f1eb7dc076e012bccd41e191d2886fc1b327c8409d8b77d63082"
+    },
+    {
+     "path": "targets/expression/units/african/eyebrows-right-inner-up.target.gz",
+     "sha256": "b5da946cba48308969c3f63a5d590e1ad5c0c47975b92f485b63526d42c2df92"
+    },
+    {
+     "path": "targets/expression/units/african/eyebrows-right-up.target.gz",
+     "sha256": "66060c97949f4fb414fb1b731379f9ca5bcc000e4184ee1f7d527d94b70b14e8"
+    },
+    {
+     "path": "targets/expression/units/african/mouth-compression.target.gz",
+     "sha256": "7b9dd41bc7667419efa90211634fda386f317bc8fb86e6876c37d8fc4ab5cc19"
+    },
+    {
+     "path": "targets/expression/units/african/mouth-corner-puller.target.gz",
+     "sha256": "5560c685cd55ae6a00830e539ac54135cb4dcfec6a28be90510c931dcfdca478"
+    },
+    {
+     "path": "targets/expression/units/african/mouth-depression.target.gz",
+     "sha256": "aa0afb7a1aceda1862405858dae89f1de2a5281c469f317da00912de60fb060b"
+    },
+    {
+     "path": "targets/expression/units/african/mouth-elevation.target.gz",
+     "sha256": "cd1720c75ac84f30f26a335a202bac2bc1115cec71882b44b20934a7c7476f66"
+    },
+    {
+     "path": "targets/expression/units/african/mouth-open.target.gz",
+     "sha256": "d710d4ae1693e7278a5bbe620276970fb6e89de139b50aaaea2830c31146459a"
+    },
+    {
+     "path": "targets/expression/units/african/mouth-retraction.target.gz",
+     "sha256": "33802b3905775666da60fed4da7fac457b8e54ddbde0b5d206f98f15a2a6287b"
+    },
+    {
      "path": "targets/eyebrows/eyebrows-angle-down.target.gz",
      "sha256": "2c45c5f65406f0e987c586b03d5c07953d375fa19b38ffc7775edc160a7596df"
     },
@@ -147,6 +223,14 @@
     {
      "path": "targets/eyebrows/eyebrows-trans-up.target.gz",
      "sha256": "fdaf3fb2ee5d1790202ede605d097e7666567237f1ab62a90729f72df0c16c52"
+    },
+    {
+     "path": "targets/eyes/l-eye-bag-incr.target.gz",
+     "sha256": "45bd5a9415b7da13e42fb1b8f33e8023d2948cdfa27e40cf393496e827d754b4"
+    },
+    {
+     "path": "targets/eyes/l-eye-epicanthus-in.target.gz",
+     "sha256": "0dd894060ea9f420c7db57599d228e5df59f8836f794eb3172668c02dd4ef7ef"
     },
     {
      "path": "targets/eyes/l-eye-eyefold-down.target.gz",
@@ -179,6 +263,14 @@
     {
      "path": "targets/eyes/l-eye-trans-up.target.gz",
      "sha256": "47b00a443ae2783774a56e8a5065b9f210377ac3e3e0afdecdfe87b156f0a575"
+    },
+    {
+     "path": "targets/eyes/r-eye-bag-incr.target.gz",
+     "sha256": "552483d9b4cd846d5bc864e6866d8bc9db79fdf44233cb30be2d084e5d4373d0"
+    },
+    {
+     "path": "targets/eyes/r-eye-epicanthus-in.target.gz",
+     "sha256": "ec5e5b256e6529b0791cae2d7dc29f1aedaf381b6930d1d38c01c72643276bcc"
     },
     {
      "path": "targets/eyes/r-eye-eyefold-down.target.gz",
@@ -229,6 +321,26 @@
      "sha256": "af68b78524f49e4b02976ff0006cb27db55d680c02fc1345945043de42a48bd0"
     },
     {
+     "path": "targets/forehead/forehead-trans-forward.target.gz",
+     "sha256": "9add6a61672d0d9361ce1927c9096dfb718450fa679033ddad5b033b3cd914d1"
+    },
+    {
+     "path": "targets/head/head-back-scale-depth-decr.target.gz",
+     "sha256": "86a1c69526aae30b4c307366d9e13157f9f2d5541b18205fbef2072b2bbf5470"
+    },
+    {
+     "path": "targets/head/head-oval.target.gz",
+     "sha256": "057eea7c5535c325493b9107228052b03c78fac1bcb24905313fae6351179cb8"
+    },
+    {
+     "path": "targets/head/head-rectangular.target.gz",
+     "sha256": "a4ff15dbcda4164e823c7a6f00c234cc62cb136b1c568198c7980bf9f2d358f2"
+    },
+    {
+     "path": "targets/head/head-round.target.gz",
+     "sha256": "9c5661568155231f4c5f13b0d332c09b0c27452cafc02f5685ff4d7c69010f50"
+    },
+    {
      "path": "targets/head/head-scale-depth-decr.target.gz",
      "sha256": "2bc2c4906b12000800c10e938bcab102814a33c2db0fbe021b3bba1be4c356bf"
     },
@@ -243,6 +355,18 @@
     {
      "path": "targets/head/head-scale-horiz-incr.target.gz",
      "sha256": "671542640aec14d1740c1263deb0e274f3044edec761e6d4171329f0419be084"
+    },
+    {
+     "path": "targets/head/head-scale-vert-decr.target.gz",
+     "sha256": "64e86d59a469eeeb0201026880bcd6ebb0cbd590a74b179f58efa879b3772f6c"
+    },
+    {
+     "path": "targets/head/head-scale-vert-incr.target.gz",
+     "sha256": "be8b270ec67817578128396433d6e8ab9d530c9d81ea21db92cd1b9627a8110b"
+    },
+    {
+     "path": "targets/head/head-square.target.gz",
+     "sha256": "94b484ae145970e5368706d4f42711f50e18fcbf7d9f1ee800572c3fa69f855a"
     },
     {
      "path": "targets/legs/l-upperleg-muscle-incr.target.gz",
@@ -399,6 +523,10 @@
     {
      "path": "targets/nose/nose-nostrils-width-incr.target.gz",
      "sha256": "bc3d4108a0d10e8ef7dea5ebc7cbdc89da476285ff8413f58bcb4401bf2b122b"
+    },
+    {
+     "path": "targets/nose/nose-point-down.target.gz",
+     "sha256": "58498fbb0b77572e90bf4fd50ca30f4cb6c402a5720b0161b26a8497f897ded6"
     },
     {
      "path": "targets/nose/nose-point-width-decr.target.gz",
@@ -1479,12 +1607,37 @@
   "PlayerBody",
   "PlayerKit"
  ],
+ "outfits": {
+  "suit": {
+   "mask": "Textures/kit_mask_suit.png",
+   "meshes": [
+    "Suit_LOD0",
+    "Suit_LOD1",
+    "Suit_LOD2"
+   ]
+  }
+ },
  "schemaVersion": 2,
  "shapes": [
+  "Base_0",
+  "Base_1",
+  "Base_2",
+  "Base_3",
+  "Base_4",
+  "Base_5",
+  "Base_6",
+  "Base_7",
   "Beard_full",
+  "Beard_goatee",
+  "Beard_heavy_stubble",
+  "Beard_mustache",
   "Beard_short",
   "Beard_stubble",
   "Broad",
+  "Expr_cheer",
+  "Expr_disappoint",
+  "Expr_focus",
+  "Expr_smile",
   "Face_brow_angle_neg",
   "Face_brow_angle_pos",
   "Face_brow_height_neg",
@@ -2479,7 +2632,12 @@
       "2": 0,
       "closeup": 360
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9763,
+      "1": 2812,
+      "2": 854
+     },
      "ok": true,
      "tris": {
       "0": 1160,
@@ -2494,7 +2652,12 @@
       "2": 0,
       "closeup": 194
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9921,
+      "1": 2864,
+      "2": 874
+     },
      "ok": true,
      "tris": {
       "0": 1318,
@@ -2509,7 +2672,12 @@
       "2": 0,
       "closeup": 246
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9825,
+      "1": 2911,
+      "2": 888
+     },
      "ok": true,
      "tris": {
       "0": 1222,
@@ -2524,7 +2692,12 @@
       "2": 0,
       "closeup": 360
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9755,
+      "1": 2852,
+      "2": 855
+     },
      "ok": true,
      "tris": {
       "0": 1152,
@@ -2539,7 +2712,12 @@
       "2": 0,
       "closeup": 360
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9755,
+      "1": 2846,
+      "2": 855
+     },
      "ok": true,
      "tris": {
       "0": 1152,
@@ -2554,7 +2732,12 @@
       "2": 0,
       "closeup": 384
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9855,
+      "1": 2820,
+      "2": 854
+     },
      "ok": true,
      "tris": {
       "0": 1252,
@@ -2569,7 +2752,12 @@
       "2": 0,
       "closeup": 328
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9663,
+      "1": 2824,
+      "2": 852
+     },
      "ok": true,
      "tris": {
       "0": 1060,
@@ -2584,7 +2772,12 @@
       "2": 0,
       "closeup": 280
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9575,
+      "1": 2814,
+      "2": 846
+     },
      "ok": true,
      "tris": {
       "0": 972,
@@ -2599,7 +2792,12 @@
       "2": 0,
       "closeup": 246
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9753,
+      "1": 2840,
+      "2": 870
+     },
      "ok": true,
      "tris": {
       "0": 1150,
@@ -2614,7 +2812,12 @@
       "2": 0,
       "closeup": 328
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9703,
+      "1": 2797,
+      "2": 847
+     },
      "ok": true,
      "tris": {
       "0": 1100,
@@ -2629,7 +2832,12 @@
       "2": 0,
       "closeup": 222
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9907,
+      "1": 2853,
+      "2": 865
+     },
      "ok": true,
      "tris": {
       "0": 1304,
@@ -2644,7 +2852,12 @@
       "2": 0,
       "closeup": 186
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9873,
+      "1": 2841,
+      "2": 866
+     },
      "ok": true,
      "tris": {
       "0": 1270,
@@ -2659,7 +2872,12 @@
       "2": 0,
       "closeup": 328
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9695,
+      "1": 2821,
+      "2": 850
+     },
      "ok": true,
      "tris": {
       "0": 1092,
@@ -2674,7 +2892,12 @@
       "2": 0,
       "closeup": 328
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9731,
+      "1": 2824,
+      "2": 854
+     },
      "ok": true,
      "tris": {
       "0": 1128,
@@ -2689,7 +2912,12 @@
       "2": 0,
       "closeup": 252
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9787,
+      "1": 2942,
+      "2": 903
+     },
      "ok": true,
      "tris": {
       "0": 1184,
@@ -2704,7 +2932,12 @@
       "2": 0,
       "closeup": 328
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9695,
+      "1": 2810,
+      "2": 843
+     },
      "ok": true,
      "tris": {
       "0": 1092,
@@ -2719,7 +2952,12 @@
       "2": 0,
       "closeup": 368
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9719,
+      "1": 2854,
+      "2": 859
+     },
      "ok": true,
      "tris": {
       "0": 1116,
@@ -2734,7 +2972,12 @@
       "2": 0,
       "closeup": 204
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9921,
+      "1": 2864,
+      "2": 872
+     },
      "ok": true,
      "tris": {
       "0": 1318,
@@ -2749,7 +2992,12 @@
       "2": 0,
       "closeup": 266
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9873,
+      "1": 2857,
+      "2": 874
+     },
      "ok": true,
      "tris": {
       "0": 1270,
@@ -2764,7 +3012,12 @@
       "2": 0,
       "closeup": 328
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9695,
+      "1": 2809,
+      "2": 848
+     },
      "ok": true,
      "tris": {
       "0": 1092,
@@ -2779,7 +3032,12 @@
       "2": 0,
       "closeup": 320
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9707,
+      "1": 2798,
+      "2": 850
+     },
      "ok": true,
      "tris": {
       "0": 1104,
@@ -2794,7 +3052,12 @@
       "2": 0,
       "closeup": 246
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9897,
+      "1": 2941,
+      "2": 902
+     },
      "ok": true,
      "tris": {
       "0": 1294,
@@ -2809,7 +3072,12 @@
       "2": 0,
       "closeup": 328
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9695,
+      "1": 2827,
+      "2": 848
+     },
      "ok": true,
      "tris": {
       "0": 1092,
@@ -2824,7 +3092,12 @@
       "2": 0,
       "closeup": 360
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9763,
+      "1": 2836,
+      "2": 858
+     },
      "ok": true,
      "tris": {
       "0": 1160,
@@ -2839,7 +3112,12 @@
       "2": 0,
       "closeup": 220
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9707,
+      "1": 2856,
+      "2": 865
+     },
      "ok": true,
      "tris": {
       "0": 1104,
@@ -2854,7 +3132,12 @@
       "2": 0,
       "closeup": 368
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9719,
+      "1": 2832,
+      "2": 856
+     },
      "ok": true,
      "tris": {
       "0": 1116,
@@ -2869,7 +3152,12 @@
       "2": 0,
       "closeup": 336
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9631,
+      "1": 2836,
+      "2": 859
+     },
      "ok": true,
      "tris": {
       "0": 1028,
@@ -2884,7 +3172,12 @@
       "2": 0,
       "closeup": 360
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9827,
+      "1": 2898,
+      "2": 909
+     },
      "ok": true,
      "tris": {
       "0": 1224,
@@ -2899,7 +3192,12 @@
       "2": 0,
       "closeup": 328
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9767,
+      "1": 2821,
+      "2": 854
+     },
      "ok": true,
      "tris": {
       "0": 1164,
@@ -2914,7 +3212,12 @@
       "2": 0,
       "closeup": 328
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9775,
+      "1": 2861,
+      "2": 866
+     },
      "ok": true,
      "tris": {
       "0": 1172,
@@ -2929,7 +3232,12 @@
       "2": 0,
       "closeup": 360
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9763,
+      "1": 2812,
+      "2": 854
+     },
      "ok": true,
      "tris": {
       "0": 1160,
@@ -2944,7 +3252,12 @@
       "2": 0,
       "closeup": 328
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9695,
+      "1": 2821,
+      "2": 848
+     },
      "ok": true,
      "tris": {
       "0": 1092,
@@ -2959,7 +3272,12 @@
       "2": 0,
       "closeup": 210
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9893,
+      "1": 2845,
+      "2": 871
+     },
      "ok": true,
      "tris": {
       "0": 1290,
@@ -2974,7 +3292,12 @@
       "2": 0,
       "closeup": 344
      },
-     "closeup": 5480,
+     "closeup": 5710,
+     "lodTotals": {
+      "0": 9699,
+      "1": 2836,
+      "2": 859
+     },
      "ok": true,
      "tris": {
       "0": 1096,
@@ -2985,16 +3308,16 @@
    },
    "headCloseup": {
     "ok": true,
-    "triangles": 5480
+    "triangles": 5710
    },
    "lods": {
     "0": {
-     "body": 8469,
+     "body": 8603,
      "hairMax": 1318,
      "headTriangles": 2942,
      "materials": 2,
      "ok": true,
-     "triangles": 9787
+     "triangles": 9921
     },
     "1": {
      "body": 2482,
@@ -3014,7 +3337,22 @@
     }
    },
    "ok": true,
+   "styleMax": {
+    "0": 9921,
+    "1": 2942,
+    "2": 909
+   },
+   "textureBudget": {
+    "estimatedMB": 195.0,
+    "ok": true,
+    "over": {},
+    "unknown": []
+   },
    "textures": {
+    "beard_mask0.png": [
+     1024,
+     1024
+    ],
     "body_detail_ao.png": [
      2048,
      2048
@@ -3048,6 +3386,10 @@
      1024
     ],
     "kit_mask_stripes.png": [
+     1024,
+     1024
+    ],
+    "kit_mask_suit.png": [
      1024,
      1024
     ],
@@ -3341,6 +3683,111 @@
   "eyes": {
    "cases": 15,
    "exposedOutsideLids": 0,
+   "ok": true
+  },
+  "face062": {
+   "baseHeads": {
+    "count": 8,
+    "landmark056Min": 0.000709,
+    "landmarkMean056": 0.002838,
+    "landmarkMinPair": 0.003502,
+    "landmarkPair": [
+     "Base_2",
+     "Base_5"
+    ],
+    "regions": [
+     "east_asia",
+     "europe",
+     "latin_america",
+     "south_asia",
+     "southeast_asia",
+     "west_asia_north_africa",
+     "west_central_africa"
+    ],
+    "silhouetteMinPair": 0.0666,
+    "silhouettePair": [
+     "Base_2",
+     "Base_5"
+    ]
+   },
+   "beards": {
+    "full": {
+     "cheek": 0.201018,
+     "coreHf": 0.024045,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.765903,
+     "softEdge": 0.637783
+    },
+    "goatee": {
+     "cheek": 0.0,
+     "coreHf": 0.026839,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.397579,
+     "softEdge": 0.523002
+    },
+    "heavy_stubble": {
+     "cheek": 0.533925,
+     "coreHf": 0.021021,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.692134,
+     "softEdge": 1.0
+    },
+    "mustache": {
+     "cheek": 0.0,
+     "coreHf": 0.027808,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.295293,
+     "softEdge": 0.661712
+    },
+    "short": {
+     "cheek": 0.201018,
+     "coreHf": 0.024045,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.765903,
+     "softEdge": 0.637783
+    },
+    "stubble": {
+     "cheek": 0.201018,
+     "coreHf": 0.024045,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.765903,
+     "softEdge": 0.637783
+    }
+   },
+   "expressions": {
+    "closeup": [
+     "Expr_cheer",
+     "Expr_disappoint",
+     "Expr_focus",
+     "Expr_smile"
+    ],
+    "lod": {
+     "0": [
+      "Expr_cheer",
+      "Expr_disappoint",
+      "Expr_focus",
+      "Expr_smile"
+     ],
+     "1": [],
+     "2": []
+    },
+    "mouthInterior": {
+     "Expr_cheer": 0.9697,
+     "Expr_disappoint": 0.0,
+     "Expr_focus": 0.0,
+     "Expr_smile": 1.0
+    },
+    "penetration": {
+     "Expr_cheer": 0,
+     "Expr_disappoint": 0,
+     "Expr_focus": 0,
+     "Expr_smile": 0
+    },
+    "penetrationRest": {
+     "closeup": 0,
+     "lod0": 0
+    }
+   },
    "ok": true
   },
   "gaitSlide": {
@@ -3787,6 +4234,19 @@
     }
    }
   },
+  "headReference": {
+   "neckSeam": {
+    "gapMaxMm": 9.458,
+    "gapP95Mm": 7.13,
+    "verts": 48,
+    "yMax": 1.54445,
+    "yMin": 1.50643
+   },
+   "ok": true,
+   "seamToleranceM": 0.0076,
+   "uvHash": "fef8a36bd1b0f832",
+   "uvVersion": 1
+  },
   "kitBoundary": {
    "0": {
     "lod": 0,
@@ -4099,6 +4559,50 @@
     "mouthCorner": 0.765903,
     "softEdge": 0.637783
    },
+   "beards": {
+    "full": {
+     "cheek": 0.201018,
+     "coreHf": 0.024045,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.765903,
+     "softEdge": 0.637783
+    },
+    "goatee": {
+     "cheek": 0.0,
+     "coreHf": 0.026839,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.397579,
+     "softEdge": 0.523002
+    },
+    "heavy_stubble": {
+     "cheek": 0.533925,
+     "coreHf": 0.021021,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.692134,
+     "softEdge": 1.0
+    },
+    "mustache": {
+     "cheek": 0.0,
+     "coreHf": 0.027808,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.295293,
+     "softEdge": 0.661712
+    },
+    "short": {
+     "cheek": 0.201018,
+     "coreHf": 0.024045,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.765903,
+     "softEdge": 0.637783
+    },
+    "stubble": {
+     "cheek": 0.201018,
+     "coreHf": 0.024045,
+     "lowNeck": 0.0,
+     "mouthCorner": 0.765903,
+     "softEdge": 0.637783
+    }
+   },
    "cheek": {
     "lumHf": 0.00239,
     "normalHf": 0.025116,
@@ -4135,6 +4639,141 @@
    },
    "ok": true
   },
+  "suit": {
+   "boundary": {
+    "lod": 0,
+    "loops": {
+     "collar": {
+      "closed": true,
+      "devMax": 0.0,
+      "turnMax": 19.0,
+      "turnP95": 17.73,
+      "verts": 96,
+      "zigzag": 0
+     },
+     "hem": {
+      "closed": true,
+      "devMax": 0.00148,
+      "turnMax": 14.84,
+      "turnP95": 13.13,
+      "verts": 35,
+      "zigzag": 0
+     },
+     "hem#2": {
+      "closed": true,
+      "devMax": 0.00133,
+      "turnMax": 14.44,
+      "turnP95": 12.64,
+      "verts": 37,
+      "zigzag": 0
+     },
+     "shortsL": {
+      "closed": true,
+      "devMax": 0.00228,
+      "turnMax": 32.5,
+      "turnP95": 26.97,
+      "verts": 25,
+      "zigzag": 0
+     },
+     "shortsL#2": {
+      "closed": true,
+      "devMax": 0.00228,
+      "turnMax": 32.5,
+      "turnP95": 26.97,
+      "verts": 25,
+      "zigzag": 0
+     },
+     "sleeveL": {
+      "closed": true,
+      "devMax": 0.0,
+      "turnMax": 21.36,
+      "turnP95": 19.77,
+      "verts": 26,
+      "zigzag": 0
+     },
+     "sleeveR": {
+      "closed": true,
+      "devMax": 0.0,
+      "turnMax": 21.56,
+      "turnP95": 19.24,
+      "verts": 26,
+      "zigzag": 0
+     }
+    },
+    "ok": true
+   },
+   "lods": {
+    "0": {
+     "body": 7888,
+     "materials": 2,
+     "ok": true,
+     "triangles": 9206
+    },
+    "1": {
+     "body": 2154,
+     "materials": 2,
+     "ok": true,
+     "triangles": 2614
+    },
+    "2": {
+     "body": 654,
+     "materials": 2,
+     "ok": true,
+     "triangles": 827
+    }
+   },
+   "ok": true,
+   "outline": {
+    "ok": true,
+    "sleeveSeamRatio": 0.0,
+    "turnDeg": {
+     "elbow": 6.0,
+     "knee": 17.34,
+     "shoulder": 15.42,
+     "sleeve": 23.84
+    }
+   },
+   "penetration": {
+    "clipHits": {},
+    "clips": [
+     "celebrate_arms",
+     "celebrate_knee",
+     "decel_stop",
+     "dejected",
+     "exit_walk_off",
+     "idle",
+     "turn_180",
+     "turn_l90",
+     "turn_r90",
+     "walk_f"
+    ],
+    "creaseFolds": 1848,
+    "flipped": 0,
+    "hairBody": 0,
+    "hairPoses": 0,
+    "hairStyles": 34,
+    "hairWorst": {},
+    "ok": true,
+    "overlapPairs": {},
+    "poses": 160,
+    "skinKit": 0,
+    "worst": []
+   },
+   "penetrationOther": {
+    "clipHits": {
+     "gk_goalkick_r": 24,
+     "run_f_r2": 20,
+     "run_f_r6": 40,
+     "sprint_f_r4_lo": 24,
+     "sprint_f_r7_hi": 24,
+     "sprint_f_r7_lo": 32,
+     "sprint_l": 188
+    },
+    "flipped": 0,
+    "poses": 2304,
+    "skinKit": 352
+   }
+  },
   "visual062": {
    "hair": "summary.hair062 (062 T22: 머리카락 영역 실루엣)",
    "hairTexture": {
@@ -4158,6 +4797,10 @@
   }
  },
  "textures": {
+  "beard_mask0.png": [
+   1024,
+   1024
+  ],
   "body_detail_ao.png": [
    2048,
    2048
@@ -4191,6 +4834,10 @@
    1024
   ],
   "kit_mask_stripes.png": [
+   1024,
+   1024
+  ],
+  "kit_mask_suit.png": [
    1024,
    1024
   ],

@@ -130,4 +130,9 @@ def build(lods):
     m = HL.build(R)
     obj, _ = mesh_object(HL.NAME, m, rig, mats)
     parts[HL.NAME] = (obj, m)
+    from . import suit as SU
+    for lod in lods:  # 062 FR-27: 정장 LOD (같은 뼈대·키, Unity ApplyOutfit이 몸 LOD 원본을 바꾼다)
+        m = SU.build(lod)
+        obj, _ = mesh_object(SU.NAME.format(lod), m, rig, mats, keys=REQUIRED_KEYS)
+        parts[SU.NAME.format(lod)] = (obj, m)
     return rig, meshes, parts

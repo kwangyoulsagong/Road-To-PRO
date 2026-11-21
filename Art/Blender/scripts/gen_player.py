@@ -91,6 +91,8 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     if 0 in mm:  # 062 FR-20·31·91: 키트 구운 지도 (LOD0 키트 UV)
         from player import heightfield as HF
         tex.update(HF.write_kit(os.path.join(stem_dir, "Textures"), mm[0]))
+    from player import suit as SU
+    tex.update(SU.write_mask(os.path.join(stem_dir, "Textures")))  # 062 FR-27 정장 마스크
     tree = B._ref_tree(R)
     face_json = F.face_json(R, tree)
     eye_keys = [{}] + [{f"Face_{a}_{sg}": r} for a, _, _, r in F.AXES if a.startswith(("eye", "brow")) for sg in ("pos", "neg")]
@@ -131,6 +133,10 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         summary["penetration"] = checks.penetration(clips, mm, pm, 0)
         summary["kitMotion"] = checks.kit_motion(clips, mm, 0)  # 062 FR-21: 보조 뼈 상자 꼭짓점 관통 0
         summary["kitCover"] = checks.kit_cover(mm)  # 062 T17a: 밑단 이동 ≤ 밑깔개 폭 (구멍 0)
+        from player import headref as HR
+        summary["headReference"] = HR.write(stem_dir, pm[HL.NAME], mm[0])  # 062 FR-67~69 (외형 팩 기준)
+        suits = {l: pm[SU.NAME.format(l)] for l in lods if SU.NAME.format(l) in pm}
+        summary["suit"] = SU.summary(clips, suits, pm)  # 062 FR-27·AC-15 (test_suit)
     export.write_glb(os.path.join(stem_dir, "player.glb"))
     export.strip_animation_channels(os.path.join(stem_dir, "player.glb"), skeleton.NAMES[MS.CORE_BONES:])  # 062: 손가락 채널 제거
     from player import hands as HD
@@ -165,6 +171,7 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         "headCloseup": HL.NAME,
         "handPoses": __import__("player.hands", fromlist=["layout_json"]).layout_json(),  # 062 FR-11 (Unity HandPose)
         "kitBones": skeleton.kit_layout(),  # 062 FR-21 (Unity KitSecondaryMotion: 축·이동 상자)
+        "outfits": {"suit": {"meshes": [SU.NAME.format(l) for l in lods], "mask": "Textures/" + SU.MASK}},  # 062 FR-27
         "materials": list(rig.MATERIALS),
         "textures": {k: list(v) for k, v in sorted(tex.items())},
         "summary": summary,

@@ -102,6 +102,7 @@ FAMILY = {"short": {0, 1, 5, 9, 10, 11, 12, 14, 16, 17, 19, 24, 25, 26, 27, 30, 
           "long": {2, 4, 8, 21, 22, 28, 29, 32}}
 # 056 기준 (specs/057 plan '구현 중 바뀐 점' T01): 클로즈업 피부 얼굴 노멀 고주파 RMS, 부위별 거칠기 평균
 SKIN_056_NORMAL_HF = 0.070367
+GLB_057_BYTES = 16_500_000   # 057 산출물 player.glb (062 T27 기록 16.5 MB, FR-84 기준)
 SKIN_056_ROUGH = {"nose": 0.591938, "cheek": 0.67973, "forehead": 0.566366, "eyeArea": 0.678763, "lips": 0.521222}
 
 
@@ -112,13 +113,51 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
     def test_layout_summary(self):
         b = generated("default").layout["summary"]["budgets"]
         self.assertTrue(b["ok"], b)
-        self.assertLessEqual(b["lods"]["0"]["triangles"], 10_000)
+        self.assertLessEqual(b["lods"]["0"]["triangles"], 11_000)   # 062 FR-81 (2026-11-20 사용자 결정)
         self.assertGreaterEqual(b["lods"]["0"]["triangles"], 6_000)
         self.assertGreaterEqual(b["lods"]["0"]["headTriangles"], 2_000)
         self.assertLessEqual(b["lods"]["1"]["triangles"], 3_000)
         self.assertGreaterEqual(b["lods"]["1"]["triangles"], 2_000)
         self.assertLessEqual(b["lods"]["2"]["triangles"], 1_000)
         self.assertLessEqual(b["headCloseup"]["triangles"], 6_000)
+
+    def test_budget_tris_lods_head(self):
+        """062 FR-80~84·92, AC-13 에셋: 스타일마다 몸 + 헤어 LOD0 6k~11k(손가락·입 안 포함)·LOD1 2k~3k·LOD2 ≤ 1k, 클로즈업 머리 ≤ 6k
+        (헤어·수염·입 안 포함), 머티리얼 ≤ 3, 텍스처 파일별 해상도 ≤ FR-92 표·표 밖 텍스처 0, glb ≤ 057 × 2(FR-84)."""
+        g = generated("default")
+        b = g.layout["summary"]["budgets"]
+        for st, h in b["hair"].items():
+            t = h["lodTotals"]
+            self.assertTrue(6_000 <= t["0"] <= 11_000, f"{st} LOD0 {t['0']}")
+            self.assertTrue(2_000 <= t["1"] <= 3_000, f"{st} LOD1 {t['1']}")
+            self.assertLessEqual(t["2"], 1_000, f"{st} LOD2")
+        self.assertLessEqual(b["headCloseup"]["triangles"], 6_000)
+        for lod, rec in b["lods"].items():
+            self.assertLessEqual(rec["materials"], 3, lod)
+        tb = b["textureBudget"]
+        self.assertTrue(tb["ok"], tb)
+        self.assertEqual(tb["unknown"], [])
+        # FR-84: glb ≤ 057 × 2 (057 산출물 16.5 MB, 062 T27 기록)
+        self.assertLessEqual(os.path.getsize(g.path("player.glb")), 2 * GLB_057_BYTES)
+
+    def test_suit(self):
+        """062 FR-27·AC-15: 정장 LOD0~2 — 몸 + 가장 무거운 헤어 LOD 예산(LOD0 ≤ 11k), 머티리얼 ≤ 3, 클립 × 극단 4 관통 0·뒤집힘 0,
+        정면 윤곽 꺾임 ≤ 25°(어깨·소매 끝·팔꿈치·무릎)·소매 이음매 ≤ 1.5배, 경계 고리 매끈(057 FR-01·02), 정장 마스크 1K."""
+        g = generated("default")
+        su = g.layout["summary"]["suit"]
+        self.assertTrue(su["ok"], {k: v for k, v in su.items() if k != "penetration"})
+        self.assertLessEqual(su["lods"]["0"]["triangles"], 11_000)
+        self.assertGreaterEqual(su["lods"]["0"]["triangles"], 6_000)
+        self.assertLessEqual(su["lods"]["1"]["triangles"], 3_000)
+        self.assertLessEqual(su["lods"]["2"]["triangles"], 1_000)
+        p = su["penetration"]
+        self.assertGreater(p["poses"], 0)
+        self.assertEqual(p["skinKit"], 0, p["worst"])
+        self.assertEqual(p["flipped"], 0, p["worst"])
+        for k, v in su["outline"]["turnDeg"].items():
+            self.assertLessEqual(v, 25.0, k)
+        self.assertEqual(g.layout["outfits"]["suit"]["meshes"], ["Suit_LOD0", "Suit_LOD1", "Suit_LOD2"])
+        self.assertEqual(png_size(g.path("Textures/kit_mask_suit.png")), (1024, 1024))
 
     def test_hair_styles_budget_and_cards(self):
         """057 AC-03·FR-10·11·40: 스타일마다 몸 + 헤어 LOD0 6k~10k, LOD1 2k~3k, LOD2 ≤ 1k, 클로즈업 머리 메시 ≤ 6k(056 기준).
@@ -135,7 +174,7 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
             self.assertEqual(h["cards"]["2"], 0, st)
             self.assertGreater(h["cards"]["closeup"], 0, st)
             self.assertLessEqual(h["closeup"], 6_000, st)
-            for lod, (lo, hi) in {"0": (6_000, 10_000), "1": (2_000, 3_000), "2": (0, 1_000)}.items():
+            for lod, (lo, hi) in {"0": (6_000, 11_000), "1": (2_000, 3_000), "2": (0, 1_000)}.items():
                 t = b["lods"][lod]["body"] + h["tris"][lod]
                 self.assertTrue(lo <= t <= hi, f"{st} LOD{lod} {t}")
 

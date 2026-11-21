@@ -44,6 +44,26 @@ SHAPES = tuple(MS.BODY_MACROS) + tuple(MS.BODY_TARGETS)  # Thin, Muscular, Heavy
 
 _REF = None
 
+# 062 FR-27 정장 모드 (suit.py가 켠다): 같은 감량·바인딩·셸 경로에 절단 평면·부위만 바꾼다.
+# 부위 이름은 유니폼 것을 재사용한다 — shirt = 재킷 몸판, sleeve = 재킷 소매(손목까지), shorts = 바지(발목까지), boot = 구두.
+# 양말·밑깔개·키트 보조 뼈 없음(천 시뮬 없음, FR-21 원칙). 셔츠 깃·V존·소맷부리는 정장 마스크(textures.suit_mask) 색 영역.
+OUTFIT = ["kit"]
+SUIT_HEM_BELOW_HIPS = 0.10   # 재킷 밑단 = 고관절 높이 − 10 cm (엉덩이를 덮는 길이, 손이 닿는 허벅지는 덜 덮게)
+SUIT_SLEEVE_T = 0.90         # 재킷 소매 끝 = 아래팔 길이의 90 % (손목 바로 위)
+SUIT_TROUSER_Y = 0.105       # 바지 밑단 = 축구화 목과 같은 높이 (0.095는 발 뼈 면과 섞여 고리가 계단, T32)
+
+
+def suit_mode():
+    return OUTFIT[0] == "suit"
+
+
+# 정장 셸 (띄움 m, 평활 반복): 바지는 양말처럼 붙인다 — 허벅지·정강이에 손이 스치는 클립에서 8 mm 셸은 손가락이 닿는다(T32)
+SUIT_PARTS = {"top": (0.010, 5), "shorts": (0.0035, 2), "boot": (0.006, 6)}
+
+
+def kit_parts():
+    return SUIT_PARTS if suit_mode() else KIT_PARTS
+
 
 def reference():
     """기준 선수 (한 번 만든다). skeleton 모듈을 기준 관절로 맞춘다."""
@@ -227,6 +247,8 @@ def _decimated_cached(R, lod):
 
 def cut_planes():
     """[(이름, 점, 법선, 대상 뼈 집합)] 선수 좌표. 법선 쪽이 '위/바깥(몸통 쪽)'."""
+    if suit_mode():
+        return _suit_planes()
     H, T = S.HEAD, S.TAIL
     knee_y = H["LeftLowerLeg"][1]
     hips_y = H["LeftUpperLeg"][1]
@@ -244,6 +266,44 @@ def cut_planes():
         out.append((f"sock{n[0]}", (0.0, knee_y - SOCK_BELOW_KNEE, 0.0), (0.0, 1.0, 0.0), {n + "LowerLeg", n + "UpperLeg"}))
         out.append((f"boot{n[0]}", (0.0, BOOT_Y, 0.0), (0.0, 1.0, 0.0), {n + "LowerLeg", n + "Foot", n + "Toes"}))
     return out
+
+
+def _suit_planes():
+    H, T = S.HEAD, S.TAIL
+    hips_y = H["LeftUpperLeg"][1]
+    out = [
+        ("collar", (0.0, H["Neck"][1] - 0.035, 0.0), _unit((0.0, 1.0, COLLAR_TILT)), {"Neck", "UpperChest", "Head", "LeftShoulder", "RightShoulder"}),
+        ("hem", (0.0, hips_y - SUIT_HEM_BELOW_HIPS, 0.0), (0.0, 1.0, 0.0), {"Hips", "Spine", "Chest", "LeftUpperLeg", "RightUpperLeg"}),
+    ]
+    for n in ("Left", "Right"):
+        a, b = np.array(H[n + "LowerArm"]), np.array(T[n + "LowerArm"])
+        d = (b - a) / np.linalg.norm(b - a)
+        out.append((f"sleeve{n[0]}", tuple(a + d * SUIT_SLEEVE_T * np.linalg.norm(b - a)), tuple(-d),
+                    {n + "LowerArm", n + "Hand", n + "UpperArm"}))
+        out.append((f"shorts{n[0]}", (0.0, SUIT_TROUSER_Y, 0.0), (0.0, 1.0, 0.0), {n + "LowerLeg", n + "Foot", n + "Toes"}))
+    return out
+
+
+def _classify_suit(p, w, planes):
+    b = MS.OUR_NAMES[int(np.argmax(w))]
+    if b == "Head":
+        return "skin"
+    if b in ("Neck", "UpperChest", "Chest", "Spine", "Hips") or b.endswith("Shoulder"):
+        if _side(p, planes["collar"]) > 0:
+            return "skin"
+        return "shirt" if _side(p, planes["hem"]) > 0 else "shorts"
+    side = b[0]
+    if b.endswith("UpperArm"):
+        return "sleeve"
+    if b.endswith("LowerArm"):
+        return "sleeve" if _side(p, planes["sleeve" + side]) > 0 else "skin"
+    if b.endswith("Hand") or MS.OUR_NAMES.index(b) >= MS.CORE_BONES:
+        return "skin"
+    if b.endswith("UpperLeg"):
+        return "shirt" if _side(p, planes["hem"]) > 0 else "shorts"
+    if b.endswith("LowerLeg"):
+        return "shorts" if _side(p, planes["shorts" + side]) > 0 else "boot"
+    return "boot"
 
 
 SLEEVE_T = 0.55            # 소매 끝 = 위팔 길이의 55 %
@@ -608,6 +668,8 @@ def _kit_extra(p, part, w, n, planes):
     축구화: 밑창 테두리(바닥 2 cm 띠에서 바깥으로). 경계 띠(_hem_taper)와 곱하지 않는다 — 밑단 쪽은 위치상 0이 되게 정한다."""
     b = MS.OUR_NAMES[int(np.argmax(w))]
     side = "L" if p[0] < 0 else "R"
+    if part == "top" and suit_mode() and b.endswith("UpperLeg"):
+        return 0.0   # 정장: 허벅지 위 재킷 자락은 늘어짐 없이 붙인다 (달리기 손가락이 닿음, T32)
     if part == "top" and not b.endswith(("UpperArm", "LowerArm")):
         hem_y = planes["hem"][1][1]
         d_hem = p[1] - hem_y
@@ -659,6 +721,8 @@ def classify(p, w):
     if in_collar_band(p):
         # 057 FR-01: 칼라 띠 안에서는 주 뼈(Head·Neck·어깨·위팔)와 상관없이 평면만 본다 — 경계가 가중치 변을 따라 계단이 되지 않게
         return "skin" if _side(p, planes["collar"]) > 0 else "shirt"
+    if suit_mode():
+        return _classify_suit(p, w, planes)
     b = MS.OUR_NAMES[int(np.argmax(w))]
     if b in ("Head",):
         return "skin"
@@ -804,7 +868,8 @@ def build(lod):
     _append_eyes(R, m, lod)
     if lod == 0:
         _append_mouth(R, m, "lod0")  # 062 FR-72: 입 안 (치아·혀·입안 캡)
-    _kit_bone_weights(m, lod)  # 062 FR-21
+    if not suit_mode():
+        _kit_bone_weights(m, lod)  # 062 FR-21 (정장은 보조 뼈 없음)
     return m
 
 
@@ -820,7 +885,7 @@ UNDER_LODS = {0: ("hem", "sleeve", "short"), 1: ("hem",)}   # 보조 뼈가 있�
 def underlay_kind(fp, part, planes, lod):
     """면 정점 위치 fp(k,3)·부위 → 밑깔개 (밑단 종류, 안쪽 부위, 절단 평면 이름) 또는 None.
     면이 밑단 띠(절단 평면에서 몸통 쪽 0 ~ UNDER)에 한 정점이라도 걸치면 넣는다 — 큰 감량 면도 빠지지 않게(띠가 끊기면 구멍)."""
-    use = UNDER_LODS.get(lod, ())
+    use = () if suit_mode() else UNDER_LODS.get(lod, ())
     c = fp.mean(axis=0)
     side = "L" if c[0] < 0 else "R"
 
@@ -1124,7 +1189,7 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
         if len(lst) > 1:
             border[lst] = True
     keys = sorted(D)
-    for part, (off, iters) in KIT_PARTS.items():
+    for part, (off, iters) in kit_parts().items():
         mv = np.array([parts[i] == part and not border[i] for i in range(len(P))])
         if not mv.any():
             continue
@@ -1157,9 +1222,9 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
     planes = {pl[0]: pl for pl in cut_planes()}
     for i in range(len(P)):
         part = parts[i]
-        if part in KIT_PARTS and _LOD[0] < 2:
+        if part in kit_parts() and _LOD[0] < 2:
             # LOD2는 띄우지 않는다(턱이 없으니 틈이 생기지 않게). 062 FR-05: 소매·반바지·양말 밑단 띠에서는 몸에 붙게 줄인다
-            P[i] = P[i] + N[i] * (KIT_PARTS[part][0] * _hem_taper(base[i], part, Wn[i], planes)
+            P[i] = P[i] + N[i] * (kit_parts()[part][0] * _hem_taper(base[i], part, Wn[i], planes)
                                   + _kit_extra(base[i], part, Wn[i], N[i], planes))
     # 축구화 바닥은 y ≥ 0 (접지)
     for i in range(len(P)):
@@ -1203,8 +1268,8 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
         if p0 == p1:
             continue
         # 띄움이 큰 쪽(바깥)에서 턱을 내린다
-        o0 = KIT_PARTS.get(p0, (0.0, 0))[0]
-        o1 = KIT_PARTS.get(p1, (0.0, 0))[0]
+        o0 = kit_parts().get(p0, (0.0, 0))[0]
+        o1 = kit_parts().get(p1, (0.0, 0))[0]
         if abs(o0 - o1) < 1e-9 and "skin" not in (p0, p1):
             continue
         if o0 >= o1:
@@ -1340,13 +1405,23 @@ def kit_uvs(P, f, part):
                 fl = min(max(fv - math.floor(fc), 0.5), 1.0)
                 out.append(U.torso_shirt(fl, y))
         return tuple(out)
+    if base == "sleeve" and suit_mode():
+        # 재킷 소매: 위팔 + 아래팔(소매 끝까지) 길이로 v를 잰다 — 소맷부리(v ≥ 0.96)가 손목 쪽 끝이 되게
+        h, d, x, z, L = _limb_frame(sn + "UpperArm")
+        h2, d2, x2, z2, L2 = _limb_frame(sn + "LowerArm")
+        tot = L + L2 * SUIT_SLEEVE_T
+        fore = float((c - h2) @ d2) > 0.0
+        fh, fx, fz = (h2, x2, z2) if fore else (h, x, z)
+        fs = _unwrap([_angle(float((p - fh) @ fx), float((p - fh) @ fz)) for p in pts])
+        vs = [(L + max(float((p - h2) @ d2), 0.0)) / tot if fore else float((p - h) @ d) / tot for p in pts]
+        return tuple(U.sleeve(side, min(max(fv - math.floor(fs[0]), 0.0), 1.0), v) for v, fv in zip(vs, fs))
     if base == "sleeve":
         h, d, x, z, L = _limb_frame(sn + "UpperArm")
         fs = _unwrap([_angle(float((p - h) @ x), float((p - h) @ z)) for p in pts])
         return tuple(U.sleeve(side, min(max(fv - math.floor(fs[0]), 0.0), 1.0), float((p - h) @ d) / (L * SLEEVE_T))
                      for p, fv in zip(pts, fs))
     if base == "shorts":
-        y_hem = S.HEAD[sn + "LowerLeg"][1] + SHORTS_ABOVE_KNEE
+        y_hem = SUIT_TROUSER_Y if suit_mode() else S.HEAD[sn + "LowerLeg"][1] + SHORTS_ABOVE_KNEE
         crotch = S.HEAD[sn + "UpperLeg"][1] - 0.08
         if c[1] > crotch:
             fs = _unwrap([_angle(p[0], p[2]) for p in pts])
