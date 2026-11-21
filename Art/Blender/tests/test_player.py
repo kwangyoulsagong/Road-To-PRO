@@ -93,9 +93,13 @@ HAIR = ("Hair_Buzz", "Hair_Short", "Hair_Long", "Hair_Curly", "Hair_Bun", "Hair_
         "Hair_Crew", "Hair_SidePart", "Hair_Undercut", "Hair_SlickBack", "Hair_Quiff", "Hair_Curtains", "Hair_TexturedCrop",
         "Hair_BuzzLine", "Hair_HighTop", "Hair_Cornrows", "Hair_Twists", "Hair_TopKnot", "Hair_Ponytail", "Hair_MediumWave",
         "Hair_FrenchCrop", "Hair_IvyLeague", "Hair_Spiky", "Hair_CurlyTop", "Hair_BoxBraids", "Hair_HalfUp")
-MESH_HAIR = tuple(h for h in HAIR if h != "Hair_Bald")
-FAMILY = {"short": {0, 1, 5, 9, 10, 11, 12, 14, 16, 17, 19, 24, 25, 26, 27}, "medium": {3, 6, 7, 13, 15, 18, 20, 23},
-          "long": {2, 4, 8, 21, 22, 28, 29}}
+# specs/062 FR-52: 신규 5종 (인덱스 30~34) — 0~29 이름·순서는 그대로
+NEW_062 = ("Hair_PartedTwoBlock", "Hair_CommaPerm", "Hair_VolumeCurlyLong", "Hair_StraightCornrows", "Hair_ZigzagCornrows")
+HAIR_ALL = HAIR + NEW_062
+MESH_HAIR = tuple(h for h in HAIR_ALL if h != "Hair_Bald")
+# 057 FR-31 분포 계열 (062 신규: 30 짧은·31 중간·32 긴·33·34 짧은)
+FAMILY = {"short": {0, 1, 5, 9, 10, 11, 12, 14, 16, 17, 19, 24, 25, 26, 27, 30, 33, 34}, "medium": {3, 6, 7, 13, 15, 18, 20, 23, 31},
+          "long": {2, 4, 8, 21, 22, 28, 29, 32}}
 # 056 기준 (specs/057 plan '구현 중 바뀐 점' T01): 클로즈업 피부 얼굴 노멀 고주파 RMS, 부위별 거칠기 평균
 SKIN_056_NORMAL_HF = 0.070367
 SKIN_056_ROUGH = {"nose": 0.591938, "cheek": 0.67973, "forehead": 0.566366, "eyeArea": 0.678763, "lips": 0.521222}
@@ -136,9 +140,9 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
                 self.assertTrue(lo <= t <= hi, f"{st} LOD{lod} {t}")
 
     def test_hair_style_order_and_family(self):
-        """057 FR-30·31: 30종 순서(0~9 = 056), 계열 표."""
+        """057 FR-30·31 + 062 FR-52: 35종 순서(0~9 = 056, 30~34 = 062 신규), 계열 표."""
         hl = generated("default").layout["hairStyles"]
-        self.assertEqual([h["name"] for h in hl], list(HAIR))
+        self.assertEqual([h["name"] for h in hl], list(HAIR_ALL))
         for fam, idx in FAMILY.items():
             for i in idx:
                 self.assertEqual(hl[i]["family"], fam, hl[i]["name"])
@@ -230,7 +234,7 @@ class Penetration_ClipsExtremes(unittest.TestCase):
         self.assertTrue(p["ok"])
 
     def test_all_hair_styles_with_cards(self):
-        """057 AC-02·FR-13·33: 헤어 29조각(삭발 제외, 셸 + 카드) 전부 클립 82 × 4프레임에서 머리카락×몸·유니폼 0."""
+        """057 AC-02·FR-13·33: 헤어 34조각(삭발 제외, 셸 + 카드 + 부속, 062 35종) 전부 클립 82 × 4프레임에서 머리카락×몸·유니폼 0."""
         p = generated("default").layout["summary"]["penetration"]
         self.assertEqual(p["hairStyles"], len(MESH_HAIR), p)
         self.assertGreaterEqual(p["hairPoses"], len(MESH_HAIR) * 82 * 4)
@@ -311,7 +315,7 @@ class ExtremeBodies_FootGround_NoSelfIntersect(unittest.TestCase):
         e = generated("default").layout["summary"]["extremes"]
         body_cases = sorted(k for k in e["cases"] if not k.startswith("hair_"))
         self.assertEqual(body_cases, ["short_heavy", "short_light", "tall_heavy", "tall_light"])
-        self.assertEqual(len([k for k in e["cases"] if k.startswith("hair_")]), 30, "헤어 30종 관통 검사")
+        self.assertEqual(len([k for k in e["cases"] if k.startswith("hair_")]), 35, "헤어 35종 관통 검사 (062)")
         for name, c in e["cases"].items():
             self.assertLessEqual(abs(c["footMin"]), 0.02, name)
             self.assertEqual(c["intersections"], {}, name)

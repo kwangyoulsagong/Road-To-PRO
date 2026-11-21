@@ -8,7 +8,7 @@ skin.png (1024², RGBA, 선형):  R 밝기 디테일(0.8 = 1.0배) · G 붉은 �
 skin_normal.png (1024², RGB): 탄젠트 공간 노멀(모공·잔주름 높이장 → UV 미분). 가장자리 번짐 처리.
 skin_closeup.png / skin_closeup_normal.png (2048²): 같은 내용, 클로즈업 머리 전용(FR-32).
 parts.png (1024², RGBA): u ∈ [1,2]로 들어오는 조각. 눈 칸(face.EYE_REGION): R 밝기(흰자·홍채 결·동공·반사점), G 홍채 마스크, A 거칠기.
-                         머리카락 칸(hair.REGION): R 가닥 밝기, B 머리카락 마스크 1, A 거칠기, G 가닥 결 위상.
+                         머리카락 칸(hair.REGION): R 가닥 밝기, B 머리카락 마스크 1, A 거칠기, G 가닥 결 위상 — 062: 결 계열 5종 타일(hairtex.py).
 """
 import math
 
@@ -243,17 +243,9 @@ def parts_map(R, seed):
     out[..., 0] = np.where(m, lum, out[..., 0])
     out[..., 1] = np.where(m, iris * (1 - pupil), 0.0)
     out[..., 3] = np.where(m, 0.04, out[..., 3])
-    # 머리카락 칸: 가닥 = v 방향 줄 (u 방향 고주파), 굵은 다발 + 가는 가닥
-    u0, v0, u1, v1 = H.REGION
-    m = (u >= u0) & (u < u1) & (v >= v0) & (v < v1)
-    hu, hv = (u - u0) / (u1 - u0), (v - v0) / (v1 - v0)
-    clump = _noise(hu, hv * 0.02, 41 + seed, 96)
-    fine = _noise(hu, hv * 0.05, 43 + seed, 700)
-    strand = 0.55 + 0.25 * clump + 0.2 * fine
-    out[..., 0] = np.where(m, strand, out[..., 0])
-    out[..., 1] = np.where(m, _noise(hu, hv * 0.03, 47 + seed, 300), out[..., 1])
-    out[..., 2] = np.where(m, 1.0, 0.0)
-    out[..., 3] = np.where(m, 0.45, out[..., 3])
+    # 머리카락 칸: 062 FR-43 결 계열 5종 타일 (hairtex.py)
+    from . import hairtex
+    hairtex.fill(out, u, v, seed)
     # 057 가닥 카드 칸 (H.CARD_REGION): R 가닥 밝기, G 알파(뿌리 v=1 → 끝 v=0 으로 가닥이 듬성해진다), B 머리카락 마스크 1, A 거칠기
     cm = (u >= H.CARD_REGION[0]) & (u < H.CARD_REGION[2]) & (v >= H.CARD_REGION[1]) & (v < H.CARD_REGION[3])
     cu = (u - H.CARD_REGION[0]) / (H.CARD_REGION[2] - H.CARD_REGION[0])

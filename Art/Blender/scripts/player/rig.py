@@ -61,6 +61,7 @@ def mesh_object(name, m, rig, mats, keys=None):
     vs = [bm.verts.new(to_blender(p)) for p in m.verts]
     bm.verts.ensure_lookup_table()
     uv = bm.loops.layers.uv.new("UVMap")
+    hd = bm.loops.layers.uv.new("HairData") if getattr(m, "hairdata", None) is not None else None
     for idx, mat, uvs, part, ref in m.faces:
         try:
             f = bm.faces.new([vs[i] for i in idx])
@@ -70,6 +71,10 @@ def mesh_object(name, m, rig, mats, keys=None):
         corner = {vs[i]: u for i, u in zip(idx, uvs)}
         for loop in f.loops:
             loop[uv].uv = corner[loop.vert]
+        if hd is not None:  # 062: 헤어 밀도·컬러 포인트 → 두 번째 UV (glb TEXCOORD_1)
+            vi = {vs[i]: i for i in idx}
+            for loop in f.loops:
+                loop[hd].uv = tuple(float(x) for x in m.hairdata[vi[loop.vert]])
     me = bpy.data.meshes.new(name)
     bm.to_mesh(me)
     bm.free()

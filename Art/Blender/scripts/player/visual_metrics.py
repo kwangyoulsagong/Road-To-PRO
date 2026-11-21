@@ -219,9 +219,6 @@ def _tri_mask(P2, tris, lo, span):
     return img
 
 
-VIEWS = {"front": 0.0, "side": 90.0, "back34": 135.0}
-
-
 def _tris_of(m, pred=None):
     out = []
     for f, *_ in m.faces:
@@ -230,44 +227,101 @@ def _tris_of(m, pred=None):
     return out
 
 
-def hair_metrics(body_m, hair_parts):
-    """hair_parts: {스타일: Mesh(LOD0) 또는 None(삭발)} → 스타일별 볼륨·옆 폭, 쌍별 실루엣 차이."""
+def _depth_raster(P2, Z, tris, lo, span, depth, label, lab):
+    """삼각형을 깊이 버퍼에 그린다 (Z 큰 쪽이 보는 사람 쪽). 가까운 픽셀만 label = lab."""
+    q = (P2 - lo) / span * (SIL - 1)
+    for t in tris:
+        a, b, c = q[list(t)]
+        za, zb, zc = Z[list(t)]
+        x0, x1 = int(max(min(a[0], b[0], c[0]), 0)), int(min(max(a[0], b[0], c[0]) + 1, SIL))
+        y0, y1 = int(max(min(a[1], b[1], c[1]), 0)), int(min(max(a[1], b[1], c[1]) + 1, SIL))
+        if x1 <= x0 or y1 <= y0:
+            continue
+        den = (b[1] - c[1]) * (a[0] - c[0]) + (c[0] - b[0]) * (a[1] - c[1])
+        if abs(den) < 1e-12:
+            continue
+        xs, ys = np.meshgrid(np.arange(x0, x1) + 0.5, np.arange(y0, y1) + 0.5)
+        l0 = ((b[1] - c[1]) * (xs - c[0]) + (c[0] - b[0]) * (ys - c[1])) / den
+        l1 = ((c[1] - a[1]) * (xs - c[0]) + (a[0] - c[0]) * (ys - c[1])) / den
+        l2 = 1 - l0 - l1
+        ins = (l0 >= 0) & (l1 >= 0) & (l2 >= 0)
+        if not ins.any():
+            continue
+        z = l0 * za + l1 * zb + l2 * zc
+        iy, ix = ys[ins].astype(int), xs[ins].astype(int)
+        zi = z[ins]
+        closer = zi > depth[iy, ix]
+        depth[iy[closer], ix[closer]] = zi[closer]
+        label[iy[closer], ix[closer]] = lab
+
+
+VIEWS = {"front": 0.0, "side": 90.0, "back": 180.0}  # 062 FR-44 정면·옆·뒤
+
+
+def hair_metrics(body_m, hair_parts, exclude=()):
+    """hair_parts: {스타일: Mesh(LOD0) 또는 None(삭발)} → 스타일별 볼륨·옆 폭(셸만, 부속 형상 제외), 쌍별 실루엣 차이.
+    062 FR-44 (2026-11-21 개정): 실루엣 = 그 방향에서 **보이는 머리카락 영역** — 머리·목이 가리는 뒤쪽, 밀도 < 0.5(페이드로
+    피부가 비치는 곳), 가닥 카드(알파)는 빼고, 부속 형상은 넣는다. exclude = 판정 제외 쌍(무늬 변형)."""
     skull = _head_points(body_m)
     hi = MS.OUR_NAMES.index("Head")
+    ni = MS.OUR_NAMES.index("Neck")
     dom = np.argmax(body_m.W, axis=1)
-    head_tris = _tris_of(body_m, lambda f: all(dom[v] == hi for v in f))
+    occ_tris = _tris_of(body_m, lambda f: all(dom[v] in (hi, ni) for v in f))
     top, chin = skull[:, 1].max(), skull[:, 1].min()
     cx = 0.5 * (skull[:, 0].max() + skull[:, 0].min())
     ear = chin + 0.6 * (top - chin)  # 옆 폭은 귀 위 띠(두개골 높이 위 40 %)에서만 — 귀가 반폭을 키우지 않게
     half = np.abs(skull[skull[:, 1] >= ear, 0] - cx).max()
     lo = np.array([-0.2, chin - 0.15])
     span = 0.4
+    occ = {}
+    for name, deg in VIEWS.items():
+        r = math.radians(deg)
+        V = body_m.verts
+        x = (V[:, 0] - cx) * math.cos(r) + V[:, 2] * math.sin(r)
+        z = -(V[:, 0] - cx) * math.sin(r) + V[:, 2] * math.cos(r)
+        depth = np.full((SIL, SIL), -1e9)
+        label = np.zeros((SIL, SIL), dtype=np.int8)
+        _depth_raster(np.stack([x, V[:, 1]], axis=1), z, occ_tris, lo, span, depth, label, 0)
+        occ[name] = depth
     out, masks = {}, {}
     for style, hm in hair_parts.items():
-        sk_idx = np.flatnonzero(dom == hi)
-        remap = {v: i for i, v in enumerate(sk_idx)}
-        tris = [(remap[a], remap[b], remap[c]) for a, b, c in head_tris]
-        pts = skull
-        if hm is not None:
-            off = len(skull)
-            pts = np.vstack([skull, hm.verts])
-            tris += [(a + off, b + off, c + off) for a, b, c in _tris_of(hm)]
-        hv = pts[len(skull):] if hm is not None else skull[:0]
-        vol = 0.0 if hm is None else max(0.0, float(hv[:, 1].max() - top)) / float(top - chin)
-        up = hv[hv[:, 1] >= ear] if hm is not None else hv
+        if hm is None:
+            out[style] = {"volume": 0.0, "side": 0.0}
+            continue
+        shell = np.array([p == "hair" for p in hm.vpart])
+        hv = hm.verts[shell]
+        vol = max(0.0, float(hv[:, 1].max() - top)) / float(top - chin)
+        up = hv[hv[:, 1] >= ear]
         side = 0.0 if len(up) == 0 else max(0.0, float(np.abs(up[:, 0] - cx).max() - half)) / float(2 * half)
+        dens = hm.hairdata[:, 0] if getattr(hm, "hairdata", None) is not None else np.ones(len(hm.verts))
+        vis, hid = [], []
+        for f, _mat, _uv, part, _ in hm.faces:
+            tl = [(f[0], f[k], f[k + 1]) for k in range(1, len(f) - 1)]
+            if part == "hair_card":
+                continue
+            (vis if dens[list(f)].mean() >= 0.5 else hid).extend(tl)
         ms = {}
         for name, deg in VIEWS.items():
             r = math.radians(deg)
-            x = (pts[:, 0] - cx) * math.cos(r) + pts[:, 2] * math.sin(r)
-            ms[name] = _tri_mask(np.stack([x, pts[:, 1]], axis=1), tris, lo, span)
+            V = hm.verts
+            x = (V[:, 0] - cx) * math.cos(r) + V[:, 2] * math.sin(r)
+            z = -(V[:, 0] - cx) * math.sin(r) + V[:, 2] * math.cos(r)
+            depth = occ[name].copy()
+            label = np.zeros((SIL, SIL), dtype=np.int8)
+            P2 = np.stack([x, V[:, 1]], axis=1)
+            _depth_raster(P2, z, hid, lo, span, depth, label, 0)
+            _depth_raster(P2, z, vis, lo, span, depth, label, 1)
+            ms[name] = label == 1
         masks[style] = ms
         out[style] = {"volume": round(vol, 4), "side": round(side, 4)}
-    styles = list(hair_parts)
+    styles = [s for s in hair_parts if s in masks]
+    ex = {tuple(sorted(p)) for p in exclude}
     best = (2.0, None)
     below = []
     for i in range(len(styles)):
         for j in range(i + 1, len(styles)):
+            if tuple(sorted((styles[i], styles[j]))) in ex:
+                continue
             d = 0.0
             for v in VIEWS:
                 a, b = masks[styles[i]][v], masks[styles[j]][v]
@@ -277,7 +331,76 @@ def hair_metrics(body_m, hair_parts):
                 below.append([styles[i], styles[j], round(d, 4)])
             if d < best[0]:
                 best = (d, (styles[i], styles[j]))
-    return {"styles": out, "pairsBelow008": below, "minPairSilhouette": round(best[0], 4), "minPair": list(best[1]) if best[1] else None}
+    below.sort(key=lambda x: x[2])
+    return {"styles": out, "pairsBelow008": below, "minPairSilhouette": round(best[0], 4),
+            "minPair": list(best[1]) if best[1] else None, "masks": masks}
+
+
+def fade_bands(hm, c, d, phis=(1.2, 1.9), top_up=1.1, bins=5):
+    """062 FR-42: 옆머리 세로 띠(머리 둘레각 phis, 셸 정점) 맨 아래 → 눈 위 top_up·d 를 bins칸, 칸별 평균 밀도 (아래 → 위)."""
+    from . import hair as H
+    sel = [i for i, p in enumerate(hm.vpart) if p == "hair" and phis[0] <= H._phi(hm.verts[i], c) <= phis[1]]
+    y = hm.verts[sel, 1]
+    dn = hm.hairdata[sel, 0]
+    y0, y1 = float(y.min()), c[1] + top_up * d
+    out = []
+    for k in range(bins):
+        a, b = y0 + (y1 - y0) * k / bins, y0 + (y1 - y0) * (k + 1) / bins
+        m = (y >= a) & (y < b)
+        out.append(round(float(dn[m].mean()), 4) if m.any() else None)
+    for k in range(bins):  # 빈 칸은 이웃으로
+        if out[k] is None:
+            out[k] = next((x for x in out[k:] if x is not None), out[k - 1] if k else 0.0)
+    return out
+
+
+def color_point_regions(hm):
+    """062 FR-54: 셸·부속 정점 컬러 포인트 마스크 → (a 뿌리·옆 < 0.2 비율, b 위·끝 > 0.8 비율, mixed 0.2~0.8 비율)."""
+    sel = [i for i, p in enumerate(hm.vpart) if p in ("hair", "hair_attach")]
+    cp = hm.hairdata[sel, 1]
+    return {"a": round(float((cp < 0.2).mean()), 4), "b": round(float((cp > 0.8).mean()), 4),
+            "mixed": round(float(((cp >= 0.2) & (cp <= 0.8)).mean()), 4)}
+
+
+def hair062(body_m, hair_parts, parts_tex, R, png=None):
+    """summary["hair062"] (test_hair.py 약속)."""
+    from . import hair as H
+    from . import face as F
+    c, d = F.eye_frame(R)
+    hm = hair_metrics(body_m, {s: hair_parts.get(s) for s in H.STYLES}, H.VARIANT_PAIRS)
+    tex = hair_texture(parts_tex)
+    out = {"ok": True,  # 기록용 — 판정은 test_hair.py
+           "styles": list(H.STYLES),
+           "shape": hm["styles"],
+           "silhouette": {"minPair": hm["minPairSilhouette"], "pair": hm["minPair"], "pairsBelow": hm["pairsBelow008"],
+                          "excluded": sorted(list(p) for p in H.VARIANT_PAIRS)},
+           "fade": {s: fade_bands(hair_parts[s], c, d) for s in H.FADE},
+           "strandHf": round(tex["strandHf"], 5), "anisotropy": round(tex["anisotropy"], 3),
+           "colorPoint": {s: color_point_regions(hair_parts[s]) for s in H.COLOR_POINT},
+           "info": {s: {"group": H.GROUP[s], "strand": H.STRAND[s]} for s in H.STYLES}}
+    if png:
+        _mask_png(hm["masks"], H.STYLES, png)
+    return out
+
+
+def _mask_png(masks, styles, path):
+    from . import textures as T
+    tiles = []
+    for s in styles:
+        row = []
+        for v in VIEWS:
+            m = masks.get(s, {}).get(v)
+            img = np.full((SIL, SIL, 3), 235, dtype=np.uint8)
+            if m is not None:
+                img[m[::-1]] = (40, 30, 25)
+            img[:, -1] = 120
+            row.append(img)
+        tiles.append(np.concatenate(row, axis=1))
+    cols = 5
+    while len(tiles) % cols:
+        tiles.append(np.full_like(tiles[0], 255))
+    rows = [np.concatenate(tiles[i:i + cols], axis=1) for i in range(0, len(tiles), cols)]
+    T.write_png(path, np.concatenate(rows, axis=0))
 
 
 def hair_texture(parts_tex, region=(0.25, 0.0, 1.0, 0.75)):
@@ -306,11 +429,10 @@ def all_metrics(mm, pm, tex_dir, styles):
     parts = load_image(os.path.join(tex_dir, "parts.png"))
     bd_path = os.path.join(tex_dir, "body_detail_n.png")
     body_detail = load_image(bd_path) if os.path.exists(bd_path) else None
-    hair = {s: pm.get(f"{s}_LOD0") for s in styles}
     return {"ok": True, "lod": min(mm),  # 기록용 (판정은 테스트가 배수 기준으로)
             "muscle": muscle_contrast(lod0, skin_n, body_detail),
             "kit": kit_metrics(lod0, kit_n, kit_tile),
-            "hair": hair_metrics(lod0, hair),
+            "hair": "summary.hair062 (062 T22: 머리카락 영역 실루엣)",
             "hairTexture": hair_texture(parts)}
 
 

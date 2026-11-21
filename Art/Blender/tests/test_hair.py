@@ -4,6 +4,7 @@ summary["hair062"] 약속 (T22 생성기가 채운다):
   styles      : 35개 이름 (0~29 = 057 순서 그대로, 30~34 신규)
   shape[s]    : {"volume": 셸 볼륨 비율(부속 형상 제외), "side": 옆 폭 비율}  — visual_metrics.hair_metrics 정의
   silhouette  : {"minPair": 1 − IoU 최솟값(삭발 제외, 정면·옆·뒤 최대), "pairsBelow": [[a, b, d], ...]}
+                — 마스크 = 보이는 머리카락 영역(FR-44 개정 2026-11-21), 무늬 변형(버즈 / 버즈+라인) 쌍 제외 (hair.VARIANT_PAIRS)
   fade[s]     : 옆머리 세로 띠 5칸 밀도(아래 → 위)
   strandHf    : 클로즈업 머리카락 결 방향 고주파 에너지 (visual_metrics.hair_texture 정의)
   colorPoint[s]: {"a": 뿌리·옆 색 영역 비율, "b": 위·끝 색 영역 비율, "mixed": 두 색이 섞인(0.2~0.8) 정점 비율}

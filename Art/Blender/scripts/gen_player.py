@@ -121,6 +121,8 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         from player import visual_metrics as VM
         summary["visual062"] = VM.all_metrics(mm, pm, os.path.join(stem_dir, "Textures"), H.STYLES)
         summary["outline"] = VM.outline_metrics(mm[0])  # 062 AC-02
+        summary["hair062"] = VM.hair062(mm[0], {s: pm.get(f"{s}_LOD0") for s in H.STYLES},  # 062 AC-05·06
+                                        VM.load_image(os.path.join(stem_dir, "Textures", "parts.png")), R)
         from player import hands as HD
         summary["hands"] = HD.hand_metrics(mm)
     if 0 in mm:
@@ -156,8 +158,9 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         "uv": uv.layout(),
         "shapes": sorted({k for (o, m) in list(meshes.values()) for k in m.deltas}),
         "hair": {st: [f"{st}_LOD{l}" for l in lods] for st in H.MESH_STYLES},
-        "hairStyles": [{"name": st, "family": H.FAMILY[st],
-                        "meshes": [f"{st}_LOD{l}" for l in lods] if st in H.MESH_STYLES else None} for st in H.STYLES],
+        "hairStyles": [dict({"name": st, "family": H.FAMILY[st],
+                             "meshes": [f"{st}_LOD{l}" for l in lods] if st in H.MESH_STYLES else None}, **H.layout_info(st))
+                       for st in H.STYLES],  # 062: group·strand·hairline·colorPoint (필드 추가만)
         "headCloseup": HL.NAME,
         "handPoses": __import__("player.hands", fromlist=["layout_json"]).layout_json(),  # 062 FR-11 (Unity HandPose)
         "kitBones": skeleton.kit_layout(),  # 062 FR-21 (Unity KitSecondaryMotion: 축·이동 상자)
