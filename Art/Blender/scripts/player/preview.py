@@ -192,3 +192,58 @@ def filmstrip(rig, lod_obj, tags, ids, out_png, tmp):
     rig.animation_data.use_nla = True
     if rows:
         T.write_png(out_png, np.concatenate(rows, axis=0)[:, :, :3])
+
+
+def base_heads(R, out_png, tmp, deltas=None):
+    """062 T25: 바탕 머리 8개(face.BASE_HEADS) × 정면·3/4·옆, 회색 찰흙(형태만 판단 — 피부색·헤어 없음). 기준 메시 원본 해상도 머리 부분.
+    맨 위 줄은 기준 머리(바탕 없음) 비교용. 위 → 아래 = 기준, Base_0..7 / 왼 → 오 = 정면·3/4·옆."""
+    import bmesh
+    from . import face as F
+    deltas = deltas if deltas is not None else F.base_head_deltas(R)
+    k = F.head_mask(R)
+    keep = set(v for v in R.groups["body"] if k[v] > 0.02)
+    for g in F.EYE_GROUPS:
+        keep |= set(R.groups.get(g, []))
+    faces = [f for f in R.faces if all(v in keep for v in f)]
+    ids = sorted({v for f in faces for v in f})
+    remap = {v: i for i, v in enumerate(ids)}
+    cam = _setup()
+    sc = bpy.context.scene
+    sc.display.shading.color_type = "SINGLE"
+    sc.display.shading.single_color = (0.72, 0.70, 0.67)
+    cam.data.lens = 95
+    c, d = F.eye_frame(R)
+    tgt = (0.0, float(c[1]) + 0.005, float(c[2]) - 0.05)
+    views = [((0.0, tgt[1] + 0.02, 1.05), tgt), ((0.62, tgt[1] + 0.04, 0.88), tgt), ((1.05, tgt[1], tgt[2]), tgt)]
+    rows = []
+    for name in [None] + [b[0] for b in F.BASE_HEADS]:
+        P = R.verts[ids] + (deltas[name][ids] if name else 0.0)
+        bm = bmesh.new()
+        vs = [bm.verts.new(to_blender(p)) for p in P]
+        for f in faces:
+            try:
+                bm.faces.new([vs[remap[v]] for v in f])
+            except ValueError:
+                pass
+        me = bpy.data.meshes.new("_bh")
+        bm.to_mesh(me)
+        bm.free()
+        for p in me.polygons:
+            p.use_smooth = True
+        ob = bpy.data.objects.new("_bh", me)
+        sc.collection.objects.link(ob)
+        _show_only([ob])
+        tiles = []
+        for eye, t in views:
+            _look(cam, eye, t)
+            img = _render(os.path.join(tmp, "_bh.png"))
+            tiles.append(img[110:560, 60:420, :3])
+        rows.append(np.concatenate(tiles, axis=1))
+        bpy.data.objects.remove(ob)
+        bpy.data.meshes.remove(me)
+    sc.display.shading.color_type = "MATERIAL"
+    # 2단으로 (기준 + 0..3 | 4..7 + 빈칸) — 세로로 너무 길지 않게
+    blank = np.full_like(rows[0], 255)
+    left = np.concatenate(rows[:5], axis=0)
+    right = np.concatenate(rows[5:] + [blank], axis=0)
+    T.write_png(out_png, np.concatenate([left, np.full((left.shape[0], 12, 3), 255, np.uint8), right], axis=1))

@@ -51,6 +51,77 @@ AXES = [
 BEARDS = [("none", 0.0), ("stubble", 0.0006), ("short", 0.0022), ("full", 0.0055)]  # (id, 두께 m)
 EYE_GROUPS = ("helper-l-eye", "helper-r-eye")
 
+# ---------------------------------------------------------------- 062 FR-60~62 바탕 머리 (T25 시안)
+# 일반 얼굴 유형 8개 = MPFB CC0 인종 매크로 비율(머리·목에만, 몸 비율은 그대로) + CC0 얼굴 타깃 조합. 특정 인물·사진 입력 없음(FR-61).
+# 방향은 공개 얼굴 인체 측정 연구의 집단 평균 경향(Farkas 2005 국제 비교 등, 기획서 리서치 2.2a)만 따르고 값은 중간 세기로 둔다 —
+# 같은 지역 안 개인차는 기존 얼굴 30축(FaceGenerator)이 낸다. (id, 지역 태그, 인종 매크로 비율, [(타깃들, 가중치)])
+# 지역 7개(FR-62): east_asia · southeast_asia · south_asia · west_asia_north_africa · west_central_africa · europe · latin_america
+BASE_HEADS = [
+    ("Base_0", "east_asia", {"asian": 1.0, "caucasian": 0.0, "african": 0.0}, [
+        (["l-eye-epicanthus-in", "r-eye-epicanthus-in"], 0.9), (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.8),
+        (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.8), (["nose-hump-decr"], 0.6), (["nose-scale-depth-decr"], 0.6),
+        (["head-scale-horiz-incr"], 0.5), (["head-back-scale-depth-decr"], 0.5), (["forehead-nubian-decr"], 0.4),
+        (["chin-width-incr"], 0.3)]),
+    ("Base_1", "southeast_asia", {"asian": 0.6, "caucasian": 0.15, "african": 0.25}, [
+        (["l-eye-epicanthus-in", "r-eye-epicanthus-in"], 0.4), (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.4),
+        (["l-eye-scale-incr", "r-eye-scale-incr"], 0.3), (["nose-nostrils-width-incr"], 0.8), (["nose-scale-horiz-incr"], 0.5),
+        (["nose-scale-vert-decr"], 0.5), (["nose-scale-depth-decr"], 0.5), (["mouth-upperlip-volume-incr"], 0.6),
+        (["mouth-lowerlip-volume-incr"], 0.6), (["head-scale-vert-decr"], 0.4), (["head-round"], 0.6), (["chin-height-decr"], 0.5),
+        (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.4)]),
+    ("Base_2", "south_asia", {"asian": 0.2, "caucasian": 0.6, "african": 0.2}, [
+        (["l-eye-scale-incr", "r-eye-scale-incr"], 0.8), (["nose-scale-vert-incr"], 0.5), (["nose-point-down"], 0.8),
+        (["nose-nostrils-width-incr"], 0.4), (["mouth-lowerlip-volume-incr"], 0.6), (["mouth-upperlip-volume-incr"], 0.3),
+        (["head-oval"], 1.0), (["chin-height-incr"], 0.4), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.4),
+        (["forehead-scale-vert-incr"], 0.4), (["eyebrows-angle-down"], 0.4), (["l-eye-bag-incr", "r-eye-bag-incr"], 0.4)]),
+    ("Base_3", "west_asia_north_africa", {"asian": 0.0, "caucasian": 0.8, "african": 0.2}, [
+        (["nose-hump-incr"], 0.9), (["nose-scale-vert-incr"], 0.6), (["nose-curve-convex"], 0.7), (["nose-point-down"], 0.3),
+        (["forehead-nubian-incr"], 0.7), (["eyebrows-trans-down"], 0.5), (["head-rectangular"], 0.6), (["head-scale-depth-incr"], 0.4),
+        (["chin-prominent-incr"], 0.5)]),
+    ("Base_4", "west_central_africa", {"asian": 0.0, "caucasian": 0.0, "african": 1.0}, [
+        (["nose-scale-horiz-incr"], 0.5), (["nose-nostrils-width-incr"], 0.5), (["nose-scale-depth-decr"], 0.3),
+        (["mouth-upperlip-volume-incr"], 0.6), (["mouth-lowerlip-volume-incr"], 0.6), (["chin-prognathism-incr"], 0.3),
+        (["head-scale-depth-incr"], 0.2), (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.3), (["forehead-trans-forward"], 0.3)]),
+    ("Base_5", "europe", {"asian": 0.0, "caucasian": 1.0, "african": 0.0}, [
+        (["nose-scale-depth-incr"], 0.6), (["nose-point-width-decr"], 0.5), (["nose-scale-horiz-decr"], 0.4), (["head-square"], 0.7),
+        (["chin-prominent-incr"], 0.6), (["chin-width-incr"], 0.4), (["forehead-nubian-incr"], 0.5), (["head-scale-horiz-incr"], 0.3),
+        (["mouth-upperlip-volume-decr"], 0.5), (["mouth-lowerlip-volume-decr"], 0.4), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.2)]),
+    ("Base_6", "europe", {"asian": 0.0, "caucasian": 0.85, "african": 0.15}, [
+        (["head-scale-horiz-decr"], 0.5), (["head-scale-vert-incr"], 0.4), (["chin-width-decr"], 0.6), (["chin-height-incr"], 0.5),
+        (["nose-scale-vert-incr"], 0.5), (["nose-hump-incr"], 0.4), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.5),
+        (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.4)]),
+    ("Base_7", "latin_america", {"asian": 0.35, "caucasian": 0.45, "african": 0.2}, [
+        (["l-cheek-bones-incr", "r-cheek-bones-incr"], 1.0), (["head-round"], 0.8), (["head-scale-horiz-incr"], 0.6),
+        (["nose-scale-horiz-incr"], 0.5), (["nose-hump-incr"], 0.7), (["nose-scale-depth-incr"], 0.3),
+        (["mouth-upperlip-volume-incr"], 0.4), (["chin-width-incr"], 0.7), (["chin-height-decr"], 0.4), (["forehead-scale-vert-decr"], 0.4),
+        (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.3)]),
+]
+REGIONS = ("east_asia", "southeast_asia", "south_asia", "west_asia_north_africa", "west_central_africa", "europe", "latin_america")
+
+
+def head_mask(R):
+    """바탕 머리 델타를 거는 영역: 머리 + 목 절반 가중치, 목 아래로 부드럽게 0 (몸 비율·칼라 이음매는 그대로)."""
+    hi = MS.OUR_NAMES.index("Head")
+    ni = MS.OUR_NAMES.index("Neck")
+    w = R.weights[:, hi] + 0.5 * R.weights[:, ni]
+    return np.clip((w - 0.25) / 0.5, 0.0, 1.0)
+
+
+def base_head_deltas(R):
+    """{Base_n: (V,3) 델타} — 인종 매크로 비율(기준 1/3씩에서 바꾼 만큼, 머리 영역만) + 얼굴 타깃 합. 062 T25 시안: 아직 셰이프 키로
+    내보내지 않는다(T27 확정 때 register에 넣는다)."""
+    k = head_mask(R)[:, None]
+    core = k[:, 0] > 0.95
+    out = {}
+    for bid, _region, race, targets in BASE_HEADS:
+        # 인종 매크로는 키·목 길이도 바꿔 머리 전체를 옮긴다 → 머리 평균 이동을 빼고(목 쪽으로 서서히 0) 형태 차이만 남긴다
+        m = R.macro_delta({"race": race})
+        m = (m - m[core].mean(axis=0)) * k
+        d = m
+        for names, w in targets:
+            d = d + R.target_delta(names) * w
+        out[bid] = d
+    return out
+
 
 def key_names():
     out = []

@@ -174,6 +174,7 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         PV.lineup(rig_obj, objs, os.path.join(stem_dir, "player.preview-lineup.png"), stem_dir)
         hair_objs = {st: parts[f"{st}_LOD{min(objs)}"][0] for st in H.MESH_STYLES}
         PV.heads(rig_obj, objs[min(objs)], hair_objs, os.path.join(stem_dir, "player.preview-heads.png"), stem_dir)
+        PV.base_heads(R, os.path.join(stem_dir, "player.preview-base-heads.png"), stem_dir)  # 062 T25 바탕 머리 8개 시안
         ids = [i for i in PV.POSE_IDS if i in {t["id"] for t in tags}]
         if ids:
             PV.poses(rig_obj, objs[min(objs)], tags, ids, os.path.join(stem_dir, "player.preview-poses.png"), stem_dir)
