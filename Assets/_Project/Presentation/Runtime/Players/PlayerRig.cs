@@ -432,6 +432,8 @@ namespace RoadToPro.Presentation.Players
                 if (m == null) continue;
                 m.SetColor("_SkinColor", c);
                 m.SetColor("_HairColor", PlayerLook.HairColors[a.HairColor]);
+                // 062 FR-54: 위·끝 색 — 컬러 포인트가 없으면 같은 색(셰이더는 분기 없이 정점 마스크로 섞는다)
+                m.SetColor("_HairColor2", a.ColorPoint > 0 ? PlayerLook.ColorPointColors[a.ColorPoint - 1] : PlayerLook.HairColors[a.HairColor]);
                 m.SetColor("_EyeColor", PlayerLook.EyeColors[(a.SkinTone * 7 + a.Face) % PlayerLook.EyeColors.Length]);
                 m.SetFloat("_BeardLevel", PlayerLook.BeardLevels[Mathf.Clamp(beard, 0, PlayerLook.BeardLevels.Length - 1)]);
             }

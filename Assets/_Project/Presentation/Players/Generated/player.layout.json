@@ -1,7 +1,7 @@
 {
  "generator": {
   "blender": "5.3.0",
-  "command": "gen_player.py --out <out> --no-preview",
+  "command": "gen_player.py --out <out>",
   "mpfb": {
    "files": [
     {
@@ -476,6 +476,11 @@
    "Hair_BuzzLine_LOD1",
    "Hair_BuzzLine_LOD2"
   ],
+  "Hair_CommaPerm": [
+   "Hair_CommaPerm_LOD0",
+   "Hair_CommaPerm_LOD1",
+   "Hair_CommaPerm_LOD2"
+  ],
   "Hair_Cornrows": [
    "Hair_Cornrows_LOD0",
    "Hair_Cornrows_LOD1",
@@ -546,6 +551,11 @@
    "Hair_Mohawk_LOD1",
    "Hair_Mohawk_LOD2"
   ],
+  "Hair_PartedTwoBlock": [
+   "Hair_PartedTwoBlock_LOD0",
+   "Hair_PartedTwoBlock_LOD1",
+   "Hair_PartedTwoBlock_LOD2"
+  ],
   "Hair_Ponytail": [
    "Hair_Ponytail_LOD0",
    "Hair_Ponytail_LOD1",
@@ -576,6 +586,11 @@
    "Hair_Spiky_LOD1",
    "Hair_Spiky_LOD2"
   ],
+  "Hair_StraightCornrows": [
+   "Hair_StraightCornrows_LOD0",
+   "Hair_StraightCornrows_LOD1",
+   "Hair_StraightCornrows_LOD2"
+  ],
   "Hair_TexturedCrop": [
    "Hair_TexturedCrop_LOD0",
    "Hair_TexturedCrop_LOD1",
@@ -595,274 +610,538 @@
    "Hair_Undercut_LOD0",
    "Hair_Undercut_LOD1",
    "Hair_Undercut_LOD2"
+  ],
+  "Hair_VolumeCurlyLong": [
+   "Hair_VolumeCurlyLong_LOD0",
+   "Hair_VolumeCurlyLong_LOD1",
+   "Hair_VolumeCurlyLong_LOD2"
+  ],
+  "Hair_ZigzagCornrows": [
+   "Hair_ZigzagCornrows_LOD0",
+   "Hair_ZigzagCornrows_LOD1",
+   "Hair_ZigzagCornrows_LOD2"
   ]
  },
  "hairStyles": [
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "short",
+   "hairline": "straight",
    "meshes": [
     "Hair_Buzz_LOD0",
     "Hair_Buzz_LOD1",
     "Hair_Buzz_LOD2"
    ],
-   "name": "Hair_Buzz"
+   "name": "Hair_Buzz",
+   "nape": "square",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "short",
+   "hairline": "round",
    "meshes": [
     "Hair_Short_LOD0",
     "Hair_Short_LOD1",
     "Hair_Short_LOD2"
    ],
-   "name": "Hair_Short"
+   "name": "Hair_Short",
+   "nape": "round",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "long",
+   "group": "long",
+   "hairline": "straight",
    "meshes": [
     "Hair_Long_LOD0",
     "Hair_Long_LOD1",
     "Hair_Long_LOD2"
    ],
-   "name": "Hair_Long"
+   "name": "Hair_Long",
+   "nape": "neck",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "medium",
+   "group": "curly",
+   "hairline": "round",
    "meshes": [
     "Hair_Curly_LOD0",
     "Hair_Curly_LOD1",
     "Hair_Curly_LOD2"
    ],
-   "name": "Hair_Curly"
+   "name": "Hair_Curly",
+   "nape": "long",
+   "strand": "curl"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "long",
+   "group": "braid",
+   "hairline": "straight",
    "meshes": [
     "Hair_Bun_LOD0",
     "Hair_Bun_LOD1",
     "Hair_Bun_LOD2"
    ],
-   "name": "Hair_Bun"
+   "name": "Hair_Bun",
+   "nape": "long",
+   "strand": "straight"
   },
   {
+   "colorPoint": "top",
+   "fade": true,
    "family": "short",
+   "group": "fade",
+   "hairline": "straight",
    "meshes": [
     "Hair_Fade_LOD0",
     "Hair_Fade_LOD1",
     "Hair_Fade_LOD2"
    ],
-   "name": "Hair_Fade"
+   "name": "Hair_Fade",
+   "nape": "high",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "medium",
+   "group": "curly",
+   "hairline": "round",
    "meshes": [
     "Hair_Afro_LOD0",
     "Hair_Afro_LOD1",
     "Hair_Afro_LOD2"
    ],
-   "name": "Hair_Afro"
+   "name": "Hair_Afro",
+   "nape": "round",
+   "strand": "coil"
   },
   {
+   "colorPoint": "strip",
+   "fade": true,
    "family": "medium",
+   "group": "fade",
+   "hairline": "straight",
    "meshes": [
     "Hair_Mohawk_LOD0",
     "Hair_Mohawk_LOD1",
     "Hair_Mohawk_LOD2"
    ],
-   "name": "Hair_Mohawk"
+   "name": "Hair_Mohawk",
+   "nape": "high",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "long",
+   "group": "braid",
+   "hairline": "M",
    "meshes": [
     "Hair_Dreads_LOD0",
     "Hair_Dreads_LOD1",
     "Hair_Dreads_LOD2"
    ],
-   "name": "Hair_Dreads"
+   "name": "Hair_Dreads",
+   "nape": "neck",
+   "strand": "dread"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "bald",
+   "hairline": null,
    "meshes": null,
-   "name": "Hair_Bald"
+   "name": "Hair_Bald",
+   "strand": null
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "short",
+   "hairline": "straight",
    "meshes": [
     "Hair_Crew_LOD0",
     "Hair_Crew_LOD1",
     "Hair_Crew_LOD2"
    ],
-   "name": "Hair_Crew"
+   "name": "Hair_Crew",
+   "nape": "high",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "short",
+   "hairline": "peak",
    "meshes": [
     "Hair_SidePart_LOD0",
     "Hair_SidePart_LOD1",
     "Hair_SidePart_LOD2"
    ],
-   "name": "Hair_SidePart"
+   "name": "Hair_SidePart",
+   "nape": "taper",
+   "strand": "straight"
   },
   {
+   "colorPoint": "top",
+   "fade": true,
    "family": "short",
+   "group": "fade",
+   "hairline": "straight",
    "meshes": [
     "Hair_Undercut_LOD0",
     "Hair_Undercut_LOD1",
     "Hair_Undercut_LOD2"
    ],
-   "name": "Hair_Undercut"
+   "name": "Hair_Undercut",
+   "nape": "high",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "medium",
+   "group": "medium",
+   "hairline": "M",
    "meshes": [
     "Hair_SlickBack_LOD0",
     "Hair_SlickBack_LOD1",
     "Hair_SlickBack_LOD2"
    ],
-   "name": "Hair_SlickBack"
+   "name": "Hair_SlickBack",
+   "nape": "square",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "medium",
+   "hairline": "straight",
    "meshes": [
     "Hair_Quiff_LOD0",
     "Hair_Quiff_LOD1",
     "Hair_Quiff_LOD2"
    ],
-   "name": "Hair_Quiff"
+   "name": "Hair_Quiff",
+   "nape": "high",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "medium",
+   "group": "medium",
+   "hairline": "fringe",
    "meshes": [
     "Hair_Curtains_LOD0",
     "Hair_Curtains_LOD1",
     "Hair_Curtains_LOD2"
    ],
-   "name": "Hair_Curtains"
+   "name": "Hair_Curtains",
+   "nape": "long",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "short",
+   "hairline": "fringe",
    "meshes": [
     "Hair_TexturedCrop_LOD0",
     "Hair_TexturedCrop_LOD1",
     "Hair_TexturedCrop_LOD2"
    ],
-   "name": "Hair_TexturedCrop"
+   "name": "Hair_TexturedCrop",
+   "nape": "high",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "short",
+   "hairline": "straight",
    "meshes": [
     "Hair_BuzzLine_LOD0",
     "Hair_BuzzLine_LOD1",
     "Hair_BuzzLine_LOD2"
    ],
-   "name": "Hair_BuzzLine"
+   "name": "Hair_BuzzLine",
+   "nape": "square",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "medium",
+   "group": "curly",
+   "hairline": "straight",
    "meshes": [
     "Hair_HighTop_LOD0",
     "Hair_HighTop_LOD1",
     "Hair_HighTop_LOD2"
    ],
-   "name": "Hair_HighTop"
+   "name": "Hair_HighTop",
+   "nape": "high",
+   "strand": "coil"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "braid",
+   "hairline": "round",
    "meshes": [
     "Hair_Cornrows_LOD0",
     "Hair_Cornrows_LOD1",
     "Hair_Cornrows_LOD2"
    ],
-   "name": "Hair_Cornrows"
+   "name": "Hair_Cornrows",
+   "nape": "taper",
+   "strand": "braid"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "medium",
+   "group": "curly",
+   "hairline": "round",
    "meshes": [
     "Hair_Twists_LOD0",
     "Hair_Twists_LOD1",
     "Hair_Twists_LOD2"
    ],
-   "name": "Hair_Twists"
+   "name": "Hair_Twists",
+   "nape": "round",
+   "strand": "dread"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "long",
+   "group": "braid",
+   "hairline": "straight",
    "meshes": [
     "Hair_TopKnot_LOD0",
     "Hair_TopKnot_LOD1",
     "Hair_TopKnot_LOD2"
    ],
-   "name": "Hair_TopKnot"
+   "name": "Hair_TopKnot",
+   "nape": "high",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "long",
+   "group": "braid",
+   "hairline": "straight",
    "meshes": [
     "Hair_Ponytail_LOD0",
     "Hair_Ponytail_LOD1",
     "Hair_Ponytail_LOD2"
    ],
-   "name": "Hair_Ponytail"
+   "name": "Hair_Ponytail",
+   "nape": "long",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "medium",
+   "group": "medium",
+   "hairline": "round",
    "meshes": [
     "Hair_MediumWave_LOD0",
     "Hair_MediumWave_LOD1",
     "Hair_MediumWave_LOD2"
    ],
-   "name": "Hair_MediumWave"
+   "name": "Hair_MediumWave",
+   "nape": "long",
+   "strand": "curl"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "short",
+   "hairline": "fringe",
    "meshes": [
     "Hair_FrenchCrop_LOD0",
     "Hair_FrenchCrop_LOD1",
     "Hair_FrenchCrop_LOD2"
    ],
-   "name": "Hair_FrenchCrop"
+   "name": "Hair_FrenchCrop",
+   "nape": "high",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "short",
+   "hairline": "M",
    "meshes": [
     "Hair_IvyLeague_LOD0",
     "Hair_IvyLeague_LOD1",
     "Hair_IvyLeague_LOD2"
    ],
-   "name": "Hair_IvyLeague"
+   "name": "Hair_IvyLeague",
+   "nape": "taper",
+   "strand": "straight"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "short",
+   "group": "short",
+   "hairline": "M",
    "meshes": [
     "Hair_Spiky_LOD0",
     "Hair_Spiky_LOD1",
     "Hair_Spiky_LOD2"
    ],
-   "name": "Hair_Spiky"
+   "name": "Hair_Spiky",
+   "nape": "square",
+   "strand": "straight"
   },
   {
+   "colorPoint": "top",
+   "fade": true,
    "family": "short",
+   "group": "curly",
+   "hairline": "round",
    "meshes": [
     "Hair_CurlyTop_LOD0",
     "Hair_CurlyTop_LOD1",
     "Hair_CurlyTop_LOD2"
    ],
-   "name": "Hair_CurlyTop"
+   "name": "Hair_CurlyTop",
+   "nape": "high",
+   "strand": "coil"
   },
   {
+   "colorPoint": "tips",
+   "fade": false,
    "family": "long",
+   "group": "braid",
+   "hairline": "round",
    "meshes": [
     "Hair_BoxBraids_LOD0",
     "Hair_BoxBraids_LOD1",
     "Hair_BoxBraids_LOD2"
    ],
-   "name": "Hair_BoxBraids"
+   "name": "Hair_BoxBraids",
+   "nape": "neck",
+   "strand": "braid"
   },
   {
+   "colorPoint": null,
+   "fade": false,
    "family": "long",
+   "group": "long",
+   "hairline": "M",
    "meshes": [
     "Hair_HalfUp_LOD0",
     "Hair_HalfUp_LOD1",
     "Hair_HalfUp_LOD2"
    ],
-   "name": "Hair_HalfUp"
+   "name": "Hair_HalfUp",
+   "nape": "long",
+   "strand": "straight"
+  },
+  {
+   "colorPoint": "top",
+   "fade": true,
+   "family": "short",
+   "group": "fade",
+   "hairline": "fringe",
+   "meshes": [
+    "Hair_PartedTwoBlock_LOD0",
+    "Hair_PartedTwoBlock_LOD1",
+    "Hair_PartedTwoBlock_LOD2"
+   ],
+   "name": "Hair_PartedTwoBlock",
+   "nape": "high",
+   "strand": "straight"
+  },
+  {
+   "colorPoint": null,
+   "fade": false,
+   "family": "medium",
+   "group": "medium",
+   "hairline": "fringe",
+   "meshes": [
+    "Hair_CommaPerm_LOD0",
+    "Hair_CommaPerm_LOD1",
+    "Hair_CommaPerm_LOD2"
+   ],
+   "name": "Hair_CommaPerm",
+   "nape": "round",
+   "strand": "curl"
+  },
+  {
+   "colorPoint": null,
+   "fade": false,
+   "family": "long",
+   "group": "long",
+   "hairline": "round",
+   "meshes": [
+    "Hair_VolumeCurlyLong_LOD0",
+    "Hair_VolumeCurlyLong_LOD1",
+    "Hair_VolumeCurlyLong_LOD2"
+   ],
+   "name": "Hair_VolumeCurlyLong",
+   "nape": "neck",
+   "strand": "curl"
+  },
+  {
+   "colorPoint": null,
+   "fade": false,
+   "family": "short",
+   "group": "braid",
+   "hairline": "straight",
+   "meshes": [
+    "Hair_StraightCornrows_LOD0",
+    "Hair_StraightCornrows_LOD1",
+    "Hair_StraightCornrows_LOD2"
+   ],
+   "name": "Hair_StraightCornrows",
+   "nape": "square",
+   "strand": "braid"
+  },
+  {
+   "colorPoint": null,
+   "fade": false,
+   "family": "short",
+   "group": "braid",
+   "hairline": "peak",
+   "meshes": [
+    "Hair_ZigzagCornrows_LOD0",
+    "Hair_ZigzagCornrows_LOD1",
+    "Hair_ZigzagCornrows_LOD2"
+   ],
+   "name": "Hair_ZigzagCornrows",
+   "nape": "high",
+   "strand": "braid"
   }
  ],
  "handPoses": {
@@ -2203,39 +2482,39 @@
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 322,
-      "2": 105
+      "0": 1160,
+      "1": 330,
+      "2": 118
      }
     },
     "Hair_BoxBraids": {
      "cards": {
-      "0": 282,
+      "0": 194,
       "1": 0,
       "2": 0,
-      "closeup": 282
+      "closeup": 194
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1302,
-      "1": 390,
-      "2": 134
+      "0": 1318,
+      "1": 382,
+      "2": 138
      }
     },
     "Hair_Bun": {
      "cards": {
-      "0": 360,
+      "0": 246,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 246
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 349,
-      "2": 120
+      "0": 1222,
+      "1": 429,
+      "2": 152
      }
     },
     "Hair_Buzz": {
@@ -2248,9 +2527,9 @@
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 355,
-      "2": 113
+      "0": 1152,
+      "1": 370,
+      "2": 119
      }
     },
     "Hair_BuzzLine": {
@@ -2263,249 +2542,279 @@
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 347,
+      "0": 1152,
+      "1": 364,
       "2": 119
+     }
+    },
+    "Hair_CommaPerm": {
+     "cards": {
+      "0": 384,
+      "1": 0,
+      "2": 0,
+      "closeup": 384
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1252,
+      "1": 338,
+      "2": 118
      }
     },
     "Hair_Cornrows": {
      "cards": {
-      "0": 360,
+      "0": 328,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 328
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 348,
-      "2": 118
+      "0": 1060,
+      "1": 342,
+      "2": 116
      }
     },
     "Hair_Crew": {
      "cards": {
-      "0": 360,
+      "0": 280,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 280
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 355,
-      "2": 120
+      "0": 972,
+      "1": 332,
+      "2": 110
      }
     },
     "Hair_Curly": {
      "cards": {
-      "0": 360,
+      "0": 246,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 246
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 327,
-      "2": 122
+      "0": 1150,
+      "1": 358,
+      "2": 134
      }
     },
     "Hair_CurlyTop": {
      "cards": {
-      "0": 352,
+      "0": 328,
       "1": 0,
       "2": 0,
-      "closeup": 352
+      "closeup": 328
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1160,
-      "1": 343,
-      "2": 118
+      "0": 1100,
+      "1": 315,
+      "2": 111
      }
     },
     "Hair_Curtains": {
      "cards": {
-      "0": 208,
+      "0": 222,
       "1": 0,
       "2": 0,
-      "closeup": 208
+      "closeup": 222
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1304,
+      "1": 371,
+      "2": 129
+     }
+    },
+    "Hair_Dreads": {
+     "cards": {
+      "0": 186,
+      "1": 0,
+      "2": 0,
+      "closeup": 186
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1270,
+      "1": 359,
+      "2": 130
+     }
+    },
+    "Hair_Fade": {
+     "cards": {
+      "0": 328,
+      "1": 0,
+      "2": 0,
+      "closeup": 328
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1092,
+      "1": 339,
+      "2": 114
+     }
+    },
+    "Hair_FrenchCrop": {
+     "cards": {
+      "0": 328,
+      "1": 0,
+      "2": 0,
+      "closeup": 328
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1128,
+      "1": 342,
+      "2": 118
+     }
+    },
+    "Hair_HalfUp": {
+     "cards": {
+      "0": 252,
+      "1": 0,
+      "2": 0,
+      "closeup": 252
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1184,
+      "1": 460,
+      "2": 167
+     }
+    },
+    "Hair_HighTop": {
+     "cards": {
+      "0": 328,
+      "1": 0,
+      "2": 0,
+      "closeup": 328
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1092,
+      "1": 328,
+      "2": 107
+     }
+    },
+    "Hair_IvyLeague": {
+     "cards": {
+      "0": 368,
+      "1": 0,
+      "2": 0,
+      "closeup": 368
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
       "0": 1116,
-      "1": 361,
-      "2": 121
-     }
-    },
-    "Hair_Dreads": {
-     "cards": {
-      "0": 280,
-      "1": 0,
-      "2": 0,
-      "closeup": 280
-     },
-     "closeup": 5480,
-     "ok": true,
-     "tris": {
-      "0": 1300,
-      "1": 386,
-      "2": 134
-     }
-    },
-    "Hair_Fade": {
-     "cards": {
-      "0": 352,
-      "1": 0,
-      "2": 0,
-      "closeup": 352
-     },
-     "closeup": 5480,
-     "ok": true,
-     "tris": {
-      "0": 1160,
-      "1": 343,
-      "2": 119
-     }
-    },
-    "Hair_FrenchCrop": {
-     "cards": {
-      "0": 352,
-      "1": 0,
-      "2": 0,
-      "closeup": 352
-     },
-     "closeup": 5480,
-     "ok": true,
-     "tris": {
-      "0": 1160,
-      "1": 349,
+      "1": 372,
       "2": 123
-     }
-    },
-    "Hair_HalfUp": {
-     "cards": {
-      "0": 208,
-      "1": 0,
-      "2": 0,
-      "closeup": 208
-     },
-     "closeup": 5480,
-     "ok": true,
-     "tris": {
-      "0": 1308,
-      "1": 438,
-      "2": 151
-     }
-    },
-    "Hair_HighTop": {
-     "cards": {
-      "0": 352,
-      "1": 0,
-      "2": 0,
-      "closeup": 352
-     },
-     "closeup": 5480,
-     "ok": true,
-     "tris": {
-      "0": 1160,
-      "1": 329,
-      "2": 108
-     }
-    },
-    "Hair_IvyLeague": {
-     "cards": {
-      "0": 360,
-      "1": 0,
-      "2": 0,
-      "closeup": 360
-     },
-     "closeup": 5480,
-     "ok": true,
-     "tris": {
-      "0": 1168,
-      "1": 345,
-      "2": 122
      }
     },
     "Hair_Long": {
      "cards": {
-      "0": 280,
+      "0": 204,
       "1": 0,
       "2": 0,
-      "closeup": 280
+      "closeup": 204
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1300,
-      "1": 395,
-      "2": 137
+      "0": 1318,
+      "1": 382,
+      "2": 136
      }
     },
     "Hair_MediumWave": {
      "cards": {
-      "0": 218,
+      "0": 266,
       "1": 0,
       "2": 0,
-      "closeup": 218
+      "closeup": 266
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1126,
-      "1": 354,
-      "2": 118
+      "0": 1270,
+      "1": 375,
+      "2": 138
      }
     },
     "Hair_Mohawk": {
      "cards": {
-      "0": 356,
+      "0": 328,
       "1": 0,
       "2": 0,
-      "closeup": 356
+      "closeup": 328
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1164,
-      "1": 332,
-      "2": 108
+      "0": 1092,
+      "1": 327,
+      "2": 112
+     }
+    },
+    "Hair_PartedTwoBlock": {
+     "cards": {
+      "0": 320,
+      "1": 0,
+      "2": 0,
+      "closeup": 320
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1104,
+      "1": 316,
+      "2": 114
      }
     },
     "Hair_Ponytail": {
      "cards": {
-      "0": 360,
+      "0": 246,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 246
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1320,
-      "1": 418,
-      "2": 146
+      "0": 1294,
+      "1": 459,
+      "2": 166
      }
     },
     "Hair_Quiff": {
      "cards": {
-      "0": 352,
+      "0": 328,
       "1": 0,
       "2": 0,
-      "closeup": 352
+      "closeup": 328
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1160,
-      "1": 338,
-      "2": 122
+      "0": 1092,
+      "1": 345,
+      "2": 112
      }
     },
     "Hair_Short": {
@@ -2518,57 +2827,57 @@
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
+      "0": 1160,
       "1": 354,
-      "2": 119
+      "2": 122
      }
     },
     "Hair_SidePart": {
      "cards": {
-      "0": 360,
+      "0": 220,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 220
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 342,
-      "2": 119
+      "0": 1104,
+      "1": 374,
+      "2": 129
      }
     },
     "Hair_SlickBack": {
      "cards": {
-      "0": 360,
+      "0": 368,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 368
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 341,
-      "2": 116
+      "0": 1116,
+      "1": 350,
+      "2": 120
      }
     },
     "Hair_Spiky": {
      "cards": {
-      "0": 352,
+      "0": 336,
       "1": 0,
       "2": 0,
-      "closeup": 352
+      "closeup": 336
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1160,
-      "1": 342,
-      "2": 119
+      "0": 1028,
+      "1": 354,
+      "2": 123
      }
     },
-    "Hair_TexturedCrop": {
+    "Hair_StraightCornrows": {
      "cards": {
       "0": 360,
       "1": 0,
@@ -2578,24 +2887,39 @@
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 350,
+      "0": 1224,
+      "1": 416,
+      "2": 173
+     }
+    },
+    "Hair_TexturedCrop": {
+     "cards": {
+      "0": 328,
+      "1": 0,
+      "2": 0,
+      "closeup": 328
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1164,
+      "1": 339,
       "2": 118
      }
     },
     "Hair_TopKnot": {
      "cards": {
-      "0": 348,
+      "0": 328,
       "1": 0,
       "2": 0,
-      "closeup": 348
+      "closeup": 328
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1236,
-      "1": 382,
-      "2": 132
+      "0": 1172,
+      "1": 379,
+      "2": 130
      }
     },
     "Hair_Twists": {
@@ -2608,24 +2932,54 @@
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1168,
-      "1": 323,
+      "0": 1160,
+      "1": 330,
       "2": 118
      }
     },
     "Hair_Undercut": {
      "cards": {
-      "0": 348,
+      "0": 328,
       "1": 0,
       "2": 0,
-      "closeup": 348
+      "closeup": 328
      },
      "closeup": 5480,
      "ok": true,
      "tris": {
-      "0": 1156,
-      "1": 342,
-      "2": 118
+      "0": 1092,
+      "1": 339,
+      "2": 112
+     }
+    },
+    "Hair_VolumeCurlyLong": {
+     "cards": {
+      "0": 210,
+      "1": 0,
+      "2": 0,
+      "closeup": 210
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1290,
+      "1": 363,
+      "2": 135
+     }
+    },
+    "Hair_ZigzagCornrows": {
+     "cards": {
+      "0": 344,
+      "1": 0,
+      "2": 0,
+      "closeup": 344
+     },
+     "closeup": 5480,
+     "ok": true,
+     "tris": {
+      "0": 1096,
+      "1": 354,
+      "2": 123
      }
     }
    },
@@ -2636,27 +2990,27 @@
    "lods": {
     "0": {
      "body": 8469,
-     "hairMax": 1320,
+     "hairMax": 1318,
      "headTriangles": 2942,
      "materials": 2,
      "ok": true,
-     "triangles": 9789
+     "triangles": 9787
     },
     "1": {
      "body": 2482,
-     "hairMax": 438,
+     "hairMax": 460,
      "headTriangles": 788,
      "materials": 2,
      "ok": true,
-     "triangles": 2920
+     "triangles": 2942
     },
     "2": {
      "body": 736,
-     "hairMax": 151,
+     "hairMax": 173,
      "headTriangles": 210,
      "materials": 2,
      "ok": true,
-     "triangles": 887
+     "triangles": 909
     }
    },
    "ok": true,
@@ -2783,6 +3137,12 @@
      "intersections": {},
      "ok": true
     },
+    "hair_Hair_CommaPerm": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
     "hair_Hair_Cornrows": {
      "allMin": 0.0,
      "footMin": 0.0,
@@ -2867,6 +3227,12 @@
      "intersections": {},
      "ok": true
     },
+    "hair_Hair_PartedTwoBlock": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
     "hair_Hair_Ponytail": {
      "allMin": 0.0,
      "footMin": 0.0,
@@ -2903,6 +3269,12 @@
      "intersections": {},
      "ok": true
     },
+    "hair_Hair_StraightCornrows": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
     "hair_Hair_TexturedCrop": {
      "allMin": 0.0,
      "footMin": 0.0,
@@ -2922,6 +3294,18 @@
      "ok": true
     },
     "hair_Hair_Undercut": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "hair_Hair_VolumeCurlyLong": {
+     "allMin": 0.0,
+     "footMin": 0.0,
+     "intersections": {},
+     "ok": true
+    },
+    "hair_Hair_ZigzagCornrows": {
      "allMin": 0.0,
      "footMin": 0.0,
      "intersections": {},
@@ -2968,6 +3352,415 @@
   "ground": {
    "bad": {},
    "ok": true
+  },
+  "hair062": {
+   "anisotropy": 2.957,
+   "colorPoint": {
+    "Hair_BoxBraids": {
+     "a": 0.6398,
+     "b": 0.352,
+     "mixed": 0.0083
+    },
+    "Hair_CurlyTop": {
+     "a": 0.6763,
+     "b": 0.3121,
+     "mixed": 0.0116
+    },
+    "Hair_Fade": {
+     "a": 0.6901,
+     "b": 0.2982,
+     "mixed": 0.0117
+    },
+    "Hair_Mohawk": {
+     "a": 0.886,
+     "b": 0.114,
+     "mixed": 0.0
+    },
+    "Hair_PartedTwoBlock": {
+     "a": 0.5184,
+     "b": 0.4533,
+     "mixed": 0.0283
+    },
+    "Hair_Undercut": {
+     "a": 0.6901,
+     "b": 0.2982,
+     "mixed": 0.0117
+    }
+   },
+   "fade": {
+    "Hair_CurlyTop": [
+     0.0794,
+     0.3044,
+     0.6617,
+     0.9763,
+     0.9941
+    ],
+    "Hair_Fade": [
+     0.0663,
+     0.276,
+     0.6192,
+     0.9551,
+     1.0
+    ],
+    "Hair_Mohawk": [
+     0.04,
+     0.04,
+     0.04,
+     0.04,
+     0.04
+    ],
+    "Hair_PartedTwoBlock": [
+     0.06,
+     0.06,
+     0.4594,
+     1.0,
+     1.0
+    ],
+    "Hair_Undercut": [
+     0.06,
+     0.06,
+     0.06,
+     0.06,
+     1.0
+    ]
+   },
+   "info": {
+    "Hair_Afro": {
+     "group": "curly",
+     "strand": "coil"
+    },
+    "Hair_Bald": {
+     "group": "bald",
+     "strand": null
+    },
+    "Hair_BoxBraids": {
+     "group": "braid",
+     "strand": "braid"
+    },
+    "Hair_Bun": {
+     "group": "braid",
+     "strand": "straight"
+    },
+    "Hair_Buzz": {
+     "group": "short",
+     "strand": "straight"
+    },
+    "Hair_BuzzLine": {
+     "group": "short",
+     "strand": "straight"
+    },
+    "Hair_CommaPerm": {
+     "group": "medium",
+     "strand": "curl"
+    },
+    "Hair_Cornrows": {
+     "group": "braid",
+     "strand": "braid"
+    },
+    "Hair_Crew": {
+     "group": "short",
+     "strand": "straight"
+    },
+    "Hair_Curly": {
+     "group": "curly",
+     "strand": "curl"
+    },
+    "Hair_CurlyTop": {
+     "group": "curly",
+     "strand": "coil"
+    },
+    "Hair_Curtains": {
+     "group": "medium",
+     "strand": "straight"
+    },
+    "Hair_Dreads": {
+     "group": "braid",
+     "strand": "dread"
+    },
+    "Hair_Fade": {
+     "group": "fade",
+     "strand": "straight"
+    },
+    "Hair_FrenchCrop": {
+     "group": "short",
+     "strand": "straight"
+    },
+    "Hair_HalfUp": {
+     "group": "long",
+     "strand": "straight"
+    },
+    "Hair_HighTop": {
+     "group": "curly",
+     "strand": "coil"
+    },
+    "Hair_IvyLeague": {
+     "group": "short",
+     "strand": "straight"
+    },
+    "Hair_Long": {
+     "group": "long",
+     "strand": "straight"
+    },
+    "Hair_MediumWave": {
+     "group": "medium",
+     "strand": "curl"
+    },
+    "Hair_Mohawk": {
+     "group": "fade",
+     "strand": "straight"
+    },
+    "Hair_PartedTwoBlock": {
+     "group": "fade",
+     "strand": "straight"
+    },
+    "Hair_Ponytail": {
+     "group": "braid",
+     "strand": "straight"
+    },
+    "Hair_Quiff": {
+     "group": "medium",
+     "strand": "straight"
+    },
+    "Hair_Short": {
+     "group": "short",
+     "strand": "straight"
+    },
+    "Hair_SidePart": {
+     "group": "short",
+     "strand": "straight"
+    },
+    "Hair_SlickBack": {
+     "group": "medium",
+     "strand": "straight"
+    },
+    "Hair_Spiky": {
+     "group": "short",
+     "strand": "straight"
+    },
+    "Hair_StraightCornrows": {
+     "group": "braid",
+     "strand": "braid"
+    },
+    "Hair_TexturedCrop": {
+     "group": "short",
+     "strand": "straight"
+    },
+    "Hair_TopKnot": {
+     "group": "braid",
+     "strand": "straight"
+    },
+    "Hair_Twists": {
+     "group": "curly",
+     "strand": "dread"
+    },
+    "Hair_Undercut": {
+     "group": "fade",
+     "strand": "straight"
+    },
+    "Hair_VolumeCurlyLong": {
+     "group": "long",
+     "strand": "curl"
+    },
+    "Hair_ZigzagCornrows": {
+     "group": "braid",
+     "strand": "braid"
+    }
+   },
+   "ok": true,
+   "shape": {
+    "Hair_Afro": {
+     "side": 0.3656,
+     "volume": 0.2548
+    },
+    "Hair_Bald": {
+     "side": 0.0,
+     "volume": 0.0
+    },
+    "Hair_BoxBraids": {
+     "side": 0.0859,
+     "volume": 0.0747
+    },
+    "Hair_Bun": {
+     "side": 0.0232,
+     "volume": 0.0286
+    },
+    "Hair_Buzz": {
+     "side": 0.0115,
+     "volume": 0.0123
+    },
+    "Hair_BuzzLine": {
+     "side": 0.0115,
+     "volume": 0.0123
+    },
+    "Hair_CommaPerm": {
+     "side": 0.0655,
+     "volume": 0.0879
+    },
+    "Hair_Cornrows": {
+     "side": 0.0204,
+     "volume": 0.0274
+    },
+    "Hair_Crew": {
+     "side": 0.0115,
+     "volume": 0.0483
+    },
+    "Hair_Curly": {
+     "side": 0.1437,
+     "volume": 0.1065
+    },
+    "Hair_CurlyTop": {
+     "side": 0.1108,
+     "volume": 0.1063
+    },
+    "Hair_Curtains": {
+     "side": 0.071,
+     "volume": 0.0517
+    },
+    "Hair_Dreads": {
+     "side": 0.1251,
+     "volume": 0.0953
+    },
+    "Hair_Fade": {
+     "side": 0.0196,
+     "volume": 0.0439
+    },
+    "Hair_FrenchCrop": {
+     "side": 0.0115,
+     "volume": 0.0308
+    },
+    "Hair_HalfUp": {
+     "side": 0.0612,
+     "volume": 0.0507
+    },
+    "Hair_HighTop": {
+     "side": 0.0115,
+     "volume": 0.3164
+    },
+    "Hair_IvyLeague": {
+     "side": 0.0115,
+     "volume": 0.0308
+    },
+    "Hair_Long": {
+     "side": 0.0676,
+     "volume": 0.0603
+    },
+    "Hair_MediumWave": {
+     "side": 0.1147,
+     "volume": 0.0906
+    },
+    "Hair_Mohawk": {
+     "side": 0.0115,
+     "volume": 0.2549
+    },
+    "Hair_PartedTwoBlock": {
+     "side": 0.0329,
+     "volume": 0.0505
+    },
+    "Hair_Ponytail": {
+     "side": 0.0236,
+     "volume": 0.0308
+    },
+    "Hair_Quiff": {
+     "side": 0.0126,
+     "volume": 0.1466
+    },
+    "Hair_Short": {
+     "side": 0.0143,
+     "volume": 0.0396
+    },
+    "Hair_SidePart": {
+     "side": 0.0178,
+     "volume": 0.0521
+    },
+    "Hair_SlickBack": {
+     "side": 0.0543,
+     "volume": 0.0527
+    },
+    "Hair_Spiky": {
+     "side": 0.0126,
+     "volume": 0.0355
+    },
+    "Hair_StraightCornrows": {
+     "side": 0.0147,
+     "volume": 0.0169
+    },
+    "Hair_TexturedCrop": {
+     "side": 0.0115,
+     "volume": 0.0396
+    },
+    "Hair_TopKnot": {
+     "side": 0.0115,
+     "volume": 0.0308
+    },
+    "Hair_Twists": {
+     "side": 0.1062,
+     "volume": 0.0904
+    },
+    "Hair_Undercut": {
+     "side": 0.0262,
+     "volume": 0.0521
+    },
+    "Hair_VolumeCurlyLong": {
+     "side": 0.2471,
+     "volume": 0.1669
+    },
+    "Hair_ZigzagCornrows": {
+     "side": 0.0115,
+     "volume": 0.0169
+    }
+   },
+   "silhouette": {
+    "excluded": [
+     [
+      "Hair_Buzz",
+      "Hair_BuzzLine"
+     ]
+    ],
+    "minPair": 0.1004,
+    "pair": [
+     "Hair_SlickBack",
+     "Hair_HalfUp"
+    ],
+    "pairsBelow": []
+   },
+   "strandHf": 0.12481,
+   "styles": [
+    "Hair_Buzz",
+    "Hair_Short",
+    "Hair_Long",
+    "Hair_Curly",
+    "Hair_Bun",
+    "Hair_Fade",
+    "Hair_Afro",
+    "Hair_Mohawk",
+    "Hair_Dreads",
+    "Hair_Bald",
+    "Hair_Crew",
+    "Hair_SidePart",
+    "Hair_Undercut",
+    "Hair_SlickBack",
+    "Hair_Quiff",
+    "Hair_Curtains",
+    "Hair_TexturedCrop",
+    "Hair_BuzzLine",
+    "Hair_HighTop",
+    "Hair_Cornrows",
+    "Hair_Twists",
+    "Hair_TopKnot",
+    "Hair_Ponytail",
+    "Hair_MediumWave",
+    "Hair_FrenchCrop",
+    "Hair_IvyLeague",
+    "Hair_Spiky",
+    "Hair_CurlyTop",
+    "Hair_BoxBraids",
+    "Hair_HalfUp",
+    "Hair_PartedTwoBlock",
+    "Hair_CommaPerm",
+    "Hair_VolumeCurlyLong",
+    "Hair_StraightCornrows",
+    "Hair_ZigzagCornrows"
+   ]
   },
   "hands": {
    "fingerBones": 30,
@@ -3279,8 +4072,8 @@
    "creaseFolds": 28554,
    "flipped": 0,
    "hairBody": 0,
-   "hairPoses": 17864,
-   "hairStyles": 29,
+   "hairPoses": 20944,
+   "hairStyles": 34,
    "hairWorst": {},
    "ok": true,
    "overlapPairs": {},
@@ -3343,1070 +4136,10 @@
    "ok": true
   },
   "visual062": {
-   "hair": {
-    "minPair": [
-     "Hair_Buzz",
-     "Hair_BuzzLine"
-    ],
-    "minPairSilhouette": 0.0,
-    "pairsBelow008": [
-     [
-      "Hair_Buzz",
-      "Hair_Short",
-      0.0672
-     ],
-     [
-      "Hair_Buzz",
-      "Hair_Bun",
-      0.0409
-     ],
-     [
-      "Hair_Buzz",
-      "Hair_Bald",
-      0.0239
-     ],
-     [
-      "Hair_Buzz",
-      "Hair_Crew",
-      0.0418
-     ],
-     [
-      "Hair_Buzz",
-      "Hair_SidePart",
-      0.0789
-     ],
-     [
-      "Hair_Buzz",
-      "Hair_TexturedCrop",
-      0.0593
-     ],
-     [
-      "Hair_Buzz",
-      "Hair_BuzzLine",
-      0.0
-     ],
-     [
-      "Hair_Buzz",
-      "Hair_Cornrows",
-      0.0104
-     ],
-     [
-      "Hair_Buzz",
-      "Hair_FrenchCrop",
-      0.0592
-     ],
-     [
-      "Hair_Buzz",
-      "Hair_IvyLeague",
-      0.0726
-     ],
-     [
-      "Hair_Short",
-      "Hair_Long",
-      0.0786
-     ],
-     [
-      "Hair_Short",
-      "Hair_Bun",
-      0.0376
-     ],
-     [
-      "Hair_Short",
-      "Hair_Fade",
-      0.0422
-     ],
-     [
-      "Hair_Short",
-      "Hair_Crew",
-      0.0265
-     ],
-     [
-      "Hair_Short",
-      "Hair_SidePart",
-      0.0207
-     ],
-     [
-      "Hair_Short",
-      "Hair_Undercut",
-      0.0582
-     ],
-     [
-      "Hair_Short",
-      "Hair_SlickBack",
-      0.0624
-     ],
-     [
-      "Hair_Short",
-      "Hair_Quiff",
-      0.0487
-     ],
-     [
-      "Hair_Short",
-      "Hair_Curtains",
-      0.0597
-     ],
-     [
-      "Hair_Short",
-      "Hair_TexturedCrop",
-      0.0132
-     ],
-     [
-      "Hair_Short",
-      "Hair_BuzzLine",
-      0.0672
-     ],
-     [
-      "Hair_Short",
-      "Hair_Cornrows",
-      0.0583
-     ],
-     [
-      "Hair_Short",
-      "Hair_Twists",
-      0.0547
-     ],
-     [
-      "Hair_Short",
-      "Hair_TopKnot",
-      0.0695
-     ],
-     [
-      "Hair_Short",
-      "Hair_FrenchCrop",
-      0.0152
-     ],
-     [
-      "Hair_Short",
-      "Hair_IvyLeague",
-      0.0134
-     ],
-     [
-      "Hair_Short",
-      "Hair_Spiky",
-      0.0347
-     ],
-     [
-      "Hair_Short",
-      "Hair_HalfUp",
-      0.0599
-     ],
-     [
-      "Hair_Long",
-      "Hair_Curly",
-      0.0521
-     ],
-     [
-      "Hair_Long",
-      "Hair_Fade",
-      0.0429
-     ],
-     [
-      "Hair_Long",
-      "Hair_Dreads",
-      0.0379
-     ],
-     [
-      "Hair_Long",
-      "Hair_SidePart",
-      0.067
-     ],
-     [
-      "Hair_Long",
-      "Hair_SlickBack",
-      0.0308
-     ],
-     [
-      "Hair_Long",
-      "Hair_Quiff",
-      0.0632
-     ],
-     [
-      "Hair_Long",
-      "Hair_Curtains",
-      0.0294
-     ],
-     [
-      "Hair_Long",
-      "Hair_Twists",
-      0.0309
-     ],
-     [
-      "Hair_Long",
-      "Hair_MediumWave",
-      0.0231
-     ],
-     [
-      "Hair_Long",
-      "Hair_IvyLeague",
-      0.0733
-     ],
-     [
-      "Hair_Long",
-      "Hair_BoxBraids",
-      0.0319
-     ],
-     [
-      "Hair_Long",
-      "Hair_HalfUp",
-      0.0297
-     ],
-     [
-      "Hair_Curly",
-      "Hair_Dreads",
-      0.0217
-     ],
-     [
-      "Hair_Curly",
-      "Hair_SlickBack",
-      0.0652
-     ],
-     [
-      "Hair_Curly",
-      "Hair_Curtains",
-      0.0736
-     ],
-     [
-      "Hair_Curly",
-      "Hair_Twists",
-      0.0728
-     ],
-     [
-      "Hair_Curly",
-      "Hair_MediumWave",
-      0.0393
-     ],
-     [
-      "Hair_Curly",
-      "Hair_BoxBraids",
-      0.0441
-     ],
-     [
-      "Hair_Curly",
-      "Hair_HalfUp",
-      0.0721
-     ],
-     [
-      "Hair_Bun",
-      "Hair_Fade",
-      0.0746
-     ],
-     [
-      "Hair_Bun",
-      "Hair_Bald",
-      0.0638
-     ],
-     [
-      "Hair_Bun",
-      "Hair_Crew",
-      0.0168
-     ],
-     [
-      "Hair_Bun",
-      "Hair_SidePart",
-      0.0446
-     ],
-     [
-      "Hair_Bun",
-      "Hair_Undercut",
-      0.0793
-     ],
-     [
-      "Hair_Bun",
-      "Hair_TexturedCrop",
-      0.0306
-     ],
-     [
-      "Hair_Bun",
-      "Hair_BuzzLine",
-      0.0409
-     ],
-     [
-      "Hair_Bun",
-      "Hair_Cornrows",
-      0.0309
-     ],
-     [
-      "Hair_Bun",
-      "Hair_FrenchCrop",
-      0.0305
-     ],
-     [
-      "Hair_Bun",
-      "Hair_IvyLeague",
-      0.0394
-     ],
-     [
-      "Hair_Bun",
-      "Hair_Spiky",
-      0.0644
-     ],
-     [
-      "Hair_Fade",
-      "Hair_Dreads",
-      0.0775
-     ],
-     [
-      "Hair_Fade",
-      "Hair_Crew",
-      0.0677
-     ],
-     [
-      "Hair_Fade",
-      "Hair_SidePart",
-      0.0374
-     ],
-     [
-      "Hair_Fade",
-      "Hair_Undercut",
-      0.0715
-     ],
-     [
-      "Hair_Fade",
-      "Hair_SlickBack",
-      0.0285
-     ],
-     [
-      "Hair_Fade",
-      "Hair_Quiff",
-      0.0492
-     ],
-     [
-      "Hair_Fade",
-      "Hair_Curtains",
-      0.0303
-     ],
-     [
-      "Hair_Fade",
-      "Hair_TexturedCrop",
-      0.0497
-     ],
-     [
-      "Hair_Fade",
-      "Hair_Twists",
-      0.0331
-     ],
-     [
-      "Hair_Fade",
-      "Hair_MediumWave",
-      0.0544
-     ],
-     [
-      "Hair_Fade",
-      "Hair_FrenchCrop",
-      0.0495
-     ],
-     [
-      "Hair_Fade",
-      "Hair_IvyLeague",
-      0.0366
-     ],
-     [
-      "Hair_Fade",
-      "Hair_Spiky",
-      0.0456
-     ],
-     [
-      "Hair_Fade",
-      "Hair_CurlyTop",
-      0.0669
-     ],
-     [
-      "Hair_Fade",
-      "Hair_BoxBraids",
-      0.0603
-     ],
-     [
-      "Hair_Fade",
-      "Hair_HalfUp",
-      0.036
-     ],
-     [
-      "Hair_Mohawk",
-      "Hair_CurlyTop",
-      0.0736
-     ],
-     [
-      "Hair_Dreads",
-      "Hair_SlickBack",
-      0.0534
-     ],
-     [
-      "Hair_Dreads",
-      "Hair_Curtains",
-      0.0603
-     ],
-     [
-      "Hair_Dreads",
-      "Hair_Twists",
-      0.0606
-     ],
-     [
-      "Hair_Dreads",
-      "Hair_MediumWave",
-      0.0318
-     ],
-     [
-      "Hair_Dreads",
-      "Hair_BoxBraids",
-      0.0319
-     ],
-     [
-      "Hair_Dreads",
-      "Hair_HalfUp",
-      0.0576
-     ],
-     [
-      "Hair_Bald",
-      "Hair_Crew",
-      0.0648
-     ],
-     [
-      "Hair_Bald",
-      "Hair_BuzzLine",
-      0.0239
-     ],
-     [
-      "Hair_Bald",
-      "Hair_Cornrows",
-      0.034
-     ],
-     [
-      "Hair_Bald",
-      "Hair_FrenchCrop",
-      0.0779
-     ],
-     [
-      "Hair_Crew",
-      "Hair_SidePart",
-      0.0393
-     ],
-     [
-      "Hair_Crew",
-      "Hair_Undercut",
-      0.0704
-     ],
-     [
-      "Hair_Crew",
-      "Hair_Quiff",
-      0.0702
-     ],
-     [
-      "Hair_Crew",
-      "Hair_TexturedCrop",
-      0.0189
-     ],
-     [
-      "Hair_Crew",
-      "Hair_BuzzLine",
-      0.0418
-     ],
-     [
-      "Hair_Crew",
-      "Hair_Cornrows",
-      0.0355
-     ],
-     [
-      "Hair_Crew",
-      "Hair_Twists",
-      0.0798
-     ],
-     [
-      "Hair_Crew",
-      "Hair_TopKnot",
-      0.0673
-     ],
-     [
-      "Hair_Crew",
-      "Hair_Ponytail",
-      0.0744
-     ],
-     [
-      "Hair_Crew",
-      "Hair_FrenchCrop",
-      0.0193
-     ],
-     [
-      "Hair_Crew",
-      "Hair_IvyLeague",
-      0.0321
-     ],
-     [
-      "Hair_Crew",
-      "Hair_Spiky",
-      0.0553
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_Undercut",
-      0.0685
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_SlickBack",
-      0.0518
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_Quiff",
-      0.0513
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_Curtains",
-      0.049
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_TexturedCrop",
-      0.0264
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_BuzzLine",
-      0.0789
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_Cornrows",
-      0.0693
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_Twists",
-      0.0428
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_MediumWave",
-      0.0783
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_FrenchCrop",
-      0.0281
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_IvyLeague",
-      0.0194
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_Spiky",
-      0.0354
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_HalfUp",
-      0.0513
-     ],
-     [
-      "Hair_Undercut",
-      "Hair_SlickBack",
-      0.077
-     ],
-     [
-      "Hair_Undercut",
-      "Hair_Quiff",
-      0.0639
-     ],
-     [
-      "Hair_Undercut",
-      "Hair_TexturedCrop",
-      0.0658
-     ],
-     [
-      "Hair_Undercut",
-      "Hair_TopKnot",
-      0.0547
-     ],
-     [
-      "Hair_Undercut",
-      "Hair_FrenchCrop",
-      0.0657
-     ],
-     [
-      "Hair_Undercut",
-      "Hair_IvyLeague",
-      0.0708
-     ],
-     [
-      "Hair_Undercut",
-      "Hair_Spiky",
-      0.0419
-     ],
-     [
-      "Hair_Undercut",
-      "Hair_CurlyTop",
-      0.0439
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_Quiff",
-      0.0657
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_Curtains",
-      0.0317
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_TexturedCrop",
-      0.0703
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_Twists",
-      0.0344
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_MediumWave",
-      0.0361
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_FrenchCrop",
-      0.0743
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_IvyLeague",
-      0.057
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_Spiky",
-      0.0658
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_CurlyTop",
-      0.0644
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_BoxBraids",
-      0.0465
-     ],
-     [
-      "Hair_SlickBack",
-      "Hair_HalfUp",
-      0.0301
-     ],
-     [
-      "Hair_Quiff",
-      "Hair_Curtains",
-      0.0581
-     ],
-     [
-      "Hair_Quiff",
-      "Hair_TexturedCrop",
-      0.0594
-     ],
-     [
-      "Hair_Quiff",
-      "Hair_Twists",
-      0.0549
-     ],
-     [
-      "Hair_Quiff",
-      "Hair_TopKnot",
-      0.0752
-     ],
-     [
-      "Hair_Quiff",
-      "Hair_MediumWave",
-      0.0733
-     ],
-     [
-      "Hair_Quiff",
-      "Hair_FrenchCrop",
-      0.0541
-     ],
-     [
-      "Hair_Quiff",
-      "Hair_IvyLeague",
-      0.0515
-     ],
-     [
-      "Hair_Quiff",
-      "Hair_Spiky",
-      0.046
-     ],
-     [
-      "Hair_Quiff",
-      "Hair_CurlyTop",
-      0.054
-     ],
-     [
-      "Hair_Quiff",
-      "Hair_HalfUp",
-      0.072
-     ],
-     [
-      "Hair_Curtains",
-      "Hair_TexturedCrop",
-      0.0659
-     ],
-     [
-      "Hair_Curtains",
-      "Hair_Twists",
-      0.0143
-     ],
-     [
-      "Hair_Curtains",
-      "Hair_MediumWave",
-      0.0431
-     ],
-     [
-      "Hair_Curtains",
-      "Hair_FrenchCrop",
-      0.0698
-     ],
-     [
-      "Hair_Curtains",
-      "Hair_IvyLeague",
-      0.0524
-     ],
-     [
-      "Hair_Curtains",
-      "Hair_Spiky",
-      0.0678
-     ],
-     [
-      "Hair_Curtains",
-      "Hair_BoxBraids",
-      0.0427
-     ],
-     [
-      "Hair_Curtains",
-      "Hair_HalfUp",
-      0.0333
-     ],
-     [
-      "Hair_TexturedCrop",
-      "Hair_BuzzLine",
-      0.0593
-     ],
-     [
-      "Hair_TexturedCrop",
-      "Hair_Cornrows",
-      0.0502
-     ],
-     [
-      "Hair_TexturedCrop",
-      "Hair_Twists",
-      0.0627
-     ],
-     [
-      "Hair_TexturedCrop",
-      "Hair_TopKnot",
-      0.0722
-     ],
-     [
-      "Hair_TexturedCrop",
-      "Hair_Ponytail",
-      0.0733
-     ],
-     [
-      "Hair_TexturedCrop",
-      "Hair_FrenchCrop",
-      0.0088
-     ],
-     [
-      "Hair_TexturedCrop",
-      "Hair_IvyLeague",
-      0.0167
-     ],
-     [
-      "Hair_TexturedCrop",
-      "Hair_Spiky",
-      0.0389
-     ],
-     [
-      "Hair_TexturedCrop",
-      "Hair_HalfUp",
-      0.0681
-     ],
-     [
-      "Hair_BuzzLine",
-      "Hair_Cornrows",
-      0.0104
-     ],
-     [
-      "Hair_BuzzLine",
-      "Hair_FrenchCrop",
-      0.0592
-     ],
-     [
-      "Hair_BuzzLine",
-      "Hair_IvyLeague",
-      0.0726
-     ],
-     [
-      "Hair_HighTop",
-      "Hair_CurlyTop",
-      0.0744
-     ],
-     [
-      "Hair_Cornrows",
-      "Hair_TopKnot",
-      0.0793
-     ],
-     [
-      "Hair_Cornrows",
-      "Hair_FrenchCrop",
-      0.0506
-     ],
-     [
-      "Hair_Cornrows",
-      "Hair_IvyLeague",
-      0.063
-     ],
-     [
-      "Hair_Cornrows",
-      "Hair_Spiky",
-      0.0799
-     ],
-     [
-      "Hair_Twists",
-      "Hair_MediumWave",
-      0.0399
-     ],
-     [
-      "Hair_Twists",
-      "Hair_FrenchCrop",
-      0.0666
-     ],
-     [
-      "Hair_Twists",
-      "Hair_IvyLeague",
-      0.0492
-     ],
-     [
-      "Hair_Twists",
-      "Hair_Spiky",
-      0.064
-     ],
-     [
-      "Hair_Twists",
-      "Hair_BoxBraids",
-      0.043
-     ],
-     [
-      "Hair_Twists",
-      "Hair_HalfUp",
-      0.03
-     ],
-     [
-      "Hair_TopKnot",
-      "Hair_FrenchCrop",
-      0.072
-     ],
-     [
-      "Hair_TopKnot",
-      "Hair_Spiky",
-      0.0558
-     ],
-     [
-      "Hair_TopKnot",
-      "Hair_CurlyTop",
-      0.076
-     ],
-     [
-      "Hair_Ponytail",
-      "Hair_FrenchCrop",
-      0.0782
-     ],
-     [
-      "Hair_Ponytail",
-      "Hair_IvyLeague",
-      0.078
-     ],
-     [
-      "Hair_MediumWave",
-      "Hair_BoxBraids",
-      0.0286
-     ],
-     [
-      "Hair_MediumWave",
-      "Hair_HalfUp",
-      0.0431
-     ],
-     [
-      "Hair_FrenchCrop",
-      "Hair_IvyLeague",
-      0.019
-     ],
-     [
-      "Hair_FrenchCrop",
-      "Hair_Spiky",
-      0.0381
-     ],
-     [
-      "Hair_FrenchCrop",
-      "Hair_HalfUp",
-      0.0717
-     ],
-     [
-      "Hair_IvyLeague",
-      "Hair_Spiky",
-      0.0315
-     ],
-     [
-      "Hair_IvyLeague",
-      "Hair_HalfUp",
-      0.0588
-     ],
-     [
-      "Hair_Spiky",
-      "Hair_CurlyTop",
-      0.0566
-     ],
-     [
-      "Hair_Spiky",
-      "Hair_HalfUp",
-      0.0662
-     ],
-     [
-      "Hair_CurlyTop",
-      "Hair_HalfUp",
-      0.0797
-     ],
-     [
-      "Hair_BoxBraids",
-      "Hair_HalfUp",
-      0.04
-     ]
-    ],
-    "styles": {
-     "Hair_Afro": {
-      "side": 0.2439,
-      "volume": 0.2549
-     },
-     "Hair_Bald": {
-      "side": 0.0,
-      "volume": 0.0
-     },
-     "Hair_BoxBraids": {
-      "side": 0.1231,
-      "volume": 0.0858
-     },
-     "Hair_Bun": {
-      "side": 0.0298,
-      "volume": 0.0308
-     },
-     "Hair_Buzz": {
-      "side": 0.0101,
-      "volume": 0.0123
-     },
-     "Hair_BuzzLine": {
-      "side": 0.0101,
-      "volume": 0.0123
-     },
-     "Hair_Cornrows": {
-      "side": 0.0129,
-      "volume": 0.0164
-     },
-     "Hair_Crew": {
-      "side": 0.016,
-      "volume": 0.0505
-     },
-     "Hair_Curly": {
-      "side": 0.1256,
-      "volume": 0.1143
-     },
-     "Hair_CurlyTop": {
-      "side": 0.0074,
-      "volume": 0.1121
-     },
-     "Hair_Curtains": {
-      "side": 0.078,
-      "volume": 0.0736
-     },
-     "Hair_Dreads": {
-      "side": 0.1206,
-      "volume": 0.1174
-     },
-     "Hair_Fade": {
-      "side": 0.0539,
-      "volume": 0.0769
-     },
-     "Hair_FrenchCrop": {
-      "side": 0.0241,
-      "volume": 0.0637
-     },
-     "Hair_HalfUp": {
-      "side": 0.0711,
-      "volume": 0.0835
-     },
-     "Hair_HighTop": {
-      "side": 0.0056,
-      "volume": 0.3274
-     },
-     "Hair_IvyLeague": {
-      "side": 0.0329,
-      "volume": 0.0593
-     },
-     "Hair_Long": {
-      "side": 0.078,
-      "volume": 0.0967
-     },
-     "Hair_MediumWave": {
-      "side": 0.117,
-      "volume": 0.1045
-     },
-     "Hair_Mohawk": {
-      "side": 0.0045,
-      "volume": 0.2074
-     },
-     "Hair_Ponytail": {
-      "side": 0.0298,
-      "volume": 0.0483
-     },
-     "Hair_Quiff": {
-      "side": 0.0332,
-      "volume": 0.1736
-     },
-     "Hair_Short": {
-      "side": 0.0229,
-      "volume": 0.0703
-     },
-     "Hair_SidePart": {
-      "side": 0.0504,
-      "volume": 0.067
-     },
-     "Hair_SlickBack": {
-      "side": 0.0556,
-      "volume": 0.099
-     },
-     "Hair_Spiky": {
-      "side": 0.0146,
-      "volume": 0.0948
-     },
-     "Hair_TexturedCrop": {
-      "side": 0.0211,
-      "volume": 0.0527
-     },
-     "Hair_TopKnot": {
-      "side": 0.0045,
-      "volume": 0.1919
-     },
-     "Hair_Twists": {
-      "side": 0.0831,
-      "volume": 0.0747
-     },
-     "Hair_Undercut": {
-      "side": 0.0045,
-      "volume": 0.0932
-     }
-    }
-   },
+   "hair": "summary.hair062 (062 T22: 머리카락 영역 실루엣)",
    "hairTexture": {
-    "anisotropy": 6.041368,
-    "strandHf": 0.076131
+    "anisotropy": 2.9568,
+    "strandHf": 0.124808
    },
    "kit": {
     "clothBandVar": 0.002795,

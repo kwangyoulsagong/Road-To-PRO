@@ -41,6 +41,7 @@ namespace RoadToPro.Presentation.Players
             foreach (var m in parts) total += m.vertexCount;
             var verts = new Vector3[total];
             var uvs = new List<Vector2>(total);
+            var hairData = new List<Vector2>(total);   // 062: UV1 = (밀도, 컬러 포인트 마스크) — 헤어만, 몸은 (1, 0)
             var hide = new Vector3[total];
             var tris0 = new List<int>();
             var tris1 = new List<int>();
@@ -76,6 +77,10 @@ namespace RoadToPro.Presentation.Players
                 m.GetUVs(0, tmpUv);
                 if (tmpUv.Count != n) throw new InvalidOperationException(m.name + " UV 수가 정점 수와 다르다");
                 uvs.AddRange(tmpUv);
+                tmpUv.Clear();
+                if (m.HasVertexAttribute(UnityEngine.Rendering.VertexAttribute.TexCoord1)) m.GetUVs(1, tmpUv);
+                if (tmpUv.Count == n) hairData.AddRange(tmpUv);
+                else for (int i = 0; i < n; i++) hairData.Add(new Vector2(1f, 0f));
                 for (int sm = 0; sm < m.subMeshCount; sm++)
                 {
                     var t = m.GetTriangles(sm);
@@ -95,6 +100,7 @@ namespace RoadToPro.Presentation.Players
             mesh.indexFormat = total > 65535 ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
             mesh.vertices = verts;
             mesh.SetUVs(0, uvs);
+            mesh.SetUVs(1, hairData);
             mesh.subMeshCount = 2;
             mesh.SetTriangles(tris0, 0, false);
             mesh.SetTriangles(tris1, 1, false);

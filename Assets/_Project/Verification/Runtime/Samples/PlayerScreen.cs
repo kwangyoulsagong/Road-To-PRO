@@ -348,7 +348,7 @@ namespace RoadToPro.Verification.Samples
         Coroutine _flickCo;
 
         static PlayerAppearance WithHair(in PlayerAppearance a, int hs) =>
-            a.WithCombo(((a.SkinTone * AppearanceGenerator.Faces + a.Face) * AppearanceGenerator.HairStyles + hs) * AppearanceGenerator.HairColors + a.HairColor);
+            a.WithHair(hs, a.HairColor, AppearanceGenerator.ValidColorPoint(hs, a.HairColor, a.ColorPoint) ? a.ColorPoint : 0);
 
         void Override(int ent, int hs)
         {

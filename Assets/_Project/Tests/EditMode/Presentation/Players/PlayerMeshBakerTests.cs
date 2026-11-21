@@ -84,8 +84,8 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         public void HairStyle_AddsHairTriangles_BaldNone()
         {
             var a = AppearanceGenerator.Generate(new BodyInput(9));
-            var afro = a.WithCombo(((a.SkinTone * AppearanceGenerator.Faces + a.Face) * AppearanceGenerator.HairStyles + 6) * AppearanceGenerator.HairColors);
-            var bald = a.WithCombo(((a.SkinTone * AppearanceGenerator.Faces + a.Face) * AppearanceGenerator.HairStyles + 9) * AppearanceGenerator.HairColors);
+            var afro = a.WithHair(6, 0, 0);   // 062: 조합 번호에 컬러 포인트가 들어가 직접 계산하지 않는다
+            var bald = a.WithHair(9, 0, 0);
             var r1 = PlayerRigTests.NewRig();
             var r2 = PlayerRigTests.NewRig();
             try

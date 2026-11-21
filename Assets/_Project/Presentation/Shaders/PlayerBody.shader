@@ -7,6 +7,9 @@
 //       눈은 매끈한 정반사, 머리카락은 Kajiya-Kay 이방성 하이라이트(가닥 = UV v 방향). 시간 의존 항 없음.
 // 062 FR-02·12·32·33·91·97: 근육·손 구운 노멀(_MuscleN, 피부 UV)·차폐(_MuscleAO), 피부 두께(_ThicknessTex R: 귀·코끝·손가락 끝 역광 비침),
 //       땀(_ThicknessTex G 부위 거칠기 − 0.04 × _Sweat, 정반사 ≤ 1.3배), 젖음(_Wetness, 078 입력).
+// 062 FR-42·43·54: UV1(HairData, 헤어 메시만 — 몸은 (1, 0)) x = 밀도 → 카드 알파처럼 화면 디더 클립(페이드 아래는 피부가 비친다,
+//       모든 패스 같게), y = 컬러 포인트 마스크 → _HairColor(뿌리·옆) ↔ _HairColor2(위·끝). 결 계열 이방성: parts 거칠기(A, hairtex)가
+//       클수록(코일·브레이드·드레드) Kajiya-Kay 지수를 낮춰 하이라이트를 덜 날카롭게.
 Shader "RoadToPro/PlayerBody"
 {
     Properties
@@ -16,6 +19,7 @@ Shader "RoadToPro/PlayerBody"
         _PartsTex ("눈·머리카락", 2D) = "white" {}
         _SkinColor ("피부 톤", Color) = (0.80, 0.62, 0.50, 1)
         _HairColor ("머리카락 색", Color) = (0.15, 0.10, 0.07, 1)
+        _HairColor2 ("머리카락 위·끝 색 (컬러 포인트)", Color) = (0.15, 0.10, 0.07, 1)
         _EyeColor ("홍채 색", Color) = (0.30, 0.18, 0.10, 1)
         _BeardLevel ("수염 0~1", Range(0, 1)) = 0
         _NormalStrength ("노멀 세기", Range(0, 2)) = 0.6
@@ -43,6 +47,7 @@ Shader "RoadToPro/PlayerBody"
             float4 _SkinTex_ST;
             half4 _SkinColor;
             half4 _HairColor;
+            half4 _HairColor2;
             half4 _EyeColor;
             half _BeardLevel;
             half _NormalStrength;
@@ -64,9 +69,10 @@ Shader "RoadToPro/PlayerBody"
             return (m[p.y * 4u + p.x] + 0.5h) / 16.0h;
         }
 
-        void ClipCard(float2 uv, float4 positionCS)
+        // 062: 카드 알파 × 헤어 밀도(UV1.x, 몸·눈은 1) — 같은 화면 디더로 클립
+        void ClipCard(float2 uv, half density, float4 positionCS)
         {
-            clip(CardAlpha(uv) - Bayer4(positionCS.xy));
+            clip(CardAlpha(uv) * density - Bayer4(positionCS.xy));
         }
         ENDHLSL
 
@@ -89,6 +95,7 @@ Shader "RoadToPro/PlayerBody"
                 float3 normalOS : NORMAL;
                 float4 tangentOS : TANGENT;
                 float2 uv : TEXCOORD0;
+                float2 uv1 : TEXCOORD1;
             };
 
             struct V
@@ -99,6 +106,7 @@ Shader "RoadToPro/PlayerBody"
                 half4 tangentWS : TEXCOORD2;
                 float2 uv : TEXCOORD3;
                 half fog : TEXCOORD4;
+                half2 hd : TEXCOORD5;
             };
 
             V Vert(A i)
@@ -111,6 +119,7 @@ Shader "RoadToPro/PlayerBody"
                 o.normalWS = (half3)n.normalWS;
                 o.tangentWS = half4((half3)n.tangentWS, (half)(i.tangentOS.w * GetOddNegativeScale()));
                 o.uv = i.uv;
+                o.hd = (half2)i.uv1;
                 o.fog = (half)ComputeFogFactor(p.positionCS.z);
                 return o;
             }
@@ -134,7 +143,7 @@ Shader "RoadToPro/PlayerBody"
             #if defined(LOD_FADE_CROSSFADE)
                 LODFadeCrossFade(i.positionCS);
             #endif
-                ClipCard(i.uv, i.positionCS);
+                ClipCard(i.uv, i.hd.x, i.positionCS);
                 // 두 텍스처를 분기 없이 읽는다(암시적 미분이 정의되도록) — 043 키트 셰이더 교훈
                 half isPart = (half)step(1.0, i.uv.x);
                 half isCard = (half)step(2.0, i.uv.x);
@@ -185,10 +194,12 @@ Shader "RoadToPro/PlayerBody"
                 half iris = pt.g * (1.0h - hairM);
                 half3 eye = lerp(half3(0.88h, 0.86h, 0.83h) * pt.r, _EyeColor.rgb * (0.5h + pt.r), iris);
                 half3 cEye = eye * (lc * ndl + amb) + lc * 0.06h * Spec(nG, h, ndl, pt.a) + pt.r * step(0.97h, pt.r) * 0.35h;
-                half3 hairA = _HairColor.rgb * lerp(0.6h, 1.3h, pt.r) * lerp(1.0h, 0.7h, _Wetness);   // FR-97 젖은 머리는 어둡다
+                half3 hairBase = lerp(_HairColor.rgb, _HairColor2.rgb, smoothstep(0.3h, 0.7h, i.hd.y));   // 062 FR-54 두 색
+                half3 hairA = hairBase * lerp(0.6h, 1.3h, pt.r) * lerp(1.0h, 0.7h, _Wetness);   // FR-97 젖은 머리는 어둡다
                 half3 strand = normalize(b + nG * (pt.g - 0.5h) * 0.4h); // 가닥 방향 = UV v(바이탄젠트), 결 위상으로 흔든다
                 half th = dot(strand, h);
-                half kk = pow(saturate(sqrt(saturate(1.0h - th * th))), 60.0h) * ndl;
+                half curl = saturate((pt.a - 0.40h) / 0.12h);   // 062 FR-43: 직모 0 → 코일·브레이드·드레드 1 (hairtex 거칠기)
+                half kk = pow(saturate(sqrt(saturate(1.0h - th * th))), lerp(60.0h, 18.0h, curl)) * ndl * lerp(1.0h, 0.6h, curl);
                 half3 cHair = hairA * (lc * (ndl * 0.8h + 0.2h) + amb) + lc * (0.10h + 0.5h * hairA) * kk;
                 half3 cPart = lerp(cEye, cHair, hairM);
 
@@ -199,19 +210,30 @@ Shader "RoadToPro/PlayerBody"
         }
 
         HLSLINCLUDE
-        struct DA { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; };
-        struct DV { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+        struct DA { float4 positionOS : POSITION; float3 normalOS : NORMAL; float2 uv : TEXCOORD0; float2 uv1 : TEXCOORD1; };
+        struct DV { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; half density : TEXCOORD1; };
+        struct DNV { float4 positionCS : SV_POSITION; half3 normalWS : TEXCOORD0; float2 uv : TEXCOORD1; half density : TEXCOORD2; };
 
         DV BodyShadowVert(DA i)
         {
             PlayerAttributes a;
             a.positionOS = i.positionOS; a.normalOS = i.normalOS; a.uv = i.uv;
-            DV o; o.positionCS = PlayerShadowVert(a); o.uv = i.uv; return o;
+            DV o; o.positionCS = PlayerShadowVert(a); o.uv = i.uv; o.density = (half)i.uv1.x; return o;
         }
 
         DV BodyDepthVert(DA i)
         {
-            DV o; o.positionCS = TransformObjectToHClip(i.positionOS.xyz); o.uv = i.uv; return o;
+            DV o; o.positionCS = TransformObjectToHClip(i.positionOS.xyz); o.uv = i.uv; o.density = (half)i.uv1.x; return o;
+        }
+
+        DNV BodyDepthNormalsVert(DA i)
+        {
+            DNV o;
+            o.positionCS = TransformObjectToHClip(i.positionOS.xyz);
+            o.normalWS = (half3)TransformObjectToWorldNormal(i.normalOS);
+            o.uv = i.uv;
+            o.density = (half)i.uv1.x;
+            return o;
         }
 
         half BodyDepthFrag(DV i) : SV_Target
@@ -219,7 +241,7 @@ Shader "RoadToPro/PlayerBody"
         #if defined(LOD_FADE_CROSSFADE)
             LODFadeCrossFade(i.positionCS);
         #endif
-            ClipCard(i.uv, i.positionCS);
+            ClipCard(i.uv, i.density, i.positionCS);
             return 0;
         }
         ENDHLSL
@@ -252,15 +274,15 @@ Shader "RoadToPro/PlayerBody"
             Name "DepthNormals"
             Tags { "LightMode" = "DepthNormals" }
             HLSLPROGRAM
-            #pragma vertex PlayerDepthNormalsVert
+            #pragma vertex BodyDepthNormalsVert
             #pragma fragment BodyNormalsFrag
             #pragma multi_compile _ LOD_FADE_CROSSFADE
-            half4 BodyNormalsFrag(PlayerNormalVaryings i) : SV_Target
+            half4 BodyNormalsFrag(DNV i) : SV_Target
             {
             #if defined(LOD_FADE_CROSSFADE)
                 LODFadeCrossFade(i.positionCS);
             #endif
-                ClipCard(i.uv, i.positionCS);
+                ClipCard(i.uv, i.density, i.positionCS);
                 return half4(NormalizeNormalPerPixel(i.normalWS), 0);
             }
             ENDHLSL

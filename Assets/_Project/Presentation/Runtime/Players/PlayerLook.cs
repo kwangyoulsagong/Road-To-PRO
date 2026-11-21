@@ -15,13 +15,21 @@ namespace RoadToPro.Presentation.Players
             new Color32(170, 118, 82, 255), new Color32(140, 92, 62, 255), new Color32(110, 70, 46, 255), new Color32(80, 52, 36, 255),
         };
 
+        /// <summary>헤어 색 (AppearanceGenerator.HairColors 순서): 검정 · 진갈색 · 갈색 · 금발 · 적갈색 · 회색 + 062 FR-53 탈색 금발 · 백금.</summary>
         public static readonly Color[] HairColors =
         {
             new Color32(25, 20, 18, 255), new Color32(70, 45, 28, 255), new Color32(120, 80, 45, 255),
             new Color32(200, 160, 90, 255), new Color32(150, 60, 30, 255), new Color32(170, 170, 165, 255),
+            new Color32(226, 196, 128, 255), new Color32(236, 232, 218, 255),
         };
 
-        /// <summary>헤어 스타일 0~29 → 메시 조각 이름 접두(생성기 hair.STYLE_TABLE, specs/057 FR-30). 0~9는 056 순서, 9 = 삭발(형상 없음 → null).
+        /// <summary>062 FR-54 컬러 포인트 가상 팔레트 (PlayerAppearance.ColorPoint 1~3): 백금 · 애시 · 붉은 계열.</summary>
+        public static readonly Color[] ColorPointColors =
+        {
+            new Color32(232, 228, 212, 255), new Color32(168, 172, 176, 255), new Color32(168, 48, 40, 255),
+        };
+
+        /// <summary>헤어 스타일 0~34 → 메시 조각 이름 접두(생성기 hair.STYLE_SPEC, specs/057 FR-30 + 062 FR-52). 0~9는 056 순서, 9 = 삭발(형상 없음 → null), 30~34 = 062 신규.
         /// LOD는 "_LOD0..2". 순서는 AppearanceGenerator 가중치·계열 표와 같다.</summary>
         public static readonly string[] HairMeshes =
         {
@@ -29,6 +37,7 @@ namespace RoadToPro.Presentation.Players
             "Hair_Crew", "Hair_SidePart", "Hair_Undercut", "Hair_SlickBack", "Hair_Quiff", "Hair_Curtains", "Hair_TexturedCrop",
             "Hair_BuzzLine", "Hair_HighTop", "Hair_Cornrows", "Hair_Twists", "Hair_TopKnot", "Hair_Ponytail", "Hair_MediumWave",
             "Hair_FrenchCrop", "Hair_IvyLeague", "Hair_Spiky", "Hair_CurlyTop", "Hair_BoxBraids", "Hair_HalfUp",
+            "Hair_PartedTwoBlock", "Hair_CommaPerm", "Hair_VolumeCurlyLong", "Hair_StraightCornrows", "Hair_ZigzagCornrows",
         };
 
         /// <summary>홍채 색 (가상 팔레트, FR-23 [미정] — 043처럼 균등). 갈색 쪽이 많다.</summary>

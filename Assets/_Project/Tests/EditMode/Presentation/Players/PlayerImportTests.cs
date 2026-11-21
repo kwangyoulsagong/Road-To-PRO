@@ -17,9 +17,9 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             var root = AssetDatabase.LoadAssetAtPath<GameObject>(gen + "/player.glb");
             Assert.IsNotNull(root);
             int[] max = { 11000, 3000, 1000 }; // LOD0 상한 11k (2026-11-20 사용자 결정, 062 T17a에서 앞당김 — 나머지 예산 갱신은 T31)
-            // 057: 몸 LOD 3 + 헤어 조각 29종(삭발 제외) × 3 + 클로즈업 머리. 몸 + 가장 무거운 헤어 조각 ≤ LOD 예산(056 FR-60, 057 FR-40)
+            // 057: 몸 LOD 3 + 헤어 조각 34종(062 35종, 삭발 제외) × 3 + 클로즈업 머리. 몸 + 가장 무거운 헤어 조각 ≤ LOD 예산(056 FR-60, 057 FR-40)
             var smrs = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-            Assert.AreEqual(3 + 29 * 3 + 1, smrs.Length);
+            Assert.AreEqual(3 + 34 * 3 + 1, smrs.Length);
             foreach (var h in RoadToPro.Presentation.Players.PlayerLook.HairMeshes)
                 if (h != null)
                     for (int l = 0; l < 3; l++)
