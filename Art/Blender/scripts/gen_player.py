@@ -13,6 +13,7 @@
 종료 코드: 0 성공, 2 인자 오류, 3 검사 실패, 4 MPFB2 없음(specs/056 FR-03), 1 예외. 실패하면 --out에 아무것도 남기지 않는다(임시 폴더에서 만든 뒤 옮김).
 """
 import argparse
+import json
 import os
 import shutil
 import sys
@@ -151,8 +152,16 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
             r0 = GB.shell_rect(GS.STYLES[st]["strand"])
             h_, w_ = parts_img.shape[:2]
             tile = parts_img[int(r0[1] * h_):int(r0[3] * h_), int(r0[0] * w_):int(r0[2] * w_), 0]   # Blender 픽셀 행 0 = 아래(v 0)
-            gf["styles"][st] = GF.evaluate(R, st, GB.summary(st, R), {l: pm[f"{st}_LOD{l}"] for l in lods if l < 2},
-                                           float(tile.mean()) if tile.size else 0.5)
+            import hashlib as _hl
+            import inspect as _ins
+            mr = float(tile.mean()) if tile.size else 0.5
+            fk = _hl.sha256((GB._key(st, R) + _ins.getsource(GF) + _ins.getsource(GB) + f"{mr:.6f}" + str(sorted(lods))).encode()).hexdigest()[:16]
+            fpath = os.path.join(GB.CACHE, f"fid-{st}-{fk}.json")   # 088 FR-16: 같은 입력이면 충실도 재계산 안 함
+            if os.path.exists(fpath) and not os.environ.get("GROOM_NO_CACHE"):
+                gf["styles"][st] = json.load(open(fpath, encoding="utf-8"))
+            else:
+                gf["styles"][st] = GF.evaluate(R, st, GB.summary(st, R), {l: pm[f"{st}_LOD{l}"] for l in lods if l < 2}, mr)
+                json.dump(gf["styles"][st], open(fpath, "w", encoding="utf-8"))
         gf["ok"] = all(v["ok"] for v in gf["styles"].values())
         summary["groomFidelity"] = gf
     summary["mhLicenses"] = MHA.licenses()             # 088 AC-02

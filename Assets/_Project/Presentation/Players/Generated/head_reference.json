@@ -829,8 +829,8 @@
   "seamToleranceM": 0.002,
   "maxInfluences": 4,
   "uv": {
-    "version": 2,
-    "hash": "9971a8ddabaa9e94",
+    "version": 3,
+    "hash": "53694601dbb53cd3",
     "history": [
       {
         "version": 1,
@@ -839,6 +839,10 @@
       {
         "version": 2,
         "hash": "9971a8ddabaa9e94"
+      },
+      {
+        "version": 3,
+        "hash": "53694601dbb53cd3"
       }
     ],
     "closeupTexture": 2048,

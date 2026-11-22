@@ -359,7 +359,10 @@ def eyes_covered(R, tree_tri, key_sets):
             V = V + R.extra_deltas[k] * w
         t2 = BVHTree.FromPolygons([tuple(p) for p in V], [tuple(t) for t in tri], all_triangles=True)
         bad = 0
-        for p in _shrunk_eyes(R, px.fit(V)):
+        Pe = px.fit(V)
+        T_, TU_ = px.triangles()
+        ball = np.unique(T_[[not (px.uv[tu].mean(axis=0)[0] > 0.9 and px.uv[tu].mean(axis=0)[1] < 0.15) for tu in TU_]])
+        for p in _shrunk_eyes(R, Pe)[ball]:                    # 088: 안구 층만 (각막 층 제외 — body._append_eyes와 같은 규칙)
             # 정면에서 처음 맞는 피부가 안구 점 바로 뒤(0.5~6 mm)에 있으면 안구가 눈꺼풀·피부를 뚫고 나온 것.
             # 눈 틈(구멍)에서는 광선이 머리 안쪽 깊은 곳에 맞으므로 노출로 세지 않는다.
             if p[2] < eye_z[0 if p[0] < 0 else 1]:
@@ -426,10 +429,10 @@ def brow_masks(R, size):
         T, _ = px.triangles()
         pts = np.vstack([P, P[T].mean(axis=1)])
         acc = _splat(R, pts, big, tree, tris, tuv)
-        acc = SK._box(SK._box(acc, 1), 1)
+        acc = SK._box(acc, 1)
         nz = acc[acc > 0]
-        k = float(np.percentile(nz, 75)) if len(nz) else 1.0
-        m = 1.0 - np.exp(-acc / max(k, 1e-6) * 1.5)
+        k = float(np.percentile(nz, 40)) if len(nz) else 1.0      # 088 T23: 더 진하게 (40 백분위 기준 × 3)
+        m = 1.0 - np.exp(-acc / max(k, 1e-6) * 3.0)
         out[..., ch] = m.reshape(size, 2, size, 2).mean(axis=(1, 3))
     return out
 

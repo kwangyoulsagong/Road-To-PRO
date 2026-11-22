@@ -77,14 +77,35 @@ def card_max():
 
 
 def build(R, style, lod):
-    """→ body.Mesh: 그루밍 시안을 굽는다 (088 FR-10)."""
+    """→ body.Mesh: 그루밍 시안을 굽는다 (088 FR-10). 결과는 입력 해시(스타일 정의·굽기 코드·기준 몸)로 캐시한다 (FR-16 생성 시간)."""
+    import hashlib
+    import inspect
+    import os
+    import pickle
     from .groom import bake as GB
-    from . import face as F
+    from . import body as B
+    from . import hair_skin as HSK
     from . import mpfb_src as MS
     hi = MS.OUR_NAMES.index("Head")
     hz = R.verts[[v for v in R.groups["body"] if R.weights[v, hi] >= 0.5], 2]
     HEAD_AXIS_Z[0] = float((hz.min() + hz.max()) / 2)
-    return GB.build(R, style, lod, GB.summary(style, R))
+    h = hashlib.sha256((GB._key(style, R) + inspect.getsource(GB) + inspect.getsource(HSK) + str(lod)).encode())
+    alld = B._all_deltas(R)
+    h.update(",".join(sorted(alld)).encode())
+    path = os.path.join(GB.CACHE, f"mesh-{style}-{lod}-{h.hexdigest()[:16]}.pkl")
+    if os.path.exists(path) and not os.environ.get("GROOM_NO_CACHE"):
+        GB.summary(style, R)                                      # 공유 결 아틀라스 표본(SAMPLES) 등록 — 캐시 적중이어도 같은 아틀라스 (결정론)
+        with open(path, "rb") as f:
+            d = pickle.load(f)
+        m = B.Mesh()
+        for k, v in d.items():
+            setattr(m, k, v)
+        return m
+    m = GB.build(R, style, lod, GB.summary(style, R))
+    os.makedirs(GB.CACHE, exist_ok=True)
+    with open(path, "wb") as f:
+        pickle.dump({k: getattr(m, k) for k in ("verts", "W", "deltas", "vpart", "faces", "hairdata", "style")}, f)
+    return m
 
 
 def layout_info(style):

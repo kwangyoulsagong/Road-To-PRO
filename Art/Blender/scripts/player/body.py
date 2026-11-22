@@ -1025,12 +1025,15 @@ EYE_TRIS_088 = {"closeup": 420, 0: 240, 1: 48, 2: 16}
 EYE_SHRINK = 0.96                                         # 088: MakeHuman 눈은 MH 눈꺼풀 기준 — 표정 키 노출 3건 → 4 % 줄임   # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합)
 
 
-def _proxy_part(R, px, target, keys):
+def _proxy_part(R, px, target, keys, face_ok=None):
     """MakeHuman 프록시 → (정점, 면, 면별 UV, 델타 dict). 감량 정점은 원본 프록시 삼각형에 무게중심으로 묶어 델타를 옮긴다."""
     from mathutils import Vector
     from mathutils.bvhtree import BVHTree
     P = px.fit(R.verts)
     T, TU = px.triangles()
+    if face_ok is not None:                                      # 088: 층 고르기 (눈 = 안구만, 각막 층 제외)
+        keep = np.array([face_ok(px.uv[tu].mean(axis=0)) for tu in TU])
+        T, TU = T[keep], TU[keep]
     alld = _all_deltas(R)
     D = {k: px.delta(alld[k]) for k in keys}
     uvs = [tuple(tuple(px.uv[i]) for i in tu) for tu in TU]
@@ -1059,7 +1062,8 @@ def _append_eyes(R, m, lod, closeup=False):
     from . import mhassets as MH
     px = MH.Proxy(MH.EYES)
     target = EYE_TRIS_088["closeup" if closeup else lod]
-    P, fl, fu, D = _proxy_part(R, px, target, list(m.deltas))
+    # MakeHuman 고해상도 눈 = 안구 + 바깥 각막 층(텍스처 구석 u > 0.9·v < 0.15의 투명 하이라이트 영역에 매핑) → 각막은 흰자 위를 덮어 뺀다
+    P, fl, fu, D = _proxy_part(R, px, target, list(m.deltas), face_ok=lambda uv: not (uv[0] > 0.9 and uv[1] < 0.15))
     for ctr in F.eye_centers(R):                       # 눈마다 중심 쪽으로 EYE_SHRINK — 표정 키에서 눈꺼풀 밖 노출 방지
         sel = np.sign(P[:, 0]) == np.sign(ctr[0])
         P[sel] = ctr + (P[sel] - ctr) * EYE_SHRINK

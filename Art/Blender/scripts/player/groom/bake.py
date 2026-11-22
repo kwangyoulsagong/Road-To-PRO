@@ -325,6 +325,32 @@ def _smooth_hairline(R, ctr, Dl, envl, skinl, fl):
     return ctr + Dn * rad[:, None]
 
 
+def _edge_factor(co, faces, width=0.015):
+    """셸 경계(헤어라인)에서 안쪽 거리 → 0.45(가장자리) ~ 1(width 안쪽) 밀도 배율."""
+    edge = {}
+    for f in faces:
+        for k in range(3):
+            e = (min(f[k], f[(k + 1) % 3]), max(f[k], f[(k + 1) % 3]))
+            edge[e] = edge.get(e, 0) + 1
+    bv = sorted({v for e, c in edge.items() if c == 1 for v in e})
+    if not bv:
+        return np.ones(len(co))
+    B = co[bv]
+    d = np.array([np.min(np.linalg.norm(B - p, axis=1)) for p in co])
+    t = np.clip(d / width, 0, 1)
+    return 0.45 + 0.55 * t * t * (3 - 2 * t)
+
+
+def _inward(P, faces, ctr):
+    """면마다 기하 법선(cross)이 머리 중심 쪽을 향하도록 감김을 맞춘다 (선수 좌표 = 반사 틀, body·hair 메시와 같은 규칙)."""
+    out = []
+    for f in faces:
+        a, b, c = P[f[0]], P[f[1]], P[f[2]]
+        n = np.cross(b - a, c - a)
+        out.append(tuple(f) if n @ ((a + b + c) / 3 - ctr) < 0 else (f[0], f[2], f[1]))
+    return out
+
+
 def build(R, name, lod, s):
     """→ body.Mesh (헤어 조각). s = summary()."""
     from mathutils import Vector
@@ -369,7 +395,9 @@ def build(R, name, lod, s):
     remap = {v: i for i, v in enumerate(ids)}
     fl = [tuple(remap[v] for v in f) for f in faces]
     P0 = _smooth_hairline(R, ctr, D[ids], env[ids], s["skin"][ids], fl)
+    fl = _inward(P0, fl, ctr)                                    # 선수 좌표 감김 규칙: 기하 법선이 안쪽(반사 변환 — 기준 몸 면과 같게)
     co, f2 = B._decimate_faces(P0, fl, min(SHELL_TRIS[lod], len(fl)))
+    f2 = _inward(np.asarray(co, dtype=np.float64), [tuple(f) for f in f2], ctr)
     co = co.astype(np.float64)
     skin_pts = ctr + D[ids] * s["skin"][ids][:, None]
     co = HS.clear(co, f2, skin_pts, D[ids])
@@ -413,7 +441,11 @@ def build(R, name, lod, s):
     # 밀도: 봉투 두께(봉투 − 피부)가 얇은 곳(페이드·헤어라인)은 피부가 비친다
     th = np.array([env[ids][kd.find(Vector(tuple((p - ctr) / (np.linalg.norm(p - ctr) + 1e-12))))[1]]
                    - s["skin"][ids][kd.find(Vector(tuple((p - ctr) / (np.linalg.norm(p - ctr) + 1e-12))))[1]] for p in co])
-    dens = np.clip((th - MIN_T) / 0.0025, 0.35, 1.0)
+    # 밀도(디더): 페이드 계열만 두께를 따른다(옆·뒤 아래가 비친다, 062 FR-42). 나머지는 꽉 차고, 헤어라인 가장자리 1.5 cm만 부드럽게 비친다
+    from player import hairstyles as HSS
+    dens = np.clip((th - MIN_T) / 0.0025, 0.35, 1.0) if HSS.GROUP.get(name) == "fade" else np.ones(len(co))
+    edge = _edge_factor(co, f2)
+    dens = dens * edge
     HS.append(m, co, fuv, "hair", R, tree, hd=np.column_stack([dens, HS.color_point(st.get("cp"), co, R)]), alld=alld)
     # 카드
     budget = min(CARD_TRIS[lod], HAIR_MAX[lod] - m.triangles)
@@ -475,7 +507,13 @@ def build(R, name, lod, s):
                 vb = (crect[3] - (crect[3] - crect[1]) * b2 / seg)
                 quads.append(((a, b2, seg + 1 + b2), ((2 + cu0, va), (2 + cu0, vb), (2 + cu1, vb))))
                 quads.append(((a, seg + 1 + b2, seg + 1 + a), ((2 + cu0, va), (2 + cu1, vb), (2 + cu1, va))))
-            cards.append((L, quads))
+            fixed = []
+            for tri, uv in quads:                                     # 카드도 안쪽 법선 감김 (바깥에서 앞면이 보이게)
+                a3, b3, c3 = L[tri[0]], L[tri[1]], L[tri[2]]
+                if np.cross(b3 - a3, c3 - a3) @ ((a3 + b3 + c3) / 3 - ctr) > 0:
+                    tri, uv = (tri[0], tri[2], tri[1]), (uv[0], uv[2], uv[1])
+                fixed.append((tri, uv))
+            cards.append((L, fixed))
         for L, quads in cards:
             HS.append(m, L, quads, "hair", R, tree, hd=np.column_stack([np.ones(len(L)), np.zeros(len(L))]), alld=alld,
                       vpart="card")

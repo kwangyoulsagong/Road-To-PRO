@@ -185,8 +185,8 @@ Shader "RoadToPro/PlayerBody"
                 half sLum = dot(s.rgb, half3(0.2126h, 0.7152h, 0.0722h));
                 // 088 FR-02: 눈썹·속눈썹 = MakeHuman 프록시를 구운 덮임 마스크 × 머리색 (속눈썹은 더 어둡게)
                 half4 brow = SAMPLE_TEXTURE2D(_BrowMask, sampler_BrowMask, frac(i.uv));
-                half bcov = saturate(dot(brow.rgb, _BrowChannel.rgb)) * (1.0h - isPart);
-                skin = lerp(skin, _HairColor.rgb * 0.7h, bcov * 0.85h);
+                half bcov = saturate(dot(brow.rgb, _BrowChannel.rgb) * 1.6h) * (1.0h - isPart);
+                skin = lerp(skin, _HairColor.rgb * 0.45h, bcov * 0.9h);   // 눈썹은 머리색보다 어둡게
                 skin = lerp(skin, half3(0.03h, 0.025h, 0.02h), brow.a * 0.8h * (1.0h - isPart));
                 // 057 FR-24: 수염 = 밀도(s.b)의 부드러운 문턱(경계 흐림) × 종류별 덮임. 짧을수록 피부가 비치는 옅은 색조(잔털), 길수록 짙다.
                 // 062 FR-66: 밀도 = 수염 영역 마스크(beard_mask0)에서 종류별 채널 하나 — 없으면 057 피부 B(full)
