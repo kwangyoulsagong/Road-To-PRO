@@ -40,9 +40,29 @@ RIM = {"top": 0.006, "shorts": 0.005, "sock": 0.004, "boot": 0.003}  # 경계 �
 # UV 부위 → 셸 묶음 (같은 묶음은 정점을 나누지 않는다: 셔츠 몸판·소매 사이 틈 없음)
 GROUP = {"skin": "skin", "shirt": "top", "sleeve": "top", "shorts": "shorts", "sock": "sock", "boot": "boot"}
 
-SHAPES = tuple(MS.BODY_MACROS)  # Thin, Muscular, Heavy
+SHAPES = tuple(MS.BODY_MACROS) + tuple(MS.BODY_TARGETS)  # Thin, Muscular, Heavy + 062 Broad, Limb
 
 _REF = None
+
+# 062 FR-27 정장 모드 (suit.py가 켠다): 같은 감량·바인딩·셸 경로에 절단 평면·부위만 바꾼다.
+# 부위 이름은 유니폼 것을 재사용한다 — shirt = 재킷 몸판, sleeve = 재킷 소매(손목까지), shorts = 바지(발목까지), boot = 구두.
+# 양말·밑깔개·키트 보조 뼈 없음(천 시뮬 없음, FR-21 원칙). 셔츠 깃·V존·소맷부리는 정장 마스크(textures.suit_mask) 색 영역.
+OUTFIT = ["kit"]
+SUIT_HEM_BELOW_HIPS = 0.10   # 재킷 밑단 = 고관절 높이 − 10 cm (엉덩이를 덮는 길이, 손이 닿는 허벅지는 덜 덮게)
+SUIT_SLEEVE_T = 0.90         # 재킷 소매 끝 = 아래팔 길이의 90 % (손목 바로 위)
+SUIT_TROUSER_Y = 0.105       # 바지 밑단 = 축구화 목과 같은 높이 (0.095는 발 뼈 면과 섞여 고리가 계단, T32)
+
+
+def suit_mode():
+    return OUTFIT[0] == "suit"
+
+
+# 정장 셸 (띄움 m, 평활 반복): 바지는 양말처럼 붙인다 — 허벅지·정강이에 손이 스치는 클립에서 8 mm 셸은 손가락이 닿는다(T32)
+SUIT_PARTS = {"top": (0.010, 5), "shorts": (0.0035, 2), "boot": (0.006, 6)}
+
+
+def kit_parts():
+    return SUIT_PARTS if suit_mode() else KIT_PARTS
 
 
 def reference():
@@ -51,12 +71,45 @@ def reference():
     if _REF is None:
         _REF = MS.Reference()
         _smooth_weights(_REF)
+        _base_radial(_REF)  # 062 FR-03 바탕 팔 두께 보정
         S.configure({n: (tuple(float(x) for x in h), tuple(float(x) for x in t)) for n, (h, t) in _REF.joints.items()})
         _REF.body_deltas = {k: _REF.macro_delta(v) for k, v in MS.BODY_MACROS.items()}
+        _REF.body_deltas.update({k: _REF.target_delta(v) * MS.BODY_TARGET_GAIN.get(k, 1.0)
+                                 for k, v in MS.BODY_TARGETS.items()})  # 062 FR-01
+        # Broad(어깨·가슴)가 위팔까지 굵혀 극단 체형 위팔/키가 0.24를 넘는다 → 팔 가중치만큼 줄인다 (어깨 폭은 몸통·어깨 정점이 낸다)
+        arm = np.zeros(_REF.n)
+        for s_ in ("Left", "Right"):
+            h, t = (np.array(x) for x in _REF.joints[s_ + "UpperArm"])
+            ln = float(np.linalg.norm(t - h))
+            tt = ((_REF.verts - h) @ ((t - h) / ln)) / ln
+            fade = np.clip((tt - 0.30) / 0.15, 0.0, 1.0)  # 삼각근(위팔 위 30 %)은 남기고 이두 높이부터 뺀다
+            arm += _REF.weights[:, MS.OUR_NAMES.index(s_ + "UpperArm")] * fade
+            arm += _REF.weights[:, MS.OUR_NAMES.index(s_ + "LowerArm")] + _REF.weights[:, MS.OUR_NAMES.index(s_ + "Hand")]
+            arm += sum(_REF.weights[:, j] for j in range(MS.CORE_BONES, len(MS.OUR_NAMES)) if MS.OUR_NAMES[j].startswith(s_))
+        _REF.body_deltas["Broad"] = _REF.body_deltas["Broad"] * (1.0 - np.clip(arm, 0.0, 1.0))[:, None]
         _REF.extra_deltas = {}
         from . import face as F
         F.register(_REF)
     return _REF
+
+
+def _base_radial(R):
+    """062 FR-03: 팔 뼈 축에서 수직 방향으로 반경을 배율만큼 넓힌다. 이동량 = (배율 − 1) × 축까지 거리 × 그 뼈 가중치
+    (관절 쪽은 가중치가 줄어 자연히 감쇠). 몸 정점만, 결정론(정점 순서 연산)."""
+    body = np.zeros(R.n, dtype=bool)
+    body[R.groups["body"]] = True
+    for bone, k in sorted(MS.BASE_RADIAL.items()):
+        for side in ("Left", "Right"):
+            name = side + bone
+            h, t = (np.array(x) for x in R.joints[name])
+            ax = (t - h) / np.linalg.norm(t - h)
+            w = R.weights[:, MS.OUR_NAMES.index(name)] * body
+            P = R.verts - h
+            if bone == "UpperArm":  # 어깨·칼라 쪽(위팔 위 20 %)은 건드리지 않는다 — 칼라 고리·어깨 윤곽 유지
+                ln = float(np.linalg.norm(t - h))
+                w = w * np.clip(((P @ ax) / ln - 0.2) / 0.2, 0.0, 1.0)
+            radial = P - np.outer(P @ ax, ax)
+            R.verts = R.verts + radial * ((k - 1.0) * w)[:, None]
 
 
 WEIGHT_SMOOTH = 12  # 기준 가중치 평활 반복 (관절 주름 접힘 감소 — 실험: 0회 대비 뒤집힘 약 −45 %(8회))
@@ -82,6 +135,7 @@ class Mesh:
         self.vpart = []
         self.faces = []
         self.deltas = {}
+        self.under = []   # 062 T17a 밑깔개 면 인덱스
 
     @property
     def triangles(self):
@@ -93,7 +147,7 @@ class Mesh:
         out = []
         for row in self.W:
             idx = np.argsort(-row, kind="stable")[:4]
-            out.append({MS.OUR_NAMES[i]: float(row[i]) for i in idx if row[i] > 1e-6})
+            out.append({S.NAMES[i]: float(row[i]) for i in idx if row[i] > 1e-6})  # 열 = S.NAMES 앞부분 (손가락까지 = OUR_NAMES, 몸 LOD는 + 보조 뼈)
         return out
 
 
@@ -193,6 +247,8 @@ def _decimated_cached(R, lod):
 
 def cut_planes():
     """[(이름, 점, 법선, 대상 뼈 집합)] 선수 좌표. 법선 쪽이 '위/바깥(몸통 쪽)'."""
+    if suit_mode():
+        return _suit_planes()
     H, T = S.HEAD, S.TAIL
     knee_y = H["LeftLowerLeg"][1]
     hips_y = H["LeftUpperLeg"][1]
@@ -210,6 +266,44 @@ def cut_planes():
         out.append((f"sock{n[0]}", (0.0, knee_y - SOCK_BELOW_KNEE, 0.0), (0.0, 1.0, 0.0), {n + "LowerLeg", n + "UpperLeg"}))
         out.append((f"boot{n[0]}", (0.0, BOOT_Y, 0.0), (0.0, 1.0, 0.0), {n + "LowerLeg", n + "Foot", n + "Toes"}))
     return out
+
+
+def _suit_planes():
+    H, T = S.HEAD, S.TAIL
+    hips_y = H["LeftUpperLeg"][1]
+    out = [
+        ("collar", (0.0, H["Neck"][1] - 0.035, 0.0), _unit((0.0, 1.0, COLLAR_TILT)), {"Neck", "UpperChest", "Head", "LeftShoulder", "RightShoulder"}),
+        ("hem", (0.0, hips_y - SUIT_HEM_BELOW_HIPS, 0.0), (0.0, 1.0, 0.0), {"Hips", "Spine", "Chest", "LeftUpperLeg", "RightUpperLeg"}),
+    ]
+    for n in ("Left", "Right"):
+        a, b = np.array(H[n + "LowerArm"]), np.array(T[n + "LowerArm"])
+        d = (b - a) / np.linalg.norm(b - a)
+        out.append((f"sleeve{n[0]}", tuple(a + d * SUIT_SLEEVE_T * np.linalg.norm(b - a)), tuple(-d),
+                    {n + "LowerArm", n + "Hand", n + "UpperArm"}))
+        out.append((f"shorts{n[0]}", (0.0, SUIT_TROUSER_Y, 0.0), (0.0, 1.0, 0.0), {n + "LowerLeg", n + "Foot", n + "Toes"}))
+    return out
+
+
+def _classify_suit(p, w, planes):
+    b = MS.OUR_NAMES[int(np.argmax(w))]
+    if b == "Head":
+        return "skin"
+    if b in ("Neck", "UpperChest", "Chest", "Spine", "Hips") or b.endswith("Shoulder"):
+        if _side(p, planes["collar"]) > 0:
+            return "skin"
+        return "shirt" if _side(p, planes["hem"]) > 0 else "shorts"
+    side = b[0]
+    if b.endswith("UpperArm"):
+        return "sleeve"
+    if b.endswith("LowerArm"):
+        return "sleeve" if _side(p, planes["sleeve" + side]) > 0 else "skin"
+    if b.endswith("Hand") or MS.OUR_NAMES.index(b) >= MS.CORE_BONES:
+        return "skin"
+    if b.endswith("UpperLeg"):
+        return "shirt" if _side(p, planes["hem"]) > 0 else "shorts"
+    if b.endswith("LowerLeg"):
+        return "shorts" if _side(p, planes["shorts" + side]) > 0 else "boot"
+    return "boot"
 
 
 SLEEVE_T = 0.55            # 소매 끝 = 위팔 길이의 55 %
@@ -544,6 +638,63 @@ def _relax_boundaries(R, bind, faces, fuv, fpart, lod=0):
 
 # ---------------------------------------------------------------- 4. 부위 · 유니폼 셸
 
+HEM_BAND = 0.04   # 062 FR-05: 밑단에서 이 거리(m) 안은 셸 띄움을 줄인다 (운동복 밑단은 몸에 붙는다)
+HEM_MIN = 0.3     # 밑단 끝 띄움 = 원래의 30 %
+
+
+def _hem_taper(p, part, w, planes):
+    """소매 끝·반바지 밑단·양말 윗단까지의 거리로 띄움 배율(HEM_MIN~1). 칼라·셔츠 밑단·축구화는 1."""
+    side = "L" if p[0] < 0 else "R"
+    b = MS.OUR_NAMES[int(np.argmax(w))]
+    if part == "top" and b.endswith(("UpperArm", "LowerArm")):
+        d = abs(_side(p, planes["sleeve" + side]))
+    elif part == "shorts" and b.endswith(("UpperLeg", "LowerLeg")):
+        d = abs(_side(p, planes["shorts" + side]))
+    elif part == "sock":
+        d = abs(_side(p, planes["sock" + side]))
+    else:
+        return 1.0
+    t = min(max(d / HEM_BAND, 0.0), 1.0)
+    return HEM_MIN + (1.0 - HEM_MIN) * (t * t * (3 - 2 * t))
+
+
+def _bump(x, c, w):
+    t = 1.0 - min(abs(x - c) / max(w, 1e-9), 1.0)
+    return t * t * (3 - 2 * t)
+
+
+def _kit_extra(p, part, w, n, planes):
+    """062 FR-20·23·24: 셸 추가 띄움(m). 셔츠: 허리·등 아래 늘어짐, 겨드랑이 여유. 양말: 정강이 보호대(앞 볼록 + 위 끝 턱).
+    축구화: 밑창 테두리(바닥 2 cm 띠에서 바깥으로). 경계 띠(_hem_taper)와 곱하지 않는다 — 밑단 쪽은 위치상 0이 되게 정한다."""
+    b = MS.OUR_NAMES[int(np.argmax(w))]
+    side = "L" if p[0] < 0 else "R"
+    if part == "top" and suit_mode() and b.endswith("UpperLeg"):
+        return 0.0   # 정장: 허벅지 위 재킷 자락은 늘어짐 없이 붙인다 (달리기 손가락이 닿음, T32)
+    if part == "top" and not b.endswith(("UpperArm", "LowerArm")):
+        hem_y = planes["hem"][1][1]
+        d_hem = p[1] - hem_y
+        back = max(0.0, -float(n[2]))                       # 등 쪽 법선
+        waist = _bump(d_hem, 0.10, 0.10) * (0.004 + 0.004 * back)   # 밑단 위 5~20 cm, 등이 더 늘어진다
+        arm_y = S.HEAD["RightUpperArm"][1]
+        pit = _bump(p[1], arm_y - 0.10, 0.05) * max(0.0, abs(float(n[0])) - 0.5) * 0.008  # 겨드랑이 옆면
+        return waist + pit
+    if part == "sock" and b.endswith("LowerLeg"):
+        knee_y = S.HEAD[("Left" if side == "L" else "Right") + "LowerLeg"][1]
+        ank_y = S.HEAD[("Left" if side == "L" else "Right") + "Foot"][1]
+        t = (knee_y - 0.09 - p[1]) / max(knee_y - 0.09 - (ank_y + 0.07), 1e-6)   # 0 = 보호대 위 끝, 1 = 아래 끝
+        if 0.0 <= t <= 1.0:
+            front = max(0.0, float(n[2]))
+            ridge = 0.0015 if t < 0.06 else 0.0                                  # 위 끝 턱
+            return (0.004 * math.sin(math.pi * min(max(t, 0.0), 1.0)) ** 0.5 + ridge) * front ** 1.5
+        return 0.0
+    if part == "boot":
+        if p[1] < 0.022:
+            out = math.hypot(float(n[0]), float(n[2]))
+            return 0.0025 * (1.0 - p[1] / 0.022) * out                          # 밑창 테두리
+        return 0.0
+    return 0.0
+
+
 def _side(p, plane):
     _, pt, nrm, _ = plane
     return float(np.dot(np.array(p) - np.array(pt), np.array(nrm)))
@@ -570,6 +721,8 @@ def classify(p, w):
     if in_collar_band(p):
         # 057 FR-01: 칼라 띠 안에서는 주 뼈(Head·Neck·어깨·위팔)와 상관없이 평면만 본다 — 경계가 가중치 변을 따라 계단이 되지 않게
         return "skin" if _side(p, planes["collar"]) > 0 else "shirt"
+    if suit_mode():
+        return _classify_suit(p, w, planes)
     b = MS.OUR_NAMES[int(np.argmax(w))]
     if b in ("Head",):
         return "skin"
@@ -580,7 +733,7 @@ def classify(p, w):
     side = b[0]
     if b.endswith("UpperArm"):
         return "sleeve" if _side(p, planes["sleeve" + side]) > 0 else "skin"
-    if b.endswith("LowerArm") or b.endswith("Hand"):
+    if b.endswith("LowerArm") or b.endswith("Hand") or MS.OUR_NAMES.index(b) >= MS.CORE_BONES:  # 062: 손가락 뼈 = 손
         return "skin"
     if b.endswith("UpperLeg"):
         if _side(p, planes["hem"]) > 0:
@@ -593,10 +746,14 @@ def classify(p, w):
     return "boot"  # Foot, Toes
 
 
-def _boot_hull(P, parts, border):
-    """축구화: 발(발가락 사이 골)을 발마다 볼록 껍질에 투영 → 신발 모양. 경계(양말과 닿는 고리)는 그대로. 정점 위치만 바꾼다(델타·가중치 유지)."""
+def _boot_hull(P, parts, border, N=None, faces=None):
+    """축구화 셸 = 발마다 축구화 정점의 볼록 껍질 면 (062 T17b). 원래 발 위상을 껍질에 투영하면 발가락 사이에서 서로 마주 보던
+    옆면이 반드시 뒤집혀(앞코 349면 중 ≈ 20면, 3,000 mm²) Unity 용접 법선에 발가락 줄이 보인다 → 껍질 면 자체를 축구화 표면으로 쓴다.
+    껍질 정점은 원래 축구화 정점의 일부라 가중치·체형 키·UV 규칙이 그대로 이어진다. 발목 고리(경계)만으로 된 뚜껑 면은 버린다.
+    faces(원래 면 목록, 같은 정점 번호)가 있으면 그 감김 방향(다수결)에 맞춘다. N이 있으면 껍질 정점 띄움 방향 = 바깥 껍질 법선 평균.
+    → [(정점 번호 튜플, ...)] 새 축구화 면 (껍질 밖 정점은 어느 면에도 안 쓰인다)."""
     import bmesh
-    from mathutils.bvhtree import BVHTree
+    out = []
     for sgn in (-1.0, 1.0):
         idx = [i for i in range(len(P)) if parts[i] == "boot" and P[i, 0] * sgn > 0]
         if len(idx) < 8:
@@ -604,19 +761,40 @@ def _boot_hull(P, parts, border):
         bm = bmesh.new()
         for i in idx:
             bm.verts.new(tuple(P[i]))
-        res = bmesh.ops.convex_hull(bm, input=list(bm.verts))
-        for g in res.get("geom_interior", []):
-            if isinstance(g, bmesh.types.BMVert):
-                bm.verts.remove(g)
         bm.verts.ensure_lookup_table()
-        tree = BVHTree.FromBMesh(bm)
-        for i in idx:
-            if border[i]:
-                continue
-            loc = tree.find_nearest(tuple(P[i]))[0]
-            if loc is not None:
-                P[i] = np.array(loc)
+        res = bmesh.ops.convex_hull(bm, input=list(bm.verts), use_existing_faces=False)
+        ctr = P[idx].mean(axis=0)
+        # 원래 축구화 면의 감김 규칙: 법선 · (면 중심 − 중심) 부호 다수결
+        sign = 1.0
+        if faces is not None:
+            sel = set(idx)
+            votes = 0.0
+            for f in faces:
+                if len(f) >= 3 and all(v in sel for v in f):
+                    a, b, c = P[f[0]], P[f[1]], P[f[2]]
+                    votes += np.sign(np.cross(b - a, c - a) @ ((a + b + c) / 3 - ctr))
+            sign = 1.0 if votes >= 0 else -1.0
+        hull = [fa for fa in res.get("geom", []) if isinstance(fa, bmesh.types.BMFace)]
+        vnorm = {}
+        for fa in hull:
+            t = [idx[v.index] for v in fa.verts]
+            if all(border[i] for i in t):
+                continue  # 발목 뚜껑
+            a, b, c = P[t[0]], P[t[1]], P[t[2]]
+            n = np.cross(b - a, c - a)
+            outw = n @ ((a + b + c) / 3 - ctr) >= 0
+            if outw != (sign > 0):
+                t = t[::-1]
+            nn = n / (np.linalg.norm(n) + 1e-12) * (1 if outw else -1)
+            for i in t:
+                vnorm[i] = vnorm.get(i, 0) + nn
+            out.append(tuple(t))
+        if N is not None:
+            for i, q in vnorm.items():
+                if not border[i]:
+                    N[i] = q / (np.linalg.norm(q) + 1e-12)
         bm.free()
+    return out
 
 
 def _neighbors(nv, faces):
@@ -679,12 +857,113 @@ def build(lod):
     pos = bind.positions(R)
     W = bind.apply(R.weights)
     W /= W.sum(axis=1, keepdims=True)
+    if lod >= 1:
+        W = _mitten(W)  # 062 FR-12: LOD1 이하 = 손가락을 합친 장갑형 (손가락 뼈 가중치 → 손)
     deltas = {k: bind.apply(d) for k, d in sorted(R.body_deltas.items())}
     for k, d in sorted(R.extra_deltas.items()):
+        if lod >= 1 and k.startswith(EXPR_PREFIX):
+            continue  # 062 FR-71: 표정은 LOD0·클로즈업 머리에만 (LOD1 이하 무표정)
         deltas[k] = bind.apply(d)
     m = _assemble(pos, W, faces, fuv, fpart, deltas, border_plane)
     _append_eyes(R, m, lod)
+    if lod == 0:
+        _append_mouth(R, m, "lod0")  # 062 FR-72: 입 안 (치아·혀·입안 캡)
+    if not suit_mode():
+        _kit_bone_weights(m, lod)  # 062 FR-21 (정장은 보조 뼈 없음)
     return m
+
+
+# 062 T17a 밑깔개: 보조 뼈가 밑단을 움직이면 턱 띠가 피부(셔츠 밑은 반바지) 경계에서 떨어져 구멍이 난다 →
+# 바깥 옷 밑단 띠 아래에 안쪽 면을 이만큼(m, 절단 평면에서 몸통 쪽으로) 더 깔아 둔다. 경계 정점을 공유해 이어진다.
+# 폭 ≥ 밑단 접선 이동(상자 × KIT_SHARE) + 5 mm (checks.kit_cover). 셔츠 밑 반바지 허리는 셔츠 셸보다 안쪽(UNDER_SHORTS_OFF)
+UNDER = {"hem": 0.035, "sleeve": 0.02, "short": 0.02}
+UNDER_SHORTS_OFF = 0.0   # 피부 높이 — 4 mm면 셔츠 앞 밑단을 앞으로 밀 때 닿는다 (T17a 진단)
+UNDER_SINK = {"sleeve": 0.6, "short": 0.35, "hem": 0.35}   # 피부 밑깔개: 경계에서 멀어질수록 이 기울기로 안쪽으로 (허벅지·위팔이 몸통 쪽으로 굵어져 소매·반바지를 올리면 닿는다, T17a 진단 — 위팔은 팔 포즈에서 더 굵어져 0.35로 부족)
+UNDER_LODS = {0: ("hem", "sleeve", "short"), 1: ("hem",)}   # 보조 뼈가 있는 LOD만 (KIT_LODS와 짝)
+
+
+def underlay_kind(fp, part, planes, lod):
+    """면 정점 위치 fp(k,3)·부위 → 밑깔개 (밑단 종류, 안쪽 부위, 절단 평면 이름) 또는 None.
+    면이 밑단 띠(절단 평면에서 몸통 쪽 0 ~ UNDER)에 한 정점이라도 걸치면 넣는다 — 큰 감량 면도 빠지지 않게(띠가 끊기면 구멍)."""
+    use = () if suit_mode() else UNDER_LODS.get(lod, ())
+    c = fp.mean(axis=0)
+    side = "L" if c[0] < 0 else "R"
+
+    def touch(name, w):
+        d = [_side(p, planes[name]) for p in fp]
+        return _side(c, planes[name]) > 0.0 and min(d) < w
+
+    if part == "shirt" and "hem" in use and touch("hem", UNDER["hem"]):
+        return "hem", "shorts", "hem"
+    if part == "sleeve" and "sleeve" in use and touch("sleeve" + side, UNDER["sleeve"]):
+        return "sleeve", "skin", "sleeve" + side
+    if part == "shorts" and "short" in use and touch("shorts" + side, UNDER["short"]):
+        return "short", "skin", "shorts" + side
+    return None
+
+
+KIT_BAND = {"hem": 0.10, "sleeve": 0.06, "short": 0.07}   # 밑단에서 이 거리(m) 안에서만 보조 뼈가 끈다 (관통 방지: 밑단 띠 한정)
+KIT_SHARE = 0.85                                          # 밑단 끝 정점의 보조 뼈 몫 (나머지는 원래 몸 뼈)
+KIT_LODS = {0: ("Kit_HemF", "Kit_HemB", "Kit_Sleeve.L", "Kit_Sleeve.R", "Kit_Short.L", "Kit_Short.R"),
+            1: ("Kit_HemF", "Kit_HemB")}                  # LOD1은 상의 밑단만, LOD2는 없음 (plan 성능 절)
+
+
+def _kit_bone_weights(m, lod):
+    """062 FR-21: 보조 뼈 열 6개를 W 뒤에 붙인다(S.NAMES 순서). 상의 밑단 띠 → 앞·뒤(z로 섞음), 소매 끝 띠 → 소매,
+    반바지 밑단 띠 → 반바지. 띠 안 몫 = KIT_SHARE × smoothstep(1 − 거리/띠), 원래 뼈 가중치는 그만큼 줄인다."""
+    nb = len(MS.OUR_NAMES)
+    assert list(S.NAMES[:nb]) == list(MS.OUR_NAMES) and len(S.NAMES) == nb + len(S.KIT_NAMES)
+    W = m.W[:, :nb].copy()
+    add = np.zeros((len(W), len(S.KIT_NAMES)))
+    use = set(KIT_LODS.get(lod, ()))
+    col = {n: j for j, n in enumerate(S.KIT_NAMES)}
+    planes = {pl[0]: pl for pl in cut_planes()}
+    hem_y = planes["hem"][1][1]
+
+    def band(d, w):
+        t = 1.0 - min(max(d / w, 0.0), 1.0)
+        return t * t * (3 - 2 * t)
+
+    hips_mask = np.array([1 if n == "Hips" else 0 for n in MS.OUR_NAMES])
+
+    for i, part in enumerate(m.vpart):
+        if part not in ("top", "shorts"):
+            continue
+        p = m.verts[i]
+        b = MS.OUR_NAMES[int(np.argmax(W[i]))]
+        side = "L" if p[0] < 0 else "R"
+        if part == "top" and not b.endswith(("UpperArm", "LowerArm", "Hand")):
+            s_ = band(max(p[1] - hem_y, 0.0), KIT_BAND["hem"])
+            f = min(max(0.5 + p[2] / 0.12, 0.0), 1.0)            # 앞(z+) ↔ 뒤, 옆구리에서 섞인다
+            targets = (("Kit_HemF", s_ * f), ("Kit_HemB", s_ * (1 - f)))
+        elif part == "top":
+            targets = (("Kit_Sleeve." + side, band(abs(_side(p, planes["sleeve" + side])), KIT_BAND["sleeve"])),)
+        elif b.endswith(("UpperLeg", "LowerLeg")):
+            targets = (("Kit_Short." + side, band(abs(_side(p, planes["shorts" + side])), KIT_BAND["short"])),)
+        else:
+            continue
+        # 062 T17c: 상의 밑단은 보조 뼈(골반 자식) 몫을 골반 가중치에서만 뗀다 — 허벅지·척추 몫까지 떼면 질주·웅크림에서 셔츠 밑단이
+        # 그 뼈들을 안 따라가 같은 원래 가중치의 반바지 경계·밑깔개가 셔츠를 뚫는다 (T17c 진단: 오프셋 0에서도 밑단 위 1~3 cm 고리 전체 교차)
+        pool = W[i] * hips_mask if part == "top" and not b.endswith(("UpperArm", "LowerArm", "Hand")) else W[i]
+        avail = float(pool.sum())
+        tot = 0.0
+        for n, s_ in targets:
+            if n in use and s_ > 0:
+                add[i, col[n]] = KIT_SHARE * s_ * avail
+                tot += KIT_SHARE * s_
+        W[i] = W[i] - pool * tot
+    m.W = np.hstack([W, add])
+
+
+def _mitten(W):
+    W = W.copy()
+    for side in ("Left", "Right"):
+        hi = MS.OUR_NAMES.index(side + "Hand")
+        for j in range(MS.CORE_BONES, len(MS.OUR_NAMES)):
+            if MS.OUR_NAMES[j].startswith(side):
+                W[:, hi] += W[:, j]
+                W[:, j] = 0.0
+    return W
 
 
 def _subset_tree(R, faces):
@@ -742,37 +1021,153 @@ def append_part(m, P, W, D, faces, mat, uvs, part):
         m.faces.append((tuple(off + i for i in f), mat, tuple(u), part, None))
 
 
-def _append_eyes(R, m, lod):
+EYE_TRIS_088 = {"closeup": 420, 0: 240, 1: 48, 2: 16}   # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합)
+EYE_BACK = 0.0015                                         # 088 T23: 웃음 표정 눈꺼풀 노출(6 → 4점) → 1.5 mm 뒤로
+EYE_SHRINK = 0.94                                         # 088: MakeHuman 눈은 MH 눈꺼풀 기준 — 표정 키 노출(웃음 6점) → 6 % 줄임
+
+
+def _proxy_part(R, px, target, keys, face_ok=None):
+    """MakeHuman 프록시 → (정점, 면, 면별 UV, 델타 dict). 감량 정점은 원본 프록시 삼각형에 무게중심으로 묶어 델타를 옮긴다."""
+    from mathutils import Vector
+    from mathutils.bvhtree import BVHTree
+    P = px.fit(R.verts)
+    T, TU = px.triangles()
+    if face_ok is not None:                                      # 088: 층 고르기 (눈 = 안구만, 각막 층 제외)
+        keep = np.array([face_ok(px.uv[tu].mean(axis=0)) for tu in TU])
+        T, TU = T[keep], TU[keep]
+    alld = _all_deltas(R)
+    D = {k: px.delta(alld[k]) for k in keys}
+    uvs = [tuple(tuple(px.uv[i]) for i in tu) for tu in TU]
+    co, fl, fu = _decimate_faces(P, [tuple(t) for t in T], target, uvs)
+    tree = BVHTree.FromPolygons([tuple(p) for p in P], [tuple(t) for t in T], all_triangles=True)
+    Pd = np.zeros((len(co), 3))
+    Dd = {k: np.zeros((len(co), 3)) for k in keys}
+    for i, p in enumerate(co):
+        loc, _, idx, _ = tree.find_nearest(Vector(tuple(p)))
+        a, b, c = P[T[idx]]
+        v0, v1, v2 = b - a, c - a, np.array(loc) - a
+        d00, d01, d11, d20, d21 = v0 @ v0, v0 @ v1, v1 @ v1, v2 @ v0, v2 @ v1
+        den = d00 * d11 - d01 * d01
+        w1 = (d11 * d20 - d01 * d21) / den if abs(den) > 1e-18 else 0.0
+        w2 = (d00 * d21 - d01 * d20) / den if abs(den) > 1e-18 else 0.0
+        w = np.array([1 - w1 - w2, w1, w2])
+        Pd[i] = w @ P[T[idx]]
+        for k in keys:
+            Dd[k][i] = w @ D[k][T[idx]]
+    return Pd, fl, fu, Dd
+
+
+def _append_eyes(R, m, lod, closeup=False):
+    """088 FR-02: 눈 = MakeHuman 고해상도 눈(CC0) 감량. UV = 원본 눈 재질 UV를 parts 눈 칸으로 축척(u + 1 → parts)."""
     from . import face as F
-    ef = F.eye_geometry(R)
-    for side in F.EYE_GROUPS:
-        sset = set(R.groups[side])
-        faces = [f for f in ef if f[0] in sset]
+    from . import mhassets as MH
+    px = MH.Proxy(MH.EYES)
+    target = EYE_TRIS_088["closeup" if closeup else lod]
+    # MakeHuman 고해상도 눈 = 안구 + 바깥 각막 층(텍스처 구석 u > 0.9·v < 0.15의 투명 하이라이트 영역에 매핑) → 각막은 흰자 위를 덮어 뺀다
+    P, fl, fu, D = _proxy_part(R, px, target, list(m.deltas), face_ok=lambda uv: not (uv[0] > 0.9 and uv[1] < 0.15))
+    for ctr in F.eye_centers(R):                       # 눈마다 중심 쪽으로 EYE_SHRINK — 표정 키에서 눈꺼풀 밖 노출 방지
+        sel = np.sign(P[:, 0]) == np.sign(ctr[0])
+        P[sel] = ctr + (P[sel] - ctr) * EYE_SHRINK
+        P[sel, 2] -= EYE_BACK
+        for k in D:
+            D[k][sel] *= EYE_SHRINK
+    u0, v0, u1, v1 = F.EYE_REGION
+    uvs = [tuple((1.0 + u0 + (u1 - u0) * float(u), v0 + (v1 - v0) * float(v)) for u, v in f) for f in fu]
+    W = np.zeros((len(P), R.weights.shape[1]))
+    W[:, MS.OUR_NAMES.index("Head")] = 1.0  # 안구는 머리에 고정
+    append_part(m, P, W, D, [tuple(f) for f in fl], BODY, uvs, "eye")
+
+
+EXPR_PREFIX = "Expr_"
+# 062 FR-72 입 안: MakeHuman 기준 메시(CC0) 치아·혀 헬퍼 + 절차 입안 캡. 감량 목표(삼각형) — LOD0 ≈ 160, 클로즈업 ≈ 230 (≤ 6k)
+MOUTH_TRIS = {"lod0": {"teeth": 32, "tongue": 32, "cap": (3, 8)}, "closeup": {"teeth": 48, "tongue": 64, "cap": (4, 10)}}
+MOUTH_GROUPS = {"teeth_upper": "helper-upper-teeth", "teeth_lower": "helper-lower-teeth", "tongue": "helper-tongue"}
+# UV: 치아 = parts 눈 칸 흰자(밝고 매끈), 혀 = 피부 UV 입술(붉은 기운), 입안 캡 = parts 눈 칸 동공(거의 검정)
+MOUTH_UV_TEETH = (1.21875, 0.875)
+MOUTH_UV_CAP = (1.125, 0.875)
+
+
+def _mouth_tongue_uv(R):
+    """아랫입술 가운데 정점의 피부 UV (혀 색 = 입술 붉은 기운)."""
+    lips = R.groups["lips"]
+    P = R.verts[lips]
+    v = lips[int(np.argmin(np.abs(P[:, 0]) + np.abs(P[:, 1] - P[:, 1].min()) * 2))]
+    for f, u in zip(R.faces, R.face_uvs):
+        if v in f:
+            return tuple(u[list(f).index(v)])
+    return (0.5, 0.5)
+
+
+def _append_mouth(R, m, which):
+    """062 FR-72: 치아(위·아래)·혀(헬퍼, 감량)·입안 캡(치아 뒤 반타원체, 앞이 열림). 머리 뼈 고정, 기준 델타(표정·얼굴·바탕 머리)를
+    정점 묶음으로 받는다 — 입을 벌리면 아래 치아·혀가 MPFB 표정 단위를 따라 내려간다(위 치아는 그대로)."""
+    tri = MOUTH_TRIS[which]
+    hi = MS.OUR_NAMES.index("Head")
+    alld = _all_deltas(R)
+    all_ids = []
+    for part, grp in MOUTH_GROUPS.items():
+        gs = set(R.groups[grp])
+        faces = [f for f in R.faces if all(v in gs for v in f)]
         ids = sorted({v for f in faces for v in f})
+        all_ids += ids
         remap = {v: i for i, v in enumerate(ids)}
-        co = R.verts[ids]
-        fl = [tuple(remap[v] for v in f) for f in faces]
-        if F.EYE_TRIS[lod]:
-            co, fl = _decimate_faces(co, fl, F.EYE_TRIS[lod])
-            tree = _subset_tree(R, faces)
-            b = Binding.__new__(Binding)
-            b.tri = np.zeros((len(co), 3), dtype=np.int64)
-            b.bc = np.zeros((len(co), 3))
-            for i, p in enumerate(co):
-                (t, bc), _ = _bind_point(R, tree, p)
-                b.tri[i], b.bc[i] = t, bc
-            P = b.apply(R.verts)
-            W = b.apply(R.weights)
-            D = {k: b.apply(_all_deltas(R)[k]) for k in m.deltas}
-        else:
-            P = R.verts[ids].copy()
-            W = R.weights[ids].copy()
-            D = {k: _all_deltas(R)[k][ids] for k in m.deltas}
-        hi = MS.OUR_NAMES.index("Head")
-        W = np.zeros_like(W)
-        W[:, hi] = 1.0  # 안구는 머리에 고정
-        uvs = [tuple(F.eye_uv(R, P[i]) for i in f) for f in fl]
-        append_part(m, P, W, D, fl, BODY, uvs, "eye")
+        target = tri["tongue" if part == "tongue" else "teeth"]
+        co, fl = _decimate_faces(R.verts[ids], [tuple(remap[v] for v in f) for f in faces], target)
+        tree = _subset_tree(R, faces)
+        b = Binding.__new__(Binding)
+        b.tri = np.zeros((len(co), 3), dtype=np.int64)
+        b.bc = np.zeros((len(co), 3))
+        for i, p in enumerate(co):
+            (t, bc), _ = _bind_point(R, tree, p)
+            b.tri[i], b.bc[i] = t, bc
+        P = b.apply(R.verts)
+        W = np.zeros((len(P), m.W.shape[1]))
+        W[:, hi] = 1.0
+        D = {k: (b.apply(alld[k]) if k in alld else np.zeros_like(P)) for k in m.deltas}
+        uv = MOUTH_UV_TEETH if part != "tongue" else _mouth_tongue_uv(R)
+        append_part(m, P, W, D, fl, BODY, [tuple(uv for _ in f) for f in fl], "mouth_" + part)
+    # 입안 캡: 치아·혀를 감싸는 반타원체(뒤·위·아래·옆), 앞(입술 쪽)이 열린 그릇. 정점은 가까운 치아·혀·입술 면에 묶는다.
+    lips = R.verts[R.groups["lips"]]
+    inner = R.verts[all_ids]
+    cx = 0.0
+    cy = float((inner[:, 1].min() + inner[:, 1].max()) / 2)
+    z_front = float(lips[:, 2].min()) - 0.008   # 입술 안쪽 뒤 — 입을 크게 벌려도 테두리가 입꼬리·볼 밖으로 나오지 않게 (T27 렌더)
+    z_back = float(inner[:, 2].min()) - 0.004
+    rx = float(np.abs(inner[:, 0]).max()) - 0.002
+    ry = float((inner[:, 1].max() - inner[:, 1].min()) / 2) + 0.002
+    rz = z_front - z_back
+    rings, segs = tri["cap"]
+    pts = [np.array([cx, cy, z_back])]
+    for r in range(1, rings + 1):
+        th = 0.5 * math.pi * r / rings          # 0 = 뒤 꼭짓점 → π/2 = 앞 테두리(열림)
+        for k in range(segs):
+            ph = 2 * math.pi * k / segs
+            pts.append(np.array([cx + rx * math.sin(th) * math.cos(ph), cy + ry * math.sin(th) * math.sin(ph),
+                                 z_back + rz * (1 - math.cos(th))]))
+    fl = []
+    for k in range(segs):  # 안쪽에서 보이게 감는다 (입 안을 앞에서 들여다본다)
+        fl.append((0, 1 + k, 1 + (k + 1) % segs))
+    for r in range(rings - 1):
+        for k in range(segs):
+            a, b2 = 1 + r * segs + k, 1 + r * segs + (k + 1) % segs
+            c2, d2 = 1 + (r + 1) * segs + (k + 1) % segs, 1 + (r + 1) * segs + k
+            fl.append((a, d2, c2, b2))
+    P = np.array(pts)
+    keep = [f for f in R.faces if all(v in set(all_ids) for v in f)] + \
+           [f for f in R.faces if all(v in set(R.groups["lips"]) for v in f)]
+    tree = _subset_tree(R, keep)
+    b = Binding.__new__(Binding)
+    b.tri = np.zeros((len(P), 3), dtype=np.int64)
+    b.bc = np.zeros((len(P), 3))
+    off = np.zeros_like(P)
+    for i, p in enumerate(P):
+        (t, bc), _ = _bind_point(R, tree, p)
+        b.tri[i], b.bc[i] = t, bc
+        off[i] = p - (R.verts[t] * bc[:, None]).sum(axis=0)
+    W = np.zeros((len(P), m.W.shape[1]))
+    W[:, hi] = 1.0
+    D = {k: (b.apply(alld[k]) if k in alld else np.zeros_like(P)) for k in m.deltas}
+    append_part(m, b.apply(R.verts) + off, W, D, fl, BODY, [tuple(MOUTH_UV_CAP for _ in f) for f in fl], "mouth_cap")
 
 
 def _all_deltas(R):
@@ -818,7 +1213,7 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
         if len(lst) > 1:
             border[lst] = True
     keys = sorted(D)
-    for part, (off, iters) in KIT_PARTS.items():
+    for part, (off, iters) in kit_parts().items():
         mv = np.array([parts[i] == part and not border[i] for i in range(len(P))])
         if not mv.any():
             continue
@@ -839,12 +1234,22 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
             q = q - (q @ tg) * tg
             ln = np.linalg.norm(q)
             N[i] = q / ln if ln > 1e-6 else outw  # 5정점 평균이면 얇은 면 법선 뒤집힘은 묻힌다 — 바깥 방향 판정(중심 기준)은 볼록하지 않은 고리에서 틀려 쓰지 않는다
-    _boot_hull(P, parts, border)
+    fuv0 = fuv   # 원래 면 번호 기준 (밑깔개가 쓴다)
+    boot_faces = _boot_hull(P, parts, border, N, nf)
+    if boot_faces:
+        keep = [k for k in range(len(nf)) if parts[nf[k][0]] != "boot"]
+        drop = len(nf) - len(keep)
+        nf = [nf[k] for k in keep] + boot_faces
+        face_part = [face_part[k] for k in keep] + ["boot"] * len(boot_faces)
+        fuv = [fuv[k] for k in keep] + [None] * len(boot_faces)   # 축구화는 kit_uvs
     base = P.copy()
+    planes = {pl[0]: pl for pl in cut_planes()}
     for i in range(len(P)):
         part = parts[i]
-        if part in KIT_PARTS and _LOD[0] < 2:
-            P[i] = P[i] + N[i] * KIT_PARTS[part][0]  # LOD2는 띄우지 않는다(턱이 없으니 틈이 생기지 않게)
+        if part in kit_parts() and _LOD[0] < 2:
+            # LOD2는 띄우지 않는다(턱이 없으니 틈이 생기지 않게). 062 FR-05: 소매·반바지·양말 밑단 띠에서는 몸에 붙게 줄인다
+            P[i] = P[i] + N[i] * (kit_parts()[part][0] * _hem_taper(base[i], part, Wn[i], planes)
+                                  + _kit_extra(base[i], part, Wn[i], N[i], planes))
     # 축구화 바닥은 y ≥ 0 (접지)
     for i in range(len(P)):
         if parts[i] == "boot" and P[i, 1] < 0.0:
@@ -887,8 +1292,8 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
         if p0 == p1:
             continue
         # 띄움이 큰 쪽(바깥)에서 턱을 내린다
-        o0 = KIT_PARTS.get(p0, (0.0, 0))[0]
-        o1 = KIT_PARTS.get(p1, (0.0, 0))[0]
+        o0 = kit_parts().get(p0, (0.0, 0))[0]
+        o1 = kit_parts().get(p1, (0.0, 0))[0]
         if abs(o0 - o1) < 1e-9 and "skin" not in (p0, p1):
             continue
         if o0 >= o1:
@@ -902,6 +1307,30 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
         da, db = rim_vert(oa, 0.0, outer=True), rim_vert(ob, 0.0, outer=True)
         # 면 방향: 바깥 면의 변 a→b 와 반대로 감아 바깥을 향하게. UV 부위는 바깥 면의 부위
         rim_faces.append(((db, da, ra, rb), face_part[f0] if part == parts[a0] else face_part[f1]))
+    # 062 T17a 밑깔개: 바깥 옷 밑단 띠 면을 안쪽 부위로 한 겹 더 (경계 정점은 안쪽 부위 정점을 그대로 써서 이어진다)
+    under_faces = []
+    under_of = {}
+    for fi, (f, part) in enumerate(zip(faces, fpart)):
+        uk = underlay_kind(pos[list(f)], part, planes, _LOD[0])
+        if uk is None:
+            continue
+        inner = uk[1]
+        g = GROUP[inner]
+        idx = []
+        for v in f:
+            if (v, g) in key_of:
+                idx.append(key_of[(v, g)])
+                continue
+            if (v, g) not in under_of:
+                under_of[(v, g)] = len(P) + len(extra_P)
+                off = (UNDER_SHORTS_OFF if inner == "shorts" else 0.0) - UNDER_SINK[uk[0]] * max(_side(pos[v], planes[uk[2]]), 0.0)
+                extra_P.append(pos[v] + N0[v] * off)
+                extra_W.append(W[v])   # 셔츠 밑단 띠와 같은 원래 가중치 (보조 뼈 몫은 셔츠에만 — 허벅지 몫은 둘 다 그대로, T17c)
+                for k in D:
+                    extra_D[k].append(deltas[k][v])
+                extra_part.append(g)
+            idx.append(under_of[(v, g)])
+        under_faces.append((tuple(idx), fi, inner))
     if extra_P:
         P = np.vstack([P, np.array(extra_P)])
         Wn = np.vstack([Wn, np.array(extra_W)])
@@ -918,6 +1347,13 @@ def _assemble(pos, W, faces, fuv, fpart, deltas, border_plane=None):
     for f, part in rim_faces:
         uvs = kit_uvs(P, f, part)
         m.faces.append((f, KIT, uvs, part + "_rim", None))
+    m.under = []   # 밑깔개 면 인덱스 (검사용)
+    for f, fi, inner in under_faces:
+        m.under.append(len(m.faces))
+        if inner == "skin":
+            m.faces.append((f, BODY, tuple(fuv0[fi]), "skin", None))
+        else:
+            m.faces.append((f, KIT, kit_uvs(P, f, inner), inner, None))
     m.verts = P
     m.W = Wn
     m.vpart = parts
@@ -993,13 +1429,23 @@ def kit_uvs(P, f, part):
                 fl = min(max(fv - math.floor(fc), 0.5), 1.0)
                 out.append(U.torso_shirt(fl, y))
         return tuple(out)
+    if base == "sleeve" and suit_mode():
+        # 재킷 소매: 위팔 + 아래팔(소매 끝까지) 길이로 v를 잰다 — 소맷부리(v ≥ 0.96)가 손목 쪽 끝이 되게
+        h, d, x, z, L = _limb_frame(sn + "UpperArm")
+        h2, d2, x2, z2, L2 = _limb_frame(sn + "LowerArm")
+        tot = L + L2 * SUIT_SLEEVE_T
+        fore = float((c - h2) @ d2) > 0.0
+        fh, fx, fz = (h2, x2, z2) if fore else (h, x, z)
+        fs = _unwrap([_angle(float((p - fh) @ fx), float((p - fh) @ fz)) for p in pts])
+        vs = [(L + max(float((p - h2) @ d2), 0.0)) / tot if fore else float((p - h) @ d) / tot for p in pts]
+        return tuple(U.sleeve(side, min(max(fv - math.floor(fs[0]), 0.0), 1.0), v) for v, fv in zip(vs, fs))
     if base == "sleeve":
         h, d, x, z, L = _limb_frame(sn + "UpperArm")
         fs = _unwrap([_angle(float((p - h) @ x), float((p - h) @ z)) for p in pts])
         return tuple(U.sleeve(side, min(max(fv - math.floor(fs[0]), 0.0), 1.0), float((p - h) @ d) / (L * SLEEVE_T))
                      for p, fv in zip(pts, fs))
     if base == "shorts":
-        y_hem = S.HEAD[sn + "LowerLeg"][1] + SHORTS_ABOVE_KNEE
+        y_hem = SUIT_TROUSER_Y if suit_mode() else S.HEAD[sn + "LowerLeg"][1] + SHORTS_ABOVE_KNEE
         crotch = S.HEAD[sn + "UpperLeg"][1] - 0.08
         if c[1] > crotch:
             fs = _unwrap([_angle(p[0], p[2]) for p in pts])

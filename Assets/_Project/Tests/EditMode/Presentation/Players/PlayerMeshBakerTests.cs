@@ -64,12 +64,32 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         }
 
         [Test]
-        public void Baked_OnlyHideHeadBlendShape_TwoSubmeshes()
+        public void KeepsHideHeadAndExpr()
         {
+            // 062 FR-70·71: 구운 LOD0·클로즈업 머리 = HideHead(0번, SetCloseup이 0번을 쓴다) + 표정 4 (Expr_*), 서브메시 2
             var rig = Rig(5, out _, out _);
             try
             {
-                for (int l = 0; l < 3; l++)
+                foreach (var m in new[] { rig.Lod(0).sharedMesh, rig.CloseupRenderer.sharedMesh })
+                {
+                    Assert.AreEqual(PlayerMeshBaker.HideHead, m.GetBlendShapeName(0), m.name);
+                    var names = new List<string>();
+                    for (int i = 1; i < m.blendShapeCount; i++) names.Add(m.GetBlendShapeName(i));
+                    CollectionAssert.AreEqual(ExpressionLogic.Keys, names, m.name);
+                    Assert.AreEqual(2, m.subMeshCount);
+                }
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
+        }
+
+        [Test]
+        public void Lod1_NoExpressionShapes()
+        {
+            // FR-71: LOD1·LOD2는 HideHead 하나만 (표정 없음 — 무표정 고정)
+            var rig = Rig(6, out _, out _);
+            try
+            {
+                for (int l = 1; l < 3; l++)
                 {
                     var m = rig.Lod(l).sharedMesh;
                     Assert.AreEqual(1, m.blendShapeCount, "LOD" + l);
@@ -84,8 +104,8 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         public void HairStyle_AddsHairTriangles_BaldNone()
         {
             var a = AppearanceGenerator.Generate(new BodyInput(9));
-            var afro = a.WithCombo(((a.SkinTone * AppearanceGenerator.Faces + a.Face) * AppearanceGenerator.HairStyles + 6) * AppearanceGenerator.HairColors);
-            var bald = a.WithCombo(((a.SkinTone * AppearanceGenerator.Faces + a.Face) * AppearanceGenerator.HairStyles + 9) * AppearanceGenerator.HairColors);
+            var afro = a.WithHair(6, 0, 0);   // 062: 조합 번호에 컬러 포인트가 들어가 직접 계산하지 않는다
+            var bald = a.WithHair(9, 0, 0);
             var r1 = PlayerRigTests.NewRig();
             var r2 = PlayerRigTests.NewRig();
             try
@@ -93,7 +113,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 r1.ApplyAppearance(afro);
                 r2.ApplyAppearance(bald);
                 Assert.Greater(r1.Lod(0).sharedMesh.triangles.Length, r2.Lod(0).sharedMesh.triangles.Length + 300 * 3);
-                Assert.LessOrEqual(r1.Lod(0).sharedMesh.triangles.Length / 3, 10_000, "FR-60 LOD0 ≤ 10k (헤어 포함)");
+                Assert.LessOrEqual(r1.Lod(0).sharedMesh.triangles.Length / 3, 11_000, "062 FR-81 LOD0 ≤ 11k (헤어 포함)");
                 Assert.LessOrEqual(r1.Lod(1).sharedMesh.triangles.Length / 3, 3_000);
                 Assert.LessOrEqual(r1.Lod(2).sharedMesh.triangles.Length / 3, 1_000);
             }
@@ -112,7 +132,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             {
                 Assert.IsNotNull(rig.CloseupRenderer);
                 Assert.IsFalse(rig.CloseupRenderer.enabled);
-                Assert.LessOrEqual(rig.CloseupRenderer.sharedMesh.triangles.Length / 3, 6000 + 1100, "클로즈업 머리 ≤ 6k + 헤어 조각");
+                Assert.LessOrEqual(rig.CloseupRenderer.sharedMesh.triangles.Length / 3, 6000 + 1900, "클로즈업 머리 ≤ 6k + 헤어 조각 ≤ 1.9k (088 플랜 헤어 몫)");
                 rig.SetCloseup(true);
                 Assert.IsTrue(rig.CloseupRenderer.enabled);
                 Assert.AreEqual(1f, rig.Lod(0).GetBlendShapeWeight(0));
@@ -142,12 +162,12 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             }
         }
 
-        // 057 AC-10: 하이라이트 로딩 시 선수 25명 굽기 시간 ≤ 056 측정 × 1.2.
+        // 057 AC-10: 하이라이트 로딩 시 선수 25명 굽기 시간 ≤ 056 측정 × 1.2. 062 FR-84: 057 예산(× 1.2) 대비 +30 % (바탕 머리·표정 키·입 안).
         // Mono EditMode ms 값은 부하에 흔들려 5회 최소값으로 판정한다. 056 기준은 057 T03에서 056 산출물로 측정.
         internal const double Bake25Ms056 = 309.5;  // 2026-11-05 056 산출물, Mono EditMode 5회 최소
 
         [Test]
-        public void Bake25Players_Time_Within056Plus20()
+        public void Bake25Players_Time_Within057Plus30()
         {
             var data = FaceGeneratorTests.Data;
             var rigs = new PlayerRig[25];
@@ -170,7 +190,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 }
                 TestContext.WriteLine($"[057] bake25Ms={best:0.0}");
                 UnityEngine.Debug.Log($"[057] bake25Ms={best:0.0}");
-                if (Bake25Ms056 > 0) Assert.LessOrEqual(best, Bake25Ms056 * 1.2, "057 AC-10 굽기 시간 056 대비 +20%");
+                if (Bake25Ms056 > 0) Assert.LessOrEqual(best, Bake25Ms056 * 1.2 * 1.3, "062 FR-84 굽기 시간 057 예산 대비 +30%");
             }
             finally
             {

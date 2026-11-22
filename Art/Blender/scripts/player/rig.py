@@ -61,6 +61,7 @@ def mesh_object(name, m, rig, mats, keys=None):
     vs = [bm.verts.new(to_blender(p)) for p in m.verts]
     bm.verts.ensure_lookup_table()
     uv = bm.loops.layers.uv.new("UVMap")
+    hd = bm.loops.layers.uv.new("HairData") if getattr(m, "hairdata", None) is not None else None
     for idx, mat, uvs, part, ref in m.faces:
         try:
             f = bm.faces.new([vs[i] for i in idx])
@@ -70,6 +71,10 @@ def mesh_object(name, m, rig, mats, keys=None):
         corner = {vs[i]: u for i, u in zip(idx, uvs)}
         for loop in f.loops:
             loop[uv].uv = corner[loop.vert]
+        if hd is not None:  # 062: 헤어 밀도·컬러 포인트 → 두 번째 UV (glb TEXCOORD_1)
+            vi = {vs[i]: i for i in idx}
+            for loop in f.loops:
+                loop[hd].uv = tuple(float(x) for x in m.hairdata[vi[loop.vert]])
     me = bpy.data.meshes.new(name)
     bm.to_mesh(me)
     bm.free()
@@ -101,12 +106,12 @@ def mesh_object(name, m, rig, mats, keys=None):
     return obj, names
 
 
-REQUIRED_KEYS = ("Thin", "Muscular", "Heavy", "HideHead")
+REQUIRED_KEYS = ("Thin", "Muscular", "Heavy", "Broad", "Limb", "HideHead")  # 062: +Broad·Limb
 
 
 def build(lods):
     """→ (뼈대, {lod: (obj, mesh)}, {이름: (obj, mesh)} 헤어·클로즈업 머리). 056: MPFB2 기준 선수에서."""
-    from . import hair as H
+    from . import hairstyles as H
     from . import headlod as HL
     reset_scene()
     R = B.reference()  # skeleton.configure 포함 — 뼈대보다 먼저
@@ -125,4 +130,9 @@ def build(lods):
     m = HL.build(R)
     obj, _ = mesh_object(HL.NAME, m, rig, mats)
     parts[HL.NAME] = (obj, m)
+    from . import suit as SU
+    for lod in lods:  # 062 FR-27: 정장 LOD (같은 뼈대·키, Unity ApplyOutfit이 몸 LOD 원본을 바꾼다)
+        m = SU.build(lod)
+        obj, _ = mesh_object(SU.NAME.format(lod), m, rig, mats, keys=REQUIRED_KEYS)
+        parts[SU.NAME.format(lod)] = (obj, m)
     return rig, meshes, parts

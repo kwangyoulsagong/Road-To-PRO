@@ -97,6 +97,11 @@ def arm_rest_dir(side):
     return Vector((side * s, -c, 0.0))
 
 
+def _core():
+    from . import mpfb_src as MS
+    return MS.CORE_BONES
+
+
 class Keyer:
     """Pose → Blender 포즈 본 키 (rotation_quaternion 전부, location은 Hips만)."""
 
@@ -114,7 +119,7 @@ class Keyer:
     def key(self, pose, frame):
         rw, head, _ = fk(pose)
         P = {n: self._pose_matrix(n, rw[n], head[n]) for n in S.NAMES}
-        for name in S.NAMES:
+        for name in S.NAMES[:_core()]:  # 062: 손가락 뼈는 클립에 키를 넣지 않는다 (런타임 HandPose가 돌린다)
             parent = S.PARENT[name]
             if parent is None:
                 basis = self.B[name].inverted() @ P[name]

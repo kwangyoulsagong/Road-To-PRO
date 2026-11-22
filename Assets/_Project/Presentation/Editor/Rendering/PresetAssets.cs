@@ -33,8 +33,10 @@ namespace RoadToPro.Presentation.Editor.Rendering
         /// </summary>
         public static readonly string[] Max1KTextures =
         {
-            "Assets/_Project/Presentation/Players/Generated/Textures/skin_closeup.png",
-            "Assets/_Project/Presentation/Players/Generated/Textures/skin_closeup_normal.png",
+            "Assets/_Project/Presentation/Players/Generated/Textures/skin_light.png",   // 088: MakeHuman 피부 2K 3세트 + 공유 노멀
+            "Assets/_Project/Presentation/Players/Generated/Textures/skin_asian.png",
+            "Assets/_Project/Presentation/Players/Generated/Textures/skin_dark.png",
+            "Assets/_Project/Presentation/Players/Generated/Textures/skin_normal.png",
         };
 
         [MenuItem("Road To PRO/Rendering/Generate Preset Assets")]

@@ -252,4 +252,6 @@ def write_all(out_dir, seed=0, R=None):
     out["kit_normal.png"] = (NORMAL_SIZE, NORMAL_SIZE)
     from . import skin
     out.update(skin.write_all(out_dir, R, seed))
+    from . import heightfield
+    out.update(heightfield.write_all(out_dir, R))  # 062 FR-90·91: 근육·뼈·힘줄 구운 지도
     return out

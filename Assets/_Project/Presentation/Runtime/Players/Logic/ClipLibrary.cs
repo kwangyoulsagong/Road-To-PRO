@@ -106,6 +106,12 @@ namespace RoadToPro.Presentation.Players.Logic
         /// <summary>080 FR-04: 손 접촉 클립의 접촉 프레임 어깨(위팔 머리, 루트 기준)·팔 길이(기준 키). <see cref="ArmLength"/> = 0이면 손 IK 없음.</summary>
         public Vec3 ShoulderL, ShoulderR;
         public float ArmLength;
+        /// <summary>062 FR-11 손 포즈 이름 (open·relax·half·fist). 태그가 없으면 null → <see cref="HandPoseTable"/> 기본(open).</summary>
+        public string HandPose;
+        /// <summary>062: <see cref="ClipLibrary.HandPoses"/> 포즈 인덱스 (Parse가 채운다, 표가 없으면 −1).</summary>
+        public int HandPoseIndex = -1;
+        /// <summary>062 FR-21: 프레임별(30 Hz, 0..Frames) 골반 가속도 m/s² (선수 = Unity 좌표). 옛 파일이면 null.</summary>
+        public Vec3[] PelvisAccel;
         public float ApproachMin = -180, ApproachMax = 180, BallHeightMin, BallHeightMax = 3, BallSpeedMin, BallSpeedMax = 40;
 
         public float Length => Frames / Fps;
@@ -138,6 +144,8 @@ namespace RoadToPro.Presentation.Players.Logic
         readonly int[,] _loco = new int[5, 8];
 
         public int Count => _clips.Count;
+        /// <summary>062 FR-11 손 포즈 표 (clips.json "handPoses"). 옛 파일이면 null.</summary>
+        public HandPoseTable HandPoses { get; private set; }
         public int IdleIndex { get; private set; } = -1;
         public ClipInfo Get(int i) => _clips[i];
         public int IndexOf(string id) => id != null && _byId.TryGetValue(id, out var i) ? i : -1;
@@ -199,7 +207,7 @@ namespace RoadToPro.Presentation.Players.Logic
                 var c = new ClipInfo
                 {
                     Id = S(o, "id"), Group = S(o, "group"), Gait = S(o, "gait"), Outcome = S(o, "outcome"), Kind = S(o, "kind"),
-                    Style = S(o, "style"), Variant = S(o, "variant"),
+                    Style = S(o, "style"), Variant = S(o, "variant"), HandPose = S(o, "handPose"),
                     Index = lib._clips.Count,
                 };
                 o.TryGet("frames", out var fr);
@@ -257,6 +265,12 @@ namespace RoadToPro.Presentation.Players.Logic
                 if (o.TryGet("cut", out var cu)) c.Cut = F(cu);
                 if (o.TryGet("plantFrame", out var pf)) c.PlantFrame = (int)(double)pf;
                 c.PlantLeft = S(o, "plantFoot") == "Left";
+                var pa = L(o, "pelvisAccel");
+                if (pa != null)
+                {
+                    c.PelvisAccel = new Vec3[pa.Count];
+                    for (int i = 0; i < pa.Count; i++) { var v = (List<object>)pa[i]; c.PelvisAccel[i] = new Vec3(F(v[0]), F(v[1]), F(v[2])); }
+                }
                 if (o.TryGet("stancePaths", out var sp2) && sp2 is JsonObject spo)
                 {
                     c.StanceL = Spans(L(spo, "Left"));
@@ -270,6 +284,12 @@ namespace RoadToPro.Presentation.Players.Logic
                     int g = c.Gait switch { "walk" => 1, "jog" => 2, "run" => 3, "sprint" => 4, _ => -1 };
                     if (g > 0) lib._loco[g, c.Dir / 45] = c.Index;
                 }
+            }
+            // 062 FR-11: 손 포즈 표 + 클립별 인덱스
+            if (root.TryGet("handPoses", out var hp) && hp is JsonObject hpo)
+            {
+                lib.HandPoses = HandPoseTable.Parse(hpo);
+                foreach (var c in lib._clips) c.HandPoseIndex = lib.HandPoses.IndexOf(c.HandPose);
             }
             return lib;
         }

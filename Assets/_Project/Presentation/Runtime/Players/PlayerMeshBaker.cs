@@ -8,7 +8,8 @@ namespace RoadToPro.Presentation.Players
     /// <summary>
     /// 선수별 메시 굽기 (specs/056 plan "로딩 때 굽기"). 하이라이트 로딩 중에 한 번:
     /// 정점 = 기준 + Σ 가중치 × 블렌드셰이프 델타(체형·얼굴·수염), 선수 헤어 조각을 Body 서브메시(0)에 합친다.
-    /// 결과 메시는 블렌드셰이프 `HideHead` 하나만 남긴다(클로즈업 머리 전환, FR-61) → 재생 중 블렌드셰이프 비용이 043보다 적다.
+    /// 결과 메시는 블렌드셰이프 `HideHead`(0번, 클로즈업 머리 전환, FR-61)와 062 표정 `Expr_*`(1~4번, ExpressionLogic.Keys 순서 —
+    /// 원본에 표정 키가 있는 LOD0·클로즈업 머리만, FR-70·71)만 남긴다. 표정 델타는 머리 국소 변위라 체형·바탕 머리를 구운 정점에 그대로 더한다(plan 위험).
     /// 법선은 같은 위치 정점을 묶어 다시 계산(UV 이음매에서 갈라지지 않게), 탄젠트는 Unity 계산.
     /// 같은 입력 → 같은 정점 배열(합산 순서 고정, AC-11). 재생 중 호출은 진단 카운터로 센다(043 KitCompositor 규칙).
     /// </summary>
@@ -41,7 +42,10 @@ namespace RoadToPro.Presentation.Players
             foreach (var m in parts) total += m.vertexCount;
             var verts = new Vector3[total];
             var uvs = new List<Vector2>(total);
+            var hairData = new List<Vector2>(total);   // 062: UV1 = (밀도, 컬러 포인트 마스크) — 헤어만, 몸은 (1, 0)
             var hide = new Vector3[total];
+            // 062 FR-70·71: 표정 키 델타 (원본 어느 조각에도 없으면 null → 블렌드셰이프를 만들지 않는다)
+            var expr = new Vector3[RoadToPro.Presentation.Players.Logic.ExpressionLogic.Keys.Length][];
             var tris0 = new List<int>();
             var tris1 = new List<int>();
             var bpv = new List<byte>(total);
@@ -67,6 +71,13 @@ namespace RoadToPro.Presentation.Players
                         for (int i = 0; i < n; i++) hide[off + i] = delta[i] * inv;
                         continue;
                     }
+                    int ek = Array.IndexOf(RoadToPro.Presentation.Players.Logic.ExpressionLogic.Keys, key);
+                    if (ek >= 0)
+                    {
+                        var e = expr[ek] ??= new Vector3[total];
+                        for (int i = 0; i < n; i++) e[off + i] = delta[i] * inv;
+                        continue;
+                    }
                     if (!weights.TryGetValue(key, out float w) || w == 0f) continue;
                     w = Mathf.Clamp01(w) * inv;
                     for (int i = 0; i < n; i++) v[i] += delta[i] * w;
@@ -76,6 +87,10 @@ namespace RoadToPro.Presentation.Players
                 m.GetUVs(0, tmpUv);
                 if (tmpUv.Count != n) throw new InvalidOperationException(m.name + " UV 수가 정점 수와 다르다");
                 uvs.AddRange(tmpUv);
+                tmpUv.Clear();
+                if (m.HasVertexAttribute(UnityEngine.Rendering.VertexAttribute.TexCoord1)) m.GetUVs(1, tmpUv);
+                if (tmpUv.Count == n) hairData.AddRange(tmpUv);
+                else for (int i = 0; i < n; i++) hairData.Add(new Vector2(1f, 0f));
                 for (int sm = 0; sm < m.subMeshCount; sm++)
                 {
                     var t = m.GetTriangles(sm);
@@ -95,6 +110,7 @@ namespace RoadToPro.Presentation.Players
             mesh.indexFormat = total > 65535 ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
             mesh.vertices = verts;
             mesh.SetUVs(0, uvs);
+            mesh.SetUVs(1, hairData);
             mesh.subMeshCount = 2;
             mesh.SetTriangles(tris0, 0, false);
             mesh.SetTriangles(tris1, 1, false);
@@ -105,6 +121,12 @@ namespace RoadToPro.Presentation.Players
             using (var all = new NativeArray<BoneWeight1>(bw.ToArray(), Allocator.Temp))
                 mesh.SetBoneWeights(per, all);
             mesh.AddBlendShapeFrame(HideHead, 1f, hide, null, null);
+            // 표정은 4개 전부 있거나(LOD0·클로즈업) 하나도 없다(LOD1 이하) — 블렌드셰이프 번호 = 1 + 표정 키 인덱스로 고정
+            bool anyExpr = false;
+            foreach (var e in expr) anyExpr |= e != null;
+            if (anyExpr)
+                for (int k = 0; k < expr.Length; k++)
+                    mesh.AddBlendShapeFrame(RoadToPro.Presentation.Players.Logic.ExpressionLogic.Keys[k], 1f, expr[k] ?? new Vector3[total], null, null);
             mesh.RecalculateBounds();
             mesh.UploadMeshData(false);
             return mesh;

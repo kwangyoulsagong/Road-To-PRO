@@ -33,6 +33,7 @@ namespace RoadToPro.Verification.Samples
             public AnimationClip[] clips; // ClipLibrary 인덱스 순서
             public TextAsset gaitReferenceJson; // 055 연구 기준 스틱 피겨 (player.gait-reference.json)
             public Material stickMaterial;      // 055 스틱 피겨 선 (URP Unlit)
+            public TextAsset expressionsJson;   // 062 FR-70 반응·이벤트 → 표정 (Presentation/Players/Data/expressions.json)
         }
 
         // 엔티티: 0 홈 GK, 1~10 홈 필드, 11 원정 GK, 12~21 원정 필드, 22~24 심판
@@ -156,6 +157,9 @@ namespace RoadToPro.Verification.Samples
             FarmContext.Screens["speed1x"] = () => ShowSpeed(1f, 90);
             FarmContext.Screens["speed15x"] = () => ShowSpeed(1.5f, 60);
             FarmContext.Screens["speed3x"] = () => ShowSpeed(3f, 30);
+            // 062 FR-21 자리 장면 (T17): 0.5x 질주 상체 근접 — 보조 뼈 2차 움직임·손가락 포즈 켬. 시나리오 완성은 T29
+            FarmContext.Screens["kitMotion"] = () => ShowKitMotion(0.5f, 180);
+            Register062();   // 062 T35: 체형·손·키트 움직임·얼굴·표정·등급·정장 (PlayerScreen.062.cs)
             FarmContext.CaptureRegions = Regions;
             FarmContext.PerfCounters["animCpuMs"] = () => _perf ? _cpuMs : (double?)null;
             FarmContext.PerfCounters["animGcBytes"] = () => _perf ? _gcBytes : (double?)null;
@@ -171,6 +175,7 @@ namespace RoadToPro.Verification.Samples
             FarmContext.PerfCounters.Remove("animGcBytes");
             FarmContext.PerfCounters.Remove("closeupSwitchMs");
             FarmContext.PerfCounters.Remove("faceFlicker");
+            FarmContext.PerfCounters.Remove("poseHash");
             KitCompositor.PlaybackActive = false;
         }
 
@@ -346,7 +351,7 @@ namespace RoadToPro.Verification.Samples
         Coroutine _flickCo;
 
         static PlayerAppearance WithHair(in PlayerAppearance a, int hs) =>
-            a.WithCombo(((a.SkinTone * AppearanceGenerator.Faces + a.Face) * AppearanceGenerator.HairStyles + hs) * AppearanceGenerator.HairColors + a.HairColor);
+            a.WithHair(hs, a.HairColor, AppearanceGenerator.ValidColorPoint(hs, a.HairColor, a.ColorPoint) ? a.ColorPoint : 0);
 
         void Override(int ent, int hs)
         {
@@ -789,7 +794,7 @@ namespace RoadToPro.Verification.Samples
             return d;
         }
 
-        void Prepare(HighlightData d, float t, float rate, long frame, RunStyleChoice[] styles = null)
+        void Prepare(HighlightData d, float t, float rate, long frame, RunStyleChoice[] styles = null, bool extras = false)
         {
             _perf = false;
             KitCompositor.PlaybackActive = false;
@@ -801,6 +806,7 @@ namespace RoadToPro.Verification.Samples
             _clock.Rate = rate;
             _clock.Frame = frame;
             _sys.Init(plan, _rigs, assets.clips, null);
+            if (extras) _sys.EnableMotionExtras(_kitMotion ??= assets.body.layoutJson != null ? KitSecondaryMotion.FromLayout(assets.body.layoutJson.text) : null);
             foreach (var rig in _rigs) rig.Freeze(false);
             _sys.ApplyAt(t);
             foreach (var rig in _rigs)
@@ -1025,6 +1031,27 @@ namespace RoadToPro.Verification.Samples
             var root = _rigs[0].transform.position;
             cam.transform.position = root + new Vector3(4.5f, 1.4f, 0.5f);
             cam.transform.rotation = Quaternion.LookRotation(root + Vector3.up * 0.9f - cam.transform.position, Vector3.up);
+        }
+
+        KitSecondaryMotion _kitMotion;
+
+        /// <summary>062 T17 자리 장면: ShowSpeed와 같은 질주를 0.5x로, 2차 움직임을 켜고 상체 옆에서 본다.</summary>
+        void ShowKitMotion(float rate, long frame)
+        {
+            ClearSticks();
+            _view = "kitMotion";
+            _contactView = false;
+            var d = PerfHighlight.Build();
+            for (int f = 0; f < d.Frames; f++)
+                for (int e = 0; e < HighlightData.Entities; e++)
+                    d.Set(f, e, 0f, e == 0 ? -20f + 7.6f * f / HighlightData.FrameRate : 0f, 0f, e == 0);
+            d.Events.Clear();
+            float t = d.StartTime + (float)(frame * (double)rate / 60.0);
+            Prepare(d, t, rate, frame, null, true);
+            Ball().gameObject.SetActive(false);
+            var root = _rigs[0].transform.position;
+            cam.transform.position = root + new Vector3(2.9f, 1.15f, 1.1f);   // 머리 ~ 무릎 (밑단·소매·반바지가 다 들어오게)
+            cam.transform.rotation = Quaternion.LookRotation(root + Vector3.up * 1.05f - cam.transform.position, Vector3.up);
         }
 
         Vector3 ContactWorld()

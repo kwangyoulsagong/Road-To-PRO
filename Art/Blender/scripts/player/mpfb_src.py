@@ -33,6 +33,8 @@ ARM_ANGLE = 45.0
 
 REFERENCE_MACRO = {
     "gender": 1.0, "age": 0.5, "muscle": 0.6, "weight": 0.5, "proportions": 1.0, "height": 0.75,
+    # 088 T03: 시안 값(근육 0.85·체중 0.55·비율 0.7·키 0.6)은 위팔/키 최대 0.271 > FR-31(ANSUR 0.24)·엄지-허벅지 관통 1,100·머리 비율·
+    # GK 펀칭 높이를 깨서 062 보정값 유지 (2026-11-22 "베스트케이스" 판단, 스펙 FR-30 기록)
     "cupsize": 0.5, "firmness": 0.5, "race": {"asian": 1 / 3, "caucasian": 1 / 3, "african": 1 / 3},
 }
 # 체형 셰이프 (043 이름 유지). 값은 기준에서 바꾸는 MPFB 매크로 (FR-11: muscle 0.6~0.9, weight는 BMI에서 — 043 Thin/Heavy가 BMI 유도)
@@ -41,8 +43,21 @@ BODY_MACROS = {
     "Muscular": {"muscle": 0.9},
     "Heavy": {"weight": 0.85},
 }
+# 062 FR-01: 같은 키·체중에서도 실루엣이 달라지는 체형 축 (MPFB CC0 타깃 합, 가중치 1). Broad = 어깨 폭·가슴(브이자),
+# Limb = 팔다리 근육 둘레. Unity BodyShapeMap이 키·체중·역할 + 시드 편차로 0~1을 정한다.
+# 062 FR-03: 바탕 체형 보정 (모든 선수 고정). 056 아래팔 둘레/키 0.13~0.16 < ANSUR II 5 백분위 0.157 — MPFB 두께 타깃은
+# 가중치 1에서 +3 %뿐이라, 뼈 축 기준 반경 배율(그 뼈 가중치로 감쇠)을 직접 건다. 값 = 반경 배율.
+BASE_RADIAL = {"LowerArm": 1.26, "UpperArm": 1.06}
+BODY_TARGET_GAIN = {"Broad": 1.0, "Limb": 0.5}  # 062: Broad = 팀 안 어깨 너비 표준편차 ≥ 0.010 (FR-04 개정, 1.2는 칼라 고리가 꺾인다), Limb = 위팔/키 ≤ 0.24
+BODY_TARGETS = {
+    "Broad": ["torso-vshape-incr", "measure-shoulder-dist-incr", "torso-muscle-pectoral-incr"],
+    "Limb": [f"{s}-{part}-muscle-incr" for s in ("l", "r") for part in ("upperarm", "lowerarm", "upperleg")],  # 062 T09: 종아리 제외 — 양말에 가려 안 보이고, 극단 체형 옆 질주(sprint_l)에서 손가락이 종아리를 뚫는다
+}
 
-# MPFB game_engine 뼈 → 043 뼈 (Humanoid 이름). 손가락은 Hand로 합친다.
+# MPFB game_engine 뼈 → 043 뼈 (Humanoid 이름). 062 FR-10·13: 손가락은 Humanoid 손가락 뼈(손당 15개)로 둔다
+# (056·057은 Hand로 합쳤다). 손가락 뼈는 뼈대 맨 뒤에 붙여 기존 22개 순서·인덱스를 바꾸지 않는다.
+FINGERS = (("Thumb", "thumb"), ("Index", "index"), ("Middle", "middle"), ("Ring", "ring"), ("Little", "pinky"))
+FINGER_SEGS = (("Proximal", "01"), ("Intermediate", "02"), ("Distal", "03"))
 BONE_MAP = {
     "pelvis": "Hips", "spine_01": "Spine", "spine_02": "Chest", "spine_03": "UpperChest", "neck_01": "Neck", "head": "Head",
 }
@@ -52,9 +67,9 @@ for _s, _n in (("l", "Left"), ("r", "Right")):
         f"hand_{_s}": f"{_n}Hand", f"thigh_{_s}": f"{_n}UpperLeg", f"calf_{_s}": f"{_n}LowerLeg",
         f"foot_{_s}": f"{_n}Foot", f"ball_{_s}": f"{_n}Toes",
     })
-    for _f in ("thumb", "index", "middle", "ring", "pinky"):
-        for _k in ("01", "02", "03"):
-            BONE_MAP[f"{_f}_{_k}_{_s}"] = f"{_n}Hand"
+    for _F, _f in FINGERS:
+        for _G, _k in FINGER_SEGS:
+            BONE_MAP[f"{_f}_{_k}_{_s}"] = f"{_n}{_F}{_G}"
 
 # 043 뼈 계층 (부모가 먼저). tail은 지정 자식의 head, 잎 뼈는 MPFB tail.
 OUR_BONES = [
@@ -67,6 +82,11 @@ for _n in ("Left", "Right"):
 for _n in ("Left", "Right"):
     OUR_BONES += [(f"{_n}UpperLeg", "Hips", f"{_n}LowerLeg"), (f"{_n}LowerLeg", f"{_n}UpperLeg", f"{_n}Foot"),
                   (f"{_n}Foot", f"{_n}LowerLeg", f"{_n}Toes"), (f"{_n}Toes", f"{_n}Foot", None)]
+CORE_BONES = len(OUR_BONES)  # 22 (043 뼈대). 손가락은 이 뒤 (062)
+for _n in ("Left", "Right"):
+    for _F, _f in FINGERS:
+        _segs = [f"{_n}{_F}{_G}" for _G, _ in FINGER_SEGS]
+        OUR_BONES += [(_segs[0], f"{_n}Hand", _segs[1]), (_segs[1], _segs[0], _segs[2]), (_segs[2], _segs[1], None)]
 OUR_NAMES = [b[0] for b in OUR_BONES]
 OUR_PARENT = {b[0]: b[1] for b in OUR_BONES}
 _INV_MAP = {}

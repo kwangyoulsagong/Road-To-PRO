@@ -1,0 +1,146 @@
+{
+  "schemaVersion": 1,
+  "id": "088-regression",
+  "spec": "088",
+  "description": "088 AC-08 회귀: 062 헤어 일람(7묶음 정면·원거리)·바탕 머리·팀 11명 정렬이 새 얼굴·새 헤어로 나오고 옛 모습이 없다. 042-goal-sequence(하이라이트 씬)는 따로 찍어 승인 기록에 남긴다.",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261122
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-08"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "hair1Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair1Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair2Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair2Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair3Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair3Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair4Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair4Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair5Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair5Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair6Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair6Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair7Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair7Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair1Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair1Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair4Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair4Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair7Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair7Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base1Front"
+    },
+    {
+      "type": "capture",
+      "name": "base1Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base5Front"
+    },
+    {
+      "type": "capture",
+      "name": "base5Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base8Front"
+    },
+    {
+      "type": "capture",
+      "name": "base8Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "team11"
+    },
+    {
+      "type": "capture",
+      "name": "team11",
+      "kind": "3d"
+    }
+  ]
+}

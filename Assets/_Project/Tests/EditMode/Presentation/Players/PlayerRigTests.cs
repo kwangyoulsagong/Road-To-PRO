@@ -24,10 +24,54 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             Texture2D T(string p) => AssetDatabase.LoadAssetAtPath<Texture2D>(Gen + "/" + p);
             return new PlayerBodyAssets
             {
-                skin = T(PlayerBodyAssets.Skin), skinNormal = T(PlayerBodyAssets.SkinNormal), parts = T(PlayerBodyAssets.Parts),
-                closeupSkin = T(PlayerBodyAssets.CloseupSkin), closeupNormal = T(PlayerBodyAssets.CloseupNormal),
+                skinSets = System.Array.ConvertAll(PlayerBodyAssets.SkinSets, T), skinNormal = T(PlayerBodyAssets.SkinNormal),
+                parts = T(PlayerBodyAssets.Parts), browMask = T(PlayerBodyAssets.BrowMask),
                 faceJson = AssetDatabase.LoadAssetAtPath<TextAsset>(Gen + "/" + PlayerBodyAssets.FaceJson),
+                bodyDetailN = T(PlayerBodyAssets.BodyDetailN), bodyDetailAO = T(PlayerBodyAssets.BodyDetailAO),
+                skinThickness = T(PlayerBodyAssets.SkinThickness), kitDetailN = T(PlayerBodyAssets.KitDetailN),
+                kitDetailAO = T(PlayerBodyAssets.KitDetailAO), kitWeave = T(PlayerBodyAssets.KitWeave), kitRegion = T(PlayerBodyAssets.KitRegion),
+                beardMask = T(PlayerBodyAssets.BeardMask), suitMask = T(PlayerBodyAssets.SuitMask),
             };
+        }
+
+        [Test]
+        public void ApplyOutfit_RoundTrip_Same()
+        {
+            // 062 FR-27 (plan 위험): 유니폼 → 정장 → 유니폼 왕복 후 메시(LOD 3·클로즈업)·키트 머티리얼(마스크·색·번호 칸)이 처음과 같다.
+            // 정장은 같은 얼굴·헤어(클로즈업 머리 메시 동일), 몸 메시만 다르고, 번호·이름 없음.
+            var rig = NewRig();
+            try
+            {
+                var data = FaceGeneratorTests.Data;
+                rig.ApplyAppearance(AppearanceGenerator.Generate(new BodyInput(31)), FaceGenerator.Generate(data, 31), data);
+                var mask = AssetDatabase.LoadAssetAtPath<Texture2D>(Gen + "/Textures/kit_mask_stripes.png");
+                var atlas = Texture2D.whiteTexture;
+                var kit = new KitColors(new Rgb(0.8f, 0.1f, 0.1f), new Rgb(1f, 1f, 1f), new Rgb(0.1f, 0.1f, 0.1f));
+                rig.ApplyKit(kit, mask, atlas, 5);
+                var h0 = new ulong[3];
+                for (int l = 0; l < 3; l++) h0[l] = PlayerMeshBaker.Hash(rig.Lod(l).sharedMesh);
+                ulong c0 = PlayerMeshBaker.Hash(rig.CloseupRenderer.sharedMesh);
+                var km = rig.KitMaterial;
+                var cell0 = km.GetVector("_TextCell");
+                var prim0 = km.GetColor("_Primary");
+                Assert.AreEqual(PlayerOutfit.Uniform, rig.Outfit);
+
+                rig.ApplyOutfit(PlayerOutfit.Suit, 1);
+                Assert.AreEqual(PlayerOutfit.Suit, rig.Outfit);
+                Assert.AreNotEqual(h0[0], PlayerMeshBaker.Hash(rig.Lod(0).sharedMesh), "정장 몸 메시");
+                Assert.AreEqual(c0, PlayerMeshBaker.Hash(rig.CloseupRenderer.sharedMesh), "얼굴·헤어(클로즈업 머리) 그대로");
+                Assert.AreEqual(Vector4.zero, km.GetVector("_TextCell"), "정장엔 번호·이름 없음");
+                Assert.AreNotSame(mask, km.GetTexture("_MaskTex"), "정장 마스크");
+                Assert.Less(Vector4.Distance(PlayerLook.SuitColors[1], km.GetColor("_Primary")), 1e-4f, "정장 색 1");
+                Assert.LessOrEqual(rig.Lod(0).sharedMesh.triangles.Length / 3, 11000, "LOD0 ≤ 11k");
+
+                rig.ApplyOutfit(PlayerOutfit.Uniform, 0);
+                for (int l = 0; l < 3; l++) Assert.AreEqual(h0[l], PlayerMeshBaker.Hash(rig.Lod(l).sharedMesh), "LOD" + l + " 왕복");
+                Assert.AreSame(mask, km.GetTexture("_MaskTex"));
+                Assert.AreEqual(cell0, km.GetVector("_TextCell"));
+                Assert.AreEqual(prim0, km.GetColor("_Primary"));
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
         }
 
         [Test]

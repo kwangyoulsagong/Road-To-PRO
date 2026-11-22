@@ -5,7 +5,7 @@
 산출물(<폴더>):
   player.glb            Player_LOD0..2·Hair_<스타일>_LOD0..2·Head_Closeup(스킨·셰이프키) + PlayerRig + 클립(NLA 트랙)
   player.face.json      얼굴 축·수염·랜드마크 (specs/056 FR-22, Unity FaceGenerator·FaceLandmarks)
-  player.clips.json     클립 태그 (FR-32)
+  player.clips.json     클립 태그 (FR-32), 062 handPose·pelvisAccel(30 Hz 골반 가속도)
   player.gait-metrics.json / player.gait-reference.json  055 형태 지표·연구 기준 스틱 피겨 (FR-70·71)
   player.layout.json    뼈대·UV 영역·번호/이름 영역·검사 요약
   Textures/*.png        키트 마스크 6종·원단 노말·몸(얼굴 8종·피부·머리카락)
@@ -13,6 +13,7 @@
 종료 코드: 0 성공, 2 인자 오류, 3 검사 실패, 4 MPFB2 없음(specs/056 FR-03), 1 예외. 실패하면 --out에 아무것도 남기지 않는다(임시 폴더에서 만든 뒤 옮김).
 """
 import argparse
+import json
 import os
 import shutil
 import sys
@@ -68,7 +69,7 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     from player import bake, checks, export, preview as PV, rig, skeleton, textures, uv
     from player import body as B
     from player import face as F
-    from player import hair as H
+    from player import hairstyles as H
     from player import headlod as HL
     from player import mpfb_src as MS
 
@@ -88,6 +89,11 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     tex = textures.write_all(os.path.join(stem_dir, "Textures"), seed, R)
     mm = {l: m for l, (o, m) in meshes.items()}
     pm = {k: m for k, (o, m) in parts.items()}
+    if 0 in mm:  # 062 FR-20·31·91: 키트 구운 지도 (LOD0 키트 UV)
+        from player import heightfield as HF
+        tex.update(HF.write_kit(os.path.join(stem_dir, "Textures"), mm[0]))
+    from player import suit as SU
+    tex.update(SU.write_mask(os.path.join(stem_dir, "Textures")))  # 062 FR-27 정장 마스크
     tree = B._ref_tree(R)
     face_json = F.face_json(R, tree)
     eye_keys = [{}] + [{f"Face_{a}_{sg}": r} for a, _, _, r in F.AXES if a.startswith(("eye", "brow")) for sg in ("pos", "neg")]
@@ -109,11 +115,66 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     summary["kitRimUv"] = checks.kit_rim_uv(mm[min(mm)])
     from player import skin as SK
     summary["skinDetail"] = checks.skin_detail(SK.LAST_METRICS)
+    if 0 in mm:  # 062 AC-04: 재질 값 표·구운 디테일 (heightfield.FEAT·skin.FEAT는 텍스처를 쓸 때 채워진다)
+        from player import heightfield as HF
+        summary["material062"] = HF.material_summary(SK.LAST_METRICS, checks.SKIN_056_ROUGH)
+        summary["bakedMaps"] = checks.baked_maps(HF.FEAT, SK.FEAT)
+    summary["bodyShapes"] = checks.body_shapes(R, mm[min(mm)])  # 062 AC-01
+    if 0 in mm:  # 062 T01: 시각 지표 (기준선·이후 비교, player/visual_metrics.py)
+        from player import visual_metrics as VM
+        summary["visual062"] = VM.all_metrics(mm, pm, os.path.join(stem_dir, "Textures"), H.STYLES)
+        summary["outline"] = VM.outline_metrics(mm[0])  # 062 AC-02
+        summary["hair062"] = VM.hair062(mm[0], {s: pm.get(f"{s}_LOD0") for s in H.STYLES},  # 062 AC-05·06
+                                        VM.load_image(os.path.join(stem_dir, "Textures", "parts.png")), R)
+        from player import hands as HD
+        summary["hands"] = HD.hand_metrics(mm)
+        summary["face062"] = checks.face062(R, mm, pm[HL.NAME], face_json, SK.LAST_METRICS)  # 062 AC-07·08
     if 0 in mm:
         summary["proportions"] = checks.proportions(mm)
         summary["penetration"] = checks.penetration(clips, mm, pm, 0)
+        summary["kitMotion"] = checks.kit_motion(clips, mm, 0)  # 062 FR-21: 보조 뼈 상자 꼭짓점 관통 0
+        summary["kitCover"] = checks.kit_cover(mm)  # 062 T17a: 밑단 이동 ≤ 밑깔개 폭 (구멍 0)
+        from player import headref as HR
+        summary["headReference"] = HR.write(stem_dir, pm[HL.NAME], mm[0])  # 062 FR-67~69 (외형 팩 기준)
+        suits = {l: pm[SU.NAME.format(l)] for l in lods if SU.NAME.format(l) in pm}
+        summary["suit"] = SU.summary(clips, suits, pm)  # 062 FR-27·AC-15 (test_suit)
+    from player import mhassets as MHA
+    summary["mhFace"] = F.mh_face_summary(R)          # 088 AC-01
+    if 0 in mm:                                         # 088 AC-03: 시안 대비 충실도 (그루밍 굽기 스타일)
+        from player.groom import bake as GB, fidelity as GF, styles as GS
+        from player import visual_metrics as VM2
+        parts_img = VM2.load_image(os.path.join(stem_dir, "Textures", "parts.png"))
+        gf = {"styles": {}}
+        for st in H.MESH_STYLES:
+            if st not in GS.STYLES:
+                gf["styles"][st] = {"approved": False, "ok": False, "iou": {}, "deltaE": None, "note": "그루밍 이식 전"}
+                continue
+            r0 = GB.shell_rect(GS.STYLES[st]["strand"])
+            h_, w_ = parts_img.shape[:2]
+            tile = parts_img[int(r0[1] * h_):int(r0[3] * h_), int(r0[0] * w_):int(r0[2] * w_), 0]   # Blender 픽셀 행 0 = 아래(v 0)
+            import hashlib as _hl
+            import inspect as _ins
+            mr = float(tile.mean()) if tile.size else 0.5
+            fk = _hl.sha256((GB._key(st, R) + _ins.getsource(GF) + _ins.getsource(GB) + f"{mr:.6f}" + str(sorted(lods))).encode()).hexdigest()[:16]
+            fpath = os.path.join(GB.CACHE, f"fid-{st}-{fk}.json")   # 088 FR-16: 같은 입력이면 충실도 재계산 안 함
+            if os.path.exists(fpath) and not os.environ.get("GROOM_NO_CACHE"):
+                gf["styles"][st] = json.load(open(fpath, encoding="utf-8"))
+            else:
+                gf["styles"][st] = GF.evaluate(R, st, GB.summary(st, R), {l: pm[f"{st}_LOD{l}"] for l in lods if l < 2}, mr)
+                json.dump(gf["styles"][st], open(fpath, "w", encoding="utf-8"))
+        gf["ok"] = all(v["ok"] for v in gf["styles"].values())
+        summary["groomFidelity"] = gf
+    summary["mhLicenses"] = MHA.licenses()             # 088 AC-02
+    legacy_mod = [f for f in ("player/hair.py", "player/hairtex.py", "groom_v2") if os.path.exists(os.path.join(HERE, f))]
+    legacy_tex = [t for t in tex if t in ("skin.png", "skin_closeup.png", "skin_closeup_normal.png")]
+    summary["noLegacy"] = {"ok": not legacy_mod and not legacy_tex, "modules": legacy_mod, "textures": legacy_tex,
+                           "hairNotGroomed": [st for st in H.MESH_STYLES if st not in __import__("player.groom.styles", fromlist=["STYLES"]).STYLES]}
+    summary["noLegacy"]["ok"] &= not summary["noLegacy"]["hairNotGroomed"]   # 088 AC-10
     export.write_glb(os.path.join(stem_dir, "player.glb"))
-    export.write_json(os.path.join(stem_dir, "player.clips.json"), {"schemaVersion": 1, "fps": 30, "clips": tags})
+    export.strip_animation_channels(os.path.join(stem_dir, "player.glb"), skeleton.NAMES[MS.CORE_BONES:])  # 062: 손가락 채널 제거
+    from player import hands as HD
+    export.write_json(os.path.join(stem_dir, "player.clips.json"),
+                      {"schemaVersion": 1, "fps": 30, "clips": tags, "handPoses": HD.clips_json()})  # 062 FR-11
     export.write_json(os.path.join(stem_dir, "player.face.json"), face_json)
     # 055 FR-70·71: 형태 지표(클립 → 지표)와 연구 기준 스틱 피겨
     from player import gait_metrics as GM
@@ -129,17 +190,22 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     export.write_json(os.path.join(stem_dir, "player.gait-metrics.json"), gm)
     export.write_json(os.path.join(stem_dir, "player.gait-reference.json"), REF.build())
     layout = {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "generator": {"blender": blender, "script": "gen_player.py", "command": command, "seed": seed,
-                      "mpfb": {"version": MS.version(), "files": mpfb_files}},
+                      "mpfb": {"version": MS.version(), "files": mpfb_files},
+                      "makehuman": {"files": __import__("player.mhassets", fromlist=["used_files"]).used_files()}},   # 088 FR-05
         "skeleton": {"refHeight": skeleton.REF_HEIGHT, "heightRangeCm": list(checks.HEIGHT_RANGE_CM),
                      "bones": [{"name": n, "parent": p, "head": list(h), "tail": list(t)} for n, p, h, t in skeleton.BONES]},
         "uv": uv.layout(),
         "shapes": sorted({k for (o, m) in list(meshes.values()) for k in m.deltas}),
         "hair": {st: [f"{st}_LOD{l}" for l in lods] for st in H.MESH_STYLES},
-        "hairStyles": [{"name": st, "family": H.FAMILY[st],
-                        "meshes": [f"{st}_LOD{l}" for l in lods] if st in H.MESH_STYLES else None} for st in H.STYLES],
+        "hairStyles": [dict({"name": st, "family": H.FAMILY[st],
+                             "meshes": [f"{st}_LOD{l}" for l in lods] if st in H.MESH_STYLES else None}, **H.layout_info(st))
+                       for st in H.STYLES],  # 062: group·strand·hairline·colorPoint (필드 추가만)
         "headCloseup": HL.NAME,
+        "handPoses": __import__("player.hands", fromlist=["layout_json"]).layout_json(),  # 062 FR-11 (Unity HandPose)
+        "kitBones": skeleton.kit_layout(),  # 062 FR-21 (Unity KitSecondaryMotion: 축·이동 상자)
+        "outfits": {"suit": {"meshes": [SU.NAME.format(l) for l in lods], "mask": "Textures/" + SU.MASK}},  # 062 FR-27
         "materials": list(rig.MATERIALS),
         "textures": {k: list(v) for k, v in sorted(tex.items())},
         "summary": summary,
@@ -150,6 +216,7 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         PV.lineup(rig_obj, objs, os.path.join(stem_dir, "player.preview-lineup.png"), stem_dir)
         hair_objs = {st: parts[f"{st}_LOD{min(objs)}"][0] for st in H.MESH_STYLES}
         PV.heads(rig_obj, objs[min(objs)], hair_objs, os.path.join(stem_dir, "player.preview-heads.png"), stem_dir)
+        PV.base_heads(R, os.path.join(stem_dir, "player.preview-base-heads.png"), stem_dir)  # 062 T25 바탕 머리 8개 시안
         ids = [i for i in PV.POSE_IDS if i in {t["id"] for t in tags}]
         if ids:
             PV.poses(rig_obj, objs[min(objs)], tags, ids, os.path.join(stem_dir, "player.preview-poses.png"), stem_dir)
@@ -198,6 +265,9 @@ def main(argv):
             print(f"[player] 검사 실패: {failed}", file=sys.stderr)
             for k in failed:
                 print(json.dumps(summary[k], ensure_ascii=False, default=str)[:2000], file=sys.stderr)
+            if os.environ.get("PLAYER_FAIL_DUMP"):   # 진단: 실패 요약 전체를 파일로 (088)
+                with open(os.environ["PLAYER_FAIL_DUMP"], "w", encoding="utf-8") as fd:
+                    json.dump(summary, fd, ensure_ascii=False, default=str)
             return 3
         os.makedirs(out, exist_ok=True)
         for root, _, files in os.walk(tmp):

@@ -1,0 +1,316 @@
+{
+  "schemaVersion": 1,
+  "id": "062-face-catalog",
+  "spec": "062",
+  "description": "얼굴 일람 (AC-07·11, FR-60~66): 바탕 머리 8개 단독(가중치 1000, 축 0, 삭발·수염 없음) × 정면·3/4·옆(클로즈업 머리), 지역 7개 × 생성 선수 3명(바탕 혼합·지역 피부톤·헤어·수염 그대로), 팀 11명 정렬(AppearanceDistance.GenerateTeam — 겉보기 중복 육안).",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261121
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-07",
+    "AC-11"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "base1Front"
+    },
+    {
+      "type": "capture",
+      "name": "base1Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base1Three"
+    },
+    {
+      "type": "capture",
+      "name": "base1Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base1Side"
+    },
+    {
+      "type": "capture",
+      "name": "base1Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base2Front"
+    },
+    {
+      "type": "capture",
+      "name": "base2Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base2Three"
+    },
+    {
+      "type": "capture",
+      "name": "base2Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base2Side"
+    },
+    {
+      "type": "capture",
+      "name": "base2Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base3Front"
+    },
+    {
+      "type": "capture",
+      "name": "base3Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base3Three"
+    },
+    {
+      "type": "capture",
+      "name": "base3Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base3Side"
+    },
+    {
+      "type": "capture",
+      "name": "base3Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base4Front"
+    },
+    {
+      "type": "capture",
+      "name": "base4Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base4Three"
+    },
+    {
+      "type": "capture",
+      "name": "base4Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base4Side"
+    },
+    {
+      "type": "capture",
+      "name": "base4Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base5Front"
+    },
+    {
+      "type": "capture",
+      "name": "base5Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base5Three"
+    },
+    {
+      "type": "capture",
+      "name": "base5Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base5Side"
+    },
+    {
+      "type": "capture",
+      "name": "base5Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base6Front"
+    },
+    {
+      "type": "capture",
+      "name": "base6Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base6Three"
+    },
+    {
+      "type": "capture",
+      "name": "base6Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base6Side"
+    },
+    {
+      "type": "capture",
+      "name": "base6Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base7Front"
+    },
+    {
+      "type": "capture",
+      "name": "base7Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base7Three"
+    },
+    {
+      "type": "capture",
+      "name": "base7Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base7Side"
+    },
+    {
+      "type": "capture",
+      "name": "base7Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base8Front"
+    },
+    {
+      "type": "capture",
+      "name": "base8Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base8Three"
+    },
+    {
+      "type": "capture",
+      "name": "base8Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "base8Side"
+    },
+    {
+      "type": "capture",
+      "name": "base8Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "region1"
+    },
+    {
+      "type": "capture",
+      "name": "region1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "region2"
+    },
+    {
+      "type": "capture",
+      "name": "region2",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "region3"
+    },
+    {
+      "type": "capture",
+      "name": "region3",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "region4"
+    },
+    {
+      "type": "capture",
+      "name": "region4",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "region5"
+    },
+    {
+      "type": "capture",
+      "name": "region5",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "region6"
+    },
+    {
+      "type": "capture",
+      "name": "region6",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "region7"
+    },
+    {
+      "type": "capture",
+      "name": "region7",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "team11"
+    },
+    {
+      "type": "capture",
+      "name": "team11",
+      "kind": "3d"
+    }
+  ],
+  "imageChecks": [],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}

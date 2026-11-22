@@ -46,5 +46,32 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             Assert.AreEqual(2, n);
             CollectionAssert.AreEqual(new[] { false, true, true, false }, next);
         }
+
+        [Test]
+        public void Swap_KeepsExpression()
+        {
+            // plan 위험: 클로즈업 머리 ↔ LOD0 전환 때 표정이 끊기지 않는다 — 표정 상태는 선수 단위(PlayerRig.SetExpression)로 두 메시에 같은 값
+            var rig = PlayerRigTests.NewRig();
+            try
+            {
+                rig.ApplyAppearance(AppearanceGenerator.Generate(new BodyInput(21)), FaceGenerator.Generate(FaceGeneratorTests.Data, 21),
+                    FaceGeneratorTests.Data);
+                var w = new float[ExpressionLogic.Keys.Length];
+                w[0] = 0.7f;   // 환호 70 %
+                w[2] = 0.3f;   // 실망 30 %
+                rig.SetExpression(w);
+                foreach (bool on in new[] { true, false, true })
+                {
+                    rig.SetCloseup(on);
+                    for (int k = 0; k < w.Length; k++)
+                    {
+                        // 프레임 가중치 1로 굽는다(HideHead와 같은 관례) → 블렌드셰이프 값 0~1
+                        Assert.AreEqual(w[k], rig.Lod(0).GetBlendShapeWeight(1 + k), 1e-5f, $"LOD0 {ExpressionLogic.Keys[k]} closeup={on}");
+                        Assert.AreEqual(w[k], rig.CloseupRenderer.GetBlendShapeWeight(1 + k), 1e-5f, $"클로즈업 {ExpressionLogic.Keys[k]} closeup={on}");
+                    }
+                }
+            }
+            finally { UnityEngine.Object.DestroyImmediate(rig.gameObject); }
+        }
     }
 }

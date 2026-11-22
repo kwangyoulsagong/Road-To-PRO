@@ -9,19 +9,41 @@ namespace RoadToPro.Presentation.Players
     /// </summary>
     public static class PlayerLook
     {
+        /// <summary>피부톤 대표색 (0 밝음 ~ 7 어두움) — 겉보기 거리·UI 표시용. 렌더 색은 088 SkinToneSet·SkinToneTint(MakeHuman 세트 × 틴트).</summary>
         public static readonly Color[] SkinTones =
         {
-            new Color32(255, 220, 190, 255), new Color32(240, 198, 160, 255), new Color32(222, 172, 130, 255), new Color32(198, 145, 105, 255),
+            new Color32(236, 200, 170, 255), new Color32(226, 186, 150, 255), new Color32(222, 172, 130, 255), new Color32(198, 145, 105, 255),
             new Color32(170, 118, 82, 255), new Color32(140, 92, 62, 255), new Color32(110, 70, 46, 255), new Color32(80, 52, 36, 255),
         };
 
+        /// <summary>088 Q4: 톤 → MakeHuman 피부 세트 (PlayerBodyAssets.SkinSets: 0 light · 1 asian · 2 dark). 생성기 face.TONE_TABLE과 같은 표.</summary>
+        public static readonly int[] SkinToneSet = { 0, 0, 0, 1, 1, 1, 2, 2 };
+        /// <summary>088 Q4: 톤 틴트 (diffuse 배율, 선형 1 = 원본). 생성기 face.TONE_TABLE과 같은 값.</summary>
+        public static readonly Color[] SkinToneTint =
+        {
+            new Color(1.06f, 1.05f, 1.04f, 1f), new Color(1f, 1f, 1f, 1f), new Color(0.92f, 0.88f, 0.84f, 1f),
+            new Color(1.03f, 1.02f, 1f, 1f), new Color(0.95f, 0.92f, 0.88f, 1f), new Color(0.80f, 0.74f, 0.68f, 1f),
+            new Color(1.12f, 1.10f, 1.08f, 1f), new Color(0.92f, 0.90f, 0.88f, 1f),
+        };
+
+        /// <summary>088 FR-02: 눈썹 종류(PlayerAppearance.Eyebrow 0~2) → brow_mask 채널 선택 (R 02 · G 04 · B 09, A 속눈썹은 항상).</summary>
+        public static readonly Vector4[] BrowChannels = { new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0) };
+
+        /// <summary>헤어 색 (AppearanceGenerator.HairColors 순서): 검정 · 진갈색 · 갈색 · 금발 · 적갈색 · 회색 + 062 FR-53 탈색 금발 · 백금.</summary>
         public static readonly Color[] HairColors =
         {
             new Color32(25, 20, 18, 255), new Color32(70, 45, 28, 255), new Color32(120, 80, 45, 255),
             new Color32(200, 160, 90, 255), new Color32(150, 60, 30, 255), new Color32(170, 170, 165, 255),
+            new Color32(226, 196, 128, 255), new Color32(236, 232, 218, 255),
         };
 
-        /// <summary>헤어 스타일 0~29 → 메시 조각 이름 접두(생성기 hair.STYLE_TABLE, specs/057 FR-30). 0~9는 056 순서, 9 = 삭발(형상 없음 → null).
+        /// <summary>062 FR-54 컬러 포인트 가상 팔레트 (PlayerAppearance.ColorPoint 1~3): 백금 · 애시 · 붉은 계열.</summary>
+        public static readonly Color[] ColorPointColors =
+        {
+            new Color32(232, 228, 212, 255), new Color32(168, 172, 176, 255), new Color32(168, 48, 40, 255),
+        };
+
+        /// <summary>헤어 스타일 0~34 → 메시 조각 이름 접두(생성기 hair.STYLE_SPEC, specs/057 FR-30 + 062 FR-52). 0~9는 056 순서, 9 = 삭발(형상 없음 → null), 30~34 = 062 신규.
         /// LOD는 "_LOD0..2". 순서는 AppearanceGenerator 가중치·계열 표와 같다.</summary>
         public static readonly string[] HairMeshes =
         {
@@ -29,6 +51,7 @@ namespace RoadToPro.Presentation.Players
             "Hair_Crew", "Hair_SidePart", "Hair_Undercut", "Hair_SlickBack", "Hair_Quiff", "Hair_Curtains", "Hair_TexturedCrop",
             "Hair_BuzzLine", "Hair_HighTop", "Hair_Cornrows", "Hair_Twists", "Hair_TopKnot", "Hair_Ponytail", "Hair_MediumWave",
             "Hair_FrenchCrop", "Hair_IvyLeague", "Hair_Spiky", "Hair_CurlyTop", "Hair_BoxBraids", "Hair_HalfUp",
+            "Hair_PartedTwoBlock", "Hair_CommaPerm", "Hair_VolumeCurlyLong", "Hair_StraightCornrows", "Hair_ZigzagCornrows",
         };
 
         /// <summary>홍채 색 (가상 팔레트, FR-23 [미정] — 043처럼 균등). 갈색 쪽이 많다.</summary>
@@ -38,8 +61,23 @@ namespace RoadToPro.Presentation.Players
             new Color32(70, 90, 60, 255), new Color32(70, 100, 130, 255),
         };
 
-        /// <summary>수염 종류(face.json beards 순서: none·stubble·short·full) → 셰이더 _BeardLevel.</summary>
-        public static readonly float[] BeardLevels = { 0f, 0.45f, 0.75f, 1f };
+        /// <summary>수염 종류(face.json beards 순서: none·stubble·short·full + 062 mustache·goatee·heavy_stubble) → 셰이더 _BeardLevel (굵기).</summary>
+        public static readonly float[] BeardLevels = { 0f, 0.45f, 0.75f, 1f, 0.7f, 0.7f, 0.6f };   // 062: 콧수염·염소수염 0.85 → 0.7 (평면 조각처럼 보임, T35 육안)
+
+        /// <summary>062 FR-66: 수염 종류 → beard_mask0 영역 채널 선택 (R full · G mustache · B goatee · A heavy, face.py BEARD_REGION).</summary>
+        public static readonly Vector4[] BeardChannels =
+        {
+            new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0), new Vector4(1, 0, 0, 0),
+            new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0), new Vector4(0, 0, 0, 1),
+        };
+
+        /// <summary>062 FR-27 정장 천 중립 3색 [제안] (가상): 차콜 · 네이비 · 미드 그레이. 셔츠 흰색·넥타이 짙은 회색.</summary>
+        public static readonly Color[] SuitColors =
+        {
+            new Color32(52, 54, 58, 255), new Color32(30, 38, 60, 255), new Color32(96, 98, 102, 255),
+        };
+        public static readonly Color SuitShirt = new Color32(236, 236, 232, 255);
+        public static readonly Color SuitTie = new Color32(44, 44, 52, 255);
 
         public const int AtlasSize = 1024;
         public const int CellW = 256, CellH = 160, Cols = 4, Rows = 6;

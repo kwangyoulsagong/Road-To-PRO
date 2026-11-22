@@ -41,6 +41,8 @@ namespace RoadToPro.Verification.Samples.Highlight
         public override PlayerRig[] Rigs => _rigs;
         public override AnimationClip[] Clips => assets.clips;
         public override Transform Ball => _ball;
+        KitSecondaryMotion _kitMotion;
+        public override KitSecondaryMotion KitMotion => _kitMotion ??= assets.body.layoutJson != null ? KitSecondaryMotion.FromLayout(assets.body.layoutJson.text) : null;
         public ClipLibrary Library => _lib;
         public AnimationMap Map => _map;
         public float[] Scales => _scales;

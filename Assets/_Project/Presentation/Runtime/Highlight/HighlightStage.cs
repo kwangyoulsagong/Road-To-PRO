@@ -28,5 +28,7 @@ namespace RoadToPro.Presentation.Highlight
         public virtual Stadium.StadiumLighting Lighting => null;
         /// <summary>피치 렌더러 (specs/061 근거리 셸 잔디). null이면 잔디를 그리지 않는다.</summary>
         public virtual Renderer PitchRenderer => null;
+        /// <summary>키트 2차 움직임 데이터 (specs/062 FR-21, player.layout.json "kitBones"). null이면 손가락 포즈만.</summary>
+        public virtual Players.Logic.KitSecondaryMotion KitMotion => null;
     }
 }

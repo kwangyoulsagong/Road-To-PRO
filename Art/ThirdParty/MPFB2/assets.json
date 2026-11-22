@@ -17,6 +17,22 @@
    "sha256": "9f4a773e74ce5ba08415b4f30070338e9f75bae5971b5075b10cd6b9caa58473"
   },
   {
+   "path": "targets/arms/l-lowerarm-muscle-incr.target.gz",
+   "sha256": "29077b022632174656b8404ae12f68f62059f2fbc774b24885ec5b7460b72992"
+  },
+  {
+   "path": "targets/arms/l-upperarm-muscle-incr.target.gz",
+   "sha256": "2b1ae2af00eabddadc298fd22b8af17966f13e65931636b36c2d77d2b9540dcd"
+  },
+  {
+   "path": "targets/arms/r-lowerarm-muscle-incr.target.gz",
+   "sha256": "84777a42af2cefbabcea15820c61dfd23a800d9a2583b23d063a1566052da226"
+  },
+  {
+   "path": "targets/arms/r-upperarm-muscle-incr.target.gz",
+   "sha256": "24f3486b3fe48bb8127f48c2eae53e48930c32b7ae2a221ec2c9afafc60b453d"
+  },
+  {
    "path": "targets/cheek/l-cheek-bones-decr.target.gz",
    "sha256": "109d88ec6394cb3455073ae9f2a6038b8b4d6b57feeaf4633611bc60f27ed212"
   },
@@ -63,6 +79,10 @@
   {
    "path": "targets/chin/chin-jaw-drop-incr.target.gz",
    "sha256": "b750b941a75badd7281db378356438dd8647ef043e3470f9e34bbf873e711e71"
+  },
+  {
+   "path": "targets/chin/chin-prognathism-incr.target.gz",
+   "sha256": "d5453730848d4d3ad12680532c1e1d649194de652eba115fa733e2fb784167e3"
   },
   {
    "path": "targets/chin/chin-prominent-decr.target.gz",
@@ -113,6 +133,78 @@
    "sha256": "a3d8c08e86449d1c9c03bc00e58418e0d633a5f7f4ad745c2b9eacf88e6bcd50"
   },
   {
+   "path": "targets/expression/units/african/eye-left-closure.target.gz",
+   "sha256": "2d358745e955ead9d73f85ed224568a8d347f3f3b897c26cbd412faf2bfa9f3a"
+  },
+  {
+   "path": "targets/expression/units/african/eye-left-opened-up.target.gz",
+   "sha256": "842d95f9f0af1807ecf45c79a1def61152a253f0696afce41aa76156be697117"
+  },
+  {
+   "path": "targets/expression/units/african/eye-left-slit.target.gz",
+   "sha256": "6dc3efbda318d639b8ca0d65e36aefd43b97db1f118b9272629598843479a9bb"
+  },
+  {
+   "path": "targets/expression/units/african/eye-right-closure.target.gz",
+   "sha256": "c1b0c3609d9fb59a97dabe8ace10622da58969f4566125b38f47285afef320d5"
+  },
+  {
+   "path": "targets/expression/units/african/eye-right-opened-up.target.gz",
+   "sha256": "56f07d192a9321437cf6bdadc7800331316e3430ae29e9ce24f957639ccc0224"
+  },
+  {
+   "path": "targets/expression/units/african/eye-right-slit.target.gz",
+   "sha256": "f6fd9c311c0537db93e745bce83f4ce3204431b2c3e4b39d4831213b05e1aa98"
+  },
+  {
+   "path": "targets/expression/units/african/eyebrows-left-down.target.gz",
+   "sha256": "f0cabdd8a225779806b8faabb1afcc4ee830a3eb3c6b1abe045d797328cff323"
+  },
+  {
+   "path": "targets/expression/units/african/eyebrows-left-inner-up.target.gz",
+   "sha256": "bcbc99d31303df7855734d74dde0c1625e3a301dcdd9392d6b407616fd7679a8"
+  },
+  {
+   "path": "targets/expression/units/african/eyebrows-left-up.target.gz",
+   "sha256": "e0be77b6846c62ecc54d589ad1430a2b1a145e8ec067507fae181bd7e6a4eb54"
+  },
+  {
+   "path": "targets/expression/units/african/eyebrows-right-down.target.gz",
+   "sha256": "ac4ad201d160f1eb7dc076e012bccd41e191d2886fc1b327c8409d8b77d63082"
+  },
+  {
+   "path": "targets/expression/units/african/eyebrows-right-inner-up.target.gz",
+   "sha256": "b5da946cba48308969c3f63a5d590e1ad5c0c47975b92f485b63526d42c2df92"
+  },
+  {
+   "path": "targets/expression/units/african/eyebrows-right-up.target.gz",
+   "sha256": "66060c97949f4fb414fb1b731379f9ca5bcc000e4184ee1f7d527d94b70b14e8"
+  },
+  {
+   "path": "targets/expression/units/african/mouth-compression.target.gz",
+   "sha256": "7b9dd41bc7667419efa90211634fda386f317bc8fb86e6876c37d8fc4ab5cc19"
+  },
+  {
+   "path": "targets/expression/units/african/mouth-corner-puller.target.gz",
+   "sha256": "5560c685cd55ae6a00830e539ac54135cb4dcfec6a28be90510c931dcfdca478"
+  },
+  {
+   "path": "targets/expression/units/african/mouth-depression.target.gz",
+   "sha256": "aa0afb7a1aceda1862405858dae89f1de2a5281c469f317da00912de60fb060b"
+  },
+  {
+   "path": "targets/expression/units/african/mouth-elevation.target.gz",
+   "sha256": "cd1720c75ac84f30f26a335a202bac2bc1115cec71882b44b20934a7c7476f66"
+  },
+  {
+   "path": "targets/expression/units/african/mouth-open.target.gz",
+   "sha256": "d710d4ae1693e7278a5bbe620276970fb6e89de139b50aaaea2830c31146459a"
+  },
+  {
+   "path": "targets/expression/units/african/mouth-retraction.target.gz",
+   "sha256": "33802b3905775666da60fed4da7fac457b8e54ddbde0b5d206f98f15a2a6287b"
+  },
+  {
    "path": "targets/eyebrows/eyebrows-angle-down.target.gz",
    "sha256": "2c45c5f65406f0e987c586b03d5c07953d375fa19b38ffc7775edc160a7596df"
   },
@@ -127,6 +219,14 @@
   {
    "path": "targets/eyebrows/eyebrows-trans-up.target.gz",
    "sha256": "fdaf3fb2ee5d1790202ede605d097e7666567237f1ab62a90729f72df0c16c52"
+  },
+  {
+   "path": "targets/eyes/l-eye-bag-incr.target.gz",
+   "sha256": "45bd5a9415b7da13e42fb1b8f33e8023d2948cdfa27e40cf393496e827d754b4"
+  },
+  {
+   "path": "targets/eyes/l-eye-epicanthus-in.target.gz",
+   "sha256": "0dd894060ea9f420c7db57599d228e5df59f8836f794eb3172668c02dd4ef7ef"
   },
   {
    "path": "targets/eyes/l-eye-eyefold-down.target.gz",
@@ -159,6 +259,14 @@
   {
    "path": "targets/eyes/l-eye-trans-up.target.gz",
    "sha256": "47b00a443ae2783774a56e8a5065b9f210377ac3e3e0afdecdfe87b156f0a575"
+  },
+  {
+   "path": "targets/eyes/r-eye-bag-incr.target.gz",
+   "sha256": "552483d9b4cd846d5bc864e6866d8bc9db79fdf44233cb30be2d084e5d4373d0"
+  },
+  {
+   "path": "targets/eyes/r-eye-epicanthus-in.target.gz",
+   "sha256": "ec5e5b256e6529b0791cae2d7dc29f1aedaf381b6930d1d38c01c72643276bcc"
   },
   {
    "path": "targets/eyes/r-eye-eyefold-down.target.gz",
@@ -209,6 +317,26 @@
    "sha256": "af68b78524f49e4b02976ff0006cb27db55d680c02fc1345945043de42a48bd0"
   },
   {
+   "path": "targets/forehead/forehead-trans-forward.target.gz",
+   "sha256": "9add6a61672d0d9361ce1927c9096dfb718450fa679033ddad5b033b3cd914d1"
+  },
+  {
+   "path": "targets/head/head-back-scale-depth-decr.target.gz",
+   "sha256": "86a1c69526aae30b4c307366d9e13157f9f2d5541b18205fbef2072b2bbf5470"
+  },
+  {
+   "path": "targets/head/head-oval.target.gz",
+   "sha256": "057eea7c5535c325493b9107228052b03c78fac1bcb24905313fae6351179cb8"
+  },
+  {
+   "path": "targets/head/head-rectangular.target.gz",
+   "sha256": "a4ff15dbcda4164e823c7a6f00c234cc62cb136b1c568198c7980bf9f2d358f2"
+  },
+  {
+   "path": "targets/head/head-round.target.gz",
+   "sha256": "9c5661568155231f4c5f13b0d332c09b0c27452cafc02f5685ff4d7c69010f50"
+  },
+  {
    "path": "targets/head/head-scale-depth-decr.target.gz",
    "sha256": "2bc2c4906b12000800c10e938bcab102814a33c2db0fbe021b3bba1be4c356bf"
   },
@@ -223,6 +351,26 @@
   {
    "path": "targets/head/head-scale-horiz-incr.target.gz",
    "sha256": "671542640aec14d1740c1263deb0e274f3044edec761e6d4171329f0419be084"
+  },
+  {
+   "path": "targets/head/head-scale-vert-decr.target.gz",
+   "sha256": "64e86d59a469eeeb0201026880bcd6ebb0cbd590a74b179f58efa879b3772f6c"
+  },
+  {
+   "path": "targets/head/head-scale-vert-incr.target.gz",
+   "sha256": "be8b270ec67817578128396433d6e8ab9d530c9d81ea21db92cd1b9627a8110b"
+  },
+  {
+   "path": "targets/head/head-square.target.gz",
+   "sha256": "94b484ae145970e5368706d4f42711f50e18fcbf7d9f1ee800572c3fa69f855a"
+  },
+  {
+   "path": "targets/legs/l-upperleg-muscle-incr.target.gz",
+   "sha256": "c8af86a15d35ac926f2526c3fc532d70e43a3390de7f65468642ac5558bbf27b"
+  },
+  {
+   "path": "targets/legs/r-upperleg-muscle-incr.target.gz",
+   "sha256": "a96b25430155374568d72b1efd12443aeb2fa0c78a11c1a4d198a03a986c088f"
   },
   {
    "path": "targets/macrodetails/african-male-young.target.gz",
@@ -373,6 +521,10 @@
    "sha256": "bc3d4108a0d10e8ef7dea5ebc7cbdc89da476285ff8413f58bcb4401bf2b122b"
   },
   {
+   "path": "targets/nose/nose-point-down.target.gz",
+   "sha256": "58498fbb0b77572e90bf4fd50ca30f4cb6c402a5720b0161b26a8497f897ded6"
+  },
+  {
    "path": "targets/nose/nose-point-width-decr.target.gz",
    "sha256": "920cd53d57b8797414af73b59e54d34547ef2e1c79fa0a19ca55dbddc0aa7365"
   },
@@ -403,6 +555,18 @@
   {
    "path": "targets/nose/nose-scale-vert-incr.target.gz",
    "sha256": "63d297c237e7054a1ea700b83454ef508bf5f42ba8f2eb6bc1eb747ad261f34b"
+  },
+  {
+   "path": "targets/torso/measure-shoulder-dist-incr.target.gz",
+   "sha256": "d9508362063fee6f697bee2d7204cb6a799d9711fb2436f93f781242a104494f"
+  },
+  {
+   "path": "targets/torso/torso-muscle-pectoral-incr.target.gz",
+   "sha256": "83831fd65509c729bc0b5b3311b5f63bf35a37728e7c22d4425a3c620f2e4069"
+  },
+  {
+   "path": "targets/torso/torso-vshape-incr.target.gz",
+   "sha256": "e1fb879d1a59229f0127af161f7dcdb6a476b734ed3bcf84bea2b379590ce371"
   }
  ],
  "license": "CC0 1.0 (LICENSE.ASSETS.md · LICENSE.md 섹션 C). MPFB 코드(GPL-3.0)는 레포·빌드에 넣지 않는다.",

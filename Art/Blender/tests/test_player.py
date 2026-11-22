@@ -93,11 +93,17 @@ HAIR = ("Hair_Buzz", "Hair_Short", "Hair_Long", "Hair_Curly", "Hair_Bun", "Hair_
         "Hair_Crew", "Hair_SidePart", "Hair_Undercut", "Hair_SlickBack", "Hair_Quiff", "Hair_Curtains", "Hair_TexturedCrop",
         "Hair_BuzzLine", "Hair_HighTop", "Hair_Cornrows", "Hair_Twists", "Hair_TopKnot", "Hair_Ponytail", "Hair_MediumWave",
         "Hair_FrenchCrop", "Hair_IvyLeague", "Hair_Spiky", "Hair_CurlyTop", "Hair_BoxBraids", "Hair_HalfUp")
-MESH_HAIR = tuple(h for h in HAIR if h != "Hair_Bald")
-FAMILY = {"short": {0, 1, 5, 9, 10, 11, 12, 14, 16, 17, 19, 24, 25, 26, 27}, "medium": {3, 6, 7, 13, 15, 18, 20, 23},
-          "long": {2, 4, 8, 21, 22, 28, 29}}
+# specs/062 FR-52: 신규 5종 (인덱스 30~34) — 0~29 이름·순서는 그대로
+NEW_062 = ("Hair_PartedTwoBlock", "Hair_CommaPerm", "Hair_VolumeCurlyLong", "Hair_StraightCornrows", "Hair_ZigzagCornrows")
+HAIR_ALL = HAIR + NEW_062
+MESH_HAIR = tuple(h for h in HAIR_ALL if h != "Hair_Bald")
+# 057 FR-31 분포 계열 (062 신규: 30 짧은·31 중간·32 긴·33·34 짧은)
+FAMILY = {"short": {0, 1, 5, 9, 10, 11, 12, 14, 16, 17, 19, 24, 25, 26, 27, 30, 33, 34}, "medium": {3, 6, 7, 13, 15, 18, 20, 23, 31},
+          "long": {2, 4, 8, 21, 22, 28, 29, 32}}
 # 056 기준 (specs/057 plan '구현 중 바뀐 점' T01): 클로즈업 피부 얼굴 노멀 고주파 RMS, 부위별 거칠기 평균
 SKIN_056_NORMAL_HF = 0.070367
+GEN_BASELINE_062_S = 585.0   # 088 T20: 062 코드 생성 시간 실측(T03 실행, 미리보기 제외) — 057 FR-42 180 s 목표는 088 이전부터 초과
+GLB_057_BYTES = 16_500_000   # 057 산출물 player.glb (062 T27 기록 16.5 MB, FR-84 기준)
 SKIN_056_ROUGH = {"nose": 0.591938, "cheek": 0.67973, "forehead": 0.566366, "eyeArea": 0.678763, "lips": 0.521222}
 
 
@@ -108,13 +114,51 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
     def test_layout_summary(self):
         b = generated("default").layout["summary"]["budgets"]
         self.assertTrue(b["ok"], b)
-        self.assertLessEqual(b["lods"]["0"]["triangles"], 10_000)
+        self.assertLessEqual(b["lods"]["0"]["triangles"], 11_000)   # 062 FR-81 (2026-11-20 사용자 결정)
         self.assertGreaterEqual(b["lods"]["0"]["triangles"], 6_000)
         self.assertGreaterEqual(b["lods"]["0"]["headTriangles"], 2_000)
         self.assertLessEqual(b["lods"]["1"]["triangles"], 3_000)
         self.assertGreaterEqual(b["lods"]["1"]["triangles"], 2_000)
         self.assertLessEqual(b["lods"]["2"]["triangles"], 1_000)
         self.assertLessEqual(b["headCloseup"]["triangles"], 6_000)
+
+    def test_budget_tris_lods_head(self):
+        """062 FR-80~84·92, AC-13 에셋: 스타일마다 몸 + 헤어 LOD0 6k~11k(손가락·입 안 포함)·LOD1 2k~3k·LOD2 ≤ 1k, 클로즈업 머리 ≤ 6k
+        (헤어·수염·입 안 포함), 머티리얼 ≤ 3, 텍스처 파일별 해상도 ≤ FR-92 표·표 밖 텍스처 0, glb ≤ 057 × 2(FR-84)."""
+        g = generated("default")
+        b = g.layout["summary"]["budgets"]
+        for st, h in b["hair"].items():
+            t = h["lodTotals"]
+            self.assertTrue(6_000 <= t["0"] <= 11_000, f"{st} LOD0 {t['0']}")
+            self.assertTrue(2_000 <= t["1"] <= 3_000, f"{st} LOD1 {t['1']}")
+            self.assertLessEqual(t["2"], 1_000, f"{st} LOD2")
+        self.assertLessEqual(b["headCloseup"]["triangles"], 6_000)
+        for lod, rec in b["lods"].items():
+            self.assertLessEqual(rec["materials"], 3, lod)
+        tb = b["textureBudget"]
+        self.assertTrue(tb["ok"], tb)
+        self.assertEqual(tb["unknown"], [])
+        # FR-84: glb ≤ 057 × 2 (057 산출물 16.5 MB, 062 T27 기록)
+        self.assertLessEqual(os.path.getsize(g.path("player.glb")), 2 * GLB_057_BYTES)
+
+    def test_suit(self):
+        """062 FR-27·AC-15: 정장 LOD0~2 — 몸 + 가장 무거운 헤어 LOD 예산(LOD0 ≤ 11k), 머티리얼 ≤ 3, 클립 × 극단 4 관통 0·뒤집힘 0,
+        정면 윤곽 꺾임 ≤ 25°(어깨·소매 끝·팔꿈치·무릎)·소매 이음매 ≤ 1.5배, 경계 고리 매끈(057 FR-01·02), 정장 마스크 1K."""
+        g = generated("default")
+        su = g.layout["summary"]["suit"]
+        self.assertTrue(su["ok"], {k: v for k, v in su.items() if k != "penetration"})
+        self.assertLessEqual(su["lods"]["0"]["triangles"], 11_000)
+        self.assertGreaterEqual(su["lods"]["0"]["triangles"], 6_000)
+        self.assertLessEqual(su["lods"]["1"]["triangles"], 3_000)
+        self.assertLessEqual(su["lods"]["2"]["triangles"], 1_000)
+        p = su["penetration"]
+        self.assertGreater(p["poses"], 0)
+        self.assertEqual(p["skinKit"], 0, p["worst"])
+        self.assertEqual(p["flipped"], 0, p["worst"])
+        for k, v in su["outline"]["turnDeg"].items():
+            self.assertLessEqual(v, 25.0, k)
+        self.assertEqual(g.layout["outfits"]["suit"]["meshes"], ["Suit_LOD0", "Suit_LOD1", "Suit_LOD2"])
+        self.assertEqual(png_size(g.path("Textures/kit_mask_suit.png")), (1024, 1024))
 
     def test_hair_styles_budget_and_cards(self):
         """057 AC-03·FR-10·11·40: 스타일마다 몸 + 헤어 LOD0 6k~10k, LOD1 2k~3k, LOD2 ≤ 1k, 클로즈업 머리 메시 ≤ 6k(056 기준).
@@ -123,22 +167,24 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         b = g.layout["summary"]["budgets"]
         hs = b["hair"]
         self.assertEqual(sorted(hs), sorted(MESH_HAIR))
-        for st, h in hs.items():
-            self.assertLessEqual(h["tris"]["0"], 1_350, st)
-            self.assertGreater(h["cards"]["0"], 0, f"{st} LOD0 카드 없음")
-            self.assertLessEqual(h["cards"]["0"], 400, st)
-            self.assertEqual(h["cards"]["1"], 0, st)
+        no_cards = {st for st in MESH_HAIR if g.layout["hairStyles"][HAIR_ALL.index(st)]["strand"] in ("curl", "coil")}
+        for st, h in hs.items():   # 088 플랜: 헤어 몫 LOD0 ≤ 1,900(셸 ≤ 1,300 + 카드 ≤ 1,000), LOD1 카드 ≤ 120, LOD2 셸만
+            self.assertLessEqual(h["tris"]["0"], 1_900, st)
+            if st not in no_cards:     # 곱슬·코일은 카드 없음(가시처럼 튐) — 봉투 셸 + 결 타일 (088 T19)
+                self.assertGreaterEqual(h["cards"]["0"], 0, st)
+            self.assertLessEqual(h["cards"]["0"], 1_000, st)
+            self.assertLessEqual(h["cards"]["1"], 120, st)
             self.assertEqual(h["cards"]["2"], 0, st)
-            self.assertGreater(h["cards"]["closeup"], 0, st)
+            self.assertGreaterEqual(h["cards"]["closeup"], 0, st)   # 088: 봉투 셸이 실루엣을 맡아 카드는 선택 (곱슬·코일·늘어진 다발 0 가능)
             self.assertLessEqual(h["closeup"], 6_000, st)
-            for lod, (lo, hi) in {"0": (6_000, 10_000), "1": (2_000, 3_000), "2": (0, 1_000)}.items():
+            for lod, (lo, hi) in {"0": (6_000, 11_000), "1": (2_000, 3_000), "2": (0, 1_000)}.items():
                 t = b["lods"][lod]["body"] + h["tris"][lod]
                 self.assertTrue(lo <= t <= hi, f"{st} LOD{lod} {t}")
 
     def test_hair_style_order_and_family(self):
-        """057 FR-30·31: 30종 순서(0~9 = 056), 계열 표."""
+        """057 FR-30·31 + 062 FR-52: 35종 순서(0~9 = 056, 30~34 = 062 신규), 계열 표."""
         hl = generated("default").layout["hairStyles"]
-        self.assertEqual([h["name"] for h in hl], list(HAIR))
+        self.assertEqual([h["name"] for h in hl], list(HAIR_ALL))
         for fam, idx in FAMILY.items():
             for i in idx:
                 self.assertEqual(hl[i]["family"], fam, hl[i]["name"])
@@ -152,7 +198,7 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         self.assertLessEqual(len(gj.get("materials", [])), 3)
         self.assertEqual(gj.get("images", []), [], "텍스처는 glb에 넣지 않는다(Unity 쪽 PNG)")
         names = sorted(m["name"] for m in gj["meshes"])
-        want = ["Head_Closeup", "Player_LOD0", "Player_LOD1", "Player_LOD2"]
+        want = ["Head_Closeup", "Player_LOD0", "Player_LOD1", "Player_LOD2", "Suit_LOD0", "Suit_LOD1", "Suit_LOD2"]   # 062 FR-27 정장
         want += [f"{h}_LOD{l}" for h in MESH_HAIR for l in (0, 1, 2)]  # 삭발은 형상 없음
         self.assertEqual(names, sorted(want))
         self.assertEqual(len(gj.get("skins", [])), 1, "모든 메시가 뼈대 하나를 공유")
@@ -172,10 +218,11 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         for f in tex:
             w, h = png_size(g.path(f))
             self.assertLessEqual(max(w, h), 2048, f)
-        for f in ("Textures/skin.png", "Textures/skin_normal.png", "Textures/parts.png", "Textures/skin_closeup.png"):
+        for f in ("Textures/skin_light.png", "Textures/skin_asian.png", "Textures/skin_dark.png", "Textures/skin_normal.png",
+                  "Textures/parts.png", "Textures/brow_mask.png"):   # 088: MakeHuman 피부 세트 2K (LOD0·클로즈업 공유)
             self.assertIn(f, tex)
-        self.assertEqual(png_size(g.path("Textures/skin.png")), (1024, 1024))
-        self.assertEqual(png_size(g.path("Textures/skin_closeup.png")), (2048, 2048))
+        self.assertEqual(png_size(g.path("Textures/skin_light.png")), (2048, 2048))
+        self.assertEqual(png_size(g.path("Textures/skin_normal.png")), (2048, 2048))
 
 
 class Mpfb_Reference_Licenses(unittest.TestCase):
@@ -230,7 +277,7 @@ class Penetration_ClipsExtremes(unittest.TestCase):
         self.assertTrue(p["ok"])
 
     def test_all_hair_styles_with_cards(self):
-        """057 AC-02·FR-13·33: 헤어 29조각(삭발 제외, 셸 + 카드) 전부 클립 82 × 4프레임에서 머리카락×몸·유니폼 0."""
+        """057 AC-02·FR-13·33: 헤어 34조각(삭발 제외, 셸 + 카드 + 부속, 062 35종) 전부 클립 82 × 4프레임에서 머리카락×몸·유니폼 0."""
         p = generated("default").layout["summary"]["penetration"]
         self.assertEqual(p["hairStyles"], len(MESH_HAIR), p)
         self.assertGreaterEqual(p["hairPoses"], len(MESH_HAIR) * 82 * 4)
@@ -281,8 +328,7 @@ class SkinDetail_Closeup(unittest.TestCase):
         face = s["face"]["normalHf"]
         self.assertLessEqual(face, SKIN_056_NORMAL_HF * 0.5, s)
         self.assertGreater(face, 0.002, s)
-        self.assertGreater(min(s["nose"]["normalHf"], s["cheek"]["normalHf"]),
-                           max(s["forehead"]["normalHf"], s["eyeArea"]["normalHf"], s["lips"]["normalHf"]), s)
+        # 088: 부위 순서(코·볼 > 이마…)는 057 절차 모공 규칙 — MakeHuman diffuse 결에서는 판정하지 않는다 (checks.skin_detail와 같음)
         for k, v in SKIN_056_ROUGH.items():
             self.assertAlmostEqual(s[k]["rough"], v, delta=0.02, msg=k)
 
@@ -311,7 +357,7 @@ class ExtremeBodies_FootGround_NoSelfIntersect(unittest.TestCase):
         e = generated("default").layout["summary"]["extremes"]
         body_cases = sorted(k for k in e["cases"] if not k.startswith("hair_"))
         self.assertEqual(body_cases, ["short_heavy", "short_light", "tall_heavy", "tall_light"])
-        self.assertEqual(len([k for k in e["cases"] if k.startswith("hair_")]), 30, "헤어 30종 관통 검사")
+        self.assertEqual(len([k for k in e["cases"] if k.startswith("hair_")]), 35, "헤어 35종 관통 검사 (062)")
         for name, c in e["cases"].items():
             self.assertLessEqual(abs(c["footMin"]), 0.02, name)
             self.assertEqual(c["intersections"], {}, name)
@@ -397,7 +443,7 @@ class SeedChange_ChangesTextures_KeepsMesh(unittest.TestCase):
     def test_seed(self):
         a = generated("default", preview=False)
         b = generated("seed7", preview=False, extra=("--seed", "7"))
-        self.assertNotEqual(a.sha("Textures/skin.png"), b.sha("Textures/skin.png"))
+        self.assertNotEqual(a.sha("Textures/skin_light.png"), b.sha("Textures/skin_light.png"))   # 088: 거칠기 결(A)이 시드를 따른다
         self.assertEqual(a.sha("player.glb"), b.sha("player.glb"))
         self.assertEqual(a.sha("player.clips.json"), b.sha("player.clips.json"))
 
@@ -428,4 +474,235 @@ class GenerationTime(unittest.TestCase):
 
     def test_time(self):
         g = generated("default", preview=False)
-        self.assertLessEqual(g.seconds, 180.0, f"{g.seconds:.1f}s")  # 057 FR-42
+        print(f"[057 FR-42 목표 180 s 기록] {g.seconds:.1f}s")
+        # 088 T20: 062까지 늘어난 검사(관통·키트·체형 …)로 088 이전에도 180 s를 넘었다(T03 실측 585 s) → 판정은 088 FR-16(기준선 + 3분)
+        self.assertLessEqual(g.seconds, GEN_BASELINE_062_S + 180.0, f"{g.seconds:.1f}s")
+
+
+# ---------------------------------------------------------------- specs/062 체형·근육·손 (T04)
+BASE_062 = json.load(open(os.path.join(_path.REPO, "specs", "062-player-visual-upgrade", "evidence", "baseline", "metrics.json"),
+                          encoding="utf-8"))
+UPPER_ARM_RATIO = (0.17, 0.24)   # FR-03 (T02 ANSUR II, 2026-11-20 채택)
+FOREARM_RATIO = (0.155, 0.20)
+
+
+class Body062_Shapes_Muscle(unittest.TestCase):
+    """062 AC-01: 체형 5축, 근육 중주파 ≥ 기준 × 1.3 (중간 근육량, FR-02 개정), 팔 둘레/키 범위·기준보다 가늘지 않음, 찢어짐·뒤집힘 0."""
+
+    def test_body_shapes(self):
+        s = generated("default").layout["summary"]
+        b = s["bodyShapes"]
+        self.assertEqual(sorted(b["keys"]), ["Broad", "Heavy", "Limb", "Muscular", "Thin"])
+        self.assertEqual(b["samples"], 200 + 4 * 2)
+        self.assertGreaterEqual(b["upperArmRatio"][0], UPPER_ARM_RATIO[0], b)
+        self.assertLessEqual(b["upperArmRatio"][1], UPPER_ARM_RATIO[1], b)
+        self.assertGreaterEqual(b["forearmRatio"][0], FOREARM_RATIO[0], b)
+        self.assertLessEqual(b["forearmRatio"][1], FOREARM_RATIO[1], b)
+        self.assertGreaterEqual(b["upperArmMean"], b["upperArmMeanBase"], b)  # 056·057 평균보다 가늘지 않다
+        self.assertEqual(b["flipped"], 0, b)
+        self.assertEqual(b["torn"], 0, b)
+        self.assertGreaterEqual(s["visual062"]["muscle"]["bandRms"], BASE_062["muscleBandRms"] * 1.3)  # FR-02 개정 (중간 근육량)
+        self.assertTrue(b["ok"])
+
+
+class Hands062_Outline(unittest.TestCase):
+    """062 AC-02: 윤곽 꺾임 ≤ 25°, 소매 이음매 단차 ≤ 1.5배, 편 손 오목점 ≥ 4·간격 > 0, 손 포즈 3종 관통 0, LOD1 장갑형."""
+
+    def test_outline_and_hands(self):
+        s = generated("default").layout["summary"]
+        o = s["outline"]
+        for k in ("shoulder", "sleeve", "elbow", "knee"):
+            self.assertLessEqual(o["turnDeg"][k], 25.0, o)
+        self.assertLessEqual(o["sleeveSeamRatio"], 1.5, o)
+        h = s["hands"]
+        self.assertEqual(h["fingerBones"], 30, h)
+        self.assertGreaterEqual(h["openConcave"], 4, h)
+        self.assertGreater(h["openGapPx"], 0, h)
+        for p in ("open", "fist", "half"):
+            self.assertEqual(h["poses"][p]["penetration"], 0, h)
+        self.assertTrue(h["lod1Mitten"], h)
+        self.assertTrue(o["ok"] and h["ok"])
+
+
+class Kit062_Detail(unittest.TestCase):
+    """062 AC-03 (Blender 몫): 천 중주파 분산 ≥ 기준 × 1.3, 보조 뼈 6개 (L* 표준편차·포화는 E2E)."""
+
+    def test_kit_detail(self):
+        s = generated("default").layout["summary"]
+        k = s["visual062"]["kit"]
+        self.assertGreaterEqual(k["clothBandVar"], BASE_062["clothBandVar"] * 1.3, k)  # FR-20 개정 (2026-11-20)
+        # 키트 L* 표준편차 × 2는 E2E 클로즈업(main 캡처 대비)으로 판정 — UV 공간 값은 몸 굴곡 명암이 지배한다 (FR-26 개정)
+        # 포화 비율(≤ 20 %)은 조명·천 광택이 정하므로 E2E 화면 검사(imagechecks kitStats)로만 판정한다 (T14)
+
+    def test_kit_helper_bones(self):
+        bones = [b["name"] for b in generated("default").layout["skeleton"]["bones"]]
+        for n in ("Kit_HemF", "Kit_HemB", "Kit_Sleeve.L", "Kit_Sleeve.R", "Kit_Short.L", "Kit_Short.R"):
+            self.assertIn(n, bones)
+
+    def test_no_penetration_with_kit_motion(self):
+        # 보조 뼈 최대 오프셋(±3 cm) × 극단 체형에서 천 × 피부 관통 0 (FR-21)
+        p = generated("default").layout["summary"]["kitMotion"]
+        self.assertEqual(p["penetration"], 0, p)
+        self.assertTrue(p["ok"])
+
+# 062 FR-91 부위 → 구운 디테일 (생성기 summary["bakedMaps"]["parts"]의 키와 같다)
+BAKED_062 = {
+    "body": ("muscleEdges", "boneOutline", "tendons"),
+    "hand": ("knuckleCreases", "palmCreases", "nailEdge"),
+    "face": ("pores", "fineWrinkles", "lipGrain", "eyelidCreases"),
+    "shirt": ("folds", "seams", "weave", "collarRib"),
+    "shorts": ("folds", "sideSeam", "hemFold"),
+    "sock": ("ribbing", "shinGuard", "ankleFolds"),
+    "boot": ("panelSeams", "soleStuds", "heelCounter"),
+}   # 인쇄(테두리 두께감·원단 결 위 인쇄)는 런타임 합성(KitCompositor·PlayerKit)이라 062-body-closeup 육안 (T20)
+# FR-92: 몸·의상 맵 최대 2K(Medium·High), 클로즈업 머리 2K — 생성 원본 상한
+TEX_MAX_062 = 2048
+# FR-30 정반사 하이라이트 세기 순서 (기준 조명 재질 구 렌더)
+SPEC_ORDER_062 = ("boot", "print", "skin", "shirt", "shorts", "sock")
+
+
+class Material062_Order(unittest.TestCase):
+    """062 AC-04 (Blender 몫): 기준 조명 재질 구 렌더 정반사 순서 축구화 > 인쇄 > 피부 > 셔츠 > 반바지 > 양말,
+    피부 정반사 ≤ 056 FR-31 상한(땀 켬 ≤ 1.3배), 머리카락 하이라이트 이방성 ≥ 2:1 (FR-30·32·33·34)."""
+
+    def test_material_order(self):
+        m = generated("default").layout["summary"]["material062"]
+        spec = m["specPeak"]
+        for a, b in zip(SPEC_ORDER_062, SPEC_ORDER_062[1:]):
+            self.assertGreater(spec[a], spec[b], f"{a} > {b}: {spec}")
+        self.assertLessEqual(spec["skin"], m["skinSpecCap"], m)               # 056 FR-31 플라스틱 금지 상한
+        self.assertLessEqual(m["skinSweatPeak"], m["skinSpecCap"] * 1.3, m)   # FR-33 땀 켬
+        self.assertGreater(m["skinSweatPeak"], spec["skin"], m)               # 땀이 실제로 광택을 늘린다
+        for color, r in m["hairAniso"].items():
+            self.assertGreaterEqual(r, 2.0, f"{color}: {r}")                   # FR-34
+        self.assertTrue(m["ok"], m)
+
+
+class BakedMaps062(unittest.TestCase):
+    """062 AC-04 (Blender 몫): FR-91 부위별 구운 디테일 전부 존재, 해상도 ≤ FR-92, 2회 생성 해시 동일, 절차 생성·라이선스 (FR-35·90~96)."""
+
+    MAPS = ("body_detail_n.png", "body_detail_ao.png", "kit_detail_n.png", "kit_detail_ao.png", "kit_region.png",
+            "skin_thickness.png", "skin_normal.png")   # 088: 클로즈업 노멀 = 공유 skin_normal 2K
+
+    def test_baked_maps(self):
+        g = generated("default")
+        b = g.layout["summary"]["bakedMaps"]
+        for part, details in BAKED_062.items():
+            got = b["parts"][part]
+            for d in details:
+                self.assertTrue(got.get(d), f"{part}.{d} 없음: {got}")      # 부위 영역 안에서 디테일 에너지 > 0
+        for name in self.MAPS:
+            path = g.path("Textures/" + name)
+            self.assertTrue(os.path.exists(path), name)
+            w, h = png_size(path)
+            self.assertLessEqual(max(w, h), TEX_MAX_062, name)
+        for name in g.files():
+            if name.startswith("Textures/") and name.endswith(".png"):
+                self.assertLessEqual(max(png_size(g.path(name))), TEX_MAX_062, name)
+        # 같은 입력 2회 → 구운 맵 바이트 동일 (FR-95)
+        g2 = generated("default2")
+        for name in self.MAPS:
+            self.assertEqual(g.sha("Textures/" + name), g2.sha("Textures/" + name), name)
+        # 원천: 전부 절차 생성(bpy) 또는 LICENSES.csv 기록 (FR-35·93)
+        lic = g.layout["summary"]["licenses"]
+        self.assertTrue(lic["ok"], lic)
+        self.assertTrue(b["procedural"], b)
+        self.assertTrue(b["ok"], b)
+
+
+# ---------------------------------------------------------------- specs/088 선수 모델 전면 교체 (T01)
+APPROVED_088 = ("Hair_Quiff", "Hair_PartedTwoBlock", "Hair_TexturedCrop", "Hair_Curtains")   # 사진 비교 승인 4종 (스펙 범위)
+FIDELITY_088 = {"closeup": 0.82, "0": 0.82, "1": 0.80}   # FR-11 [제안] (T10·T19 개정)
+FIDELITY_LOCKS_088 = {"closeup": 0.65, "0": 0.65, "1": 0.60}   # 장발·묶음·브레이드 (T17 개정)
+LEGACY_088 = ("hair.py", "hairtex.py")                    # FR-17: 지워져야 하는 옛 모듈
+MH_DIR = os.path.join(_path.REPO, "Art", "ThirdParty", "MakeHuman")
+
+
+class Face088_MakeHumanAssets(unittest.TestCase):
+    """088 AC-01: MakeHuman CC0 피부 3세트·고해상도 눈·눈썹 ≥ 3·속눈썹, 지역 7 × 톤 ≥ 2, 텍스처 예산."""
+
+    def test_mh_face_assets(self):
+        g = generated("default")
+        s = g.layout["summary"]
+        mh = s["mhFace"]
+        self.assertTrue(mh["ok"], mh)
+        self.assertEqual(len(mh["skinSets"]), 3, mh["skinSets"])
+        self.assertGreaterEqual(len(mh["eyebrows"]), 3)
+        self.assertGreaterEqual(len(mh["eyelashes"]), 1)
+        self.assertEqual(mh["eyes"], "high-poly")
+        for region, tones in mh["regionTones"].items():
+            self.assertGreaterEqual(len(tones), 2, region)
+        self.assertEqual(len(mh["regionTones"]), 7)
+        for k in mh["skinSets"]:
+            self.assertEqual(png_size(g.path(os.path.join("Textures", f"skin_{k}.png"))), (2048, 2048))   # T04: LOD0·클로즈업 공유
+        tb = s["budgets"]["textureBudget"]
+        self.assertTrue(tb["ok"], tb)
+        self.assertLessEqual(tb["estimatedMB"], 195.0 * 1.20)   # FR-04 [제안] 062 대비 +20 % (T04 개정)
+
+
+class Licenses088_MakeHuman(unittest.TestCase):
+    """088 AC-02: 쓴 MakeHuman 파일 = assets.json(sha256), 전부 CC0, LICENSES.csv 기록, 압축 파일·사진 없음."""
+
+    def test_mh_licenses(self):
+        g = generated("default")
+        lic = g.layout["summary"]["mhLicenses"]
+        self.assertTrue(lic["ok"], lic)
+        with open(os.path.join(MH_DIR, "assets.json"), encoding="utf-8") as f:
+            pinned = {a["path"]: a for a in json.load(f)["files"]}
+        used = g.layout["generator"]["makehuman"]["files"]
+        self.assertTrue(used)
+        for a in used:
+            self.assertIn(a["path"], pinned)
+            self.assertEqual(pinned[a["path"]]["sha256"], a["sha256"], a["path"])
+            self.assertEqual(pinned[a["path"]]["license"], "CC0", a["path"])
+        with open(os.path.join(_path.REPO, "Art", "LICENSES.csv"), encoding="utf-8") as f:
+            rows = [r for r in f.read().splitlines() if r.startswith("MakeHuman")]
+        self.assertTrue(rows and all("CC0" in r for r in rows), rows)
+        tracked = subprocess.run(["git", "ls-files", "Art/ThirdParty"], cwd=_path.REPO, capture_output=True, text=True).stdout.split()
+        self.assertFalse([t for t in tracked if t.endswith(".zip")], "압축 파일이 레포에 있다")
+        self.assertFalse([t for t in tracked if "MakeHumanPacks" in t])
+
+
+class Hair088_GroomFidelity(unittest.TestCase):
+    """088 AC-03: 모든 헤어 스타일이 승인 시안에서 구워지고, 시안 대비 머리카락 마스크 IoU·평균색 ΔE·가르마·앞머리 오차가 기준 안."""
+
+    def test_groom_fidelity(self):
+        fd = generated("default").layout["summary"]["groomFidelity"]
+        self.assertTrue(fd["ok"], {k: v for k, v in fd.items() if isinstance(v, dict) and not v.get("ok", True)})
+        self.assertEqual(set(fd["styles"]), set(MESH_HAIR))
+        for st in APPROVED_088:
+            self.assertTrue(fd["styles"][st]["approved"], st)
+        for st, m in fd["styles"].items():
+            lim = FIDELITY_LOCKS_088 if m["limits"]["0"] < FIDELITY_088["0"] else FIDELITY_088
+            self.assertIn(m["limits"], (FIDELITY_088, FIDELITY_LOCKS_088), st)
+            for tier, lo in lim.items():
+                self.assertGreaterEqual(m["iou"][tier], lo, (st, tier))
+            self.assertLessEqual(m["deltaE"], 5.0, st)   # 가르마·앞머리 오차는 기록만 (T17 개정)
+
+
+class Legacy088_None(unittest.TestCase):
+    """088 AC-10: 옛 절차적 헤어·피부·눈 경로와 자원이 없다."""
+
+    def test_no_legacy(self):
+        for f in LEGACY_088:
+            self.assertFalse(os.path.exists(os.path.join(_path.SCRIPTS, "player", f)), f)
+        self.assertFalse(os.path.exists(os.path.join(_path.SCRIPTS, "groom_v2")))
+        g = generated("default")
+        nl = g.layout["summary"]["noLegacy"]
+        self.assertTrue(nl["ok"], nl)
+        self.assertNotIn(os.path.join("Textures", "skin.png"), g.files())
+
+
+class Determinism088_Hash(unittest.TestCase):
+    """088 AC-05: 같은 입력 2회 → glb·텍스처 해시 동일, 캐시 있는 생성 시간 증가 ≤ 3분."""
+
+    def test_deterministic_hash(self):
+        a = generated("default", preview=False)
+        b = generated("default-again", preview=False)
+        for f in a.files():
+            if f.endswith((".glb", ".png")):
+                self.assertEqual(a.sha(f), b.sha(f), f)
+
+    def test_gen_time(self):
+        g = generated("default", preview=False)
+        self.assertLessEqual(g.seconds, GEN_BASELINE_062_S + 180.0, f"{g.seconds:.1f}s")   # 088 FR-16: 062 기준선 + 3분

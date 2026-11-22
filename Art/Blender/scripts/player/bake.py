@@ -112,8 +112,31 @@ def arm_length(head):
     return 0.5 * (one("Left") + one("Right"))
 
 
+def pelvis_accel(c):
+    """062 FR-21: 프레임별(30 Hz, 0..frames) 골반 가속도 [x, y, z] m/s² (선수 좌표, 루트 기준 제자리 움직임).
+    2차 중앙 차분. 루프 클립은 주기로 감싸고(마지막 = 처음), 비루프는 양 끝에서 이웃 값을 쓴다. 런타임 커널 합성의 입력."""
+    n = c.frames
+    pos = []
+    for f in range(n + 1):
+        t = (0.0 if (c.loop and f == n) else f / CB.FPS)
+        _, head, _ = PO.fk(c.sample(t))
+        pos.append(head["Hips"])
+    out = []
+    for f in range(n + 1):
+        if c.loop:
+            a, b, d = pos[(f - 1) % n], pos[f % n], pos[(f + 1) % n]
+        else:
+            g = min(max(f, 1), n - 1) if n >= 2 else 0
+            a, b, d = pos[max(g - 1, 0)], pos[g], pos[min(g + 1, n)]
+        acc = (d - 2 * b + a) * (CB.FPS * CB.FPS)
+        out.append([round(float(acc.x), 3), round(float(acc.y), 3), round(float(acc.z), 3)])
+    return out
+
+
 def clip_tags(c):
-    t = {"id": c.id, "group": c.group, "frames": c.frames, "loop": c.loop, "stancePaths": stance_paths(c)}
+    from .hands import hand_pose_for
+    t = {"id": c.id, "group": c.group, "frames": c.frames, "loop": c.loop, "stancePaths": stance_paths(c),
+         "handPose": hand_pose_for(c.id, c.group), "pelvisAccel": pelvis_accel(c)}  # 062 FR-11·21
     for k, v in sorted(c.tags.items()):
         if k == "contact" and v is not None:
             frame = v["frame"]

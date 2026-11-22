@@ -41,6 +41,7 @@ namespace RoadToPro.Presentation.Highlight
         bool _loaded, _unloading, _loadRunning;
         IMotionDiagnostics _diagnostics;
         Rendering.CinematicModeController _cinematic;
+        Players.CloseupHeads _closeups;
 
         /// <summary>specs/061 연출 장면 고품질 모드 (실제 프리셋에서만, 로딩 뒤). 검증용.</summary>
         public Rendering.CinematicModeController Cinematic => _cinematic;
@@ -129,6 +130,11 @@ namespace RoadToPro.Presentation.Highlight
                 _system = stage.gameObject.AddComponent<PlayerAnimationSystem>();
                 _system.Init(_scenes[0].Plan, stage.Rigs, stage.Clips, _seq.Clock, stage.Ball, _camera);
                 _system.BallFilter = this;
+                _system.EnableMotionExtras(stage.KitMotion); // 062 FR-10~13·21
+                // 062 T35a FR-85~87: 클로즈업 머리(056 FR-61)·품질 등급 — 061 고품질 모드의 TopTier를 받는다(일반 중계는 클로즈업 선택만)
+                _closeups = stage.gameObject.AddComponent<Players.CloseupHeads>();
+                _closeups.Init(_camera, stage.Rigs);
+                _closeups.Cinematic = _cinematic;
                 if (_diagnostics != null) _system.Diagnostics = _diagnostics;
                 _current = _scenes[0];
                 _applied = 0;
@@ -201,6 +207,7 @@ namespace RoadToPro.Presentation.Highlight
         IEnumerator UnloadStage()
         {
             _system = null;
+            _closeups = null;   // 무대와 함께 해제된다
             _current = null;
             _loaded = false;
             _cinematic?.Dispose();

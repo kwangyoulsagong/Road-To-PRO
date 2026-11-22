@@ -9,6 +9,7 @@
 - HideHead: 클로즈업 머리가 대신 그려질 때 몸 메시 머리를 머리 관절로 접는다(FR-61).
 """
 import math
+import os
 
 import numpy as np
 
@@ -48,15 +49,104 @@ AXES = [
     ("ear_size", ["l-ear-scale-decr", "r-ear-scale-decr"], ["l-ear-scale-incr", "r-ear-scale-incr"], 0.6),
     ("ear_flap", ["l-ear-flap-decr", "r-ear-flap-decr"], ["l-ear-flap-incr", "r-ear-flap-incr"], 0.6),
 ]
-BEARDS = [("none", 0.0), ("stubble", 0.0006), ("short", 0.0022), ("full", 0.0055)]  # (id, 두께 m)
+# (id, 두께 m). 056 4종 순서 유지 + 062 FR-66 신규 3종(콧수염·염소수염·진한 스텁블)은 뒤에 (Unity 수염 인덱스 호환)
+BEARDS = [("none", 0.0), ("stubble", 0.0006), ("short", 0.0022), ("full", 0.0055),
+          ("mustache", 0.0030), ("goatee", 0.0040), ("heavy_stubble", 0.0012)]
+# 062: 수염 종류 → 영역 마스크 (beard_masks). 7종 = 영역 4 × 굵기 — 텍스처는 beard_mask0.png RGBA(full·mustache·goatee·heavy)
+BEARD_REGION = {"stubble": "full", "short": "full", "full": "full", "mustache": "mustache", "goatee": "goatee",
+                "heavy_stubble": "heavy"}
+BEARD_CHANNELS = ("full", "mustache", "goatee", "heavy")
+
+# 062 FR-70: 표정 4종(+ 무표정 = 키 0). MPFB CC0 표정 단위 타깃(FACS 계열) 조합. LOD0·클로즈업 머리에만(FR-71).
+# 시선은 셰이프가 아니라 눈 뼈가 없어 다루지 않는다(실망 = 눈꺼풀을 조금 내려 시선이 아래로 가는 인상).
+EXPRESSIONS = [
+    ("Expr_cheer", [(["mouth-open"], 0.85), (["mouth-corner-puller"], 0.35), (["eyebrows-left-up", "eyebrows-right-up"], 0.8),
+                    (["eye-left-opened-up", "eye-right-opened-up"], 0.4)]),
+    ("Expr_smile", [(["mouth-corner-puller"], 0.8), (["mouth-elevation"], 0.15), (["eye-left-slit", "eye-right-slit"], 0.3)]),
+    ("Expr_disappoint", [(["eyebrows-left-inner-up", "eyebrows-right-inner-up"], 0.8), (["mouth-depression"], 0.7),
+                         (["eye-left-closure", "eye-right-closure"], 0.2)]),
+    ("Expr_focus", [(["mouth-compression"], 0.6), (["mouth-retraction"], 0.4), (["eyebrows-left-down", "eyebrows-right-down"], 0.6),
+                    (["eye-left-slit", "eye-right-slit"], 0.4)]),
+]
 EYE_GROUPS = ("helper-l-eye", "helper-r-eye")
+
+# ---------------------------------------------------------------- 062 FR-60~62 바탕 머리 (T25 시안)
+# 일반 얼굴 유형 8개 = MPFB CC0 인종 매크로 비율(머리·목에만, 몸 비율은 그대로) + CC0 얼굴 타깃 조합. 특정 인물·사진 입력 없음(FR-61).
+# 방향은 공개 얼굴 인체 측정 연구의 집단 평균 경향(Farkas 2005 국제 비교 등, 기획서 리서치 2.2a)만 따르고 값은 중간 세기로 둔다 —
+# 같은 지역 안 개인차는 기존 얼굴 30축(FaceGenerator)이 낸다. (id, 지역 태그, 인종 매크로 비율, [(타깃들, 가중치)])
+# 지역 7개(FR-62): east_asia · southeast_asia · south_asia · west_asia_north_africa · west_central_africa · europe · latin_america
+BASE_HEADS = [
+    ("Base_0", "east_asia", {"asian": 1.0, "caucasian": 0.0, "african": 0.0}, [
+        (["l-eye-epicanthus-in", "r-eye-epicanthus-in"], 0.9), (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.8),
+        (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.8), (["nose-hump-decr"], 0.6), (["nose-scale-depth-decr"], 0.6),
+        (["head-scale-horiz-incr"], 0.5), (["head-back-scale-depth-decr"], 0.5), (["forehead-nubian-decr"], 0.4),
+        (["chin-width-incr"], 0.3)]),
+    ("Base_1", "southeast_asia", {"asian": 0.6, "caucasian": 0.15, "african": 0.25}, [
+        (["l-eye-epicanthus-in", "r-eye-epicanthus-in"], 0.4), (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.4),
+        (["l-eye-scale-incr", "r-eye-scale-incr"], 0.3), (["nose-nostrils-width-incr"], 0.8), (["nose-scale-horiz-incr"], 0.5),
+        (["nose-scale-vert-decr"], 0.5), (["nose-scale-depth-decr"], 0.5), (["mouth-upperlip-volume-incr"], 0.6),
+        (["mouth-lowerlip-volume-incr"], 0.6), (["head-scale-vert-decr"], 0.4), (["head-round"], 0.6), (["chin-height-decr"], 0.5),
+        (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.4)]),
+    ("Base_2", "south_asia", {"asian": 0.2, "caucasian": 0.6, "african": 0.2}, [
+        (["l-eye-scale-incr", "r-eye-scale-incr"], 0.8), (["nose-scale-vert-incr"], 0.5), (["nose-point-down"], 0.8),
+        (["nose-nostrils-width-incr"], 0.4), (["mouth-lowerlip-volume-incr"], 0.6), (["mouth-upperlip-volume-incr"], 0.3),
+        (["head-oval"], 1.0), (["chin-height-incr"], 0.4), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.4),
+        (["forehead-scale-vert-incr"], 0.4), (["eyebrows-angle-down"], 0.4), (["l-eye-bag-incr", "r-eye-bag-incr"], 0.4)]),
+    ("Base_3", "west_asia_north_africa", {"asian": 0.0, "caucasian": 0.8, "african": 0.2}, [
+        (["nose-hump-incr"], 0.9), (["nose-scale-vert-incr"], 0.6), (["nose-curve-convex"], 0.7), (["nose-point-down"], 0.3),
+        (["forehead-nubian-incr"], 0.7), (["eyebrows-trans-down"], 0.5), (["head-rectangular"], 0.6), (["head-scale-depth-incr"], 0.4),
+        (["chin-prominent-incr"], 0.5)]),
+    ("Base_4", "west_central_africa", {"asian": 0.0, "caucasian": 0.0, "african": 1.0}, [
+        (["nose-scale-horiz-incr"], 0.5), (["nose-nostrils-width-incr"], 0.5), (["nose-scale-depth-decr"], 0.3),
+        (["mouth-upperlip-volume-incr"], 0.6), (["mouth-lowerlip-volume-incr"], 0.6), (["chin-prognathism-incr"], 0.3),
+        (["head-scale-depth-incr"], 0.2), (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.3), (["forehead-trans-forward"], 0.3)]),
+    ("Base_5", "europe", {"asian": 0.0, "caucasian": 1.0, "african": 0.0}, [
+        (["nose-scale-depth-incr"], 0.6), (["nose-point-width-decr"], 0.5), (["nose-scale-horiz-decr"], 0.4), (["head-square"], 0.7),
+        (["chin-prominent-incr"], 0.6), (["chin-width-incr"], 0.4), (["forehead-nubian-incr"], 0.5), (["head-scale-horiz-incr"], 0.3),
+        (["mouth-upperlip-volume-decr"], 0.5), (["mouth-lowerlip-volume-decr"], 0.4), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.2)]),
+    ("Base_6", "europe", {"asian": 0.0, "caucasian": 0.85, "african": 0.15}, [
+        (["head-scale-horiz-decr"], 0.5), (["head-scale-vert-incr"], 0.4), (["chin-width-decr"], 0.6), (["chin-height-incr"], 0.5),
+        (["nose-scale-vert-incr"], 0.5), (["nose-hump-incr"], 0.4), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.5),
+        (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.4)]),
+    ("Base_7", "latin_america", {"asian": 0.35, "caucasian": 0.45, "african": 0.2}, [
+        (["l-cheek-bones-incr", "r-cheek-bones-incr"], 1.0), (["head-round"], 0.8), (["head-scale-horiz-incr"], 0.6),
+        (["nose-scale-horiz-incr"], 0.5), (["nose-hump-incr"], 0.7), (["nose-scale-depth-incr"], 0.3),
+        (["mouth-upperlip-volume-incr"], 0.4), (["chin-width-incr"], 0.7), (["chin-height-decr"], 0.4), (["forehead-scale-vert-decr"], 0.4),
+        (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.3)]),
+]
+REGIONS = ("east_asia", "southeast_asia", "south_asia", "west_asia_north_africa", "west_central_africa", "europe", "latin_america")
+
+
+def head_mask(R):
+    """바탕 머리 델타를 거는 영역: 머리 + 목 절반 가중치, 목 아래로 부드럽게 0 (몸 비율·칼라 이음매는 그대로)."""
+    hi = MS.OUR_NAMES.index("Head")
+    ni = MS.OUR_NAMES.index("Neck")
+    w = R.weights[:, hi] + 0.5 * R.weights[:, ni]
+    return np.clip((w - 0.25) / 0.5, 0.0, 1.0)
+
+
+def base_head_deltas(R):
+    """{Base_n: (V,3) 델타} — 인종 매크로 비율(기준 1/3씩에서 바꾼 만큼, 머리 영역만) + 얼굴 타깃 합. 062 T25 시안: 아직 셰이프 키로
+    내보내지 않는다(T27 확정 때 register에 넣는다)."""
+    k = head_mask(R)[:, None]
+    core = k[:, 0] > 0.95
+    out = {}
+    for bid, _region, race, targets in BASE_HEADS:
+        # 인종 매크로는 키·목 길이도 바꿔 머리 전체를 옮긴다 → 머리 평균 이동을 빼고(목 쪽으로 서서히 0) 형태 차이만 남긴다
+        m = R.macro_delta({"race": race})
+        m = (m - m[core].mean(axis=0)) * k
+        d = m
+        for names, w in targets:
+            d = d + R.target_delta(names) * w
+        out[bid] = d
+    return out
 
 
 def key_names():
     out = []
     for a, _, _, _ in AXES:
         out += [f"Face_{a}_pos", f"Face_{a}_neg"]
-    return out
+    return out + [b[0] for b in BASE_HEADS] + [e[0] for e in EXPRESSIONS]   # 062: 랜드마크 deltas에 바탕 머리·표정도
 
 
 # ---------------------------------------------------------------- 기준 표면 도우미
@@ -122,6 +212,39 @@ def beard_mask(R, p):
     return m
 
 
+def _ramp(x, w):
+    """0 → 1 부드러운 경사 (폭 w, smoothstep) — 수염 경계를 057처럼 흐리게."""
+    t = np.clip(x / w, 0.0, 1.0)
+    return t * t * (3 - 2 * t)
+
+
+def beard_masks(R, p):
+    """062 FR-66 수염 영역 4개 {full, mustache, goatee, heavy} (0~1). full = 057 beard_mask 그대로(턱·볼·입 둘레),
+    heavy = full을 볼 위로 조금 넓힌 진한 스텁블, mustache = 윗입술 위 띠(입꼬리에서 살짝 내려옴), goatee = 턱 + 콧수염 + 입꼬리 연결.
+    경계는 057처럼 넓게 흐린다. 콧수염·염소수염은 볼(입꼬리 바깥 0.6d 넘게)에 번지지 않는다(볼 밀도 ≤ 0.01)."""
+    c, d = eye_frame(R)
+    x, y, z = p[..., 0], p[..., 1], p[..., 2]
+    ry = (y - c[1]) / d
+    rx = np.abs(x - c[0]) / d
+    front = np.clip((z - (c[2] - 1.7 * d)) / (0.25 * d), 0, 1)
+    full = beard_mask(R, p)
+    # 진한 스텁블: 볼 위 경계를 0.15d 올리고 밀도를 고르게 (턱·볼 차이 작게)
+    sx = np.clip(rx - 0.45, 0, 2)
+    top = -0.80 - 0.30 * sx
+    heavy = np.clip((top - ry) / 0.30, 0, 1) * np.clip((ry - (-2.55 + 0.75 * sx ** 1.3)) / 0.30, 0, 1)
+    lip = ((rx / 0.40) ** 2 + ((ry + 1.50) / 0.10) ** 2)
+    heavy = heavy * np.clip((lip - 1.0) / 0.6, 0, 1) * front * np.clip((1.30 - rx) / 0.25, 0, 1) * 0.9
+    # 콧수염: 윗입술 위 (ry −1.42 ~ −1.10), 가로 ≤ 0.52d, 입꼬리에서 −1.55까지 살짝 내려온다. 경계 경사 ≥ 0.12d (057 흐린 경계)
+    droop = 0.25 * np.clip((rx - 0.30) / 0.20, 0, 1)
+    must = (_ramp(ry - (-1.46 - droop), 0.14) * _ramp(-1.06 - ry, 0.14) * _ramp(0.56 - rx, 0.14))
+    must = must * np.clip((lip - 1.0) / 0.8, 0, 1) * front
+    # 염소수염: 턱(ry −2.40 ~ −1.60, 가로 ≤ 0.46d) + 입꼬리 세로 띠(0.32~0.54d) + 콧수염
+    chin = _ramp(ry - (-2.42), 0.16) * _ramp(-1.58 - ry, 0.14) * _ramp(0.48 - rx, 0.14)
+    side = _ramp(rx - 0.30, 0.10) * _ramp(0.56 - rx, 0.10) * _ramp(ry - (-1.80), 0.12) * _ramp(-1.36 - ry, 0.12)
+    goat = np.maximum(np.maximum(chin, side), must) * np.clip((lip - 1.0) / 0.8, 0, 1) * front
+    return {"full": full, "mustache": must, "goatee": goat, "heavy": heavy}
+
+
 # ---------------------------------------------------------------- 델타 등록
 
 def register(R):
@@ -130,12 +253,19 @@ def register(R):
     for a, neg, pos, rng in AXES:
         out[f"Face_{a}_pos"] = R.target_delta(pos)
         out[f"Face_{a}_neg"] = R.target_delta(neg)
+    out.update(base_head_deltas(R))   # 062 FR-60·61 바탕 머리 8개 (T25 승인 v2)
+    for eid, units in EXPRESSIONS:    # 062 FR-70
+        d = np.zeros_like(R.verts)
+        for names, w in units:
+            d = d + R.target_delta(names) * w
+        out[eid] = d
     N = vertex_normals(R)
     bm = beard_mask(R, R.verts)
+    masks = beard_masks(R, R.verts)
     hi = MS.OUR_NAMES.index("Head")
     headw = R.weights[:, hi]
     for bid, th in BEARDS[1:]:
-        out[f"Beard_{bid}"] = N * (bm * th)[:, None]
+        out[f"Beard_{bid}"] = N * (masks[BEARD_REGION[bid]] * th)[:, None]
     hc = np.array(S.HEAD["Head"]) + np.array([0.0, 0.06, 0.0])
     k = np.clip((headw - 0.3) / 0.4, 0, 1)
     out["HideHead"] = (hc[None, :] - R.verts) * k[:, None]
@@ -203,43 +333,23 @@ def landmarks(R, tree_tri):
 
 
 def face_json(R, tree_tri):
-    return {"schemaVersion": 1, "targets": axes_json(), "beards": [{"id": b, "thickness": t} for b, t in BEARDS],
+    return {"schemaVersion": 1, "targets": axes_json(),
+            "beards": [{"id": b, "thickness": t, "region": BEARD_REGION.get(b)} for b, t in BEARDS],
+            "baseHeads": [{"id": b, "region": r} for b, r, _, _ in BASE_HEADS],   # 062 FR-60~62 (필드 추가만)
+            "expressions": [{"id": e} for e, _ in EXPRESSIONS],                   # 062 FR-70
             "landmarks": landmarks(R, tree_tri), "eyeDistance": round(eye_frame(R)[1], 6)}
 
 
 # ---------------------------------------------------------------- 눈 (LOD별 안구)
 
 EYE_REGION = (0.0, 0.75, 0.25, 1.0)   # parts 아틀라스 눈 칸 (u0, v0, u1, v1)
-EYE_TRIS = {0: None, 1: 48, 2: 16}     # LOD0 = MPFB 눈 헬퍼 그대로, 그 아래는 감량
-
-
-def eye_geometry(R):
-    """MPFB 눈 헬퍼 면 → [(정점 인덱스(기준) 튜플)]."""
-    out = []
-    for g in EYE_GROUPS:
-        s = set(R.groups[g])
-        out += [f for f in R.faces if all(v in s for v in f)]
-    return out
-
-
-def eye_uv(R, p):
-    """안구 점 → parts UV (정면 평면 투영, 홍채가 칸 가운데). u는 +1 (셰이더가 parts 텍스처로 보낸다)."""
-    el, er = eye_centers(R)
-    c = el if p[0] < 0 else er
-    r = 0.0125
-    fu = 0.5 + (p[0] - c[0]) / (2 * r) * 0.9
-    fv = 0.5 + (p[1] - c[1]) / (2 * r) * 0.9
-    fu, fv = min(max(fu, 0.0), 1.0), min(max(fv, 0.0), 1.0)
-    u0, v0, u1, v1 = EYE_REGION
-    return (1.0 + u0 + (u1 - u0) * fu, v0 + (v1 - v0) * fv)
-
-
 def eyes_covered(R, tree_tri, key_sets):
     """안구 정점이 피부 밖으로 나오는 수 (정면 광선으로 피부 앞에 있으면 노출). key_sets = [{키: 가중치}] 극값 조합."""
     from mathutils.bvhtree import BVHTree
     from mathutils import Vector
     tree, tri = tree_tri
-    ids = sorted({v for g in EYE_GROUPS for v in R.groups[g]})
+    from . import mhassets as MH
+    px = MH.Proxy(MH.EYES)                      # 088: 고해상도 눈 프록시 정점
     worst = 0
     cases = 0
     eye_z = [c[2] for c in eye_centers(R)]
@@ -249,8 +359,10 @@ def eyes_covered(R, tree_tri, key_sets):
             V = V + R.extra_deltas[k] * w
         t2 = BVHTree.FromPolygons([tuple(p) for p in V], [tuple(t) for t in tri], all_triangles=True)
         bad = 0
-        for i in ids:
-            p = V[i]
+        Pe = px.fit(V)
+        T_, TU_ = px.triangles()
+        ball = np.unique(T_[[not (px.uv[tu].mean(axis=0)[0] > 0.9 and px.uv[tu].mean(axis=0)[1] < 0.15) for tu in TU_]])
+        for p in _shrunk_eyes(R, Pe)[ball]:                    # 088: 안구 층만 (각막 층 제외 — body._append_eyes와 같은 규칙)
             # 정면에서 처음 맞는 피부가 안구 점 바로 뒤(0.5~6 mm)에 있으면 안구가 눈꺼풀·피부를 뚫고 나온 것.
             # 눈 틈(구멍)에서는 광선이 머리 안쪽 깊은 곳에 맞으므로 노출로 세지 않는다.
             if p[2] < eye_z[0 if p[0] < 0 else 1]:
@@ -261,3 +373,97 @@ def eyes_covered(R, tree_tri, key_sets):
         worst = max(worst, bad)
         cases += 1
     return {"ok": worst == 0, "exposedOutsideLids": worst, "cases": cases}
+
+
+# ---------------------------------------------------------------- 088 MakeHuman 눈썹·속눈썹 → 피부 UV 마스크 (FR-02)
+# Mindfront 눈썹(가닥 형상 ≈ 3만 tris)·속눈썹(≈ 2.5만 tris)은 예산(클로즈업 머리 ≤ 6k)에 못 들어간다 → 프록시를 기준 몸에 맞춘 뒤
+# 가닥 점을 가장 가까운 피부로 투영해 피부 UV 덮임 마스크로 굽는다(R·G·B = 눈썹 02·04·09, A = 속눈썹 선). 셰이더가 머리색으로 칠한다.
+
+def _skin_tris(R):
+    body = set(R.groups["body"])
+    tris, tuv = [], []
+    for f, fu in zip(R.faces, R.face_uvs):
+        if not all(v in body for v in f):
+            continue
+        for k in range(1, len(f) - 1):
+            tris.append((f[0], f[k], f[k + 1]))
+            tuv.append((fu[0], fu[k], fu[k + 1]))
+    return np.array(tris, dtype=np.int64), np.array(tuv, dtype=np.float64)
+
+
+def _splat(R, points, size, tree, tris, tuv, max_d=0.012):
+    from mathutils import Vector
+    acc = np.zeros((size, size))
+    for p in points:
+        loc, _, idx, d = tree.find_nearest(Vector(tuple(p)), max_d)
+        if loc is None:
+            continue
+        a, b, c = R.verts[tris[idx]]
+        v0, v1, v2 = b - a, c - a, np.array(loc) - a
+        d00, d01, d11 = v0 @ v0, v0 @ v1, v1 @ v1
+        d20, d21 = v2 @ v0, v2 @ v1
+        den = d00 * d11 - d01 * d01
+        if abs(den) < 1e-18:
+            continue
+        w1 = (d11 * d20 - d01 * d21) / den
+        w2 = (d00 * d21 - d01 * d20) / den
+        uv = (1 - w1 - w2) * tuv[idx, 0] + w1 * tuv[idx, 1] + w2 * tuv[idx, 2]
+        x = int(min(max(uv[0] * size, 0), size - 1))
+        y = int(min(max((1 - uv[1]) * size, 0), size - 1))
+        acc[y, x] += 1.0
+    return acc
+
+
+def brow_masks(R, size):
+    """→ (S,S,4) 0~1: R·G·B 눈썹 02·04·09 덮임, A 속눈썹 선. 2배 해상도로 찍고 흐린 뒤 줄인다(결정론)."""
+    from mathutils.bvhtree import BVHTree
+    from . import mhassets as MH
+    from . import skin as SK
+    tris, tuv = _skin_tris(R)
+    tree = BVHTree.FromPolygons([tuple(p) for p in R.verts], [tuple(t) for t in tris], all_triangles=True)
+    big = size * 2
+    out = np.zeros((size, size, 4))
+    for ch, rel in enumerate(MH.EYEBROWS + (MH.EYELASHES,)):
+        px = MH.Proxy(rel)
+        P = px.fit(R.verts)
+        T, _ = px.triangles()
+        pts = np.vstack([P, P[T].mean(axis=1)])
+        acc = _splat(R, pts, big, tree, tris, tuv)
+        acc = SK._box(acc, 1)
+        nz = acc[acc > 0]
+        k = float(np.percentile(nz, 40)) if len(nz) else 1.0      # 088 T23: 더 진하게 (40 백분위 기준 × 3)
+        m = 1.0 - np.exp(-acc / max(k, 1e-6) * 3.0)
+        out[..., ch] = m.reshape(size, 2, size, 2).mean(axis=(1, 3))
+    return out
+
+
+def brow_valid(R, size):
+    from . import skin as SK
+    return SK._raster(R, size)[1]
+
+
+def mh_face_summary(R):
+    """088 AC-01 요약: 피부 세트·눈썹·속눈썹·눈 출처, 지역 → 톤 단계 (PlayerLook 톤 표와 같은 값)."""
+    from . import mhassets as MH
+    return {"ok": True, "skinSets": list(MH.SKINS), "eyebrows": [os.path.basename(e).split(".")[0] for e in MH.EYEBROWS],
+            "eyelashes": [os.path.basename(MH.EYELASHES).split(".")[0]], "eyes": "high-poly",
+            "regionTones": {k: list(v) for k, v in REGION_TONES.items()}, "toneTable": TONE_TABLE}
+
+
+# 088 Q4: 피부톤 8단계(PlayerLook.SkinTones 0 밝음 ~ 7 어두움) → (MakeHuman 세트, 틴트 RGB 배율). 지역 → 톤은 062 FR-63 표(Appearance.cs).
+TONE_TABLE = [["light", [1.06, 1.05, 1.04]], ["light", [1.0, 1.0, 1.0]], ["light", [0.92, 0.88, 0.84]],
+              ["asian", [1.03, 1.02, 1.0]], ["asian", [0.95, 0.92, 0.88]], ["asian", [0.80, 0.74, 0.68]],
+              ["dark", [1.12, 1.10, 1.08]], ["dark", [0.92, 0.90, 0.88]]]
+REGION_TONES = {"east_asia": (3, 4), "southeast_asia": (4, 5), "south_asia": (4, 5, 6), "west_asia_north_africa": (2, 3, 4),
+                "west_central_africa": (6, 7), "europe": (0, 1, 2), "latin_america": (2, 4, 5)}
+
+
+def _shrunk_eyes(R, P):
+    """body._append_eyes와 같은 축소 (088 EYE_SHRINK)."""
+    from . import body as B
+    P = P.copy()
+    for ctr in eye_centers(R):
+        sel = np.sign(P[:, 0]) == np.sign(ctr[0])
+        P[sel] = ctr + (P[sel] - ctr) * B.EYE_SHRINK
+        P[sel, 2] -= B.EYE_BACK
+    return P

@@ -1,0 +1,434 @@
+{
+  "schemaVersion": 1,
+  "id": "088-hair-groom",
+  "spec": "088",
+  "description": "088 AC-07: 그루밍 v2에서 구운 헤어 34종 — 5명씩 7묶음 × 정면·옆·뒤(LOD0)·방송 원거리 + 칼라·머리 클로즈업 8명 + 머리색·컬러 포인트. 시안 렌더와의 나란히 비교 시트는 Blender(player/groom/compare.py)로 따로 만든다.",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261122
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-07"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "hair1Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair1Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair1Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair1Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair1Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair1Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair1Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair1Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair2Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair2Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair2Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair2Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair2Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair2Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair2Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair2Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair3Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair3Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair3Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair3Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair3Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair3Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair3Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair3Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair4Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair4Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair4Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair4Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair4Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair4Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair4Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair4Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair5Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair5Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair5Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair5Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair5Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair5Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair5Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair5Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair6Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair6Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair6Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair6Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair6Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair6Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair6Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair6Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair7Front"
+    },
+    {
+      "type": "capture",
+      "name": "hair7Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair7Side"
+    },
+    {
+      "type": "capture",
+      "name": "hair7Side",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair7Back"
+    },
+    {
+      "type": "capture",
+      "name": "hair7Back",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hair7Far"
+    },
+    {
+      "type": "capture",
+      "name": "hair7Far",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar1Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar1Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar1Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar1Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar2Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar2Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar2Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar2Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar3Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar3Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar3Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar3Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar4Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar4Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar4Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar4Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar5Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar5Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar5Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar5Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar6Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar6Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar6Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar6Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar7Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar7Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar7Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar7Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar8Front"
+    },
+    {
+      "type": "capture",
+      "name": "collar8Front",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "collar8Three"
+    },
+    {
+      "type": "capture",
+      "name": "collar8Three",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairColorsA"
+    },
+    {
+      "type": "capture",
+      "name": "hairColorsA",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairColorPoint"
+    },
+    {
+      "type": "capture",
+      "name": "hairColorPoint",
+      "kind": "3d"
+    }
+  ]
+}

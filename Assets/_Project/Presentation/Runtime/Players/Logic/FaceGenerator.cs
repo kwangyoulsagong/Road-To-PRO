@@ -28,6 +28,11 @@ namespace RoadToPro.Presentation.Players.Logic
 
         public readonly List<Axis> Axes = new List<Axis>();
         public readonly List<string> Beards = new List<string>();
+        /// <summary>062 FR-60·62: 바탕 머리 셰이프 키 이름(Base_n)과 지역 태그 — face.json baseHeads 순서 = AppearanceGenerator 바탕 인덱스.</summary>
+        public readonly List<string> BaseHeads = new List<string>();
+        public readonly List<string> BaseRegions = new List<string>();
+        /// <summary>062 FR-70: 표정 셰이프 키 이름(Expr_*, 무표정 = 키 0) — ExpressionLogic.Keys 순서.</summary>
+        public readonly List<string> Expressions = new List<string>();
         public readonly List<Landmark> Landmarks = new List<Landmark>();
 
         static float F(object o) => (float)(double)o;
@@ -69,6 +74,22 @@ namespace RoadToPro.Presentation.Players.Logic
                 ((JsonObject)x).TryGet("id", out var id);
                 d.Beards.Add((string)id);
             }
+            // 062: 없는 필드는 무시 (schemaVersion 1 유지, 필드 추가만)
+            if (root.TryGet("baseHeads", out var bh) && bh is List<object> bhl)
+                foreach (var x in bhl)
+                {
+                    var o = (JsonObject)x;
+                    o.TryGet("id", out var id);
+                    o.TryGet("region", out var rg);
+                    d.BaseHeads.Add((string)id);
+                    d.BaseRegions.Add(rg as string);
+                }
+            if (root.TryGet("expressions", out var ex) && ex is List<object> exl)
+                foreach (var x in exl)
+                {
+                    ((JsonObject)x).TryGet("id", out var id);
+                    d.Expressions.Add((string)id);
+                }
             root.TryGet("landmarks", out var lm);
             foreach (var x in (List<object>)lm)
             {
@@ -84,16 +105,14 @@ namespace RoadToPro.Presentation.Players.Logic
         }
     }
 
-    /// <summary>선수 한 명의 얼굴: 축 값(부호 있음, FaceData.Axes 순서)과 수염 종류(FaceData.Beards 인덱스).</summary>
+    /// <summary>선수 한 명의 얼굴: 축 값(부호 있음, FaceData.Axes 순서). 062: 수염은 PlayerAppearance.Beard로 옮겼다(plan '데이터').</summary>
     public sealed class FaceShape : IEquatable<FaceShape>
     {
         public readonly float[] Axis;
-        public readonly int Beard;
 
-        public FaceShape(float[] axis, int beard)
+        public FaceShape(float[] axis)
         {
             Axis = axis;
-            Beard = beard;
         }
 
         /// <summary>축 i → (셰이프키 이름, 가중치 0~1). 양수면 pos 키, 음수면 neg 키.</summary>
@@ -106,7 +125,7 @@ namespace RoadToPro.Presentation.Players.Logic
 
         public bool Equals(FaceShape o)
         {
-            if (o == null || o.Beard != Beard || o.Axis.Length != Axis.Length) return false;
+            if (o == null || o.Axis.Length != Axis.Length) return false;
             for (int i = 0; i < Axis.Length; i++)
                 if (!Axis[i].Equals(o.Axis[i])) return false;
             return true;
@@ -116,7 +135,7 @@ namespace RoadToPro.Presentation.Players.Logic
 
         public override int GetHashCode()
         {
-            int h = Beard;
+            int h = 17;
             foreach (var a in Axis) h = h * 31 + a.GetHashCode();
             return h;
         }
@@ -124,7 +143,7 @@ namespace RoadToPro.Presentation.Players.Logic
 
     /// <summary>
     /// 선수 id → 얼굴 (specs/056 FR-22·23·24). 시드 = StableHasher(태그, id, 시도 번호) → SplitMix64. 실존 인물 입력 경로 없음.
-    /// 축 값: 두 균등의 합(삼각 분포, 평균 얼굴 쪽이 많다) × 범위. 수염: 4종 균등 (2026-11-04 플랜 승인, FR-23 [미정] 기본안).
+    /// 축 값: 두 균등의 합(삼각 분포, 평균 얼굴 쪽이 많다) × 범위. 062: 수염·바탕 머리는 AppearanceGenerator가 뽑는다.
     /// GenerateGroup: 한 장면(팀 22명 등)에서 앞 선수와 랜드마크 거리가 기준(FaceLandmarks.MinDistance)보다 가까우면 시도 번호를 올려 다시 뽑는다(AC-04).
     /// </summary>
     public static class FaceGenerator
@@ -144,8 +163,7 @@ namespace RoadToPro.Presentation.Players.Logic
             var ax = new float[d.Axes.Count];
             for (int i = 0; i < ax.Length; i++)
                 ax[i] = d.Axes[i].Range * (U01(ref s) + U01(ref s) - 1f);
-            int beard = (int)(SplitMix64.Next(ref s) % (ulong)d.Beards.Count);
-            return new FaceShape(ax, beard);
+            return new FaceShape(ax);
         }
 
         public static void GenerateGroup(FaceData d, FaceLandmarks lm, ReadOnlySpan<int> ids, FaceShape[] output)
@@ -182,32 +200,67 @@ namespace RoadToPro.Presentation.Players.Logic
         public const int SampleIds = 400;
         readonly FaceData _d;
         float _min = -1f, _mean = -1f;
+        // 062: 키 이름 사전 조회 대신 조밀한 표 [축][랜드마크] (pos·neg)·[바탕][랜드마크] — 1,000팀 검사·팀 재추첨이 수십만 번 부른다
+        readonly Vec3[][] _pos, _neg, _base;
 
         public FaceLandmarks(FaceData d)
         {
             _d = d;
+            int n = d.Landmarks.Count;
+            Vec3[] Table(string key)
+            {
+                var t = new Vec3[n];
+                for (int i = 0; i < n; i++)
+                    if (key != null && d.Landmarks[i].Deltas.TryGetValue(key, out var dl)) t[i] = dl;
+                return t;
+            }
+            _pos = new Vec3[d.Axes.Count][];
+            _neg = new Vec3[d.Axes.Count][];
+            for (int a = 0; a < d.Axes.Count; a++)
+            {
+                _pos[a] = Table(d.Axes[a].PosKey);
+                _neg[a] = Table(d.Axes[a].NegKey);
+            }
+            _base = new Vec3[d.BaseHeads.Count][];
+            for (int b = 0; b < d.BaseHeads.Count; b++) _base[b] = Table(d.BaseHeads[b]);
         }
 
-        public Vec3[] Positions(FaceShape f)
+        public Vec3[] Positions(FaceShape f) => Positions(f, null);
+
+        /// <summary>062 FR-61: 얼굴 축 + 바탕 머리 혼합(외형의 천분율 가중치)까지 더한 랜드마크 위치. look이 null이면 축만(056 정의).</summary>
+        public Vec3[] Positions(FaceShape f, PlayerAppearance? look)
         {
-            var p = new Vec3[_d.Landmarks.Count];
-            for (int i = 0; i < p.Length; i++)
+            int n = _d.Landmarks.Count;
+            var p = new Vec3[n];
+            for (int i = 0; i < n; i++) p[i] = _d.Landmarks[i].Base;
+            for (int a = 0; a < f.Axis.Length; a++)
             {
-                var l = _d.Landmarks[i];
-                var v = l.Base;
-                for (int a = 0; a < f.Axis.Length; a++)
+                float v = f.Axis[a];
+                if (v == 0f) continue;
+                var t = v > 0f ? _pos[a] : _neg[a];
+                float w = Math.Abs(v);
+                for (int i = 0; i < n; i++) p[i] = p[i] + t[i] * w;
+            }
+            if (look.HasValue && _base.Length > 0)
+            {
+                var lk = look.Value;
+                for (int k = 0; k < 3; k++)
                 {
-                    f.Key(_d, a, out var key, out var w);
-                    if (w > 0f && l.Deltas.TryGetValue(key, out var dl)) v = v + dl * w;
+                    lk.Base(k, out int head, out int pm);
+                    if (pm <= 0 || head < 0 || head >= _base.Length) continue;
+                    var t = _base[head];
+                    float w = pm * 0.001f;
+                    for (int i = 0; i < n; i++) p[i] = p[i] + t[i] * w;
                 }
-                p[i] = v;
             }
             return p;
         }
 
-        public float[] DistanceVector(FaceShape f)
+        public float[] DistanceVector(FaceShape f) => DistanceVector(f, null);
+
+        public float[] DistanceVector(FaceShape f, PlayerAppearance? look)
         {
-            var p = Positions(f);
+            var p = Positions(f, look);
             int n = p.Length;
             var v = new float[n * (n - 1) / 2];
             int k = 0;
@@ -251,12 +304,28 @@ namespace RoadToPro.Presentation.Players.Logic
         public float MinDistance => _min >= 0 ? _min : (_min = MeanPairDistance * MinFraction);
     }
 
-    /// <summary>043 외형 체형 3축 → 056 셰이프키 가중치 (FR-10·11). Muscular 0.25~1 → MPFB 근육 0.6~0.9 구간(키 Muscular 0~1).</summary>
+    /// <summary>043 외형 체형 3축 → 056 셰이프키 가중치 (FR-10·11). Muscular 0.25~1 → MPFB 근육 0.6~0.9 구간(키 Muscular 0~1).
+    /// 062: + Broad·Limb 셰이프키, 근육 지도 세기, 어깨 너비 근사.</summary>
     public static class BodyShapeMap
     {
         public static float Thin(in PlayerAppearance a) => Clamp01(a.Thin);
         public static float Heavy(in PlayerAppearance a) => Clamp01(a.Heavy);
         public static float Muscular(in PlayerAppearance a) => Clamp01((a.Muscular - 0.25f) / 0.75f);
+        public static float Broad(in PlayerAppearance a) => Clamp01(a.Broad);
+        public static float Limb(in PlayerAppearance a) => Clamp01(a.Limb);
+
+        /// <summary>062 셰이더 근육 지도 세기 _MuscleDef = 0.5 + 0.5 × Muscular(0~1) — 프로 선수라 최소도 0.5 (T06).</summary>
+        public static float MuscleDef(in PlayerAppearance a) => 0.5f + 0.5f * Muscular(a);
+
+        // 062 FR-04: 정면 어깨 너비(어깨 관절 높이 ±4 cm 띠)/키 = 기준 + Σ 축 기여. 값은 Blender 생성기 기준 몸에서 잰 것
+        // (2026-11-20 T10, 축 가중치 1에서의 차). 생성기 체형 키를 바꾸면 다시 잰다.
+        public const float ShoulderWidthBase = 0.3448f;
+        public const float ShoulderBroad = 0.0345f, ShoulderHeavy = 0.0043f, ShoulderLimb = 0.0030f,
+            ShoulderMuscular = -0.0021f, ShoulderThin = -0.0098f;
+
+        public static float ShoulderWidthRatio(in PlayerAppearance a) =>
+            ShoulderWidthBase + ShoulderBroad * Broad(a) + ShoulderHeavy * Heavy(a) + ShoulderLimb * Limb(a)
+            + ShoulderMuscular * Muscular(a) + ShoulderThin * Thin(a);
 
         static float Clamp01(float x) => x < 0f ? 0f : x > 1f ? 1f : x;
     }

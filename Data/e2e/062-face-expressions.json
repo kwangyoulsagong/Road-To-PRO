@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "id": "062-face-expressions",
+  "spec": "062",
+  "description": "표정 (AC-08·12, FR-70~72): 표정 5종(무표정·환호·미소·실망·집중) × 4명(앞 2명 클로즈업 머리, 뒤 2명 LOD0 고정) — 입 안(치아·혀·어두운 입안)·수염이 표정을 따라감, 반응 장면(expressions.json: 득점자 환호·동료 미소·실점 팀 실망·카드 집중). 사용자 육안 승인 기준 장면.",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261121
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-08",
+    "AC-12"
+  ],
+  "defaults": {
+    "timeoutSec": 60
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "exprNeutral"
+    },
+    {
+      "type": "capture",
+      "name": "exprNeutral",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "exprCheer"
+    },
+    {
+      "type": "capture",
+      "name": "exprCheer",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "exprSmile"
+    },
+    {
+      "type": "capture",
+      "name": "exprSmile",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "exprDisappoint"
+    },
+    {
+      "type": "capture",
+      "name": "exprDisappoint",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "exprFocus"
+    },
+    {
+      "type": "capture",
+      "name": "exprFocus",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "exprReaction"
+    },
+    {
+      "type": "capture",
+      "name": "exprReaction",
+      "kind": "3d"
+    }
+  ],
+  "imageChecks": [],
+  "langs": [
+    "ko"
+  ],
+  "themes": [
+    "light"
+  ]
+}
