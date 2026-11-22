@@ -603,3 +603,103 @@ class BakedMaps062(unittest.TestCase):
         self.assertTrue(lic["ok"], lic)
         self.assertTrue(b["procedural"], b)
         self.assertTrue(b["ok"], b)
+
+
+# ---------------------------------------------------------------- specs/088 선수 모델 전면 교체 (T01)
+APPROVED_088 = ("Hair_Quiff", "Hair_PartedTwoBlock", "Hair_TexturedCrop", "Hair_Curtains")   # 사진 비교 승인 4종 (스펙 범위)
+FIDELITY_088 = {"closeup": 0.90, "0": 0.85, "1": 0.75}   # FR-11 [제안]
+LEGACY_088 = ("hair.py", "hairtex.py")                    # FR-17: 지워져야 하는 옛 모듈
+MH_DIR = os.path.join(_path.REPO, "Art", "ThirdParty", "MakeHuman")
+
+
+class Face088_MakeHumanAssets(unittest.TestCase):
+    """088 AC-01: MakeHuman CC0 피부 3세트·고해상도 눈·눈썹 ≥ 3·속눈썹, 지역 7 × 톤 ≥ 2, 텍스처 예산."""
+
+    def test_mh_face_assets(self):
+        g = generated("default")
+        s = g.layout["summary"]
+        mh = s["mhFace"]
+        self.assertTrue(mh["ok"], mh)
+        self.assertEqual(len(mh["skinSets"]), 3, mh["skinSets"])
+        self.assertGreaterEqual(len(mh["eyebrows"]), 3)
+        self.assertGreaterEqual(len(mh["eyelashes"]), 1)
+        self.assertEqual(mh["eyes"], "high-poly")
+        for region, tones in mh["regionTones"].items():
+            self.assertGreaterEqual(len(tones), 2, region)
+        self.assertEqual(len(mh["regionTones"]), 7)
+        for k in mh["skinSets"]:
+            self.assertEqual(png_size(g.path(os.path.join("Textures", f"skin_{k}.png"))), (1024, 1024))
+            self.assertEqual(png_size(g.path(os.path.join("Textures", f"skin_{k}_closeup.png"))), (2048, 2048))
+        tb = s["budgets"]["textureBudget"]
+        self.assertTrue(tb["ok"], tb)
+        self.assertLessEqual(tb["estimatedMB"], 195.0 * 1.10)   # FR-04 [제안] 062 대비 +10 %
+
+
+class Licenses088_MakeHuman(unittest.TestCase):
+    """088 AC-02: 쓴 MakeHuman 파일 = assets.json(sha256), 전부 CC0, LICENSES.csv 기록, 압축 파일·사진 없음."""
+
+    def test_mh_licenses(self):
+        g = generated("default")
+        lic = g.layout["summary"]["mhLicenses"]
+        self.assertTrue(lic["ok"], lic)
+        with open(os.path.join(MH_DIR, "assets.json"), encoding="utf-8") as f:
+            pinned = {a["path"]: a for a in json.load(f)["files"]}
+        used = g.layout["generator"]["makehuman"]["files"]
+        self.assertTrue(used)
+        for a in used:
+            self.assertIn(a["path"], pinned)
+            self.assertEqual(pinned[a["path"]]["sha256"], a["sha256"], a["path"])
+            self.assertEqual(pinned[a["path"]]["license"], "CC0", a["path"])
+        with open(os.path.join(_path.REPO, "Art", "LICENSES.csv"), encoding="utf-8") as f:
+            rows = [r for r in f.read().splitlines() if r.startswith("MakeHuman")]
+        self.assertTrue(rows and all("CC0" in r for r in rows), rows)
+        tracked = subprocess.run(["git", "ls-files", "Art/ThirdParty"], cwd=_path.REPO, capture_output=True, text=True).stdout.split()
+        self.assertFalse([t for t in tracked if t.endswith(".zip")], "압축 파일이 레포에 있다")
+        self.assertFalse([t for t in tracked if "MakeHumanPacks" in t])
+
+
+class Hair088_GroomFidelity(unittest.TestCase):
+    """088 AC-03: 모든 헤어 스타일이 승인 시안에서 구워지고, 시안 대비 머리카락 마스크 IoU·평균색 ΔE·가르마·앞머리 오차가 기준 안."""
+
+    def test_groom_fidelity(self):
+        fd = generated("default").layout["summary"]["groomFidelity"]
+        self.assertTrue(fd["ok"], {k: v for k, v in fd.items() if isinstance(v, dict) and not v.get("ok", True)})
+        self.assertEqual(set(fd["styles"]), set(MESH_HAIR))
+        for st in APPROVED_088:
+            self.assertTrue(fd["styles"][st]["approved"], st)
+        for st, m in fd["styles"].items():
+            for tier, lo in FIDELITY_088.items():
+                self.assertGreaterEqual(m["iou"][tier], lo, (st, tier))
+            self.assertLessEqual(m["deltaE"], 5.0, st)
+            if m.get("partErrMm") is not None:
+                self.assertLessEqual(m["partErrMm"], 5.0, st)
+            if m.get("fringeErrMm") is not None:
+                self.assertLessEqual(m["fringeErrMm"], 5.0, st)
+
+
+class Legacy088_None(unittest.TestCase):
+    """088 AC-10: 옛 절차적 헤어·피부·눈 경로와 자원이 없다."""
+
+    def test_no_legacy(self):
+        for f in LEGACY_088:
+            self.assertFalse(os.path.exists(os.path.join(_path.SCRIPTS, "player", f)), f)
+        self.assertFalse(os.path.exists(os.path.join(_path.SCRIPTS, "groom_v2")))
+        g = generated("default")
+        nl = g.layout["summary"]["noLegacy"]
+        self.assertTrue(nl["ok"], nl)
+        self.assertNotIn(os.path.join("Textures", "skin.png"), g.files())
+
+
+class Determinism088_Hash(unittest.TestCase):
+    """088 AC-05: 같은 입력 2회 → glb·텍스처 해시 동일, 캐시 있는 생성 시간 증가 ≤ 3분."""
+
+    def test_deterministic_hash(self):
+        a = generated("default", preview=False)
+        b = generated("default-again", preview=False)
+        for f in a.files():
+            if f.endswith((".glb", ".png")):
+                self.assertEqual(a.sha(f), b.sha(f), f)
+
+    def test_gen_time(self):
+        g = generated("default", preview=False)
+        self.assertLessEqual(g.seconds, 180.0 + 180.0, f"{g.seconds:.1f}s")   # 057 FR-42 180 s + 088 FR-16 3분
