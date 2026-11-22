@@ -40,6 +40,15 @@
 - [x] T22 E2E 장면 — 파일: `Data/e2e/088-face-closeup.json`·`088-body-closeup.json`·`088-hair-groom.json`, `VS/PlayerScreen.088.cs`, 시안 비교 시트 생성 — 검증: 장면 3개 1회씩 직접 확인 (AC-06·07) — 결과: 플랜과 다름 — `PlayerScreen.088.cs` 없이 062·057 화면 재사용(장면 JSON 3개). 시안 나란히 비교 시트는 Blender `player/groom/compare.py` 렌더(증거)
 - [x] T23 최종 검증 — `farm.py logic --spec 088 --scope auto` · `farm.py art --spec 088` · `farm.py shot` 088 장면 3 + 회귀 3(`062-hair-catalog`·`062-face-catalog`·`042-goal-sequence`) · 사용자 일괄 육안 확인 · `/verify 088` 리포트 아티팩트 (AC 전부) — 결과: 로직 898(통과 889·실패 0) · art 59/59(4회 반복 — 테스트 기대값 088 반영, glb 67.7 → 24.1 MB, 셸 감김·각막·밀도·결 아틀라스·캐시 키 수정, 4종 Q3 재분류) · 장면 98장(088 4장면) + 042 골 장면 회귀 직접 확인 · 리포트 https://claude.ai/artifact/UkTDHBh5uRQjTZoGrmzquj · **사용자 일괄 육안 확인 대기**
 
+## 다음 세션 시작 (2차, T25~T31)
+- 브랜치: `feat/088-hair-groom-bake`(머지됐으면 main에서 `feat/088-prototype-model`로 새 브랜치). 요구사항 = spec FR-50~58·AC-12~14, 규칙 = CLAUDE.md "선수 폴리곤"(T24 개정 완료).
+- **먼저 보여 줄 것**: 시안 렌더 vs 게임 캡처 나란히 비교(정면·3/4·옆·뒤). 지표만 맞추고 진행하지 말 것 — 1차는 이걸 안 해서 다시 하게 됐다.
+- 시안 렌더: `Blender --background --python Art/Blender/scripts/player/groom/compare.py -- <출력> <스타일[,…]> [--density 0.4]` (스타일 1개 ≈ 25 s). 시안 사람 = `frame.head()`가 아니라 시안 매크로(근육 0.85·체중 0.55·비율 0.7·키 0.6) + 피부별 인종 비율 — T26에서 이 값을 머리·목에 적용.
+- 생성: `cd Art/Blender/scripts && PLAYER_UV_BUMP=1 PLAYER_FAIL_DUMP=<요약.json> Blender --background --factory-startup --python-exit-code 1 --python gen_player.py -- --out <폴더> --no-preview` (≈ 7~8분, 헤어 캐시 `.farm/cache/groom`). 실패하면 출력 폴더가 비고 요약은 FAIL_DUMP에만.
+- Unity 반영: 출력에서 `player.preview-*` 빼고 `Assets/_Project/Presentation/Players/Generated/`로 복사. `PlayerBodyAssets` 필드를 바꾸면 E2E 씬 재생성: `Unity -batchmode -nographics -quit -projectPath . -executeMethod RoadToPro.Verification.Editor.PlayerSceneSetup.Generate` (+ `HighlightSceneSetup.Generate`).
+- 검증: `farm.py art --spec 088`(선수 테스트 59개, ≈ 35~45분 — 생성 여러 번), `farm.py logic --spec 088 --scope auto`(≈ 1분), `farm.py shot --spec 088`(088 장면 4개 + 042-goal-sequence 따로). art 도중 코드를 바꾸면 결정론 비교가 섞이니 멈추고 다시.
+- 함정: 굽기 캐시 키는 클로저 값까지(`bake._fn_sig`) — 스타일 매개변수를 바꾸면 자동 무효. 뒤통수 구멍 의심 원인 = `grow.roots`의 `np.linalg.norm(C[:, :2] - eye[:2]) < 0.16`(눈에서 수평 16 cm). 클로즈업 머리는 Unity가 `Hair_*_LOD0`을 합침(`CloseupHeads`·`PlayerRig.BakeMeshes`) — 클로즈업 전용 헤어를 만들면 여기도 바꿈. 테스트 예산 수치(`checks.TRI_BUDGET`·`HAIR_LOD0_MAX`·test_player 11k·`PlayerMeshBakerTests` 7,900)는 T26~T29에서 새 규칙으로.
+
 ## E. 시안 모델 전면 적용 (2026-11-22 사용자 육안 확인 피드백 — 다음 태스크)
 피드백: "우리가 저번에 human 얼굴이랑 헤어 만든 거랑 완전 다른데", "뒤에 빵꾸 뚫려 있는 거", "다 시안대로 해야지 — 클로즈업 시에는 실제 게임에서도 그래픽이 좋잖아", "머리든 얼굴이든 다 그 모델로 다 바꿔야지", "규칙도 바꿔야지", "그거 다 다음 태스크로".
 원인(설명 완료): ① 얼굴 골격 = 062 체계(중립 인종 + 바탕 머리 8 + 무작위 얼굴 축) 유지, 시안 체형 값은 몸 검사 때문에 되돌림 ② 머리 감량(LOD0 ≈ 2.9k·클로즈업 5.85k) ③ 눈썹·속눈썹 = 피부 마스크 ④ 게임 셰이더에 피하 산란 없음 ⑤ 헤어 1.9k 예산 → 셸 + 카드 ⑥ 뒤통수 구멍 = 시안 뿌리 범위(눈에서 수평 16 cm)에 뒤통수가 빠짐(추정, 확인 필요) — 시안은 정면·3/4·옆만 봐서 못 봄.
