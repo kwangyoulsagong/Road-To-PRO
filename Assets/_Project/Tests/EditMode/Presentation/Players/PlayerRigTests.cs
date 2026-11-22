@@ -24,8 +24,8 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             Texture2D T(string p) => AssetDatabase.LoadAssetAtPath<Texture2D>(Gen + "/" + p);
             return new PlayerBodyAssets
             {
-                skin = T(PlayerBodyAssets.Skin), skinNormal = T(PlayerBodyAssets.SkinNormal), parts = T(PlayerBodyAssets.Parts),
-                closeupSkin = T(PlayerBodyAssets.CloseupSkin), closeupNormal = T(PlayerBodyAssets.CloseupNormal),
+                skinSets = System.Array.ConvertAll(PlayerBodyAssets.SkinSets, T), skinNormal = T(PlayerBodyAssets.SkinNormal),
+                parts = T(PlayerBodyAssets.Parts), browMask = T(PlayerBodyAssets.BrowMask),
                 faceJson = AssetDatabase.LoadAssetAtPath<TextAsset>(Gen + "/" + PlayerBodyAssets.FaceJson),
                 bodyDetailN = T(PlayerBodyAssets.BodyDetailN), bodyDetailAO = T(PlayerBodyAssets.BodyDetailAO),
                 skinThickness = T(PlayerBodyAssets.SkinThickness), kitDetailN = T(PlayerBodyAssets.KitDetailN),

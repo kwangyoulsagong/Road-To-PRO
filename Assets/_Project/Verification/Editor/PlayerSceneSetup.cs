@@ -54,11 +54,10 @@ namespace RoadToPro.Verification.Editor
                 glyphJson = Load<TextAsset>(Fonts + "/kit-glyphs.json"),
                 body = new PlayerBodyAssets
                 {
-                    skin = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.Skin),
+                    skinSets = System.Array.ConvertAll(PlayerBodyAssets.SkinSets, f => Load<Texture2D>(Gen + "/" + f)),
                     skinNormal = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.SkinNormal),
                     parts = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.Parts),
-                    closeupSkin = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.CloseupSkin),
-                    closeupNormal = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.CloseupNormal),
+                    browMask = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.BrowMask),
                     faceJson = Load<TextAsset>(Gen + "/" + PlayerBodyAssets.FaceJson),
                     layoutJson = Load<TextAsset>(Gen + "/" + PlayerBodyAssets.LayoutJson),
                     bodyDetailN = Load<Texture2D>(Gen + "/" + PlayerBodyAssets.BodyDetailN),

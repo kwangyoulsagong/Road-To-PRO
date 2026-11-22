@@ -81,7 +81,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         static readonly string[] Names056 =
             { "Hair_Buzz", "Hair_Short", "Hair_Long", "Hair_Curly", "Hair_Bun", "Hair_Fade", "Hair_Afro", "Hair_Mohawk", "Hair_Dreads", null };
 
-        // 062 FR-52: 30~34 신규 (Art/Blender/scripts/player/hair.py STYLE_SPEC와 같은 순서)
+        // 062 FR-52: 30~34 신규 (Art/Blender/scripts/player/hairstyles.py STYLES와 같은 순서)
         static readonly string[] Names062 =
             { "Hair_PartedTwoBlock", "Hair_CommaPerm", "Hair_VolumeCurlyLong", "Hair_StraightCornrows", "Hair_ZigzagCornrows" };
         // 057 분포 계열 (hair.py family): 30 짧은 · 31 중간 · 32 긴 · 33·34 짧은
@@ -449,6 +449,63 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             int lo = System.Math.Min(System.Math.Min(c[0], c[1]), System.Math.Min(c[2], c[3]));
             int hi = System.Math.Max(System.Math.Max(c[0], c[1]), System.Math.Max(c[2], c[3]));
             Assert.LessOrEqual(hi - lo, n * 3 / 100, "056 4종 고르게: " + string.Join(",", c));
+        }
+
+        // ---------------------------------------------------------------- specs/088 눈썹 · 피부 세트 톤 표 (T07, AC-01)
+
+        [Test]
+        public void Eyebrow_Deterministic_AllKindsUsed_NotInCombo()
+        {
+            // FR-02: 눈썹 0~2를 선수 id 시드로 고르고(같은 id → 같은 값), 3종 모두 쓰이며, 조합 번호·기존 필드는 바뀌지 않는다
+            var seen = new int[AppearanceGenerator.Eyebrows];
+            for (int id = 1; id <= 3000; id++)
+            {
+                var a = AppearanceGenerator.Generate(new BodyInput(id));
+                var b = AppearanceGenerator.Generate(new BodyInput(id));
+                Assert.AreEqual(a.Eyebrow, b.Eyebrow);
+                Assert.That(a.Eyebrow, Is.InRange(0, AppearanceGenerator.Eyebrows - 1));
+                seen[a.Eyebrow]++;
+                Assert.AreEqual(a.Eyebrow, a.WithCombo(a.ComboKey).Eyebrow, "조합 왕복이 눈썹을 지운다");
+                Assert.AreEqual(a.Eyebrow, a.WithHair(0, 0, 0).Eyebrow);
+            }
+            foreach (int n in seen) Assert.Greater(n, 3000 / 6, "눈썹 종류가 고르게 쓰이지 않는다");
+            Assert.AreEqual(3, AppearanceGenerator.Eyebrows);
+            Assert.AreEqual(AppearanceGenerator.Eyebrows, RoadToPro.Presentation.Players.PlayerLook.BrowChannels.Length);
+        }
+
+        [Test]
+        public void ToneTable_SetsAndTints_MatchGenerator()
+        {
+            // Q4: 톤 8단계 → MakeHuman 세트(0 light · 1 asian · 2 dark) + 틴트, 생성기 face.TONE_TABLE과 같은 값(player.layout.json summary.mhFace)
+            var set = RoadToPro.Presentation.Players.PlayerLook.SkinToneSet;
+            var tint = RoadToPro.Presentation.Players.PlayerLook.SkinToneTint;
+            Assert.AreEqual(AppearanceGenerator.SkinTones, set.Length);
+            Assert.AreEqual(AppearanceGenerator.SkinTones, tint.Length);
+            Assert.AreEqual(RoadToPro.Presentation.Players.PlayerBodyAssets.SkinSets.Length, 3);
+            for (int t = 0; t < set.Length; t++)
+            {
+                Assert.That(set[t], Is.InRange(0, 2));
+                if (t > 0) Assert.GreaterOrEqual(set[t], set[t - 1], "톤이 밝음 → 어두움 순서가 아니다");
+            }
+            var layout = UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.TextAsset>(
+                "Assets/_Project/Presentation/Players/Generated/player.layout.json");
+            Assert.IsNotNull(layout);
+            var root = (RoadToPro.Core.Serialization.JsonObject)RoadToPro.Core.Serialization.JsonReader.Parse(layout.text);
+            root.TryGet("summary", out var sumObj);
+            ((RoadToPro.Core.Serialization.JsonObject)sumObj).TryGet("mhFace", out var mhObj);
+            ((RoadToPro.Core.Serialization.JsonObject)mhObj).TryGet("toneTable", out var tableObj);
+            var table = (System.Collections.Generic.List<object>)tableObj;
+            string[] names = { "light", "asian", "dark" };
+            Assert.AreEqual(set.Length, table.Count);
+            for (int t = 0; t < table.Count; t++)
+            {
+                var row = (System.Collections.Generic.List<object>)table[t];
+                Assert.AreEqual(names[set[t]], (string)row[0], "톤 " + t);
+                var rgb = (System.Collections.Generic.List<object>)row[1];
+                Assert.AreEqual(System.Convert.ToSingle(rgb[0]), tint[t].r, 1e-4f);
+                Assert.AreEqual(System.Convert.ToSingle(rgb[1]), tint[t].g, 1e-4f);
+                Assert.AreEqual(System.Convert.ToSingle(rgb[2]), tint[t].b, 1e-4f);
+            }
         }
     }
 }

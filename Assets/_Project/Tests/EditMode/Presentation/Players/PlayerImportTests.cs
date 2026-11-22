@@ -74,7 +74,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         /// <summary>062 FR-92 파일별 최대 해상도 (Art/Blender/scripts/player/checks.py TEXTURE_RES와 같다).</summary>
         static readonly System.Collections.Generic.Dictionary<string, int> TextureRes = new System.Collections.Generic.Dictionary<string, int>
         {
-            ["skin"] = 1024, ["skin_normal"] = 1024, ["parts"] = 1024, ["skin_closeup"] = 2048, ["skin_closeup_normal"] = 2048,
+            ["skin_light"] = 2048, ["skin_asian"] = 2048, ["skin_dark"] = 2048, ["skin_normal"] = 2048, ["brow_mask"] = 1024, ["parts"] = 1024,   // 088
             ["body_detail_n"] = 2048, ["body_detail_ao"] = 2048, ["kit_detail_n"] = 2048, ["kit_detail_ao"] = 2048,
             ["kit_region"] = 1024, ["beard_mask0"] = 1024, ["skin_thickness"] = 512, ["kit_normal"] = 512, ["kit_weave"] = 256,
             ["kit_mask_plain"] = 1024, ["kit_mask_stripes"] = 1024, ["kit_mask_hoops"] = 1024, ["kit_mask_halves"] = 1024,
@@ -99,7 +99,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         public void SkinNormals_MipFadeToFlat()
         {
             // 057 FR-22: 피부 노멀맵은 밉맵 페이드(먼 밉 = 평탄) — 원거리 깜빡임 방지
-            foreach (var name in new[] { "skin_normal.png", "skin_closeup_normal.png" })
+            foreach (var name in new[] { "skin_normal.png" })   // 088: 공유 노멀 2K 하나
             {
                 var ti = (TextureImporter)AssetImporter.GetAtPath("Assets/_Project/Presentation/Players/Generated/Textures/" + name);
                 Assert.IsNotNull(ti, name);

@@ -50,11 +50,14 @@ namespace RoadToPro.Presentation.Players.Logic
         /// <summary>062 FR-60·61: 바탕 머리 인덱스 3개(Base_n)와 정수 천분율 가중치(합 1000, A ≥ B ≥ C, C = 0이면 2개 혼합). A = 주 바탕(지역·피부톤 기준).</summary>
         public readonly int BaseA, BaseB, BaseC;
         public readonly int WeightA, WeightB, WeightC;
+        /// <summary>088 FR-02: 눈썹 종류 0~2 (MakeHuman Mindfront 02·04·09 → brow_mask R·G·B). 조합 번호(ComboKey)에는 넣지 않는다.</summary>
+        public readonly int Eyebrow;
 
         public PlayerAppearance(float heightCm, float weightKg, float thin, float muscular, float heavy,
             int skinTone, int face, int hairStyle, int hairColor, float broad = 0.5f, float limb = 0.5f, int colorPoint = 0,
-            int beard = 0, int baseA = 0, int baseB = 1, int baseC = 2, int weightA = 1000, int weightB = 0, int weightC = 0)
+            int beard = 0, int baseA = 0, int baseB = 1, int baseC = 2, int weightA = 1000, int weightB = 0, int weightC = 0, int eyebrow = 0)
         {
+            Eyebrow = eyebrow;
             Beard = beard;
             BaseA = baseA;
             BaseB = baseB;
@@ -101,13 +104,13 @@ namespace RoadToPro.Presentation.Players.Logic
                 else if (bc == ba) bc = BaseA;
             }
             return new PlayerAppearance(HeightCm, WeightKg, Thin, Muscular, Heavy, s, f, hs, hc, Broad, Limb, cp,
-                bd, ba, bb, bc, WeightA, WeightB, WeightC);
+                bd, ba, bb, bc, WeightA, WeightB, WeightC, Eyebrow);
         }
 
         /// <summary>헤어(스타일·색·컬러 포인트)만 바꾼 외형 — 검증 장면 일람용. 나머지 조합은 그대로.</summary>
         public PlayerAppearance WithHair(int hairStyle, int hairColor, int colorPoint) =>
             new PlayerAppearance(HeightCm, WeightKg, Thin, Muscular, Heavy, SkinTone, Face, hairStyle, hairColor, Broad, Limb, colorPoint,
-                Beard, BaseA, BaseB, BaseC, WeightA, WeightB, WeightC);
+                Beard, BaseA, BaseB, BaseC, WeightA, WeightB, WeightC, Eyebrow);
 
         /// <summary>바탕 머리 i(0~2) → (인덱스, 천분율). 가중치 0이면 그 자리는 쓰지 않는다.</summary>
         public void Base(int i, out int head, out int permille)
@@ -120,11 +123,11 @@ namespace RoadToPro.Presentation.Players.Logic
             HeightCm.Equals(o.HeightCm) && WeightKg.Equals(o.WeightKg) && Thin.Equals(o.Thin) && Muscular.Equals(o.Muscular) &&
             Heavy.Equals(o.Heavy) && Broad.Equals(o.Broad) && Limb.Equals(o.Limb) && SkinTone == o.SkinTone && Face == o.Face && HairStyle == o.HairStyle && HairColor == o.HairColor &&
             ColorPoint == o.ColorPoint && Beard == o.Beard && BaseA == o.BaseA && BaseB == o.BaseB && BaseC == o.BaseC &&
-            WeightA == o.WeightA && WeightB == o.WeightB && WeightC == o.WeightC;
+            WeightA == o.WeightA && WeightB == o.WeightB && WeightC == o.WeightC && Eyebrow == o.Eyebrow;
 
         public override bool Equals(object obj) => obj is PlayerAppearance o && Equals(o);
         public override int GetHashCode() => ComboKey * 397 ^ HeightCm.GetHashCode();
-        public override string ToString() => $"{HeightCm:0.#}cm {WeightKg:0.#}kg T{Thin:0.##} M{Muscular:0.##} H{Heavy:0.##} B{Broad:0.##} L{Limb:0.##} skin{SkinTone} face{Face} hair{HairStyle}/{HairColor}/cp{ColorPoint} beard{Beard} base{BaseA}:{WeightA}/{BaseB}:{WeightB}/{BaseC}:{WeightC}";
+        public override string ToString() => $"{HeightCm:0.#}cm {WeightKg:0.#}kg T{Thin:0.##} M{Muscular:0.##} H{Heavy:0.##} B{Broad:0.##} L{Limb:0.##} skin{SkinTone} face{Face} hair{HairStyle}/{HairColor}/cp{ColorPoint} beard{Beard} base{BaseA}:{WeightA}/{BaseB}:{WeightB}/{BaseC}:{WeightC} brow{Eyebrow}";
     }
 
     /// <summary>
@@ -146,21 +149,24 @@ namespace RoadToPro.Presentation.Players.Logic
         public const int SkinTones = 8, Faces = 8, HairStyles = 35, HairColors = 8, ColorPoints = 4;
         /// <summary>062 FR-60·62·66: 바탕 머리 8개(지역 7), 수염 7종.</summary>
         public const int BaseHeads = 8, Regions = 7, Beards = 7;
+        /// <summary>088 FR-02: 눈썹 종류 수 (MakeHuman Mindfront 02·04·09).</summary>
+        public const int Eyebrows = 3;
         public const int Combos = BaseHeads * SkinTones * Faces * Beards * HairStyles * HairColors * ColorPoints;
 
         // 062 FR-62: 바탕 머리 → 지역 (player.face.json baseHeads 순서: 0 동아시아 · 1 동남아시아 · 2 남아시아 · 3 서아시아/북아프리카 ·
         // 4 서/중앙아프리카 · 5·6 유럽 · 7 라틴아메리카). 지역 번호도 이 순서.
         static readonly byte[] BaseRegion = { 0, 1, 2, 3, 4, 5, 5, 6 };
-        // 062 FR-63 [제안]: 지역별 피부톤(PlayerLook.SkinTones 0 밝음 ~ 7 어두움) — 각 ≥ 2단계, 8단계로 전 지역을 덮어 단계를 늘리지 않는다
+        // 062 FR-63 → 088 Q4: 지역별 피부톤(0 밝음 ~ 7 어두움, PlayerLook.SkinToneSet: 0~2 light · 3~5 asian · 6~7 dark 세트) — 각 ≥ 2단계.
+        // 생성기 face.REGION_TONES와 같은 표.
         static readonly int[][] RegionSkin =
         {
-            new[] { 0, 1, 2 },             // 동아시아
-            new[] { 1, 2, 3, 4 },          // 동남아시아
-            new[] { 2, 3, 4, 5 },          // 남아시아
-            new[] { 1, 2, 3, 4 },          // 서아시아/북아프리카
-            new[] { 5, 6, 7 },             // 서/중앙아프리카
-            new[] { 0, 1, 2 },             // 유럽
-            new[] { 1, 2, 3, 4, 5, 6 },    // 라틴아메리카
+            new[] { 3, 4 },                // 동아시아 (asian 세트)
+            new[] { 4, 5 },                // 동남아시아
+            new[] { 4, 5, 6 },             // 남아시아
+            new[] { 2, 3, 4 },             // 서아시아/북아프리카
+            new[] { 6, 7 },                // 서/중앙아프리카 (dark 세트)
+            new[] { 0, 1, 2 },             // 유럽 (light 세트)
+            new[] { 2, 4, 5 },             // 라틴아메리카
         };
         // 062 FR-66 [제안]: 수염 천분율 — 056 4종 고르게(216~217), 신규 3종 각 4.5 %
         static readonly short[] BeardWeights = { 217, 216, 216, 216, 45, 45, 45 };
@@ -179,7 +185,7 @@ namespace RoadToPro.Presentation.Players.Logic
 
         // specs/057 FR-30·31 + 062 FR-52 헤어 35종 가중치(합 1000)와 계열. 인덱스 0~9는 056 순서, 9 = 삭발.
         // 신규 5종 = 같은 계열 평균(T02 정리, 2026-11-20 "ㄱㄱ") 후 1000으로 다시 나눔(최대 나머지). 짧은 63.8 % · 중간 24.8 % · 긴·묶음 11.4 %.
-        // 표는 Art/Blender/scripts/player/hair.py STYLE_SPEC과 같은 순서.
+        // 표는 Art/Blender/scripts/player/hairstyles.py STYLES와 같은 순서.
         static readonly short[] HairWeights =
         {
             36, 36, 15, 28, 15, 36, 27, 27, 14, 36,
@@ -316,8 +322,9 @@ namespace RoadToPro.Presentation.Players.Logic
             if (baseC < 0) baseC = OtherBase(0, baseA, baseB);         // 가중치 0 자리도 서로 다른 인덱스로 채운다
             var tones = RegionSkin[region];
             int skin = tones[(int)(skinR % (ulong)tones.Length)];
+            int brow = (int)(SplitMix64.Next(ref s) % Eyebrows);       // 088 FR-02: 맨 뒤에서 뽑는다(기존 필드 값 유지)
             return new PlayerAppearance(height, weight, thin, muscular, heavy, skin, face, hs, hc, broad, limb, cp,
-                beard, baseA, baseB, baseC, wA, wB, wC);
+                beard, baseA, baseB, baseC, wA, wB, wC, brow);
         }
 
         static int PickBaseOfRegion(int region, ulong r)

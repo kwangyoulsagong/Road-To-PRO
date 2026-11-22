@@ -113,7 +113,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                             break;
                     }
                 }
-                Assert.Greater(diffTex, 0, "해상도가 다른 텍스처");
+                Assert.AreEqual(0, diffTex, "088 T04: LOD0·클로즈업이 같은 2K MakeHuman 피부 세트를 쓴다 (해상도 차이 없음)");
                 rig.SetTopTier(false);
                 Assert.AreSame(rig.BodyMaterial, rig.Lod(0).sharedMaterials[0], "일반 등급 복귀");
                 // 클로즈업 머리 전환과 함께 써도 값은 그대로

@@ -132,7 +132,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             {
                 Assert.IsNotNull(rig.CloseupRenderer);
                 Assert.IsFalse(rig.CloseupRenderer.enabled);
-                Assert.LessOrEqual(rig.CloseupRenderer.sharedMesh.triangles.Length / 3, 6000 + 1100, "클로즈업 머리 ≤ 6k + 헤어 조각");
+                Assert.LessOrEqual(rig.CloseupRenderer.sharedMesh.triangles.Length / 3, 6000 + 1900, "클로즈업 머리 ≤ 6k + 헤어 조각 ≤ 1.9k (088 플랜 헤어 몫)");
                 rig.SetCloseup(true);
                 Assert.IsTrue(rig.CloseupRenderer.enabled);
                 Assert.AreEqual(1f, rig.Lod(0).GetBlendShapeWeight(0));

@@ -1,6 +1,6 @@
 namespace RoadToPro.Presentation.Players.Logic
 {
-    /// <summary>헤어 계열 (specs/062 FR-51 분류표 "계열" 열, Art/Blender/scripts/player/hair.py STYLE_SPEC group과 같다).
+    /// <summary>헤어 계열 (specs/062 FR-51 분류표 "계열" 열, Art/Blender/scripts/player/hairstyles.py GROUP과 같다 (088: 형상은 그루밍 v2)).
     /// 057 분포 계열(<see cref="HairFamily"/> 짧은·중간·긴)과 별개 — 이쪽은 원거리 실루엣 계열(FR-44).</summary>
     public enum HairGroup : byte { Bald, Short, Fade, Medium, Curly, Braid, Long }
 

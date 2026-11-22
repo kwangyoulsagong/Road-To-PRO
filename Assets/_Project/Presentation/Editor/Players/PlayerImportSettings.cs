@@ -12,7 +12,7 @@ namespace RoadToPro.Presentation.Editor.Players
         public const string GeneratedDir = PlayersDir + "/Generated";
 
         /// <summary>규칙이 바뀌면 올린다 — Unity가 이 후처리기를 거친 에셋을 다시 임포트한다 (062: 디테일 노멀·짜임 타일 규칙).</summary>
-        public override uint GetVersion() => 3;   // 062 T36: AO 맵 1K
+        public override uint GetVersion() => 4;   // 088: MakeHuman 피부 세트 sRGB · 공유 노멀 2K
 
         void OnPreprocessTexture()
         {
@@ -25,7 +25,8 @@ namespace RoadToPro.Presentation.Editor.Players
                 bool normal = (file.StartsWith("skin") && file.EndsWith("_normal.png")) || file == "body_detail_n.png" || file == "kit_detail_n.png";
                 bool tile = file == "kit_normal.png" || file == "kit_weave.png";   // 반복 타일
                 t.textureType = normal ? TextureImporterType.NormalMap : TextureImporterType.Default;
-                t.sRGBTexture = false;
+                // 088 FR-01: 피부 세트(MakeHuman diffuse)는 색 텍스처 → sRGB. 나머지 생성 텍스처는 데이터(선형)
+                t.sRGBTexture = file == "skin_light.png" || file == "skin_asian.png" || file == "skin_dark.png";
                 t.mipmapEnabled = true;
                 // 062 T36 FR-83·92: 몸·키트 AO는 저주파 → 1K (선수 텍스처 165.7 → 약 134 MB, 예산 160 MB)
                 t.maxTextureSize = file == "body_detail_ao.png" || file == "kit_detail_ao.png" ? 1024 : 2048;
@@ -37,7 +38,7 @@ namespace RoadToPro.Presentation.Editor.Players
                 t.fadeout = normal || weave;
                 if (t.fadeout)
                 {
-                    bool big = assetPath.Contains("closeup") || file == "body_detail_n.png" || file == "kit_detail_n.png";
+                    bool big = assetPath.Contains("closeup") || file == "skin_normal.png" || file == "body_detail_n.png" || file == "kit_detail_n.png";   // 088: 피부 노멀 2K
                     t.mipmapFadeDistanceStart = weave ? 1 : big ? 3 : 2;
                     t.mipmapFadeDistanceEnd = weave ? 4 : big ? 6 : 5;
                 }

@@ -84,12 +84,13 @@ namespace RoadToPro.Presentation.Players
             rig._suitMask = bodyTex.suitMask;
             rig._body = new Material(bodyShader) { name = "PlayerBody (instance)" };
             rig._kit = new Material(kitShader) { name = "PlayerKit (instance)" };
-            SetBodyTextures(rig._body, bodyTex.skin, bodyTex.skinNormal, bodyTex.parts);
+            rig._skinSets = bodyTex.skinSets;
+            SetBodyTextures(rig._body, SkinSet(bodyTex.skinSets, 0), bodyTex.skinNormal, bodyTex.parts);
             SetBodyDetail(rig._body, bodyTex);
             if (rig._closeup != null)
             {
                 rig._closeupMat = new Material(bodyShader) { name = "PlayerBody closeup (instance)" };
-                SetBodyTextures(rig._closeupMat, bodyTex.closeupSkin, bodyTex.closeupNormal, bodyTex.parts);
+                SetBodyTextures(rig._closeupMat, SkinSet(bodyTex.skinSets, 0), bodyTex.skinNormal, bodyTex.parts);   // 088: 같은 2K 세트
                 SetBodyDetail(rig._closeupMat, bodyTex);
                 rig._closeup.sharedMaterials = new[] { rig._closeupMat, rig._closeupMat };
                 rig._closeup.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -257,6 +258,10 @@ namespace RoadToPro.Presentation.Players
 
         public Transform Bone(string name) => _bones.TryGetValue(name, out var t) ? t : null;
 
+        Texture2D[] _skinSets;
+
+        static Texture SkinSet(Texture2D[] sets, int i) => sets != null && sets.Length > 0 ? sets[Mathf.Clamp(i, 0, sets.Length - 1)] : null;
+
         static void SetBodyTextures(Material m, Texture skin, Texture normal, Texture parts)
         {
             m.SetTexture("_SkinTex", skin);
@@ -270,12 +275,9 @@ namespace RoadToPro.Presentation.Players
             SetIf(m, "_MuscleN", a.bodyDetailN);
             SetIf(m, "_MuscleAO", a.bodyDetailAO);
             SetIf(m, "_ThicknessTex", a.skinThickness);
-            // 062 FR-66: 수염 영역 4채널 마스크(full·mustache·goatee·heavy). 없으면 057 피부 텍스처 B 채널(full)로 그린다
-            if (a.beardMask != null)
-            {
-                m.SetTexture("_BeardMask", a.beardMask);
-                m.SetFloat("_BeardMaskOn", 1f);
-            }
+            // 062 FR-66: 수염 영역 4채널 마스크(full·mustache·goatee·heavy). 088: 피부 텍스처 B 채널 대체 없음 — 마스크가 없으면 수염 없음
+            SetIf(m, "_BeardMask", a.beardMask);
+            SetIf(m, "_BrowMask", a.browMask);   // 088 FR-02
         }
 
         static void SetIf(Material m, string name, Texture t)
@@ -552,11 +554,14 @@ namespace RoadToPro.Presentation.Players
                 _shadow.sharedMesh = _shadowMesh;
                 if (old != null) Release(old);
             }
-            var c = PlayerLook.SkinTones[a.SkinTone];
+            var tint = PlayerLook.SkinToneTint[a.SkinTone];   // 088 Q4: 톤 = MakeHuman 세트 + 틴트
+            var skinTex = SkinSet(_skinSets, PlayerLook.SkinToneSet[a.SkinTone]);
             foreach (var m in new[] { _body, _closeupMat })
             {
                 if (m == null) continue;
-                m.SetColor("_SkinColor", c);
+                if (skinTex != null) m.SetTexture("_SkinTex", skinTex);
+                m.SetColor("_SkinColor", tint);
+                m.SetVector("_BrowChannel", PlayerLook.BrowChannels[a.Eyebrow]);
                 m.SetColor("_HairColor", PlayerLook.HairColors[a.HairColor]);
                 // 062 FR-54: 위·끝 색 — 컬러 포인트가 없으면 같은 색(셰이더는 분기 없이 정점 마스크로 섞는다)
                 m.SetColor("_HairColor2", a.ColorPoint > 0 ? PlayerLook.ColorPointColors[a.ColorPoint - 1] : PlayerLook.HairColors[a.HairColor]);

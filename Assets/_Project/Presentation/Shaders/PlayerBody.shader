@@ -1,5 +1,6 @@
 // 선수 몸 (specs/056 FR-21·30·31·40, 043 FR-01·02 대체). 피부·눈·머리카락이 한 머티리얼(드로우콜 증가 없음).
-// UV u < 1 → 피부(_SkinTex: R 밝기 디테일 0.8 = 1배, G 붉은 기운, B 수염 밀도, A 거칠기 / _SkinNormal 탄젠트 노멀)
+// UV u < 1 → 피부(088: _SkinTex RGB = MakeHuman CC0 diffuse(세트 light·asian·dark), A 거칠기 × _SkinColor 톤 틴트 / _SkinNormal 탄젠트 노멀,
+//            _BrowMask RGB = 눈썹 02·04·09(_BrowChannel로 선택) · A = 속눈썹 선 → 머리색으로 칠한다)
 // UV u ≥ 1 → parts(_PartsTex, u − 1): 눈 칸(R 밝기·반사점, G 홍채 마스크, A 거칠기), 머리카락 칸(R 가닥 밝기, G 결 위상, B 마스크 1).
 // UV u ≥ 2 → 가닥 카드(specs/057 FR-10·12): parts(u − 2) 카드 칸(R 가닥 밝기, G 알파, B 마스크 1). 4×4 화면 디더로 알파 클립 —
 //            투명 큐·정렬 없이 불투명 패스 안에서 그린다(드로우콜 증가 0). 깊이·그림자 패스도 같은 클립.
@@ -8,7 +9,7 @@
 // 062 FR-02·12·32·33·91·97: 근육·손 구운 노멀(_MuscleN, 피부 UV)·차폐(_MuscleAO), 피부 두께(_ThicknessTex R: 귀·코끝·손가락 끝 역광 비침),
 //       땀(_ThicknessTex G 부위 거칠기 − 0.04 × _Sweat, 정반사 ≤ 1.3배), 젖음(_Wetness, 078 입력).
 // 062 FR-42·43·54: UV1(HairData, 헤어 메시만 — 몸은 (1, 0)) x = 밀도 → 카드 알파처럼 화면 디더 클립(페이드 아래는 피부가 비친다,
-//       모든 패스 같게), y = 컬러 포인트 마스크 → _HairColor(뿌리·옆) ↔ _HairColor2(위·끝). 결 계열 이방성: parts 거칠기(A, hairtex)가
+//       모든 패스 같게), y = 컬러 포인트 마스크 → _HairColor(뿌리·옆) ↔ _HairColor2(위·끝). 결 계열 이방성: parts 거칠기(A, 088 groom.atlas 결 타일)가
 //       클수록(코일·브레이드·드레드) Kajiya-Kay 지수를 낮춰 하이라이트를 덜 날카롭게.
 Shader "RoadToPro/PlayerBody"
 {
@@ -17,14 +18,15 @@ Shader "RoadToPro/PlayerBody"
         _SkinTex ("피부 텍스처", 2D) = "white" {}
         _SkinNormal ("피부 노멀", 2D) = "bump" {}
         _PartsTex ("눈·머리카락", 2D) = "white" {}
-        _SkinColor ("피부 톤", Color) = (0.80, 0.62, 0.50, 1)
+        _SkinColor ("피부 톤 틴트 (diffuse 배율)", Color) = (1, 1, 1, 1)
+        _BrowMask ("눈썹(RGB)·속눈썹(A) 마스크", 2D) = "black" {}
+        _BrowChannel ("눈썹 종류 선택", Vector) = (1, 0, 0, 0)
         _HairColor ("머리카락 색", Color) = (0.15, 0.10, 0.07, 1)
         _HairColor2 ("머리카락 위·끝 색 (컬러 포인트)", Color) = (0.15, 0.10, 0.07, 1)
         _EyeColor ("홍채 색", Color) = (0.30, 0.18, 0.10, 1)
         _BeardLevel ("수염 0~1", Range(0, 1)) = 0
         _BeardMask ("수염 영역 RGBA (full·콧수염·염소수염·진한 스텁블)", 2D) = "black" {}
         _BeardChannel ("수염 영역 선택", Vector) = (1, 0, 0, 0)
-        _BeardMaskOn ("수염 마스크 사용", Float) = 0
         _NormalStrength ("노멀 세기", Range(0, 2)) = 0.6
         _MuscleN ("근육·손 구운 노멀", 2D) = "bump" {}
         _MuscleAO ("근육·손 구운 차폐", 2D) = "white" {}
@@ -47,6 +49,7 @@ Shader "RoadToPro/PlayerBody"
         TEXTURE2D(_MuscleAO); SAMPLER(sampler_MuscleAO);
         TEXTURE2D(_ThicknessTex); SAMPLER(sampler_ThicknessTex);
         TEXTURE2D(_BeardMask); SAMPLER(sampler_BeardMask);
+        TEXTURE2D(_BrowMask); SAMPLER(sampler_BrowMask);
         CBUFFER_START(UnityPerMaterial)
             float4 _SkinTex_ST;
             half4 _SkinColor;
@@ -55,7 +58,7 @@ Shader "RoadToPro/PlayerBody"
             half4 _EyeColor;
             half _BeardLevel;
             half4 _BeardChannel;
-            half _BeardMaskOn;
+            half4 _BrowChannel;
             half _NormalStrength;
             half _MuscleDef, _Translucency, _Sweat, _Wetness;
         CBUFFER_END
@@ -178,17 +181,22 @@ Shader "RoadToPro/PlayerBody"
                 half3 amb = SampleSH(n);
 
                 // 피부
-                half3 skin = _SkinColor.rgb * (s.r * 1.25h);
-                skin *= lerp(half3(1, 1, 1), half3(1.10h, 0.86h, 0.82h), s.g * 0.7h);
+                half3 skin = s.rgb * _SkinColor.rgb;                       // 088: MakeHuman diffuse × 톤 틴트
+                half sLum = dot(s.rgb, half3(0.2126h, 0.7152h, 0.0722h));
+                // 088 FR-02: 눈썹·속눈썹 = MakeHuman 프록시를 구운 덮임 마스크 × 머리색 (속눈썹은 더 어둡게)
+                half4 brow = SAMPLE_TEXTURE2D(_BrowMask, sampler_BrowMask, frac(i.uv));
+                half bcov = saturate(dot(brow.rgb, _BrowChannel.rgb)) * (1.0h - isPart);
+                skin = lerp(skin, _HairColor.rgb * 0.7h, bcov * 0.85h);
+                skin = lerp(skin, half3(0.03h, 0.025h, 0.02h), brow.a * 0.8h * (1.0h - isPart));
                 // 057 FR-24: 수염 = 밀도(s.b)의 부드러운 문턱(경계 흐림) × 종류별 덮임. 짧을수록 피부가 비치는 옅은 색조(잔털), 길수록 짙다.
                 // 062 FR-66: 밀도 = 수염 영역 마스크(beard_mask0)에서 종류별 채널 하나 — 없으면 057 피부 B(full)
                 half lvl = _BeardLevel;
                 half lo = 0.75h - lvl * 0.6h;
-                half bden = lerp(s.b, dot(SAMPLE_TEXTURE2D(_BeardMask, sampler_BeardMask, frac(i.uv)).rgba, _BeardChannel), _BeardMaskOn);
+                half bden = dot(SAMPLE_TEXTURE2D(_BeardMask, sampler_BeardMask, frac(i.uv)).rgba, _BeardChannel);
                 // 062 T35 육안: 경계 폭 0.45 → 0.65(흐린 가장자리), 털 결(피부 밝기 디테일 R)로 덮임을 흔들어 평면 색 조각처럼 보이지 않게,
                 // 회색·밝은 수염은 피부 그늘을 조금 섞어 분칠처럼 뜨지 않게
                 half beard = smoothstep(lo, lo + 0.65h, bden) * lvl * step(0.01h, lvl);
-                beard *= saturate(0.88h + (s.r - 0.8h) * 1.5h);
+                beard *= saturate(0.88h + (sLum - 0.45h) * 1.5h);   // 088: 털 결 = diffuse 밝기 변동
                 half3 beardCol = _HairColor.rgb * lerp(0.75h, 0.55h, lvl) * lerp(0.9h, 1.1h, bden);
                 half hairLum = dot(_HairColor.rgb, half3(0.3h, 0.59h, 0.11h));
                 beardCol = lerp(beardCol, skin * 0.55h, 0.35h * saturate((hairLum - 0.25h) * 2.0h));   // 밝은(회색·금발) 수염만
@@ -211,7 +219,7 @@ Shader "RoadToPro/PlayerBody"
                 half3 hairA = hairBase * lerp(0.6h, 1.3h, pt.r) * lerp(1.0h, 0.7h, _Wetness);   // FR-97 젖은 머리는 어둡다
                 half3 strand = normalize(b + nG * (pt.g - 0.5h) * 0.4h); // 가닥 방향 = UV v(바이탄젠트), 결 위상으로 흔든다
                 half th = dot(strand, h);
-                half curl = saturate((pt.a - 0.40h) / 0.12h);   // 062 FR-43: 직모 0 → 코일·브레이드·드레드 1 (hairtex 거칠기)
+                half curl = saturate((pt.a - 0.40h) / 0.12h);   // 062 FR-43: 직모 0 → 코일·브레이드·드레드 1 (groom.atlas 결 타일 거칠기)
                 half kk = pow(saturate(sqrt(saturate(1.0h - th * th))), lerp(60.0h, 18.0h, curl)) * ndl * lerp(1.0h, 0.6h, curl);
                 half3 cHair = hairA * (lc * (ndl * 0.8h + 0.2h) + amb) + lc * (0.10h + 0.5h * hairA) * kk;
                 half3 cPart = lerp(cEye, cHair, hairM);

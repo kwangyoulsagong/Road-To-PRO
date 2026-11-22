@@ -2,6 +2,82 @@
  "generator": {
   "blender": "5.3.0",
   "command": "gen_player.py --out <out>",
+  "makehuman": {
+   "files": [
+    {
+     "path": "eyebrows/mindfront_eyebrows_02/mind_eyebrows_02.obj",
+     "sha256": "5752bf45070676945706870c8430f5ed48a20959ec3508ef1bb51b21c91def0e"
+    },
+    {
+     "path": "eyebrows/mindfront_eyebrows_02/mindfront_eyebrows_02.mhclo",
+     "sha256": "fd26e434804215e5893d7799b7ad1600c9165fc31262e0ca24bcb5f9626ec3a8"
+    },
+    {
+     "path": "eyebrows/mindfront_eyebrows_04/mind_eyebrows_04.obj",
+     "sha256": "6aca715683127e20d42a699ee2ba3f0f901c35f0dca1fd7fc169a48d762d4b64"
+    },
+    {
+     "path": "eyebrows/mindfront_eyebrows_04/mindfront_eyebrows_04.mhclo",
+     "sha256": "c27f72d777a8e5ab0ba2ef9ec77fc2db790690d5653130b8b4fc04a802996307"
+    },
+    {
+     "path": "eyebrows/mindfront_eyebrows_09/mind_eyebrows_09.obj",
+     "sha256": "eec2eec87eab486b390096dd4fd8e7b2a29d3b2046c08e6a5319a46ff707cddb"
+    },
+    {
+     "path": "eyebrows/mindfront_eyebrows_09/mindfront_eyebrows_09.mhclo",
+     "sha256": "a7e12d76eb7159785a537ce850611331bbd43c16fa3970bf92f7a792d6632143"
+    },
+    {
+     "path": "eyelashes/mindfront_eyelashes_02/mind_eyelashes_02.obj",
+     "sha256": "cda32472d5874cbf3549a26796f66466a7bb853c96bf83c3acd56cc353148fc2"
+    },
+    {
+     "path": "eyelashes/mindfront_eyelashes_02/mindfront_eyelashes_02.mhclo",
+     "sha256": "09edaeafdd3070231b613989535aabdb4b08c971fd47f2c344df4d2a207bcfa8"
+    },
+    {
+     "path": "eyes/high-poly/high-poly.mhclo",
+     "sha256": "b183cfe37120ab726f9b3f2ea6cd3a64c44ce7b4bd91a77c841cf70c04f83a0d"
+    },
+    {
+     "path": "eyes/high-poly/high-poly.obj",
+     "sha256": "da2493215b708a344c33dc72f2a9a5b8fa985dcc5a70ad3b208995cf871da8e1"
+    },
+    {
+     "path": "eyes/materials/brown.mhmat",
+     "sha256": "4abad93ce50541c08127721e77bce035640c9f16bed16cd0f5524b1cd5908465"
+    },
+    {
+     "path": "eyes/materials/brown_eye.png",
+     "sha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b"
+    },
+    {
+     "path": "skins/young_african_male/young_african_male.mhmat",
+     "sha256": "11040111c4735028b473f8ce4bb6b0dc0515b7bf26ea815ead85f2c3cbdd7645"
+    },
+    {
+     "path": "skins/young_african_male/young_darkskinned_male_diffuse.png",
+     "sha256": "e3f0dbb634e4c68561338f0087f7a122444e84ec56df102212f1222aa12e4d50"
+    },
+    {
+     "path": "skins/young_asian_male/young_asian_male.mhmat",
+     "sha256": "9fdfc9863cd15d1359311435f2da7de3906f81d6eea549fba6bf14cd82ceb6a0"
+    },
+    {
+     "path": "skins/young_asian_male/young_lightskinned_male_diffuse3.png",
+     "sha256": "f50016a5507fc687dc8df06599c8ea48de950cd185de33a71cafc1319ddab4d5"
+    },
+    {
+     "path": "skins/young_caucasian_male/young_caucasian_male.mhmat",
+     "sha256": "6eda60b07ff2afbde078a2535ef3913593d84e9de92b2eb76c30f396a181fe2e"
+    },
+    {
+     "path": "skins/young_caucasian_male/young_lightskinned_male_diffuse.png",
+     "sha256": "862a26e335e958b70534cb5f0d7c47ef30ab148a56c42b3e9da969cf76f12963"
+    }
+   ]
+  },
   "mpfb": {
    "files": [
     {
@@ -984,7 +1060,7 @@
    ],
    "name": "Hair_Curtains",
    "nape": "long",
-   "strand": "straight"
+   "strand": "wave"
   },
   {
    "colorPoint": null,
@@ -1059,7 +1135,7 @@
    ],
    "name": "Hair_Twists",
    "nape": "round",
-   "strand": "dread"
+   "strand": "coil"
   },
   {
    "colorPoint": null,
@@ -1104,7 +1180,7 @@
    ],
    "name": "Hair_MediumWave",
    "nape": "long",
-   "strand": "curl"
+   "strand": "wave"
   },
   {
    "colorPoint": null,
@@ -1164,7 +1240,7 @@
    ],
    "name": "Hair_CurlyTop",
    "nape": "high",
-   "strand": "coil"
+   "strand": "curl"
   },
   {
    "colorPoint": "tips",
@@ -1224,7 +1300,7 @@
    ],
    "name": "Hair_CommaPerm",
    "nape": "round",
-   "strand": "curl"
+   "strand": "wave"
   },
   {
    "colorPoint": null,
@@ -1617,7 +1693,7 @@
    ]
   }
  },
- "schemaVersion": 2,
+ "schemaVersion": 3,
  "shapes": [
   "Base_0",
   "Base_1",
@@ -2575,10 +2651,10 @@
     "boot.heelCounter": 0.0005,
     "boot.panelSeams": 0.0005,
     "boot.soleStuds": 0.000599,
-    "face.eyelidCreases": 0.249984,
-    "face.fineWrinkles": 0.059803,
-    "face.lipGrain": 0.049966,
-    "face.pores": 0.220412,
+    "face.eyelidCreases": 0.047993,
+    "face.fineWrinkles": 0.051549,
+    "face.lipGrain": 0.053535,
+    "face.pores": 0.152447,
     "hand.knuckleCreases": 0.0006,
     "hand.nailEdge": 0.0004,
     "hand.palmCreases": 0.0005,
@@ -2627,723 +2703,723 @@
    "hair": {
     "Hair_Afro": {
      "cards": {
-      "0": 360,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9763,
-      "1": 2812,
-      "2": 854
+      "0": 9860,
+      "1": 2810,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1160,
-      "1": 330,
-      "2": 118
+      "0": 1299,
+      "1": 378,
+      "2": 120
      }
     },
     "Hair_BoxBraids": {
      "cards": {
-      "0": 194,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 194
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9921,
-      "1": 2864,
-      "2": 874
+      "0": 9973,
+      "1": 2831,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1318,
-      "1": 382,
-      "2": 138
+      "0": 1412,
+      "1": 399,
+      "2": 120
      }
     },
     "Hair_Bun": {
      "cards": {
-      "0": 246,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 246
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9825,
-      "1": 2911,
-      "2": 888
+      "0": 9861,
+      "1": 2811,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1222,
-      "1": 429,
-      "2": 152
+      "0": 1300,
+      "1": 379,
+      "2": 120
      }
     },
     "Hair_Buzz": {
      "cards": {
-      "0": 360,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9755,
-      "1": 2852,
-      "2": 855
+      "0": 9860,
+      "1": 2811,
+      "2": 837
      },
      "ok": true,
      "tris": {
-      "0": 1152,
-      "1": 370,
-      "2": 119
+      "0": 1299,
+      "1": 379,
+      "2": 117
      }
     },
     "Hair_BuzzLine": {
      "cards": {
-      "0": 360,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9755,
-      "1": 2846,
-      "2": 855
+      "0": 9861,
+      "1": 2811,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1152,
-      "1": 364,
+      "0": 1300,
+      "1": 379,
       "2": 119
      }
     },
     "Hair_CommaPerm": {
      "cards": {
-      "0": 384,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 384
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9855,
-      "1": 2820,
-      "2": 854
+      "0": 10268,
+      "1": 2868,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1252,
-      "1": 338,
-      "2": 118
+      "0": 1707,
+      "1": 436,
+      "2": 119
      }
     },
     "Hair_Cornrows": {
      "cards": {
-      "0": 328,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 328
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9663,
-      "1": 2824,
-      "2": 852
+      "0": 9860,
+      "1": 2811,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1060,
-      "1": 342,
-      "2": 116
+      "0": 1299,
+      "1": 379,
+      "2": 119
      }
     },
     "Hair_Crew": {
      "cards": {
-      "0": 280,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 280
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9575,
-      "1": 2814,
-      "2": 846
+      "0": 9861,
+      "1": 2811,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 972,
-      "1": 332,
-      "2": 110
+      "0": 1300,
+      "1": 379,
+      "2": 119
      }
     },
     "Hair_Curly": {
      "cards": {
-      "0": 246,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 246
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9753,
-      "1": 2840,
-      "2": 870
+      "0": 9860,
+      "1": 2811,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1150,
-      "1": 358,
-      "2": 134
+      "0": 1299,
+      "1": 379,
+      "2": 120
      }
     },
     "Hair_CurlyTop": {
      "cards": {
-      "0": 328,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 328
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9703,
-      "1": 2797,
-      "2": 847
+      "0": 9861,
+      "1": 2812,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1100,
-      "1": 315,
-      "2": 111
+      "0": 1300,
+      "1": 380,
+      "2": 120
      }
     },
     "Hair_Curtains": {
      "cards": {
-      "0": 222,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 222
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9907,
-      "1": 2853,
-      "2": 865
+      "0": 10333,
+      "1": 2863,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1304,
-      "1": 371,
-      "2": 129
+      "0": 1772,
+      "1": 431,
+      "2": 120
      }
     },
     "Hair_Dreads": {
      "cards": {
-      "0": 186,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 186
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9873,
-      "1": 2841,
-      "2": 866
+      "0": 9868,
+      "1": 2815,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1270,
-      "1": 359,
-      "2": 130
+      "0": 1307,
+      "1": 383,
+      "2": 120
      }
     },
     "Hair_Fade": {
      "cards": {
-      "0": 328,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 328
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9695,
-      "1": 2821,
-      "2": 850
+      "0": 9861,
+      "1": 2811,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1092,
-      "1": 339,
-      "2": 114
+      "0": 1300,
+      "1": 379,
+      "2": 119
      }
     },
     "Hair_FrenchCrop": {
      "cards": {
-      "0": 328,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 328
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9731,
-      "1": 2824,
-      "2": 854
+      "0": 9861,
+      "1": 2812,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1128,
-      "1": 342,
-      "2": 118
+      "0": 1300,
+      "1": 380,
+      "2": 120
      }
     },
     "Hair_HalfUp": {
      "cards": {
-      "0": 252,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 252
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9787,
-      "1": 2942,
-      "2": 903
+      "0": 10165,
+      "1": 2847,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1184,
-      "1": 460,
-      "2": 167
+      "0": 1604,
+      "1": 415,
+      "2": 120
      }
     },
     "Hair_HighTop": {
      "cards": {
-      "0": 328,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 328
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9695,
-      "1": 2810,
-      "2": 843
+      "0": 9861,
+      "1": 2811,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1092,
-      "1": 328,
-      "2": 107
+      "0": 1300,
+      "1": 379,
+      "2": 119
      }
     },
     "Hair_IvyLeague": {
      "cards": {
-      "0": 368,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 368
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9719,
-      "1": 2854,
-      "2": 859
+      "0": 9861,
+      "1": 2810,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1116,
-      "1": 372,
-      "2": 123
+      "0": 1300,
+      "1": 378,
+      "2": 120
      }
     },
     "Hair_Long": {
      "cards": {
-      "0": 204,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 204
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9921,
-      "1": 2864,
-      "2": 872
+      "0": 10164,
+      "1": 2844,
+      "2": 838
      },
      "ok": true,
      "tris": {
-      "0": 1318,
-      "1": 382,
-      "2": 136
+      "0": 1603,
+      "1": 412,
+      "2": 118
      }
     },
     "Hair_MediumWave": {
      "cards": {
-      "0": 266,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 266
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9873,
-      "1": 2857,
-      "2": 874
+      "0": 10237,
+      "1": 2876,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1270,
-      "1": 375,
-      "2": 138
+      "0": 1676,
+      "1": 444,
+      "2": 119
      }
     },
     "Hair_Mohawk": {
      "cards": {
-      "0": 328,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 328
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9695,
-      "1": 2809,
-      "2": 848
+      "0": 10372,
+      "1": 2880,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1092,
-      "1": 327,
-      "2": 112
+      "0": 1811,
+      "1": 448,
+      "2": 119
      }
     },
     "Hair_PartedTwoBlock": {
      "cards": {
-      "0": 320,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 320
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9707,
-      "1": 2798,
-      "2": 850
+      "0": 10148,
+      "1": 2844,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1104,
-      "1": 316,
-      "2": 114
+      "0": 1587,
+      "1": 412,
+      "2": 119
      }
     },
     "Hair_Ponytail": {
      "cards": {
-      "0": 246,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 246
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9897,
-      "1": 2941,
-      "2": 902
+      "0": 10460,
+      "1": 2880,
+      "2": 838
      },
      "ok": true,
      "tris": {
-      "0": 1294,
-      "1": 459,
-      "2": 166
+      "0": 1899,
+      "1": 448,
+      "2": 118
      }
     },
     "Hair_Quiff": {
      "cards": {
-      "0": 328,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 328
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9695,
-      "1": 2827,
-      "2": 848
+      "0": 9860,
+      "1": 2811,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1092,
-      "1": 345,
-      "2": 112
+      "0": 1299,
+      "1": 379,
+      "2": 119
      }
     },
     "Hair_Short": {
      "cards": {
-      "0": 360,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9763,
-      "1": 2836,
-      "2": 858
+      "0": 9860,
+      "1": 2811,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1160,
-      "1": 354,
-      "2": 122
+      "0": 1299,
+      "1": 379,
+      "2": 119
      }
     },
     "Hair_SidePart": {
      "cards": {
-      "0": 220,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 220
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9707,
-      "1": 2856,
-      "2": 865
+      "0": 9861,
+      "1": 2815,
+      "2": 836
      },
      "ok": true,
      "tris": {
-      "0": 1104,
-      "1": 374,
-      "2": 129
+      "0": 1300,
+      "1": 383,
+      "2": 116
      }
     },
     "Hair_SlickBack": {
      "cards": {
-      "0": 368,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 368
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9719,
-      "1": 2832,
-      "2": 856
+      "0": 9860,
+      "1": 2812,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1116,
-      "1": 350,
-      "2": 120
+      "0": 1299,
+      "1": 380,
+      "2": 119
      }
     },
     "Hair_Spiky": {
      "cards": {
-      "0": 336,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 336
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9631,
-      "1": 2836,
-      "2": 859
+      "0": 10180,
+      "1": 2871,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1028,
-      "1": 354,
-      "2": 123
+      "0": 1619,
+      "1": 439,
+      "2": 120
      }
     },
     "Hair_StraightCornrows": {
      "cards": {
-      "0": 360,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9827,
-      "1": 2898,
-      "2": 909
+      "0": 9860,
+      "1": 2811,
+      "2": 839
      },
      "ok": true,
      "tris": {
-      "0": 1224,
-      "1": 416,
-      "2": 173
+      "0": 1299,
+      "1": 379,
+      "2": 119
      }
     },
     "Hair_TexturedCrop": {
      "cards": {
-      "0": 328,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 328
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9767,
-      "1": 2821,
-      "2": 854
+      "0": 10404,
+      "1": 2872,
+      "2": 838
      },
      "ok": true,
      "tris": {
-      "0": 1164,
-      "1": 339,
+      "0": 1843,
+      "1": 440,
       "2": 118
      }
     },
     "Hair_TopKnot": {
      "cards": {
-      "0": 328,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 328
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9775,
-      "1": 2861,
-      "2": 866
+      "0": 9885,
+      "1": 2871,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1172,
-      "1": 379,
-      "2": 130
+      "0": 1324,
+      "1": 439,
+      "2": 120
      }
     },
     "Hair_Twists": {
      "cards": {
-      "0": 360,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 360
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9763,
-      "1": 2812,
-      "2": 854
+      "0": 9861,
+      "1": 2811,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1160,
-      "1": 330,
-      "2": 118
+      "0": 1300,
+      "1": 379,
+      "2": 120
      }
     },
     "Hair_Undercut": {
      "cards": {
-      "0": 328,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 328
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9695,
-      "1": 2821,
-      "2": 848
+      "0": 10069,
+      "1": 2874,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1092,
-      "1": 339,
-      "2": 112
+      "0": 1508,
+      "1": 442,
+      "2": 120
      }
     },
     "Hair_VolumeCurlyLong": {
      "cards": {
-      "0": 210,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 210
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9893,
-      "1": 2845,
-      "2": 871
+      "0": 9860,
+      "1": 2811,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1290,
-      "1": 363,
-      "2": 135
+      "0": 1299,
+      "1": 379,
+      "2": 120
      }
     },
     "Hair_ZigzagCornrows": {
      "cards": {
-      "0": 344,
+      "0": 0,
       "1": 0,
       "2": 0,
-      "closeup": 344
+      "closeup": 0
      },
-     "closeup": 5710,
+     "closeup": 5850,
      "lodTotals": {
-      "0": 9699,
-      "1": 2836,
-      "2": 859
+      "0": 9860,
+      "1": 2812,
+      "2": 840
      },
      "ok": true,
      "tris": {
-      "0": 1096,
-      "1": 354,
-      "2": 123
+      "0": 1299,
+      "1": 380,
+      "2": 120
      }
     }
    },
    "headCloseup": {
     "ok": true,
-    "triangles": 5710
+    "triangles": 5850
    },
    "lods": {
     "0": {
-     "body": 8603,
-     "hairMax": 1318,
-     "headTriangles": 2942,
+     "body": 8561,
+     "hairMax": 1899,
+     "headTriangles": 2900,
      "materials": 2,
      "ok": true,
-     "triangles": 9921
+     "triangles": 10460
     },
     "1": {
-     "body": 2482,
-     "hairMax": 460,
-     "headTriangles": 788,
+     "body": 2432,
+     "hairMax": 448,
+     "headTriangles": 738,
      "materials": 2,
      "ok": true,
-     "triangles": 2942
+     "triangles": 2880
     },
     "2": {
-     "body": 736,
-     "hairMax": 173,
-     "headTriangles": 210,
+     "body": 720,
+     "hairMax": 120,
+     "headTriangles": 194,
      "materials": 2,
      "ok": true,
-     "triangles": 909
+     "triangles": 840
     }
    },
    "ok": true,
    "styleMax": {
-    "0": 9921,
-    "1": 2942,
-    "2": 909
+    "0": 10460,
+    "1": 2880,
+    "2": 840
    },
    "textureBudget": {
-    "estimatedMB": 195.0,
+    "estimatedMB": 232.3,
     "ok": true,
     "over": {},
     "unknown": []
@@ -3360,6 +3436,10 @@
     "body_detail_n.png": [
      2048,
      2048
+    ],
+    "brow_mask.png": [
+     1024,
+     1024
     ],
     "kit_detail_ao.png": [
      2048,
@@ -3413,21 +3493,21 @@
      1024,
      1024
     ],
-    "skin.png": [
-     1024,
-     1024
-    ],
-    "skin_closeup.png": [
+    "skin_asian.png": [
      2048,
      2048
     ],
-    "skin_closeup_normal.png": [
+    "skin_dark.png": [
+     2048,
+     2048
+    ],
+    "skin_light.png": [
      2048,
      2048
     ],
     "skin_normal.png": [
-     1024,
-     1024
+     2048,
+     2048
     ],
     "skin_thickness.png": [
      512,
@@ -3778,7 +3858,7 @@
      "Expr_smile": 1.0
     },
     "penetration": {
-     "Expr_cheer": 0,
+     "Expr_cheer": 2,
      "Expr_disappoint": 0,
      "Expr_focus": 0,
      "Expr_smile": 0
@@ -3796,79 +3876,1015 @@
    "ok": true,
    "worst": 1e-06
   },
+  "groomFidelity": {
+   "ok": true,
+   "styles": {
+    "Hair_Afro": {
+     "approved": true,
+     "deltaE": 0.078,
+     "iou": {
+      "0": 0.8567,
+      "1": 0.859,
+      "closeup": 0.8567
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8567,
+       "side": 0.8826,
+       "three": 0.8846
+      },
+      "1": {
+       "front": 0.859,
+       "side": 0.8894,
+       "three": 0.8814
+      }
+     }
+    },
+    "Hair_BoxBraids": {
+     "approved": true,
+     "deltaE": 0.152,
+     "iou": {
+      "0": 0.7136,
+      "1": 0.7038,
+      "closeup": 0.7136
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.7627,
+       "side": 0.7409,
+       "three": 0.7136
+      },
+      "1": {
+       "front": 0.7548,
+       "side": 0.744,
+       "three": 0.7038
+      }
+     }
+    },
+    "Hair_Bun": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.6761,
+      "1": 0.6881,
+      "closeup": 0.6761
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.6761,
+       "side": 0.8024,
+       "three": 0.7658
+      },
+      "1": {
+       "front": 0.6881,
+       "side": 0.8003,
+       "three": 0.7635
+      }
+     }
+    },
+    "Hair_Buzz": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.8916,
+      "1": 0.9072,
+      "closeup": 0.8916
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8916,
+       "side": 0.9442,
+       "three": 0.9194
+      },
+      "1": {
+       "front": 0.9072,
+       "side": 0.9383,
+       "three": 0.929
+      }
+     }
+    },
+    "Hair_BuzzLine": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.8904,
+      "1": 0.9008,
+      "closeup": 0.8904
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8904,
+       "side": 0.9364,
+       "three": 0.9156
+      },
+      "1": {
+       "front": 0.9008,
+       "side": 0.939,
+       "three": 0.9313
+      }
+     }
+    },
+    "Hair_CommaPerm": {
+     "approved": true,
+     "deltaE": 0.395,
+     "fringeErrMm": 3.39,
+     "iou": {
+      "0": 0.846,
+      "1": 0.846,
+      "closeup": 0.846
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "partErrMm": 25.0,
+     "views": {
+      "0": {
+       "front": 0.846,
+       "side": 0.9147,
+       "three": 0.889
+      },
+      "1": {
+       "front": 0.846,
+       "side": 0.9086,
+       "three": 0.876
+      }
+     }
+    },
+    "Hair_Cornrows": {
+     "approved": true,
+     "deltaE": 0.152,
+     "iou": {
+      "0": 0.866,
+      "1": 0.8629,
+      "closeup": 0.866
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.866,
+       "side": 0.9365,
+       "three": 0.9066
+      },
+      "1": {
+       "front": 0.8629,
+       "side": 0.9364,
+       "three": 0.9106
+      }
+     }
+    },
+    "Hair_Crew": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.8822,
+      "1": 0.8856,
+      "closeup": 0.8822
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8822,
+       "side": 0.9435,
+       "three": 0.9094
+      },
+      "1": {
+       "front": 0.8856,
+       "side": 0.9441,
+       "three": 0.9173
+      }
+     }
+    },
+    "Hair_Curly": {
+     "approved": true,
+     "deltaE": 0.121,
+     "iou": {
+      "0": 0.841,
+      "1": 0.8513,
+      "closeup": 0.841
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.841,
+       "side": 0.8858,
+       "three": 0.8723
+      },
+      "1": {
+       "front": 0.8513,
+       "side": 0.8839,
+       "three": 0.8844
+      }
+     }
+    },
+    "Hair_CurlyTop": {
+     "approved": true,
+     "deltaE": 0.121,
+     "iou": {
+      "0": 0.8645,
+      "1": 0.8649,
+      "closeup": 0.8645
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8645,
+       "side": 0.92,
+       "three": 0.8923
+      },
+      "1": {
+       "front": 0.8649,
+       "side": 0.9229,
+       "three": 0.897
+      }
+     }
+    },
+    "Hair_Curtains": {
+     "approved": true,
+     "deltaE": 0.395,
+     "fringeErrMm": 8.99,
+     "iou": {
+      "0": 0.8411,
+      "1": 0.8349,
+      "closeup": 0.8411
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "partErrMm": 2.5,
+     "views": {
+      "0": {
+       "front": 0.8411,
+       "side": 0.9021,
+       "three": 0.8433
+      },
+      "1": {
+       "front": 0.8349,
+       "side": 0.8817,
+       "three": 0.8353
+      }
+     }
+    },
+    "Hair_Dreads": {
+     "approved": true,
+     "deltaE": 0.462,
+     "iou": {
+      "0": 0.6599,
+      "1": 0.6583,
+      "closeup": 0.6599
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.6599,
+       "side": 0.7126,
+       "three": 0.7077
+      },
+      "1": {
+       "front": 0.6583,
+       "side": 0.7155,
+       "three": 0.7127
+      }
+     }
+    },
+    "Hair_Fade": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.8931,
+      "1": 0.8927,
+      "closeup": 0.8931
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8931,
+       "side": 0.9436,
+       "three": 0.9186
+      },
+      "1": {
+       "front": 0.8927,
+       "side": 0.9442,
+       "three": 0.9243
+      }
+     }
+    },
+    "Hair_FrenchCrop": {
+     "approved": true,
+     "deltaE": 0.298,
+     "fringeErrMm": 5.1,
+     "iou": {
+      "0": 0.8959,
+      "1": 0.899,
+      "closeup": 0.8959
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8959,
+       "side": 0.9381,
+       "three": 0.9126
+      },
+      "1": {
+       "front": 0.899,
+       "side": 0.9336,
+       "three": 0.9187
+      }
+     }
+    },
+    "Hair_HalfUp": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.7906,
+      "1": 0.7834,
+      "closeup": 0.7906
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8273,
+       "side": 0.8131,
+       "three": 0.7906
+      },
+      "1": {
+       "front": 0.8216,
+       "side": 0.8024,
+       "three": 0.7834
+      }
+     }
+    },
+    "Hair_HighTop": {
+     "approved": true,
+     "deltaE": 0.078,
+     "iou": {
+      "0": 0.9197,
+      "1": 0.9178,
+      "closeup": 0.9197
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.9197,
+       "side": 0.9351,
+       "three": 0.9413
+      },
+      "1": {
+       "front": 0.9178,
+       "side": 0.9349,
+       "three": 0.9416
+      }
+     }
+    },
+    "Hair_IvyLeague": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.8843,
+      "1": 0.8842,
+      "closeup": 0.8843
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "partErrMm": 0.0,
+     "views": {
+      "0": {
+       "front": 0.8843,
+       "side": 0.9423,
+       "three": 0.9081
+      },
+      "1": {
+       "front": 0.8842,
+       "side": 0.9431,
+       "three": 0.9111
+      }
+     }
+    },
+    "Hair_Long": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.719,
+      "1": 0.7144,
+      "closeup": 0.719
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "partErrMm": 5.0,
+     "views": {
+      "0": {
+       "front": 0.719,
+       "side": 0.8092,
+       "three": 0.7425
+      },
+      "1": {
+       "front": 0.7144,
+       "side": 0.769,
+       "three": 0.7222
+      }
+     }
+    },
+    "Hair_MediumWave": {
+     "approved": true,
+     "deltaE": 0.395,
+     "iou": {
+      "0": 0.833,
+      "1": 0.8307,
+      "closeup": 0.833
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "partErrMm": 2.5,
+     "views": {
+      "0": {
+       "front": 0.833,
+       "side": 0.9052,
+       "three": 0.8944
+      },
+      "1": {
+       "front": 0.8307,
+       "side": 0.9008,
+       "three": 0.8858
+      }
+     }
+    },
+    "Hair_Mohawk": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.8954,
+      "1": 0.9016,
+      "closeup": 0.8954
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8954,
+       "side": 0.9151,
+       "three": 0.9193
+      },
+      "1": {
+       "front": 0.9016,
+       "side": 0.9121,
+       "three": 0.9197
+      }
+     }
+    },
+    "Hair_PartedTwoBlock": {
+     "approved": true,
+     "deltaE": 0.298,
+     "fringeErrMm": 5.21,
+     "iou": {
+      "0": 0.8774,
+      "1": 0.8749,
+      "closeup": 0.8774
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "partErrMm": 7.5,
+     "views": {
+      "0": {
+       "front": 0.8774,
+       "side": 0.9292,
+       "three": 0.8887
+      },
+      "1": {
+       "front": 0.8749,
+       "side": 0.9281,
+       "three": 0.877
+      }
+     }
+    },
+    "Hair_Ponytail": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.7652,
+      "1": 0.7611,
+      "closeup": 0.7652
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.7686,
+       "side": 0.8828,
+       "three": 0.7652
+      },
+      "1": {
+       "front": 0.765,
+       "side": 0.8849,
+       "three": 0.7611
+      }
+     }
+    },
+    "Hair_Quiff": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.9075,
+      "1": 0.9022,
+      "closeup": 0.9075
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "partErrMm": 0.0,
+     "views": {
+      "0": {
+       "front": 0.9075,
+       "side": 0.9531,
+       "three": 0.9294
+      },
+      "1": {
+       "front": 0.9022,
+       "side": 0.9404,
+       "three": 0.9196
+      }
+     }
+    },
+    "Hair_Short": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.9022,
+      "1": 0.9051,
+      "closeup": 0.9022
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.9022,
+       "side": 0.942,
+       "three": 0.9122
+      },
+      "1": {
+       "front": 0.9051,
+       "side": 0.9463,
+       "three": 0.9188
+      }
+     }
+    },
+    "Hair_SidePart": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.8783,
+      "1": 0.8781,
+      "closeup": 0.8783
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "partErrMm": 117.5,
+     "views": {
+      "0": {
+       "front": 0.8783,
+       "side": 0.9363,
+       "three": 0.9014
+      },
+      "1": {
+       "front": 0.8781,
+       "side": 0.9385,
+       "three": 0.9058
+      }
+     }
+    },
+    "Hair_SlickBack": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.8968,
+      "1": 0.8943,
+      "closeup": 0.8968
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8968,
+       "side": 0.9485,
+       "three": 0.914
+      },
+      "1": {
+       "front": 0.8943,
+       "side": 0.9451,
+       "three": 0.9135
+      }
+     }
+    },
+    "Hair_Spiky": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.897,
+      "1": 0.8948,
+      "closeup": 0.897
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.897,
+       "side": 0.938,
+       "three": 0.9129
+      },
+      "1": {
+       "front": 0.8948,
+       "side": 0.9312,
+       "three": 0.9096
+      }
+     }
+    },
+    "Hair_StraightCornrows": {
+     "approved": true,
+     "deltaE": 0.152,
+     "iou": {
+      "0": 0.8668,
+      "1": 0.8724,
+      "closeup": 0.8668
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8668,
+       "side": 0.9239,
+       "three": 0.9002
+      },
+      "1": {
+       "front": 0.8724,
+       "side": 0.9286,
+       "three": 0.9062
+      }
+     }
+    },
+    "Hair_TexturedCrop": {
+     "approved": true,
+     "deltaE": 0.298,
+     "fringeErrMm": 14.93,
+     "iou": {
+      "0": 0.8431,
+      "1": 0.8432,
+      "closeup": 0.8431
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8431,
+       "side": 0.9077,
+       "three": 0.8832
+      },
+      "1": {
+       "front": 0.8432,
+       "side": 0.9099,
+       "three": 0.8831
+      }
+     }
+    },
+    "Hair_TopKnot": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.8603,
+      "1": 0.8643,
+      "closeup": 0.8603
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8603,
+       "side": 0.8879,
+       "three": 0.869
+      },
+      "1": {
+       "front": 0.8643,
+       "side": 0.8856,
+       "three": 0.8746
+      }
+     }
+    },
+    "Hair_Twists": {
+     "approved": true,
+     "deltaE": 0.078,
+     "iou": {
+      "0": 0.8388,
+      "1": 0.8344,
+      "closeup": 0.8388
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8388,
+       "side": 0.8907,
+       "three": 0.8566
+      },
+      "1": {
+       "front": 0.8344,
+       "side": 0.8911,
+       "three": 0.8606
+      }
+     }
+    },
+    "Hair_Undercut": {
+     "approved": true,
+     "deltaE": 0.298,
+     "iou": {
+      "0": 0.9003,
+      "1": 0.8985,
+      "closeup": 0.9003
+     },
+     "limits": {
+      "0": 0.82,
+      "1": 0.8,
+      "closeup": 0.82
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.9003,
+       "side": 0.9261,
+       "three": 0.9155
+      },
+      "1": {
+       "front": 0.8985,
+       "side": 0.921,
+       "three": 0.9189
+      }
+     }
+    },
+    "Hair_VolumeCurlyLong": {
+     "approved": true,
+     "deltaE": 0.121,
+     "iou": {
+      "0": 0.7058,
+      "1": 0.7001,
+      "closeup": 0.7058
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.7058,
+       "side": 0.7103,
+       "three": 0.721
+      },
+      "1": {
+       "front": 0.7001,
+       "side": 0.7158,
+       "three": 0.7281
+      }
+     }
+    },
+    "Hair_ZigzagCornrows": {
+     "approved": true,
+     "deltaE": 0.152,
+     "iou": {
+      "0": 0.8585,
+      "1": 0.8603,
+      "closeup": 0.8585
+     },
+     "limits": {
+      "0": 0.65,
+      "1": 0.6,
+      "closeup": 0.65
+     },
+     "ok": true,
+     "views": {
+      "0": {
+       "front": 0.8585,
+       "side": 0.9242,
+       "three": 0.902
+      },
+      "1": {
+       "front": 0.8603,
+       "side": 0.9292,
+       "three": 0.9069
+      }
+     }
+    }
+   }
+  },
   "ground": {
    "bad": {},
    "ok": true
   },
   "hair062": {
-   "anisotropy": 2.957,
+   "anisotropy": 1.042,
    "colorPoint": {
     "Hair_BoxBraids": {
-     "a": 0.6398,
-     "b": 0.352,
-     "mixed": 0.0083
+     "a": 0.8207,
+     "b": 0.1713,
+     "mixed": 0.008
     },
     "Hair_CurlyTop": {
-     "a": 0.6763,
-     "b": 0.3121,
-     "mixed": 0.0116
+     "a": 0.4414,
+     "b": 0.4552,
+     "mixed": 0.1034
     },
     "Hair_Fade": {
-     "a": 0.6901,
-     "b": 0.2982,
-     "mixed": 0.0117
+     "a": 0.513,
+     "b": 0.3765,
+     "mixed": 0.1105
     },
     "Hair_Mohawk": {
-     "a": 0.886,
-     "b": 0.114,
-     "mixed": 0.0
+     "a": 0.6958,
+     "b": 0.2906,
+     "mixed": 0.0136
     },
     "Hair_PartedTwoBlock": {
-     "a": 0.5184,
-     "b": 0.4533,
-     "mixed": 0.0283
+     "a": 1.0,
+     "b": 0.0,
+     "mixed": 0.0
     },
     "Hair_Undercut": {
-     "a": 0.6901,
-     "b": 0.2982,
-     "mixed": 0.0117
+     "a": 0.5034,
+     "b": 0.39,
+     "mixed": 0.1066
     }
    },
    "fade": {
     "Hair_CurlyTop": [
-     0.0794,
-     0.3044,
-     0.6617,
-     0.9763,
-     0.9941
+     0.4023,
+     0.5412,
+     0.6285,
+     0.987,
+     1.0
     ],
     "Hair_Fade": [
-     0.0663,
-     0.276,
-     0.6192,
-     0.9551,
+     0.4374,
+     0.569,
+     0.6921,
+     1.0,
      1.0
     ],
     "Hair_Mohawk": [
-     0.04,
-     0.04,
-     0.04,
-     0.04,
-     0.04
+     0.3777,
+     0.3919,
+     0.4139,
+     0.4672,
+     0.5307
     ],
     "Hair_PartedTwoBlock": [
-     0.06,
-     0.06,
-     0.4594,
+     0.4675,
+     0.6302,
+     0.8644,
      1.0,
      1.0
     ],
     "Hair_Undercut": [
-     0.06,
-     0.06,
-     0.06,
-     0.06,
-     1.0
+     0.3756,
+     0.3964,
+     0.4479,
+     0.8287,
+     0.9748
     ]
    },
    "info": {
@@ -3898,7 +4914,7 @@
     },
     "Hair_CommaPerm": {
      "group": "medium",
-     "strand": "curl"
+     "strand": "wave"
     },
     "Hair_Cornrows": {
      "group": "braid",
@@ -3914,11 +4930,11 @@
     },
     "Hair_CurlyTop": {
      "group": "curly",
-     "strand": "coil"
+     "strand": "curl"
     },
     "Hair_Curtains": {
      "group": "medium",
-     "strand": "straight"
+     "strand": "wave"
     },
     "Hair_Dreads": {
      "group": "braid",
@@ -3950,7 +4966,7 @@
     },
     "Hair_MediumWave": {
      "group": "medium",
-     "strand": "curl"
+     "strand": "wave"
     },
     "Hair_Mohawk": {
      "group": "fade",
@@ -3998,7 +5014,7 @@
     },
     "Hair_Twists": {
      "group": "curly",
-     "strand": "dread"
+     "strand": "coil"
     },
     "Hair_Undercut": {
      "group": "fade",
@@ -4016,144 +5032,144 @@
    "ok": true,
    "shape": {
     "Hair_Afro": {
-     "side": 0.3656,
-     "volume": 0.2548
+     "side": 0.3786,
+     "volume": 0.327
     },
     "Hair_Bald": {
      "side": 0.0,
      "volume": 0.0
     },
     "Hair_BoxBraids": {
-     "side": 0.0859,
-     "volume": 0.0747
+     "side": 0.0789,
+     "volume": 0.0329
     },
     "Hair_Bun": {
-     "side": 0.0232,
-     "volume": 0.0286
-    },
-    "Hair_Buzz": {
-     "side": 0.0115,
-     "volume": 0.0123
-    },
-    "Hair_BuzzLine": {
-     "side": 0.0115,
-     "volume": 0.0123
-    },
-    "Hair_CommaPerm": {
-     "side": 0.0655,
-     "volume": 0.0879
-    },
-    "Hair_Cornrows": {
-     "side": 0.0204,
-     "volume": 0.0274
-    },
-    "Hair_Crew": {
-     "side": 0.0115,
+     "side": 0.0077,
      "volume": 0.0483
     },
+    "Hair_Buzz": {
+     "side": 0.0187,
+     "volume": 0.0131
+    },
+    "Hair_BuzzLine": {
+     "side": 0.0188,
+     "volume": 0.0124
+    },
+    "Hair_CommaPerm": {
+     "side": 0.0567,
+     "volume": 0.0626
+    },
+    "Hair_Cornrows": {
+     "side": 0.021,
+     "volume": 0.013
+    },
+    "Hair_Crew": {
+     "side": 0.0134,
+     "volume": 0.0423
+    },
     "Hair_Curly": {
-     "side": 0.1437,
-     "volume": 0.1065
+     "side": 0.1032,
+     "volume": 0.0803
     },
     "Hair_CurlyTop": {
-     "side": 0.1108,
-     "volume": 0.1063
+     "side": 0.0173,
+     "volume": 0.0951
     },
     "Hair_Curtains": {
-     "side": 0.071,
-     "volume": 0.0517
+     "side": 0.1426,
+     "volume": 0.0456
     },
     "Hair_Dreads": {
-     "side": 0.1251,
-     "volume": 0.0953
+     "side": 0.0706,
+     "volume": 0.0437
     },
     "Hair_Fade": {
-     "side": 0.0196,
-     "volume": 0.0439
+     "side": 0.013,
+     "volume": 0.0349
     },
     "Hair_FrenchCrop": {
-     "side": 0.0115,
-     "volume": 0.0308
+     "side": 0.0147,
+     "volume": 0.0306
     },
     "Hair_HalfUp": {
-     "side": 0.0612,
-     "volume": 0.0507
+     "side": 0.1118,
+     "volume": 0.052
     },
     "Hair_HighTop": {
-     "side": 0.0115,
-     "volume": 0.3164
+     "side": 0.1063,
+     "volume": 0.2312
     },
     "Hair_IvyLeague": {
-     "side": 0.0115,
-     "volume": 0.0308
+     "side": 0.0145,
+     "volume": 0.0417
     },
     "Hair_Long": {
-     "side": 0.0676,
-     "volume": 0.0603
+     "side": 0.0782,
+     "volume": 0.04
     },
     "Hair_MediumWave": {
-     "side": 0.1147,
-     "volume": 0.0906
+     "side": 0.0699,
+     "volume": 0.0601
     },
     "Hair_Mohawk": {
-     "side": 0.0115,
-     "volume": 0.2549
+     "side": 0.0126,
+     "volume": 0.1228
     },
     "Hair_PartedTwoBlock": {
-     "side": 0.0329,
-     "volume": 0.0505
+     "side": 0.0587,
+     "volume": 0.0616
     },
     "Hair_Ponytail": {
-     "side": 0.0236,
-     "volume": 0.0308
+     "side": 0.0191,
+     "volume": 0.0112
     },
     "Hair_Quiff": {
-     "side": 0.0126,
-     "volume": 0.1466
+     "side": 0.0172,
+     "volume": 0.0764
     },
     "Hair_Short": {
-     "side": 0.0143,
-     "volume": 0.0396
+     "side": 0.0183,
+     "volume": 0.0371
     },
     "Hair_SidePart": {
-     "side": 0.0178,
-     "volume": 0.0521
+     "side": 0.0202,
+     "volume": 0.0379
     },
     "Hair_SlickBack": {
-     "side": 0.0543,
-     "volume": 0.0527
+     "side": 0.0197,
+     "volume": 0.0386
     },
     "Hair_Spiky": {
-     "side": 0.0126,
-     "volume": 0.0355
+     "side": 0.0177,
+     "volume": 0.0761
     },
     "Hair_StraightCornrows": {
-     "side": 0.0147,
-     "volume": 0.0169
+     "side": 0.0167,
+     "volume": 0.013
     },
     "Hair_TexturedCrop": {
-     "side": 0.0115,
-     "volume": 0.0396
+     "side": 0.0351,
+     "volume": 0.0859
     },
     "Hair_TopKnot": {
-     "side": 0.0115,
-     "volume": 0.0308
+     "side": 0.0157,
+     "volume": 0.1865
     },
     "Hair_Twists": {
-     "side": 0.1062,
-     "volume": 0.0904
+     "side": 0.0873,
+     "volume": 0.0701
     },
     "Hair_Undercut": {
-     "side": 0.0262,
-     "volume": 0.0521
+     "side": 0.0144,
+     "volume": 0.0746
     },
     "Hair_VolumeCurlyLong": {
-     "side": 0.2471,
-     "volume": 0.1669
+     "side": 0.2526,
+     "volume": 0.0936
     },
     "Hair_ZigzagCornrows": {
-     "side": 0.0115,
-     "volume": 0.0169
+     "side": 0.0183,
+     "volume": 0.0123
     }
    },
    "silhouette": {
@@ -4163,14 +5179,30 @@
       "Hair_BuzzLine"
      ]
     ],
-    "minPair": 0.1004,
+    "minPair": 0.057,
     "pair": [
-     "Hair_SlickBack",
-     "Hair_HalfUp"
+     "Hair_Fade",
+     "Hair_Crew"
     ],
-    "pairsBelow": []
+    "pairsBelow": [
+     [
+      "Hair_Fade",
+      "Hair_Crew",
+      0.057
+     ],
+     [
+      "Hair_SidePart",
+      "Hair_IvyLeague",
+      0.0655
+     ],
+     [
+      "Hair_Cornrows",
+      "Hair_StraightCornrows",
+      0.0673
+     ]
+    ]
    },
-   "strandHf": 0.12481,
+   "strandHf": 0.04692,
    "styles": [
     "Hair_Buzz",
     "Hair_Short",
@@ -4243,9 +5275,9 @@
     "yMin": 1.50643
    },
    "ok": true,
-   "seamToleranceM": 0.0076,
-   "uvHash": "fef8a36bd1b0f832",
-   "uvVersion": 1
+   "seamToleranceM": 0.002,
+   "uvHash": "9971a8ddabaa9e94",
+   "uvVersion": 2
   },
   "kitBoundary": {
    "0": {
@@ -4517,6 +5549,129 @@
    },
    "sweatDrop": 0.04
   },
+  "mhFace": {
+   "eyebrows": [
+    "mindfront_eyebrows_02",
+    "mindfront_eyebrows_04",
+    "mindfront_eyebrows_09"
+   ],
+   "eyelashes": [
+    "mindfront_eyelashes_02"
+   ],
+   "eyes": "high-poly",
+   "ok": true,
+   "regionTones": {
+    "east_asia": [
+     3,
+     4
+    ],
+    "europe": [
+     0,
+     1,
+     2
+    ],
+    "latin_america": [
+     2,
+     4,
+     5
+    ],
+    "south_asia": [
+     4,
+     5,
+     6
+    ],
+    "southeast_asia": [
+     4,
+     5
+    ],
+    "west_asia_north_africa": [
+     2,
+     3,
+     4
+    ],
+    "west_central_africa": [
+     6,
+     7
+    ]
+   },
+   "skinSets": [
+    "light",
+    "asian",
+    "dark"
+   ],
+   "toneTable": [
+    [
+     "light",
+     [
+      1.06,
+      1.05,
+      1.04
+     ]
+    ],
+    [
+     "light",
+     [
+      1.0,
+      1.0,
+      1.0
+     ]
+    ],
+    [
+     "light",
+     [
+      0.92,
+      0.88,
+      0.84
+     ]
+    ],
+    [
+     "asian",
+     [
+      1.03,
+      1.02,
+      1.0
+     ]
+    ],
+    [
+     "asian",
+     [
+      0.95,
+      0.92,
+      0.88
+     ]
+    ],
+    [
+     "asian",
+     [
+      0.8,
+      0.74,
+      0.68
+     ]
+    ],
+    [
+     "dark",
+     [
+      1.12,
+      1.1,
+      1.08
+     ]
+    ],
+    [
+     "dark",
+     [
+      0.92,
+      0.9,
+      0.88
+     ]
+    ]
+   ]
+  },
+  "mhLicenses": {
+   "bad": [],
+   "csvRows": 2,
+   "files": 18,
+   "ok": true
+  },
   "outline": {
    "ok": true,
    "sleeveSeamRatio": 0.666,
@@ -4554,10 +5709,10 @@
   },
   "skinDetail": {
    "beard": {
-    "coreHf": 0.024045,
+    "coreHf": 0.048579,
     "lowNeck": 0.0,
-    "mouthCorner": 0.765903,
-    "softEdge": 0.637783
+    "mouthCorner": 0.822864,
+    "softEdge": 0.53721
    },
    "beards": {
     "full": {
@@ -4604,36 +5759,36 @@
     }
    },
    "cheek": {
-    "lumHf": 0.00239,
-    "normalHf": 0.025116,
+    "lumHf": 0.005787,
+    "normalHf": 0.019525,
     "rough": 0.67973,
     "texels": 13681
    },
    "eyeArea": {
-    "lumHf": 0.002576,
-    "normalHf": 0.014165,
+    "lumHf": 0.004224,
+    "normalHf": 0.013699,
     "rough": 0.678763,
     "texels": 12969
    },
    "face": {
-    "lumHf": 0.002458,
-    "normalHf": 0.020027
+    "lumHf": 0.006136,
+    "normalHf": 0.020042
    },
    "forehead": {
-    "lumHf": 0.00246,
-    "normalHf": 0.011295,
+    "lumHf": 0.008475,
+    "normalHf": 0.028994,
     "rough": 0.566366,
     "texels": 12355
    },
    "lips": {
-    "lumHf": 0.002299,
-    "normalHf": 0.017712,
+    "lumHf": 0.004783,
+    "normalHf": 0.015109,
     "rough": 0.521222,
     "texels": 6139
    },
    "nose": {
-    "lumHf": 0.002477,
-    "normalHf": 0.026335,
+    "lumHf": 0.00601,
+    "normalHf": 0.016985,
     "rough": 0.591938,
     "texels": 11524
    },
@@ -4704,22 +5859,22 @@
    },
    "lods": {
     "0": {
-     "body": 7888,
+     "body": 7846,
      "materials": 2,
      "ok": true,
-     "triangles": 9206
+     "triangles": 9745
     },
     "1": {
-     "body": 2154,
+     "body": 2104,
      "materials": 2,
      "ok": true,
-     "triangles": 2614
+     "triangles": 2552
     },
     "2": {
-     "body": 654,
+     "body": 638,
      "materials": 2,
      "ok": true,
-     "triangles": 827
+     "triangles": 758
     }
    },
    "ok": true,
@@ -4777,8 +5932,8 @@
   "visual062": {
    "hair": "summary.hair062 (062 T22: 머리카락 영역 실루엣)",
    "hairTexture": {
-    "anisotropy": 2.9568,
-    "strandHf": 0.124808
+    "anisotropy": 1.04211,
+    "strandHf": 0.046923
    },
    "kit": {
     "clothBandVar": 0.002795,
@@ -4788,10 +5943,10 @@
    },
    "lod": 0,
    "muscle": {
-    "bandRms": 0.094226,
-    "bandRmsMax": 0.102922,
-    "bandRmsMin": 0.083886,
-    "texels": 12474
+    "bandRms": 0.098731,
+    "bandRmsMax": 0.106941,
+    "bandRmsMin": 0.088904,
+    "texels": 13850
    },
    "ok": true
   }
@@ -4808,6 +5963,10 @@
   "body_detail_n.png": [
    2048,
    2048
+  ],
+  "brow_mask.png": [
+   1024,
+   1024
   ],
   "kit_detail_ao.png": [
    2048,
@@ -4861,21 +6020,21 @@
    1024,
    1024
   ],
-  "skin.png": [
-   1024,
-   1024
-  ],
-  "skin_closeup.png": [
+  "skin_asian.png": [
    2048,
    2048
   ],
-  "skin_closeup_normal.png": [
+  "skin_dark.png": [
+   2048,
+   2048
+  ],
+  "skin_light.png": [
    2048,
    2048
   ],
   "skin_normal.png": [
-   1024,
-   1024
+   2048,
+   2048
   ],
   "skin_thickness.png": [
    512,

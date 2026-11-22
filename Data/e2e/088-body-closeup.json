@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "id": "088-body-closeup",
+  "spec": "088",
+  "description": "088 AC-06: 새 몸(MPFB + MakeHuman 피부)·다시 만든 유니폼 — 상반신 정면·3/4·뒤, 손, 전신 정면·옆·뒤·방송, 품질 등급 전환 4단계. 062 장면 화면 재사용.",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261122
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-06"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "upperFront"
+    },
+    {
+      "type": "capture",
+      "name": "upperFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "upperThree"
+    },
+    {
+      "type": "capture",
+      "name": "upperThree",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "upperBack"
+    },
+    {
+      "type": "capture",
+      "name": "upperBack",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "handCloseup"
+    },
+    {
+      "type": "capture",
+      "name": "handCloseup",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodyFront"
+    },
+    {
+      "type": "capture",
+      "name": "bodyFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodySide"
+    },
+    {
+      "type": "capture",
+      "name": "bodySide",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodyBack"
+    },
+    {
+      "type": "capture",
+      "name": "bodyBack",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "bodyBroadcast"
+    },
+    {
+      "type": "capture",
+      "name": "bodyBroadcast",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tier1"
+    },
+    {
+      "type": "capture",
+      "name": "tier1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tier2"
+    },
+    {
+      "type": "capture",
+      "name": "tier2",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tier3"
+    },
+    {
+      "type": "capture",
+      "name": "tier3",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tier4"
+    },
+    {
+      "type": "capture",
+      "name": "tier4",
+      "kind": "3d"
+    }
+  ]
+}

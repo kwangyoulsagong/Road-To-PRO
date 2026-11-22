@@ -9,12 +9,25 @@ namespace RoadToPro.Presentation.Players
     /// </summary>
     public static class PlayerLook
     {
+        /// <summary>피부톤 대표색 (0 밝음 ~ 7 어두움) — 겉보기 거리·UI 표시용. 렌더 색은 088 SkinToneSet·SkinToneTint(MakeHuman 세트 × 틴트).</summary>
         public static readonly Color[] SkinTones =
         {
-            // 062: 0·1번이 061 조명에서 흰색으로 떠 낮춤 (T35 육안)
             new Color32(236, 200, 170, 255), new Color32(226, 186, 150, 255), new Color32(222, 172, 130, 255), new Color32(198, 145, 105, 255),
             new Color32(170, 118, 82, 255), new Color32(140, 92, 62, 255), new Color32(110, 70, 46, 255), new Color32(80, 52, 36, 255),
         };
+
+        /// <summary>088 Q4: 톤 → MakeHuman 피부 세트 (PlayerBodyAssets.SkinSets: 0 light · 1 asian · 2 dark). 생성기 face.TONE_TABLE과 같은 표.</summary>
+        public static readonly int[] SkinToneSet = { 0, 0, 0, 1, 1, 1, 2, 2 };
+        /// <summary>088 Q4: 톤 틴트 (diffuse 배율, 선형 1 = 원본). 생성기 face.TONE_TABLE과 같은 값.</summary>
+        public static readonly Color[] SkinToneTint =
+        {
+            new Color(1.06f, 1.05f, 1.04f, 1f), new Color(1f, 1f, 1f, 1f), new Color(0.92f, 0.88f, 0.84f, 1f),
+            new Color(1.03f, 1.02f, 1f, 1f), new Color(0.95f, 0.92f, 0.88f, 1f), new Color(0.80f, 0.74f, 0.68f, 1f),
+            new Color(1.12f, 1.10f, 1.08f, 1f), new Color(0.92f, 0.90f, 0.88f, 1f),
+        };
+
+        /// <summary>088 FR-02: 눈썹 종류(PlayerAppearance.Eyebrow 0~2) → brow_mask 채널 선택 (R 02 · G 04 · B 09, A 속눈썹은 항상).</summary>
+        public static readonly Vector4[] BrowChannels = { new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0) };
 
         /// <summary>헤어 색 (AppearanceGenerator.HairColors 순서): 검정 · 진갈색 · 갈색 · 금발 · 적갈색 · 회색 + 062 FR-53 탈색 금발 · 백금.</summary>
         public static readonly Color[] HairColors =
