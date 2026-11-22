@@ -1,4 +1,4 @@
-"""헤어 그루밍 v2 (시안 생성기 — 포마드·가일컷(gail_g)·시스루(see_g) 승인 2026-11-22, 게임 생성기 반영 전): 스타일 = ① 두피 빗질 흐름장 F(위치) ② 머리 두께장 H(위치, 볼륨 껍질) ③ 길이장 L.
+"""헤어 그루밍 v2 (시안 생성기 — 포마드·가일컷(gail_g)·시스루(see_g)·가르마(garma) 승인 2026-11-22, 게임 생성기 반영 전): 스타일 = ① 두피 빗질 흐름장 F(위치) ② 머리 두께장 H(위치, 볼륨 껍질) ③ 길이장 L.
 가닥은 뿌리에서 서서 두께 껍질 높이까지 올라간 뒤 흐름을 따라 그 높이를 유지하며 눕는다(껍질 위로 넘치면 눌림).
 렌더 후 참고 사진과 같은 높이로 나란히 붙인 비교 이미지를 만든다. 인자: -- <출력 폴더> <스타일> [참고 사진]
 필요: Blender MPFB 확장 + MakeHuman CC0 에셋 팩(레포 밖, Art/ThirdParty/MakeHumanPacks 압축 파일은 커밋 안 함).
@@ -350,10 +350,118 @@ def see_bang_locks(S, P, C, tree, rng, steps):
 SEE_THIN = 0.0        # 앞머리 뿌리 가닥 중 빼는 비율 (이마가 비치게)
 
 
+# 가르마(6:4 가르마펌): 가르마에서 양쪽으로 둥글게 솟았다가 바깥·아래로 떨어지며 끝이 안으로 말림(C컬).
+# 앞머리는 가르마 쪽이 짧게 갈라져 이마가 역V로 보이고, 바깥으로 갈수록 길어져 눈썹 꼬리~눈 높이에서 얼굴을 감싼다.
+# 옆머리는 귀 위쪽 절반을 덮고 귓불 높이에서 안으로 말림, 뒤는 목덜미를 덮는다.
+GARMA_PART = 0.012    # 선수 왼쪽(+x)으로 살짝 — 6:4
+
+
+def garma_base(x, f, z, C):
+    """가르마 바탕(윗머리 밖): 옆·뒤를 길게 아래로 흘린다 (가이드가 안 닿는 귀 아래·목덜미 담당)."""
+    F, H, L = pomade(x, f, z, C)
+    ridge = smooth((0.078 - np.abs(x)) / 0.02) * smooth((z - (0.015 + 0.035 * np.clip(-f / 0.07, 0, 1))) / 0.02)
+    Fd = C.vec(np.sign(x) * 0.22, -0.12 + 0 * x, -0.95 + 0 * x)
+    nape = smooth((z + 0.075) / 0.03)                # 목선 맨 아래 뿌리는 짧게
+    Lb = (0.024 + 0.026 * smooth((z + 0.03) / 0.06)) * (0.45 + 0.55 * nape)
+    Hb = 0.004 + 0.004 * smooth((z + 0.02) / 0.05)
+    w = (1 - ridge)
+    F = F * (1 - w[:, None]) + Fd * w[:, None]
+    L = L * (1 - w) + Lb * w
+    H = H * (1 - w) + Hb * w
+    return F, H, L
+
+
+def _garma_guides():
+    g, side = {}, {}
+    p = GARMA_PART
+    for s, tag in ((1, "L"), (-1, "R")):
+        o = lambda a: p + s * a                       # 가르마 기준 바깥으로 a
+        # 앞1: 가르마 옆 앞머리 → 솟음 → 바깥 아래로 갈라져 눈썹 바깥 위 (역V 가장자리)
+        g["F1" + tag] = [(o(0.020), 0.06, 0.068, 0.0), (o(0.016), 0.088, 0.075, 0.016), (o(0.026), 0.10, 0.045, 0.018),
+                         (o(0.030), 0.100, 0.018, 0.012), (o(0.036), 0.094, -0.002, 0.008)]
+        # 앞0: 가르마 바로 옆 → 낮게 앞으로 넘어와 이마 위쪽을 덮고 가르마 쪽 눈썹 위에서 끝 (역V를 좁게)
+        g["F0" + tag] = [(o(0.003), 0.065, 0.070, 0.0), (o(0.008), 0.092, 0.062, 0.010), (o(0.008), 0.103, 0.032, 0.010),
+                         (o(0.010), 0.101, 0.010, 0.007)]
+        # 앞2: 앞 바깥 → 관자놀이를 덮고 눈 높이에서 안으로 말림
+        g["F2" + tag] = [(o(0.032), 0.06, 0.062, 0.0), (o(0.044), 0.075, 0.072, 0.024), (s * 0.066, 0.065, 0.035, 0.022),
+                         (s * 0.077, 0.050, 0.000, 0.019), (s * 0.077, 0.045, -0.022, 0.011), (s * 0.073, 0.050, -0.032, 0.008)]
+        # 정수리: 가르마에서 둥글게 넘어가 관자놀이 위
+        g["D" + tag] = [(o(0.008), -0.03, 0.090, 0.0), (o(0.022), 0.02, 0.100, 0.018), (s * 0.045, 0.055, 0.080, 0.027),
+                        (s * 0.064, 0.060, 0.042, 0.024), (s * 0.074, 0.055, 0.004, 0.019)]
+        # 옆: 귀 위쪽을 덮고 귓불 높이에서 안으로
+        g["S" + tag] = [(s * 0.050, -0.010, 0.070, 0.0), (s * 0.066, -0.010, 0.056, 0.021), (s * 0.079, 0.000, 0.020, 0.017),
+                        (s * 0.081, 0.004, -0.015, 0.009), (s * 0.078, 0.008, -0.040, 0.005)]
+        # 뒤 옆: 뒤통수 둥글게 → 목덜미
+        g["B" + tag] = [(s * 0.030, -0.060, 0.070, 0.0), (s * 0.050, -0.080, 0.040, 0.020), (s * 0.060, -0.085, 0.000, 0.014),
+                        (s * 0.055, -0.080, -0.040, 0.009), (s * 0.050, -0.072, -0.062, 0.007)]
+        g["B0" + tag] = [(o(0.006), -0.070, 0.060, 0.0), (o(0.006), -0.090, 0.030, 0.020), (o(0.006), -0.095, -0.010, 0.014),
+                         (o(0.006), -0.086, -0.050, 0.008)]
+        # 앞0b: 가르마와 앞1 사이 → 이마 가운데 쪽으로 낮게 (역V 가장자리를 채움)
+        g["F0b" + tag] = [(o(0.011), 0.062, 0.070, 0.0), (o(0.014), 0.090, 0.066, 0.012), (o(0.016), 0.102, 0.034, 0.011),
+                          (o(0.019), 0.100, 0.006, 0.007)]
+        for k in ("F0", "F0b", "F1", "F2", "D", "S", "B", "B0"):
+            side[k + tag] = s
+    return g, side
+
+
+GARMA_GUIDES, GARMA_SIDE = _garma_guides()
+def garma_trim(S, C, rng):
+    """뒷머리 끝 다듬기: 뒤쪽 뿌리(f < −3 cm) 가닥을 0.6~1배로 무작위로 잘라 끝 단면이 일자로 안 보이게 (숱 치기)."""
+    x, f, z = C.of(S[:, 0])
+    idx = np.where(f < -0.03)[0]
+    steps = S.shape[1] - 1
+    for j in idx:
+        u = 0.6 + 0.4 * rng.random() ** 0.7
+        seg = np.linalg.norm(np.diff(S[j], axis=0), axis=1)
+        cum = np.concatenate([[0], np.cumsum(seg)])
+        q = np.linspace(0, cum[-1] * u, steps + 1)
+        S[j] = np.stack([np.interp(q, cum, S[j][:, c]) for c in range(3)], axis=1)
+    return S
+
+
+GARMA_WAVE = (0.0025, 0.032)   # 펌 웨이브 진폭·파장 (m)
+
+
+def garma_wave(S, C, tree, rng):
+    """펌 웨이브: 2 cm 넘는 가닥에 가닥 방향과 두피 법선에 수직인 방향으로 사인 굴곡. 위상은 위치에 따라 천천히 바뀌어
+    이웃 가닥이 같이 굽이친다(다발 결). 뿌리 쪽은 0 → 끝으로 갈수록 커짐. 끝나면 피부 밖으로 다시 민다."""
+    amp, lam = GARMA_WAVE
+    seg = np.linalg.norm(np.diff(S, axis=1), axis=2)
+    cum = np.concatenate([np.zeros((len(S), 1)), np.cumsum(seg, axis=1)], axis=1)
+    long_ = np.where(cum[:, -1] > 0.02)[0]
+    x, f, z = C.of(S[:, 0])
+    phase = 2.0 * np.sin(x * 70 + 1.3) + 2.0 * np.cos(f * 60 + z * 40) + rng.normal(0, 0.35, len(S))
+    steps = S.shape[1] - 1
+    for j in long_:
+        tan = np.gradient(S[j], axis=0)
+        tan /= np.linalg.norm(tan, axis=1, keepdims=True) + 1e-9
+        out = unit((S[j] - C.c))
+        side = np.cross(tan, out)
+        side /= np.linalg.norm(side, axis=1, keepdims=True) + 1e-9
+        k = np.clip(cum[j] / 0.025, 0, 1)
+        a = amp * (0.8 + 0.4 * rng.random())
+        w = np.sin(2 * np.pi * cum[j] / lam + phase[j])
+        S[j] = S[j] + side * (a * k * w)[:, None] + out * (0.4 * a * k * np.cos(2 * np.pi * cum[j] / lam + phase[j]))[:, None]
+        for i in range(1, steps + 1):
+            loc, nrm, _, _ = tree.find_nearest(Vector(S[j, i]), 0.3)
+            if loc is not None and (S[j, i] - np.array(loc)) @ np.array(nrm) < 0.0015:
+                S[j, i] = np.array(loc) + np.array(nrm) * 0.0015
+    return S
+
+
+def garma_cap(x, f, z):
+    """가르마 최대 높이: 정수리 20 mm, 관자놀이(눈썹~이마 높이) 16 mm, 귀 높이 아래·뒤 8 mm (귀 옆 혹 방지)."""
+    top = smooth((z - 0.02) / 0.06) * smooth((0.068 - np.abs(x)) / 0.025)
+    top = top * (0.55 + 0.45 * smooth((np.abs(x - GARMA_PART) - 0.004) / 0.03))   # 가르마 선 옆은 낮게 (뿔 방지)
+    temple = smooth((z + 0.02) / 0.03) * smooth((f + 0.01) / 0.03)
+    return 0.011 + 0.013 * temple * (1 - top) + 0.019 * top
+
+
 STYLES2 = {"pomade": (pomade, "young_caucasian_male", (0.03, 0.02, 0.014, 1), 110000),
            "gail": (gail, "young_caucasian_male", (0.03, 0.02, 0.014, 1), 150000),
            "see_g": (seethrough_base, "young_caucasian_male", (0.03, 0.02, 0.014, 1), 150000),
-           "gail_g": (pomade, "young_caucasian_male", (0.03, 0.02, 0.014, 1), 150000)}
+           "gail_g": (pomade, "young_caucasian_male", (0.03, 0.02, 0.014, 1), 150000),
+           "garma": (garma_base, "young_caucasian_male", (0.03, 0.02, 0.014, 1), 160000)}
 POST = {}
 
 
@@ -448,7 +556,14 @@ def main():
         drop = bang & (rng.random(len(S)) < SEE_THIN)
         S = S[~drop]
         P = P[keep0][~drop]
-    if STYLE in ("gail_g", "see_g"):
+    if STYLE == "garma":
+        x0, f0, z0 = C.of(P)
+        keep0 = ~((np.abs(x0) > 0.05) & (z0 < -0.012) & (f0 > -0.03) & (f0 < 0.035))
+        S, GUIDES = apply_guides(S, P[keep0], C, tree, rng, GARMA_GUIDES, GARMA_SIDE, GARMA_PART, noise=0.0025, clump=0.55,
+                                 cdiv=500, ridge_x=0.078, fmin=-0.10, cap_fn=garma_cap)
+        S = garma_trim(S, C, rng)
+        S = garma_wave(S, C, tree, rng)
+    if STYLE in ("gail_g", "see_g", "garma"):
         if os.environ.get("SHOW_GUIDES"):
             for k, g in GUIDES.items():
                 gob = to_curves("guide_" + k, np.repeat(g[None], 1, 0), 0.0012)
@@ -505,7 +620,7 @@ def main():
     S = S[good]
     hob = to_curves("hair", S, 0.00009)
     mat = hair_mat(col)
-    if STYLE in ("gail_g", "see_g"):                 # 판처럼 번쩍이는 반사를 줄임 (거칠기↑, 가닥별 흩어짐↑)
+    if STYLE in ("gail_g", "see_g", "garma"):        # 판처럼 번쩍이는 반사를 줄임 (거칠기↑, 가닥별 흩어짐↑)
         hb = [n for n in mat.node_tree.nodes if n.bl_idname == "ShaderNodeBsdfHairPrincipled"][0]
         if "Roughness" in hb.inputs:
             hb.inputs["Roughness"].default_value = 0.55
