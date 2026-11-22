@@ -45,3 +45,6 @@ Thumbs.db
 /Assets/FarmSelfTest_Tmp/
 /Assets/FarmSelfTest_Tmp.meta
 __pycache__/
+
+# MakeHuman 원본 압축 팩 (커밋 안 함, 필요한 파일만 Art/ThirdParty/MakeHuman/에 풀어 넣음 — specs/088 FR-05)
+Art/ThirdParty/MakeHumanPacks/

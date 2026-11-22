@@ -1,0 +1,185 @@
+{
+ "note": "MakeHuman CC0 에셋 (specs/088 FR-05). 원본 팩: makehuman_system_assets·eyebrows01·eyelashes01 (2024-04-14). 라이선스는 같은 폴더 mhclo/mhmat 헤더('license CC0' 또는 'explicitly released as CC0').",
+ "files": [
+  {
+   "path": "eyebrows/mindfront_eyebrows_02/mind_eyebrows_02.mhmat",
+   "sha256": "2774b98df6d343d37dd7452eb0485f8d98ae88a13221547839a7a88251790e9d",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyebrows/mindfront_eyebrows_02/mind_eyebrows_02.obj",
+   "sha256": "5752bf45070676945706870c8430f5ed48a20959ec3508ef1bb51b21c91def0e",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyebrows/mindfront_eyebrows_02/mindfront_eyebrows_02.mhclo",
+   "sha256": "fd26e434804215e5893d7799b7ad1600c9165fc31262e0ca24bcb5f9626ec3a8",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyebrows/mindfront_eyebrows_04/mind_eyebrows_04.mhmat",
+   "sha256": "7c0b095017aaba69d80b5314f96c711d3db8740ff14a7662b1316e97ca838c10",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyebrows/mindfront_eyebrows_04/mind_eyebrows_04.obj",
+   "sha256": "6aca715683127e20d42a699ee2ba3f0f901c35f0dca1fd7fc169a48d762d4b64",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyebrows/mindfront_eyebrows_04/mindfront_eyebrows_04.mhclo",
+   "sha256": "c27f72d777a8e5ab0ba2ef9ec77fc2db790690d5653130b8b4fc04a802996307",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyebrows/mindfront_eyebrows_09/mind_eyebrows_09.mhmat",
+   "sha256": "54b5831b3f3cca4942593c3067b204cdd27102261cbc6c2256ab23c75a4546c5",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyebrows/mindfront_eyebrows_09/mind_eyebrows_09.obj",
+   "sha256": "eec2eec87eab486b390096dd4fd8e7b2a29d3b2046c08e6a5319a46ff707cddb",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyebrows/mindfront_eyebrows_09/mindfront_eyebrows_09.mhclo",
+   "sha256": "a7e12d76eb7159785a537ce850611331bbd43c16fa3970bf92f7a792d6632143",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyelashes/mindfront_eyelashes_02/mind_eyelashes_02.mhmat",
+   "sha256": "4d779bacb57540342c65bc74f1f6ad8f97f1bce535f5f6bbd8cc52a50f18a5ff",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyelashes/mindfront_eyelashes_02/mind_eyelashes_02.obj",
+   "sha256": "cda32472d5874cbf3549a26796f66466a7bb853c96bf83c3acd56cc353148fc2",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyelashes/mindfront_eyelashes_02/mindfront_eyelashes_02.mhclo",
+   "sha256": "09edaeafdd3070231b613989535aabdb4b08c971fd47f2c344df4d2a207bcfa8",
+   "license": "CC0",
+   "source": "makehuman community asset pack (Mindfront)"
+  },
+  {
+   "path": "eyes/high-poly/high-poly.mhclo",
+   "sha256": "b183cfe37120ab726f9b3f2ea6cd3a64c44ce7b4bd91a77c841cf70c04f83a0d",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/high-poly/high-poly.obj",
+   "sha256": "da2493215b708a344c33dc72f2a9a5b8fa985dcc5a70ad3b208995cf871da8e1",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/materials/blue.mhmat",
+   "sha256": "bd9cab4d2f6ca54df6253c1adfbb1c82e0ee61057361d95449ade06a1b5669c4",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/materials/blue_eye.png",
+   "sha256": "572ddc93ab3e177100619ec7c00b2574540cfb382805afc2e450788117f6140c",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/materials/brown.mhmat",
+   "sha256": "4abad93ce50541c08127721e77bce035640c9f16bed16cd0f5524b1cd5908465",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/materials/brown_eye.png",
+   "sha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/materials/brownlight.mhmat",
+   "sha256": "75ae6903fe51134ee6f10147dadad3cb1b355aecf8218213431fb6ddbb3ba71d",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/materials/brownlight_eye.png",
+   "sha256": "3f43a4de70e446186dac1760cfa01dfe36d530ed7564208455395b0ebcdf788a",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/materials/green.mhmat",
+   "sha256": "b3b512120d9f87f91cd34879ac17ad9f26eb6a250d92be52df8b19df5cc90113",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/materials/green_eye.png",
+   "sha256": "b9864ac4f4fa484b24e18f6aba030d70dbc8820cbbacfbe63a974c76772c2009",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/materials/grey.mhmat",
+   "sha256": "65c536157ef0550b2f8461a9526c726707533dc7cfe8a65abb9b9db0b4e6b25e",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "eyes/materials/grey_eye.png",
+   "sha256": "ecb05613126036a3d017880fabbd570501c5f14032c186462d8f6e2d719f6c4f",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "skins/young_african_male/young_african_male.mhmat",
+   "sha256": "11040111c4735028b473f8ce4bb6b0dc0515b7bf26ea815ead85f2c3cbdd7645",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "skins/young_african_male/young_darkskinned_male_diffuse.png",
+   "sha256": "e3f0dbb634e4c68561338f0087f7a122444e84ec56df102212f1222aa12e4d50",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "skins/young_asian_male/young_asian_male.mhmat",
+   "sha256": "9fdfc9863cd15d1359311435f2da7de3906f81d6eea549fba6bf14cd82ceb6a0",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "skins/young_asian_male/young_lightskinned_male_diffuse3.png",
+   "sha256": "f50016a5507fc687dc8df06599c8ea48de950cd185de33a71cafc1319ddab4d5",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "skins/young_caucasian_male/young_caucasian_male.mhmat",
+   "sha256": "6eda60b07ff2afbde078a2535ef3913593d84e9de92b2eb76c30f396a181fe2e",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  },
+  {
+   "path": "skins/young_caucasian_male/young_lightskinned_male_diffuse.png",
+   "sha256": "862a26e335e958b70534cb5f0d7c47ef30ab148a56c42b3e9da969cf76f12963",
+   "license": "CC0",
+   "source": "makehuman_system_assets"
+  }
+ ]
+}
