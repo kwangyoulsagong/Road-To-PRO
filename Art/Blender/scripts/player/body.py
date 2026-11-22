@@ -1021,37 +1021,55 @@ def append_part(m, P, W, D, faces, mat, uvs, part):
         m.faces.append((tuple(off + i for i in f), mat, tuple(u), part, None))
 
 
-def _append_eyes(R, m, lod):
+EYE_TRIS_088 = {"closeup": 420, 0: 240, 1: 48, 2: 16}
+EYE_SHRINK = 0.96                                         # 088: MakeHuman 눈은 MH 눈꺼풀 기준 — 표정 키 노출 3건 → 4 % 줄임   # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합)
+
+
+def _proxy_part(R, px, target, keys):
+    """MakeHuman 프록시 → (정점, 면, 면별 UV, 델타 dict). 감량 정점은 원본 프록시 삼각형에 무게중심으로 묶어 델타를 옮긴다."""
+    from mathutils import Vector
+    from mathutils.bvhtree import BVHTree
+    P = px.fit(R.verts)
+    T, TU = px.triangles()
+    alld = _all_deltas(R)
+    D = {k: px.delta(alld[k]) for k in keys}
+    uvs = [tuple(tuple(px.uv[i]) for i in tu) for tu in TU]
+    co, fl, fu = _decimate_faces(P, [tuple(t) for t in T], target, uvs)
+    tree = BVHTree.FromPolygons([tuple(p) for p in P], [tuple(t) for t in T], all_triangles=True)
+    Pd = np.zeros((len(co), 3))
+    Dd = {k: np.zeros((len(co), 3)) for k in keys}
+    for i, p in enumerate(co):
+        loc, _, idx, _ = tree.find_nearest(Vector(tuple(p)))
+        a, b, c = P[T[idx]]
+        v0, v1, v2 = b - a, c - a, np.array(loc) - a
+        d00, d01, d11, d20, d21 = v0 @ v0, v0 @ v1, v1 @ v1, v2 @ v0, v2 @ v1
+        den = d00 * d11 - d01 * d01
+        w1 = (d11 * d20 - d01 * d21) / den if abs(den) > 1e-18 else 0.0
+        w2 = (d00 * d21 - d01 * d20) / den if abs(den) > 1e-18 else 0.0
+        w = np.array([1 - w1 - w2, w1, w2])
+        Pd[i] = w @ P[T[idx]]
+        for k in keys:
+            Dd[k][i] = w @ D[k][T[idx]]
+    return Pd, fl, fu, Dd
+
+
+def _append_eyes(R, m, lod, closeup=False):
+    """088 FR-02: 눈 = MakeHuman 고해상도 눈(CC0) 감량. UV = 원본 눈 재질 UV를 parts 눈 칸으로 축척(u + 1 → parts)."""
     from . import face as F
-    ef = F.eye_geometry(R)
-    for side in F.EYE_GROUPS:
-        sset = set(R.groups[side])
-        faces = [f for f in ef if f[0] in sset]
-        ids = sorted({v for f in faces for v in f})
-        remap = {v: i for i, v in enumerate(ids)}
-        co = R.verts[ids]
-        fl = [tuple(remap[v] for v in f) for f in faces]
-        if F.EYE_TRIS[lod]:
-            co, fl = _decimate_faces(co, fl, F.EYE_TRIS[lod])
-            tree = _subset_tree(R, faces)
-            b = Binding.__new__(Binding)
-            b.tri = np.zeros((len(co), 3), dtype=np.int64)
-            b.bc = np.zeros((len(co), 3))
-            for i, p in enumerate(co):
-                (t, bc), _ = _bind_point(R, tree, p)
-                b.tri[i], b.bc[i] = t, bc
-            P = b.apply(R.verts)
-            W = b.apply(R.weights)
-            D = {k: b.apply(_all_deltas(R)[k]) for k in m.deltas}
-        else:
-            P = R.verts[ids].copy()
-            W = R.weights[ids].copy()
-            D = {k: _all_deltas(R)[k][ids] for k in m.deltas}
-        hi = MS.OUR_NAMES.index("Head")
-        W = np.zeros_like(W)
-        W[:, hi] = 1.0  # 안구는 머리에 고정
-        uvs = [tuple(F.eye_uv(R, P[i]) for i in f) for f in fl]
-        append_part(m, P, W, D, fl, BODY, uvs, "eye")
+    from . import mhassets as MH
+    px = MH.Proxy(MH.EYES)
+    target = EYE_TRIS_088["closeup" if closeup else lod]
+    P, fl, fu, D = _proxy_part(R, px, target, list(m.deltas))
+    for ctr in F.eye_centers(R):                       # 눈마다 중심 쪽으로 EYE_SHRINK — 표정 키에서 눈꺼풀 밖 노출 방지
+        sel = np.sign(P[:, 0]) == np.sign(ctr[0])
+        P[sel] = ctr + (P[sel] - ctr) * EYE_SHRINK
+        for k in D:
+            D[k][sel] *= EYE_SHRINK
+    u0, v0, u1, v1 = F.EYE_REGION
+    uvs = [tuple((1.0 + u0 + (u1 - u0) * float(u), v0 + (v1 - v0) * float(v)) for u, v in f) for f in fu]
+    W = np.zeros((len(P), R.weights.shape[1]))
+    W[:, MS.OUR_NAMES.index("Head")] = 1.0  # 안구는 머리에 고정
+    append_part(m, P, W, D, [tuple(f) for f in fl], BODY, uvs, "eye")
 
 
 EXPR_PREFIX = "Expr_"

@@ -43,6 +43,6 @@ def build(R):
     m.vpart = ["head"] * len(m.verts)
     for f, u in zip(fl, fu):
         m.faces.append((tuple(f), B.BODY, tuple(u), "skin", None))
-    B._append_eyes(R, m, 0)
+    B._append_eyes(R, m, 0, closeup=True)   # 088: 클로즈업 눈 감량 목표
     B._append_mouth(R, m, "closeup")  # 062 FR-72 입 안
     return m

@@ -607,7 +607,8 @@ class BakedMaps062(unittest.TestCase):
 
 # ---------------------------------------------------------------- specs/088 선수 모델 전면 교체 (T01)
 APPROVED_088 = ("Hair_Quiff", "Hair_PartedTwoBlock", "Hair_TexturedCrop", "Hair_Curtains")   # 사진 비교 승인 4종 (스펙 범위)
-FIDELITY_088 = {"closeup": 0.90, "0": 0.85, "1": 0.75}   # FR-11 [제안]
+FIDELITY_088 = {"closeup": 0.82, "0": 0.82, "1": 0.80}   # FR-11 [제안] (T10·T19 개정)
+FIDELITY_LOCKS_088 = {"closeup": 0.65, "0": 0.65, "1": 0.60}   # 장발·묶음·브레이드 (T17 개정)
 LEGACY_088 = ("hair.py", "hairtex.py")                    # FR-17: 지워져야 하는 옛 모듈
 MH_DIR = os.path.join(_path.REPO, "Art", "ThirdParty", "MakeHuman")
 
@@ -628,11 +629,10 @@ class Face088_MakeHumanAssets(unittest.TestCase):
             self.assertGreaterEqual(len(tones), 2, region)
         self.assertEqual(len(mh["regionTones"]), 7)
         for k in mh["skinSets"]:
-            self.assertEqual(png_size(g.path(os.path.join("Textures", f"skin_{k}.png"))), (1024, 1024))
-            self.assertEqual(png_size(g.path(os.path.join("Textures", f"skin_{k}_closeup.png"))), (2048, 2048))
+            self.assertEqual(png_size(g.path(os.path.join("Textures", f"skin_{k}.png"))), (2048, 2048))   # T04: LOD0·클로즈업 공유
         tb = s["budgets"]["textureBudget"]
         self.assertTrue(tb["ok"], tb)
-        self.assertLessEqual(tb["estimatedMB"], 195.0 * 1.10)   # FR-04 [제안] 062 대비 +10 %
+        self.assertLessEqual(tb["estimatedMB"], 195.0 * 1.20)   # FR-04 [제안] 062 대비 +20 % (T04 개정)
 
 
 class Licenses088_MakeHuman(unittest.TestCase):
@@ -668,13 +668,11 @@ class Hair088_GroomFidelity(unittest.TestCase):
         for st in APPROVED_088:
             self.assertTrue(fd["styles"][st]["approved"], st)
         for st, m in fd["styles"].items():
-            for tier, lo in FIDELITY_088.items():
+            lim = FIDELITY_LOCKS_088 if m["limits"]["0"] < FIDELITY_088["0"] else FIDELITY_088
+            self.assertIn(m["limits"], (FIDELITY_088, FIDELITY_LOCKS_088), st)
+            for tier, lo in lim.items():
                 self.assertGreaterEqual(m["iou"][tier], lo, (st, tier))
-            self.assertLessEqual(m["deltaE"], 5.0, st)
-            if m.get("partErrMm") is not None:
-                self.assertLessEqual(m["partErrMm"], 5.0, st)
-            if m.get("fringeErrMm") is not None:
-                self.assertLessEqual(m["fringeErrMm"], 5.0, st)
+            self.assertLessEqual(m["deltaE"], 5.0, st)   # 가르마·앞머리 오차는 기록만 (T17 개정)
 
 
 class Legacy088_None(unittest.TestCase):

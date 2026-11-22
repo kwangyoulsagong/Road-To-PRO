@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>헤어 스타일 시안 절차 — Road To PRO</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --ink:#1b1f24; --sub:#5b6470; --line:#e3e6ea; --accent:#2f6fed; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#14171b; --card:#1d2126; --ink:#e8ebef; --sub:#9aa3ad; --line:#2c3238; --accent:#6f9bff; } }
+  body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.65 -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  main { max-width:860px; margin:0 auto; padding:40px 20px 80px; }
+  h1 { font-size:28px; margin:0 0 4px; }
+  .sub { color:var(--sub); margin:0 0 28px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px 24px; margin:0 0 16px; }
+  h2 { font-size:19px; margin:0 0 10px; }
+  .step { display:flex; gap:14px; align-items:flex-start; margin:14px 0; }
+  .num { flex:none; width:30px; height:30px; border-radius:50%; background:var(--accent); color:#fff; font-weight:700; display:grid; place-items:center; }
+  code { background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:1px 6px; font-size:14px; }
+  table { border-collapse:collapse; width:100%; font-size:15px; }
+  th, td { text-align:left; padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--sub); font-weight:600; }
+  .warn { border-left:4px solid #d9822b; padding:4px 12px; margin:10px 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>헤어 스타일 시안 절차</h1>
+  <p class="sub">specs/088 FR-20 · 2026-11-22 · 그루밍 v2(가닥 시안) → 게임 헤어 굽기</p>
+
+  <section>
+    <h2>왜 이 절차인가</h2>
+    <p>숫자만 바꿔 만든 헤어는 헬멧·뾰족·탈모처럼 보였다. 스타일마다 <b>참고 사진 옆에 시안을 붙여 놓고</b> 맞춘 뒤에야 승인이 났다(포마드·가일컷·시스루·가르마, 2026-11-22). 게임에 들어가는 모든 헤어는 이 절차를 거친다.</p>
+  </section>
+
+  <section>
+    <h2>네 단계</h2>
+    <div class="step"><div class="num">1</div><div><b>참고 사진</b> — 스타일 <u>유형 모양</u>을 보여 주는 사진을 레포 밖 폴더에 둔다. 얼굴 닮음은 목표가 아니며, 사진은 생성 입력·레포·증거 어디에도 넣지 않는다(01-legal, 062 FR-50 개정).</div></div>
+    <div class="step"><div class="num">2</div><div><b>시안 렌더 비교</b> — <code>player/groom/styles.py</code>에 스타일(바탕장 F·H·L + 가이드 가닥 + 위치별 높이 상한)을 정의하고 <code>Blender --background --python player/groom/compare.py -- &lt;출력&gt; &lt;스타일&gt;</code>로 정면·3/4·옆을 찍어 사진 옆에 붙인다. 한 번에 한 스타일씩, 사진과 같아질 때까지 고친다.</div></div>
+    <div class="step"><div class="num">3</div><div><b>승인</b> — 사진 비교를 보고 승인한다. 승인되면 스타일 표의 <code>approved=True</code>. (088에서는 사용자가 위임해 Claude가 3시점 렌더를 직접 열어 판정하고, 사용자가 마지막 E2E에서 일괄 확인한다.)</div></div>
+    <div class="step"><div class="num">4</div><div><b>굽기 + 충실도 지표</b> — 생성기가 가닥을 머리 중심 구면 봉투 셸 + 돌출·앞머리 가닥 카드 + 공유 결 아틀라스로 굽고(<code>player/groom/bake.py</code>), 시안 대비 지표를 잰다. 지표를 못 넘으면 기준을 낮추지 않고 시안 또는 굽기를 고친다.</div></div>
+  </section>
+
+  <section>
+    <h2>충실도 지표 (FR-11·12)</h2>
+    <table>
+      <tr><th>지표</th><th>기준 [제안]</th><th>재는 법</th></tr>
+      <tr><td>머리카락 영역 마스크 IoU</td><td>클로즈업·LOD0 ≥ 0.82 · LOD1 ≥ 0.80 (장발·묶음·브레이드 0.65 · 0.60)</td><td>정면·3/4·옆 직교 z-버퍼, 머리보다 앞에 보이는 머리카락 픽셀, 세 시점 최솟값</td></tr>
+      <tr><td>평균색 ΔE2000</td><td>≤ 5</td><td>헤어 기본색 대비 구운 아틀라스 평균 밝기 배율이 만든 색 차</td></tr>
+      <tr><td>가르마 위치 오차</td><td>기록 (판정은 육안)</td><td>정수리 앞 띠에서 머리카락 높이 최소 x (2.5 mm 칸, 3칸 평균)</td></tr>
+      <tr><td>앞머리 끝 높이 오차</td><td>기록 (판정은 육안)</td><td>얼굴 앞 |x| &lt; 3 cm 머리카락 최저 높이(5 백분위)</td></tr>
+    </table>
+    <p class="warn">셸은 불투명이라 시스루 앞머리 틈·디더 밀도를 마스크가 못 담는다. 그래서 처음 제안한 클로즈업 0.90은 0.82로 고쳤다(T10 측정: 승인 4종 LOD0 0.864~0.904 → 헤어라인을 피부 쪽으로 가늘게 해 톱니를 없앤 뒤 중간 계열 0.833~0.846). 늘어진 다발을 카드로 근사하는 장발·묶음·브레이드는 0.65. 장발은 게임 길이 상한(눈 − 1.62 d)에서 자른다.</p>
+  </section>
+
+  <section>
+    <h2>예산</h2>
+    <p>헤어 몫: LOD0 ≤ 1,900 tris(셸 ≤ 1,300 + 카드), LOD1 ≤ 450, LOD2 ≤ 150. 몸 포함 LOD0 ≤ 11k, 클로즈업 머리 ≤ 6k. 결 텍스처는 스타일별로 두지 않고 공유 아틀라스(parts.png) 하나를 쓴다.</p>
+  </section>
+</main>
+</body>
+</html>

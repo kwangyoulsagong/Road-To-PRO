@@ -338,7 +338,7 @@ def hair_metrics(body_m, hair_parts, exclude=()):
 
 def fade_bands(hm, c, d, phis=(1.2, 1.9), top_up=1.1, bins=5):
     """062 FR-42: 옆머리 세로 띠(머리 둘레각 phis, 셸 정점) 맨 아래 → 눈 위 top_up·d 를 bins칸, 칸별 평균 밀도 (아래 → 위)."""
-    from . import hair as H
+    from . import hairstyles as H
     sel = [i for i, p in enumerate(hm.vpart) if p == "hair" and phis[0] <= H._phi(hm.verts[i], c) <= phis[1]]
     y = hm.verts[sel, 1]
     dn = hm.hairdata[sel, 0]
@@ -364,7 +364,7 @@ def color_point_regions(hm):
 
 def hair062(body_m, hair_parts, parts_tex, R, png=None):
     """summary["hair062"] (test_hair.py 약속)."""
-    from . import hair as H
+    from . import hairstyles as H
     from . import face as F
     c, d = F.eye_frame(R)
     hm = hair_metrics(body_m, {s: hair_parts.get(s) for s in H.STYLES}, H.VARIANT_PAIRS)

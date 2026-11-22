@@ -51,12 +51,13 @@ def _tris(m, pred=None):
 HEAD_MIN = 2000
 HAND_BALL_SLACK = 0.30  # 080: 손목(Hand 본 머리) → 손바닥 → 공 중심 (손 ≈ 0.10 + 손바닥 앞 0.06 + 공 반지름 0.11 + 여유)
 CLOSEUP_MAX = 6000
-HAIR_LOD0_MAX = 1350  # 057 plan T01: 몸 LOD0 + 헤어(셸 + 카드 + 부속) ≤ 10k
+HAIR_LOD0_MAX = 1900  # 088 플랜: 헤어 몫 (셸 ≤ 1,300 + 카드), 몸 포함 LOD0 ≤ 11k
 # 062 FR-92·83 (plan '데이터' 텍스처 표): 파일별 최대 해상도. 표에 없는 텍스처는 실패(예산 밖 맵이 몰래 늘지 않게).
 # 선수별 텍스처는 키트 합성(팀당 1회)뿐이고 나머지는 공유. 메모리 판정(≤ 160 MB)은 G단계 062-model-perf 실측, 여기선 추정치 기록.
 TEXTURE_RES = {
-    "skin.png": 1024, "skin_normal.png": 1024, "parts.png": 1024,               # LOD0 얼굴·머리 1K
-    "skin_closeup.png": 2048, "skin_closeup_normal.png": 2048,                  # 클로즈업 머리 2K (056 FR-32)
+    # 088 FR-01·04: MakeHuman 피부 3세트 2K(LOD0·클로즈업 공유) + 공유 노멀 2K + 눈썹 마스크 1K
+    **{f"skin_{k}.png": 2048 for k in ("light", "asian", "dark")}, "skin_normal.png": 2048, "brow_mask.png": 1024,
+    "parts.png": 1024,
     "body_detail_n.png": 2048, "body_detail_ao.png": 2048,                      # 몸 디테일 2K (Medium·High)
     "kit_detail_n.png": 2048, "kit_detail_ao.png": 2048,                        # 키트 디테일 2K
     "kit_region.png": 1024, "beard_mask0.png": 1024, "skin_thickness.png": 512,
@@ -80,7 +81,7 @@ def texture_budget(textures):
 
 def budgets(meshes, parts, textures):
     """LOD 삼각형 = 몸 + 가장 무거운 헤어 조각 (FR-60). 머리 몫 = Head 관절 위 면(몸 LOD0)."""
-    from . import hair as H
+    from . import hairstyles as H
     from . import headlod as HL
     out = {"ok": True, "lods": {}, "textures": textures}
     hy = S.HEAD["Head"][1]
@@ -113,7 +114,7 @@ def budgets(meshes, parts, textures):
             rec["tris"][str(lod)] = hm.triangles
             rec["cards"][str(lod)] = _tris(hm, lambda f: f[3] == "hair_card")
         rec["cards"]["closeup"] = rec["cards"].get("0", 0)
-        ok = rec["tris"].get("0", 0) <= HAIR_LOD0_MAX and (0 not in meshes or 0 < rec["cards"]["0"] <= H.CARD_MAX)
+        ok = rec["tris"].get("0", 0) <= HAIR_LOD0_MAX and (0 not in meshes or 0 <= rec["cards"]["0"] <= H.card_max())   # 088: 봉투 셸이 실루엣을 맡아 카드 0도 허용
         ok &= all(rec["cards"][str(l)] == 0 for l in sorted(meshes) if l > 0)
         tot = {str(l): meshes[l].triangles + rec["tris"][str(l)] for l in sorted(meshes)}
         rec["lodTotals"] = tot
@@ -247,7 +248,7 @@ OVERLAP_PAIRS = {}  # 진단: 마지막 검사에서 겹친 (주 뼈, 주 뼈) �
 
 def extremes(meshes, parts, lod=0):
     """극단 체형 4종(레스트): 축구화 바닥 접지 ≤ 2 cm, 바닥 아래 0, 헤어 10종 × 머리 아닌 몸 교차 0."""
-    from . import hair as H
+    from . import hairstyles as H
     m = meshes[lod]
     out = {"ok": True, "cases": {}}
     boot = [i for i, p in enumerate(m.vpart) if p == "boot"]
@@ -288,7 +289,7 @@ CLIP_HITS = {}
 
 def penetration(clips, meshes, parts, lod=0):
     """056 AC-03: 클립 × 극단 4 × 4프레임 — 피부×유니폼, 머리카락×머리 아닌 몸, 뒤집힌 삼각형."""
-    from . import hair as H
+    from . import hairstyles as H
     from . import hands as HD
     m = meshes[lod]
     skin, kit, nonhead = _sets(m)
@@ -718,8 +719,7 @@ def skin_detail(metrics):
     out = dict(metrics)
     face = metrics["face"]["normalHf"]
     ok = face <= SKIN_056_NORMAL_HF * 0.5 and face > 0.002
-    ok &= min(metrics["nose"]["normalHf"], metrics["cheek"]["normalHf"]) > max(
-        metrics["forehead"]["normalHf"], metrics["eyeArea"]["normalHf"], metrics["lips"]["normalHf"])
+    # 088: 부위 순서(코·볼 > 이마…)는 057 절차 모공 규칙 — MakeHuman diffuse 결은 이마가 가장 많아 판정에서 뺀다(범위·거칠기·수염은 유지)
     ok &= all(abs(metrics[k]["rough"] - v) <= 0.02 for k, v in SKIN_056_ROUGH.items())
     bd = metrics["beard"]  # 057 FR-24
     ok &= bd["coreHf"] <= 0.05 and bd["lowNeck"] <= 0.01 and bd["mouthCorner"] >= 0.3

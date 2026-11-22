@@ -33,6 +33,8 @@ ARM_ANGLE = 45.0
 
 REFERENCE_MACRO = {
     "gender": 1.0, "age": 0.5, "muscle": 0.6, "weight": 0.5, "proportions": 1.0, "height": 0.75,
+    # 088 T03: 시안 값(근육 0.85·체중 0.55·비율 0.7·키 0.6)은 위팔/키 최대 0.271 > FR-31(ANSUR 0.24)·엄지-허벅지 관통 1,100·머리 비율·
+    # GK 펀칭 높이를 깨서 062 보정값 유지 (2026-11-22 "베스트케이스" 판단, 스펙 FR-30 기록)
     "cupsize": 0.5, "firmness": 0.5, "race": {"asian": 1 / 3, "caucasian": 1 / 3, "african": 1 / 3},
 }
 # 체형 셰이프 (043 이름 유지). 값은 기준에서 바꾸는 MPFB 매크로 (FR-11: muscle 0.6~0.9, weight는 BMI에서 — 043 Thin/Heavy가 BMI 유도)

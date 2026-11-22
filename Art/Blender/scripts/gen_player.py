@@ -68,7 +68,7 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     from player import bake, checks, export, preview as PV, rig, skeleton, textures, uv
     from player import body as B
     from player import face as F
-    from player import hair as H
+    from player import hairstyles as H
     from player import headlod as HL
     from player import mpfb_src as MS
 
@@ -137,6 +137,25 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         summary["headReference"] = HR.write(stem_dir, pm[HL.NAME], mm[0])  # 062 FR-67~69 (외형 팩 기준)
         suits = {l: pm[SU.NAME.format(l)] for l in lods if SU.NAME.format(l) in pm}
         summary["suit"] = SU.summary(clips, suits, pm)  # 062 FR-27·AC-15 (test_suit)
+    from player import mhassets as MHA
+    summary["mhFace"] = F.mh_face_summary(R)          # 088 AC-01
+    if 0 in mm:                                         # 088 AC-03: 시안 대비 충실도 (그루밍 굽기 스타일)
+        from player.groom import bake as GB, fidelity as GF, styles as GS
+        from player import visual_metrics as VM2
+        parts_img = VM2.load_image(os.path.join(stem_dir, "Textures", "parts.png"))
+        gf = {"styles": {}}
+        for st in H.MESH_STYLES:
+            if st not in GS.STYLES:
+                gf["styles"][st] = {"approved": False, "ok": False, "iou": {}, "deltaE": None, "note": "그루밍 이식 전"}
+                continue
+            r0 = GB.shell_rect(GS.STYLES[st]["strand"])
+            h_, w_ = parts_img.shape[:2]
+            tile = parts_img[int(r0[1] * h_):int(r0[3] * h_), int(r0[0] * w_):int(r0[2] * w_), 0]   # Blender 픽셀 행 0 = 아래(v 0)
+            gf["styles"][st] = GF.evaluate(R, st, GB.summary(st, R), {l: pm[f"{st}_LOD{l}"] for l in lods if l < 2},
+                                           float(tile.mean()) if tile.size else 0.5)
+        gf["ok"] = all(v["ok"] for v in gf["styles"].values())
+        summary["groomFidelity"] = gf
+    summary["mhLicenses"] = MHA.licenses()             # 088 AC-02
     export.write_glb(os.path.join(stem_dir, "player.glb"))
     export.strip_animation_channels(os.path.join(stem_dir, "player.glb"), skeleton.NAMES[MS.CORE_BONES:])  # 062: 손가락 채널 제거
     from player import hands as HD
@@ -157,9 +176,10 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
     export.write_json(os.path.join(stem_dir, "player.gait-metrics.json"), gm)
     export.write_json(os.path.join(stem_dir, "player.gait-reference.json"), REF.build())
     layout = {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "generator": {"blender": blender, "script": "gen_player.py", "command": command, "seed": seed,
-                      "mpfb": {"version": MS.version(), "files": mpfb_files}},
+                      "mpfb": {"version": MS.version(), "files": mpfb_files},
+                      "makehuman": {"files": __import__("player.mhassets", fromlist=["used_files"]).used_files()}},   # 088 FR-05
         "skeleton": {"refHeight": skeleton.REF_HEIGHT, "heightRangeCm": list(checks.HEIGHT_RANGE_CM),
                      "bones": [{"name": n, "parent": p, "head": list(h), "tail": list(t)} for n, p, h, t in skeleton.BONES]},
         "uv": uv.layout(),
@@ -231,6 +251,9 @@ def main(argv):
             print(f"[player] 검사 실패: {failed}", file=sys.stderr)
             for k in failed:
                 print(json.dumps(summary[k], ensure_ascii=False, default=str)[:2000], file=sys.stderr)
+            if os.environ.get("PLAYER_FAIL_DUMP"):   # 진단: 실패 요약 전체를 파일로 (088)
+                with open(os.environ["PLAYER_FAIL_DUMP"], "w", encoding="utf-8") as fd:
+                    json.dump(summary, fd, ensure_ascii=False, default=str)
             return 3
         os.makedirs(out, exist_ok=True)
         for root, _, files in os.walk(tmp):

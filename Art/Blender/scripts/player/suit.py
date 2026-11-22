@@ -79,7 +79,7 @@ def summary(clips, suits, parts):
     """test_suit 약속: {ok, lods: {lod: {body, styleMax, ok}}, penetration, outline, boundary}.
     LOD 삼각형 = 정장 몸 + 가장 무거운 헤어 조각(유니폼과 같은 규칙, FR-81). 관통·윤곽은 LOD0 레스트·클립 × 극단 4."""
     from . import checks
-    from . import hair as H
+    from . import hairstyles as H
     from . import visual_metrics as VM
     out = {"ok": True, "lods": {}}
     for lod, m in sorted(suits.items()):

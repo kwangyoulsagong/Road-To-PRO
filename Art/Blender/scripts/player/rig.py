@@ -111,7 +111,7 @@ REQUIRED_KEYS = ("Thin", "Muscular", "Heavy", "Broad", "Limb", "HideHead")  # 06
 
 def build(lods):
     """→ (뼈대, {lod: (obj, mesh)}, {이름: (obj, mesh)} 헤어·클로즈업 머리). 056: MPFB2 기준 선수에서."""
-    from . import hair as H
+    from . import hairstyles as H
     from . import headlod as HL
     reset_scene()
     R = B.reference()  # skeleton.configure 포함 — 뼈대보다 먼저

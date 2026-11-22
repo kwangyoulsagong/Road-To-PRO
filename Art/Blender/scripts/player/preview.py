@@ -123,7 +123,7 @@ def heads(rig, lod_obj, hair_objs, out_png, tmp):
     """헤어 30종(057) × 서로 다른 얼굴(얼굴 축 무작위, 시드 고정) 머리 클로즈업, 3/4 정면 (056 FR-22·40)."""
     import random
     from . import face as F
-    from . import hair as HR
+    from . import hairstyles as HR
     _use_action(rig, None)
     cam = _setup()
     bpy.context.scene.display.shading.color_type = "OBJECT"

@@ -9,6 +9,7 @@
 - HideHead: 클로즈업 머리가 대신 그려질 때 몸 메시 머리를 머리 관절로 접는다(FR-61).
 """
 import math
+import os
 
 import numpy as np
 
@@ -342,36 +343,13 @@ def face_json(R, tree_tri):
 # ---------------------------------------------------------------- 눈 (LOD별 안구)
 
 EYE_REGION = (0.0, 0.75, 0.25, 1.0)   # parts 아틀라스 눈 칸 (u0, v0, u1, v1)
-EYE_TRIS = {0: None, 1: 48, 2: 16}     # LOD0 = MPFB 눈 헬퍼 그대로, 그 아래는 감량
-
-
-def eye_geometry(R):
-    """MPFB 눈 헬퍼 면 → [(정점 인덱스(기준) 튜플)]."""
-    out = []
-    for g in EYE_GROUPS:
-        s = set(R.groups[g])
-        out += [f for f in R.faces if all(v in s for v in f)]
-    return out
-
-
-def eye_uv(R, p):
-    """안구 점 → parts UV (정면 평면 투영, 홍채가 칸 가운데). u는 +1 (셰이더가 parts 텍스처로 보낸다)."""
-    el, er = eye_centers(R)
-    c = el if p[0] < 0 else er
-    r = 0.0125
-    fu = 0.5 + (p[0] - c[0]) / (2 * r) * 0.9
-    fv = 0.5 + (p[1] - c[1]) / (2 * r) * 0.9
-    fu, fv = min(max(fu, 0.0), 1.0), min(max(fv, 0.0), 1.0)
-    u0, v0, u1, v1 = EYE_REGION
-    return (1.0 + u0 + (u1 - u0) * fu, v0 + (v1 - v0) * fv)
-
-
 def eyes_covered(R, tree_tri, key_sets):
     """안구 정점이 피부 밖으로 나오는 수 (정면 광선으로 피부 앞에 있으면 노출). key_sets = [{키: 가중치}] 극값 조합."""
     from mathutils.bvhtree import BVHTree
     from mathutils import Vector
     tree, tri = tree_tri
-    ids = sorted({v for g in EYE_GROUPS for v in R.groups[g]})
+    from . import mhassets as MH
+    px = MH.Proxy(MH.EYES)                      # 088: 고해상도 눈 프록시 정점
     worst = 0
     cases = 0
     eye_z = [c[2] for c in eye_centers(R)]
@@ -381,8 +359,7 @@ def eyes_covered(R, tree_tri, key_sets):
             V = V + R.extra_deltas[k] * w
         t2 = BVHTree.FromPolygons([tuple(p) for p in V], [tuple(t) for t in tri], all_triangles=True)
         bad = 0
-        for i in ids:
-            p = V[i]
+        for p in _shrunk_eyes(R, px.fit(V)):
             # 정면에서 처음 맞는 피부가 안구 점 바로 뒤(0.5~6 mm)에 있으면 안구가 눈꺼풀·피부를 뚫고 나온 것.
             # 눈 틈(구멍)에서는 광선이 머리 안쪽 깊은 곳에 맞으므로 노출로 세지 않는다.
             if p[2] < eye_z[0 if p[0] < 0 else 1]:
@@ -393,3 +370,96 @@ def eyes_covered(R, tree_tri, key_sets):
         worst = max(worst, bad)
         cases += 1
     return {"ok": worst == 0, "exposedOutsideLids": worst, "cases": cases}
+
+
+# ---------------------------------------------------------------- 088 MakeHuman 눈썹·속눈썹 → 피부 UV 마스크 (FR-02)
+# Mindfront 눈썹(가닥 형상 ≈ 3만 tris)·속눈썹(≈ 2.5만 tris)은 예산(클로즈업 머리 ≤ 6k)에 못 들어간다 → 프록시를 기준 몸에 맞춘 뒤
+# 가닥 점을 가장 가까운 피부로 투영해 피부 UV 덮임 마스크로 굽는다(R·G·B = 눈썹 02·04·09, A = 속눈썹 선). 셰이더가 머리색으로 칠한다.
+
+def _skin_tris(R):
+    body = set(R.groups["body"])
+    tris, tuv = [], []
+    for f, fu in zip(R.faces, R.face_uvs):
+        if not all(v in body for v in f):
+            continue
+        for k in range(1, len(f) - 1):
+            tris.append((f[0], f[k], f[k + 1]))
+            tuv.append((fu[0], fu[k], fu[k + 1]))
+    return np.array(tris, dtype=np.int64), np.array(tuv, dtype=np.float64)
+
+
+def _splat(R, points, size, tree, tris, tuv, max_d=0.012):
+    from mathutils import Vector
+    acc = np.zeros((size, size))
+    for p in points:
+        loc, _, idx, d = tree.find_nearest(Vector(tuple(p)), max_d)
+        if loc is None:
+            continue
+        a, b, c = R.verts[tris[idx]]
+        v0, v1, v2 = b - a, c - a, np.array(loc) - a
+        d00, d01, d11 = v0 @ v0, v0 @ v1, v1 @ v1
+        d20, d21 = v2 @ v0, v2 @ v1
+        den = d00 * d11 - d01 * d01
+        if abs(den) < 1e-18:
+            continue
+        w1 = (d11 * d20 - d01 * d21) / den
+        w2 = (d00 * d21 - d01 * d20) / den
+        uv = (1 - w1 - w2) * tuv[idx, 0] + w1 * tuv[idx, 1] + w2 * tuv[idx, 2]
+        x = int(min(max(uv[0] * size, 0), size - 1))
+        y = int(min(max((1 - uv[1]) * size, 0), size - 1))
+        acc[y, x] += 1.0
+    return acc
+
+
+def brow_masks(R, size):
+    """→ (S,S,4) 0~1: R·G·B 눈썹 02·04·09 덮임, A 속눈썹 선. 2배 해상도로 찍고 흐린 뒤 줄인다(결정론)."""
+    from mathutils.bvhtree import BVHTree
+    from . import mhassets as MH
+    from . import skin as SK
+    tris, tuv = _skin_tris(R)
+    tree = BVHTree.FromPolygons([tuple(p) for p in R.verts], [tuple(t) for t in tris], all_triangles=True)
+    big = size * 2
+    out = np.zeros((size, size, 4))
+    for ch, rel in enumerate(MH.EYEBROWS + (MH.EYELASHES,)):
+        px = MH.Proxy(rel)
+        P = px.fit(R.verts)
+        T, _ = px.triangles()
+        pts = np.vstack([P, P[T].mean(axis=1)])
+        acc = _splat(R, pts, big, tree, tris, tuv)
+        acc = SK._box(SK._box(acc, 1), 1)
+        nz = acc[acc > 0]
+        k = float(np.percentile(nz, 75)) if len(nz) else 1.0
+        m = 1.0 - np.exp(-acc / max(k, 1e-6) * 1.5)
+        out[..., ch] = m.reshape(size, 2, size, 2).mean(axis=(1, 3))
+    return out
+
+
+def brow_valid(R, size):
+    from . import skin as SK
+    return SK._raster(R, size)[1]
+
+
+def mh_face_summary(R):
+    """088 AC-01 요약: 피부 세트·눈썹·속눈썹·눈 출처, 지역 → 톤 단계 (PlayerLook 톤 표와 같은 값)."""
+    from . import mhassets as MH
+    return {"ok": True, "skinSets": list(MH.SKINS), "eyebrows": [os.path.basename(e).split(".")[0] for e in MH.EYEBROWS],
+            "eyelashes": [os.path.basename(MH.EYELASHES).split(".")[0]], "eyes": "high-poly",
+            "regionTones": {k: list(v) for k, v in REGION_TONES.items()}, "toneTable": TONE_TABLE}
+
+
+# 088 Q4: 피부톤 8단계(PlayerLook.SkinTones 0 밝음 ~ 7 어두움) → (MakeHuman 세트, 틴트 RGB 배율). 지역 → 톤은 062 FR-63 표(Appearance.cs).
+TONE_TABLE = [["light", [1.06, 1.05, 1.04]], ["light", [1.0, 1.0, 1.0]], ["light", [0.92, 0.88, 0.84]],
+              ["asian", [1.03, 1.02, 1.0]], ["asian", [0.95, 0.92, 0.88]], ["asian", [0.80, 0.74, 0.68]],
+              ["dark", [1.12, 1.10, 1.08]], ["dark", [0.92, 0.90, 0.88]]]
+REGION_TONES = {"east_asia": (3, 4), "southeast_asia": (4, 5), "south_asia": (4, 5, 6), "west_asia_north_africa": (2, 3, 4),
+                "west_central_africa": (6, 7), "europe": (0, 1, 2), "latin_america": (2, 4, 5)}
+
+
+def _shrunk_eyes(R, P):
+    """body._append_eyes와 같은 축소 (088 EYE_SHRINK)."""
+    from . import body as B
+    P = P.copy()
+    for ctr in eye_centers(R):
+        sel = np.sign(P[:, 0]) == np.sign(ctr[0])
+        P[sel] = ctr + (P[sel] - ctr) * B.EYE_SHRINK
+    return P
