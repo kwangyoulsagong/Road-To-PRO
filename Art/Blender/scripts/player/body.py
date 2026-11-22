@@ -1021,8 +1021,9 @@ def append_part(m, P, W, D, faces, mat, uvs, part):
         m.faces.append((tuple(off + i for i in f), mat, tuple(u), part, None))
 
 
-EYE_TRIS_088 = {"closeup": 420, 0: 240, 1: 48, 2: 16}
-EYE_SHRINK = 0.96                                         # 088: MakeHuman 눈은 MH 눈꺼풀 기준 — 표정 키 노출 3건 → 4 % 줄임   # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합)
+EYE_TRIS_088 = {"closeup": 420, 0: 240, 1: 48, 2: 16}   # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합)
+EYE_BACK = 0.0015                                         # 088 T23: 웃음 표정 눈꺼풀 노출(6 → 4점) → 1.5 mm 뒤로
+EYE_SHRINK = 0.94                                         # 088: MakeHuman 눈은 MH 눈꺼풀 기준 — 표정 키 노출(웃음 6점) → 6 % 줄임
 
 
 def _proxy_part(R, px, target, keys, face_ok=None):
@@ -1067,6 +1068,7 @@ def _append_eyes(R, m, lod, closeup=False):
     for ctr in F.eye_centers(R):                       # 눈마다 중심 쪽으로 EYE_SHRINK — 표정 키에서 눈꺼풀 밖 노출 방지
         sel = np.sign(P[:, 0]) == np.sign(ctr[0])
         P[sel] = ctr + (P[sel] - ctr) * EYE_SHRINK
+        P[sel, 2] -= EYE_BACK
         for k in D:
             D[k][sel] *= EYE_SHRINK
     u0, v0, u1, v1 = F.EYE_REGION

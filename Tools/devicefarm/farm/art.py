@@ -37,6 +37,9 @@ SPEC_ART = {
             "cols": 1, "title": "Blender 미리보기 (칼라 경계 · 헤어 30종 × 얼굴 변주(가닥 카드 포함, 단색 표시라 알파 없음) · 대표 클립)"},
     "080": {"pattern": ("test_player.py",), "sets": ("default",), "views": ("keeper", "poses", "lineup"), "stem": "player", "cols": 1,
             "title": "Blender 미리보기 (GK 동작 접촉 순간 — 다이빙 6 · 잡기·쳐내기·펀칭·클레임·스마더·배급·앞 덮치기 · 대표 클립 · LOD/체형)"},
+    "088": {"pattern": ("test_player.py", "test_hair.py", "test_face.py", "test_docs.py"), "sets": ("default",),
+            "views": ("heads", "lineup", "base-heads"), "stem": "player", "cols": 1,
+            "title": "Blender 미리보기 (그루밍 v2 헤어 34종 단색(결 아틀라스·디더 없음) · LOD/체형 · 바탕 머리 8 — MakeHuman CC0 얼굴)"},
 }
 
 

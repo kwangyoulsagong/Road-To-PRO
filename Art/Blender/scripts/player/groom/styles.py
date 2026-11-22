@@ -53,7 +53,7 @@ STYLES = {
     "Hair_Quiff": dict(fn=G.pomade, n=110000, post=_post_none, strand="straight", part=-0.030, fringe=None, approved=True,
                        note="포마드 (옆가르마·앞 퀴프) — 사용자 승인 2026-11-22"),
     "Hair_PartedTwoBlock": dict(fn=G.pomade, n=150000, post=_post_parted_two_block, strand="straight", part=G.GAIL_G_PART,
-                                fringe=-0.005, approved=True, note="가일컷 3:7 — 사용자 승인 2026-11-22"),
+                                fringe=-0.005, cp="top", approved=True, note="가일컷 3:7 — 사용자 승인 2026-11-22"),
     "Hair_TexturedCrop": dict(fn=G.seethrough_base, n=150000, post=_post_textured_crop, strand="straight", part=None,
                               fringe=-0.015, approved=True, note="시스루 — 사용자 승인 2026-11-22"),
     "Hair_Curtains": dict(fn=G.garma_base, n=160000, post=_post_curtains, strand="wave", part=G.GARMA_PART, fringe=-0.004,
@@ -114,8 +114,9 @@ STYLES.update({
                      PM.post(capf=PM.cap(0.020, 0.006), clump_n=220, clump_s=0.9, clump_min=0.025), note="스파이크", approved=True),
     "Hair_SidePart": _S(PM.make(top_len=0.042, side_len=0.012, back_len=0.011, top_flow="side", part=-0.030, vol_top=0.007,
                                 vol_side=0.004), 130000, PM.post(capf=PM.cap(0.010, 0.006)), part=-0.030, note="사이드 파트", approved=True),
-    "Hair_IvyLeague": _S(PM.make(top_len=0.045, side_len=0.010, back_len=0.010, top_flow="side", part=-0.025, vol_top=0.008,
-                                 vol_side=0.003, fade=(0.004, -0.04, 0.02)), 130000, PM.post(capf=PM.cap(0.011, 0.005)),
+    "Hair_IvyLeague": _S(PM.make(top_len=0.045, side_len=0.007, back_len=0.007, top_flow="backup", part=-0.025, vol_top=0.013,
+                                 vol_side=0.002, fade=(0.0015, -0.025, 0.035), fringe_len=0.035, fringe_flow="up", fringe_f=0.03),
+                         130000, PM.post(capf=PM.cap(0.014, 0.004)),
                          part=-0.025, note="아이비리그", approved=True),
 })
 

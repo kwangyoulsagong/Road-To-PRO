@@ -20,9 +20,13 @@ HAIR_062 = HAIR + NEW_062
 
 # FR-40 상한: 짧은 ≤ 0.06(옆 폭 ≤ 0.05), 중간 ≤ 0.15, 볼륨 곱슬·아프로·하이톱 ≤ 0.35.
 # 계열은 FR-51 분류표. 모히칸·탑노트·번(의도적으로 솟는 형태)은 '볼륨' 등급 [제안] (T21).
-SHORT = {"Hair_Buzz", "Hair_Short", "Hair_Fade", "Hair_Crew", "Hair_SidePart", "Hair_Undercut", "Hair_TexturedCrop",
-         "Hair_BuzzLine", "Hair_Cornrows", "Hair_FrenchCrop", "Hair_IvyLeague", "Hair_Spiky",
-         "Hair_PartedTwoBlock", "Hair_StraightCornrows", "Hair_ZigzagCornrows"}
+# 088 Q3: 그루밍 시안이 계열 상한을 넘으면 계열을 재분류 — 언더컷(윗머리 6 cm 뒤로 넘김, 볼륨 0.075 > 0.06) → 중간
+# 088 Q3: 시스루(텍스처드 크롭 자리, 앞머리 볼륨 0.086 > 0.06) → 중간
+# 088 Q3: 스파이크(가시 다발 높이, 볼륨 0.076 > 0.06) → 중간
+# 088 Q3: 가르마 투블록(가일컷 3:7, 볼륨 0.062·옆 폭 0.059 > 짧은 상한) → 중간
+SHORT = {"Hair_Buzz", "Hair_Short", "Hair_Fade", "Hair_Crew", "Hair_SidePart",
+         "Hair_BuzzLine", "Hair_Cornrows", "Hair_FrenchCrop", "Hair_IvyLeague",
+         "Hair_StraightCornrows", "Hair_ZigzagCornrows"}
 VOLUME = {"Hair_Afro", "Hair_HighTop", "Hair_VolumeCurlyLong", "Hair_Mohawk", "Hair_TopKnot", "Hair_Bun"}
 MEDIUM = set(HAIR_062) - SHORT - VOLUME - {"Hair_Bald"}
 CAP = {"short": 0.06, "medium": 0.15, "volume": 0.35}

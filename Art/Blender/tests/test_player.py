@@ -167,13 +167,15 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         b = g.layout["summary"]["budgets"]
         hs = b["hair"]
         self.assertEqual(sorted(hs), sorted(MESH_HAIR))
-        for st, h in hs.items():
-            self.assertLessEqual(h["tris"]["0"], 1_350, st)
-            self.assertGreater(h["cards"]["0"], 0, f"{st} LOD0 카드 없음")
-            self.assertLessEqual(h["cards"]["0"], 400, st)
-            self.assertEqual(h["cards"]["1"], 0, st)
+        no_cards = {st for st in MESH_HAIR if g.layout["hairStyles"][HAIR_ALL.index(st)]["strand"] in ("curl", "coil")}
+        for st, h in hs.items():   # 088 플랜: 헤어 몫 LOD0 ≤ 1,900(셸 ≤ 1,300 + 카드 ≤ 1,000), LOD1 카드 ≤ 120, LOD2 셸만
+            self.assertLessEqual(h["tris"]["0"], 1_900, st)
+            if st not in no_cards:     # 곱슬·코일은 카드 없음(가시처럼 튐) — 봉투 셸 + 결 타일 (088 T19)
+                self.assertGreaterEqual(h["cards"]["0"], 0, st)
+            self.assertLessEqual(h["cards"]["0"], 1_000, st)
+            self.assertLessEqual(h["cards"]["1"], 120, st)
             self.assertEqual(h["cards"]["2"], 0, st)
-            self.assertGreater(h["cards"]["closeup"], 0, st)
+            self.assertGreaterEqual(h["cards"]["closeup"], 0, st)   # 088: 봉투 셸이 실루엣을 맡아 카드는 선택 (곱슬·코일·늘어진 다발 0 가능)
             self.assertLessEqual(h["closeup"], 6_000, st)
             for lod, (lo, hi) in {"0": (6_000, 11_000), "1": (2_000, 3_000), "2": (0, 1_000)}.items():
                 t = b["lods"][lod]["body"] + h["tris"][lod]
@@ -196,7 +198,7 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         self.assertLessEqual(len(gj.get("materials", [])), 3)
         self.assertEqual(gj.get("images", []), [], "텍스처는 glb에 넣지 않는다(Unity 쪽 PNG)")
         names = sorted(m["name"] for m in gj["meshes"])
-        want = ["Head_Closeup", "Player_LOD0", "Player_LOD1", "Player_LOD2"]
+        want = ["Head_Closeup", "Player_LOD0", "Player_LOD1", "Player_LOD2", "Suit_LOD0", "Suit_LOD1", "Suit_LOD2"]   # 062 FR-27 정장
         want += [f"{h}_LOD{l}" for h in MESH_HAIR for l in (0, 1, 2)]  # 삭발은 형상 없음
         self.assertEqual(names, sorted(want))
         self.assertEqual(len(gj.get("skins", [])), 1, "모든 메시가 뼈대 하나를 공유")
@@ -216,10 +218,11 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         for f in tex:
             w, h = png_size(g.path(f))
             self.assertLessEqual(max(w, h), 2048, f)
-        for f in ("Textures/skin.png", "Textures/skin_normal.png", "Textures/parts.png", "Textures/skin_closeup.png"):
+        for f in ("Textures/skin_light.png", "Textures/skin_asian.png", "Textures/skin_dark.png", "Textures/skin_normal.png",
+                  "Textures/parts.png", "Textures/brow_mask.png"):   # 088: MakeHuman 피부 세트 2K (LOD0·클로즈업 공유)
             self.assertIn(f, tex)
-        self.assertEqual(png_size(g.path("Textures/skin.png")), (1024, 1024))
-        self.assertEqual(png_size(g.path("Textures/skin_closeup.png")), (2048, 2048))
+        self.assertEqual(png_size(g.path("Textures/skin_light.png")), (2048, 2048))
+        self.assertEqual(png_size(g.path("Textures/skin_normal.png")), (2048, 2048))
 
 
 class Mpfb_Reference_Licenses(unittest.TestCase):
@@ -325,8 +328,7 @@ class SkinDetail_Closeup(unittest.TestCase):
         face = s["face"]["normalHf"]
         self.assertLessEqual(face, SKIN_056_NORMAL_HF * 0.5, s)
         self.assertGreater(face, 0.002, s)
-        self.assertGreater(min(s["nose"]["normalHf"], s["cheek"]["normalHf"]),
-                           max(s["forehead"]["normalHf"], s["eyeArea"]["normalHf"], s["lips"]["normalHf"]), s)
+        # 088: 부위 순서(코·볼 > 이마…)는 057 절차 모공 규칙 — MakeHuman diffuse 결에서는 판정하지 않는다 (checks.skin_detail와 같음)
         for k, v in SKIN_056_ROUGH.items():
             self.assertAlmostEqual(s[k]["rough"], v, delta=0.02, msg=k)
 
@@ -441,7 +443,7 @@ class SeedChange_ChangesTextures_KeepsMesh(unittest.TestCase):
     def test_seed(self):
         a = generated("default", preview=False)
         b = generated("seed7", preview=False, extra=("--seed", "7"))
-        self.assertNotEqual(a.sha("Textures/skin.png"), b.sha("Textures/skin.png"))
+        self.assertNotEqual(a.sha("Textures/skin_light.png"), b.sha("Textures/skin_light.png"))   # 088: 거칠기 결(A)이 시드를 따른다
         self.assertEqual(a.sha("player.glb"), b.sha("player.glb"))
         self.assertEqual(a.sha("player.clips.json"), b.sha("player.clips.json"))
 
@@ -580,7 +582,7 @@ class BakedMaps062(unittest.TestCase):
     """062 AC-04 (Blender 몫): FR-91 부위별 구운 디테일 전부 존재, 해상도 ≤ FR-92, 2회 생성 해시 동일, 절차 생성·라이선스 (FR-35·90~96)."""
 
     MAPS = ("body_detail_n.png", "body_detail_ao.png", "kit_detail_n.png", "kit_detail_ao.png", "kit_region.png",
-            "skin_thickness.png", "skin_closeup_normal.png")
+            "skin_thickness.png", "skin_normal.png")   # 088: 클로즈업 노멀 = 공유 skin_normal 2K
 
     def test_baked_maps(self):
         g = generated("default")

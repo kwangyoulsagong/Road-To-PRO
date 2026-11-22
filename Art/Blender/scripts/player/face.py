@@ -465,4 +465,5 @@ def _shrunk_eyes(R, P):
     for ctr in eye_centers(R):
         sel = np.sign(P[:, 0]) == np.sign(ctr[0])
         P[sel] = ctr + (P[sel] - ctr) * B.EYE_SHRINK
+        P[sel, 2] -= B.EYE_BACK
     return P

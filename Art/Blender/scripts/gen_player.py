@@ -165,6 +165,11 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         gf["ok"] = all(v["ok"] for v in gf["styles"].values())
         summary["groomFidelity"] = gf
     summary["mhLicenses"] = MHA.licenses()             # 088 AC-02
+    legacy_mod = [f for f in ("player/hair.py", "player/hairtex.py", "groom_v2") if os.path.exists(os.path.join(HERE, f))]
+    legacy_tex = [t for t in tex if t in ("skin.png", "skin_closeup.png", "skin_closeup_normal.png")]
+    summary["noLegacy"] = {"ok": not legacy_mod and not legacy_tex, "modules": legacy_mod, "textures": legacy_tex,
+                           "hairNotGroomed": [st for st in H.MESH_STYLES if st not in __import__("player.groom.styles", fromlist=["STYLES"]).STYLES]}
+    summary["noLegacy"]["ok"] &= not summary["noLegacy"]["hairNotGroomed"]   # 088 AC-10
     export.write_glb(os.path.join(stem_dir, "player.glb"))
     export.strip_animation_channels(os.path.join(stem_dir, "player.glb"), skeleton.NAMES[MS.CORE_BONES:])  # 062: 손가락 채널 제거
     from player import hands as HD

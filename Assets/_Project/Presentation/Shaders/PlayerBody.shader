@@ -63,11 +63,38 @@ Shader "RoadToPro/PlayerBody"
             half _MuscleDef, _Translucency, _Sweat, _Wetness;
         CBUFFER_END
 
-        // 057: 카드 픽셀 알파(u ≥ 2만, 나머지 1). 화면 4×4 베이어 디더 문턱 — MSAA·TAA 없이도 가장자리가 가닥처럼 끊긴다
+        // 088 T23: 헤어 셸 연속 UV — u ≥ 10이면 u = 10 + 타일 × 100 + 연속 u, v = 연속 v. parts 머리카락 칸 3열 × 2행 타일 안에서 frac으로 반복
+        // (Blender groom/bake.shell_rect와 같은 배치: 칸 (0.25, 0) ~ (1, 0.75), 여백 6/1024). 기울기는 frac 전 좌표로 → 이음매 밉 줄 없음
+        static const float ShellPad = 6.0 / 1024.0;
+        float2 ShellTileOrigin(float tile)
+        {
+            float col = tile - 3.0 * floor(tile / 3.0);
+            float row = floor(tile / 3.0);
+            return float2(0.25 + col * 0.25 + ShellPad, row * 0.375 + ShellPad);
+        }
+
+        // parts 아틀라스 좌표 + 기울기 (u < 1 피부는 쓰지 않음). 카드(2 ≤ u < 10) = u − 2, 눈·옛 칸(1 ≤ u < 2) = u − 1, 셸(u ≥ 10) = 타일 반복
+        half4 SampleParts(float2 uv)
+        {
+            half tiled = (half)step(10.0, uv.x);
+            half card = (half)step(2.0, uv.x) * (1.0h - tiled);
+            float t = max(uv.x - 10.0, 0.0);
+            float tile = floor(t / 100.0);
+            float2 cont = float2(t - tile * 100.0, uv.y);
+            float2 sz = float2(0.25, 0.375) - 2.0 * ShellPad;
+            float2 tuv = ShellTileOrigin(tile) + frac(cont) * sz;
+            float2 puv = float2(uv.x - 1.0 - card, uv.y);
+            float2 a = lerp(puv, tuv, tiled);
+            float2 dx = lerp(ddx(puv), ddx(cont) * sz, tiled);
+            float2 dy = lerp(ddy(puv), ddy(cont) * sz, tiled);
+            return SAMPLE_TEXTURE2D_GRAD(_PartsTex, sampler_PartsTex, a, dx, dy);
+        }
+
+        // 057: 카드 픽셀 알파(2 ≤ u < 10만, 나머지 1). 화면 4×4 베이어 디더 문턱 — MSAA·TAA 없이도 가장자리가 가닥처럼 끊긴다
         half CardAlpha(float2 uv)
         {
-            half isCard = (half)step(2.0, uv.x);
-            half a = SAMPLE_TEXTURE2D(_PartsTex, sampler_PartsTex, float2(uv.x - 2.0, uv.y)).g;
+            half isCard = (half)step(2.0, uv.x) * (1.0h - (half)step(10.0, uv.x));
+            half a = SampleParts(uv).g;
             return lerp(1.0h, a, isCard);
         }
 
@@ -155,13 +182,13 @@ Shader "RoadToPro/PlayerBody"
                 ClipCard(i.uv, i.hd.x, i.positionCS);
                 // 두 텍스처를 분기 없이 읽는다(암시적 미분이 정의되도록) — 043 키트 셰이더 교훈
                 half isPart = (half)step(1.0, i.uv.x);
-                half isCard = (half)step(2.0, i.uv.x);
+                half isCard = (half)step(2.0, i.uv.x) * (1.0h - (half)step(10.0, i.uv.x));   // 088: u ≥ 10은 셸(연속 UV)
                 half4 s = SAMPLE_TEXTURE2D(_SkinTex, sampler_SkinTex, frac(i.uv));
                 half3 tn = UnpackNormal(SAMPLE_TEXTURE2D(_SkinNormal, sampler_SkinNormal, frac(i.uv)));
                 half3 mn = UnpackNormal(SAMPLE_TEXTURE2D(_MuscleN, sampler_MuscleN, frac(i.uv)));
                 half mao = SAMPLE_TEXTURE2D(_MuscleAO, sampler_MuscleAO, frac(i.uv)).r;
                 half2 thk = SAMPLE_TEXTURE2D(_ThicknessTex, sampler_ThicknessTex, frac(i.uv)).rg;
-                half4 pt = SAMPLE_TEXTURE2D(_PartsTex, sampler_PartsTex, float2(i.uv.x - 1.0 - isCard, i.uv.y));
+                half4 pt = SampleParts(i.uv);
                 pt.g = lerp(pt.g, 0.5h, isCard); // 카드의 G는 알파 — 결 위상은 가운데
 
                 half3 nG = normalize(i.normalWS);

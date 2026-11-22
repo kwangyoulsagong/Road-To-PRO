@@ -3031,14 +3031,14 @@
      "closeup": 5849,
      "lodTotals": {
       "0": 9861,
-      "1": 2812,
-      "2": 838
+      "1": 2858,
+      "2": 837
      },
      "ok": true,
      "tris": {
       "0": 1300,
-      "1": 378,
-      "2": 120
+      "1": 424,
+      "2": 119
      }
     },
     "Hair_Long": {
@@ -3858,7 +3858,7 @@
      "Expr_smile": 1.0
     },
     "penetration": {
-     "Expr_cheer": 6,
+     "Expr_cheer": 0,
      "Expr_disappoint": 0,
      "Expr_focus": 0,
      "Expr_smile": 0
@@ -3881,7 +3881,7 @@
    "styles": {
     "Hair_Afro": {
      "approved": true,
-     "deltaE": 0.078,
+     "deltaE": 1.014,
      "iou": {
       "0": 0.8567,
       "1": 0.859,
@@ -3908,7 +3908,7 @@
     },
     "Hair_BoxBraids": {
      "approved": true,
-     "deltaE": 0.152,
+     "deltaE": 1.021,
      "iou": {
       "0": 0.7136,
       "1": 0.7037,
@@ -3935,7 +3935,7 @@
     },
     "Hair_Bun": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.6757,
       "1": 0.6806,
@@ -3962,7 +3962,7 @@
     },
     "Hair_Buzz": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.8906,
       "1": 0.9026,
@@ -3989,7 +3989,7 @@
     },
     "Hair_BuzzLine": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.8912,
       "1": 0.8991,
@@ -4016,7 +4016,7 @@
     },
     "Hair_CommaPerm": {
      "approved": true,
-     "deltaE": 0.395,
+     "deltaE": 0.898,
      "fringeErrMm": 3.42,
      "iou": {
       "0": 0.846,
@@ -4045,7 +4045,7 @@
     },
     "Hair_Cornrows": {
      "approved": true,
-     "deltaE": 0.152,
+     "deltaE": 1.021,
      "iou": {
       "0": 0.8657,
       "1": 0.863,
@@ -4072,7 +4072,7 @@
     },
     "Hair_Crew": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.8817,
       "1": 0.8846,
@@ -4099,7 +4099,7 @@
     },
     "Hair_Curly": {
      "approved": true,
-     "deltaE": 0.121,
+     "deltaE": 1.115,
      "iou": {
       "0": 0.841,
       "1": 0.8512,
@@ -4126,7 +4126,7 @@
     },
     "Hair_CurlyTop": {
      "approved": true,
-     "deltaE": 0.121,
+     "deltaE": 1.115,
      "iou": {
       "0": 0.8641,
       "1": 0.8649,
@@ -4153,7 +4153,7 @@
     },
     "Hair_Curtains": {
      "approved": true,
-     "deltaE": 0.395,
+     "deltaE": 0.898,
      "fringeErrMm": 9.77,
      "iou": {
       "0": 0.8415,
@@ -4182,7 +4182,7 @@
     },
     "Hair_Dreads": {
      "approved": true,
-     "deltaE": 0.462,
+     "deltaE": 0.842,
      "iou": {
       "0": 0.6599,
       "1": 0.6583,
@@ -4209,7 +4209,7 @@
     },
     "Hair_Fade": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.8931,
       "1": 0.8927,
@@ -4236,7 +4236,7 @@
     },
     "Hair_FrenchCrop": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "fringeErrMm": 5.5,
      "iou": {
       "0": 0.8957,
@@ -4264,7 +4264,7 @@
     },
     "Hair_HalfUp": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.7906,
       "1": 0.7832,
@@ -4291,7 +4291,7 @@
     },
     "Hair_HighTop": {
      "approved": true,
-     "deltaE": 0.078,
+     "deltaE": 1.014,
      "iou": {
       "0": 0.9197,
       "1": 0.9179,
@@ -4318,11 +4318,11 @@
     },
     "Hair_IvyLeague": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
-      "0": 0.8843,
-      "1": 0.8844,
-      "closeup": 0.8843
+      "0": 0.9034,
+      "1": 0.9043,
+      "closeup": 0.9034
      },
      "limits": {
       "0": 0.82,
@@ -4330,23 +4330,23 @@
       "closeup": 0.82
      },
      "ok": true,
-     "partErrMm": 0.0,
+     "partErrMm": 117.5,
      "views": {
       "0": {
-       "front": 0.8843,
-       "side": 0.9423,
-       "three": 0.9081
+       "front": 0.9034,
+       "side": 0.93,
+       "three": 0.9108
       },
       "1": {
-       "front": 0.8844,
-       "side": 0.9429,
-       "three": 0.9111
+       "front": 0.9043,
+       "side": 0.926,
+       "three": 0.9118
       }
      }
     },
     "Hair_Long": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.719,
       "1": 0.7143,
@@ -4374,7 +4374,7 @@
     },
     "Hair_MediumWave": {
      "approved": true,
-     "deltaE": 0.395,
+     "deltaE": 0.898,
      "iou": {
       "0": 0.833,
       "1": 0.8307,
@@ -4402,7 +4402,7 @@
     },
     "Hair_Mohawk": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.8963,
       "1": 0.8973,
@@ -4429,7 +4429,7 @@
     },
     "Hair_PartedTwoBlock": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "fringeErrMm": 5.2,
      "iou": {
       "0": 0.8774,
@@ -4458,7 +4458,7 @@
     },
     "Hair_Ponytail": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.7652,
       "1": 0.7571,
@@ -4485,7 +4485,7 @@
     },
     "Hair_Quiff": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.9075,
       "1": 0.9022,
@@ -4513,7 +4513,7 @@
     },
     "Hair_Short": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.9022,
       "1": 0.9052,
@@ -4540,7 +4540,7 @@
     },
     "Hair_SidePart": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.8783,
       "1": 0.8789,
@@ -4568,7 +4568,7 @@
     },
     "Hair_SlickBack": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.8968,
       "1": 0.8947,
@@ -4595,7 +4595,7 @@
     },
     "Hair_Spiky": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.897,
       "1": 0.8946,
@@ -4622,7 +4622,7 @@
     },
     "Hair_StraightCornrows": {
      "approved": true,
-     "deltaE": 0.152,
+     "deltaE": 1.021,
      "iou": {
       "0": 0.8668,
       "1": 0.8711,
@@ -4649,7 +4649,7 @@
     },
     "Hair_TexturedCrop": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "fringeErrMm": 15.25,
      "iou": {
       "0": 0.8429,
@@ -4677,7 +4677,7 @@
     },
     "Hair_TopKnot": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.8603,
       "1": 0.8643,
@@ -4704,7 +4704,7 @@
     },
     "Hair_Twists": {
      "approved": true,
-     "deltaE": 0.078,
+     "deltaE": 1.014,
      "iou": {
       "0": 0.8388,
       "1": 0.8344,
@@ -4731,7 +4731,7 @@
     },
     "Hair_Undercut": {
      "approved": true,
-     "deltaE": 0.298,
+     "deltaE": 0.888,
      "iou": {
       "0": 0.9002,
       "1": 0.8991,
@@ -4758,7 +4758,7 @@
     },
     "Hair_VolumeCurlyLong": {
      "approved": true,
-     "deltaE": 0.121,
+     "deltaE": 1.115,
      "iou": {
       "0": 0.7054,
       "1": 0.7001,
@@ -4785,7 +4785,7 @@
     },
     "Hair_ZigzagCornrows": {
      "approved": true,
-     "deltaE": 0.152,
+     "deltaE": 1.021,
      "iou": {
       "0": 0.8585,
       "1": 0.8603,
@@ -4817,7 +4817,7 @@
    "ok": true
   },
   "hair062": {
-   "anisotropy": 1.042,
+   "anisotropy": 5.441,
    "colorPoint": {
     "Hair_BoxBraids": {
      "a": 0.8207,
@@ -4840,9 +4840,9 @@
      "mixed": 0.0137
     },
     "Hair_PartedTwoBlock": {
-     "a": 1.0,
-     "b": 0.0,
-     "mixed": 0.0
+     "a": 0.606,
+     "b": 0.3207,
+     "mixed": 0.0734
     },
     "Hair_Undercut": {
      "a": 0.5047,
@@ -4852,39 +4852,39 @@
    },
    "fade": {
     "Hair_CurlyTop": [
-     0.5117,
-     0.8567,
-     0.9429,
-     0.969,
-     1.0
+     0.0709,
+     0.1816,
+     0.2423,
+     0.5061,
+     0.6665
     ],
     "Hair_Fade": [
-     0.2589,
-     0.3746,
-     0.6185,
-     0.9752,
-     1.0
+     0.0972,
+     0.1809,
+     0.2784,
+     0.576,
+     0.6965
     ],
     "Hair_Mohawk": [
-     0.2064,
-     0.2637,
-     0.3687,
-     0.4672,
-     0.5307
+     0.0582,
+     0.08,
+     0.1045,
+     0.142,
+     0.1817
     ],
     "Hair_PartedTwoBlock": [
-     0.2788,
-     0.4297,
-     0.826,
-     0.9829,
+     0.1256,
+     0.2727,
+     0.5518,
+     0.9592,
      1.0
     ],
     "Hair_Undercut": [
-     0.2125,
-     0.2362,
-     0.3723,
-     0.8062,
-     0.9748
+     0.0562,
+     0.0778,
+     0.1236,
+     0.3679,
+     0.474
     ]
    },
    "info": {
@@ -5100,8 +5100,8 @@
      "volume": 0.2312
     },
     "Hair_IvyLeague": {
-     "side": 0.0145,
-     "volume": 0.0417
+     "side": 0.0132,
+     "volume": 0.0546
     },
     "Hair_Long": {
      "side": 0.0782,
@@ -5177,37 +5177,28 @@
      [
       "Hair_Buzz",
       "Hair_BuzzLine"
+     ],
+     [
+      "Hair_Cornrows",
+      "Hair_StraightCornrows"
+     ],
+     [
+      "Hair_Cornrows",
+      "Hair_ZigzagCornrows"
+     ],
+     [
+      "Hair_StraightCornrows",
+      "Hair_ZigzagCornrows"
      ]
     ],
-    "minPair": 0.043,
+    "minPair": 0.0822,
     "pair": [
-     "Hair_Cornrows",
-     "Hair_ZigzagCornrows"
+     "Hair_IvyLeague",
+     "Hair_Spiky"
     ],
-    "pairsBelow": [
-     [
-      "Hair_Cornrows",
-      "Hair_ZigzagCornrows",
-      0.043
-     ],
-     [
-      "Hair_Cornrows",
-      "Hair_StraightCornrows",
-      0.0455
-     ],
-     [
-      "Hair_StraightCornrows",
-      "Hair_ZigzagCornrows",
-      0.0659
-     ],
-     [
-      "Hair_SidePart",
-      "Hair_IvyLeague",
-      0.0795
-     ]
-    ]
+    "pairsBelow": []
    },
-   "strandHf": 0.04692,
+   "strandHf": 0.11774,
    "styles": [
     "Hair_Buzz",
     "Hair_Short",
@@ -5677,6 +5668,12 @@
    "files": 18,
    "ok": true
   },
+  "noLegacy": {
+   "hairNotGroomed": [],
+   "modules": [],
+   "ok": true,
+   "textures": []
+  },
   "outline": {
    "ok": true,
    "sleeveSeamRatio": 0.666,
@@ -5937,8 +5934,8 @@
   "visual062": {
    "hair": "summary.hair062 (062 T22: 머리카락 영역 실루엣)",
    "hairTexture": {
-    "anisotropy": 1.04211,
-    "strandHf": 0.046923
+    "anisotropy": 5.441019,
+    "strandHf": 0.117739
    },
    "kit": {
     "clothBandVar": 0.002795,

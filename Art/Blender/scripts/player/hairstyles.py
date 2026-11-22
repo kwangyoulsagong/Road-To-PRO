@@ -53,7 +53,10 @@ STYLE_TABLE = tuple((r[0], r[1]) for r in _TABLE)
 MESH_STYLES = tuple(s for s in STYLES if s != "Hair_Bald")
 COLOR_POINT = tuple(s for s in MESH_STYLES if _CP[s])
 FADE = ("Hair_Fade", "Hair_Undercut", "Hair_PartedTwoBlock", "Hair_Mohawk", "Hair_CurlyTop")  # FR-42 판정 대상
-VARIANT_PAIRS = {("Hair_Buzz", "Hair_BuzzLine")}
+VARIANT_PAIRS = {("Hair_Buzz", "Hair_BuzzLine"),
+                 # 088: 콘로우 3종은 같은 두피 밀착 형태에 줄 무늬(곡선·직선·지그재그)만 다른 변형 — 062 FR-44 "무늬만 다른 변형" 제외 규칙
+                 ("Hair_Cornrows", "Hair_StraightCornrows"), ("Hair_Cornrows", "Hair_ZigzagCornrows"),
+                 ("Hair_StraightCornrows", "Hair_ZigzagCornrows")}
 CAP = {"short": 0.06, "medium": 0.15, "volume": 0.35}   # 062 FR-40 볼륨 비율 상한
 HEAD_AXIS_Z = [0.0]
 

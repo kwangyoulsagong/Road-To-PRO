@@ -56,11 +56,20 @@ def card_rect(strand):
 
 # ---------------------------------------------------------------- 캐시
 
+def _fn_sig(fn, depth=0):
+    """함수 소스 + 클로저 값(재귀) — 매개변수형 스타일(param.make·post 클로저)은 소스가 같아도 값이 다르다 (T23 캐시 버그)."""
+    out = [inspect.getsource(fn)] if callable(fn) and hasattr(fn, "__code__") else [repr(fn)]
+    for c in (getattr(fn, "__closure__", None) or ()):
+        v = c.cell_contents
+        out.append(_fn_sig(v, depth + 1) if callable(v) and hasattr(v, "__code__") and depth < 4 else repr(v))
+    return "|".join(out)
+
+
 def _key(name, R):
     st = styles.STYLES[name]
     h = hashlib.sha256()
     for fn in (st["fn"], st["post"]):
-        h.update(inspect.getsource(fn).encode())
+        h.update(_fn_sig(fn).encode())
     h.update(inspect.getsource(styles.groom).encode())
     from . import grow
     h.update(inspect.getsource(grow).encode())
@@ -325,8 +334,8 @@ def _smooth_hairline(R, ctr, Dl, envl, skinl, fl):
     return ctr + Dn * rad[:, None]
 
 
-def _edge_factor(co, faces, width=0.015):
-    """셸 경계(헤어라인)에서 안쪽 거리 → 0.45(가장자리) ~ 1(width 안쪽) 밀도 배율."""
+def _edge_factor(co, faces, width=0.008):
+    """셸 경계(헤어라인)에서 안쪽 거리 → 0.6(가장자리) ~ 1(width 안쪽) 밀도 배율 (T23: 1.5 cm·0.45는 디더 점무늬가 넓게 보임)."""
     edge = {}
     for f in faces:
         for k in range(3):
@@ -338,7 +347,7 @@ def _edge_factor(co, faces, width=0.015):
     B = co[bv]
     d = np.array([np.min(np.linalg.norm(B - p, axis=1)) for p in co])
     t = np.clip(d / width, 0, 1)
-    return 0.45 + 0.55 * t * t * (3 - 2 * t)
+    return 0.6 + 0.4 * t * t * (3 - 2 * t)
 
 
 def _inward(P, faces, ctr):
@@ -419,31 +428,26 @@ def build(R, name, lod, s):
         kd.insert(Vector(tuple(D[v])), i)
     kd.balance()
     fv = s["flow"][ids]
-    rect = shell_rect(st["strand"])
+    # 셸 UV (088 T23, glb 크기): 정점 공유 연속 좌표 — 머리 중심 방위각·고도 × 반지름 / 타일 크기. u = 10 + 타일 × 100 + 연속 u
+    # (셰이더가 frac으로 결 타일을 반복 샘플). 방위각 이음매(뒤통수)를 건너는 면만 정점이 갈라진다. v = 고도(아래로 흐르는 결과 대체로 나란함)
+    tile = STRANDS.index(st["strand"])
+    rel = co - ctr
+    th = np.arctan2(rel[:, 0], rel[:, 2])
+    ph = np.arcsin(np.clip(rel[:, 1] / (np.linalg.norm(rel, axis=1) + 1e-12), -1, 1))
+    k = 0.09 / TILE_M
     fuv = []
-    for fi, f in enumerate(f2):
-        P = co[list(f)]
-        c = P.mean(axis=0)
-        j = kd.find(Vector(tuple((c - ctr) / (np.linalg.norm(c - ctr) + 1e-12))))[1]
-        nrm = (c - ctr) / (np.linalg.norm(c - ctr) + 1e-12)
-        fdir = fv[j] - nrm * (fv[j] @ nrm)
-        if np.linalg.norm(fdir) < 1e-9:
-            fdir = np.cross(nrm, [1.0, 0.0, 0.0])
-        fdir /= np.linalg.norm(fdir) + 1e-12
-        side = np.cross(nrm, fdir)
-        cu = rect[0] + (rect[2] - rect[0]) * (0.3 + 0.4 * ((fi * 2654435761) % 1000 / 1000.0))
-        cv = rect[1] + (rect[3] - rect[1]) * (0.3 + 0.4 * ((fi * 40503) % 997 / 997.0))
-        sx = (rect[2] - rect[0]) / TILE_M
-        sy = (rect[3] - rect[1]) / TILE_M
-        uvs = tuple((1.0 + float(np.clip(cu + ((p - c) @ side) * sx * 0.25, rect[0], rect[2])),
-                     float(np.clip(cv + ((p - c) @ fdir) * sy * 0.25, rect[1], rect[3]))) for p in P)
+    for f in f2:
+        t3 = th[list(f)].copy()
+        if t3.max() - t3.min() > np.pi:
+            t3[t3 < 0] += 2 * np.pi
+        uvs = tuple((10.0 + tile * 100.0 + 40.0 + float(t3[i]) * k, float(ph[f[i]]) * k) for i in range(3))
         fuv.append((tuple(f), uvs))
     # 밀도: 봉투 두께(봉투 − 피부)가 얇은 곳(페이드·헤어라인)은 피부가 비친다
-    th = np.array([env[ids][kd.find(Vector(tuple((p - ctr) / (np.linalg.norm(p - ctr) + 1e-12))))[1]]
+    thk = np.array([env[ids][kd.find(Vector(tuple((p - ctr) / (np.linalg.norm(p - ctr) + 1e-12))))[1]]
                    - s["skin"][ids][kd.find(Vector(tuple((p - ctr) / (np.linalg.norm(p - ctr) + 1e-12))))[1]] for p in co])
-    # 밀도(디더): 페이드 계열만 두께를 따른다(옆·뒤 아래가 비친다, 062 FR-42). 나머지는 꽉 차고, 헤어라인 가장자리 1.5 cm만 부드럽게 비친다
+    # 밀도(디더): 페이드 계열만 두께를 따른다(옆·뒤 아래가 비친다, 062 FR-42). 나머지는 꽉 차고, 헤어라인 가장자리 0.8 cm만 부드럽게 비친다
     from player import hairstyles as HSS
-    dens = np.clip((th - MIN_T) / 0.0025, 0.35, 1.0) if HSS.GROUP.get(name) == "fade" else np.ones(len(co))
+    dens = np.clip((thk - 0.0012) / 0.004, 0.05, 1.0) if name in HSS.FADE else np.ones(len(co))   # 페이드 맨 아래 ≤ 0.2 (062 FR-42)
     edge = _edge_factor(co, f2)
     dens = dens * edge
     HS.append(m, co, fuv, "hair", R, tree, hd=np.column_stack([dens, HS.color_point(st.get("cp"), co, R)]), alld=alld)
