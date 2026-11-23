@@ -113,7 +113,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 r1.ApplyAppearance(afro);
                 r2.ApplyAppearance(bald);
                 Assert.Greater(r1.Lod(0).sharedMesh.triangles.Length, r2.Lod(0).sharedMesh.triangles.Length + 300 * 3);
-                Assert.LessOrEqual(r1.Lod(0).sharedMesh.triangles.Length / 3, 11_000, "062 FR-81 LOD0 ≤ 11k (헤어 포함)");
+                Assert.LessOrEqual(r1.Lod(0).sharedMesh.triangles.Length / 3, 30_000, "088 FR-50 LOD0 ≤ 30k (헤어 포함)");
                 Assert.LessOrEqual(r1.Lod(1).sharedMesh.triangles.Length / 3, 3_000);
                 Assert.LessOrEqual(r1.Lod(2).sharedMesh.triangles.Length / 3, 1_000);
             }
@@ -132,7 +132,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             {
                 Assert.IsNotNull(rig.CloseupRenderer);
                 Assert.IsFalse(rig.CloseupRenderer.enabled);
-                Assert.LessOrEqual(rig.CloseupRenderer.sharedMesh.triangles.Length / 3, 6000 + 1900, "클로즈업 머리 ≤ 6k + 헤어 조각 ≤ 1.9k (088 플랜 헤어 몫)");
+                Assert.LessOrEqual(rig.CloseupRenderer.sharedMesh.triangles.Length / 3, 100_000, "클로즈업 머리 + 헤어 ≤ 100k (088 FR-50)");
                 rig.SetCloseup(true);
                 Assert.IsTrue(rig.CloseupRenderer.enabled);
                 Assert.AreEqual(1f, rig.Lod(0).GetBlendShapeWeight(0));

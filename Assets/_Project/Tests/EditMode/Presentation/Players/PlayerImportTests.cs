@@ -16,7 +16,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             const string gen = "Assets/_Project/Presentation/Players/Generated";
             var root = AssetDatabase.LoadAssetAtPath<GameObject>(gen + "/player.glb");
             Assert.IsNotNull(root);
-            int[] max = { 11000, 3000, 1000 }; // 062 FR-81: LOD0 6~11k (2026-11-20 사용자 결정), LOD1 2~3k, LOD2 ≤ 1k
+            int[] max = { 30000, 4000, 1200 }; // 088 FR-50: LOD0 ≤ 30k, LOD1 ≤ 4k, LOD2 ≤ 1.2k (2026-11-22 사용자 결정)
             // 057: 몸 LOD 3 + 헤어 조각 34종(062 35종, 삭발 제외) × 3 + 클로즈업 머리. 몸 + 가장 무거운 헤어 조각 ≤ LOD 예산(056 FR-60, 057 FR-40)
             var smrs = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
             Assert.AreEqual(3 + 34 * 3 + 1 + 3, smrs.Length);   // 062 FR-27: + 정장 LOD 3
@@ -36,7 +36,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 Assert.LessOrEqual(smr.sharedMaterials.Length, 3, smr.name);
                 if (smr.name == "Head_Closeup")
                 {
-                    Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3, 6000, smr.name);
+                    Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3 + hairMax[0], 100_000, smr.name + " 클로즈업 머리 + 헤어 ≤ 100k (088 FR-50)");
                     var cn = Enumerable.Range(0, smr.sharedMesh.blendShapeCount).Select(i => smr.sharedMesh.GetBlendShapeName(i)).ToList();
                     Assert.AreEqual(4, cn.Count(n => n.StartsWith("Expr_")), smr.name + " 표정 4 (FR-71)");
                     Assert.AreEqual(8, cn.Count(n => n.StartsWith("Base_")), smr.name + " 바탕 머리 8");

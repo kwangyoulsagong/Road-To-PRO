@@ -27,6 +27,10 @@ LODS = {
     1: dict(tris=1650, head=430),
     2: dict(tris=480, head=110),
 }
+# 088 FR-52 (T27): LOD0는 위 감량 몸(칼라·체형·관통·정장 검사 기준 토폴로지 그대로)에서 목 이음 평면 위를 원본 MPFB 머리로 바꾼다.
+# 평면은 앞이 낮다(턱 밑·목젖 앞을 지나 턱·입은 모두 원본 쪽, 뒤는 목덜미) — 칼라 평면(Neck − 3.5 cm)과 2 cm 넘게 떨어진다.
+HEAD_SEAM_UP = 0.03       # 이음 평면 기준점: Neck 관절 위 (m) — 0.021은 극단 체형에서 칼라 앞 셔츠 2면 뒤집힘(이음 면이 칼라 띠와 가까움)
+HEAD_SEAM_TILT = 0.36     # 법선 (0, 1, tilt) — 앞(+z)으로 갈수록 낮다
 
 # 유니폼 부위별 (바깥 띄움 m, 매끄럽게 반복 수). 셔츠는 헐렁하게, 양말은 붙게, 축구화는 발가락을 지운다.
 KIT_PARTS = {
@@ -235,14 +239,118 @@ def _decimated(R, lod):
     return co, fl, fu
 
 
+def _head_seam():
+    return (np.array((0.0, S.HEAD["Neck"][1] + HEAD_SEAM_UP, 0.0)), np.array(_unit((0.0, 1.0, HEAD_SEAM_TILT))))
+
+
+def _with_original_head(R, co, fl, fu):
+    """088 FR-52 (T27): 감량 몸(co, fl, fu)에서 이음 평면에 걸치거나 위인 면을 빼고, 원본 몸 메시를 평면으로 잘라 위(머리·목 윗부분)를 붙인다.
+    감량 쪽 들쭉날쭉한 위 경계와 원본 쪽 평면 고리를 띠로 잇는다(bridge — 같은 평면 두 고리를 이으면 폭 0 띠라 계단·구멍이 보였다).
+    띠 면 방향은 이웃 원래 면에 맞추고, UV는 경계 변을 공유하는 원래 면의 코너 UV를 쓴다. 정점은 build()에서 기준 표면에 다시 묶인다."""
+    import bmesh
+    pt, nrm = _head_seam()
+    faces, uvs = _body_faces(R)
+    ids = sorted({v for f in faces for v in f})
+    remap = {v: i for i, v in enumerate(ids)}
+    co_o = np.array([R.verts[v] for v in ids])
+    fl_o = [tuple(remap[v] for v in f) for f in faces]
+    bm = bmesh.new()
+    uvl = bm.loops.layers.uv.new("UVMap")
+    tag = bm.faces.layers.int.new("part")
+
+    def add(c, fs, us, k):
+        vs = [bm.verts.new(tuple(p)) for p in c]
+        new = []
+        for f, u in zip(fs, us):
+            bf = bm.faces.new([vs[i] for i in f])
+            bf[tag] = k
+            for loop, uv in zip(bf.loops, u):
+                loop[uvl].uv = uv
+            new.append(bf)
+        return vs, new
+
+    def above(v):  # BMVert 또는 좌표
+        return float(np.dot(np.array(getattr(v, "co", v)) - pt, nrm))
+
+    # 감량 몸: 평면에 걸치거나 위인 면을 통째로 뺀다 → 위 경계는 평면 아래 들쭉날쭉한 고리(폭 0 띠 없이 이을 틈)
+    vs0, f0 = add(co, fl, fu, 0)
+    bmesh.ops.delete(bm, geom=[f for f in f0 if max(above(v) for v in f.verts) > 0], context="FACES")
+    bmesh.ops.delete(bm, geom=[v for v in vs0 if v.is_valid and not v.link_faces], context="VERTS")
+    # 원본 머리: 평면으로 잘라 위만
+    vs1, f1 = add(co_o, fl_o, uvs, 1)
+    edges = list({e for f in f1 for e in f.edges})
+    bmesh.ops.bisect_plane(bm, geom=vs1 + edges + f1, dist=1e-6, plane_co=pt, plane_no=nrm)
+    bmesh.ops.delete(bm, geom=[f for f in bm.faces if f[tag] == 1 and above(f.calc_center_median()) < 0], context="FACES")
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+    ring = {0: [], 1: []}
+    for e in bm.edges:
+        if not e.is_boundary:
+            continue
+        k = e.link_faces[0][tag]
+        if k == 0 or all(abs(above(v)) < 1e-5 for v in e.verts):
+            ring[k].append(e)
+    bm.verts.index_update()
+    loops = {k: chain_loops(sorted((min(e.verts[0].index, e.verts[1].index), max(e.verts[0].index, e.verts[1].index)) for e in es))
+             for k, es in ring.items()}
+    assert all(len(v) == 1 and v[0][1] for v in loops.values()), f"목 이음 고리가 하나씩이 아니다: {[len(v) for v in loops.values()]}"
+    old = set(bm.faces)
+    res = bmesh.ops.bridge_loops(bm, edges=ring[0] + ring[1])
+    seam = [f for f in res["faces"] if f not in old]
+    flip = []
+    for f in seam:  # 면 방향: 원래 면과 공유하는 변을 반대 방향으로 지나야 한다
+        for i, loop in enumerate(f.loops):
+            e = loop.edge
+            g = next((g for g in e.link_faces if g in old), None)
+            if g is not None:
+                gl = next(l for l in g.loops if l.edge == e)
+                if gl.vert == loop.vert:
+                    flip.append(f)
+                break
+    bmesh.ops.reverse_faces(bm, faces=flip)
+    for f in seam:  # UV: 경계 변을 공유하는 원래 면의 코너 UV, 경계 변이 없는 꼭짓점은 같은 면 다른 꼭짓점 UV에 가장 가까운 후보
+        got = {}
+        for e in f.edges:
+            for g in e.link_faces:
+                if g in old:
+                    for loop in g.loops:
+                        if loop.vert in e.verts:
+                            got[loop.vert] = loop[uvl].uv.copy()
+        for loop in f.loops:
+            v = loop.vert
+            if v in got:
+                loop[uvl].uv = got[v]
+                continue
+            ref = np.mean([np.array(u) for u in got.values()], axis=0) if got else None
+            cands = [np.array(l2[uvl].uv) for g in v.link_faces if g in old for l2 in g.loops if l2.vert == v]
+            loop[uvl].uv = min(cands, key=lambda u: float(np.linalg.norm(u - ref))) if ref is not None else cands[0]
+    bmesh.ops.triangulate(bm, faces=[f for f in bm.faces if len(f.verts) > 4], quad_method="BEAUTY", ngon_method="BEAUTY")
+    bm.verts.index_update()
+    c2 = np.array([tuple(v.co) for v in bm.verts], dtype=np.float64)
+    f2, u2 = [], []
+    for f in bm.faces:
+        f2.append(tuple(v.index for v in f.verts))
+        u2.append(tuple((float(l[uvl].uv[0]), float(l[uvl].uv[1])) for l in f.loops))
+    bm.free()
+    return c2, f2, u2
+
+
 _DEC = {}
 _LOD = [0]
 
 
 def _decimated_cached(R, lod):
+    """LOD1·2는 감량 몸(LOD0 감량 결과)에서 이어 줄이고, LOD0만 원본 머리로 바꾼다 (088 FR-52)."""
     if lod not in _DEC:
         _DEC[lod] = _decimated(R, lod)
     return _DEC[lod]
+
+
+def _lod_mesh(R, lod):
+    if lod > 0:
+        return _decimated_cached(R, lod)
+    if "head0" not in _DEC:
+        _DEC["head0"] = _with_original_head(R, *_decimated_cached(R, 0))
+    return _DEC["head0"]
 
 
 # ---------------------------------------------------------------- 2. 유니폼 경계 평면
@@ -843,7 +951,7 @@ def _normals(co, faces):
 def build(lod):
     R = reference()
     _LOD[0] = lod
-    co, faces, fuv = _decimated_cached(R, lod)
+    co, faces, fuv = _lod_mesh(R, lod)
     co, faces, fuv = _bisect(co, faces, fuv, R)
     bind = Binding(R, co)
     pos = bind.apply(R.verts)

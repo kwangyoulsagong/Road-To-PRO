@@ -8,7 +8,7 @@ import numpy as np
 from . import body as B
 from . import mpfb_src as MS
 
-HEAD_TRIS = 5200
+HEAD_TRIS = None   # 088 FR-52 (T27): 원본 MPFB 머리 (이전 5,200 감량)
 NAME = "Head_Closeup"
 
 
@@ -25,7 +25,10 @@ def build(R):
     uvs = [u for _, u in sel]
     ids = sorted({v for f in faces for v in f})
     remap = {v: i for i, v in enumerate(ids)}
-    co, fl, fu = B._decimate_faces(R.verts[ids], [tuple(remap[v] for v in f) for f in faces], HEAD_TRIS, uvs)
+    if HEAD_TRIS is None:
+        co, fl, fu = R.verts[ids].copy(), [tuple(remap[v] for v in f) for f in faces], uvs
+    else:
+        co, fl, fu = B._decimate_faces(R.verts[ids], [tuple(remap[v] for v in f) for f in faces], HEAD_TRIS, uvs)
     tree = B._subset_tree(R, faces)
     bind = B.Binding.__new__(B.Binding)
     bind.tri = np.zeros((len(co), 3), dtype=np.int64)

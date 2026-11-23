@@ -19,7 +19,7 @@ from . import mpfb_src as MS
 from . import pose as PO
 from . import skeleton as S
 
-TRI_BUDGET = {0: (6000, 11000), 1: (2000, 3000), 2: (0, 1000)}  # 062: LOD0 상한 11k (2026-11-20 사용자 결정, CLAUDE.md)
+TRI_BUDGET = {0: (6000, 30000), 1: (2000, 4000), 2: (0, 1200)}  # 088 FR-50 (T27): 시안 모델 — LOD0 ≤ 30k·LOD1 ≤ 4k·LOD2 ≤ 1.2k (CLAUDE.md 2026-11-22)
 MATERIAL_BUDGET = 3
 TEXTURE_MAX = 2048
 HEIGHT_RANGE_CM = (160.0, 200.0)
@@ -50,7 +50,7 @@ def _tris(m, pred=None):
 
 HEAD_MIN = 2000
 HAND_BALL_SLACK = 0.30  # 080: 손목(Hand 본 머리) → 손바닥 → 공 중심 (손 ≈ 0.10 + 손바닥 앞 0.06 + 공 반지름 0.11 + 여유)
-CLOSEUP_MAX = 6000
+CLOSEUP_MAX = 100_000   # 088 FR-50 (T27): 클로즈업 = 원본 머리 + 눈·눈썹·속눈썹 + 헤어(LOD0 조각) ≤ 100k (이전 머리 ≤ 6k)
 HAIR_LOD0_MAX = 1900  # 088 플랜: 헤어 몫 (셸 ≤ 1,300 + 카드), 몸 포함 LOD0 ≤ 11k
 # 062 FR-92·83 (plan '데이터' 텍스처 표): 파일별 최대 해상도. 표에 없는 텍스처는 실패(예산 밖 맵이 몰래 늘지 않게).
 # 선수별 텍스처는 키트 합성(팀당 1회)뿐이고 나머지는 공유. 메모리 판정(≤ 160 MB)은 G단계 062-model-perf 실측, 여기선 추정치 기록.
@@ -101,14 +101,15 @@ def budgets(meshes, parts, textures):
                     out["ok"] = False
                     out["uvOutOfRange"] = True
     hc = parts[HL.NAME].triangles
-    out["headCloseup"] = {"triangles": hc, "ok": hc <= CLOSEUP_MAX}
-    out["ok"] &= hc <= CLOSEUP_MAX
+    hair0 = max(_tris(parts[f"{st}_LOD0"]) for st in H.MESH_STYLES) if 0 in meshes else 0
+    out["headCloseup"] = {"triangles": hc, "withHairMax": hc + hair0, "ok": hc + hair0 <= CLOSEUP_MAX}
+    out["ok"] &= hc + hair0 <= CLOSEUP_MAX
     # 062 FR-81: 스타일마다 몸 + 그 헤어 조각이 LOD 예산 안(가장 무거운 헤어만 보던 것을 스타일별로)
     style_tot = {}
     # 057 스타일별: 헤어 삼각형(LOD별), 카드 삼각형 — 클로즈업 머리는 LOD0 헤어 조각을 그대로 쓴다(056 구조)
     out["hair"] = {}
     for st in H.MESH_STYLES:
-        rec = {"tris": {}, "cards": {}, "closeup": hc}
+        rec = {"tris": {}, "cards": {}, "closeup": hc + (_tris(parts[f"{st}_LOD0"]) if 0 in meshes else 0)}   # 088: 머리 + 그 헤어
         for lod in sorted(meshes):
             hm = parts[f"{st}_LOD{lod}"]
             rec["tris"][str(lod)] = hm.triangles

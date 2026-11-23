@@ -114,13 +114,13 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
     def test_layout_summary(self):
         b = generated("default").layout["summary"]["budgets"]
         self.assertTrue(b["ok"], b)
-        self.assertLessEqual(b["lods"]["0"]["triangles"], 11_000)   # 062 FR-81 (2026-11-20 사용자 결정)
+        self.assertLessEqual(b["lods"]["0"]["triangles"], 30_000)   # 088 FR-50 (T27)
         self.assertGreaterEqual(b["lods"]["0"]["triangles"], 6_000)
         self.assertGreaterEqual(b["lods"]["0"]["headTriangles"], 2_000)
-        self.assertLessEqual(b["lods"]["1"]["triangles"], 3_000)
+        self.assertLessEqual(b["lods"]["1"]["triangles"], 4_000)
         self.assertGreaterEqual(b["lods"]["1"]["triangles"], 2_000)
-        self.assertLessEqual(b["lods"]["2"]["triangles"], 1_000)
-        self.assertLessEqual(b["headCloseup"]["triangles"], 6_000)
+        self.assertLessEqual(b["lods"]["2"]["triangles"], 1_200)
+        self.assertLessEqual(b["headCloseup"]["withHairMax"], 100_000)   # 088 FR-50
 
     def test_budget_tris_lods_head(self):
         """062 FR-80~84·92, AC-13 에셋: 스타일마다 몸 + 헤어 LOD0 6k~11k(손가락·입 안 포함)·LOD1 2k~3k·LOD2 ≤ 1k, 클로즈업 머리 ≤ 6k
@@ -129,10 +129,10 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         b = g.layout["summary"]["budgets"]
         for st, h in b["hair"].items():
             t = h["lodTotals"]
-            self.assertTrue(6_000 <= t["0"] <= 11_000, f"{st} LOD0 {t['0']}")
-            self.assertTrue(2_000 <= t["1"] <= 3_000, f"{st} LOD1 {t['1']}")
-            self.assertLessEqual(t["2"], 1_000, f"{st} LOD2")
-        self.assertLessEqual(b["headCloseup"]["triangles"], 6_000)
+            self.assertTrue(6_000 <= t["0"] <= 30_000, f"{st} LOD0 {t['0']}")
+            self.assertTrue(2_000 <= t["1"] <= 4_000, f"{st} LOD1 {t['1']}")
+            self.assertLessEqual(t["2"], 1_200, f"{st} LOD2")
+        self.assertLessEqual(b["headCloseup"]["withHairMax"], 100_000)   # 088 FR-50
         for lod, rec in b["lods"].items():
             self.assertLessEqual(rec["materials"], 3, lod)
         tb = b["textureBudget"]
@@ -147,10 +147,10 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         g = generated("default")
         su = g.layout["summary"]["suit"]
         self.assertTrue(su["ok"], {k: v for k, v in su.items() if k != "penetration"})
-        self.assertLessEqual(su["lods"]["0"]["triangles"], 11_000)
+        self.assertLessEqual(su["lods"]["0"]["triangles"], 30_000)
         self.assertGreaterEqual(su["lods"]["0"]["triangles"], 6_000)
-        self.assertLessEqual(su["lods"]["1"]["triangles"], 3_000)
-        self.assertLessEqual(su["lods"]["2"]["triangles"], 1_000)
+        self.assertLessEqual(su["lods"]["1"]["triangles"], 4_000)
+        self.assertLessEqual(su["lods"]["2"]["triangles"], 1_200)
         p = su["penetration"]
         self.assertGreater(p["poses"], 0)
         self.assertEqual(p["skinKit"], 0, p["worst"])
@@ -176,8 +176,8 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
             self.assertLessEqual(h["cards"]["1"], 120, st)
             self.assertEqual(h["cards"]["2"], 0, st)
             self.assertGreaterEqual(h["cards"]["closeup"], 0, st)   # 088: 봉투 셸이 실루엣을 맡아 카드는 선택 (곱슬·코일·늘어진 다발 0 가능)
-            self.assertLessEqual(h["closeup"], 6_000, st)
-            for lod, (lo, hi) in {"0": (6_000, 11_000), "1": (2_000, 3_000), "2": (0, 1_000)}.items():
+            self.assertLessEqual(h["closeup"], 100_000, st)   # 088 FR-50: 머리 + 헤어
+            for lod, (lo, hi) in {"0": (6_000, 30_000), "1": (2_000, 4_000), "2": (0, 1_200)}.items():   # 088 FR-50
                 t = b["lods"][lod]["body"] + h["tris"][lod]
                 self.assertTrue(lo <= t <= hi, f"{st} LOD{lod} {t}")
 
