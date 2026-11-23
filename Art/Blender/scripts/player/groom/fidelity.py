@@ -15,8 +15,10 @@ RES = 256
 LIMITS = {"closeup": 0.82, "0": 0.82, "1": 0.80}   # T19 재개정: 헤어라인 가늘게(톱니 제거) 뒤 중간 계열 0.833~0.846
 # 088 T17 개정: 장발·묶음·브레이드(계열 long·braid)는 늘어진 다발을 카드로 근사해 마스크 틈이 크다 — 측정 0.66~0.83 → 별도 기준
 LIMITS_LOCKS = {"closeup": 0.65, "0": 0.65, "1": 0.60}
-WIN = 0.25
-VIEWS = {"front": 0.0, "three": 35.0, "side": 90.0}
+WIN = 0.28            # 088 T25: 25 → 28 cm, 중심을 머리 중심 쪽으로 — 옆 시점에서 뒤통수(눈 뒤 18 cm)가 창 밖으로 잘리던 것
+VIEWS = {"front": 0.0, "three": 35.0, "side": 90.0, "back": 180.0}   # 088 FR-55: 뒤 시점 추가
+BACK_COVER_MIN = 0.95  # 088 AC-12 [제안]: 뒤 시점 머리카락 덮임률
+COVER_ERODE = 4        # 헤어라인 가장자리(부드럽게 가늘어지는 1.5 cm 띠의 바깥) 픽셀은 덮임률에서 뺀다 (≈ 4 mm)
 
 
 def _basis(yaw, eye):
@@ -24,7 +26,7 @@ def _basis(yaw, eye):
     d = np.array([math.sin(a), 0.0, math.cos(a)])        # 카메라 → 머리 반대 (선수 정면 +Z에서 바라봄)
     right = np.array([math.cos(a), 0.0, -math.sin(a)])
     up = np.array([0.0, 1.0, 0.0])
-    ctr = eye + np.array([0.0, 0.03, -0.03])
+    ctr = eye + np.array([0.0, 0.03, -0.06])
     return d, right, up, ctr
 
 
@@ -110,6 +112,46 @@ def masks_mesh(R, m, eye, htris):
         _raster(_proj(m.verts, yaw, eye), tris, zr)
         out[v] = zr < zh - 1e-4
     return out
+
+
+def scalp_tris(R, eye, htris):
+    """헤어라인(시안 뿌리 규칙 "full") 안 머리 삼각형."""
+    from . import frame, grow
+    Vb = frame.to_blender(R.verts)
+    C = Vb[htris].mean(axis=1)
+    ok = grow.hairline(C - frame.to_blender(eye), np.tile([0.0, 0.0, 1.0], (len(C), 1)), "full")
+    return htris[ok]
+
+
+def _erode(m, r):
+    out = m.copy()
+    for dy in range(-r, r + 1):
+        for dx in range(-r, r + 1):
+            out &= np.roll(np.roll(m, dy, axis=0), dx, axis=1)
+    return out
+
+
+def back_cover(R, eye, htris, stris, pts=None, mesh=None):
+    """뒤 시점: 보이는 두피(헤어라인 안) 픽셀 중 머리카락이 앞에 있는 비율. pts = 가닥 점, mesh = 헤어 메시."""
+    yaw = VIEWS["back"]
+    Q = _proj(R.verts, yaw, eye)
+    zh = np.full((RES, RES), np.inf)
+    _raster(Q, htris, zh)
+    zs = np.full((RES, RES), np.inf)
+    _raster(Q, stris, zs)
+    scalp = _erode(np.isfinite(zs) & (zs <= zh + 1e-5), COVER_ERODE)
+    zr = np.full((RES, RES), np.inf)
+    if pts is not None:
+        _splat(_proj(pts, yaw, eye), zr, 1)
+    if mesh is not None:
+        tris = []
+        for f in mesh.faces:
+            vs = f[0]
+            for k in range(1, len(vs) - 1):
+                tris.append((vs[0], vs[k], vs[k + 1]))
+        _raster(_proj(mesh.verts, yaw, eye), np.array(tris, dtype=np.int64), zr)
+    n = scalp.sum()
+    return float((scalp & (zr < zh - 1e-4)).sum() / n) if n else 1.0
 
 
 def iou(a, b):
@@ -237,6 +279,10 @@ def evaluate(R, name, s, meshes, atlas_mean_r):
     res["deltaE"] = round(delta_e_atlas(atlas_mean_r), 3)
     gP = S.reshape(-1, 3)
     gP = gP[~np.isnan(gP).any(axis=1)]
+    stris = scalp_tris(R, eye, htris)
+    res["backCover"] = {"groom": round(back_cover(R, eye, htris, stris, pts=gP), 4)}
+    for lod, m in sorted(meshes.items()):
+        res["backCover"][str(lod)] = round(back_cover(R, eye, htris, stris, mesh=m), 4)
     m0 = meshes.get(0)
     if m0 is not None and st.get("part") is not None:
         a, b = part_x(gP, eye, 0.06), part_x(mesh_points(m0), eye, 0.06)
@@ -250,6 +296,8 @@ def evaluate(R, name, s, meshes, atlas_mean_r):
     res["limits"] = lim
     ok = res["approved"] and all(res["iou"].get(k, 0) >= v for k, v in lim.items() if k in res["iou"] or k == "closeup")
     ok &= res["deltaE"] <= 5.0
+    # 088 FR-55·AC-12: 게임에 보이는 메시(LOD0·1)로 판정. 시안 가닥 값은 기록만 — 드레드는 다발 사이 두피가 비치는 게 고유 무늬(가닥 0.947)
+    ok &= all(v >= BACK_COVER_MIN for k, v in res["backCover"].items() if k != "groom")
     # 가르마·앞머리 오차는 기록만 (088 T17 개정: 가닥 끝 백분위 vs 셸 가장자리라 정의가 불안정 — 판정은 E2E 육안)
     res["ok"] = bool(ok)
     return res

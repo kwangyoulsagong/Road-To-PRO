@@ -614,6 +614,7 @@ class BakedMaps062(unittest.TestCase):
 APPROVED_088 = ("Hair_Quiff", "Hair_PartedTwoBlock", "Hair_TexturedCrop", "Hair_Curtains")   # 사진 비교 승인 4종 (스펙 범위)
 FIDELITY_088 = {"closeup": 0.82, "0": 0.82, "1": 0.80}   # FR-11 [제안] (T10·T19 개정)
 FIDELITY_LOCKS_088 = {"closeup": 0.65, "0": 0.65, "1": 0.60}   # 장발·묶음·브레이드 (T17 개정)
+BACK_COVER_088 = 0.95   # AC-12 [제안]: 뒤 시점 머리카락 덮임률 (T25)
 LEGACY_088 = ("hair.py", "hairtex.py")                    # FR-17: 지워져야 하는 옛 모듈
 MH_DIR = os.path.join(_path.REPO, "Art", "ThirdParty", "MakeHuman")
 
@@ -678,6 +679,10 @@ class Hair088_GroomFidelity(unittest.TestCase):
             for tier, lo in lim.items():
                 self.assertGreaterEqual(m["iou"][tier], lo, (st, tier))
             self.assertLessEqual(m["deltaE"], 5.0, st)   # 가르마·앞머리 오차는 기록만 (T17 개정)
+            for tier, cov in m["backCover"].items():      # 088 FR-55·AC-12: 뒤통수 구멍 없음 (T25) — 게임 메시만, 시안 가닥은 기록
+                if tier != "groom":
+                    self.assertGreaterEqual(cov, BACK_COVER_088, (st, tier))
+            self.assertIn("back", m["views"]["0"], st)
 
 
 class Legacy088_None(unittest.TestCase):

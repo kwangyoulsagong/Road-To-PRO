@@ -386,6 +386,14 @@ def build(R, name, lod, s):
     drop = face_dir & ((env - s["skin"] > FACE_GAP) | (hp[:, 1] < c_eye[1] - 0.005))   # 눈 높이 아래 얼굴 앞면은 셸 없음
     env[drop] = 0.0
     hair &= ~drop
+    # 088 T25 (FR-55): 헤어라인 안 두피에 닿는 방향은 항상 최소 셸 — 다발(드레드 등) 사이로 가닥 점이 적은 방향이 비어 뒤통수에 구멍이 났다.
+    # 뿌리는 모든 스타일이 같은 헤어라인("full")에 심긴다. 페이드는 두께 밀도라 얇은 최소 셸은 비친다(062 FR-42 유지)
+    from . import grow as GG
+    mg, ear = GG.margin_of(frame.to_blender(hp - s["eye"]), "full")
+    # 뒤통수 방향(D_z < −0.2)만 — 앞·옆(귀 둘레는 시안 뿌리 제외 영역이 헤어라인 "full"보다 넓다)에 깔면 정면 윤곽에 셸이 덧붙어 승인 스타일 IoU가 떨어졌다
+    scalp = (s["skin"] > 0) & ~face_dir & (mg > 0) & ~ear & (D[:, 2] < -0.2)
+    env = np.where(scalp & ~hair, s["skin"] + MIN_T, env)
+    hair |= scalp
     for _ in range(4):                                            # 구멍 메우기 (이웃 대부분이 머리카락)
         add = [i for i in range(len(D)) if not hair[i] and not face_dir[i] and sum(hair[j] for j in nb[i]) >= 0.6 * len(nb[i])]
         for i in add:
@@ -398,7 +406,11 @@ def build(R, name, lod, s):
     # 062 규칙: 머리카락이 눈 − 1.62 d 아래로 내려가면 목 아래·윗가슴·어깨를 뚫는다(머리 뼈에 묶여 고개를 돌리면 더) → 셸·카드를 그 높이에서 자른다
     cut_y = c_eye[1] - CUT_D * d_eye
     shell_cut = np.where(D[:, 2] < -0.3, c_eye[1] - CUT_D_BACK * d_eye, cut_y)   # 머리 뒤는 더 높게 (GK 동작 등·목 관통)
-    hair &= (ctr[1] + D[:, 1] * env) >= shell_cut
+    # 088 T25: 자름 높이 아래로 나가는 방향은 빼지 않고 반지름을 그 높이까지 줄인다 — 부푼 장발에서 방향을 통째로 빼 목덜미 두피가 드러났다
+    down = (D[:, 1] < -1e-6) & (D[:, 2] < 0.0)                 # 뒤쪽 반구만 (앞·옆은 1차 승인 실루엣 그대로 — 줄인 셸이 얼굴 옆에 남아 정면 IoU가 떨어졌다)
+    env_cap = np.where(down, (ctr[1] - shell_cut) / np.where(down, -D[:, 1], 1.0), np.inf)
+    env = np.where(hair & (env > env_cap) & (env_cap >= s["skin"] + MIN_T), env_cap, env)
+    hair &= (ctr[1] + D[:, 1] * env) >= shell_cut - 1e-6
     faces = [tuple(f) for f in Fc if hair[f].all()]
     ids = sorted({v for f in faces for v in f})
     remap = {v: i for i, v in enumerate(ids)}

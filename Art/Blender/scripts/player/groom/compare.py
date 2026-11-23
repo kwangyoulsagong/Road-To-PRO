@@ -1,4 +1,4 @@
-"""그루밍 시안 렌더·비교 (specs/088 FR-20 절차 ②, T09). 게임 기준 선수(MPFB) 머리에 스타일을 그루밍해 Cycles로 정면·3/4·옆을 찍는다.
+"""그루밍 시안 렌더·비교 (specs/088 FR-20 절차 ②, T09). 게임 기준 선수(MPFB) 머리에 스타일을 그루밍해 Cycles로 정면·3/4·옆·뒤를 찍는다.
 참고 사진은 인자로만 받고(레포·증거에 저장 안 함) 나란히 붙인 비교 이미지를 출력 폴더에 만든다.
 실행: Blender --background --python player/groom/compare.py -- <출력 폴더> <스타일[,스타일…]> [--density 0.5] [--ref <사진>]"""
 import math
@@ -97,7 +97,7 @@ def render_views(out, name, eye, prefix=""):
     sc = bpy.context.scene
     cam = sc.camera
     files = []
-    for view, yaw in (("front", 0.0), ("three", 35.0), ("side", 90.0)):
+    for view, yaw in (("front", 0.0), ("three", 35.0), ("side", 90.0), ("back", 180.0)):   # 088 FR-55·57: 뒤 시점
         tgt = Vector((eye[0], eye[1] + 0.03, eye[2] + 0.03))
         a, dd = math.radians(yaw), 0.95
         cam.location = (tgt.x - dd * math.sin(a), tgt.y - dd * math.cos(a), tgt.z + 0.04)
