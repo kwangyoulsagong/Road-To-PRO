@@ -80,14 +80,23 @@ def texture_budget(textures):
 
 
 def budgets(meshes, parts, textures):
-    """LOD 삼각형 = 몸 + 가장 무거운 헤어 조각 (FR-60). 머리 몫 = Head 관절 위 면(몸 LOD0)."""
+    """LOD 삼각형 = 몸 + 가장 무거운 헤어 조각 (FR-60) + LOD0·클로즈업은 가장 무거운 눈썹 + 속눈썹 (088 FR-53).
+    머리 몫 = Head 관절 위 면(몸 LOD0)."""
+    from . import browlash as BL
     from . import hairstyles as H
     from . import headlod as HL
     out = {"ok": True, "lods": {}, "textures": textures}
     hy = S.HEAD["Head"][1]
+
+    def brow_lash(suffix):
+        if f"{BL.LASH}_{suffix}" not in parts:
+            return 0
+        return max(_tris(parts[f"{b}_{suffix}"]) for b in BL.BROWS) + _tris(parts[f"{BL.LASH}_{suffix}"])
+    bl = {"0": brow_lash("LOD0"), "closeup": brow_lash("Closeup")}
+    out["browLash"] = bl
     for lod, m in sorted(meshes.items()):
         hair = max(_tris(parts[f"{st}_LOD{lod}"]) for st in H.MESH_STYLES)
-        tris = m.triangles + hair
+        tris = m.triangles + hair + (bl["0"] if lod == 0 else 0)
         lo, hi = TRI_BUDGET[lod]
         mats = len({f[1] for f in m.faces})
         head = _tris(m, lambda f: m.verts[list(f[0]), 1].mean() > hy)
@@ -102,14 +111,15 @@ def budgets(meshes, parts, textures):
                     out["uvOutOfRange"] = True
     hc = parts[HL.NAME].triangles
     hair0 = max(_tris(parts[f"{st}_LOD0"]) for st in H.MESH_STYLES) if 0 in meshes else 0
-    out["headCloseup"] = {"triangles": hc, "withHairMax": hc + hair0, "ok": hc + hair0 <= CLOSEUP_MAX}
-    out["ok"] &= hc + hair0 <= CLOSEUP_MAX
+    cmax = hc + hair0 + bl["closeup"]
+    out["headCloseup"] = {"triangles": hc, "browLash": bl["closeup"], "withHairMax": cmax, "ok": cmax <= CLOSEUP_MAX}
+    out["ok"] &= cmax <= CLOSEUP_MAX
     # 062 FR-81: 스타일마다 몸 + 그 헤어 조각이 LOD 예산 안(가장 무거운 헤어만 보던 것을 스타일별로)
     style_tot = {}
     # 057 스타일별: 헤어 삼각형(LOD별), 카드 삼각형 — 클로즈업 머리는 LOD0 헤어 조각을 그대로 쓴다(056 구조)
     out["hair"] = {}
     for st in H.MESH_STYLES:
-        rec = {"tris": {}, "cards": {}, "closeup": hc + (_tris(parts[f"{st}_LOD0"]) if 0 in meshes else 0)}   # 088: 머리 + 그 헤어
+        rec = {"tris": {}, "cards": {}, "closeup": hc + bl["closeup"] + (_tris(parts[f"{st}_LOD0"]) if 0 in meshes else 0)}   # 088: 머리 + 눈썹·속눈썹 + 그 헤어
         for lod in sorted(meshes):
             hm = parts[f"{st}_LOD{lod}"]
             rec["tris"][str(lod)] = hm.triangles
@@ -117,7 +127,7 @@ def budgets(meshes, parts, textures):
         rec["cards"]["closeup"] = rec["cards"].get("0", 0)
         ok = rec["tris"].get("0", 0) <= HAIR_LOD0_MAX and (0 not in meshes or 0 <= rec["cards"]["0"] <= H.card_max())   # 088: 봉투 셸이 실루엣을 맡아 카드 0도 허용
         ok &= all(rec["cards"][str(l)] == 0 for l in sorted(meshes) if l > 0)
-        tot = {str(l): meshes[l].triangles + rec["tris"][str(l)] for l in sorted(meshes)}
+        tot = {str(l): meshes[l].triangles + rec["tris"][str(l)] + (bl["0"] if l == 0 else 0) for l in sorted(meshes)}
         rec["lodTotals"] = tot
         ok &= all(TRI_BUDGET[l][0] <= tot[str(l)] <= TRI_BUDGET[l][1] for l in sorted(meshes))
         style_tot[st] = tot
@@ -1130,3 +1140,31 @@ def face062(R, mm, closeup, face_json, skin_metrics):
             "baseHeads": face_base_heads(R, face_json),
             "beards": skin_metrics.get("beards", {}),
             "expressions": face_expressions(R, mm, closeup)}
+
+
+BROW_AREA_RATIO = (0.8, 1.25)   # 088 FR-53 [제안]: LOD0 띠 정면 덮임 / 원본 (실루엣 유지)
+BROW_SINK_MAX = 0.03            # 088 [제안]: 표정·눈썹 얼굴 축에서 피부 안 1 mm 넘는 정점 비율 증가 상한 (쉬는 얼굴 대비)
+
+
+def brow_lash(R, parts, key_sets):
+    """088 FR-53 (T28): 눈썹 3종·속눈썹 — 클로즈업 원본·LOD0 띠 존재, LOD0 정면 덮임 비율, 키 조합에서 피부에 박히지 않음."""
+    from . import browlash as BL
+    out = {"ok": True, "parts": {}}
+    for nm in BL.names():
+        c, l0 = parts.get(f"{nm}_Closeup"), parts.get(f"{nm}_LOD0")
+        if c is None or l0 is None:
+            out["ok"] = False
+            out["parts"][nm] = {"missing": True}
+            continue
+        ratio = BL.front_area(l0) / max(BL.front_area(c), 1e-12)
+        rec = {"closeup": c.triangles, "lod0": l0.triangles, "areaRatio": round(ratio, 3),
+               "ok": BROW_AREA_RATIO[0] <= ratio <= BROW_AREA_RATIO[1]}
+        out["parts"][nm] = rec
+        out["ok"] &= rec["ok"]
+    depth = BL.skin_depth(R, B._ref_tree(R), key_sets)
+    for nm, d in depth.items():
+        d["ok"] = d["worst"] - d["rest"] <= BROW_SINK_MAX
+        out["parts"].setdefault(nm, {})["sink"] = d
+        out["ok"] &= d["ok"]
+    out["cases"] = len(key_sets)
+    return out

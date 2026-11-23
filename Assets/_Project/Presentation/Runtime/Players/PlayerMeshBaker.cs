@@ -26,7 +26,13 @@ namespace RoadToPro.Presentation.Players
         /// <summary>
         /// body(필수)와 hair(없으면 null)를 weights(블렌드셰이프 이름 → 0~1)로 굽는다. 두 메시는 같은 뼈대(같은 bindposes)여야 한다.
         /// </summary>
-        public static Mesh Bake(Mesh body, Mesh hair, IReadOnlyDictionary<string, float> weights, string name = null)
+        public static Mesh Bake(Mesh body, Mesh hair, IReadOnlyDictionary<string, float> weights, string name = null) =>
+            Bake(body, hair != null ? new[] { hair } : Array.Empty<Mesh>(), weights, name);
+
+        /// <summary>
+        /// body와 덧붙일 조각들(헤어·눈썹·속눈썹, 088 FR-53 — 순서대로)을 weights로 굽는다. 조각은 Body 서브메시(0)에 합친다.
+        /// </summary>
+        public static Mesh Bake(Mesh body, IReadOnlyList<Mesh> extras, IReadOnlyDictionary<string, float> weights, string name = null)
         {
             if (body == null) throw new ArgumentNullException(nameof(body));
             if (PlaybackActive)
@@ -34,9 +40,15 @@ namespace RoadToPro.Presentation.Players
                 BakesDuringPlayback++;
                 Debug.LogWarning("[players] 재생 중 메시 굽기 — 로딩 단계에서 해야 한다");
             }
-            var parts = hair != null ? new[] { body, hair } : new[] { body };
-            if (hair != null && hair.bindposeCount != body.bindposeCount)
-                throw new InvalidOperationException($"뼈대가 다르다: {body.name} {body.bindposeCount} vs {hair.name} {hair.bindposeCount}");
+            var parts = new List<Mesh>(1 + (extras?.Count ?? 0)) { body };
+            if (extras != null)
+                foreach (var x in extras)
+                {
+                    if (x == null) continue;
+                    if (x.bindposeCount != body.bindposeCount)
+                        throw new InvalidOperationException($"뼈대가 다르다: {body.name} {body.bindposeCount} vs {x.name} {x.bindposeCount}");
+                    parts.Add(x);
+                }
 
             int total = 0;
             foreach (var m in parts) total += m.vertexCount;
@@ -94,7 +106,7 @@ namespace RoadToPro.Presentation.Players
                 for (int sm = 0; sm < m.subMeshCount; sm++)
                 {
                     var t = m.GetTriangles(sm);
-                    var dst = m == body && sm == 1 ? tris1 : tris0; // 몸 서브메시 1 = Kit, 나머지(몸 0·헤어 전부) = Body
+                    var dst = m == body && sm == 1 ? tris1 : tris0; // 몸 서브메시 1 = Kit, 나머지(몸 0·헤어·눈썹·속눈썹 전부) = Body
                     for (int i = 0; i < t.Length; i++) dst.Add(t[i] + off);
                 }
                 using (var per = m.GetBonesPerVertex())

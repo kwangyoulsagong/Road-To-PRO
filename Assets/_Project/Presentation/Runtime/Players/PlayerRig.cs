@@ -75,10 +75,10 @@ namespace RoadToPro.Presentation.Players
                     rig._suitSrc[smr.name[smr.name.Length - 1] - '0'] = smr.sharedMesh;
                     smr.enabled = false; // 정장 몸 LOD는 ApplyOutfit 굽기 재료
                 }
-                else if (smr.name.StartsWith("Hair_"))
+                else if (smr.name.StartsWith("Hair_") || smr.name.StartsWith("Brow_") || smr.name.StartsWith(PlayerLook.LashMesh + "_"))
                 {
                     rig._parts[smr.name] = smr;
-                    smr.enabled = false; // 헤어 조각은 굽기 재료 — 직접 그리지 않는다
+                    smr.enabled = false; // 헤어·눈썹·속눈썹 조각은 굽기 재료 — 직접 그리지 않는다 (088 FR-53)
                 }
             }
             rig._suitMask = bodyTex.suitMask;
@@ -517,21 +517,25 @@ namespace RoadToPro.Presentation.Players
                 if (m != null) Release(m);
             _baked.Clear();
             string hair = PlayerLook.HairMeshes[a.HairStyle];
+            string brow = PlayerLook.BrowMeshes[Mathf.Clamp(a.Eyebrow, 0, PlayerLook.BrowMeshes.Length - 1)];
+            var extras = new List<Mesh>(3);
             for (int l = 0; l < 3; l++)
             {
                 if (_lods[l] == null || _srcLods[l] == null) continue;
-                Mesh hm = null;
-                if (hair != null && _parts.TryGetValue($"{hair}_LOD{l}", out var hs)) hm = hs.sharedMesh;
-                var baked = PlayerMeshBaker.Bake(_srcLods[l], hm, w, $"Player_LOD{l} (baked)");
+                extras.Clear();
+                if (hair != null && _parts.TryGetValue($"{hair}_LOD{l}", out var hs)) extras.Add(hs.sharedMesh);
+                if (l == 0) AddPart(extras, brow + "_LOD0", PlayerLook.LashMesh + "_LOD0");   // 088 FR-53: LOD1·2는 피부 마스크
+                var baked = PlayerMeshBaker.Bake(_srcLods[l], extras, w, $"Player_LOD{l} (baked)");
                 _baked.Add(baked);
                 _lods[l].sharedMesh = baked;
                 // localBounds는 루트 뼈 기준 — 임포트 값 유지(메시 좌표 bounds를 넣으면 머리가 컬링된다)
             }
             if (_closeup != null && _closeupSrc != null)
             {
-                Mesh hm = null;
-                if (hair != null && _parts.TryGetValue($"{hair}_LOD0", out var hs)) hm = hs.sharedMesh;
-                var baked = PlayerMeshBaker.Bake(_closeupSrc, hm, w, "Head_Closeup (baked)");
+                extras.Clear();
+                if (hair != null && _parts.TryGetValue($"{hair}_LOD0", out var hs)) extras.Add(hs.sharedMesh);
+                AddPart(extras, brow + "_Closeup", PlayerLook.LashMesh + "_Closeup");   // 088 FR-53: 원본 눈썹·속눈썹
+                var baked = PlayerMeshBaker.Bake(_closeupSrc, extras, w, "Head_Closeup (baked)");
                 _baked.Add(baked);
                 _closeup.sharedMesh = baked;
                 // localBounds는 루트 뼈 기준 — 임포트 값 유지(메시 좌표 bounds를 넣으면 머리가 컬링된다)
@@ -576,6 +580,12 @@ namespace RoadToPro.Presentation.Players
                 _closeupOn = false;
                 SetCloseup(true);
             }
+        }
+
+        void AddPart(List<Mesh> dst, params string[] names)
+        {
+            foreach (var n in names)
+                if (_parts.TryGetValue(n, out var p) && p.sharedMesh != null) dst.Add(p.sharedMesh);
         }
 
         // ---------------------------------------------------------------- 062 FR-27 정장

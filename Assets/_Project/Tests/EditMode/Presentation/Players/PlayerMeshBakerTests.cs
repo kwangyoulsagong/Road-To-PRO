@@ -125,6 +125,28 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         }
 
         [Test]
+        public void Bake_Extras_MergedIntoBodySubmesh()
+        {
+            // 088 FR-53 (T28): 헤어·눈썹·속눈썹 등 여러 조각을 순서대로 Body 서브메시(0)에 합친다 (Kit 서브메시 1은 몸만)
+            var root = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Presentation/Players/Generated/player.glb");
+            var smrs = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            var body = smrs.First(s => s.name == "Player_LOD0").sharedMesh;
+            var a = smrs.First(s => s.name == "Hair_Short_LOD0").sharedMesh;
+            var b = smrs.First(s => s.name == "Hair_Afro_LOD0").sharedMesh;
+            var baked = PlayerMeshBaker.Bake(body, new[] { a, b }, new Dictionary<string, float>(), "t");
+            try
+            {
+                Assert.AreEqual(body.vertexCount + a.vertexCount + b.vertexCount, baked.vertexCount);
+                Assert.AreEqual(body.GetTriangles(0).Length + a.triangles.Length + b.triangles.Length, baked.GetTriangles(0).Length);
+                Assert.AreEqual(body.GetTriangles(1).Length, baked.GetTriangles(1).Length);
+                var one = PlayerMeshBaker.Bake(body, a, new Dictionary<string, float>(), "t1");   // 헤어 하나 오버로드 = 목록 하나
+                Assert.AreEqual(body.vertexCount + a.vertexCount, one.vertexCount);
+                Object.DestroyImmediate(one);
+            }
+            finally { Object.DestroyImmediate(baked); }
+        }
+
+        [Test]
         public void Closeup_TogglesHeadRendererAndHideHead()
         {
             var rig = Rig(11, out _, out _);

@@ -29,6 +29,13 @@ namespace RoadToPro.Presentation.Players
         /// <summary>088 FR-02: 눈썹 종류(PlayerAppearance.Eyebrow 0~2) → brow_mask 채널 선택 (R 02 · G 04 · B 09, A 속눈썹은 항상).</summary>
         public static readonly Vector4[] BrowChannels = { new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0) };
 
+        /// <summary>088 FR-53 (T28): 눈썹 종류(PlayerAppearance.Eyebrow 0~2) → 눈썹 메시 조각 이름 접두(생성기 browlash.BROWS).
+        /// LOD0은 "_LOD0"(띠), 클로즈업은 "_Closeup"(원본). LOD1·2는 메시 없이 brow_mask.</summary>
+        public static readonly string[] BrowMeshes = { "Brow_02", "Brow_04", "Brow_09" };
+
+        /// <summary>088 FR-53 (T28): 속눈썹 메시 조각 이름 접두 (모든 선수 같음).</summary>
+        public const string LashMesh = "Lash";
+
         /// <summary>헤어 색 (AppearanceGenerator.HairColors 순서): 검정 · 진갈색 · 갈색 · 금발 · 적갈색 · 회색 + 062 FR-53 탈색 금발 · 백금.</summary>
         public static readonly Color[] HairColors =
         {

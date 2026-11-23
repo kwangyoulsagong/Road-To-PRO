@@ -140,6 +140,9 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
         summary["suit"] = SU.summary(clips, suits, pm)  # 062 FR-27·AC-15 (test_suit)
     from player import mhassets as MHA
     summary["mhFace"] = F.mh_face_summary(R)          # 088 AC-01
+    if 0 in mm:                                         # 088 FR-53 (T28): 눈썹·속눈썹 메시
+        brow_keys = eye_keys + [{k: 1.0} for k in sorted(R.extra_deltas) if k.startswith(B.EXPR_PREFIX)]
+        summary["browLash"] = checks.brow_lash(R, pm, brow_keys)
     if 0 in mm:                                         # 088 AC-03: 시안 대비 충실도 (그루밍 굽기 스타일)
         from player.groom import bake as GB, fidelity as GF, styles as GS
         from player import visual_metrics as VM2

@@ -252,9 +252,15 @@ def _ramp(x, w):
     return t * t * (3 - 2 * t)
 
 
+def _soft_ellipse(rx, ry, cx, cy, ax, ay, w):
+    """타원 안 1 → 밖 0, 경계는 정규화 반지름 1 ± w에서 부드럽게 (088 T28 수염 영역 — 직선 경계 없음)."""
+    e = np.sqrt(((rx - cx) / ax) ** 2 + ((ry - cy) / ay) ** 2)
+    return _ramp(1.0 + w - e, 2.0 * w)
+
+
 def beard_masks(R, p):
     """062 FR-66 수염 영역 4개 {full, mustache, goatee, heavy} (0~1). full = 057 beard_mask 그대로(턱·볼·입 둘레),
-    heavy = full을 볼 위로 조금 넓힌 진한 스텁블, mustache = 윗입술 위 띠(입꼬리에서 살짝 내려옴), goatee = 턱 + 콧수염 + 입꼬리 연결.
+    heavy = full을 볼 위로 조금 넓힌 진한 스텁블, mustache = 윗입술을 따라 휘는 띠(입꼬리에서 내려오며 가늘어짐), goatee = 턱 타원 + 콧수염 + 입꼬리 타원(088 T28: 직선 경계 사각형 → 곡선·타원).
     경계는 057처럼 넓게 흐린다. 콧수염·염소수염은 볼(입꼬리 바깥 0.6d 넘게)에 번지지 않는다(볼 밀도 ≤ 0.01)."""
     c, d = eye_frame(R)
     x, y, z = p[..., 0], p[..., 1], p[..., 2]
@@ -268,14 +274,16 @@ def beard_masks(R, p):
     heavy = np.clip((top - ry) / 0.30, 0, 1) * np.clip((ry - (-2.55 + 0.75 * sx ** 1.3)) / 0.30, 0, 1)
     lip = ((rx / 0.40) ** 2 + ((ry + 1.50) / 0.10) ** 2)
     heavy = heavy * np.clip((lip - 1.0) / 0.6, 0, 1) * front * np.clip((1.30 - rx) / 0.25, 0, 1) * 0.9
-    # 콧수염: 윗입술 위 (ry −1.42 ~ −1.10), 가로 ≤ 0.52d, 입꼬리에서 −1.55까지 살짝 내려온다. 경계 경사 ≥ 0.12d (057 흐린 경계)
-    droop = 0.25 * np.clip((rx - 0.30) / 0.20, 0, 1)
-    must = (_ramp(ry - (-1.46 - droop), 0.14) * _ramp(-1.06 - ry, 0.14) * _ramp(0.56 - rx, 0.14))
+    # 088 T28: 가로·세로 경사를 곱한 사각형(062)은 턱·입 둘레에 네모 블록으로 보였다(시안 비교) → 곡선 띠·타원 + 부드러운 합집합.
+    # 콧수염: 윗입술 위를 따라 휘는 띠(가운데 ry −1.30, 입꼬리 쪽으로 내려와 −1.55), 가운데 두께 ±0.17d → 가로 0.62d에서 가늘어져 끝난다
+    yc = -1.22 - 0.45 * rx ** 2 - 0.25 * _ramp(rx - 0.35, 0.20)
+    half = 0.24 * np.sqrt(np.clip(1.0 - (rx / 0.62) ** 2, 0, 1)) + 0.02
+    must = _ramp(half - np.abs(ry - yc), 0.30)
     must = must * np.clip((lip - 1.0) / 0.8, 0, 1) * front
-    # 염소수염: 턱(ry −2.40 ~ −1.60, 가로 ≤ 0.46d) + 입꼬리 세로 띠(0.32~0.54d) + 콧수염
-    chin = _ramp(ry - (-2.42), 0.16) * _ramp(-1.58 - ry, 0.14) * _ramp(0.48 - rx, 0.14)
-    side = _ramp(rx - 0.30, 0.10) * _ramp(0.56 - rx, 0.10) * _ramp(ry - (-1.80), 0.12) * _ramp(-1.36 - ry, 0.12)
-    goat = np.maximum(np.maximum(chin, side), must) * np.clip((lip - 1.0) / 0.8, 0, 1) * front
+    # 염소수염: 턱 타원(가운데 ry −2.0, 반지름 0.44d × 0.42d) + 입꼬리 세로 타원(콧수염과 턱을 잇는다) + 콧수염, 경계는 반지름의 ±30 %로 흐림
+    chin = _soft_ellipse(rx, ry, 0.0, -2.00, 0.44, 0.42, 0.40)
+    side = _soft_ellipse(rx, ry, 0.45, -1.68, 0.12, 0.26, 0.45)
+    goat = (1.0 - (1.0 - chin) * (1.0 - side) * (1.0 - must)) * np.clip((lip - 1.0) / 0.8, 0, 1) * front
     return {"full": full, "mustache": must, "goatee": goat, "heavy": heavy}
 
 

@@ -8,6 +8,7 @@
 //       눈은 매끈한 정반사, 머리카락은 Kajiya-Kay 이방성 하이라이트(가닥 = UV v 방향). 시간 의존 항 없음.
 // 062 FR-02·12·32·33·91·97: 근육·손 구운 노멀(_MuscleN, 피부 UV)·차폐(_MuscleAO), 피부 두께(_ThicknessTex R: 귀·코끝·손가락 끝 역광 비침),
 //       땀(_ThicknessTex G 부위 거칠기 − 0.04 × _Sweat, 정반사 ≤ 1.3배), 젖음(_Wetness, 078 입력).
+// 088 FR-53: 피부 정점의 UV1.y = 1(LOD0·클로즈업)이면 눈썹·속눈썹 마스크를 끈다(원본 메시가 그린다).
 // 062 FR-42·43·54: UV1(HairData, 헤어 메시만 — 몸은 (1, 0)) x = 밀도 → 카드 알파처럼 화면 디더 클립(페이드 아래는 피부가 비친다,
 //       모든 패스 같게), y = 컬러 포인트 마스크 → _HairColor(뿌리·옆) ↔ _HairColor2(위·끝). 결 계열 이방성: parts 거칠기(A, 088 groom.atlas 결 타일)가
 //       클수록(코일·브레이드·드레드) Kajiya-Kay 지수를 낮춰 하이라이트를 덜 날카롭게.
@@ -212,9 +213,11 @@ Shader "RoadToPro/PlayerBody"
                 half sLum = dot(s.rgb, half3(0.2126h, 0.7152h, 0.0722h));
                 // 088 FR-02: 눈썹·속눈썹 = MakeHuman 프록시를 구운 덮임 마스크 × 머리색 (속눈썹은 더 어둡게)
                 half4 brow = SAMPLE_TEXTURE2D(_BrowMask, sampler_BrowMask, frac(i.uv));
-                half bcov = saturate(dot(brow.rgb, _BrowChannel.rgb) * 1.6h) * (1.0h - isPart);
+                // 088 FR-53 (T28): LOD0·클로즈업 피부 정점은 UV1.y = 1(눈썹·속눈썹 메시가 그린다) → 마스크 끔. LOD1·2 몸은 (1, 0)
+                half browOn = (1.0h - isPart) * (1.0h - saturate(i.hd.y));
+                half bcov = saturate(dot(brow.rgb, _BrowChannel.rgb) * 1.6h) * browOn;
                 skin = lerp(skin, _HairColor.rgb * 0.45h, bcov * 0.9h);   // 눈썹은 머리색보다 어둡게
-                skin = lerp(skin, half3(0.03h, 0.025h, 0.02h), brow.a * 0.8h * (1.0h - isPart));
+                skin = lerp(skin, half3(0.03h, 0.025h, 0.02h), brow.a * 0.8h * browOn);
                 // 057 FR-24: 수염 = 밀도(s.b)의 부드러운 문턱(경계 흐림) × 종류별 덮임. 짧을수록 피부가 비치는 옅은 색조(잔털), 길수록 짙다.
                 // 062 FR-66: 밀도 = 수염 영역 마스크(beard_mask0)에서 종류별 채널 하나 — 없으면 057 피부 B(full)
                 half lvl = _BeardLevel;

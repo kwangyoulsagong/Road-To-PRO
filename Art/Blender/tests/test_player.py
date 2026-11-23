@@ -641,6 +641,23 @@ class Face088_MakeHumanAssets(unittest.TestCase):
         self.assertLessEqual(tb["estimatedMB"], 195.0 * 1.20)   # FR-04 [제안] 062 대비 +20 % (T04 개정)
 
 
+class BrowLash088(unittest.TestCase):
+    """088 FR-53 (T28): 눈썹 3종·속눈썹 메시 — 클로즈업 원본·LOD0 띠, LOD0 정면 덮임 ≈ 원본, 표정·얼굴 축에서 피부에 박히지 않음."""
+
+    def test_brow_lash(self):
+        s = generated("default").layout["summary"]
+        bl = s["browLash"]
+        self.assertTrue(bl["ok"], bl)
+        self.assertEqual(sorted(bl["parts"]), ["Brow_02", "Brow_04", "Brow_09", "Lash"])
+        for nm, rec in bl["parts"].items():
+            self.assertGreater(rec["closeup"], rec["lod0"], nm)          # 클로즈업 = 원본 가닥, LOD0 = 띠
+            self.assertTrue(0.8 <= rec["areaRatio"] <= 1.25, (nm, rec))
+            self.assertLessEqual(rec["sink"]["worst"] - rec["sink"]["rest"], 0.03, (nm, rec))
+        b = s["budgets"]
+        self.assertGreater(b["browLash"]["closeup"], 40_000)               # 원본 눈썹(최대) + 속눈썹
+        self.assertEqual(b["headCloseup"]["browLash"], b["browLash"]["closeup"])
+
+
 class Licenses088_MakeHuman(unittest.TestCase):
     """088 AC-02: 쓴 MakeHuman 파일 = assets.json(sha256), 전부 CC0, LICENSES.csv 기록, 압축 파일·사진 없음."""
 
