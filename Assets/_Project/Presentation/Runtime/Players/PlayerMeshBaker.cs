@@ -73,6 +73,10 @@ namespace RoadToPro.Presentation.Players
                 for (int s = 0; s < m.blendShapeCount; s++)
                 {
                     string key = m.GetBlendShapeName(s);
+                    // 088 T29: 쓰지 않는 키(가중치 0)는 델타를 읽지 않는다 — 클로즈업 원본 눈썹·속눈썹·가닥 카드 헤어로 정점이 늘어 25명 굽기가 2배 가까이 됐다
+                    bool keep = key == HideHead || Array.IndexOf(RoadToPro.Presentation.Players.Logic.ExpressionLogic.Keys, key) >= 0
+                        || (weights.TryGetValue(key, out float kw) && kw != 0f);
+                    if (!keep) continue;
                     int fr = m.GetBlendShapeFrameCount(s) - 1;
                     m.GetBlendShapeFrameVertices(s, fr, delta, null, null);
                     // glTFast 프레임 가중치는 1 (FBX 관례 100이 아님) → 델타 = 프레임 델타 / 프레임 가중치
@@ -161,6 +165,7 @@ namespace RoadToPro.Presentation.Players
                 gid[i] = g;
             }
             var acc = new Vector3[group.Count];
+            var own = new Vector3[v.Length];   // 088 T29: 용접 합이 0인 자리(얇은 가닥 관·눈물샘처럼 앞뒤 면이 붙은 곳)는 정점 자기 면 법선으로
             void Add(List<int> t)
             {
                 for (int i = 0; i + 2 < t.Count; i += 3)
@@ -170,12 +175,23 @@ namespace RoadToPro.Presentation.Players
                     acc[gid[t[i]]] += n;
                     acc[gid[t[i + 1]]] += n;
                     acc[gid[t[i + 2]]] += n;
+                    own[t[i]] += n;
+                    own[t[i + 1]] += n;
+                    own[t[i + 2]] += n;
                 }
             }
             Add(a);
             Add(b);
             var outN = new Vector3[v.Length];
-            for (int i = 0; i < v.Length; i++) outN[i] = acc[gid[i]].normalized;
+            for (int i = 0; i < v.Length; i++)
+            {
+                // Vector3.normalized는 길이 < 1e-5면 0 벡터 → 면적 가중 합이 작은 가는 가닥(눈썹 관 변 ≈ 0.1 mm, 면 법선 길이 ≈ 1e-8)·
+                // 앞뒤 면이 붙어 합이 0인 자리(눈물샘)에서 법선 0 → 셰이더 정규화가 NaN(검은 픽셀). 길이로 직접 나누고, 0이면 자기 면 법선 → 위쪽
+                var n = acc[gid[i]];
+                float mag = n.magnitude;
+                if (mag < 1e-20f) { n = own[i]; mag = n.magnitude; }
+                outN[i] = mag < 1e-20f ? Vector3.up : n / mag;
+            }
             return outN;
         }
 

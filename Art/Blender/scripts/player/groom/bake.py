@@ -18,9 +18,15 @@ import numpy as np
 from . import frame, styles
 
 BAKE_VERSION = 8   # build만 바뀌면 올리지 않는다 (요약 캐시 유지)
-SHELL_TRIS = {0: 1300, 1: 380, 2: 120}         # 셸 감량 목표
-CARD_TRIS = {0: 1000, 1: 120, 2: 0}           # 카드 몫 상한 (헤어 LOD0 합계 ≤ HAIR_MAX[0])
-HAIR_MAX = {0: 1900, 1: 450, 2: 150}          # 088 플랜: 헤어 몫 상한
+SHELL_TRIS = {0: 1300, 1: 380, 2: 120}         # 셸 감량 목표 (LOD0은 두피 막)
+CARD_TRIS = {0: 10700, 1: 120, 2: 0}          # 카드 몫 상한 (헤어 LOD0 합계 ≤ HAIR_MAX[0])
+HAIR_MAX = {0: 12000, 1: 450, 2: 150}         # 088 FR-54 (T29) [제안]: LOD0·클로즈업 헤어 ≤ 12k (이전 1.9k), LOD1·2 그대로
+STRAND_CARD_LODS = (0,)                       # 088 FR-54 (T29): 그루밍 가닥을 다발 카드로 (셸은 속심) — LOD1·2는 봉투 셸 + 돌출 카드
+CARD_STRAND_SKIP = ("curl", "coil")          # 곱슬·코일: 다발 중심선이 곧게 뻗어 고슴도치 가시처럼 보인다(T29 렌더) → LOD0도 봉투 셸 + 결 타일
+CARD_STYLE_FORCE = ("Hair_Twists",)           # 코일이지만 꼰 밧줄 다발(드레드처럼 곧게 늘어짐) → 카드 (셸이면 충실도 0.816 < 0.82)
+CORE_IN = 0.004                               # LOD0 속심 셸 = 봉투 − 4 mm (≥ 피부 + CAP_T): 번·묶음 덩어리 부피와 카드 사이 빈틈을 맡는다
+CAP_T = 0.0015                                # 속심 최소 두께 (피부 위)
+CARD_CHORD_MIN = 0.6                          # 다발 카드 후보: 현/호 ≥ 0.6 (번 고리 가닥이 카드가 되면 사방으로 가시 — 속심이 덩어리를 맡는다)
 CARD_SEG = {0: 4, 1: 2}                       # 카드 길이 분할 (삼각형 = 2 × 분할)
 MIN_T = 0.0006
 CUT_D = 1.62                                  # 062: 장발 하한 (눈 높이 − 1.62 × 눈 사이 거리)
@@ -360,6 +366,11 @@ def _inward(P, faces, ctr):
     return out
 
 
+def strand_cards(name, lod):
+    """088 FR-54 (T29): 이 스타일·LOD가 가닥 다발 카드(+ 두피 막)인지."""
+    return lod in STRAND_CARD_LODS and (styles.STYLES[name]["strand"] not in CARD_STRAND_SKIP or name in CARD_STYLE_FORCE)
+
+
 def build(R, name, lod, s):
     """→ body.Mesh (헤어 조각). s = summary()."""
     from mathutils import Vector
@@ -411,6 +422,20 @@ def build(R, name, lod, s):
     env_cap = np.where(down, (ctr[1] - shell_cut) / np.where(down, -D[:, 1], 1.0), np.inf)
     env = np.where(hair & (env > env_cap) & (env_cap >= s["skin"] + MIN_T), env_cap, env)
     hair &= (ctr[1] + D[:, 1] * env) >= shell_cut - 1e-6
+    env_full = env.copy()                                         # 밀도(페이드 두께)는 원래 봉투로
+    if strand_cards(name, lod):                                   # 088 T29: 실루엣은 가닥 카드가 맡고 셸은 두피 막
+        # 카드 후보 가닥(현/호 ≥ CARD_CHORD_MIN)이 지나는 방향만 속심으로 줄인다 — 번처럼 가닥이 고리로 감겨 카드가 없는 덩어리는 봉투 그대로
+        cand = s["strands"].astype(np.float64)
+        arc = np.linalg.norm(np.diff(cand, axis=1), axis=2).sum(axis=1)
+        cand = cand[np.linalg.norm(cand[:, -1] - cand[:, 0], axis=1) > CARD_CHORD_MIN * np.maximum(arc, 1e-6)]
+        covered = np.zeros(len(D), dtype=bool)
+        if len(cand):
+            cp = cand[:, 1::2].reshape(-1, 3)
+            cp = cp[:: max(1, len(cp) // 200000)] - ctr
+            covered[np.unique(_nearest_dirs(D, cp / (np.linalg.norm(cp, axis=1, keepdims=True) + 1e-12)))] = True
+            for _ in range(2):                                    # 이웃 두 고리까지 (카드 폭)
+                covered = covered | np.array([any(covered[j] for j in nb[i]) for i in range(len(D))])
+        env = np.where(hair, np.where(covered, np.maximum(env - CORE_IN, s["skin"] + CAP_T), env), 0.0)
     faces = [tuple(f) for f in Fc if hair[f].all()]
     ids = sorted({v for f in faces for v in f})
     remap = {v: i for i, v in enumerate(ids)}
@@ -455,7 +480,7 @@ def build(R, name, lod, s):
         uvs = tuple((10.0 + tile * 100.0 + 40.0 + float(t3[i]) * k, float(ph[f[i]]) * k) for i in range(3))
         fuv.append((tuple(f), uvs))
     # 밀도: 봉투 두께(봉투 − 피부)가 얇은 곳(페이드·헤어라인)은 피부가 비친다
-    thk = np.array([env[ids][kd.find(Vector(tuple((p - ctr) / (np.linalg.norm(p - ctr) + 1e-12))))[1]]
+    thk = np.array([env_full[ids][kd.find(Vector(tuple((p - ctr) / (np.linalg.norm(p - ctr) + 1e-12))))[1]]
                    - s["skin"][ids][kd.find(Vector(tuple((p - ctr) / (np.linalg.norm(p - ctr) + 1e-12))))[1]] for p in co])
     # 밀도(디더): 페이드 계열만 두께를 따른다(옆·뒤 아래가 비친다, 062 FR-42). 나머지는 꽉 차고, 헤어라인 가장자리 0.8 cm만 부드럽게 비친다
     from player import hairstyles as HSS
@@ -467,13 +492,18 @@ def build(R, name, lod, s):
     budget = min(CARD_TRIS[lod], HAIR_MAX[lod] - m.triangles)
     seg = CARD_SEG.get(lod, 0) if st["strand"] not in ("curl", "coil") else 0   # 곱슬·코일은 카드 없음 (가시처럼 튐) — 셸 + 결 타일
     over = s["over"].astype(np.float64)
-    if len(over):                                                  # 고리·말림 가닥(번·나선)은 카드로 못 펴서 뺀다 — 봉투 셸이 덩어리를 맡는다
+    if strand_cards(name, lod):                                   # 088 T29: 돌출 가닥만이 아니라 모든 가닥 → 다발 카드
+        seg = CARD_SEG[lod]
+        over = s["strands"].astype(np.float64)
+    if len(over):                                                  # 고리·말림 가닥(번·나선)은 카드로 못 펴서 뺀다 — 봉투(속심) 셸이 덩어리를 맡는다
         arc = np.linalg.norm(np.diff(over, axis=1), axis=2).sum(axis=1)
         chord = np.linalg.norm(over[:, -1] - over[:, 0], axis=1)
-        over = over[chord > CHORD_MIN * np.maximum(arc, 1e-6)]
+        over = over[chord > (CARD_CHORD_MIN if strand_cards(name, lod) else CHORD_MIN) * np.maximum(arc, 1e-6)]
     if seg and budget >= 2 * seg and len(over):
         ncard = int(budget // (2 * seg))
         feat = np.concatenate([over[:, over.shape[1] // 2], over[:, -1]], axis=1)
+        if strand_cards(name, lod):                                # 뿌리도 — 다발이 두피 한 자리에서 나오게
+            feat = np.concatenate([over[:, 0], feat], axis=1)
         lab, _ = _cluster(feat, ncard)
         crect = card_rect(st["strand"])
         cards = []
@@ -485,16 +515,23 @@ def build(R, name, lod, s):
             # 평균 중심선은 다발 안 가닥보다 짧다(끝 엇갈림) → 끝 구간을 다발 가닥 길이 80 백분위까지 늘인다 (앞머리 끝 높이 보존)
             gl = np.linalg.norm(np.diff(grp, axis=1), axis=2).sum(axis=1)
             ll = np.linalg.norm(np.diff(line, axis=0), axis=1).sum()
-            if ll > 1e-6:
-                ext = min(EXT_MAX, np.percentile(gl, 80) / ll)
+            front_tip = strand_cards(name, lod) and line[-1, 2] > c_eye[2] - 0.035
+            if ll > 1e-6 and not front_tip:
+                # 088 T29: 다발 카드는 다발 길이 중간값까지만 늘이고, 얼굴 쪽에서 끝나는 다발(앞머리)은 늘이지 않는다
+                # (80 백분위·앞머리까지 늘이면 앞머리 끝이 톱니로 내려오고, 안 늘이면 아프로 잔털 윤곽이 빠진다)
+                ext = min(EXT_MAX, np.percentile(gl, 50 if strand_cards(name, lod) else 80) / ll)
                 if ext > 1.0:
                     tipd = line[-1] - line[-2]
                     line = np.vstack([line[:-1], line[-1] + tipd * (ext - 1.0) * (len(line) - 1)])
             back_cut = np.where(line[:, 2] < ctr[2] - 0.02, c_eye[1] - CUT_D_BACK * d_eye, cut_y)   # 머리 뒤 카드는 더 높게 자른다
             ld = line - ctr
             ld = ld / (np.linalg.norm(ld, axis=1, keepdims=True) + 1e-12)
-            if ((line[:, 1] < c_eye[1] + 0.012) & (line[:, 2] > c_eye[2] - 0.035) & (np.abs(line[:, 0] - c_eye[0]) < 0.07)).any():
-                continue                                             # 얼굴 앞을 지나는 카드는 뺀다 (볼 위 점)
+            in_face = (line[:, 1] < c_eye[1] + 0.012) & (line[:, 2] > c_eye[2] - 0.035) & (np.abs(line[:, 0] - c_eye[0]) < 0.07)
+            if in_face.any():
+                if not strand_cards(name, lod) or int(np.argmax(in_face)) < 2:
+                    continue                                         # 얼굴 앞을 지나는 카드는 뺀다 (볼 위 점)
+                cutf = int(np.argmax(in_face))                       # 088 T29: 다발 카드는 얼굴 앞에 들어서기 전까지만 (얼굴 옆 드레드 다발 유지)
+                line, grp, back_cut = line[:cutf], grp[:, :cutf], back_cut[:cutf]
             keep_pts = line[:, 1] >= back_cut
             if keep_pts.sum() < 2:
                 continue
@@ -510,6 +547,9 @@ def build(R, name, lod, s):
             outw /= np.linalg.norm(outw, axis=1, keepdims=True) + 1e-12
             side = np.cross(tan, outw)
             side /= np.linalg.norm(side, axis=1, keepdims=True) + 1e-12
+            if strand_cards(name, lod):                              # 088 T29: 중심선을 다발 바깥쪽(머리 중심 반대)으로 — 평균선은 바깥 실루엣보다 안쪽
+                radial = ((grp[:, idx] - line[None]) * outw[None]).sum(axis=2)
+                line = line + outw * np.clip(np.percentile(radial, 90, axis=0), 0.0, 0.006)[:, None]   # 바깥 90 백분위·≤ 6 mm (속심 − 4 mm 위 윤곽)
             spread = np.abs(((grp[:, idx] - line[None]) * side[None]).sum(axis=2))
             wdt = np.clip(np.percentile(spread, 80, axis=0) * 2.0, 0.003, CARD_W_MAX)
             wdt[-1] *= 0.6

@@ -349,6 +349,7 @@ namespace RoadToPro.Presentation.Players
         {
             PushExpression(_lods[0]);
             PushExpression(_closeup);
+            RefreshFrozen();
         }
 
         void PushExpression(SkinnedMeshRenderer r)
@@ -373,7 +374,18 @@ namespace RoadToPro.Presentation.Players
             float w = on ? 1f : 0f;
             foreach (var l in _lods)
                 if (l != null && l.sharedMesh != null && l.sharedMesh.blendShapeCount > 0) l.SetBlendShapeWeight(0, w);
+            RefreshFrozen();
             ApplyTierState();   // 062: 등급이 바뀌면 표정·땀 표시도 같이
+        }
+
+        /// <summary>
+        /// 088 T29: Freeze 중(정지 캡처)이면 정적 메시를 다시 굽는다 — 굳힌 뒤 클로즈업을 켜면 HideHead가 꺼진 LOD 렌더러에만 걸려
+        /// 굳힌 LOD0 머리와 클로즈업 머리가 겹쳐 그려졌다(얼굴 두 겹). 표정을 바꿀 때도 같다. 재생 경로(굳히지 않음)는 아무것도 하지 않는다.
+        /// </summary>
+        void RefreshFrozen()
+        {
+            if (_frozen == null || !_frozen.enabled || _lods[0] == null) return;
+            _lods[0].BakeMesh(_frozenMesh, false);
         }
 
         /// <summary>피부 정점(UV u &lt; 1 — 머리카락·눈·카드 제외) 최고 높이 = 정수리 (메시 좌표).</summary>

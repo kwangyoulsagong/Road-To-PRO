@@ -165,6 +165,25 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         }
 
         [Test]
+        public void Closeup_WhileFrozen_FoldsFrozenHead()
+        {
+            // 088 T29: 정지 캡처(Freeze) 뒤 클로즈업을 켜면 굳힌 LOD0 머리도 접혀야 한다 (얼굴 두 겹 결함)
+            var rig = Rig(13, out _, out _);
+            try
+            {
+                rig.Freeze(true);
+                float before = rig.FrozenMesh.vertices.Max(v => v.y);
+                rig.SetCloseup(true);
+                float after = rig.FrozenMesh.vertices.Max(v => v.y);
+                Assert.Less(after, before - 0.05f, "굳힌 메시의 정수리가 접히지 않았다");
+                rig.SetCloseup(false);
+                Assert.AreEqual(before, rig.FrozenMesh.vertices.Max(v => v.y), 1e-4f);
+                rig.Freeze(false);
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
+        }
+
+        [Test]
         public void BakeDuringPlayback_Counted()
         {
             var rig = PlayerRigTests.NewRig();
@@ -187,9 +206,10 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         // 057 AC-10: 하이라이트 로딩 시 선수 25명 굽기 시간 ≤ 056 측정 × 1.2. 062 FR-84: 057 예산(× 1.2) 대비 +30 % (바탕 머리·표정 키·입 안).
         // Mono EditMode ms 값은 부하에 흔들려 5회 최소값으로 판정한다. 056 기준은 057 T03에서 056 산출물로 측정.
         internal const double Bake25Ms056 = 309.5;  // 2026-11-05 056 산출물, Mono EditMode 5회 최소
+        internal const double Bake25Ms088 = 1000.0; // 088 T29 [제안] (사용자 승인 2026-11-23)
 
         [Test]
-        public void Bake25Players_Time_Within057Plus30()
+        public void Bake25Players_Time_Within088Budget()
         {
             var data = FaceGeneratorTests.Data;
             var rigs = new PlayerRig[25];
@@ -212,7 +232,9 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 }
                 TestContext.WriteLine($"[057] bake25Ms={best:0.0}");
                 UnityEngine.Debug.Log($"[057] bake25Ms={best:0.0}");
-                if (Bake25Ms056 > 0) Assert.LessOrEqual(best, Bake25Ms056 * 1.2 * 1.3, "062 FR-84 굽기 시간 057 예산 대비 +30%");
+                // 088 T29 (2026-11-23 사용자 "기준 완화"): 시안 모델(FR-50 — 클로즈업 원본 눈썹·속눈썹, 가닥 카드 헤어)로 정점 ≈ 2.5배 → 25명 ≤ 1,000 ms [제안]
+                //   (062 FR-84 057 예산 × 1.3 = 483 ms, 실측 857 ms). 로딩 1회, 재생 프레임 영향 없음
+                Assert.LessOrEqual(best, Bake25Ms088, "088 T29 굽기 시간 25명 ≤ 1,000 ms");
             }
             finally
             {

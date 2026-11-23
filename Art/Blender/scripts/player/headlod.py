@@ -10,6 +10,7 @@ from . import mpfb_src as MS
 
 HEAD_TRIS = None   # 088 FR-52 (T27): 원본 MPFB 머리 (이전 5,200 감량)
 NAME = "Head_Closeup"
+CLOSEUP_SKIN_HD = (1.0, 0.65)   # UV1 (밀도, 눈썹 마스크 감쇠)
 
 
 def build(R):
@@ -48,5 +49,6 @@ def build(R):
         m.faces.append((tuple(f), B.BODY, tuple(u), "skin", None))
     B._append_eyes(R, m, 0, closeup=True)   # 088 FR-53 (T28): 클로즈업 눈 = 원본 고해상도 눈
     B._append_mouth(R, m, "closeup")  # 062 FR-72 입 안
-    m.hairdata = np.tile(B.BROW_MESH_FLAG, (len(m.verts), 1))   # 088 FR-53: 눈썹·속눈썹 메시가 대신 그린다
+    # 088 T29: 피부 UV1.y = 0.65 → 셰이더 눈썹·속눈썹 마스크 0.35배 (원본 가닥이 주 — 시안 눈썹). 재질 값은 LOD0 고정 등급과 같게 두고(062 FR-88) 메시로 구분
+    m.hairdata = np.tile(CLOSEUP_SKIN_HD, (len(m.verts), 1))
     return m

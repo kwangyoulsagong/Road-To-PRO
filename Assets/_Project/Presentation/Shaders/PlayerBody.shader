@@ -8,7 +8,7 @@
 //       눈은 매끈한 정반사, 머리카락은 Kajiya-Kay 이방성 하이라이트(가닥 = UV v 방향). 시간 의존 항 없음.
 // 062 FR-02·12·32·33·91·97: 근육·손 구운 노멀(_MuscleN, 피부 UV)·차폐(_MuscleAO), 피부 두께(_ThicknessTex R: 귀·코끝·손가락 끝 역광 비침),
 //       땀(_ThicknessTex G 부위 거칠기 − 0.04 × _Sweat, 정반사 ≤ 1.3배), 젖음(_Wetness, 078 입력).
-// 088 FR-53: 피부 정점의 UV1.y = 1(LOD0·클로즈업)이면 눈썹·속눈썹 마스크를 끈다(원본 메시가 그린다).
+// 088 FR-53 (T29): 눈썹·속눈썹은 마스크(바탕) + 메시(LOD0 띠·클로즈업 원본 가닥). 마스크 세기 = 1 − 피부 UV1.y (클로즈업 머리 0.65 → 0.35배).
 // 062 FR-42·43·54: UV1(HairData, 헤어 메시만 — 몸은 (1, 0)) x = 밀도 → 카드 알파처럼 화면 디더 클립(페이드 아래는 피부가 비친다,
 //       모든 패스 같게), y = 컬러 포인트 마스크 → _HairColor(뿌리·옆) ↔ _HairColor2(위·끝). 결 계열 이방성: parts 거칠기(A, 088 groom.atlas 결 타일)가
 //       클수록(코일·브레이드·드레드) Kajiya-Kay 지수를 낮춰 하이라이트를 덜 날카롭게.
@@ -67,6 +67,8 @@ Shader "RoadToPro/PlayerBody"
         // 088 T23: 헤어 셸 연속 UV — u ≥ 10이면 u = 10 + 타일 × 100 + 연속 u, v = 연속 v. parts 머리카락 칸 3열 × 2행 타일 안에서 frac으로 반복
         // (Blender groom/bake.shell_rect와 같은 배치: 칸 (0.25, 0) ~ (1, 0.75), 여백 6/1024). 기울기는 frac 전 좌표로 → 이음매 밉 줄 없음
         static const float ShellPad = 6.0 / 1024.0;
+        // 088 T29: 눈썹(마스크·메시) 색 = 머리색 × 0.3과 거의 검정의 중간 — 시안(MakeHuman 눈썹 재질)은 머리색과 상관없이 진하다
+        half3 BrowColor(half3 hair) { return lerp(hair * 0.3h, half3(0.035h, 0.028h, 0.022h), 0.5h); }
         float2 ShellTileOrigin(float tile)
         {
             float col = tile - 3.0 * floor(tile / 3.0);
@@ -192,11 +194,13 @@ Shader "RoadToPro/PlayerBody"
                 half4 pt = SampleParts(i.uv);
                 pt.g = lerp(pt.g, 0.5h, isCard); // 카드의 G는 알파 — 결 위상은 가운데
 
-                half3 nG = normalize(i.normalWS);
-                half3 t = normalize(i.tangentWS.xyz);
+                half3 nG = SafeNormalize(i.normalWS);   // 088 T29: 0 법선 보간에서 NaN(검은 픽셀) 방지
+                // 088 T29: 탄젠트가 0인 정점(UV가 한 점에 몰린 얇은 조각)에서 normalize가 NaN → 픽셀이 검게 → 0이면 법선에 수직인 임의 축
+                float3 t0 = (float3)i.tangentWS.xyz;
+                half3 t = dot(t0, t0) > 1e-6 ? (half3)normalize(t0) : normalize(cross(nG, abs(nG.y) < 0.99h ? half3(0, 1, 0) : half3(1, 0, 0)));
                 half3 b = cross(nG, t) * i.tangentWS.w;
                 tn.xy = (tn.xy * _NormalStrength + mn.xy * _MuscleDef) * (1.0h - isPart);   // 모공·잔주름 + 근육·손 형태 (피부만)
-                half3 n = normalize(tn.x * t + tn.y * b + tn.z * nG);
+                half3 n = SafeNormalize(tn.x * t + tn.y * b + tn.z * nG);
 
                 float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
                 Light light = GetMainLight(shadowCoord);
@@ -213,10 +217,10 @@ Shader "RoadToPro/PlayerBody"
                 half sLum = dot(s.rgb, half3(0.2126h, 0.7152h, 0.0722h));
                 // 088 FR-02: 눈썹·속눈썹 = MakeHuman 프록시를 구운 덮임 마스크 × 머리색 (속눈썹은 더 어둡게)
                 half4 brow = SAMPLE_TEXTURE2D(_BrowMask, sampler_BrowMask, frac(i.uv));
-                // 088 FR-53 (T28): LOD0·클로즈업 피부 정점은 UV1.y = 1(눈썹·속눈썹 메시가 그린다) → 마스크 끔. LOD1·2 몸은 (1, 0)
+                // 088 FR-53 (T29): 마스크 세기 = 1 − 피부 UV1.y. 클로즈업 머리 피부는 0.65(원본 가닥이 주, 마스크는 옅은 바탕), LOD0·1·2 몸은 0
                 half browOn = (1.0h - isPart) * (1.0h - saturate(i.hd.y));
                 half bcov = saturate(dot(brow.rgb, _BrowChannel.rgb) * 1.6h) * browOn;
-                skin = lerp(skin, _HairColor.rgb * 0.45h, bcov * 0.9h);   // 눈썹은 머리색보다 어둡게
+                skin = lerp(skin, BrowColor(_HairColor.rgb), bcov * 0.9h);   // 눈썹은 머리색보다 어둡게 (088 T29: 시안 눈썹 ≈ 검정)
                 skin = lerp(skin, half3(0.03h, 0.025h, 0.02h), brow.a * 0.8h * browOn);
                 // 057 FR-24: 수염 = 밀도(s.b)의 부드러운 문턱(경계 흐림) × 종류별 덮임. 짧을수록 피부가 비치는 옅은 색조(잔털), 길수록 짙다.
                 // 062 FR-66: 밀도 = 수염 영역 마스크(beard_mask0)에서 종류별 채널 하나 — 없으면 057 피부 B(full)
@@ -243,15 +247,18 @@ Shader "RoadToPro/PlayerBody"
                 // parts: 눈 / 머리카락
                 half hairM = pt.b;
                 half iris = pt.g * (1.0h - hairM);
-                half3 eye = lerp(half3(0.88h, 0.86h, 0.83h) * pt.r, _EyeColor.rgb * (0.5h + pt.r), iris);
+                half3 eye = lerp(half3(0.88h, 0.86h, 0.83h) * pt.r, _EyeColor.rgb * (0.3h + 3.5h * pt.r), iris);   // 088 T29: 홍채 밝기(MakeHuman 갈색 눈 0.035~0.19)를 0.4~1.0배로 펼쳐 무늬가 보이게 (이전 0.5 + R → 0.54~0.69배, 단색처럼 보임)
                 half3 cEye = eye * (lc * ndl + amb) + lc * 0.06h * Spec(nG, h, ndl, pt.a) + pt.r * step(0.97h, pt.r) * 0.35h;
                 half3 hairBase = lerp(_HairColor.rgb, _HairColor2.rgb, smoothstep(0.3h, 0.7h, i.hd.y));   // 062 FR-54 두 색
-                half3 hairA = hairBase * lerp(0.6h, 1.3h, pt.r) * lerp(1.0h, 0.7h, _Wetness);   // FR-97 젖은 머리는 어둡다
-                half3 strand = normalize(b + nG * (pt.g - 0.5h) * 0.4h); // 가닥 방향 = UV v(바이탄젠트), 결 위상으로 흔든다
+                // 088 T29: 눈썹 메시(셸 UV 연속 90~91, browlash.BROW_UV_U0)는 마스크와 같은 머리색 × BrowDark (시안 눈썹은 머리보다 진하다)
+                half isBrow = (half)(step(99.5, i.uv.x) * (1.0 - step(101.0, i.uv.x)));
+                hairBase = lerp(hairBase, BrowColor(_HairColor.rgb), isBrow);
+                half3 hairA = hairBase * lerp(lerp(0.6h, 1.3h, pt.r), 1.0h, isBrow) * lerp(1.0h, 0.7h, _Wetness);   // FR-97 젖은 머리는 어둡다. 088 T29: 눈썹은 결 밝기 변동 없이 고르게
+                half3 strand = SafeNormalize(b + nG * (pt.g - 0.5h) * 0.4h); // 가닥 방향 = UV v(바이탄젠트), 결 위상으로 흔든다
                 half th = dot(strand, h);
                 half curl = saturate((pt.a - 0.40h) / 0.12h);   // 062 FR-43: 직모 0 → 코일·브레이드·드레드 1 (groom.atlas 결 타일 거칠기)
                 half kk = pow(saturate(sqrt(saturate(1.0h - th * th))), lerp(60.0h, 18.0h, curl)) * ndl * lerp(1.0h, 0.6h, curl);
-                half3 cHair = hairA * (lc * (ndl * 0.8h + 0.2h) + amb) + lc * (0.10h + 0.5h * hairA) * kk;
+                half3 cHair = hairA * (lc * (ndl * 0.8h + 0.2h) + amb) + lc * (0.10h + 0.5h * hairA) * kk * lerp(1.0h, 0.25h, isBrow);   // 088 T29: 눈썹 하이라이트 약하게(가는 가닥 반짝임)
                 half3 cPart = lerp(cEye, cHair, hairM);
 
                 half3 c = lerp(cSkin, cPart, isPart);

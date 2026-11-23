@@ -980,8 +980,7 @@ def build(lod):
         _append_mouth(R, m, "lod0")  # 062 FR-72: 입 안 (치아·혀·입안 캡)
     if not suit_mode():
         _kit_bone_weights(m, lod)  # 062 FR-21 (정장은 보조 뼈 없음)
-    if lod == 0:
-        m.hairdata = np.tile(BROW_MESH_FLAG, (len(m.verts), 1))   # 088 FR-53: 눈썹·속눈썹은 메시 → 피부 마스크 끔
+    # 088 T29: 눈썹·속눈썹은 피부 마스크(진한 바탕) + 메시(LOD0 띠·클로즈업 원본 가닥) — 시안(Cycles) 눈썹은 진한 띠 위 가닥 결
     return m
 
 
@@ -1133,10 +1132,7 @@ def append_part(m, P, W, D, faces, mat, uvs, part):
         m.faces.append((tuple(off + i for i in f), mat, tuple(u), part, None))
 
 
-EYE_TRIS_088 = {"closeup": None, 0: 240, 1: 48, 2: 16}  # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합), 클로즈업 = 원본 (FR-53, T28)
-# 088 FR-53 (T28): LOD0·클로즈업 피부 정점의 UV1(HairData) — y = 1이면 셰이더가 눈썹·속눈썹 마스크를 끈다(메시가 대신 그린다).
-# 몸 정점의 UV1 x = 밀도 1(디더 없음). 헤어 정점의 y(컬러 포인트)는 피부 분기에서 쓰지 않는다.
-BROW_MESH_FLAG = (1.0, 1.0)
+EYE_TRIS_088 = {"closeup": 420, 0: 240, 1: 48, 2: 16}   # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합). T29: 원본(감량 없음)은 Unity에서 동공이 홍채를 덮고 눈 안쪽 구석에 검은 덩어리 → 420 유지
 EYE_BACK = 0.0015                                         # 088 T23: 웃음 표정 눈꺼풀 노출(6 → 4점) → 1.5 mm 뒤로
 EYE_SHRINK = 0.94                                         # 088: MakeHuman 눈은 MH 눈꺼풀 기준 — 표정 키 노출(웃음 6점) → 6 % 줄임
 
