@@ -72,6 +72,8 @@ def reference():
         _REF = MS.Reference()
         _smooth_weights(_REF)
         _base_radial(_REF)  # 062 FR-03 바탕 팔 두께 보정
+        from . import face as F
+        _REF.verts = _REF.verts + F.proto_head(_REF)[0]   # 088 FR-51 (T26): 머리·목 = 시안 체형 머리 모양 (몸은 062)
         S.configure({n: (tuple(float(x) for x in h), tuple(float(x) for x in t)) for n, (h, t) in _REF.joints.items()})
         _REF.body_deltas = {k: _REF.macro_delta(v) for k, v in MS.BODY_MACROS.items()}
         _REF.body_deltas.update({k: _REF.target_delta(v) * MS.BODY_TARGET_GAIN.get(k, 1.0)

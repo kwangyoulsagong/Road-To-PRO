@@ -16,6 +16,12 @@ import numpy as np
 from . import mpfb_src as MS
 from . import skeleton as S
 
+# 088 FR-51 (T26): 머리·목 = 시안 MPFB 사람과 같은 체형 매크로 (사용자 승인 시안 groom_v2 human()). 몸은 062 체형 유지.
+PROTO_MACRO = {"muscle": 0.85, "weight": 0.55, "proportions": 0.7, "height": 0.6}
+# 088 FR-51 [제안]: 다양성은 인종 비율·피부 세트·톤으로 — 062 지역 얼굴 타깃 조합·무작위 얼굴 축은 시안 얼굴을 바꾸지 않을 만큼만 남긴다
+FACE_TARGET_GAIN = 0.32  # 바탕 머리의 지역 얼굴 타깃 조합 배율 (062 실루엣 쌍 ≥ 0.02 — 2026-11-23 사용자 "기준 완화", 0.3은 0.0198)
+AXIS_GAIN = 0.35         # 무작위 얼굴 축 범위 배율 (팀 안 구별 기준 MinDistance는 평균 쌍 거리의 25 %라 함께 줄어든다)
+
 # (축 id, 음 방향 타깃들, 양 방향 타깃들, 범위). 좌우 타깃은 양쪽을 같이 (얼굴 비대칭은 쓰지 않는다).
 AXES = [
     ("nose_width", ["nose-scale-horiz-decr"], ["nose-scale-horiz-incr"], 0.8),
@@ -49,6 +55,7 @@ AXES = [
     ("ear_size", ["l-ear-scale-decr", "r-ear-scale-decr"], ["l-ear-scale-incr", "r-ear-scale-incr"], 0.6),
     ("ear_flap", ["l-ear-flap-decr", "r-ear-flap-decr"], ["l-ear-flap-incr", "r-ear-flap-incr"], 0.6),
 ]
+AXES = [(a, neg, pos, round(rng * AXIS_GAIN, 4)) for a, neg, pos, rng in AXES]   # 088 T26
 # (id, 두께 m). 056 4종 순서 유지 + 062 FR-66 신규 3종(콧수염·염소수염·진한 스텁블)은 뒤에 (Unity 수염 인덱스 호환)
 BEARDS = [("none", 0.0), ("stubble", 0.0006), ("short", 0.0022), ("full", 0.0055),
           ("mustache", 0.0030), ("goatee", 0.0040), ("heavy_stubble", 0.0012)]
@@ -76,7 +83,7 @@ EYE_GROUPS = ("helper-l-eye", "helper-r-eye")
 # 같은 지역 안 개인차는 기존 얼굴 30축(FaceGenerator)이 낸다. (id, 지역 태그, 인종 매크로 비율, [(타깃들, 가중치)])
 # 지역 7개(FR-62): east_asia · southeast_asia · south_asia · west_asia_north_africa · west_central_africa · europe · latin_america
 BASE_HEADS = [
-    ("Base_0", "east_asia", {"asian": 1.0, "caucasian": 0.0, "african": 0.0}, [
+    ("Base_0", "east_asia", {"asian": 0.9, "caucasian": 0.1, "african": 0.0}, [   # 088 T26: 시안 asian 세트 비율
         (["l-eye-epicanthus-in", "r-eye-epicanthus-in"], 0.9), (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.8),
         (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.8), (["nose-hump-decr"], 0.6), (["nose-scale-depth-decr"], 0.6),
         (["head-scale-horiz-incr"], 0.5), (["head-back-scale-depth-decr"], 0.5), (["forehead-nubian-decr"], 0.4),
@@ -96,11 +103,11 @@ BASE_HEADS = [
         (["nose-hump-incr"], 0.9), (["nose-scale-vert-incr"], 0.6), (["nose-curve-convex"], 0.7), (["nose-point-down"], 0.3),
         (["forehead-nubian-incr"], 0.7), (["eyebrows-trans-down"], 0.5), (["head-rectangular"], 0.6), (["head-scale-depth-incr"], 0.4),
         (["chin-prominent-incr"], 0.5)]),
-    ("Base_4", "west_central_africa", {"asian": 0.0, "caucasian": 0.0, "african": 1.0}, [
+    ("Base_4", "west_central_africa", {"asian": 0.0, "caucasian": 0.05, "african": 0.95}, [   # 088 T26: 시안 dark 세트 비율
         (["nose-scale-horiz-incr"], 0.5), (["nose-nostrils-width-incr"], 0.5), (["nose-scale-depth-decr"], 0.3),
         (["mouth-upperlip-volume-incr"], 0.6), (["mouth-lowerlip-volume-incr"], 0.6), (["chin-prognathism-incr"], 0.3),
         (["head-scale-depth-incr"], 0.2), (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.3), (["forehead-trans-forward"], 0.3)]),
-    ("Base_5", "europe", {"asian": 0.0, "caucasian": 1.0, "african": 0.0}, [
+    ("Base_5", "europe", {"asian": 0.1, "caucasian": 0.9, "african": 0.0}, [   # 088 T26: 시안 light 세트 비율
         (["nose-scale-depth-incr"], 0.6), (["nose-point-width-decr"], 0.5), (["nose-scale-horiz-decr"], 0.4), (["head-square"], 0.7),
         (["chin-prominent-incr"], 0.6), (["chin-width-incr"], 0.4), (["forehead-nubian-incr"], 0.5), (["head-scale-horiz-incr"], 0.3),
         (["mouth-upperlip-volume-decr"], 0.5), (["mouth-lowerlip-volume-decr"], 0.4), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.2)]),
@@ -125,19 +132,46 @@ def head_mask(R):
     return np.clip((w - 0.25) / 0.5, 0.0, 1.0)
 
 
+def proto_head(R):
+    """088 FR-51 (T26): 시안 체형 매크로 머리 모양 → (델타 (V,3), 균등 배율 s). 머리 영역만(목 쪽으로 서서히 0), 평균 이동을 빼고
+    균등 배율(시안 키 매크로 0.6이라 머리가 ≈ 7.5 % 작다)을 나눠 기준 머리 크기에서 모양만 옮긴다 — 머리/키 비율(FR-12)은 그대로.
+    R.verts에 이미 걸렸으면(body.reference) 같은 값을 돌려준다."""
+    if getattr(R, "_proto_head", None) is not None:
+        return R._proto_head
+    # 영역 = 머리 뼈 가중치만 (목은 062 그대로) — head_mask(목 절반 포함)로 걸면 시안 체형이 목을 굵혀 GK 다이빙에서 목×위팔이 겹쳤다
+    hw = R.weights[:, MS.OUR_NAMES.index("Head")]
+    k = np.clip((hw - 0.35) / 0.5, 0.0, 1.0)
+    core = k > 0.95
+    body = np.array(R.groups["body"])
+    hb = body[k[body] > 0.95]
+    m = R.macro_delta(PROTO_MACRO)
+    m = m - m[core].mean(axis=0)
+    base = R.verts
+    c = base[hb].mean(axis=0)
+    e0 = base[hb].max(axis=0) - base[hb].min(axis=0)
+    e1 = (base[hb] + m[hb]).max(axis=0) - (base[hb] + m[hb]).min(axis=0)
+    s = float(np.mean(e1 / e0))
+    shaped = c + (base + m - c) / s                    # 시안 모양, 기준 크기
+    d = (shaped - base) * k[:, None]
+    R._proto_head = (d, s)
+    return R._proto_head
+
+
 def base_head_deltas(R):
-    """{Base_n: (V,3) 델타} — 인종 매크로 비율(기준 1/3씩에서 바꾼 만큼, 머리 영역만) + 얼굴 타깃 합. 062 T25 시안: 아직 셰이프 키로
-    내보내지 않는다(T27 확정 때 register에 넣는다)."""
+    """{Base_n: (V,3) 델타} — 인종 매크로 비율(기준 1/3씩에서 바꾼 만큼, 머리 영역만) + 얼굴 타깃 합.
+    088 T26: 인종 델타는 시안 체형 매크로 위에서 계산하고 시안 머리와 같은 배율로 나눈다, 지역 얼굴 타깃은 FACE_TARGET_GAIN배."""
     k = head_mask(R)[:, None]
     core = k[:, 0] > 0.95
+    _d, s = proto_head(R)
+    p0 = R.macro_delta(PROTO_MACRO)
     out = {}
     for bid, _region, race, targets in BASE_HEADS:
         # 인종 매크로는 키·목 길이도 바꿔 머리 전체를 옮긴다 → 머리 평균 이동을 빼고(목 쪽으로 서서히 0) 형태 차이만 남긴다
-        m = R.macro_delta({"race": race})
+        m = (R.macro_delta(dict(PROTO_MACRO, race=race)) - p0) / s
         m = (m - m[core].mean(axis=0)) * k
         d = m
         for names, w in targets:
-            d = d + R.target_delta(names) * w
+            d = d + R.target_delta(names) * (w * FACE_TARGET_GAIN)
         out[bid] = d
     return out
 

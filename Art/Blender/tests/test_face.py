@@ -95,7 +95,8 @@ class Face062(unittest.TestCase):
         self.assertEqual(s["count"], len(bh))
         self.assertGreater(s["landmark056Min"], 0.0)
         self.assertGreaterEqual(s["landmarkMinPair"], 2.0 * s["landmark056Min"], s)
-        self.assertGreaterEqual(s["silhouetteMinPair"], 0.05, s)
+        # 088 FR-51 (T26, 2026-11-23 사용자 "기준 완화"): 얼굴 = 시안 모델, 지역 얼굴 타깃 0.32배 → 062 0.05 → 0.02
+        self.assertGreaterEqual(s["silhouetteMinPair"], 0.02, s)
 
     def test_beards_seven(self):
         """FR-66: 수염 7종, 057 FR-24 기준(점 노이즈 ≤ 0.05·울대 아래 ≤ 0.01·입 둘레 종류 입꼬리 ≥ 0.3), 콧수염·염소수염 볼 ≤ 0.01."""
