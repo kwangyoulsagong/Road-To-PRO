@@ -1,7 +1,7 @@
 {
  "generator": {
   "blender": "5.3.0",
-  "command": "gen_player.py --out <out> --no-preview",
+  "command": "gen_player.py --out <out>",
   "makehuman": {
    "files": [
     {
@@ -2978,17 +2978,17 @@
       "2": 0,
       "closeup": 0
      },
-     "closeup": 70188,
+     "closeup": 75838,
      "lodTotals": {
-      "0": 20952,
-      "1": 2863,
-      "2": 858
+      "0": 26602,
+      "1": 2868,
+      "2": 859
      },
      "ok": true,
      "tris": {
-      "0": 5699,
-      "1": 443,
-      "2": 118
+      "0": 11349,
+      "1": 448,
+      "2": 119
      }
     },
     "Hair_Fade": {
@@ -4312,15 +4312,15 @@
     "Hair_Dreads": {
      "approved": true,
      "backCover": {
-      "0": 0.9953,
-      "1": 0.9972,
-      "groom": 0.9658
+      "0": 0.9969,
+      "1": 0.9955,
+      "groom": 0.9768
      },
-     "deltaE": 0.858,
+     "deltaE": 0.851,
      "iou": {
-      "0": 0.6946,
-      "1": 0.6892,
-      "closeup": 0.6946
+      "0": 0.7763,
+      "1": 0.771,
+      "closeup": 0.7763
      },
      "limits": {
       "0": 0.65,
@@ -4330,16 +4330,16 @@
      "ok": true,
      "views": {
       "0": {
-       "back": 0.8208,
-       "front": 0.6946,
-       "side": 0.7771,
-       "three": 0.7191
+       "back": 0.8468,
+       "front": 0.8145,
+       "side": 0.8106,
+       "three": 0.7763
       },
       "1": {
-       "back": 0.8394,
-       "front": 0.7273,
-       "side": 0.7448,
-       "three": 0.6892
+       "back": 0.8457,
+       "front": 0.8082,
+       "side": 0.771,
+       "three": 0.8148
       }
      }
     },
@@ -5107,7 +5107,7 @@
    "ok": true
   },
   "hair062": {
-   "anisotropy": 5.427,
+   "anisotropy": 5.448,
    "colorPoint": {
     "Hair_BoxBraids": {
      "a": 0.7592,
@@ -5504,7 +5504,7 @@
      ]
     ]
    },
-   "strandHf": 0.11759,
+   "strandHf": 0.11774,
    "styles": [
     "Hair_Buzz",
     "Hair_Short",
@@ -6240,8 +6240,8 @@
   "visual062": {
    "hair": "summary.hair062 (062 T22: 머리카락 영역 실루엣)",
    "hairTexture": {
-    "anisotropy": 5.427384,
-    "strandHf": 0.117589
+    "anisotropy": 5.448085,
+    "strandHf": 0.117745
    },
    "kit": {
     "clothBandVar": 0.002795,
