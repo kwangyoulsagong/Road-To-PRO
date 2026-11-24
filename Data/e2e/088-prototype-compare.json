@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "088-prototype-compare",
   "spec": "088",
-  "description": "088 AC-13 (T30c): 시안(Cycles) 동일 조건 얼굴 — 시안 인종 짝 바탕 머리 3(유럽·동아시아·아프리카) × 정면·3/4. 카메라 85 mm·0.62 m, 시안 키 태양·하늘 환경광, 단색 배경, 갈색 눈, 눈썹 04, 삭발·수염 없음. Raw = 게임 후처리 끔(시안 Blender Standard와 셰이딩만 비교).",
+  "description": "088 AC-13 (T30c): 시안(Cycles) 동일 조건 얼굴 — 시안 인종 짝 바탕 머리 3(유럽·동아시아·아프리카) × 정면·3/4. 카메라 85 mm·0.62 m, 시안 키 태양·하늘 환경광, 단색 배경, 갈색 눈, 눈썹 04, 삭발·수염 없음. Raw = 게임 후처리 끔(시안 Blender Standard와 셰이딩만 비교). Stubble = 면도 자국(수염 stubble).",
   "scene": "Player043",
   "fixture": {
     "save": null,
@@ -95,6 +95,60 @@
     {
       "type": "capture",
       "name": "protoAfricaFrontRaw",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "protoEuropeFrontStubble"
+    },
+    {
+      "type": "capture",
+      "name": "protoEuropeFrontStubble",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "protoAsiaFrontStubble"
+    },
+    {
+      "type": "capture",
+      "name": "protoAsiaFrontStubble",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "protoAfricaFrontStubble"
+    },
+    {
+      "type": "capture",
+      "name": "protoAfricaFrontStubble",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "protoEuropeFrontNoMuscle"
+    },
+    {
+      "type": "capture",
+      "name": "protoEuropeFrontNoMuscle",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "protoEuropeFrontNoAO"
+    },
+    {
+      "type": "capture",
+      "name": "protoEuropeFrontNoAO",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "protoEuropeFrontFlat"
+    },
+    {
+      "type": "capture",
+      "name": "protoEuropeFrontFlat",
       "kind": "3d"
     }
   ]

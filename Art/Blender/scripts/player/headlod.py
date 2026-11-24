@@ -11,6 +11,8 @@ from . import mpfb_src as MS
 HEAD_TRIS = None   # 088 FR-52 (T27): 원본 MPFB 머리 (이전 5,200 감량)
 NAME = "Head_Closeup"
 CLOSEUP_SKIN_HD = (1.0, 0.65)   # UV1 (밀도, 눈썹 마스크 감쇠)
+CLOSEUP_NECK_HD_Y = 0.4         # 088 T30h: 클로즈업 머리의 목 부분 UV1.y — 셰이더가 얼굴(> 0.5)만 그림자 맵을 건너뛴다. 목은 LOD0 목과 같은 그림자
+                                # (겹친 두 목이 다르게 칠해져 얼룩이 났다). 눈썹 마스크는 목에 없어 영향 없음
 
 
 def build(R):
@@ -50,5 +52,9 @@ def build(R):
     B._append_eyes(R, m, 0, closeup=True)   # 088 FR-53 (T28): 클로즈업 눈 = 원본 고해상도 눈
     B._append_mouth(R, m, "closeup")  # 062 FR-72 입 안
     # 088 T29: 피부 UV1.y = 0.65 → 셰이더 눈썹·속눈썹 마스크 0.35배 (원본 가닥이 주 — 시안 눈썹). 재질 값은 LOD0 고정 등급과 같게 두고(062 FR-88) 메시로 구분
-    m.hairdata = np.tile(CLOSEUP_SKIN_HD, (len(m.verts), 1))
+    wh = m.W[:, MS.OUR_NAMES.index("Head")]
+    t = np.clip((wh - 0.3) / 0.4, 0.0, 1.0)
+    t = t * t * (3 - 2 * t)                                   # 머리 뼈 가중치 0.3 → 0.7에서 목 → 얼굴로 부드럽게
+    m.hairdata = np.column_stack([np.full(len(m.verts), CLOSEUP_SKIN_HD[0]),
+                                  CLOSEUP_NECK_HD_Y + (CLOSEUP_SKIN_HD[1] - CLOSEUP_NECK_HD_Y) * t])
     return m

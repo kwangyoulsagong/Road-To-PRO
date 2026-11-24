@@ -145,6 +145,10 @@
      "sha256": "4df3e61e843c2d3381ef534e90d347b6b8ea763428d69eba8ef2ed5ab0affb8c"
     },
     {
+     "path": "targets/chin/chin-bones-incr.target.gz",
+     "sha256": "72c76aeb7956fb083aaf0d5efa00b2cdfa0f328eefc01d5e28f4610719de50c3"
+    },
+    {
      "path": "targets/chin/chin-height-decr.target.gz",
      "sha256": "1f4196d330b418d576e9400a754cb99d7e60b069ee8fdef645713f84db984e0c"
     },
@@ -305,10 +309,6 @@
      "sha256": "45bd5a9415b7da13e42fb1b8f33e8023d2948cdfa27e40cf393496e827d754b4"
     },
     {
-     "path": "targets/eyes/l-eye-epicanthus-in.target.gz",
-     "sha256": "0dd894060ea9f420c7db57599d228e5df59f8836f794eb3172668c02dd4ef7ef"
-    },
-    {
      "path": "targets/eyes/l-eye-eyefold-down.target.gz",
      "sha256": "b7b1589f224ed9f12bbb8ece904144023fde8ffe85355304299d24f5f6d292e5"
     },
@@ -343,10 +343,6 @@
     {
      "path": "targets/eyes/r-eye-bag-incr.target.gz",
      "sha256": "552483d9b4cd846d5bc864e6866d8bc9db79fdf44233cb30be2d084e5d4373d0"
-    },
-    {
-     "path": "targets/eyes/r-eye-epicanthus-in.target.gz",
-     "sha256": "ec5e5b256e6529b0791cae2d7dc29f1aedaf381b6930d1d38c01c72643276bcc"
     },
     {
      "path": "targets/eyes/r-eye-eyefold-down.target.gz",
@@ -2711,7 +2707,7 @@
      "sink": {
       "ok": true,
       "rest": 0.009,
-      "worst": 0.0195
+      "worst": 0.0279
      }
     },
     "Brow_04": {
@@ -2722,7 +2718,7 @@
      "sink": {
       "ok": true,
       "rest": 0.0521,
-      "worst": 0.0592
+      "worst": 0.0692
      }
     },
     "Brow_09": {
@@ -2733,7 +2729,7 @@
      "sink": {
       "ok": true,
       "rest": 0.0655,
-      "worst": 0.0724
+      "worst": 0.0825
      }
     },
     "Lash": {
@@ -2982,15 +2978,15 @@
       "2": 0,
       "closeup": 0
      },
-     "closeup": 76332,
+     "closeup": 70188,
      "lodTotals": {
-      "0": 27096,
+      "0": 20952,
       "1": 2863,
       "2": 858
      },
      "ok": true,
      "tris": {
-      "0": 11843,
+      "0": 5699,
       "1": 443,
       "2": 118
      }
@@ -3824,9 +3820,9 @@
   "face062": {
    "baseHeads": {
     "count": 8,
-    "landmark056Min": 0.000248,
-    "landmarkMean056": 0.00099,
-    "landmarkMinPair": 0.001274,
+    "landmark056Min": 0.000567,
+    "landmarkMean056": 0.002266,
+    "landmarkMinPair": 0.001273,
     "landmarkPair": [
      "Base_2",
      "Base_5"
@@ -3840,7 +3836,7 @@
      "west_asia_north_africa",
      "west_central_africa"
     ],
-    "silhouetteMinPair": 0.0216,
+    "silhouetteMinPair": 0.0249,
     "silhouettePair": [
      "Base_2",
      "Base_5"
@@ -4316,15 +4312,15 @@
     "Hair_Dreads": {
      "approved": true,
      "backCover": {
-      "0": 0.9964,
+      "0": 0.9953,
       "1": 0.9972,
       "groom": 0.9658
      },
      "deltaE": 0.858,
      "iou": {
-      "0": 0.7,
-      "1": 0.6064,
-      "closeup": 0.7
+      "0": 0.6946,
+      "1": 0.6892,
+      "closeup": 0.6946
      },
      "limits": {
       "0": 0.65,
@@ -4334,16 +4330,16 @@
      "ok": true,
      "views": {
       "0": {
-       "back": 0.8392,
-       "front": 0.7,
-       "side": 0.799,
-       "three": 0.7078
+       "back": 0.8208,
+       "front": 0.6946,
+       "side": 0.7771,
+       "three": 0.7191
       },
       "1": {
-       "back": 0.8418,
-       "front": 0.6439,
-       "side": 0.7175,
-       "three": 0.6064
+       "back": 0.8394,
+       "front": 0.7273,
+       "side": 0.7448,
+       "three": 0.6892
       }
      }
     },
@@ -5374,8 +5370,8 @@
      "volume": 0.0266
     },
     "Hair_Dreads": {
-     "side": 0.0646,
-     "volume": 0.0177
+     "side": 0.0102,
+     "volume": 0.0062
     },
     "Hair_Fade": {
      "side": 0.0111,

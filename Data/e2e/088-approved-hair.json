@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "id": "088-approved-hair",
+  "spec": "088",
+  "description": "088 승인 헤어 4종(포마드·가르마·시스루·가일컷) — 같은 얼굴(유럽 바탕 머리, 얼굴 축 0, 진갈색 머리)·시안 동일 조건 조명, 정면·3/4.",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261122
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-13"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "hairPomadeFront"
+    },
+    {
+      "type": "capture",
+      "name": "hairPomadeFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairPomadeThree"
+    },
+    {
+      "type": "capture",
+      "name": "hairPomadeThree",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairGarmaFront"
+    },
+    {
+      "type": "capture",
+      "name": "hairGarmaFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairGarmaThree"
+    },
+    {
+      "type": "capture",
+      "name": "hairGarmaThree",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairSeeThroughFront"
+    },
+    {
+      "type": "capture",
+      "name": "hairSeeThroughFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairSeeThroughThree"
+    },
+    {
+      "type": "capture",
+      "name": "hairSeeThroughThree",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairGailFront"
+    },
+    {
+      "type": "capture",
+      "name": "hairGailFront",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairGailThree"
+    },
+    {
+      "type": "capture",
+      "name": "hairGailThree",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairPomadeFrontNoCloseupShadow"
+    },
+    {
+      "type": "capture",
+      "name": "hairPomadeFrontNoCloseupShadow",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "hairPomadeFrontProxyHead"
+    },
+    {
+      "type": "capture",
+      "name": "hairPomadeFrontProxyHead",
+      "kind": "3d"
+    }
+  ]
+}

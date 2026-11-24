@@ -33,6 +33,7 @@ namespace RoadToPro.Presentation.Players
         Mesh _closeupSrc;
         readonly List<Mesh> _baked = new List<Mesh>();
         Mesh _shadowMesh;
+        Mesh _shadowHigh;   // 088 T30h: 클로즈업일 때 그림자 대리 = LOD0 (필요할 때 만든다)
         bool _closeupOn;
         readonly Dictionary<string, Transform> _bones = new Dictionary<string, Transform>();
         float _baseScale = 1f;
@@ -42,6 +43,8 @@ namespace RoadToPro.Presentation.Players
         public int CurrentLod => _lod < 0 ? 0 : _lod;
         public Animator Animator => _animator;
         public Material BodyMaterial => _body;
+        /// <summary>088 T30h 테스트용: 그림자 대리(LOD2).</summary>
+        public SkinnedMeshRenderer ShadowProxyRenderer => _shadow;
         public Material KitMaterial => _kit;
         public PlayerAppearance Appearance { get; private set; }
 
@@ -359,6 +362,25 @@ namespace RoadToPro.Presentation.Players
             for (int k = 0; k < _expr.Length; k++) r.SetBlendShapeWeight(1 + k, _expr[k]);
         }
 
+        void ApplyShadowProxy()
+        {
+            if (_shadow == null || _lods[0] == null || _lods[0].sharedMesh == null) return;
+            // 메시를 바꾸면 뼈 배열도 그 LOD 렌더러 것으로 — LOD마다 뼈 번호가 달라 LOD2 뼈로 LOD0 메시를 감으면 형상이 일그러져 목에 얼룩 그림자
+            if (_closeupOn)
+            {
+                if (_shadowHigh == null) _shadowHigh = SingleSubmesh(_lods[0].sharedMesh);
+                _shadow.sharedMesh = _shadowHigh;
+                _shadow.bones = _lods[0].bones;
+                _shadow.rootBone = _lods[0].rootBone;
+            }
+            else if (_shadowMesh != null)
+            {
+                _shadow.sharedMesh = _shadowMesh;
+                _shadow.bones = _lods[2].bones;
+                _shadow.rootBone = _lods[2].rootBone;
+            }
+        }
+
         public bool CloseupActive => _closeupOn;
         public SkinnedMeshRenderer CloseupRenderer => _closeup;
 
@@ -374,6 +396,10 @@ namespace RoadToPro.Presentation.Players
             float w = on ? 1f : 0f;
             foreach (var l in _lods)
                 if (l != null && l.sharedMesh != null && l.sharedMesh.blendShapeCount > 0) l.SetBlendShapeWeight(0, w);
+            // 088 T30h: 클로즈업이면 그림자 대리를 LOD2(860 tris) → LOD0으로 — LOD2의 각진 턱 그림자가 목 앞에 계단·조각으로 찍혔다
+            // (사용자 "목이 색이 이상한데"). 클로즈업 머리가 직접 던지면 목이 LOD0 목과 겹쳐 얼룩 그림자, 얼굴엔 칼로 벤 코 그림자가 났다.
+            // LOD0 몸은 자기 메시 그림자라 URP 보정이 맞고, LOD0 머리는 원본 머리(T27)라 턱 그림자가 매끈하다. 클로즈업은 동시 2명이라 비용이 작다
+            ApplyShadowProxy();
             RefreshFrozen();
             ApplyTierState();   // 062: 등급이 바뀌면 표정·땀 표시도 같이
         }
@@ -569,6 +595,8 @@ namespace RoadToPro.Presentation.Players
                 _shadowMesh = SingleSubmesh(_lods[2].sharedMesh);
                 _shadow.sharedMesh = _shadowMesh;
                 if (old != null) Release(old);
+                if (_shadowHigh != null) { Release(_shadowHigh); _shadowHigh = null; }   // 다시 구웠으니 LOD0 대리도 새로
+                ApplyShadowProxy();
             }
             var tint = PlayerLook.SkinToneTint[a.SkinTone];   // 088 Q4: 톤 = MakeHuman 세트 + 틴트
             var skinTex = SkinSet(_skinSets, PlayerLook.SkinToneSet[a.SkinTone]);
@@ -751,6 +779,7 @@ namespace RoadToPro.Presentation.Players
             foreach (var m in _baked)
                 if (m != null) Destroy(m);
             if (_shadowMesh != null) Destroy(_shadowMesh);
+            if (_shadowHigh != null) Destroy(_shadowHigh);
             if (_closeupMat != null) Destroy(_closeupMat);
             if (_body != null) Destroy(_body);
             if (_kit != null) Destroy(_kit);

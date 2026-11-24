@@ -77,3 +77,16 @@ MakeHuman 피부는 베이스 메시와 **같은 MakeHuman UV**라 재투영 없
 - 나머지 30종 헤어는 스타일마다 사용자 사진 비교 승인이 필요하다(Q6) → 파이프라인은 이 단계에서 멈추고 사진·승인을 받는다. 사진 없는 스타일은 형태 설명으로 시안을 만든다.
 - MakeHuman 피부 diffuse는 조명이 조금 구워져 있다(시안에서 승인된 모습 그대로) — 셰이더 조명과 겹쳐 어두우면 diffuse 보정 계수 [제안]으로 조정.
 - 그루밍 시간: 34종 첫 생성 ≈ 15분(캐시 후 0) — `farm.py art` 첫 실행이 길어진다.
+
+## 3차 — 얼굴 다양성 (FR-59~61, 2026-11-24 승인)
+- **남성 골격 기준 (FR-59)**: `face.py` `MALE_BASE` = 공통 타깃 묶음 [제안] — `chin-prominent-incr` 0.35, `chin-width-incr` 0.3, `forehead-nubian-incr` 0.4, `eyebrows-trans-down` 0.3, 좌우 `cheek-volume-decr` 0.3. `base_head_deltas`가 바탕 머리 8개 모두에 같은 묶음을 지역 타깃(`FACE_TARGET_GAIN` 0.32배)과 따로, 배율 1로 더한다. 바탕 머리 실루엣 쌍 차이(FR-51 0.02)는 공통 델타라 영향이 작다 — 생성기 검사로 확인.
+- **얼굴 변화 폭 (FR-61)**: `face.AXIS_GAIN` 0.35 → 0.8. `face.json` 축 범위가 커지고 `FaceLandmarks.MinDistance`(평균 쌍 거리 × 25 %)도 따라 커진다. 생성기 관통 검사(표정 4 × 눈·눈썹 축 극단 18조합)가 범위 끝을 쓰므로 실패하면 축별 범위를 줄인다(전체 배율은 유지).
+- **인상 유형 (FR-60)**: `FaceGenerator` (`Presentation/Runtime/Players/Logic`) — `enum FaceImpression { Handsome, Plain, Distinctive }`, `ImpressionOf(id)` = 별도 태그 해시 → 천분율 < 200 잘생김, < 800 평범, 나머지 개성 (시도 번호와 무관 — `GenerateGroup` 재추첨에도 유형 유지). `Generate`:
+  - 잘생김: 축 = 범위 × 삼각(−1~1) × 0.45 + 치우침(`chin_prominent` +0.5, `chin_width` +0.35, `brow_ridge` +0.35, `cheekbones` +0.35, `cheek_volume` −0.35, 범위 비율) → ±범위로 자름.
+  - 평범: 기존(범위 × 삼각).
+  - 개성: 기존 + 무작위 3~5개 축을 부호 무작위 × 범위 × [0.75, 1.0].
+  - 축 이름으로 치우침 인덱스를 찾는다(`FaceData.Axes[i].Id`) — 축이 없으면 건너뜀.
+  - 지역·피부·바탕 머리는 `AppearanceGenerator`가 따로 뽑으므로 유형과 독립(AC-15 지역별 비율 테스트로 확인).
+- **E2E**: `VS/PlayerScreen.088.cs` 화면 `variety{1..7}` — 지역 r의 선수 id를 유형별로 하나씩(잘생김·평범·개성) 찾아 생성값 그대로(바탕 혼합·피부톤·헤어 포함, 수염 없음) 시안 동일 조건 조명으로 3명 나란히. `Data/e2e/088-face-variety.json`.
+- **테스트**: `FaceGeneratorTests` — 유형 비율(전체·지역별), 유형별 평균 |축/범위| 순서, 결정론(같은 id 2회), `GenerateGroup` 재추첨 뒤 유형 유지. 생성기 `farm.py art`는 스펙 끝 1회(T31), 중간엔 생성기 1회.
+- **위험**: 범위 0.8배에서 개성 유형 극단 조합이 관통·표정 깨짐을 내면 개성 극단 상한을 범위 × 0.9로 낮춘다. 남성 기준을 더해 시안 얼굴(승인된 모습)이 많이 바뀌면 사용자에게 비교를 보이고 세기를 고른다.

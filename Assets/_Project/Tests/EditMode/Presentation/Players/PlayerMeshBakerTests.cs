@@ -184,6 +184,25 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         }
 
         [Test]
+        public void Closeup_ShadowProxyIsLod0()
+        {
+            // 088 T30h: 클로즈업이면 그림자 대리 = LOD0(매끈한 턱 그림자), 끄면 LOD2로. 클로즈업 머리는 그림자를 던지지 않는다
+            var rig = Rig(13, out _, out _);
+            try
+            {
+                var px = rig.ShadowProxyRenderer;
+                Assert.IsNotNull(px);
+                int low = px.sharedMesh.triangles.Length / 3;
+                rig.SetCloseup(true);
+                Assert.Greater(px.sharedMesh.triangles.Length / 3, low * 3, "클로즈업 그림자 대리가 LOD0이 아니다");
+                Assert.AreEqual(UnityEngine.Rendering.ShadowCastingMode.Off, rig.CloseupRenderer.shadowCastingMode);
+                rig.SetCloseup(false);
+                Assert.AreEqual(low, px.sharedMesh.triangles.Length / 3);
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
+        }
+
+        [Test]
         public void BakeDuringPlayback_Counted()
         {
             var rig = PlayerRigTests.NewRig();

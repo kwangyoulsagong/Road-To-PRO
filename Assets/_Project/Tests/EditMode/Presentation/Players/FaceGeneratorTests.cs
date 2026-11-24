@@ -171,5 +171,71 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             Team(5, b, lm);
             for (int i = 0; i < 22; i++) Assert.AreEqual(a[i], b[i], "선수 " + i);
         }
+
+        // 088 FR-60 AC-15: 인상 유형 비율 20/60/20 — 전체 ± 2 %p, 지역 7개 각각 ± 3 %p (유형은 id로만, 지역과 독립)
+        [Test]
+        public void Impression_Ratio_SameInEveryRegion()
+        {
+            const int n = 20000;
+            var all = new int[3];
+            var byRegion = new int[AppearanceGenerator.Regions, 3];
+            var regionN = new int[AppearanceGenerator.Regions];
+            for (int id = 1; id <= n; id++)
+            {
+                int t = (int)FaceGenerator.ImpressionOf(id);
+                int r = AppearanceGenerator.RegionOf(AppearanceGenerator.Generate(new BodyInput(id)).BaseA);
+                all[t]++;
+                byRegion[r, t]++;
+                regionN[r]++;
+            }
+            float[] want = { 0.2f, 0.6f, 0.2f };
+            for (int t = 0; t < 3; t++) Assert.AreEqual(want[t], all[t] / (float)n, 0.02f, "전체 유형 " + (FaceImpression)t);
+            for (int r = 0; r < AppearanceGenerator.Regions; r++)
+            {
+                Assert.Greater(regionN[r], 500, "지역 " + r + " 표본이 적다");
+                for (int t = 0; t < 3; t++)
+                    Assert.AreEqual(want[t], byRegion[r, t] / (float)regionN[r], 0.03f, "지역 " + r + " 유형 " + (FaceImpression)t);
+            }
+        }
+
+        // AC-15: 유형별 평균 |축/범위| — 잘생김 < 평범 < 개성
+        [Test]
+        public void Impression_AxisMagnitude_Ordered()
+        {
+            var d = FaceGeneratorTests.Data;
+            var sum = new double[3];
+            var cnt = new int[3];
+            for (int id = 1; id <= 6000; id++)
+            {
+                int t = (int)FaceGenerator.ImpressionOf(id);
+                var f = FaceGenerator.Generate(d, id);
+                double m = 0;
+                for (int i = 0; i < f.Axis.Length; i++) m += System.Math.Abs(f.Axis[i]) / d.Axes[i].Range;
+                sum[t] += m / f.Axis.Length;
+                cnt[t]++;
+            }
+            double h = sum[0] / cnt[0], p = sum[1] / cnt[1], x = sum[2] / cnt[2];
+            Assert.Less(h, p, "잘생김이 평범보다 평균에서 멀다");
+            Assert.Less(p, x, "개성이 평범보다 평균에 가깝다");
+        }
+
+        // AC-15: 같은 id → 같은 유형·같은 축, 팀 재추첨(시도 번호)에도 유형 유지
+        [Test]
+        public void Impression_Deterministic_AndKeptOnRetry()
+        {
+            var d = FaceGeneratorTests.Data;
+            for (int id = 1; id <= 200; id++)
+            {
+                Assert.AreEqual(FaceGenerator.ImpressionOf(id), FaceGenerator.ImpressionOf(id));
+                Assert.AreEqual(FaceGenerator.Generate(d, id), FaceGenerator.Generate(d, id), "id " + id);
+                var a = FaceGenerator.Generate(d, id, 0);
+                var b = FaceGenerator.Generate(d, id, 3);
+                for (int i = 0; i < a.Axis.Length; i++)
+                {
+                    Assert.LessOrEqual(System.Math.Abs(a.Axis[i]), d.Axes[i].Range + 1e-6f);
+                    Assert.LessOrEqual(System.Math.Abs(b.Axis[i]), d.Axes[i].Range + 1e-6f);
+                }
+            }
+        }
     }
 }

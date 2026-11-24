@@ -310,7 +310,9 @@ namespace RoadToPro.Presentation.Players.Logic
             int baseB = OtherBase(SplitMix64.Next(ref s), baseA, -1);
             ulong rw = SplitMix64.Next(ref s);
             bool three = (int)(rw % 1000UL) < ThreeBasePermille;
-            int wA = 600 + (int)((rw / 1000UL) % 251UL);             // 주 바탕 600~850 ‰ (지역 인상 유지)
+            // 088 T30d (2026-11-24 사용자 "동양인이어도 서양인처럼 잘생긴 사람들도 있고, 너무 다 동양인을 동양인으로 해놨어"):
+            // 주 바탕 600~850 → 500~750 ‰ [제안] — 지역은 약한 경향, 같은 지역 안 생김새 폭을 넓힌다(모든 지역 같게). 하한 500 = 주 바탕이 가장 큰 가중치
+            int wA = 500 + (int)((rw / 1000UL) % 251UL);
             int rest = 1000 - wA, wB = rest, wC = 0, baseC = -1;
             if (three)
             {

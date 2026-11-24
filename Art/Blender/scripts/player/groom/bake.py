@@ -33,6 +33,13 @@ CUT_D = 1.62                                  # 062: 장발 하한 (눈 높이 �
 CHORD_MIN = 0.75                              # 카드 후보: 현/호 비율 하한 (곧은 가닥만)
 EXT_MAX = 1.25                                # 카드 길이 연장 상한
 CARD_W_MAX = 0.012                            # 카드 폭 상한 (m)
+# 088 T30g: 밧줄 계열(드레드)은 밧줄마다 관 하나 — k-평균 평면 카드(≈ 1,300장)는 밧줄 하나를 짧은 조각 20여 장으로 쪼개
+# 네모 조각이 흩어지고 두피가 비쳤다(사용자 "탈모는 머고"). 밧줄 수 = 그루밍 clump_n과 같게 [제안]
+ROPE_STYLES = {"Hair_Dreads": 65}
+ROPE_SIDES = 5                                # 관 단면 변 수
+ROPE_SEG = 8                                  # 관 길이 마디
+ROPE_R = (0.0025, 0.0065)                     # 관 반지름 범위 (m) — 다발 굵기 70 백분위로 정하고 자른다
+ROPE_MIN_KEEP = 0.04                          # 자른 뒤 이보다 짧은(또는 원래 길이 절반 미만) 밧줄은 그리지 않는다 (m) [제안]
 CUT_D_BACK = 1.2                              # 머리 뒤 카드 하한 (고개 숙임·GK 동작에서 등·목 관통 방지)
 OVER = 0.002                                  # 봉투 밖 돌출 판정 (m)
 CACHE = os.path.join(os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "..")), ".farm", "cache", "groom")
@@ -366,6 +373,76 @@ def _inward(P, faces, ctr):
     return out
 
 
+def _rope_tubes(m, over, n_rope, ctr, c_eye, d_eye, cut_y, crect, R, tree, alld):
+    """088 T30g: 밧줄(드레드) — 뿌리 위치로 n_rope개 묶어 묶음마다 중심선(대표 가닥)을 따라 ROPE_SIDES각 관을 붙인다.
+    자름 규칙은 카드와 같다(얼굴 앞에 들어서기 전까지, 머리 뒤는 CUT_D_BACK 위). 끝은 반지름 0.4배로 가늘게."""
+    from player import hair_skin as HS
+    # 밧줄은 뿌리·중간·끝 경로 전체를 공유한다 — 뿌리 위치만으로 묶으면 서로 다른 밧줄이 한 무리에 섞여 대표 가닥이 가로 막대가 됐다
+    feat = np.concatenate([over[:, 0], over[:, over.shape[1] // 2], over[:, -1]], axis=1).astype(np.float64)
+    lab, _ = _cluster(feat, n_rope)
+    for c in range(n_rope):
+        grp = over[lab == c]
+        if len(grp) < 3:
+            continue
+        # 대표 가닥(medoid — 무리 평균선에 가장 가까운 실제 가닥): 무리 안에 뒤·옆으로 갈라지는 가닥이 섞이면 점별 중간값 선이 쪼그라들어
+        # 앞머리 쪽 밧줄이 위로 솟은 토막이 됐다
+        glen = np.linalg.norm(np.diff(grp, axis=1), axis=2).sum(axis=1)
+        cand = grp[glen >= np.median(glen)]                              # 짧은 가닥은 대표 후보에서 뺀다 (T자 토막)
+        mean = cand.mean(axis=0)
+        line = cand[int(np.argmin(np.linalg.norm(cand - mean[None], axis=2).sum(axis=1)))].astype(np.float64)
+        grp = grp[np.linalg.norm(grp - line[None], axis=2).mean(axis=1) < 0.012]   # 대표 가닥 둘레 1.2 cm 안 가닥만 굵기 계산에
+        if len(grp) < 3:
+            continue
+        back_cut = np.where(line[:, 2] < ctr[2] - 0.02, c_eye[1] - CUT_D_BACK * d_eye, cut_y)
+        in_face = (line[:, 1] < c_eye[1] + 0.012) & (line[:, 2] > c_eye[2] - 0.035) & (np.abs(line[:, 0] - c_eye[0]) < 0.07)
+        end = len(line)
+        if in_face.any():
+            end = min(end, int(np.argmax(in_face)))
+        below = line[:, 1] < back_cut
+        if below.any():
+            end = min(end, int(np.argmax(below)))
+        if end < 2:
+            continue
+        full_len = np.linalg.norm(np.diff(line, axis=0), axis=1).sum()
+        line, grp = line[:end], grp[:, :end]
+        # 길이 상한(062: 머리 뒤 눈 − 1.2 d)·얼굴 앞에서 뿌리 근처가 잘린 밧줄은 토막으로 튀어 보인다 → 그리지 않는다(바탕 셸이 맡는다) [제안]
+        if np.linalg.norm(np.diff(line, axis=0), axis=1).sum() < max(ROPE_MIN_KEEP, 0.5 * full_len):
+            continue
+        idx = np.linspace(0, len(line) - 1, ROPE_SEG + 1).round().astype(int)
+        line, g = line[idx], grp[:, idx]
+        tan = np.gradient(line, axis=0)
+        tan /= np.linalg.norm(tan, axis=1, keepdims=True) + 1e-12
+        outw = line - ctr
+        outw -= tan * (outw * tan).sum(axis=1, keepdims=True)
+        outw /= np.linalg.norm(outw, axis=1, keepdims=True) + 1e-12
+        side = np.cross(tan, outw)
+        rel = g - line[None]
+        rel -= tan[None] * (rel * tan[None]).sum(axis=2, keepdims=True)
+        rad = np.clip(np.percentile(np.linalg.norm(rel, axis=2), 70, axis=0), *ROPE_R)
+        rad[-1] *= 0.4
+        line = line + outw * rad[:, None]                          # 관을 두피 위에 얹는다 — 가닥이 두피에 붙은 구간에서 관이 반지름만큼 파묻혀 토막처럼 보였다
+        ang = 2 * np.pi * np.arange(ROPE_SIDES) / ROPE_SIDES
+        ring = [line[i] + rad[i] * (np.cos(ang)[:, None] * outw[i] + np.sin(ang)[:, None] * side[i]) for i in range(len(line))]
+        P = np.vstack(ring)                                        # (마디+1) × 변
+        cu0 = crect[0] + (crect[2] - crect[0]) * ((c * 37) % 5) / 5.0
+        du = (crect[2] - crect[0]) / 5.0 / ROPE_SIDES
+        faces = []
+        for i in range(len(line) - 1):
+            va = crect[3] - (crect[3] - crect[1]) * i / (len(line) - 1)
+            vb = crect[3] - (crect[3] - crect[1]) * (i + 1) / (len(line) - 1)
+            for k in range(ROPE_SIDES):
+                k2 = (k + 1) % ROPE_SIDES
+                a, b, c2, d = i * ROPE_SIDES + k, (i + 1) * ROPE_SIDES + k, (i + 1) * ROPE_SIDES + k2, i * ROPE_SIDES + k2
+                ua, ub = 2 + cu0 + du * k, 2 + cu0 + du * (k + 1)
+                for tri, uv in (((a, b, c2), ((ua, va), (ua, vb), (ub, vb))), ((a, c2, d), ((ua, va), (ub, vb), (ub, va)))):
+                    p3 = P[list(tri)]
+                    axis_pt = (line[i] + line[i + 1]) / 2           # 관 축 기준 안쪽 법선 감김 (카드·셸과 같은 규칙)
+                    if np.cross(p3[1] - p3[0], p3[2] - p3[0]) @ (p3.mean(axis=0) - axis_pt) > 0:
+                        tri, uv = (tri[0], tri[2], tri[1]), (uv[0], uv[2], uv[1])
+                    faces.append((tri, uv))
+        HS.append(m, P, faces, "hair", R, tree, hd=np.column_stack([np.ones(len(P)), np.zeros(len(P))]), alld=alld, vpart="card")
+
+
 def strand_cards(name, lod):
     """088 FR-54 (T29): 이 스타일·LOD가 가닥 다발 카드(+ 두피 막)인지."""
     return lod in STRAND_CARD_LODS and (styles.STYLES[name]["strand"] not in CARD_STRAND_SKIP or name in CARD_STYLE_FORCE)
@@ -402,7 +479,8 @@ def build(R, name, lod, s):
     from . import grow as GG
     mg, ear = GG.margin_of(frame.to_blender(hp - s["eye"]), "full")
     # 뒤통수 방향(D_z < −0.2)만 — 앞·옆(귀 둘레는 시안 뿌리 제외 영역이 헤어라인 "full"보다 넓다)에 깔면 정면 윤곽에 셸이 덧붙어 승인 스타일 IoU가 떨어졌다
-    scalp = (s["skin"] > 0) & ~face_dir & (mg > 0) & ~ear & (D[:, 2] < -0.2)
+    # 088 T30g: 밧줄 스타일(드레드)은 밧줄 사이로 두피가 보이는 게 기본이라 앞·정수리도 최소 셸(바탕 머리색) — 뒤통수만이면 정수리 앞이 맨살
+    scalp = (s["skin"] > 0) & ~face_dir & (mg > 0) & ~ear & ((D[:, 2] < -0.2) | (name in ROPE_STYLES))
     env = np.where(scalp & ~hair, s["skin"] + MIN_T, env)
     hair |= scalp
     for _ in range(4):                                            # 구멍 메우기 (이웃 대부분이 머리카락)
@@ -436,6 +514,8 @@ def build(R, name, lod, s):
             for _ in range(2):                                    # 이웃 두 고리까지 (카드 폭)
                 covered = covered | np.array([any(covered[j] for j in nb[i]) for i in range(len(D))])
         env = np.where(hair, np.where(covered, np.maximum(env - CORE_IN, s["skin"] + CAP_T), env), 0.0)
+        if name in ROPE_STYLES:                                   # 088 T30g: 밧줄은 두피 위에 얹힌다 — 셸은 두피 바로 위 얇은 층만(봉투 높이면 관이 파묻혀 토막처럼 보였다)
+            env = np.where(hair, s["skin"] + CAP_T, 0.0)
     faces = [tuple(f) for f in Fc if hair[f].all()]
     ids = sorted({v for f in faces for v in f})
     remap = {v: i for i, v in enumerate(ids)}
@@ -499,6 +579,10 @@ def build(R, name, lod, s):
         arc = np.linalg.norm(np.diff(over, axis=1), axis=2).sum(axis=1)
         chord = np.linalg.norm(over[:, -1] - over[:, 0], axis=1)
         over = over[chord > (CARD_CHORD_MIN if strand_cards(name, lod) else CHORD_MIN) * np.maximum(arc, 1e-6)]
+    if name in ROPE_STYLES and strand_cards(name, lod):
+        # 카드용 직선도 필터(chord/arc) 전 가닥 전부 — 머리 위를 넘어 뒤로 휘는 긴 밧줄이 필터에 빠져 정수리 밧줄이 토막이 됐다
+        _rope_tubes(m, s["strands"].astype(np.float64), ROPE_STYLES[name], ctr, c_eye, d_eye, cut_y, card_rect(st["strand"]), R, tree, alld)
+        seg = 0                                                    # 평면 카드는 만들지 않는다
     if seg and budget >= 2 * seg and len(over):
         ncard = int(budget // (2 * seg))
         feat = np.concatenate([over[:, over.shape[1] // 2], over[:, -1]], axis=1)

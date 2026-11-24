@@ -27,6 +27,8 @@ namespace RoadToPro.Verification.Samples
         static readonly Color ProtoBackground = new Color32(165, 170, 185, 255);   // 시안 렌더 배경 픽셀(sRGB)
 
         bool _studio;
+        static bool StudioCinematicShadow = false;   // 진단: 연출 모드 그림자 거리 배율 적용 여부
+        float _shadowDistBefore = -1f;
         Light _studioSun;
         Quaternion _sunRot;
         float _sunIntensity, _fovBefore;
@@ -43,19 +45,85 @@ namespace RoadToPro.Verification.Samples
                 FarmContext.Screens[$"proto{face.name}Three"] = () => ShowProto(face.name, face.baseHead, face.tone, 35f);
                 // 후처리(게임 룩: 톤매핑·노출·대비) 끈 판 — 시안 Blender "Standard" 렌더와 셰이딩만 비교
                 FarmContext.Screens[$"proto{face.name}FrontRaw"] = () => ShowProto(face.name, face.baseHead, face.tone, 0f, true);
+                // 면도 자국(수염 stubble, 062 BeardLevels 1) — 남성 얼굴 단서 비교 (T30d)
+                FarmContext.Screens[$"proto{face.name}FrontStubble"] = () => ShowProto(face.name, face.baseHead, face.tone, 0f, false, 1);
+                // 진단: 근육 노멀(_MuscleDef 0) 끈 판 — 목 감량 면 음영 원인 확인 (T30h)
+                FarmContext.Screens[$"proto{face.name}FrontNoMuscle"] = () => { ShowProto(face.name, face.baseHead, face.tone, 0f); SetBodyFloat(ExprPlayers[0], "_MuscleDef", 0f); };
+                FarmContext.Screens[$"proto{face.name}FrontNoAO"] = () => { ShowProto(face.name, face.baseHead, face.tone, 0f); SetBodyTex(ExprPlayers[0], "_MuscleAO", Texture2D.whiteTexture); };
+                FarmContext.Screens[$"proto{face.name}FrontFlat"] = () => { ShowProto(face.name, face.baseHead, face.tone, 0f); SetBodyFloat(ExprPlayers[0], "_MuscleDef", 0f); SetBodyFloat(ExprPlayers[0], "_NormalStrength", 0f); SetBodyTex(ExprPlayers[0], "_MuscleAO", Texture2D.whiteTexture); };
             }
+            // 088 승인 헤어 4종(포마드 14·가르마 15·시스루 16·가일컷 30) — 같은 얼굴(유럽 바탕 머리)·시안 조명, 정면·3/4
+            foreach (var hs in new[] { (14, "Pomade"), (15, "Garma"), (16, "SeeThrough"), (30, "Gail") })
+            {
+                var st = hs;
+                FarmContext.Screens[$"hair{st.Item2}Front"] = () => ShowApprovedHair(st.Item2, st.Item1, 0f);
+                FarmContext.Screens[$"hair{st.Item2}Three"] = () => ShowApprovedHair(st.Item2, st.Item1, 35f);
+                // 진단 (T30h): 클로즈업 그림자 끔 / 대리 그림자 머리 안 접음
+                FarmContext.Screens[$"hair{st.Item2}FrontNoCloseupShadow"] = () => { ShowApprovedHair(st.Item2, st.Item1, 0f); _rigs[ExprPlayers[0]].CloseupRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; };
+                FarmContext.Screens[$"hair{st.Item2}FrontProxyHead"] = () => { ShowApprovedHair(st.Item2, st.Item1, 0f); var px = _rigs[ExprPlayers[0]].ShadowProxyRenderer; if (px != null) px.SetBlendShapeWeight(0, 0f); };
+            }
+            // 088 T30f (AC-16 e2e/088-face-variety): 지역 7 × 인상 유형 3, 화면 하나에 한 명
+            for (int r = 0; r < AppearanceGenerator.Regions; r++)
+                for (int t = 0; t < 3; t++)
+                {
+                    int region = r;
+                    var type = (FaceImpression)t;
+                    FarmContext.Screens[$"variety{r + 1}{type}"] = () => ShowVariety(region, type);
+                }
         }
 
-        void ShowProto(string name, int baseHead, int tone, float orbitDeg, bool raw = false)
+        void ShowApprovedHair(string name, int style, float orbitDeg)
         {
             int ent = ExprPlayers[0];
-            Prepare062($"proto{name}{(orbitDeg == 0f ? "Front" : "Three")}{(raw ? "Raw" : "")}");
+            Prepare062($"hair{name}{(orbitDeg == 0f ? "Front" : "Three")}");
+            var a = _looks[ent];
+            var look = new PlayerAppearance(a.HeightCm, a.WeightKg, a.Thin, a.Muscular, a.Heavy, 1, 0, style, 1,
+                a.Broad, a.Limb, 0, 0, 5, 6, 7, 1000, 0, 0, 1);
+            _rigs[ent].ApplyAppearance(look, new FaceShape(new float[_faces[ent].Axis.Length]), Face062);
+            _over062.Add(ent);
+            PoseStill(e => (e == ent, 0f, 0f, 0f), false, 0);
+            var rig = _rigs[ent];
+            rig.SetCloseup(true);
+            EnterStudio(rig.transform);
+            FrameProto(rig, orbitDeg, 0.75f);
+        }
+
+        /// <summary>지역 r에서 주 바탕이 그 지역이고 인상 유형이 type인 첫 선수 id(20000부터)를 생성값 그대로(혼합·피부톤·헤어) — 수염만 뺀다.
+        /// 시안 동일 조건 조명·카메라(헤어가 들어오게 0.75 m).</summary>
+        void ShowVariety(int region, FaceImpression type)
+        {
+            int ent = ExprPlayers[0];
+            Prepare062($"variety{region + 1}{type}");
+            int id = 20_000;
+            PlayerAppearance a = default;
+            for (; id < 60_000; id++)
+            {
+                if (FaceGenerator.ImpressionOf(id) != type) continue;
+                a = AppearanceGenerator.Generate(new BodyInput(id));
+                if (AppearanceGenerator.RegionOf(a.BaseA) == region) break;
+            }
+            var noBeard = new PlayerAppearance(a.HeightCm, a.WeightKg, a.Thin, a.Muscular, a.Heavy, a.SkinTone, a.Face, a.HairStyle, a.HairColor,
+                a.Broad, a.Limb, a.ColorPoint, 0, a.BaseA, a.BaseB, a.BaseC, a.WeightA, a.WeightB, a.WeightC, a.Eyebrow);
+            _rigs[ent].ApplyAppearance(noBeard, FaceGenerator.Generate(Face062, id), Face062);
+            Debug.Log($"[088] variety{region + 1}{type} id {id} hair {PlayerLook.HairMeshes[a.HairStyle]} {noBeard}");
+            _over062.Add(ent);
+            PoseStill(e => (e == ent, 0f, 0f, 0f), false, 0);
+            var rig = _rigs[ent];
+            rig.SetCloseup(true);
+            EnterStudio(rig.transform);
+            FrameProto(rig, 0f, 0.75f);
+        }
+
+        void ShowProto(string name, int baseHead, int tone, float orbitDeg, bool raw = false, int beard = 0)
+        {
+            int ent = ExprPlayers[0];
+            Prepare062($"proto{name}{(orbitDeg == 0f ? "Front" : "Three")}{(raw ? "Raw" : "")}{(beard > 0 ? "Stubble" : "")}");
             var a = _looks[ent];
             int o1 = (baseHead + 1) % AppearanceGenerator.BaseHeads, o2 = (baseHead + 2) % AppearanceGenerator.BaseHeads;
             // 갈색 눈: PlayerRig 눈 색 = EyeColors[(톤 × 7 + Face) % 6] → 0(진갈색)이 되는 Face
             int faceIdx = ((-tone * 7) % PlayerLook.EyeColors.Length + PlayerLook.EyeColors.Length) % PlayerLook.EyeColors.Length;
             var pure = new PlayerAppearance(a.HeightCm, a.WeightKg, a.Thin, a.Muscular, a.Heavy, tone, faceIdx, 9, a.HairColor,
-                a.Broad, a.Limb, 0, 0, baseHead, o1, o2, 1000, 0, 0, 1);
+                a.Broad, a.Limb, 0, beard, baseHead, o1, o2, 1000, 0, 0, 1);
             _rigs[ent].ApplyAppearance(pure, new FaceShape(new float[_faces[ent].Axis.Length]), Face062);
             _over062.Add(ent);
             PoseStill(e => (e == ent, 0f, 0f, 0f), false, 0);
@@ -63,6 +131,26 @@ namespace RoadToPro.Verification.Samples
             rig.SetCloseup(true);
             EnterStudio(rig.transform);
             if (raw) KeyPost(true);
+            FrameProto(rig, orbitDeg, ProtoDist);
+        }
+
+        /// <summary>진단용: 선수의 모든 PlayerBody 머티리얼(몸·클로즈업)에 값을 넣는다. 다음 ApplyAppearance에서 원래 값으로 돌아간다.</summary>
+        void SetBodyFloat(int ent, string prop, float v)
+        {
+            foreach (var r in _rigs[ent].GetComponentsInChildren<Renderer>(true))
+                foreach (var m in r.sharedMaterials)
+                    if (m != null && m.shader != null && m.shader.name == "RoadToPro/PlayerBody") m.SetFloat(prop, v);
+        }
+
+        void SetBodyTex(int ent, string prop, Texture t)
+        {
+            foreach (var r in _rigs[ent].GetComponentsInChildren<Renderer>(true))
+                foreach (var m in r.sharedMaterials)
+                    if (m != null && m.shader != null && m.shader.name == "RoadToPro/PlayerBody") m.SetTexture(prop, t);
+        }
+
+        void FrameProto(PlayerRig rig, float orbitDeg, float dist)
+        {
             float s = rig.transform.localScale.y;
             var eye = rig.Bone("Head").position + rig.transform.rotation * (EyeFromHead * s);
             var aim = eye - Vector3.up * ProtoAimDrop;
@@ -70,7 +158,7 @@ namespace RoadToPro.Verification.Samples
             float r = orbitDeg * Mathf.Deg2Rad;
             var dir = rig.transform.forward * Mathf.Cos(r) + rig.transform.right * Mathf.Sin(r);
             cam.fieldOfView = ProtoFov;
-            cam.transform.position = aim + dir * ProtoDist - Vector3.up * ProtoCamDrop;
+            cam.transform.position = aim + dir * dist - Vector3.up * ProtoCamDrop;
             cam.transform.rotation = Quaternion.LookRotation(aim - cam.transform.position, Vector3.up);
         }
 
@@ -111,6 +199,12 @@ namespace RoadToPro.Verification.Samples
             cam.clearFlags = CameraClearFlags.SolidColor;
             cam.backgroundColor = ProtoBackground;
             pitch.enabled = false;
+            // 실제 클로즈업과 같게 연출 모드(061 CinematicModeController)의 그림자 거리 배율을 쓴다
+            if (UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline is UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset urp)
+            {
+                if (_shadowDistBefore < 0f) _shadowDistBefore = urp.shadowDistance;
+                urp.shadowDistance = _shadowDistBefore * (StudioCinematicShadow ? RoadToPro.Presentation.Rendering.CinematicModeController.ShadowDistanceScale : 1f);
+            }
         }
 
         /// <summary>시안 조명에서 나올 때 경기장 조명·카메라를 되돌린다 (PrepareStill·ShowRow 처음에 부른다).</summary>
@@ -131,6 +225,9 @@ namespace RoadToPro.Verification.Samples
             cam.backgroundColor = _bgBefore;
             cam.fieldOfView = _fovBefore;
             pitch.enabled = true;
+            if (_shadowDistBefore >= 0f && UnityEngine.Rendering.GraphicsSettings.currentRenderPipeline is UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset urp)
+                urp.shadowDistance = _shadowDistBefore;
+            _shadowDistBefore = -1f;
             _studio = false;
         }
     }

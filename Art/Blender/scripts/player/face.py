@@ -20,7 +20,20 @@ from . import skeleton as S
 PROTO_MACRO = {"muscle": 0.85, "weight": 0.55, "proportions": 0.7, "height": 0.6}
 # 088 FR-51 [제안]: 다양성은 인종 비율·피부 세트·톤으로 — 062 지역 얼굴 타깃 조합·무작위 얼굴 축은 시안 얼굴을 바꾸지 않을 만큼만 남긴다
 FACE_TARGET_GAIN = 0.32  # 바탕 머리의 지역 얼굴 타깃 조합 배율 (062 실루엣 쌍 ≥ 0.02 — 2026-11-23 사용자 "기준 완화", 0.3은 0.0198)
-AXIS_GAIN = 0.35         # 무작위 얼굴 축 범위 배율 (팀 안 구별 기준 MinDistance는 평균 쌍 거리의 25 %라 함께 줄어든다)
+AXIS_GAIN = 0.8          # 무작위 얼굴 축 범위 배율 (팀 안 구별 기준 MinDistance는 평균 쌍 거리의 25 %라 함께 바뀐다)
+                         # 088 FR-61 (2026-11-24 사용자 "잘생긴·못생긴·평범남 다 있게"): T26 0.35 → 0.8 [제안]
+# 088 FR-59 (2026-11-24 사용자 "동양인 얼굴이 여자 얼굴 같아"): 바탕 머리 8개 공통 남성 성인 골격 타깃 [제안] — 지역별로 다르게 주지 않는다
+MALE_BASE = [
+    (["chin-prominent-incr"], 0.35), (["chin-width-incr"], 0.3), (["forehead-nubian-incr"], 0.4),
+    (["eyebrows-trans-down"], 0.3), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.3),
+]
+# 088 T30d: 바탕 머리별 추가 남성화(배율 1) [제안] — 사용자 2026-11-24 "흑인 서양인은 ㄱㅊ아, 저 동아시안이 문제인거야" → 동아시아만.
+# 시안 렌더(MPFB asian 0.7 + 아래 조합 0.6배)로 고른 방향: 턱뼈·턱 폭, 볼 살·입술 두께 줄임, 코 폭
+BASE_MASC = {
+    "Base_0": [(["chin-bones-incr"], 0.3), (["chin-width-incr"], 0.2), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.2),
+               (["mouth-upperlip-volume-decr"], 0.3), (["mouth-lowerlip-volume-decr"], 0.2), (["nose-scale-horiz-incr"], 0.15),
+               (["eyebrows-angle-down"], 0.2)],
+}
 
 # (축 id, 음 방향 타깃들, 양 방향 타깃들, 범위). 좌우 타깃은 양쪽을 같이 (얼굴 비대칭은 쓰지 않는다).
 AXES = [
@@ -83,14 +96,14 @@ EYE_GROUPS = ("helper-l-eye", "helper-r-eye")
 # 같은 지역 안 개인차는 기존 얼굴 30축(FaceGenerator)이 낸다. (id, 지역 태그, 인종 매크로 비율, [(타깃들, 가중치)])
 # 지역 7개(FR-62): east_asia · southeast_asia · south_asia · west_asia_north_africa · west_central_africa · europe · latin_america
 BASE_HEADS = [
-    ("Base_0", "east_asia", {"asian": 0.9, "caucasian": 0.1, "african": 0.0}, [   # 088 T26: 시안 asian 세트 비율
-        (["l-eye-epicanthus-in", "r-eye-epicanthus-in"], 0.9), (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.8),
+    ("Base_0", "east_asia", {"asian": 0.7, "caucasian": 0.3, "african": 0.0}, [   # 088 T26 시안 asian 0.9 → T30d 0.7 (MPFB asian 매크로가 앳되고 중성적 — 사용자 "동양인 얼굴이 여자 얼굴 같아")
+        # 088 T30d: 몽고주름·눈꺼풀 내림 타깃 삭제(사용자 2026-11-24 "눈이 인종 비하 하는 거 같음") — 지역 전원에 같은 눈매를 박는 고정관념 과장.
+        # 눈매는 인종 매크로의 자연스러운 정도만, 사람마다의 눈 크기·쌍꺼풀은 개인 얼굴 축(모든 지역 같은 범위)이 맡는다
         (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.8), (["nose-hump-decr"], 0.6), (["nose-scale-depth-decr"], 0.6),
         (["head-scale-horiz-incr"], 0.5), (["head-back-scale-depth-decr"], 0.5), (["forehead-nubian-decr"], 0.4),
         (["chin-width-incr"], 0.3)]),
     ("Base_1", "southeast_asia", {"asian": 0.6, "caucasian": 0.15, "african": 0.25}, [
-        (["l-eye-epicanthus-in", "r-eye-epicanthus-in"], 0.4), (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.4),
-        (["l-eye-scale-incr", "r-eye-scale-incr"], 0.3), (["nose-nostrils-width-incr"], 0.8), (["nose-scale-horiz-incr"], 0.5),
+        (["l-eye-scale-incr", "r-eye-scale-incr"], 0.3), (["nose-nostrils-width-incr"], 0.8),   # 088 T30d: 몽고주름·눈꺼풀 내림 삭제 (["nose-scale-horiz-incr"], 0.5),
         (["nose-scale-vert-decr"], 0.5), (["nose-scale-depth-decr"], 0.5), (["mouth-upperlip-volume-incr"], 0.6),
         (["mouth-lowerlip-volume-incr"], 0.6), (["head-scale-vert-decr"], 0.4), (["head-round"], 0.6), (["chin-height-decr"], 0.5),
         (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.4)]),
@@ -118,8 +131,7 @@ BASE_HEADS = [
     ("Base_7", "latin_america", {"asian": 0.35, "caucasian": 0.45, "african": 0.2}, [
         (["l-cheek-bones-incr", "r-cheek-bones-incr"], 1.0), (["head-round"], 0.8), (["head-scale-horiz-incr"], 0.6),
         (["nose-scale-horiz-incr"], 0.5), (["nose-hump-incr"], 0.7), (["nose-scale-depth-incr"], 0.3),
-        (["mouth-upperlip-volume-incr"], 0.4), (["chin-width-incr"], 0.7), (["chin-height-decr"], 0.4), (["forehead-scale-vert-decr"], 0.4),
-        (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.3)]),
+        (["mouth-upperlip-volume-incr"], 0.4), (["chin-width-incr"], 0.7), (["chin-height-decr"], 0.4), (["forehead-scale-vert-decr"], 0.4)]),   # 088 T30d: 눈꺼풀 내림 삭제
 ]
 REGIONS = ("east_asia", "southeast_asia", "south_asia", "west_asia_north_africa", "west_central_africa", "europe", "latin_america")
 
@@ -172,6 +184,8 @@ def base_head_deltas(R):
         d = m
         for names, w in targets:
             d = d + R.target_delta(names) * (w * FACE_TARGET_GAIN)
+        for names, w in MALE_BASE + BASE_MASC.get(bid, []):   # 088 FR-59: 모든 바탕 머리에 같은 세기 (혼합 가중치 합 1이라 선수마다 그대로 1배) + 바탕별 추가
+            d = d + R.target_delta(names) * w
         out[bid] = d
     return out
 

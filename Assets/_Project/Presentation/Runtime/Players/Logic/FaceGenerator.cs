@@ -146,12 +146,37 @@ namespace RoadToPro.Presentation.Players.Logic
     /// 축 값: 두 균등의 합(삼각 분포, 평균 얼굴 쪽이 많다) × 범위. 062: 수염·바탕 머리는 AppearanceGenerator가 뽑는다.
     /// GenerateGroup: 한 장면(팀 22명 등)에서 앞 선수와 랜드마크 거리가 기준(FaceLandmarks.MinDistance)보다 가까우면 시도 번호를 올려 다시 뽑는다(AC-04).
     /// </summary>
+    /// <summary>088 FR-60 인상 유형 — id로만 정한다(지역·피부·바탕 머리와 독립). 겉모습 전용, 게임 규칙과 연결 없음.</summary>
+    public enum FaceImpression { Handsome, Plain, Distinctive }
+
     public static class FaceGenerator
     {
         const uint Tag = 0x0056FACEu;
+        const uint ImpressionTag = 0x0088FACEu;
         public const int MaxTries = 32;
+        /// <summary>088 FR-60 [제안] 천분율: 잘생김 200 · 평범 600 · 개성 200.</summary>
+        public const int HandsomePermille = 200, PlainPermille = 600;
+        /// <summary>잘생김: 평균성(축 크기 × 0.45) + 성적 이형성 쪽 치우침(범위 비율) [제안] — Langlois & Roggman 1990, Rhodes 2006 방향.</summary>
+        public const float HandsomeSpread = 0.45f;
+        static readonly (string axis, float bias)[] HandsomeBias =
+        {
+            ("chin_prominent", 0.5f), ("chin_width", 0.35f), ("brow_ridge", 0.35f), ("cheekbones", 0.35f), ("cheek_volume", -0.35f),
+        };
+        /// <summary>개성: 무작위 축 3~5개를 범위 × [0.75, 1.0] 끝 쪽으로 [제안].</summary>
+        public const int DistinctMin = 3, DistinctMax = 5;
+        public const float DistinctLo = 0.75f;
 
         static float U01(ref ulong s) => (float)(SplitMix64.Next(ref s) >> 40) / (1 << 24);
+
+        public static FaceImpression ImpressionOf(int id)
+        {
+            var h = StableHasher.Create();
+            h.Add(ImpressionTag);
+            h.Add((uint)id);
+            ulong s = h.Value;
+            int pm = (int)(SplitMix64.Next(ref s) % 1000UL);
+            return pm < HandsomePermille ? FaceImpression.Handsome : pm < HandsomePermille + PlainPermille ? FaceImpression.Plain : FaceImpression.Distinctive;
+        }
 
         public static FaceShape Generate(FaceData d, int id, int attempt = 0)
         {
@@ -163,7 +188,36 @@ namespace RoadToPro.Presentation.Players.Logic
             var ax = new float[d.Axes.Count];
             for (int i = 0; i < ax.Length; i++)
                 ax[i] = d.Axes[i].Range * (U01(ref s) + U01(ref s) - 1f);
+            // 088 FR-60: 유형은 시도 번호와 무관(GenerateGroup 재추첨에도 유지). 평범 = 위 기존 분포 그대로
+            switch (ImpressionOf(id))
+            {
+                case FaceImpression.Handsome:
+                    for (int i = 0; i < ax.Length; i++) ax[i] *= HandsomeSpread;
+                    foreach (var (axis, bias) in HandsomeBias)
+                    {
+                        int k = IndexOf(d, axis);
+                        if (k >= 0) ax[k] += d.Axes[k].Range * bias;
+                    }
+                    break;
+                case FaceImpression.Distinctive:
+                    int n = DistinctMin + (int)(SplitMix64.Next(ref s) % (ulong)(DistinctMax - DistinctMin + 1));
+                    for (int j = 0; j < n && j < ax.Length; j++)
+                    {
+                        int k = (int)(SplitMix64.Next(ref s) % (ulong)ax.Length);
+                        float mag = DistinctLo + (1f - DistinctLo) * U01(ref s);
+                        ax[k] = d.Axes[k].Range * mag * ((SplitMix64.Next(ref s) & 1UL) == 0 ? 1f : -1f);
+                    }
+                    break;
+            }
+            for (int i = 0; i < ax.Length; i++) ax[i] = System.Math.Clamp(ax[i], -d.Axes[i].Range, d.Axes[i].Range);
             return new FaceShape(ax);
+        }
+
+        static int IndexOf(FaceData d, string axis)
+        {
+            for (int i = 0; i < d.Axes.Count; i++)
+                if (d.Axes[i].Id == axis) return i;
+            return -1;
         }
 
         public static void GenerateGroup(FaceData d, FaceLandmarks lm, ReadOnlySpan<int> ids, FaceShape[] output)

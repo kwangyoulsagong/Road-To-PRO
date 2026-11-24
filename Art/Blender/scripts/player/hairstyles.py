@@ -95,6 +95,11 @@ def build(R, style, lod):
     h = hashlib.sha256((GB._key(style, R) + inspect.getsource(GB) + inspect.getsource(HSK) + str(lod)).encode())
     alld = B._all_deltas(R)
     h.update(",".join(sorted(alld)).encode())
+    # 088 T30d: 델타 값도 키에 — 이름만 넣었더니 바탕 머리 델타(FR-59 남성 골격)가 바뀌어도 예전 델타를 가진 헤어가 캐시에서 나와
+    # 정수리에서 두피가 헤어를 1.8 cm 뚫었다(Base_n: 두피 2.2 cm·헤어 0.5 cm 이동)
+    import numpy as _np
+    for k in sorted(alld):
+        h.update(_np.round(_np.asarray(alld[k], dtype=_np.float64), 6).astype(_np.float32).tobytes())
     path = os.path.join(GB.CACHE, f"mesh-{style}-{lod}-{h.hexdigest()[:16]}.pkl")
     if os.path.exists(path) and not os.environ.get("GROOM_NO_CACHE"):
         GB.summary(style, R)                                      # 공유 결 아틀라스 표본(SAMPLES) 등록 — 캐시 적중이어도 같은 아틀라스 (결정론)

@@ -185,6 +185,29 @@ Shader "RoadToPro/PlayerBody"
             // T30의 눈대중 색조 (1.07, 1.02, 1.0)를 대체 — 어두운 피부에서 시안이 더 밝고 붉은 원인이 이것이었다(동일 조건 비교)
             static const half3 SkinMixIn = half3(1.0h, 0.2h, 0.2h);
             static const half SkinMixInStrength = 0.05h;
+            // 088 T30h: 피부 그림자 — 빛에 수직인 원판(반경 SkinShadowR) 8곳에서 그림자 맵을 읽어 평균: 피부 속 빛 번짐만큼 경계가 흐려진다.
+            // 한 점 그림자는 코 그림자가 "칼로 벤 것" 같은 직선 경계였다(사용자 2026-11-24). 그림자 거리 밖·그림자 없음 품질은 1
+            static const float SkinShadowR = 0.006;   // m [제안]
+            // 샘플 점은 피부 표면을 따라(법선에 수직) 퍼뜨리고 법선 쪽으로 띄운다 — 빛에 수직인 원판 위 점은 일부가 피부 속으로 들어가
+            // 자기 표면에 가려 목에 얼룩 셀프 섀도가 났다
+            half SkinSoftShadow(float3 positionWS, half3 nGeo)
+            {
+                float3 nn = (float3)nGeo;
+                float3 u = normalize(cross(abs(nn.y) < 0.99 ? float3(0, 1, 0) : float3(1, 0, 0), nn));
+                float3 v = cross(nn, u);
+                positionWS += nn * (SkinShadowR * 0.5);
+                const float2 k[8] = { float2(1, 0), float2(0.707, 0.707), float2(0, 1), float2(-0.707, 0.707),
+                                      float2(-1, 0), float2(-0.707, -0.707), float2(0, -1), float2(0.707, -0.707) };
+                half acc = 0.0h;
+                [unroll] for (int i = 0; i < 8; i++)
+                {
+                    float r = SkinShadowR * ((i & 1) ? 0.55 : 1.0);
+                    float3 p = positionWS + (u * k[i].x + v * k[i].y) * r;
+                    acc += MainLightRealtimeShadow(TransformWorldToShadowCoord(p));
+                }
+                return acc * 0.125h;
+            }
+
             half3 SkinScatterDiffuse(half3 nD, half3 nGeo, half3 l)
             {
                 half3 ndl = half3(dot(SafeNormalize(lerp(nGeo, nD, SssNormalKeep.r)), l),
@@ -295,14 +318,23 @@ Shader "RoadToPro/PlayerBody"
                 skinRough = lerp(skinRough, skinRough * 0.6h, _Wetness);                 // FR-97 젖음
                 half occ = lerp(1.0h, mao, 1.0h - isPart);
                 // 088 T30: 확산 = 채널별 산란 노멀, 환경광도 산란 노멀로(얼룩 없이). 정반사 = 디테일 노멀 두 로브(좁은 번들 + 넓은 광택 — 시안 이마·코의 부드러운 하이라이트)
-                half3 ambS = SampleSH(nGeo);
-                half3 cSkin = skin * (lc * SkinScatterDiffuse(n, nGeo, l) + ambS) * occ
-                            + lc * (0.028h * Spec(n, h, ndl, skinRough) + SssSheen * Spec(n, h, ndl, saturate(skinRough + 0.2h)));
+                // 088 T30h: 아래를 향한 면(턱 밑·목 앞)은 턱·몸이 가려 하늘빛을 덜 받는다 — 가림이 없으면 턱선을 따라 푸른 띠(사용자 "목이 색이 이상한데") [제안]
+                half downOcc = saturate(nGeo.y * 0.6h + 0.75h);
+                half3 ambS = SampleSH(nGeo) * lerp(0.55h, 1.0h, downOcc);
+                // 피부: 부드러운 그림자 + 그늘 경계는 빨강이 가장 늦게 사라진다(산란) [제안]
+                half sh = lerp(light.shadowAttenuation, SkinSoftShadow(i.positionWS, nGeo), 1.0h - isPart);
+                // 클로즈업 머리 피부(UV1.y = 0.65, T29 표시)는 그림자 맵을 받지 않는다 — 경기장 해상도 그림자 맵으로는 코 그림자가 칼로 벤 직선·
+                // 셀프 섀도 얼룩이 됐다(사용자 "칼로 벤 거 같아서", "그림자 있으면 좋은데 제대로 해야지"). 얼굴 자기 그림자는 클로즈업 전용 그림자로 따로(T30i)
+                sh = lerp(sh, 1.0h, (1.0h - isPart) * smoothstep(0.45h, 0.6h, i.hd.y));   // 얼굴 0.65 · 목 0.4 (headlod.CLOSEUP_NECK_HD_Y)
+                half3 shRGB = pow(saturate(sh).xxx, half3(0.55h, 0.9h, 1.0h));
+                half3 lcSkin = light.color * lerp(light.shadowAttenuation.xxx, shRGB, 1.0h - isPart);
+                half3 cSkin = skin * (lcSkin * SkinScatterDiffuse(n, nGeo, l) + ambS) * occ
+                            + light.color * sh * (0.028h * Spec(n, h, ndl, skinRough) + SssSheen * Spec(n, h, ndl, saturate(skinRough + 0.2h)));
                 // 088 T30c: 환경광 반사 — 시안(Principled IOR 1.5 → F0 0.04, 코트 0.1)은 하늘빛이 피부 표면에 얹혀 어두운 피부가 덜 어둡고 덜 진하다.
                 // 슐리크 프레넬 × 반사 방향 SH, 거칠수록 약하게 [제안]
                 half ndv = saturate(dot(n, vdir));
                 half fre = 0.04h + 0.5h * pow(1.0h - ndv, 5.0h);   // 가장자리 상승 0.96 → 0.5: 하늘색 테두리가 너무 셈(시안 가장자리는 뒤 림 태양의 흰빛 — 셰이더는 주 광원만)
-                cSkin += SampleSH(reflect(-vdir, n)) * fre * lerp(1.0h, 0.5h, skinRough) * occ;
+                cSkin += SampleSH(reflect(-vdir, n)) * fre * lerp(1.0h, 0.5h, skinRough) * occ * downOcc * downOcc;
                 // FR-32 얇은 부위 역광: 빛이 뒤에서 올 때(시선과 빛이 마주볼 때) 두께 맵만큼 붉게 비친다
                 half back = pow(saturate(dot(vdir, -l)), 3.0h) * thk.r * _Translucency;
                 cSkin += light.color * back * skin * half3(1.0h, 0.45h, 0.35h);
