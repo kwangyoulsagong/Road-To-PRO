@@ -91,5 +91,17 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             Assert.AreEqual(0f, ExpressionLogic.LodScale(1));
             Assert.AreEqual(0f, ExpressionLogic.LodScale(2));
         }
+
+        [Test]
+        public void MouthOpen_NeutralClosed_CheerOpen()
+        {
+            // 088 T30j: 치아 차폐 = 입 벌림. 무표정·실망·집중은 0(입술 틈 윗니가 하늘빛에 흰 줄로 뜨지 않게), 환호는 1(치아 밝게), 미소는 사이, 0~1로 자른다
+            Assert.AreEqual(0f, ExpressionLogic.MouthOpen(new float[] { 0f, 0f, 0f, 0f }), 1e-6f);
+            Assert.AreEqual(0f, ExpressionLogic.MouthOpen(new float[] { 0f, 0f, 1f, 1f }), 1e-6f);
+            Assert.AreEqual(1f, ExpressionLogic.MouthOpen(new float[] { 1f, 0f, 0f, 0f }), 1e-6f);
+            float smile = ExpressionLogic.MouthOpen(new float[] { 0f, 1f, 0f, 0f });
+            Assert.That(smile, Is.GreaterThan(0f).And.LessThan(1f));
+            Assert.AreEqual(1f, ExpressionLogic.MouthOpen(new float[] { 1f, 1f, 0f, 0f }), 1e-6f);
+        }
     }
 }

@@ -25,6 +25,19 @@ namespace RoadToPro.Presentation.Players.Logic
         public static float LodScale(int lod) => lod == 0 ? 1f : 0f;
 
         public static float ClampBlend(float s) => s < MinBlend ? MinBlend : s > MaxBlend ? MaxBlend : s;
+
+        /// <summary>088 T30j: 표정별 입 벌림(치아가 빛을 받는 정도) — 생성기 face.py 표정: cheer만 mouth-open 0.85, smile은 입꼬리 [제안].</summary>
+        public const float CheerMouthOpen = 1f, SmileMouthOpen = 0.4f;
+
+        /// <summary>
+        /// 088 T30j: 표정 가중치(Keys 순서) → 입 벌림 0~1. 셰이더가 치아 빛을 lerp(TeethOcc, 1, 이 값)으로 줄인다 —
+        /// 무표정 입술 틈으로 보이는 윗니 끝이 그늘 없이 하늘빛을 받아 흰 줄로 보였다(클로즈업 얼굴은 그림자 맵을 안 받음, T30h).
+        /// </summary>
+        public static float MouthOpen(ReadOnlySpan<float> w)
+        {
+            float v = (w.Length > 0 ? w[0] * CheerMouthOpen : 0f) + (w.Length > 1 ? w[1] * SmileMouthOpen : 0f);
+            return v < 0f ? 0f : v > 1f ? 1f : v;
+        }
     }
 
     /// <summary>

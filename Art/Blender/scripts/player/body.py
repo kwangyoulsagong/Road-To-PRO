@@ -1196,7 +1196,8 @@ EXPR_PREFIX = "Expr_"
 MOUTH_TRIS = {"lod0": {"teeth": 32, "tongue": 32, "cap": (3, 8)}, "closeup": {"teeth": 48, "tongue": 64, "cap": (4, 10)}}
 MOUTH_GROUPS = {"teeth_upper": "helper-upper-teeth", "teeth_lower": "helper-lower-teeth", "tongue": "helper-tongue"}
 # UV: 치아 = parts 눈 칸 흰자(밝고 매끈), 혀 = 피부 UV 입술(붉은 기운), 입안 캡 = parts 눈 칸 동공(거의 검정)
-MOUTH_UV_TEETH = (1.21875, 0.875)
+# 088 T30j: 치아 v + 1 = 셰이더 치아 표시(입 벌림 차폐) — 셰이더가 1을 빼 같은 흰자 텍셀(1.21875, 0.875)을 읽는다
+MOUTH_UV_TEETH = (1.21875, 1.875)
 MOUTH_UV_CAP = (1.125, 0.875)
 
 

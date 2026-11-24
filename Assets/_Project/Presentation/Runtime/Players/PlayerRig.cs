@@ -352,8 +352,14 @@ namespace RoadToPro.Presentation.Players
         {
             PushExpression(_lods[0]);
             PushExpression(_closeup);
+            // 088 T30j: 치아 차폐 = 입 벌림 (무표정 입술 틈 윗니 흰 줄 방지, 환호하면 치아 밝게). 두 재질에 같은 값(FR-89 등급 전환)
+            float mo = ExpressionLogic.MouthOpen(_expr);
+            if (_body != null) _body.SetFloat(MouthOpenId, mo);
+            if (_closeupMat != null) _closeupMat.SetFloat(MouthOpenId, mo);
             RefreshFrozen();
         }
+
+        static readonly int MouthOpenId = Shader.PropertyToID("_MouthOpen");
 
         void PushExpression(SkinnedMeshRenderer r)
         {
