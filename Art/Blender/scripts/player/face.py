@@ -219,6 +219,39 @@ def eye_frame(R):
     return c, d
 
 
+MOUTH_062 = -1.50   # 062 바탕 머리의 입선 높이 (눈 중심 아래, d 단위) — 아래 수염 경계 상수는 이 머리 기준으로 정했다
+LIP_AX, LIP_AY = 0.47, 0.17   # 088 T30b: 입술 구멍 반지름 (d) — lips 그룹 실측(입꼬리 rx 0.47, 윗입술 −1.06 ~ 아랫입술 −1.40) [제안]
+
+
+def mouth_line(R):
+    """088 T30b: 입선 높이 ry (눈 중심 아래, d 단위) = MakeHuman lips 그룹 입꼬리(가로 끝 15 %) 평균.
+    T26에서 시안 머리 모양을 넣어 입이 062 기준(−1.50)보다 올라갔다(−1.22) — 수염 마스크의 입 둘레가 따라오게 한다."""
+    v = getattr(R, "_mouth_line", None)
+    if v is None:
+        c, d = eye_frame(R)
+        P = R.verts[np.asarray(R.groups["lips"])]
+        rx = np.abs(P[:, 0] - c[0]) / d
+        ry = (P[:, 1] - c[1]) / d
+        v = float(ry[rx > 0.85 * rx.max()].mean())
+        R._mouth_line = v
+    return v
+
+
+def _lip_hole(R, rx, ry):
+    """입술 타원 정규화 반지름² — 1 안쪽이 입술."""
+    return (rx / LIP_AX) ** 2 + ((ry - mouth_line(R)) / LIP_AY) ** 2
+
+
+MUSTACHE_TOP = 0.40   # 088 T30b: 콧수염 위 경계 = 입선 + 0.40 d (코 밑, 윗입술 −1.06보다 0.24 d 위) [제안]
+
+
+def _beard_top(R, rx, sx, cheek_top):
+    """수염 위 경계와 흐림 폭: 볼은 cheek_top − 0.30·sx(폭 0.35), 가운데는 입선 + MUSTACHE_TOP에서 옆으로 내려가며(폭 0.12) 볼 선과 만난다."""
+    top = np.maximum(cheek_top - 0.30 * sx, mouth_line(R) + MUSTACHE_TOP - 0.6 * rx ** 2)
+    w = 0.12 + 0.23 * np.clip(rx / 0.6, 0, 1)
+    return top, w
+
+
 def beard_mask(R, p):
     """수염 자리 0~1 (정점 위치 p, 선수 좌표). 랜드마크 기준 비율(눈 중심 c, 눈 사이 d)로 정한다.
     057 FR-24: 아래 경계 = 턱 밑 1~2 cm(울대 위)에서 끝나고 옆으로 갈수록 턱선을 따라 올라간다. 입은 입술만 비우고
@@ -230,13 +263,14 @@ def beard_mask(R, p):
     front = np.clip((z - (c[2] - 1.7 * d)) / (0.25 * d), 0, 1)
     sx = np.clip(rel_x - 0.45, 0, 2)
     # 위 경계(볼 선): 광대 아래, 옆으로 갈수록 낮게 — 0.35 폭으로 흐림
-    top = -0.95 - 0.30 * sx
-    m = np.clip((top - rel_y) / 0.35, 0, 1)
+    # 088 T30b: 가운데(콧수염 자리)는 코 밑까지 — 입을 따라 올라간 윗입술 위를 덮는다(062 고정 −0.95면 시안 머리에서 콧수염 자리가 빈다)
+    top, w = _beard_top(R, rel_x, sx, -0.95)
+    m = np.clip((top - rel_y) / w, 0, 1)
     # 아래 경계(목 선): 가운데 −2.55, 옆으로 갈수록 턱선을 따라 올라감 — 0.30 폭으로 흐림
     bottom = -2.55 + 0.75 * sx ** 1.3
     m = m * np.clip((rel_y - bottom) / 0.30, 0, 1)
     # 입술만 비운다 (부드러운 타원) — 콧수염·입꼬리·턱이 이어지게
-    lip = ((rel_x / 0.40) ** 2 + ((rel_y + 1.50) / 0.10) ** 2)
+    lip = _lip_hole(R, rel_x, rel_y)   # 088 T30b: 입 위치 실측(이전 062 고정 −1.50·반높이 0.10 → 시안 머리에서 윗입술이 덮였다)
     m = m * np.clip((lip - 1.0) / 0.6, 0, 1)
     # 밀도: 턱·콧수염 짙게, 볼 옅게
     dens = 0.55 + 0.45 * np.exp(-(sx / 0.55) ** 2)
@@ -270,21 +304,32 @@ def beard_masks(R, p):
     full = beard_mask(R, p)
     # 진한 스텁블: 볼 위 경계를 0.15d 올리고 밀도를 고르게 (턱·볼 차이 작게)
     sx = np.clip(rx - 0.45, 0, 2)
-    top = -0.80 - 0.30 * sx
-    heavy = np.clip((top - ry) / 0.30, 0, 1) * np.clip((ry - (-2.55 + 0.75 * sx ** 1.3)) / 0.30, 0, 1)
-    lip = ((rx / 0.40) ** 2 + ((ry + 1.50) / 0.10) ** 2)
+    top, w = _beard_top(R, rx, sx, -0.80)
+    heavy = np.clip((top - ry) / np.minimum(w, 0.30), 0, 1) * np.clip((ry - (-2.55 + 0.75 * sx ** 1.3)) / 0.30, 0, 1)
+    lip = _lip_hole(R, rx, ry)
+    dy = mouth_line(R) - MOUTH_062   # 088 T30b: 콧수염·염소수염은 입을 따라 옮긴다
     heavy = heavy * np.clip((lip - 1.0) / 0.6, 0, 1) * front * np.clip((1.30 - rx) / 0.25, 0, 1) * 0.9
     # 088 T28: 가로·세로 경사를 곱한 사각형(062)은 턱·입 둘레에 네모 블록으로 보였다(시안 비교) → 곡선 띠·타원 + 부드러운 합집합.
     # 콧수염: 윗입술 위를 따라 휘는 띠(가운데 ry −1.30, 입꼬리 쪽으로 내려와 −1.55), 가운데 두께 ±0.17d → 가로 0.62d에서 가늘어져 끝난다
-    yc = -1.22 - 0.45 * rx ** 2 - 0.25 * _ramp(rx - 0.35, 0.20)
+    yc = -1.22 + dy - 0.45 * rx ** 2 - 0.25 * _ramp(rx - 0.35, 0.20)
     half = 0.24 * np.sqrt(np.clip(1.0 - (rx / 0.62) ** 2, 0, 1)) + 0.02
     must = _ramp(half - np.abs(ry - yc), 0.30)
     must = must * np.clip((lip - 1.0) / 0.8, 0, 1) * front
     # 염소수염: 턱 타원(가운데 ry −2.0, 반지름 0.44d × 0.42d) + 입꼬리 세로 타원(콧수염과 턱을 잇는다) + 콧수염, 경계는 반지름의 ±30 %로 흐림
-    chin = _soft_ellipse(rx, ry, 0.0, -2.00, 0.44, 0.42, 0.40)
-    side = _soft_ellipse(rx, ry, 0.45, -1.68, 0.12, 0.26, 0.45)
+    chin = _soft_ellipse(rx, ry, 0.0, -2.00 + dy, 0.44, 0.42, 0.40)
+    side = _soft_ellipse(rx, ry, 0.45, -1.68 + dy, 0.12, 0.26, 0.45)
     goat = (1.0 - (1.0 - chin) * (1.0 - side) * (1.0 - must)) * np.clip((lip - 1.0) / 0.8, 0, 1) * front
-    return {"full": full, "mustache": must, "goatee": goat, "heavy": heavy}
+    # 088 T30b: LOD0·클로즈업은 원본 머리를 이음 평면(body._head_seam)에서 감량 몸에 잇는다(T27). 평면 아래 감량 몸의 큰 삼각형 위로
+    # 수염이 넘어가면 UV 보간이 거칠어 목 경계가 계단 블록으로 보였다 → 평면 위 BEARD_SEAM_CLEAR에서 0이 되게 흐린다
+    from . import body as B
+    pt, nrm = B._head_seam()
+    above = (p - pt) @ nrm
+    seam = _ramp(above - BEARD_SEAM_CLEAR, BEARD_SEAM_FADE)
+    return {"full": full * seam, "mustache": must * seam, "goatee": goat * seam, "heavy": heavy * seam}
+
+
+BEARD_SEAM_CLEAR = 0.004   # 088 T30b: 수염이 0이 되는 이음 평면 위 높이 (m) [제안]
+BEARD_SEAM_FADE = 0.015    # 그 위로 1로 올라가는 폭 (m) [제안]
 
 
 # ---------------------------------------------------------------- 델타 등록

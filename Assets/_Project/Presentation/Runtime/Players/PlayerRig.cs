@@ -585,6 +585,8 @@ namespace RoadToPro.Presentation.Players
                 int bi = Mathf.Clamp(beard, 0, PlayerLook.BeardLevels.Length - 1);
                 m.SetFloat("_BeardLevel", PlayerLook.BeardLevels[bi]);
                 m.SetVector("_BeardChannel", PlayerLook.BeardChannels[bi]);
+                m.SetColor("_BeardColor", PlayerLook.BeardColor(a.HairColor, a.SkinTone));   // 088 T30b: 수염·눈썹 = 자연 모색
+                m.SetFloat("_BeardGrey", PlayerLook.BeardGrey(a.HairColor));
             }
             PushExpression();   // 새로 구운 메시에 현재 표정 유지
             if (_closeupOn)

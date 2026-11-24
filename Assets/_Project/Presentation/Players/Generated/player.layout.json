@@ -3849,45 +3849,45 @@
    "beards": {
     "full": {
      "cheek": 0.199057,
-     "coreHf": 0.024104,
+     "coreHf": 0.019,
      "lowNeck": 0.0,
-     "mouthCorner": 0.765696,
-     "softEdge": 0.636839
+     "mouthCorner": 0.928501,
+     "softEdge": 0.590402
     },
     "goatee": {
      "cheek": 0.0,
-     "coreHf": 0.022651,
+     "coreHf": 0.020612,
      "lowNeck": 0.0,
-     "mouthCorner": 0.477324,
-     "softEdge": 0.728828
+     "mouthCorner": 0.896234,
+     "softEdge": 0.751856
     },
     "heavy_stubble": {
      "cheek": 0.531824,
-     "coreHf": 0.021057,
+     "coreHf": 0.017898,
      "lowNeck": 0.0,
-     "mouthCorner": 0.691863,
+     "mouthCorner": 0.838435,
      "softEdge": 1.0
     },
     "mustache": {
      "cheek": 0.0,
-     "coreHf": 0.022422,
+     "coreHf": 0.023692,
      "lowNeck": 0.0,
-     "mouthCorner": 0.195303,
-     "softEdge": 0.997567
+     "mouthCorner": 0.000525,
+     "softEdge": 0.994616
     },
     "short": {
      "cheek": 0.199057,
-     "coreHf": 0.024104,
+     "coreHf": 0.019,
      "lowNeck": 0.0,
-     "mouthCorner": 0.765696,
-     "softEdge": 0.636839
+     "mouthCorner": 0.928501,
+     "softEdge": 0.590402
     },
     "stubble": {
      "cheek": 0.199057,
-     "coreHf": 0.024104,
+     "coreHf": 0.019,
      "lowNeck": 0.0,
-     "mouthCorner": 0.765696,
-     "softEdge": 0.636839
+     "mouthCorner": 0.928501,
+     "softEdge": 0.590402
     }
    },
    "expressions": {
@@ -6021,53 +6021,53 @@
   },
   "skinDetail": {
    "beard": {
-    "coreHf": 0.048735,
+    "coreHf": 0.042021,
     "lowNeck": 0.0,
-    "mouthCorner": 0.822397,
-    "softEdge": 0.535913
+    "mouthCorner": 0.996667,
+    "softEdge": 0.495685
    },
    "beards": {
     "full": {
      "cheek": 0.199057,
-     "coreHf": 0.024104,
+     "coreHf": 0.019,
      "lowNeck": 0.0,
-     "mouthCorner": 0.765696,
-     "softEdge": 0.636839
+     "mouthCorner": 0.928501,
+     "softEdge": 0.590402
     },
     "goatee": {
      "cheek": 0.0,
-     "coreHf": 0.022651,
+     "coreHf": 0.020612,
      "lowNeck": 0.0,
-     "mouthCorner": 0.477324,
-     "softEdge": 0.728828
+     "mouthCorner": 0.896234,
+     "softEdge": 0.751856
     },
     "heavy_stubble": {
      "cheek": 0.531824,
-     "coreHf": 0.021057,
+     "coreHf": 0.017898,
      "lowNeck": 0.0,
-     "mouthCorner": 0.691863,
+     "mouthCorner": 0.838435,
      "softEdge": 1.0
     },
     "mustache": {
      "cheek": 0.0,
-     "coreHf": 0.022422,
+     "coreHf": 0.023692,
      "lowNeck": 0.0,
-     "mouthCorner": 0.195303,
-     "softEdge": 0.997567
+     "mouthCorner": 0.000525,
+     "softEdge": 0.994616
     },
     "short": {
      "cheek": 0.199057,
-     "coreHf": 0.024104,
+     "coreHf": 0.019,
      "lowNeck": 0.0,
-     "mouthCorner": 0.765696,
-     "softEdge": 0.636839
+     "mouthCorner": 0.928501,
+     "softEdge": 0.590402
     },
     "stubble": {
      "cheek": 0.199057,
-     "coreHf": 0.024104,
+     "coreHf": 0.019,
      "lowNeck": 0.0,
-     "mouthCorner": 0.765696,
-     "softEdge": 0.636839
+     "mouthCorner": 0.928501,
+     "softEdge": 0.590402
     }
    },
    "cheek": {

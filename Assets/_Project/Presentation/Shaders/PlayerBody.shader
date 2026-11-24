@@ -28,6 +28,8 @@ Shader "RoadToPro/PlayerBody"
         _BeardLevel ("수염 0~1", Range(0, 1)) = 0
         _BeardMask ("수염 영역 RGBA (full·콧수염·염소수염·진한 스텁블)", 2D) = "black" {}
         _BeardChannel ("수염 영역 선택", Vector) = (1, 0, 0, 0)
+        _BeardColor ("자연 모색 (수염·눈썹, 088 T30b)", Color) = (0.15, 0.10, 0.07, 1)
+        _BeardGrey ("회색 수염 (흰·짙은 가닥 섞기)", Range(0, 1)) = 0
         _NormalStrength ("노멀 세기", Range(0, 2)) = 0.6
         _MuscleN ("근육·손 구운 노멀", 2D) = "bump" {}
         _MuscleAO ("근육·손 구운 차폐", 2D) = "white" {}
@@ -59,6 +61,8 @@ Shader "RoadToPro/PlayerBody"
             half4 _EyeColor;
             half _BeardLevel;
             half4 _BeardChannel;
+            half4 _BeardColor;
+            half _BeardGrey;
             half4 _BrowChannel;
             half _NormalStrength;
             half _MuscleDef, _Translucency, _Sweat, _Wetness;
@@ -170,6 +174,28 @@ Shader "RoadToPro/PlayerBody"
                 return saturate((ndl + w) / (1.0h + w)) * saturate((ndl + w) / (1.0h + w));
             }
 
+            // 088 FR-56 (T30) 피하 산란 근사 — 시안(Cycles MPFB ENHANCED_SSS)과 나란히 비교해 맞춘다.
+            // 빛은 피부 속에서 빨강이 가장 멀리 번진다 → 채널마다 다른 노멀로 확산을 계산한다(빨강 = 기하 노멀 쪽, 파랑 = 디테일 노멀).
+            // 모공·근육 노멀은 정반사에만 다 들어가고 확산에는 덜 들어가 "얼룩·평면" 대신 부드러운 음영.
+            static const half3 SssNormalKeep = half3(0.15h, 0.45h, 0.65h);   // 채널별 디테일 노멀 비율 [제안]
+            static const half SssAlbedoBlur = 0.6h;                          // 흐린 알베도 비율 [제안]
+            static const half SssSheen = 0.02h;                              // 넓은 광택 로브 세기 [제안]
+            static const float BeardCells = 600.0;                           // 088 T30b: 수염 가닥 칸 수(피부 UV 1당, 얼굴 ≈ 1~1.5 mm 간격) [제안]
+            // 088 T30c: 시안 MPFB 피부 재질(ENHANCED_SSS 노드 그룹)의 colorMixIn — 바탕색 = diffuse × (1 − 0.05) + (1, 0.2, 0.2) × 0.05 (선형).
+            // T30의 눈대중 색조 (1.07, 1.02, 1.0)를 대체 — 어두운 피부에서 시안이 더 밝고 붉은 원인이 이것이었다(동일 조건 비교)
+            static const half3 SkinMixIn = half3(1.0h, 0.2h, 0.2h);
+            static const half SkinMixInStrength = 0.05h;
+            half3 SkinScatterDiffuse(half3 nD, half3 nGeo, half3 l)
+            {
+                half3 ndl = half3(dot(SafeNormalize(lerp(nGeo, nD, SssNormalKeep.r)), l),
+                                  dot(SafeNormalize(lerp(nGeo, nD, SssNormalKeep.g)), l),
+                                  dot(SafeNormalize(lerp(nGeo, nD, SssNormalKeep.b)), l));
+                // 088 T30c: 시안 피부는 산란 반경 ≈ 0.5 mm(MPFB SSS radius 0.1 × scale 0.005)라 거의 람베르트 — 이전 랩²(0.42·0.22·0.16)은
+                // 중간 밝기를 람베르트보다 15~25 % 어둡게, 초록·파랑을 더 깎아 채도를 올렸다(동일 조건 비교). 작은 랩, 제곱 없음 [제안]
+                const half3 w = half3(0.15h, 0.06h, 0.04h);
+                return saturate((ndl + w) / (1.0h + w));
+            }
+
             half Spec(half3 n, half3 h, half ndl, half rough)
             {
                 half ndh = saturate(dot(n, h));
@@ -187,6 +213,8 @@ Shader "RoadToPro/PlayerBody"
                 half isPart = (half)step(1.0, i.uv.x);
                 half isCard = (half)step(2.0, i.uv.x) * (1.0h - (half)step(10.0, i.uv.x));   // 088: u ≥ 10은 셸(연속 UV)
                 half4 s = SAMPLE_TEXTURE2D(_SkinTex, sampler_SkinTex, frac(i.uv));
+                // 088 T30: 산란이 알베도 얼룩을 번지게 한다(시안 Cycles 피부는 같은 MakeHuman diffuse인데 매끈) → 밉 바이어스로 흐린 값과 섞는다
+                half3 sBlur = SAMPLE_TEXTURE2D_BIAS(_SkinTex, sampler_SkinTex, frac(i.uv), 2.5).rgb;
                 half3 tn = UnpackNormal(SAMPLE_TEXTURE2D(_SkinNormal, sampler_SkinNormal, frac(i.uv)));
                 half3 mn = UnpackNormal(SAMPLE_TEXTURE2D(_MuscleN, sampler_MuscleN, frac(i.uv)));
                 half mao = SAMPLE_TEXTURE2D(_MuscleAO, sampler_MuscleAO, frac(i.uv)).r;
@@ -201,6 +229,9 @@ Shader "RoadToPro/PlayerBody"
                 half3 b = cross(nG, t) * i.tangentWS.w;
                 tn.xy = (tn.xy * _NormalStrength + mn.xy * _MuscleDef) * (1.0h - isPart);   // 모공·잔주름 + 근육·손 형태 (피부만)
                 half3 n = SafeNormalize(tn.x * t + tn.y * b + tn.z * nG);
+                // 088 T30: 산란 기준 노멀 = 기하 + 근육 형태(큰 굴곡)만 — 모공·잔주름은 빼서 확산이 매끈하다
+                half2 mxy = mn.xy * _MuscleDef * (1.0h - isPart);
+                half3 nGeo = SafeNormalize(mxy.x * t + mxy.y * b + nG);
 
                 float4 shadowCoord = TransformWorldToShadowCoord(i.positionWS);
                 Light light = GetMainLight(shadowCoord);
@@ -213,33 +244,65 @@ Shader "RoadToPro/PlayerBody"
                 half3 amb = SampleSH(n);
 
                 // 피부
-                half3 skin = s.rgb * _SkinColor.rgb;                       // 088: MakeHuman diffuse × 톤 틴트
+                half3 skin = lerp(lerp(s.rgb, sBlur, SssAlbedoBlur) * _SkinColor.rgb, SkinMixIn, SkinMixInStrength);   // 088: MakeHuman diffuse × 톤 틴트 (T30: 산란 흐림 섞기, T30c: 시안 colorMixIn)
                 half sLum = dot(s.rgb, half3(0.2126h, 0.7152h, 0.0722h));
                 // 088 FR-02: 눈썹·속눈썹 = MakeHuman 프록시를 구운 덮임 마스크 × 머리색 (속눈썹은 더 어둡게)
                 half4 brow = SAMPLE_TEXTURE2D(_BrowMask, sampler_BrowMask, frac(i.uv));
                 // 088 FR-53 (T29): 마스크 세기 = 1 − 피부 UV1.y. 클로즈업 머리 피부는 0.65(원본 가닥이 주, 마스크는 옅은 바탕), LOD0·1·2 몸은 0
                 half browOn = (1.0h - isPart) * (1.0h - saturate(i.hd.y));
                 half bcov = saturate(dot(brow.rgb, _BrowChannel.rgb) * 1.6h) * browOn;
-                skin = lerp(skin, BrowColor(_HairColor.rgb), bcov * 0.9h);   // 눈썹은 머리색보다 어둡게 (088 T29: 시안 눈썹 ≈ 검정)
+                skin = lerp(skin, BrowColor(_BeardColor.rgb), bcov * 0.9h);   // 눈썹은 머리색보다 어둡게 (088 T29: 시안 눈썹 ≈ 검정)
                 skin = lerp(skin, half3(0.03h, 0.025h, 0.02h), brow.a * 0.8h * browOn);
                 // 057 FR-24: 수염 = 밀도(s.b)의 부드러운 문턱(경계 흐림) × 종류별 덮임. 짧을수록 피부가 비치는 옅은 색조(잔털), 길수록 짙다.
                 // 062 FR-66: 밀도 = 수염 영역 마스크(beard_mask0)에서 종류별 채널 하나 — 없으면 057 피부 B(full)
                 half lvl = _BeardLevel;
                 half lo = 0.75h - lvl * 0.6h;
-                half bden = dot(SAMPLE_TEXTURE2D(_BeardMask, sampler_BeardMask, frac(i.uv)).rgba, _BeardChannel);
+                half bden = dot(SAMPLE_TEXTURE2D_BIAS(_BeardMask, sampler_BeardMask, frac(i.uv), 1.5).rgba, _BeardChannel);   // 088 T30b: 밉 바이어스로 흐리게 — 1024 마스크 작은 UV 섬의 계단 경계 완화
                 // 062 T35 육안: 경계 폭 0.45 → 0.65(흐린 가장자리), 털 결(피부 밝기 디테일 R)로 덮임을 흔들어 평면 색 조각처럼 보이지 않게,
                 // 회색·밝은 수염은 피부 그늘을 조금 섞어 분칠처럼 뜨지 않게
                 half beard = smoothstep(lo, lo + 0.65h, bden) * lvl * step(0.01h, lvl);
                 beard *= saturate(0.88h + (sLum - 0.45h) * 1.5h);   // 088: 털 결 = diffuse 밝기 변동
-                half3 beardCol = _HairColor.rgb * lerp(0.75h, 0.55h, lvl) * lerp(0.9h, 1.1h, bden);
-                half hairLum = dot(_HairColor.rgb, half3(0.3h, 0.59h, 0.11h));
-                beardCol = lerp(beardCol, skin * 0.55h, 0.35h * saturate((hairLum - 0.25h) * 2.0h));   // 밝은(회색·금발) 수염만
-                skin = lerp(skin, beardCol, beard * lerp(0.55h, 0.92h, lvl));
+                // 088 T30b: 수염 = 밑바탕 그늘(털뿌리·짧은 털이 모인 평균색) + 털 가닥. 색은 자연 모색(_BeardColor — 탈색 머리여도 짙다).
+                // 이전(062·057)은 머리색 반투명 칠 하나 → 회색·금발 머리에서 회청색·올리브색 물감처럼 보였다(T30 비교).
+                half3 bcol = _BeardColor.rgb;
+                half3 baseCol = lerp(skin * 0.62h, bcol * 0.85h, lerp(0.45h, 0.8h, lvl));           // 밑바탕: 짧을수록 피부 그늘에 가깝다
+                baseCol = lerp(baseCol, skin * 0.85h, _BeardGrey * 0.6h);                           // 회색: 흰 털이 섞여 밑바탕이 밝다
+                half baseCov = beard * lerp(0.45h, 0.8h, lvl);
+                // 털 가닥: 피부 UV 칸마다 가닥 하나(있을 확률 = 덮임), 칸 안 임의 위치·기울기의 짧은 획. 칸이 화면 1.3 px보다 작아지면
+                // 가닥 평균 덮임으로 페이드 — 거리·LOD에 따라 평균색이 바뀌지 않는다(FR-58)
+                float2 bg = frac(i.uv) * BeardCells;
+                float2 bcell = floor(bg);
+                float3 hp = frac(float3(bcell.xyx) * float3(0.1031, 0.1030, 0.0973));
+                hp += dot(hp, hp.yzx + 33.33);
+                half3 hs = (half3)frac((hp.xxy + hp.yzz) * hp.zyx);
+                half hw = (half)frac(hs.x * 7.13 + hs.z * 3.71);
+                half ang = (hs.x - 0.5h) * 1.6h;
+                half2 sd = half2(sin(ang), -cos(ang));
+                half2 bq = (half2)(frac(bg) - 0.5) - (hs.yz - 0.5h) * 0.5h;   // 칸 안 위치를 넓게 흩어 격자 줄무늬를 깬다
+                half halfLen = lerp(0.14h, 0.30h, lvl), halfW = lerp(0.06h, 0.09h, lvl);
+                half sdist = length(half2(max(abs(dot(bq, sd)) - halfLen, 0.0h), dot(bq, half2(-sd.y, sd.x)))) - halfW;
+                float bpx = max(max(fwidth(bg.x), fwidth(bg.y)), 1e-3);
+                half prob = saturate((beard - 0.12h) * 1.6h);   // 옅은 가장자리(입술 경계 등)엔 가닥 없음 — 밑바탕만
+                half spix = saturate(0.5h - sdist / (half)bpx) * step(hw, prob);
+                half savg = prob * (4.0h * halfLen * halfW + 3.1416h * halfW * halfW);
+                half strandCov = lerp(spix, savg, saturate((half)bpx * 1.5h - 0.6h));
+                half3 strandCol = bcol * lerp(0.7h, 1.15h, hs.y);
+                strandCol = lerp(strandCol, lerp(half3(0.10h, 0.085h, 0.075h), half3(0.70h, 0.68h, 0.64h), step(0.5h, hs.z)), _BeardGrey);
+                skin = lerp(skin, baseCol, baseCov);
+                skin = lerp(skin, strandCol, strandCov * 0.9h);
                 half skinRough = saturate(s.a + beard * 0.3h);
                 skinRough = saturate(skinRough - 0.04h * thk.g * _Sweat);                 // FR-33 땀 (heightfield.SWEAT_DROP)
                 skinRough = lerp(skinRough, skinRough * 0.6h, _Wetness);                 // FR-97 젖음
                 half occ = lerp(1.0h, mao, 1.0h - isPart);
-                half3 cSkin = skin * (lc * SkinDiffuse(ndlRaw) + amb) * occ + lc * 0.028h * Spec(n, h, ndl, skinRough);
+                // 088 T30: 확산 = 채널별 산란 노멀, 환경광도 산란 노멀로(얼룩 없이). 정반사 = 디테일 노멀 두 로브(좁은 번들 + 넓은 광택 — 시안 이마·코의 부드러운 하이라이트)
+                half3 ambS = SampleSH(nGeo);
+                half3 cSkin = skin * (lc * SkinScatterDiffuse(n, nGeo, l) + ambS) * occ
+                            + lc * (0.028h * Spec(n, h, ndl, skinRough) + SssSheen * Spec(n, h, ndl, saturate(skinRough + 0.2h)));
+                // 088 T30c: 환경광 반사 — 시안(Principled IOR 1.5 → F0 0.04, 코트 0.1)은 하늘빛이 피부 표면에 얹혀 어두운 피부가 덜 어둡고 덜 진하다.
+                // 슐리크 프레넬 × 반사 방향 SH, 거칠수록 약하게 [제안]
+                half ndv = saturate(dot(n, vdir));
+                half fre = 0.04h + 0.5h * pow(1.0h - ndv, 5.0h);   // 가장자리 상승 0.96 → 0.5: 하늘색 테두리가 너무 셈(시안 가장자리는 뒤 림 태양의 흰빛 — 셰이더는 주 광원만)
+                cSkin += SampleSH(reflect(-vdir, n)) * fre * lerp(1.0h, 0.5h, skinRough) * occ;
                 // FR-32 얇은 부위 역광: 빛이 뒤에서 올 때(시선과 빛이 마주볼 때) 두께 맵만큼 붉게 비친다
                 half back = pow(saturate(dot(vdir, -l)), 3.0h) * thk.r * _Translucency;
                 cSkin += light.color * back * skin * half3(1.0h, 0.45h, 0.35h);
@@ -252,7 +315,7 @@ Shader "RoadToPro/PlayerBody"
                 half3 hairBase = lerp(_HairColor.rgb, _HairColor2.rgb, smoothstep(0.3h, 0.7h, i.hd.y));   // 062 FR-54 두 색
                 // 088 T29: 눈썹 메시(셸 UV 연속 90~91, browlash.BROW_UV_U0)는 마스크와 같은 머리색 × BrowDark (시안 눈썹은 머리보다 진하다)
                 half isBrow = (half)(step(99.5, i.uv.x) * (1.0 - step(101.0, i.uv.x)));
-                hairBase = lerp(hairBase, BrowColor(_HairColor.rgb), isBrow);
+                hairBase = lerp(hairBase, BrowColor(_BeardColor.rgb), isBrow);
                 half3 hairA = hairBase * lerp(lerp(0.6h, 1.3h, pt.r), 1.0h, isBrow) * lerp(1.0h, 0.7h, _Wetness);   // FR-97 젖은 머리는 어둡다. 088 T29: 눈썹은 결 밝기 변동 없이 고르게
                 half3 strand = SafeNormalize(b + nG * (pt.g - 0.5h) * 0.4h); // 가닥 방향 = UV v(바이탄젠트), 결 위상으로 흔든다
                 half th = dot(strand, h);
