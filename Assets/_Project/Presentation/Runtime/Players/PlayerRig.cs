@@ -399,6 +399,7 @@ namespace RoadToPro.Presentation.Players
             if (_closeup == null || on == _closeupOn) return;
             _closeupOn = on;
             _closeup.enabled = on;
+            if (on) CloseupShadow.Register(this); else CloseupShadow.Unregister(this);   // 088 T30i: 얼굴 자기 그림자 전용 맵
             float w = on ? 1f : 0f;
             foreach (var l in _lods)
                 if (l != null && l.sharedMesh != null && l.sharedMesh.blendShapeCount > 0) l.SetBlendShapeWeight(0, w);
@@ -781,6 +782,7 @@ namespace RoadToPro.Presentation.Players
 
         void OnDestroy()
         {
+            CloseupShadow.Unregister(this);
             if (_frozenMesh != null) Destroy(_frozenMesh);
             foreach (var m in _baked)
                 if (m != null) Destroy(m);

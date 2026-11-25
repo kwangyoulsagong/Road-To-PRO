@@ -219,6 +219,35 @@ Shader "RoadToPro/PlayerBody"
                 return acc * 0.125h;
             }
 
+            // 088 T30i: 클로즈업 전용 그림자 맵(CloseupShadow.cs — 클로즈업 머리만 태양 정사영, 2048²·머리 하나면 ≈ 0.24 mm/칸).
+            // 얼굴 피부가 경기장 맵 대신 이 맵을 같은 표면 원판 8샘플로 읽는다. 꺼짐·맵 밖은 1(빛)
+            TEXTURE2D_SHADOW(_CloseupShadowMap); SAMPLER_CMP(sampler_CloseupShadowMap);
+            float4x4 _CloseupShadowMatrix;
+            float4 _CloseupShadowParams;   // x 켬, y 텍셀 크기 m
+            half CloseupShadowAt(float3 p)
+            {
+                float3 c = mul(_CloseupShadowMatrix, float4(p, 1.0)).xyz;
+                if (any(c.xy < 0.0) || any(c.xy > 1.0)) return 1.0h;
+                return (half)SAMPLE_TEXTURE2D_SHADOW(_CloseupShadowMap, sampler_CloseupShadowMap, c);
+            }
+            half CloseupSoftShadow(float3 positionWS, half3 nGeo)
+            {
+                if (_CloseupShadowParams.x < 0.5) return 1.0h;
+                float3 nn = (float3)nGeo;
+                float3 u = normalize(cross(abs(nn.y) < 0.99 ? float3(0, 1, 0) : float3(1, 0, 0), nn));
+                float3 v = cross(nn, u);
+                positionWS += nn * (SkinShadowR * 0.5 + _CloseupShadowParams.y * 4.0);   // 받는 쪽 법선 띄움(눈 밑 비스듬한 면 줄무늬 방지) [제안]
+                const float2 k[8] = { float2(1, 0), float2(0.707, 0.707), float2(0, 1), float2(-0.707, 0.707),
+                                      float2(-1, 0), float2(-0.707, -0.707), float2(0, -1), float2(0.707, -0.707) };
+                half acc = 0.0h;
+                [unroll] for (int i = 0; i < 8; i++)
+                {
+                    float r = SkinShadowR * ((i & 1) ? 0.55 : 1.0);
+                    acc += CloseupShadowAt(positionWS + (u * k[i].x + v * k[i].y) * r);
+                }
+                return acc * 0.125h;
+            }
+
             half3 SkinScatterDiffuse(half3 nD, half3 nGeo, half3 l)
             {
                 half3 ndl = half3(dot(SafeNormalize(lerp(nGeo, nD, SssNormalKeep.r)), l),
@@ -348,7 +377,9 @@ Shader "RoadToPro/PlayerBody"
                 half sh = lerp(light.shadowAttenuation, SkinSoftShadow(i.positionWS, nGeo), 1.0h - isPart);
                 // 클로즈업 머리 피부(UV1.y = 0.65, T29 표시)는 그림자 맵을 받지 않는다 — 경기장 해상도 그림자 맵으로는 코 그림자가 칼로 벤 직선·
                 // 셀프 섀도 얼룩이 됐다(사용자 "칼로 벤 거 같아서", "그림자 있으면 좋은데 제대로 해야지"). 얼굴 자기 그림자는 클로즈업 전용 그림자로 따로(T30i)
-                sh = lerp(sh, 1.0h, (1.0h - isPart) * smoothstep(0.45h, 0.6h, i.hd.y));   // 얼굴 0.65 · 목 0.4 (headlod.CLOSEUP_NECK_HD_Y)
+                // T30i: 대신 클로즈업 전용 그림자 맵(코·눈두덩·헤어 그림자)
+                half faceW = (1.0h - isPart) * smoothstep(0.45h, 0.6h, i.hd.y);   // 얼굴 0.65 · 목 0.4 (headlod.CLOSEUP_NECK_HD_Y)
+                UNITY_BRANCH if (faceW > 0.0h) sh = lerp(sh, CloseupSoftShadow(i.positionWS, nGeo), faceW);
                 half3 shRGB = pow(saturate(sh).xxx, half3(0.55h, 0.9h, 1.0h));
                 half3 lcSkin = light.color * lerp(light.shadowAttenuation.xxx, shRGB, 1.0h - isPart);
                 half3 cSkin = skin * (lcSkin * SkinScatterDiffuse(n, nGeo, l) + ambS) * occ
