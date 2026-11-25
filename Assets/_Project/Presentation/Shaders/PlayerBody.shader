@@ -188,6 +188,9 @@ Shader "RoadToPro/PlayerBody"
             static const half3 SssNormalKeep = half3(0.15h, 0.45h, 0.65h);   // 채널별 디테일 노멀 비율 [제안]
             static const half SssAlbedoBlur = 0.6h;                          // 흐린 알베도 비율 [제안]
             static const half SssSheen = 0.02h;                              // 넓은 광택 로브 세기 [제안]
+            static const half3 StubbleTint = half3(0.55h, 0.58h, 0.66h);    // 088 T30l: 면도 자국 그늘 = 피부 × 푸르스름한 회색 [제안] (선형 — 화면 ≈ 0.8배 목표)
+            static const half StubbleShadow = 0.50h;                          // 088 T30l: 면도 자국 그늘 덮임(stubble), heavy는 × 1.2 [제안] (0.7·× 1.4는 경기장 조명에서 회색 칠·볼 경계선)
+            static const half StubbleDots = 0.75h;                            // 088 T30l: 면도 자국 털뿌리 점이 있는 칸 비율 [제안]
             static const float BeardCells = 600.0;                           // 088 T30b: 수염 가닥 칸 수(피부 UV 1당, 얼굴 ≈ 1~1.5 mm 간격) [제안]
             // 088 T30c: 시안 MPFB 피부 재질(ENHANCED_SSS 노드 그룹)의 colorMixIn — 바탕색 = diffuse × (1 − 0.05) + (1, 0.2, 0.2) × 0.05 (선형).
             // T30의 눈대중 색조 (1.07, 1.02, 1.0)를 대체 — 어두운 피부에서 시안이 더 밝고 붉은 원인이 이것이었다(동일 조건 비교)
@@ -299,6 +302,15 @@ Shader "RoadToPro/PlayerBody"
                 half3 baseCol = lerp(skin * 0.62h, bcol * 0.85h, lerp(0.45h, 0.8h, lvl));           // 밑바탕: 짧을수록 피부 그늘에 가깝다
                 baseCol = lerp(baseCol, skin * 0.85h, _BeardGrey * 0.6h);                           // 회색: 흰 털이 섞여 밑바탕이 밝다
                 half baseCov = beard * lerp(0.45h, 0.8h, lvl);
+                // 088 T30l: 면도 자국 — 짧은 수염(stubble 0.45·heavy 0.6)은 피부 밑 털뿌리가 수염 영역 전체를 고르게 푸르스름하게 어둡게 한다.
+                // 위 문턱(lo = 0.48)으로는 턱 가운데만 덮임 ≤ 0.25 → 낮은 문턱의 고른 그늘로 바꾼다. 콧수염·염소수염·짧음·덥수룩은 위 그대로 [제안]
+                half shortB = saturate((0.68h - lvl) / 0.08h) * step(0.01h, lvl);   // stubble 0.45·heavy 0.6 → 1, 콧수염·염소수염 0.7 이상 → 0 (PlayerLook.BeardLevels)
+                half region = smoothstep(0.2h, 1.0h, bden) * saturate(0.9h + (sLum - 0.45h) * 0.8h);
+                half3 shadowCol = lerp(skin * StubbleTint, bcol, 0.12h);
+                shadowCol = lerp(shadowCol, skin * 0.92h, _BeardGrey * 0.6h);
+                baseCol = lerp(baseCol, shadowCol, shortB);
+                baseCov = lerp(baseCov, region * min(lerp(StubbleShadow, StubbleShadow * 1.2h, saturate((lvl - 0.45h) / 0.15h)), 1.0h), shortB);
+                beard = lerp(beard, region * lvl, shortB);
                 // 털 가닥: 피부 UV 칸마다 가닥 하나(있을 확률 = 덮임), 칸 안 임의 위치·기울기의 짧은 획. 칸이 화면 1.3 px보다 작아지면
                 // 가닥 평균 덮임으로 페이드 — 거리·LOD에 따라 평균색이 바뀌지 않는다(FR-58)
                 float2 bg = frac(i.uv) * BeardCells;
@@ -311,9 +323,12 @@ Shader "RoadToPro/PlayerBody"
                 half2 sd = half2(sin(ang), -cos(ang));
                 half2 bq = (half2)(frac(bg) - 0.5) - (hs.yz - 0.5h) * 0.5h;   // 칸 안 위치를 넓게 흩어 격자 줄무늬를 깬다
                 half halfLen = lerp(0.14h, 0.30h, lvl), halfW = lerp(0.06h, 0.09h, lvl);
+                halfLen = lerp(halfLen, 0.09h, shortB);   // 088 T30l: 면도 자국 = 짧은 털뿌리 점
+                halfW = lerp(halfW, 0.065h, shortB);
                 half sdist = length(half2(max(abs(dot(bq, sd)) - halfLen, 0.0h), dot(bq, half2(-sd.y, sd.x)))) - halfW;
                 float bpx = max(max(fwidth(bg.x), fwidth(bg.y)), 1e-3);
                 half prob = saturate((beard - 0.12h) * 1.6h);   // 옅은 가장자리(입술 경계 등)엔 가닥 없음 — 밑바탕만
+                prob = lerp(prob, region * StubbleDots, shortB);   // 088 T30l: 면도 자국 점은 영역 전체에 촘촘히
                 half spix = saturate(0.5h - sdist / (half)bpx) * step(hw, prob);
                 half savg = prob * (4.0h * halfLen * halfW + 3.1416h * halfW * halfW);
                 half strandCov = lerp(spix, savg, saturate((half)bpx * 1.5h - 0.6h));
