@@ -1,7 +1,7 @@
 {
  "generator": {
   "blender": "5.3.0",
-  "command": "gen_player.py --out <out>",
+  "command": "gen_player.py --out <out> --no-preview",
   "makehuman": {
    "files": [
     {
@@ -5578,8 +5578,8 @@
    },
    "ok": true,
    "seamToleranceM": 0.002,
-   "uvHash": "4150b28d577a6bfc",
-   "uvVersion": 5
+   "uvHash": "752be8e86e695892",
+   "uvVersion": 6
   },
   "kitBoundary": {
    "0": {

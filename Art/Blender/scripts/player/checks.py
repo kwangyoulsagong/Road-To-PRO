@@ -105,8 +105,10 @@ def budgets(meshes, parts, textures):
                                  "materials": mats, "ok": ok}
         out["ok"] &= ok
         for f in m.faces:
+            # 088 T30j: 치아는 parts 영역에서 v + 1 표시(셰이더 입 벌림 차폐) — 치아 면만 v ≤ 2 허용
+            vmax = 2 if str(f[3]).startswith("mouth_teeth") else 1
             for u in f[2]:
-                if not (-1e-6 <= u[0] <= 2 + 1e-6 and -1e-6 <= u[1] <= 1 + 1e-6):
+                if not (-1e-6 <= u[0] <= 2 + 1e-6 and -1e-6 <= u[1] <= vmax + 1e-6):
                     out["ok"] = False
                     out["uvOutOfRange"] = True
     hc = parts[HL.NAME].triangles

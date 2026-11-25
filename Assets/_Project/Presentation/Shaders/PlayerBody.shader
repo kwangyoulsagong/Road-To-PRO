@@ -181,7 +181,7 @@ Shader "RoadToPro/PlayerBody"
             // 088 FR-56 (T30) 피하 산란 근사 — 시안(Cycles MPFB ENHANCED_SSS)과 나란히 비교해 맞춘다.
             // 빛은 피부 속에서 빨강이 가장 멀리 번진다 → 채널마다 다른 노멀로 확산을 계산한다(빨강 = 기하 노멀 쪽, 파랑 = 디테일 노멀).
             // 모공·근육 노멀은 정반사에만 다 들어가고 확산에는 덜 들어가 "얼룩·평면" 대신 부드러운 음영.
-            static const half TeethOcc = 0.3h;   // 088 T30j: 입 다문 표정의 치아 빛 비율 [제안]
+            static const half TeethOcc = 0.12h;  // 088 T30j: 입 다문 표정의 치아 빛 비율 [제안] (0.3은 회색 줄이 남음 — 선형 0.3 ≈ 화면 0.57배)
             static const half3 SssNormalKeep = half3(0.15h, 0.45h, 0.65h);   // 채널별 디테일 노멀 비율 [제안]
             static const half SssAlbedoBlur = 0.6h;                          // 흐린 알베도 비율 [제안]
             static const half SssSheen = 0.02h;                              // 넓은 광택 로브 세기 [제안]
