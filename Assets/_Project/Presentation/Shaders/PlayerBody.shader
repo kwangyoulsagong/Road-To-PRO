@@ -92,8 +92,9 @@ Shader "RoadToPro/PlayerBody"
             float2 cont = float2(t - tile * 100.0, uv.y);
             float2 sz = float2(0.25, 0.375) - 2.0 * ShellPad;
             float2 tuv = ShellTileOrigin(tile) + frac(cont) * sz;
-            // 088 T30j: parts 영역(1 ≤ u < 2)의 v > 1.5 = 치아(body.MOUTH_UV_TEETH v + 1 표시) — 1을 빼 같은 흰자 텍셀을 읽는다
-            float teeth = step(1.5, uv.y) * (1.0 - card) * (1.0 - tiled);
+            // 088 T30j: parts 영역(1 ≤ u < 2)의 v > 1.25 = 치아(v + 1 표시) — 1을 빼 본래 텍셀을 읽는다.
+            // T30k: 클로즈업 치아 = parts 치아 칸(face.TEETH_REGION, v 0.5~0.75 → 표시 1.5~1.75), LOD0 치아 = 흰자 텍셀(1.875)
+            float teeth = step(1.25, uv.y) * (1.0 - card) * (1.0 - tiled);
             float2 puv = float2(uv.x - 1.0 - card, uv.y - teeth);
             float2 a = lerp(puv, tuv, tiled);
             float2 dx = lerp(ddx(puv), ddx(cont) * sz, tiled);
@@ -181,6 +182,8 @@ Shader "RoadToPro/PlayerBody"
             // 088 FR-56 (T30) 피하 산란 근사 — 시안(Cycles MPFB ENHANCED_SSS)과 나란히 비교해 맞춘다.
             // 빛은 피부 속에서 빨강이 가장 멀리 번진다 → 채널마다 다른 노멀로 확산을 계산한다(빨강 = 기하 노멀 쪽, 파랑 = 디테일 노멀).
             // 모공·근육 노멀은 정반사에만 다 들어가고 확산에는 덜 들어가 "얼룩·평면" 대신 부드러운 음영.
+            static const half3 TeethTint = half3(1.0h, 0.96h, 0.88h);   // 088 T30k: 치아 상아색 [제안]
+            static const half3 GumTint = half3(1.25h, 0.55h, 0.52h);    // 088 T30k: 잇몸 [제안]
             static const half TeethOcc = 0.12h;  // 088 T30j: 입 다문 표정의 치아 빛 비율 [제안] (0.3은 회색 줄이 남음 — 선형 0.3 ≈ 화면 0.57배)
             static const half3 SssNormalKeep = half3(0.15h, 0.45h, 0.65h);   // 채널별 디테일 노멀 비율 [제안]
             static const half SssAlbedoBlur = 0.6h;                          // 흐린 알베도 비율 [제안]
@@ -346,12 +349,14 @@ Shader "RoadToPro/PlayerBody"
 
                 // parts: 눈 / 머리카락
                 half hairM = pt.b;
-                half iris = pt.g * (1.0h - hairM);
+                half isTeeth = isPart * (1.0h - isCard) * (1.0h - (half)step(10.0, i.uv.x)) * (half)step(1.25, i.uv.y);
+                half iris = pt.g * (1.0h - hairM) * (1.0h - isTeeth);
                 half3 eye = lerp(half3(0.88h, 0.86h, 0.83h) * pt.r, _EyeColor.rgb * (0.3h + 3.5h * pt.r), iris);   // 088 T29: 홍채 밝기(MakeHuman 갈색 눈 0.035~0.19)를 0.4~1.0배로 펼쳐 무늬가 보이게 (이전 0.5 + R → 0.54~0.69배, 단색처럼 보임)
+                // 088 T30k: 치아 칸 G = 잇몸 — 치아 상아색, 잇몸 붉은 점막 (MakeHuman 텍스처 밝기 × 색조) [제안]
+                eye = lerp(eye, pt.r * lerp(TeethTint, GumTint, pt.g), isTeeth);
                 half3 cEye = eye * (lc * ndl + amb) + lc * 0.06h * Spec(nG, h, ndl, pt.a) + pt.r * step(0.97h, pt.r) * 0.35h;
-                // 088 T30j: 치아(parts v > 1.5)는 입 벌림만큼만 빛을 받는다 — 무표정 입술 틈으로 보이는 윗니 끝이 그늘 없이(클로즈업 얼굴은 그림자 맵을
+                // 088 T30j: 치아(parts v > 1.25)는 입 벌림만큼만 빛을 받는다 — 무표정 입술 틈으로 보이는 윗니 끝이 그늘 없이(클로즈업 얼굴은 그림자 맵을
                 // 안 받음, T30h) 하늘빛·주광을 받아 입술 사이 흰 줄이 됐다. 환호(입 벌림 1)는 원래 밝기 [제안]
-                half isTeeth = isPart * (1.0h - isCard) * (1.0h - (half)step(10.0, i.uv.x)) * (half)step(1.5, i.uv.y);
                 cEye *= lerp(1.0h, lerp(TeethOcc, 1.0h, _MouthOpen), isTeeth);
                 half3 hairBase = lerp(_HairColor.rgb, _HairColor2.rgb, smoothstep(0.3h, 0.7h, i.hd.y));   // 062 FR-54 두 색
                 // 088 T29: 눈썹 메시(셸 UV 연속 90~91, browlash.BROW_UV_U0)는 마스크와 같은 머리색 × BrowDark (시안 눈썹은 머리보다 진하다)

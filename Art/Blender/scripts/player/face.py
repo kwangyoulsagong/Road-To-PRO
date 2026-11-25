@@ -444,6 +444,7 @@ def face_json(R, tree_tri):
 # ---------------------------------------------------------------- 눈 (LOD별 안구)
 
 EYE_REGION = (0.0, 0.75, 0.25, 1.0)   # parts 아틀라스 눈 칸 (u0, v0, u1, v1)
+TEETH_REGION = (0.0, 0.5, 0.25, 0.75)  # 088 T30k: parts 치아 칸 — MakeHuman teeth_base 텍스처(R 밝기, G 잇몸, A 거칠기). 눈 칸 아래 빈 열
 def eyes_covered(R, tree_tri, key_sets):
     """안구 정점이 피부 밖으로 나오는 수 (정면 광선으로 피부 앞에 있으면 노출). key_sets = [{키: 가중치}] 극값 조합."""
     from mathutils.bvhtree import BVHTree

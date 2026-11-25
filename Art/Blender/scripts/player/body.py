@@ -1219,11 +1219,16 @@ def _append_mouth(R, m, which):
     hi = MS.OUR_NAMES.index("Head")
     alld = _all_deltas(R)
     all_ids = []
+    proxy_teeth = which in TEETH_PROXY_TRIS   # 088 T30k: 치아 = MakeHuman teeth_base (클로즈업 원본, LOD0 감량)
+    if proxy_teeth:
+        _append_proxy_teeth(R, m, alld, hi, TEETH_PROXY_TRIS[which])
     for part, grp in MOUTH_GROUPS.items():
         gs = set(R.groups[grp])
         faces = [f for f in R.faces if all(v in gs for v in f)]
         ids = sorted({v for f in faces for v in f})
         all_ids += ids
+        if proxy_teeth and part != "tongue":
+            continue
         remap = {v: i for i, v in enumerate(ids)}
         target = tri["tongue" if part == "tongue" else "teeth"]
         co, fl = _decimate_faces(R.verts[ids], [tuple(remap[v] for v in f) for f in faces], target)
@@ -1282,6 +1287,92 @@ def _append_mouth(R, m, which):
     W[:, hi] = 1.0
     D = {k: (b.apply(alld[k]) if k in alld else np.zeros_like(P)) for k in m.deltas}
     append_part(m, b.apply(R.verts) + off, W, D, fl, BODY, [tuple(MOUTH_UV_CAP for _ in f) for f in fl], "mouth_cap")
+
+
+TEETH_PROXY = "teeth/teeth_base/teeth_base.mhclo"
+TEETH_SPLIT_VERTS = 200   # 088 T30k: 이보다 큰 조각(잇몸)은 면마다 위·아래를 나눈다
+TEETH_PROXY_TRIS = {"closeup": None, "lod0": 800}   # 088 T30k: None = 원본(≈ 7k), LOD0 800 [제안] (LOD0 예산 30k 중 여유 ≈ 2.8k)
+
+
+def teeth_uv(uv):
+    """MakeHuman 치아 UV (0~1) → parts 치아 칸(face.TEETH_REGION) + v + 1 치아 표시 (셰이더 입 벌림 차폐, T30j)."""
+    from . import face as F
+    u0, v0, u1, v1 = F.TEETH_REGION
+    pad = 0.5 / 1024                       # 칸 가장자리 텍셀 반 개 안쪽 (옆 칸 번짐 방지)
+    uu = np.clip(uv[..., 0], 0, 1) * (u1 - u0 - 2 * pad) + u0 + pad
+    vv = np.clip(uv[..., 1], 0, 1) * (v1 - v0 - 2 * pad) + v0 + pad
+    return np.stack([1.0 + uu, 1.0 + vv], axis=-1)
+
+
+def _append_proxy_teeth(R, m, alld, hi, target=None):
+    """088 T30k: 클로즈업 치아·잇몸 = MakeHuman teeth_base 프록시(CC0) 원본 형상(감량 없음, 치아 하나하나·잇몸).
+    프록시는 기준 정점 3개 + 오프셋의 강체 배치라 델타를 그대로 옮기면 입을 벌려도 아래 치아가 안 내려간다 →
+    연결 성분(치아 한 개·잇몸 조각)마다 위·아래 치아 헬퍼 중 가까운 쪽 표면에 묶어 그 델타(표정·얼굴·바탕 머리)를 받는다.
+    target(삼각형)을 주면 위·아래 각각 절반으로 감량(LOD0 — 환호 장면에서 클로즈업 2명 밖 선수도 크게 잡힌다, FR-58 같은 모델·텍스처)."""
+    from . import mhassets as MH
+    px = MH.Proxy(TEETH_PROXY)
+    P = px.fit(R.verts)
+    T, TU = px.triangles()
+    n = len(P)
+    par = np.arange(n)
+
+    def find(a):
+        while par[a] != a:
+            par[a] = par[par[a]]
+            a = par[a]
+        return a
+    for f in T:
+        r0 = find(int(f[0]))
+        for v in f[1:]:
+            r = find(int(v))
+            if r != r0:
+                par[r] = r0
+    roots = np.array([find(i) for i in range(n)])
+    helper = {}
+    for part in ("teeth_upper", "teeth_lower"):
+        gs = set(R.groups[MOUTH_GROUPS[part]])
+        faces = [f for f in R.faces if all(v in gs for v in f)]
+        helper[part] = (_subset_tree(R, faces), R.verts[sorted(gs)])
+    def nearer_upper(c):
+        """같은 (x, z) 근처(가까운 8정점) 위·아래 헬퍼 높이 중 가까운 쪽. 3D 최근접 정점으로 가르면 윗니가 아랫니 앞을 덮는
+        구조라 아랫니 4개가 위로 분류돼 입을 벌려도 제자리에 떠 있었다."""
+        def height(H):
+            k = np.argsort(np.hypot(H[:, 0] - c[0], H[:, 2] - c[2]))[:8]
+            return H[k, 1].mean()
+        return abs(c[1] - height(helper["teeth_upper"][1])) <= abs(c[1] - height(helper["teeth_lower"][1]))
+    # 치아 한 개 = 작은 조각 → 조각 통째로. 잇몸은 위·아래가 붙은 한 조각(정점 ≈ 1,850)이라 면마다 나눈다
+    # (통째로 묶으면 입을 벌릴 때 윗잇몸이 턱을 따라 내려와 윗니를 가린다)
+    counts = np.bincount(roots, minlength=n)
+    comp_up = {int(r): nearer_upper(P[roots == r].mean(axis=0)) for r in np.unique(roots) if counts[r] <= TEETH_SPLIT_VERTS}
+    face_up = np.array([comp_up[int(roots[f[0]])] if int(roots[f[0]]) in comp_up else nearer_upper(P[f].mean(axis=0)) for f in T])
+    for part in ("teeth_upper", "teeth_lower"):
+        sel = list(np.flatnonzero(face_up == (part == "teeth_upper")))
+        if not sel:
+            continue
+        vs = np.unique(T[sel].ravel())
+        remap = {int(v): i for i, v in enumerate(vs)}
+        co = P[vs]
+        fl = [tuple(remap[int(v)] for v in T[i]) for i in sel]
+        fuv = [tuple(map(tuple, px.uv[TU[i]])) for i in sel]
+        if target is not None:
+            co, f2, u2 = _decimate_faces(co, fl, target // 2, fuv)
+            fl, fuv = [], []
+            for f, u in zip(f2, u2):          # 감량 결과의 다각형 → 부채꼴 삼각형
+                for k in range(1, len(f) - 1):
+                    fl.append((f[0], f[k], f[k + 1]))
+                    fuv.append((u[0], u[k], u[k + 1]))
+        b = Binding.__new__(Binding)
+        b.tri = np.zeros((len(co), 3), dtype=np.int64)
+        b.bc = np.zeros((len(co), 3))
+        tree = helper[part][0]
+        for i, p_ in enumerate(co):
+            (t_, bc), _ = _bind_point(R, tree, p_)
+            b.tri[i], b.bc[i] = t_, bc
+        W = np.zeros((len(co), m.W.shape[1]))
+        W[:, hi] = 1.0
+        D = {k: (b.apply(alld[k]) if k in alld else np.zeros((len(co), 3))) for k in m.deltas}
+        uvs = [tuple(map(tuple, teeth_uv(np.array(u)))) for u in fuv]
+        append_part(m, co, W, D, fl, BODY, uvs, "mouth_" + part)
 
 
 def _all_deltas(R):

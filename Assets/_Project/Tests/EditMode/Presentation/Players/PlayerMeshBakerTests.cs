@@ -225,7 +225,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         // 057 AC-10: 하이라이트 로딩 시 선수 25명 굽기 시간 ≤ 056 측정 × 1.2. 062 FR-84: 057 예산(× 1.2) 대비 +30 % (바탕 머리·표정 키·입 안).
         // Mono EditMode ms 값은 부하에 흔들려 5회 최소값으로 판정한다. 056 기준은 057 T03에서 056 산출물로 측정.
         internal const double Bake25Ms056 = 309.5;  // 2026-11-05 056 산출물, Mono EditMode 5회 최소
-        internal const double Bake25Ms088 = 1000.0; // 088 T29 [제안] (사용자 승인 2026-11-23)
+        internal const double Bake25Ms088 = 1100.0; // 088 T29 [제안] (사용자 승인 2026-11-23) → T30k 1,100 (2026-11-25 사용자 "예산 1,100 ms로 완화")
 
         [Test]
         public void Bake25Players_Time_Within088Budget()
@@ -252,8 +252,9 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 TestContext.WriteLine($"[057] bake25Ms={best:0.0}");
                 UnityEngine.Debug.Log($"[057] bake25Ms={best:0.0}");
                 // 088 T29 (2026-11-23 사용자 "기준 완화"): 시안 모델(FR-50 — 클로즈업 원본 눈썹·속눈썹, 가닥 카드 헤어)로 정점 ≈ 2.5배 → 25명 ≤ 1,000 ms [제안]
-                //   (062 FR-84 057 예산 × 1.3 = 483 ms, 실측 857 ms). 로딩 1회, 재생 프레임 영향 없음
-                Assert.LessOrEqual(best, Bake25Ms088, "088 T29 굽기 시간 25명 ≤ 1,000 ms");
+                //   (062 FR-84 057 예산 × 1.3 = 483 ms, 실측 857 ms). 로딩 1회, 재생 프레임 영향 없음.
+                //   T30k (2026-11-25): MakeHuman 원본 치아(LOD0 800 tris) 추가로 950 → 1,004~1,024 ms → ≤ 1,100 ms [제안]
+                Assert.LessOrEqual(best, Bake25Ms088, "088 T30k 굽기 시간 25명 ≤ 1,100 ms");
             }
             finally
             {
