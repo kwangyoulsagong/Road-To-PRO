@@ -43,6 +43,9 @@ namespace RoadToPro.Verification.Samples
                 var face = p;
                 FarmContext.Screens[$"proto{face.name}Front"] = () => ShowProto(face.name, face.baseHead, face.tone, 0f);
                 FarmContext.Screens[$"proto{face.name}Three"] = () => ShowProto(face.name, face.baseHead, face.tone, 35f);
+                // T31: 옆·뒤 (시안 렌더도 같은 85 mm·0.62 m, 선수 오른쪽 90°·뒤 180°)
+                FarmContext.Screens[$"proto{face.name}Side"] = () => ShowProto(face.name, face.baseHead, face.tone, 90f);
+                FarmContext.Screens[$"proto{face.name}Back"] = () => ShowProto(face.name, face.baseHead, face.tone, 180f);
                 // 후처리(게임 룩: 톤매핑·노출·대비) 끈 판 — 시안 Blender "Standard" 렌더와 셰이딩만 비교
                 FarmContext.Screens[$"proto{face.name}FrontRaw"] = () => ShowProto(face.name, face.baseHead, face.tone, 0f, true);
                 // 면도 자국(수염 stubble, 062 BeardLevels 1) — 남성 얼굴 단서 비교 (T30d)
@@ -74,6 +77,14 @@ namespace RoadToPro.Verification.Samples
                         bool f = far, h = hi;
                         FarmContext.Screens[$"tier{face.name}{(f ? "Far" : "Near")}{(h ? "Hi" : "Lo")}"] = () => ShowTierPair(face.name, face.baseHead, face.tone, hair, f, h);
                     }
+                // T31: 근접 짝 정면·옆·뒤 (3/4 = 위 Near)
+                foreach (var view in new[] { ("Front", 0f), ("Side", 90f), ("Back", 180f) })
+                    foreach (bool hi in new[] { true, false })
+                    {
+                        var v = view;
+                        bool h = hi;
+                        FarmContext.Screens[$"tier{face.name}Near{v.Item1}{(h ? "Hi" : "Lo")}"] = () => ShowTierPair(face.name, face.baseHead, face.tone, hair, false, h, v.Item2);
+                    }
                 // 진단: LOD1을 근접 카메라로 (원거리 짝의 입·헤어 차이 원인 확인)
                 FarmContext.Screens[$"tier{face.name}NearLod1"] = () => { ShowTierPair(face.name, face.baseHead, face.tone, hair, false, false); var rg = _rigs[ExprPlayers[0]]; rg.SetTopTier(false); rg.ForceLod(1); };
             }
@@ -91,7 +102,7 @@ namespace RoadToPro.Verification.Samples
         static readonly int[] TierHair = { 14, 15, 30 };
         const float TierFov = 30f;
 
-        void ShowTierPair(string name, int baseHead, int tone, int hair, bool far, bool hi)
+        void ShowTierPair(string name, int baseHead, int tone, int hair, bool far, bool hi, float orbitDeg = 35f)
         {
             int ent = ExprPlayers[0];
             Prepare062($"tier{name}{(far ? "Far" : "Near")}{(hi ? "Hi" : "Lo")}");
@@ -124,7 +135,7 @@ namespace RoadToPro.Verification.Samples
                 rig.SetTopTier(false);
                 rig.ForceLod(hi ? 0 : 1);
             }
-            float r = 35f * Mathf.Deg2Rad;
+            float r = orbitDeg * Mathf.Deg2Rad;
             var dir = rig.transform.forward * Mathf.Cos(r) + rig.transform.right * Mathf.Sin(r);
             cam.fieldOfView = TierFov;
             cam.transform.position = aim + dir * dist;
@@ -176,7 +187,7 @@ namespace RoadToPro.Verification.Samples
         void ShowProto(string name, int baseHead, int tone, float orbitDeg, bool raw = false, int beard = 0)
         {
             int ent = ExprPlayers[0];
-            Prepare062($"proto{name}{(orbitDeg == 0f ? "Front" : "Three")}{(raw ? "Raw" : "")}{(beard > 0 ? "Stubble" : "")}");
+            Prepare062($"proto{name}{(orbitDeg == 0f ? "Front" : orbitDeg == 90f ? "Side" : orbitDeg == 180f ? "Back" : "Three")}{(raw ? "Raw" : "")}{(beard > 0 ? "Stubble" : "")}");
             var a = _looks[ent];
             int o1 = (baseHead + 1) % AppearanceGenerator.BaseHeads, o2 = (baseHead + 2) % AppearanceGenerator.BaseHeads;
             // 갈색 눈: PlayerRig 눈 색 = EyeColors[(톤 × 7 + Face) % 6] → 0(진갈색)이 되는 Face

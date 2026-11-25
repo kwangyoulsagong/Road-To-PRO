@@ -1064,7 +1064,7 @@ def _poke_through(m, P, eye_centers):
         tris = []
         for f in skin:
             tris += [(f[0], f[k], f[k + 1]) for k in range(1, len(f) - 1)]
-        span = 0.12
+        span = 0.16   # 088 T31: 12 → 16 cm — 원본 치아(T30k) 어금니가 입 중심에서 5 cm 뒤라 아래 시점에서 창 밖(윤곽 밖으로 셈)에 투영됐다
         for yaw, pitch in ((0, 0), (45, 0), (-45, 0), (90, 0), (-90, 0), (0, -60)):
             ry, rp = math.radians(yaw), math.radians(pitch)
             X = P - hc

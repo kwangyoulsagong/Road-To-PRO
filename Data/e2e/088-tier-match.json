@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "088-tier-match",
   "spec": "088",
-  "description": "088 AC-14 (T30a, FR-58 낙차 제한): 같은 선수·카메라·포즈를 두 등급으로 — Near = 클로즈업 전환 경계(얼굴 비율 0.25)에서 클로즈업 머리 vs LOD0, Far = LOD0↔1 경계(몸 비율 0.25)에서 LOD0 vs LOD1. 지역 3(시안 인종 짝 바탕 머리) × 승인 헤어(포마드·가르마·가일컷) + 면도 자국, 3/4, 시안 조명 스튜디오(단색 배경). tierPair = 머리 구역 1 − IoU ≤ 0.05·평균색 ΔE ≤ 3.",
+  "description": "088 AC-14 (T30a, FR-58 낙차 제한): 같은 선수·카메라·포즈를 두 등급으로 — Near = 클로즈업 전환 경계(얼굴 비율 0.25)에서 클로즈업 머리 vs LOD0, Far = LOD0↔1 경계(몸 비율 0.25)에서 LOD0 vs LOD1. 지역 3(시안 인종 짝 바탕 머리) × 승인 헤어(포마드·가르마·가일컷) + 면도 자국, 3/4(근접은 정면·옆·뒤도), 시안 조명 스튜디오(단색 배경). tierPair = 머리 구역 1 − IoU ≤ 0.05·평균색 ΔE ≤ 3.",
   "scene": "Player043",
   "fixture": {
     "save": null,
@@ -150,6 +150,168 @@
       "type": "capture",
       "name": "tierAfricaNearLod1",
       "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierEuropeNearFrontHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeNearFrontHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierEuropeNearFrontLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeNearFrontLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierEuropeNearSideHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeNearSideHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierEuropeNearSideLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeNearSideLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierEuropeNearBackHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeNearBackHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierEuropeNearBackLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeNearBackLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaNearFrontHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaNearFrontHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaNearFrontLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaNearFrontLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaNearSideHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaNearSideHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaNearSideLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaNearSideLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaNearBackHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaNearBackHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaNearBackLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaNearBackLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaNearFrontHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaNearFrontHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaNearFrontLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaNearFrontLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaNearSideHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaNearSideHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaNearSideLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaNearSideLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaNearBackHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaNearBackHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaNearBackLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaNearBackLo",
+      "kind": "3d"
     }
   ],
   "imageChecks": [
@@ -203,6 +365,87 @@
       "capture": "tierAfricaFarHi",
       "other": "tierAfricaFarLo",
       "headFrac": 0.16,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierEuropeNearFrontHi",
+      "other": "tierEuropeNearFrontLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierEuropeNearSideHi",
+      "other": "tierEuropeNearSideLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierEuropeNearBackHi",
+      "other": "tierEuropeNearBackLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierAsiaNearFrontHi",
+      "other": "tierAsiaNearFrontLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierAsiaNearSideHi",
+      "other": "tierAsiaNearSideLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierAsiaNearBackHi",
+      "other": "tierAsiaNearBackLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierAfricaNearFrontHi",
+      "other": "tierAfricaNearFrontLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierAfricaNearSideHi",
+      "other": "tierAfricaNearSideLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierAfricaNearBackHi",
+      "other": "tierAfricaNearBackLo",
+      "headFrac": 1.0,
       "maxIouDiff": 0.05,
       "maxDe": 3.0,
       "ac": "AC-14"
