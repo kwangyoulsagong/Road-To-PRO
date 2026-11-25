@@ -39,6 +39,30 @@ PlayerVaryings PlayerVert(PlayerAttributes i)
 // specs/061 FR-42: 림 라이트 (전역 값 — StadiumLighting이 넣고 고품질 모드 컨트롤러가 보정). 0이면 기존과 같다.
 half _RoadToProRim;
 
+// 088 T30p: 추가 광원 (주 광원 외 — 시안 비교 스튜디오의 뒤 태양 등). Forward(Low·Medium)는 물체별 목록 전부,
+// Forward+(High)는 방향광만 센다(점·스폿광은 클러스터 순회가 화면 UV를 요구 — 지금 경기장엔 추가 광원이 없다). 추가 광원 그림자는 없다
+uint PlayerAddLightCount()
+{
+#if defined(_ADDITIONAL_LIGHTS)
+  #if USE_CLUSTER_LIGHT_LOOP
+    return min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS);
+  #else
+    return (uint)GetAdditionalLightsCount();
+  #endif
+#else
+    return 0u;
+#endif
+}
+
+Light PlayerAddLight(uint k, float3 positionWS)
+{
+#if defined(_ADDITIONAL_LIGHTS)
+    return GetAdditionalLight(k, positionWS);
+#else
+    return (Light)0;
+#endif
+}
+
 half3 PlayerLight(half3 albedo, PlayerVaryings i, half detail)
 {
     half3 n = normalize(i.normalWS);
@@ -73,6 +97,14 @@ half3 PlayerLightSpec(half3 albedo, float3 positionWS, half3 n, half fog, half o
     half3 v = normalize(GetWorldSpaceViewDir(positionWS));
     half3 h = normalize(light.direction + v);
     half3 c = albedo * (lc * ndl + sh) * occlusion + lc * f0 * PlayerSpec(n, h, ndl, rough);
+    uint addN = PlayerAddLightCount();   // 088 T30p
+    [loop] for (uint k = 0u; k < addN; k++)
+    {
+        Light al = PlayerAddLight(k, positionWS);
+        half3 alc = al.color * (al.distanceAttenuation * al.shadowAttenuation);
+        half andl = saturate(dot(n, al.direction));
+        c += albedo * alc * andl * occlusion + alc * f0 * PlayerSpec(n, normalize(al.direction + v), andl, rough);
+    }
     half fres = pow(1.0h - saturate(dot(n, v)), 3.0h);
     c += fres * _RoadToProRim * (sh + light.color * 0.25h * light.shadowAttenuation) * lerp(0.6h, 1.0h, albedo);
     return MixFog(c, fog);

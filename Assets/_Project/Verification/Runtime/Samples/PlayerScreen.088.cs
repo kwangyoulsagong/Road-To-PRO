@@ -30,6 +30,8 @@ namespace RoadToPro.Verification.Samples
         static bool StudioCinematicShadow = false;   // 진단: 연출 모드 그림자 거리 배율 적용 여부
         float _shadowDistBefore = -1f;
         Light _studioSun;
+        Light _studioRim;   // 088 T30p
+        const float ProtoRimRatio = 0.75f;   // 시안 두 번째 태양 에너지 3 / 키 4
         Quaternion _sunRot;
         float _sunIntensity, _fovBefore;
         Color _sunColor, _ambSky, _ambEq, _ambGround, _bgBefore;
@@ -262,6 +264,20 @@ namespace RoadToPro.Verification.Samples
                 _studioSun.intensity = ProtoSun;
                 _studioSun.color = Color.white;
             }
+            // 088 T30p: 시안 compare.setup의 두 번째 태양(에너지 3, 키 4의 0.75배) — Blender 회전 (75°, 0, 195°) → 빛 쪽 방향 (−0.25, 0.933, 0.259)을
+            // 키와 같은 축 변환(x → −오른쪽, −y → 앞, z → 위)으로: 오른쪽 0.25 · 뒤 0.933 · 위 0.259 (옆·뒤 시점이 시안처럼 밝다)
+            if (_studioRim == null)
+            {
+                var go = new GameObject("088 Studio Rim Sun") { hideFlags = HideFlags.DontSave };
+                _studioRim = go.AddComponent<Light>();
+                _studioRim.type = LightType.Directional;
+                _studioRim.shadows = LightShadows.None;
+                _studioRim.color = Color.white;
+            }
+            var rimFrom = player.right * 0.25f - player.forward * 0.933f + Vector3.up * 0.259f;
+            _studioRim.transform.rotation = Quaternion.LookRotation(-rimFrom.normalized, Vector3.up);
+            _studioRim.intensity = ProtoSun * ProtoRimRatio;
+            _studioRim.enabled = true;
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
             RenderSettings.ambientSkyColor = ProtoAmbient;
             RenderSettings.ambientEquatorColor = ProtoAmbient;
@@ -287,6 +303,7 @@ namespace RoadToPro.Verification.Samples
                 _studioSun.intensity = _sunIntensity;
                 _studioSun.color = _sunColor;
             }
+            if (_studioRim != null) _studioRim.enabled = false;
             RenderSettings.ambientMode = _ambMode;
             RenderSettings.ambientSkyColor = _ambSky;
             RenderSettings.ambientEquatorColor = _ambEq;

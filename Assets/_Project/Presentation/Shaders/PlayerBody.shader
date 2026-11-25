@@ -40,6 +40,7 @@ Shader "RoadToPro/PlayerBody"
         _MouthOpen ("입 벌림 (088 T30j 치아 차폐, 표정에서)", Range(0, 1)) = 0
         _Wetness ("젖음 0~1 (078 입력)", Range(0, 1)) = 0
         _ShellLift ("셸 헤어 결 밝기 보정 (088 T30a, LOD1·2 렌더러만 1)", Range(0, 1)) = 0
+        _CloseupBody ("클로즈업 그림자 맵 받기 (088 T30o, 최고 등급 LOD0 렌더러만 1)", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -70,6 +71,7 @@ Shader "RoadToPro/PlayerBody"
             half _MuscleDef, _Translucency, _Sweat, _Wetness;
             half _MouthOpen;
             half _ShellLift;
+            half _CloseupBody;
         CBUFFER_END
 
         // 088 T23: 헤어 셸 연속 UV — u ≥ 10이면 u = 10 + 타일 × 100 + 연속 u, v = 연속 v. parts 머리카락 칸 3열 × 2행 타일 안에서 frac으로 반복
@@ -136,6 +138,8 @@ Shader "RoadToPro/PlayerBody"
             #pragma fragment Frag
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
+            #pragma multi_compile _ _ADDITIONAL_LIGHTS
+            #pragma multi_compile _ _CLUSTER_LIGHT_LOOP
             #pragma multi_compile_fog
             #pragma multi_compile _ LOD_FADE_CROSSFADE
 
@@ -232,6 +236,13 @@ Shader "RoadToPro/PlayerBody"
                 float3 c = mul(_CloseupShadowMatrix, float4(p, 1.0)).xyz;
                 if (any(c.xy < 0.0) || any(c.xy > 1.0)) return 1.0h;
                 return (half)SAMPLE_TEXTURE2D_SHADOW(_CloseupShadowMap, sampler_CloseupShadowMap, c);
+            }
+            // 088 T30o: 맵 가장자리(중심에서 반경의 70 → 95 %)에서 경기장 그림자로 부드럽게 넘어간다 — 최고 등급 LOD0 피부용
+            half CloseupMapFade(float3 positionWS)
+            {
+                if (_CloseupShadowParams.x < 0.5) return 0.0h;
+                float2 c = mul(_CloseupShadowMatrix, float4(positionWS, 1.0)).xy;
+                return (half)(1.0 - smoothstep(0.7, 0.95, length(c - 0.5) * 2.0));
             }
             half CloseupSoftShadow(float3 positionWS, half3 nGeo)
             {
@@ -382,6 +393,8 @@ Shader "RoadToPro/PlayerBody"
                 // 셀프 섀도 얼룩이 됐다(사용자 "칼로 벤 거 같아서", "그림자 있으면 좋은데 제대로 해야지"). 얼굴 자기 그림자는 클로즈업 전용 그림자로 따로(T30i)
                 // T30i: 대신 클로즈업 전용 그림자 맵(코·눈두덩·헤어 그림자)
                 half faceW = (1.0h - isPart) * smoothstep(0.45h, 0.6h, i.hd.y);   // 얼굴 0.65 · 목 0.4 (headlod.CLOSEUP_NECK_HD_Y)
+                // T30o: 최고 등급 LOD0 피부도 같은 맵 (클로즈업 머리와 같은 귀·옆얼굴 그늘 — FR-58 등급 전환 낙차)
+                UNITY_BRANCH if (_CloseupBody > 0.5h) faceW = max(faceW, (1.0h - isPart) * CloseupMapFade(i.positionWS));
                 UNITY_BRANCH if (faceW > 0.0h) sh = lerp(sh, CloseupSoftShadow(i.positionWS, nGeo), faceW);
                 half3 shRGB = pow(saturate(sh).xxx, half3(0.55h, 0.9h, 1.0h));
                 half3 lcSkin = light.color * lerp(light.shadowAttenuation.xxx, shRGB, 1.0h - isPart);
@@ -420,6 +433,22 @@ Shader "RoadToPro/PlayerBody"
                 half curl = saturate((pt.a - 0.40h) / 0.12h);   // 062 FR-43: 직모 0 → 코일·브레이드·드레드 1 (groom.atlas 결 타일 거칠기)
                 half kk = pow(saturate(sqrt(saturate(1.0h - th * th))), lerp(60.0h, 18.0h, curl)) * ndl * lerp(1.0h, 0.6h, curl);
                 half3 cHair = hairA * (lc * (ndl * 0.8h + 0.2h) + amb) + lc * (0.10h + 0.5h * hairA) * kk * lerp(1.0h, 0.25h, isBrow);   // 088 T29: 눈썹 하이라이트 약하게(가는 가닥 반짝임)
+                // 088 T30p: 추가 광원 — 피부(산란 확산 + 두 로브 정반사)·눈(확산)·헤어(감싼 확산 + 결 하이라이트). 그림자·클로즈업 맵 없음
+                uint addN = PlayerAddLightCount();
+                [loop] for (uint ak = 0u; ak < addN; ak++)
+                {
+                    Light al = PlayerAddLight(ak, i.positionWS);
+                    half3 alc = al.color * (al.distanceAttenuation * al.shadowAttenuation);
+                    half3 al2 = al.direction;
+                    half3 ah = SafeNormalize(al2 + vdir);
+                    half andl = saturate(dot(n, al2));
+                    cSkin += skin * alc * SkinScatterDiffuse(n, nGeo, al2) * occ
+                           + alc * (0.028h * Spec(n, ah, andl, skinRough) + SssSheen * Spec(n, ah, andl, saturate(skinRough + 0.2h)));
+                    cEye += eye * alc * andl * lerp(1.0h, lerp(TeethOcc, 1.0h, _MouthOpen), isTeeth);
+                    half ath = dot(strand, ah);
+                    half akk = pow(saturate(sqrt(saturate(1.0h - ath * ath))), lerp(60.0h, 18.0h, curl)) * andl * lerp(1.0h, 0.6h, curl);
+                    cHair += hairA * alc * (andl * 0.8h + 0.2h) + alc * (0.10h + 0.5h * hairA) * akk * lerp(1.0h, 0.25h, isBrow);
+                }
                 half3 cPart = lerp(cEye, cHair, hairM);
 
                 half3 c = lerp(cSkin, cPart, isPart);

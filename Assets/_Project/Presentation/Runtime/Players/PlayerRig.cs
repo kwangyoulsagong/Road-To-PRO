@@ -19,6 +19,8 @@ namespace RoadToPro.Presentation.Players
     {
         /// <summary>LOD 전환 화면 높이 비율 (plan [제안] 0.25 / 0.08, LOD2는 끝까지 — 컬링 없음).</summary>
         public static readonly int ShellLiftId = Shader.PropertyToID("_ShellLift");
+        public static readonly int CloseupBodyId = Shader.PropertyToID("_CloseupBody");
+        MaterialPropertyBlock _bodyBlock;
         public static readonly float[] LodHeights = { 0.25f, 0.08f, 0.0001f };
         /// <summary>히스테리시스 (FR-13): 내려갈 때는 경계의 1 − H, 올라갈 때는 1 + H를 지나야 바꾼다 → 경계에서 왕복 깜빡임 없음.</summary>
         public const float LodHysteresis = 0.15f;
@@ -312,7 +314,15 @@ namespace RoadToPro.Presentation.Players
         {
             if (on == _topTier) return;
             _topTier = on;
-            if (_lods[0] != null) _lods[0].sharedMaterials = on ? _matsHigh : _matsNormal;
+            if (_lods[0] != null)
+            {
+                _lods[0].sharedMaterials = on ? _matsHigh : _matsNormal;
+                // 088 T30o: 최고 등급 LOD0 피부는 클로즈업 그림자 맵 (클로즈업 머리와 같은 얼굴 그늘 — FR-58)
+                _bodyBlock ??= new MaterialPropertyBlock();
+                _bodyBlock.SetFloat(CloseupBodyId, on ? 1f : 0f);
+                _lods[0].SetPropertyBlock(_bodyBlock, 0);
+            }
+            if (on || _closeupOn) CloseupShadow.Register(this); else CloseupShadow.Unregister(this);
             if (on) ForceLod(0);
             ApplyTierState();
         }
@@ -404,7 +414,7 @@ namespace RoadToPro.Presentation.Players
             if (_closeup == null || on == _closeupOn) return;
             _closeupOn = on;
             _closeup.enabled = on;
-            if (on) CloseupShadow.Register(this); else CloseupShadow.Unregister(this);   // 088 T30i: 얼굴 자기 그림자 전용 맵
+            if (on || _topTier) CloseupShadow.Register(this); else CloseupShadow.Unregister(this);   // 088 T30i·o: 얼굴 자기 그림자 전용 맵
             float w = on ? 1f : 0f;
             foreach (var l in _lods)
                 if (l != null && l.sharedMesh != null && l.sharedMesh.blendShapeCount > 0) l.SetBlendShapeWeight(0, w);

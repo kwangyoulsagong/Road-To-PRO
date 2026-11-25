@@ -227,6 +227,28 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         }
 
         [Test]
+        public void CloseupBodyShadow_OnlyTopTierLod0()
+        {
+            // 088 T30o: 최고 등급(LOD0 고정)일 때만 LOD0 피부가 클로즈업 그림자 맵을 읽는다(_CloseupBody 1). 풀면 0, 셸 보정(LOD1·2)은 유지
+            var rig = Rig(13, out _, out _);
+            try
+            {
+                var b = new MaterialPropertyBlock();
+                rig.Lod(0).GetPropertyBlock(b, 0);
+                Assert.AreEqual(0f, b.GetFloat(PlayerRig.CloseupBodyId));
+                rig.SetTopTier(true);
+                rig.Lod(0).GetPropertyBlock(b, 0);
+                Assert.AreEqual(1f, b.GetFloat(PlayerRig.CloseupBodyId));
+                rig.SetTopTier(false);
+                rig.Lod(0).GetPropertyBlock(b, 0);
+                Assert.AreEqual(0f, b.GetFloat(PlayerRig.CloseupBodyId));
+                rig.Lod(1).GetPropertyBlock(b, 0);
+                Assert.AreEqual(1f, b.GetFloat(PlayerRig.ShellLiftId));
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
+        }
+
+        [Test]
         public void ShellLift_OnlyLod1And2()
         {
             // 088 T30a: 셸 헤어 결 밝기 보정은 LOD1·2 몸 재질에만 — LOD0·클로즈업(카드 헤어)은 0

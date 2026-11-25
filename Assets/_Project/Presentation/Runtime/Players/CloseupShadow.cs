@@ -7,7 +7,8 @@ namespace RoadToPro.Presentation.Players
 {
     /// <summary>
     /// 088 T30i: 클로즈업 전용 그림자 맵. 경기장 그림자 맵은 얼굴 위 ≈ 3 mm/칸이라 코 그림자가 칼로 벤 직선·셀프 섀도 얼룩이 됐다(T30h).
-    /// 클로즈업 머리(동시 최대 2명, Head_Closeup + 헤어 LOD0)만 태양 방향 정사영으로 2048² 깊이 맵에 그려 얼굴 피부가 이 맵을 읽는다(PlayerBody.shader).
+    /// 클로즈업 머리(동시 최대 2명, Head_Closeup + 헤어 LOD0)와 최고 등급 LOD0 선수(T30o, 등급 합 최대 3명)만 태양 방향 정사영으로 2048² 깊이 맵에 그려
+    /// 클로즈업 얼굴 피부와 최고 등급 LOD0 피부가 이 맵을 읽는다(PlayerBody.shader).
     /// 카메라 렌더 직전(스키닝 뒤)에 프레임당 1번. 리소스는 첫 사용 때 1번 만들고 프레임 경로 할당 없음.
     /// 전역: _CloseupShadowMap, _CloseupShadowMatrix(월드 → 맵 UV·깊이), _CloseupShadowParams(x 켬, y 텍셀 크기 m).
     /// </summary>
@@ -22,8 +23,8 @@ namespace RoadToPro.Presentation.Players
         public const float DepthBiasTexels = 4f, NormalBiasTexels = 4f;
 
         static readonly List<PlayerRig> Rigs = new List<PlayerRig>(4);
-        static readonly float[] Pos = new float[3 * CloseupSelector.Max];
-        static readonly PlayerRig[] Drawn = new PlayerRig[CloseupSelector.Max];
+        static readonly float[] Pos = new float[3 * QualityTierPolicy.MaxTier];
+        static readonly PlayerRig[] Drawn = new PlayerRig[QualityTierPolicy.MaxTier];
         static readonly List<Material> Mats = new List<Material>(4);
         static RenderTexture _map;
         static CommandBuffer _cmd;
@@ -73,10 +74,11 @@ namespace RoadToPro.Presentation.Players
             {
                 var r = Rigs[i];
                 if (r == null) { Rigs.RemoveAt(i); continue; }
-                if (n >= Drawn.Length || !r.isActiveAndEnabled || !r.CloseupActive || r.CloseupRenderer == null) continue;
+                if (n >= Drawn.Length || !r.isActiveAndEnabled) continue;
                 // 지난 프레임에 그려진(스키닝된) 렌더러만 — 막 켠 클로즈업 머리는 스킨 버퍼가 없어 DrawRenderer가
                 // "mesh data size … does not match" 에러로 멈췄다. 켠 첫 프레임 하나만 얼굴 자기 그림자가 없다
-                if (!r.CloseupRenderer.isVisible) continue;
+                var caster = Caster(r);
+                if (caster == null || !caster.isVisible) continue;
                 var head = r.Bone("Head");
                 var p = head != null ? head.position : r.transform.position;
                 Pos[n * 3] = p.x; Pos[n * 3 + 1] = p.y; Pos[n * 3 + 2] = p.z;
@@ -105,15 +107,10 @@ namespace RoadToPro.Presentation.Players
             _cmd.SetGlobalVector(IdLightDirection, -fwd);
             for (int k = 0; k < n; k++)
             {
-                var smr = Drawn[k].CloseupRenderer;
-                smr.GetSharedMaterials(Mats);
-                int subs = smr.sharedMesh != null ? smr.sharedMesh.subMeshCount : 0;
-                for (int s = 0; s < subs && s < Mats.Count; s++)
-                {
-                    var m = Mats[s];
-                    int pass = m != null ? m.FindPass("ShadowCaster") : -1;
-                    if (pass >= 0) _cmd.DrawRenderer(smr, m, s, pass);
-                }
+                var r = Drawn[k];
+                DrawCaster(Caster(r));
+                // 클로즈업 중에도 LOD0 몸·키트(머리는 HideHead로 접힘)를 같이 — 목·어깨에 깃·턱 그늘 (T30o)
+                if (r.CloseupActive && r.Lod(0) != null && r.Lod(0).isVisible) DrawCaster(r.Lod(0));
                 Drawn[k] = null;
             }
             _cmd.SetGlobalTexture(IdMap, _map);
@@ -122,6 +119,25 @@ namespace RoadToPro.Presentation.Players
             ctx.ExecuteCommandBuffer(_cmd);
             ctx.Submit();
             LastDrawn = n;
+        }
+
+        static void DrawCaster(SkinnedMeshRenderer smr)
+        {
+            smr.GetSharedMaterials(Mats);
+            int subs = smr.sharedMesh != null ? smr.sharedMesh.subMeshCount : 0;
+            for (int s = 0; s < subs && s < Mats.Count; s++)
+            {
+                var m = Mats[s];
+                int pass = m != null ? m.FindPass("ShadowCaster") : -1;
+                if (pass >= 0) _cmd.DrawRenderer(smr, m, s, pass);
+            }
+        }
+
+        /// <summary>캐스터: 클로즈업이면 클로즈업 머리(머리·헤어·눈썹), 최고 등급 LOD0이면 LOD0 렌더러(몸·헤어·키트 — 088 T30o). 둘 다 아니면 null.</summary>
+        static SkinnedMeshRenderer Caster(PlayerRig r)
+        {
+            if (r.CloseupActive) return r.CloseupRenderer;
+            return r.TopTierPinned ? r.Lod(0) : null;
         }
 
         /// <summary>URP ShadowUtils.GetShadowTransform과 같은 변환: 월드 → (u, v, 깊이) [0, 1].</summary>
