@@ -103,7 +103,6 @@ FAMILY = {"short": {0, 1, 5, 9, 10, 11, 12, 14, 16, 17, 19, 24, 25, 26, 27, 30, 
 # 056 기준 (specs/057 plan '구현 중 바뀐 점' T01): 클로즈업 피부 얼굴 노멀 고주파 RMS, 부위별 거칠기 평균
 SKIN_056_NORMAL_HF = 0.070367
 GEN_BASELINE_062_S = 585.0   # 088 T20: 062 코드 생성 시간 실측(T03 실행, 미리보기 제외) — 057 FR-42 180 s 목표는 088 이전부터 초과
-GLB_057_BYTES = 16_500_000   # 057 산출물 player.glb (062 T27 기록 16.5 MB, FR-84 기준)
 SKIN_056_ROUGH = {"nose": 0.591938, "cheek": 0.67973, "forehead": 0.566366, "eyeArea": 0.678763, "lips": 0.521222}
 
 
@@ -138,8 +137,7 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         tb = b["textureBudget"]
         self.assertTrue(tb["ok"], tb)
         self.assertEqual(tb["unknown"], [])
-        # FR-84: glb ≤ 057 × 2 (057 산출물 16.5 MB, 062 T27 기록)
-        self.assertLessEqual(os.path.getsize(g.path("player.glb")), 2 * GLB_057_BYTES)
+        # glb 크기는 판정하지 않는다 — 088 성능 예산 T29 개정(2026-11-23, 24 → 161 MB, 사용자 "늘어도 상관 없자나"). 이전: FR-84 glb ≤ 057 × 2
 
     def test_suit(self):
         """062 FR-27·AC-15: 정장 LOD0~2 — 몸 + 가장 무거운 헤어 LOD 예산(LOD0 ≤ 11k), 머티리얼 ≤ 3, 클립 × 극단 4 관통 0·뒤집힘 0,
@@ -168,8 +166,8 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         hs = b["hair"]
         self.assertEqual(sorted(hs), sorted(MESH_HAIR))
         no_cards = {st for st in MESH_HAIR if g.layout["hairStyles"][HAIR_ALL.index(st)]["strand"] in ("curl", "coil")}
-        for st, h in hs.items():   # 088 플랜: 헤어 몫 LOD0 ≤ 1,900(셸 ≤ 1,300 + 카드 ≤ 1,000), LOD1 카드 ≤ 120, LOD2 셸만
-            self.assertLessEqual(h["tris"]["0"], 1_900, st)
+        for st, h in hs.items():   # 088 T29 개정: 헤어 몫 LOD0 ≤ 12k(가닥 카드 + 속심 셸, 이전 1,900), LOD1 카드 ≤ 120, LOD2 셸만
+            self.assertLessEqual(h["tris"]["0"], 12_000, st)
             if st not in no_cards:     # 곱슬·코일은 카드 없음(가시처럼 튐) — 봉투 셸 + 결 타일 (088 T19)
                 self.assertGreaterEqual(h["cards"]["0"], 0, st)
             self.assertLessEqual(h["cards"]["0"], 1_000, st)
@@ -200,6 +198,7 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         names = sorted(m["name"] for m in gj["meshes"])
         want = ["Head_Closeup", "Player_LOD0", "Player_LOD1", "Player_LOD2", "Suit_LOD0", "Suit_LOD1", "Suit_LOD2"]   # 062 FR-27 정장
         want += [f"{h}_LOD{l}" for h in MESH_HAIR for l in (0, 1, 2)]  # 삭발은 형상 없음
+        want += [f"{b}_{t}" for b in ("Brow_02", "Brow_04", "Brow_09", "Lash") for t in ("LOD0", "Closeup")]   # 088 T28 FR-53 눈썹·속눈썹 메시
         self.assertEqual(names, sorted(want))
         self.assertEqual(len(gj.get("skins", [])), 1, "모든 메시가 뼈대 하나를 공유")
         for m in gj["meshes"]:
