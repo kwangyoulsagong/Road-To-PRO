@@ -6249,6 +6249,12 @@
     "skinKit": 352
    }
   },
+  "teeth": {
+   "cases": 55,
+   "exposed": 0,
+   "ok": true,
+   "worstCase": null
+  },
   "visual062": {
    "hair": "summary.hair062 (062 T22: 머리카락 영역 실루엣)",
    "hairTexture": {

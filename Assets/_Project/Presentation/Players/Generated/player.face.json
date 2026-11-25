@@ -70,6 +70,185 @@
    "thickness": 0.0012
   }
  ],
+ "distinctBundles": [
+  {
+   "axes": [
+    {
+     "axis": "nose_length",
+     "frac": 1.0
+    },
+    {
+     "axis": "nose_hump",
+     "frac": 1.0
+    },
+    {
+     "axis": "nose_width",
+     "frac": 0.8
+    },
+    {
+     "axis": "nose_tip_width",
+     "frac": 0.7
+    }
+   ],
+   "id": "big_nose"
+  },
+  {
+   "axes": [
+    {
+     "axis": "nose_width",
+     "frac": -0.9
+    },
+    {
+     "axis": "nose_length",
+     "frac": -0.8
+    },
+    {
+     "axis": "lip_lower",
+     "frac": -1.0
+    },
+    {
+     "axis": "lip_upper",
+     "frac": -0.9
+    }
+   ],
+   "id": "small_nose_thin_lips"
+  },
+  {
+   "axes": [
+    {
+     "axis": "chin_prominent",
+     "frac": -1.0
+    },
+    {
+     "axis": "chin_width",
+     "frac": -0.8
+    },
+    {
+     "axis": "jaw",
+     "frac": -0.8
+    },
+    {
+     "axis": "chin_height",
+     "frac": -0.6
+    }
+   ],
+   "id": "weak_chin"
+  },
+  {
+   "axes": [
+    {
+     "axis": "chin_width",
+     "frac": 1.0
+    },
+    {
+     "axis": "jaw",
+     "frac": 1.0
+    },
+    {
+     "axis": "chin_prominent",
+     "frac": 0.7
+    },
+    {
+     "axis": "cheekbones",
+     "frac": 0.6
+    }
+   ],
+   "id": "square_jaw"
+  },
+  {
+   "axes": [
+    {
+     "axis": "head_width",
+     "frac": 1.0
+    },
+    {
+     "axis": "cheek_volume",
+     "frac": 0.9
+    },
+    {
+     "axis": "mouth_width",
+     "frac": 0.8
+    },
+    {
+     "axis": "lip_lower",
+     "frac": 0.8
+    },
+    {
+     "axis": "lip_upper",
+     "frac": 0.7
+    }
+   ],
+   "id": "wide_face"
+  },
+  {
+   "axes": [
+    {
+     "axis": "head_width",
+     "frac": -1.0
+    },
+    {
+     "axis": "chin_height",
+     "frac": 1.0
+    },
+    {
+     "axis": "nose_length",
+     "frac": 0.8
+    },
+    {
+     "axis": "cheek_volume",
+     "frac": -0.8
+    }
+   ],
+   "id": "long_narrow_face"
+  },
+  {
+   "axes": [
+    {
+     "axis": "lip_lower",
+     "frac": 1.0
+    },
+    {
+     "axis": "lip_upper",
+     "frac": 1.0
+    },
+    {
+     "axis": "mouth_width",
+     "frac": 0.6
+    }
+   ],
+   "id": "full_lips"
+  },
+  {
+   "axes": [
+    {
+     "axis": "cheekbones",
+     "frac": 1.0
+    },
+    {
+     "axis": "cheek_volume",
+     "frac": -1.0
+    },
+    {
+     "axis": "chin_prominent",
+     "frac": 0.4
+    }
+   ],
+   "id": "high_cheekbones"
+  },
+  {
+   "axes": [
+    {
+     "axis": "ear_size",
+     "frac": 1.0
+    },
+    {
+     "axis": "ear_flap",
+     "frac": 1.0
+    }
+   ],
+   "id": "big_ears"
+  }
+ ],
  "expressions": [
   {
    "id": "Expr_cheer"
@@ -3291,6 +3470,7 @@
  "targets": [
   {
    "axis": "nose_width",
+   "distinctMax": 1.0,
    "id": "Face_nose_width_pos",
    "max": 0.64,
    "min": 0.0,
@@ -3298,6 +3478,7 @@
   },
   {
    "axis": "nose_width",
+   "distinctMax": 1.0,
    "id": "Face_nose_width_neg",
    "max": 0.64,
    "min": 0.0,
@@ -3305,6 +3486,7 @@
   },
   {
    "axis": "nose_length",
+   "distinctMax": 0.896,
    "id": "Face_nose_length_pos",
    "max": 0.56,
    "min": 0.0,
@@ -3312,6 +3494,7 @@
   },
   {
    "axis": "nose_length",
+   "distinctMax": 0.896,
    "id": "Face_nose_length_neg",
    "max": 0.56,
    "min": 0.0,
@@ -3333,6 +3516,7 @@
   },
   {
    "axis": "nose_hump",
+   "distinctMax": 1.0,
    "id": "Face_nose_hump_pos",
    "max": 0.64,
    "min": 0.0,
@@ -3340,6 +3524,7 @@
   },
   {
    "axis": "nose_hump",
+   "distinctMax": 1.0,
    "id": "Face_nose_hump_neg",
    "max": 0.64,
    "min": 0.0,
@@ -3431,6 +3616,7 @@
   },
   {
    "axis": "lip_lower",
+   "distinctMax": 1.0,
    "id": "Face_lip_lower_pos",
    "max": 0.64,
    "min": 0.0,
@@ -3438,6 +3624,7 @@
   },
   {
    "axis": "lip_lower",
+   "distinctMax": 1.0,
    "id": "Face_lip_lower_neg",
    "max": 0.64,
    "min": 0.0,
@@ -3445,6 +3632,7 @@
   },
   {
    "axis": "lip_upper",
+   "distinctMax": 1.0,
    "id": "Face_lip_upper_pos",
    "max": 0.64,
    "min": 0.0,
@@ -3452,6 +3640,7 @@
   },
   {
    "axis": "lip_upper",
+   "distinctMax": 1.0,
    "id": "Face_lip_upper_neg",
    "max": 0.64,
    "min": 0.0,
@@ -3459,6 +3648,7 @@
   },
   {
    "axis": "chin_prominent",
+   "distinctMax": 1.0,
    "id": "Face_chin_prominent_pos",
    "max": 0.64,
    "min": 0.0,
@@ -3466,6 +3656,7 @@
   },
   {
    "axis": "chin_prominent",
+   "distinctMax": 1.0,
    "id": "Face_chin_prominent_neg",
    "max": 0.64,
    "min": 0.0,
@@ -3473,6 +3664,7 @@
   },
   {
    "axis": "chin_width",
+   "distinctMax": 1.0,
    "id": "Face_chin_width_pos",
    "max": 0.64,
    "min": 0.0,
@@ -3480,6 +3672,7 @@
   },
   {
    "axis": "chin_width",
+   "distinctMax": 1.0,
    "id": "Face_chin_width_neg",
    "max": 0.64,
    "min": 0.0,
@@ -3501,6 +3694,7 @@
   },
   {
    "axis": "jaw",
+   "distinctMax": 0.896,
    "id": "Face_jaw_pos",
    "max": 0.56,
    "min": 0.0,
@@ -3508,6 +3702,7 @@
   },
   {
    "axis": "jaw",
+   "distinctMax": 0.896,
    "id": "Face_jaw_neg",
    "max": 0.56,
    "min": 0.0,
@@ -3515,6 +3710,7 @@
   },
   {
    "axis": "cheekbones",
+   "distinctMax": 1.0,
    "id": "Face_cheekbones_pos",
    "max": 0.64,
    "min": 0.0,
@@ -3522,6 +3718,7 @@
   },
   {
    "axis": "cheekbones",
+   "distinctMax": 1.0,
    "id": "Face_cheekbones_neg",
    "max": 0.64,
    "min": 0.0,
@@ -3655,6 +3852,7 @@
   },
   {
    "axis": "head_width",
+   "distinctMax": 0.512,
    "id": "Face_head_width_pos",
    "max": 0.32,
    "min": 0.0,
@@ -3662,6 +3860,7 @@
   },
   {
    "axis": "head_width",
+   "distinctMax": 0.512,
    "id": "Face_head_width_neg",
    "max": 0.32,
    "min": 0.0,
@@ -3683,6 +3882,7 @@
   },
   {
    "axis": "ear_size",
+   "distinctMax": 0.768,
    "id": "Face_ear_size_pos",
    "max": 0.48,
    "min": 0.0,
@@ -3690,6 +3890,7 @@
   },
   {
    "axis": "ear_size",
+   "distinctMax": 0.768,
    "id": "Face_ear_size_neg",
    "max": 0.48,
    "min": 0.0,

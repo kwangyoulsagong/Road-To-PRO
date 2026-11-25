@@ -1304,11 +1304,9 @@ def teeth_uv(uv):
     return np.stack([1.0 + uu, 1.0 + vv], axis=-1)
 
 
-def _append_proxy_teeth(R, m, alld, hi, target=None):
-    """088 T30k: 클로즈업 치아·잇몸 = MakeHuman teeth_base 프록시(CC0) 원본 형상(감량 없음, 치아 하나하나·잇몸).
-    프록시는 기준 정점 3개 + 오프셋의 강체 배치라 델타를 그대로 옮기면 입을 벌려도 아래 치아가 안 내려간다 →
-    연결 성분(치아 한 개·잇몸 조각)마다 위·아래 치아 헬퍼 중 가까운 쪽 표면에 묶어 그 델타(표정·얼굴·바탕 머리)를 받는다.
-    target(삼각형)을 주면 위·아래 각각 절반으로 감량(LOD0 — 환호 장면에서 클로즈업 2명 밖 선수도 크게 잡힌다, FR-58 같은 모델·텍스처)."""
+def proxy_teeth_split(R):
+    """088 T30k: 치아 프록시 맞춤 + 면마다 위·아래 구분 → (px, P, T, TU, face_up, helper{part: (BVH, 헬퍼 정점)}).
+    _append_proxy_teeth와 face.teeth_covered(T30m 검사)가 같은 규칙을 쓴다."""
     from . import mhassets as MH
     px = MH.Proxy(TEETH_PROXY)
     P = px.fit(R.verts)
@@ -1345,6 +1343,15 @@ def _append_proxy_teeth(R, m, alld, hi, target=None):
     counts = np.bincount(roots, minlength=n)
     comp_up = {int(r): nearer_upper(P[roots == r].mean(axis=0)) for r in np.unique(roots) if counts[r] <= TEETH_SPLIT_VERTS}
     face_up = np.array([comp_up[int(roots[f[0]])] if int(roots[f[0]]) in comp_up else nearer_upper(P[f].mean(axis=0)) for f in T])
+    return px, P, T, TU, face_up, helper
+
+
+def _append_proxy_teeth(R, m, alld, hi, target=None):
+    """088 T30k: 클로즈업 치아·잇몸 = MakeHuman teeth_base 프록시(CC0) 원본 형상(감량 없음, 치아 하나하나·잇몸).
+    프록시는 기준 정점 3개 + 오프셋의 강체 배치라 델타를 그대로 옮기면 입을 벌려도 아래 치아가 안 내려간다 →
+    연결 성분(치아 한 개·잇몸 조각)마다 위·아래 치아 헬퍼 중 가까운 쪽 표면에 묶어 그 델타(표정·얼굴·바탕 머리)를 받는다.
+    target(삼각형)을 주면 위·아래 각각 절반으로 감량(LOD0 — 환호 장면에서 클로즈업 2명 밖 선수도 크게 잡힌다, FR-58 같은 모델·텍스처)."""
+    px, P, T, TU, face_up, helper = proxy_teeth_split(R)
     for part in ("teeth_upper", "teeth_lower"):
         sel = list(np.flatnonzero(face_up == (part == "teeth_upper")))
         if not sel:

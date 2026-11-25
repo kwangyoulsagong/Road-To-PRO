@@ -69,6 +69,39 @@ AXES = [
     ("ear_flap", ["l-ear-flap-decr", "r-ear-flap-decr"], ["l-ear-flap-incr", "r-ear-flap-incr"], 0.6),
 ]
 AXES = [(a, neg, pos, round(rng * AXIS_GAIN, 4)) for a, neg, pos, rng in AXES]   # 088 T26
+# 088 T30m (FR-60 개정): 개성 얼굴이 고르는 "눈에 띄는" 축과 그 최대치(원본 타깃 세기 ≤ 1.0). 눈·눈썹 축은 넣지 않는다
+# (관통 위험 + FR-62 지역 고정관념). Unity FaceGenerator는 face.json targets[].distinctMax로 읽는다 [제안]
+DISTINCT_AXES = ("nose_width", "nose_length", "nose_hump", "chin_prominent", "chin_width", "jaw", "lip_lower", "lip_upper",
+                 "cheekbones", "head_width", "ear_size")
+DISTINCT_GAIN = 1.6
+DISTINCT_MAX = {a: round(min(rng * DISTINCT_GAIN, 1.0), 4) for a, _, _, rng in AXES if a in DISTINCT_AXES}
+# 088 T30m 2차 (사용자 "베스트케이스" = 특징 묶음): 개성 얼굴은 서로 어울리는 축 묶음 1~2개를 한 방향으로 함께 민다.
+# 값 = 비율 × 축 최대치(확장 축은 DISTINCT_MAX, 나머지는 범위) — 축 하나하나는 원본 타깃 세기 안. 눈·눈썹 축 없음(FR-62) [제안]
+DISTINCT_BUNDLES = [
+    ("big_nose", {"nose_length": 1.0, "nose_hump": 1.0, "nose_width": 0.8, "nose_tip_width": 0.7}),
+    ("small_nose_thin_lips", {"nose_width": -0.9, "nose_length": -0.8, "lip_lower": -1.0, "lip_upper": -0.9}),
+    ("weak_chin", {"chin_prominent": -1.0, "chin_width": -0.8, "jaw": -0.8, "chin_height": -0.6}),
+    ("square_jaw", {"chin_width": 1.0, "jaw": 1.0, "chin_prominent": 0.7, "cheekbones": 0.6}),
+    ("wide_face", {"head_width": 1.0, "cheek_volume": 0.9, "mouth_width": 0.8, "lip_lower": 0.8, "lip_upper": 0.7}),
+    ("long_narrow_face", {"head_width": -1.0, "chin_height": 1.0, "nose_length": 0.8, "cheek_volume": -0.8}),
+    ("full_lips", {"lip_lower": 1.0, "lip_upper": 1.0, "mouth_width": 0.6}),
+    ("high_cheekbones", {"cheekbones": 1.0, "cheek_volume": -1.0, "chin_prominent": 0.4}),
+    ("big_ears", {"ear_size": 1.0, "ear_flap": 1.0}),
+]
+
+
+def axis_max(a):
+    rng = next(r for x, _, _, r in AXES if x == a)
+    return DISTINCT_MAX.get(a, rng)
+
+
+def bundle_weights(names):
+    """묶음 이름들 → {셰이프키: 가중치} (모두 비율 1.0 끝값). 같은 축이 겹치는 묶음 조합은 쓰지 않는다(Unity도 같은 규칙)."""
+    w = {}
+    for n in names:
+        for a, f in dict(DISTINCT_BUNDLES)[n].items():
+            w[f"Face_{a}_{'pos' if f >= 0 else 'neg'}"] = abs(f) * axis_max(a)
+    return w
 # (id, 두께 m). 056 4종 순서 유지 + 062 FR-66 신규 3종(콧수염·염소수염·진한 스텁블)은 뒤에 (Unity 수염 인덱스 호환)
 BEARDS = [("none", 0.0), ("stubble", 0.0006), ("short", 0.0022), ("full", 0.0055),
           ("mustache", 0.0030), ("goatee", 0.0040), ("heavy_stubble", 0.0012)]
@@ -379,8 +412,11 @@ def register(R):
 def axes_json():
     t = []
     for a, _, _, rng in AXES:
-        t.append({"id": f"Face_{a}_pos", "axis": a, "sign": 1, "min": 0.0, "max": rng})
-        t.append({"id": f"Face_{a}_neg", "axis": a, "sign": -1, "min": 0.0, "max": rng})
+        for sign, sg in ((1, "pos"), (-1, "neg")):
+            e = {"id": f"Face_{a}_{sg}", "axis": a, "sign": sign, "min": 0.0, "max": rng}
+            if a in DISTINCT_MAX:
+                e["distinctMax"] = DISTINCT_MAX[a]   # 088 T30m: 개성 얼굴만 이 값까지 (필드 추가만)
+            t.append(e)
     return t
 
 
@@ -438,6 +474,7 @@ def face_json(R, tree_tri):
             "beards": [{"id": b, "thickness": t, "region": BEARD_REGION.get(b)} for b, t in BEARDS],
             "baseHeads": [{"id": b, "region": r} for b, r, _, _ in BASE_HEADS],   # 062 FR-60~62 (필드 추가만)
             "expressions": [{"id": e} for e, _ in EXPRESSIONS],                   # 062 FR-70
+            "distinctBundles": [{"id": n, "axes": [{"axis": a, "frac": f} for a, f in ax.items()]} for n, ax in DISTINCT_BUNDLES],   # 088 T30m
             "landmarks": landmarks(R, tree_tri), "eyeDistance": round(eye_frame(R)[1], 6)}
 
 
@@ -475,6 +512,56 @@ def eyes_covered(R, tree_tri, key_sets):
         worst = max(worst, bad)
         cases += 1
     return {"ok": worst == 0, "exposedOutsideLids": worst, "cases": cases}
+
+
+def distinct_key_sets():
+    """088 T30m: 개성 끝값 — 무변형, 확장 축 단독 ±distinctMax, 특징 묶음 단독, 축이 겹치지 않는 묶음 쌍 (Unity가 고를 수 있는 조합 전부)."""
+    ks = [{}] + [{f"Face_{a}_{sg}": DISTINCT_MAX[a]} for a in DISTINCT_AXES for sg in ("pos", "neg")]
+    names = [n for n, _ in DISTINCT_BUNDLES]
+    ks += [bundle_weights([n]) for n in names]
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            if not set(dict(DISTINCT_BUNDLES)[a]) & set(dict(DISTINCT_BUNDLES)[b]):
+                ks.append(bundle_weights([a, b]))
+    return ks
+
+
+def teeth_covered(R, tree_tri, key_sets):
+    """088 T30m: 입 다문 얼굴에서 치아가 입술·피부를 뚫고 보이는 정점 수 (eyes_covered와 같은 규칙 — 정면 광선이 치아 점
+    바로 뒤 0.5~6 mm에서 피부에 맞으면 노출, 입술 틈으로 깊이 들어가면 노출 아님). 치아 = MakeHuman teeth_base 프록시."""
+    from mathutils.bvhtree import BVHTree
+    from mathutils import Vector
+    from . import body as B
+    tree, tri = tree_tri
+    px, P, T, TU, face_up, helper = B.proxy_teeth_split(R)
+    binds = []                                  # 게임과 같은 규칙: 위·아래 헬퍼 표면에 묶어 델타를 받는다 (body._append_proxy_teeth)
+    for up in (True, False):
+        vs = np.unique(T[face_up == up].ravel())
+        b = B.Binding.__new__(B.Binding)
+        b.tri = np.zeros((len(vs), 3), dtype=np.int64)
+        b.bc = np.zeros((len(vs), 3))
+        tr = helper["teeth_upper" if up else "teeth_lower"][0]
+        for i, v in enumerate(vs):
+            (t_, bc), _ = B._bind_point(R, tr, P[v])
+            b.tri[i], b.bc[i] = t_, bc
+        binds.append((vs, b))
+    worst, cases, where = 0, 0, None
+    for ks in key_sets:
+        D = np.zeros_like(R.verts)
+        for k, w in ks.items():
+            D = D + R.extra_deltas[k] * w
+        V = R.verts + D
+        t2 = BVHTree.FromPolygons([tuple(p) for p in V], [tuple(t) for t in tri], all_triangles=True)
+        bad = 0
+        pts = np.concatenate([P[vs] + b.apply(D) for vs, b in binds])
+        for p in pts:
+            loc, nrm, idx, dist = t2.ray_cast(Vector((p[0], p[1], p[2] + 0.5)), Vector((0, 0, -1)))
+            if loc is not None and 0.0005 < p[2] - loc[2] < 0.006:
+                bad += 1
+        if bad > worst:
+            worst, where = bad, sorted(ks)
+        cases += 1
+    return {"ok": worst == 0, "exposed": worst, "worstCase": where, "cases": cases}
 
 
 # ---------------------------------------------------------------- 088 MakeHuman 눈썹·속눈썹 → 피부 UV 마스크 (FR-02)

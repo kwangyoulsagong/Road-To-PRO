@@ -49,7 +49,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             {
                 var f = FaceGenerator.Generate(Data, id);
                 for (int i = 0; i < f.Axis.Length; i++)
-                    Assert.That(Mathf.Abs(f.Axis[i]), Is.LessThanOrEqualTo(Data.Axes[i].Range + 1e-6f), Data.Axes[i].Id);
+                    Assert.That(Mathf.Abs(f.Axis[i]), Is.LessThanOrEqualTo(FaceGenerator.MaxAbs(Data, i) + 1e-6f), Data.Axes[i].Id);   // 088 T30m: 개성 확장 축은 distinctMax까지
             }
         }
 
@@ -219,6 +219,47 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             Assert.Less(p, x, "개성이 평범보다 평균에 가깝다");
         }
 
+        // 088 T30m (FR-60 개정): 개성 = 특징 묶음 1~2개가 통째로 끝값 쪽(비율 × 최대치 × ≥ 0.85), 잘생김은 어떤 묶음도 채우지 않는다.
+        // 묶음·확장 축에 눈·눈썹 없음(FR-62)
+        [Test]
+        public void Impression_Distinctive_FillsFeatureBundles()
+        {
+            var d = FaceGeneratorTests.Data;
+            Assert.GreaterOrEqual(d.Bundles.Count, 6, "특징 묶음");
+            for (int i = 0; i < d.Axes.Count; i++)
+                if (d.Axes[i].Id.StartsWith("eye") || d.Axes[i].Id.StartsWith("brow"))
+                    Assert.AreEqual(0f, d.Axes[i].DistinctMax, "눈·눈썹 축은 개성 확장 안 함: " + d.Axes[i].Id);
+            foreach (var b in d.Bundles)
+                foreach (int k in b.Axis)
+                    Assert.IsFalse(d.Axes[k].Id.StartsWith("eye") || d.Axes[k].Id.StartsWith("brow"), b.Id);
+            int seen = 0;
+            for (int id = 1; id <= 3000; id++)
+            {
+                var t = FaceGenerator.ImpressionOf(id);
+                if (t == FaceImpression.Plain) continue;
+                var f = FaceGenerator.Generate(d, id);
+                int filled = 0;
+                foreach (var b in d.Bundles)
+                {
+                    bool all = true;
+                    for (int q = 0; q < b.Axis.Length && all; q++)
+                    {
+                        int k = b.Axis[q];
+                        float want = b.Frac[q] * FaceGenerator.MaxAbs(d, k) * FaceGenerator.BundleLo;
+                        all = want >= 0 ? f.Axis[k] >= want - 1e-5f : f.Axis[k] <= want + 1e-5f;
+                    }
+                    if (all) filled++;
+                }
+                if (t == FaceImpression.Distinctive)
+                {
+                    seen++;
+                    Assert.That(filled, Is.InRange(FaceGenerator.BundleMin, FaceGenerator.BundleMax + 1), "id " + id);
+                }
+                else Assert.AreEqual(0, filled, "잘생김 id " + id);
+            }
+            Assert.Greater(seen, 400);
+        }
+
         // AC-15: 같은 id → 같은 유형·같은 축, 팀 재추첨(시도 번호)에도 유형 유지
         [Test]
         public void Impression_Deterministic_AndKeptOnRetry()
@@ -232,8 +273,9 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 var b = FaceGenerator.Generate(d, id, 3);
                 for (int i = 0; i < a.Axis.Length; i++)
                 {
-                    Assert.LessOrEqual(System.Math.Abs(a.Axis[i]), d.Axes[i].Range + 1e-6f);
-                    Assert.LessOrEqual(System.Math.Abs(b.Axis[i]), d.Axes[i].Range + 1e-6f);
+                    Assert.LessOrEqual(System.Math.Abs(a.Axis[i]), FaceGenerator.MaxAbs(d, i) + 1e-6f);   // 088 T30m: 개성 확장 축은 distinctMax까지
+                    Assert.LessOrEqual(System.Math.Abs(b.Axis[i]), FaceGenerator.MaxAbs(d, i) + 1e-6f);
+                    Assert.LessOrEqual(FaceGenerator.MaxAbs(d, i), 1f + 1e-6f, "원본 타깃 세기 ≤ 1");
                 }
             }
         }

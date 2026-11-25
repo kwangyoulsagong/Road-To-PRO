@@ -109,6 +109,7 @@ def generate(lods, clip_ids, seed, stem_dir, preview, command):
                       "heightM": float(R.verts[body_idx, 1].max() - R.verts[body_idx, 1].min())},
         "licenses": lic,
         "eyes": F.eyes_covered(R, tree, eye_keys),
+        "teeth": F.teeth_covered(R, tree, F.distinct_key_sets()),   # 088 T30m: 개성 확장 축 극값에서 치아 노출 0
     }
     kb = {str(l): checks.kit_boundary(mm[l], l) for l in sorted(mm) if l < 2}
     summary["kitBoundary"] = dict(kb, ok=all(v["ok"] for v in kb.values()))
