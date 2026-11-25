@@ -62,6 +62,21 @@ namespace RoadToPro.Verification.Samples
                 FarmContext.Screens[$"hair{st.Item2}FrontNoCloseupShadow"] = () => { ShowApprovedHair(st.Item2, st.Item1, 0f); _rigs[ExprPlayers[0]].CloseupRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; };
                 FarmContext.Screens[$"hair{st.Item2}FrontProxyHead"] = () => { ShowApprovedHair(st.Item2, st.Item1, 0f); var px = _rigs[ExprPlayers[0]].ShadowProxyRenderer; if (px != null) px.SetBlendShapeWeight(0, 0f); };
             }
+            // 088 T30a (FR-58·AC-14 e2e/088-tier-match): 같은 선수·카메라·포즈를 두 등급으로 — Near = 클로즈업 전환 경계(얼굴 비율 0.25)
+            // 클로즈업 머리 vs LOD0, Far = LOD0↔1 경계(몸 비율 0.25) LOD0 vs LOD1. 지역별 승인 헤어 + 면도 자국, 3/4
+            for (int k = 0; k < ProtoFaces.Length; k++)
+            {
+                var face = ProtoFaces[k];
+                int hair = TierHair[k];
+                foreach (bool far in new[] { false, true })
+                    foreach (bool hi in new[] { true, false })
+                    {
+                        bool f = far, h = hi;
+                        FarmContext.Screens[$"tier{face.name}{(f ? "Far" : "Near")}{(h ? "Hi" : "Lo")}"] = () => ShowTierPair(face.name, face.baseHead, face.tone, hair, f, h);
+                    }
+                // 진단: LOD1을 근접 카메라로 (원거리 짝의 입·헤어 차이 원인 확인)
+                FarmContext.Screens[$"tier{face.name}NearLod1"] = () => { ShowTierPair(face.name, face.baseHead, face.tone, hair, false, false); var rg = _rigs[ExprPlayers[0]]; rg.SetTopTier(false); rg.ForceLod(1); };
+            }
             // 088 T30f (AC-16 e2e/088-face-variety): 지역 7 × 인상 유형 3, 화면 하나에 한 명
             for (int r = 0; r < AppearanceGenerator.Regions; r++)
                 for (int t = 0; t < 3; t++)
@@ -70,6 +85,50 @@ namespace RoadToPro.Verification.Samples
                     var type = (FaceImpression)t;
                     FarmContext.Screens[$"variety{r + 1}{type}"] = () => ShowVariety(region, type);
                 }
+        }
+
+        /// <summary>T30a 지역별 헤어: 유럽 포마드(14)·동아시아 가르마(15)·아프리카 가일컷(30) — 088 승인 헤어.</summary>
+        static readonly int[] TierHair = { 14, 15, 30 };
+        const float TierFov = 30f;
+
+        void ShowTierPair(string name, int baseHead, int tone, int hair, bool far, bool hi)
+        {
+            int ent = ExprPlayers[0];
+            Prepare062($"tier{name}{(far ? "Far" : "Near")}{(hi ? "Hi" : "Lo")}");
+            var a = _looks[ent];
+            int o1 = (baseHead + 1) % AppearanceGenerator.BaseHeads, o2 = (baseHead + 2) % AppearanceGenerator.BaseHeads;
+            var look = new PlayerAppearance(a.HeightCm, a.WeightKg, a.Thin, a.Muscular, a.Heavy, tone, a.Face, hair, a.HairColor,
+                a.Broad, a.Limb, 0, 1, baseHead, o1, o2, 1000, 0, 0, 1);
+            _rigs[ent].ApplyAppearance(look, new FaceShape(new float[_faces[ent].Axis.Length]), Face062);
+            _over062.Add(ent);
+            PoseStill(e => (e == ent, 0f, 0f, 0f), false, 0);
+            var rig = _rigs[ent];
+            EnterStudio(rig.transform);
+            float s = rig.transform.localScale.y, tan = Mathf.Tan(TierFov * 0.5f * Mathf.Deg2Rad);
+            Vector3 aim;
+            float dist;
+            if (!far)
+            {
+                // 얼굴 비율 = CloseupSelector.Enter → 클로즈업 머리 vs LOD0 고정(최고 등급, 클로즈업이 풀린 직후 상태)
+                aim = rig.Bone("Head").position + rig.transform.rotation * (EyeFromHead * s) - Vector3.up * 0.06f;
+                dist = CloseupHeads.HeadHeight * s / (2f * CloseupSelector.Enter * tan);
+                rig.SetCloseup(hi);
+                rig.SetTopTier(!hi);
+            }
+            else
+            {
+                // 몸 비율 = LodHeights[0] → LOD0 vs LOD1 (일반 등급)
+                aim = rig.transform.position + Vector3.up * (0.9f * s);
+                dist = 1.8f * s / (2f * PlayerRig.LodHeights[0] * tan);
+                rig.SetCloseup(false);
+                rig.SetTopTier(false);
+                rig.ForceLod(hi ? 0 : 1);
+            }
+            float r = 35f * Mathf.Deg2Rad;
+            var dir = rig.transform.forward * Mathf.Cos(r) + rig.transform.right * Mathf.Sin(r);
+            cam.fieldOfView = TierFov;
+            cam.transform.position = aim + dir * dist;
+            cam.transform.rotation = Quaternion.LookRotation(aim - cam.transform.position, Vector3.up);
         }
 
         void ShowApprovedHair(string name, int style, float orbitDeg)

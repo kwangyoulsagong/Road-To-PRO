@@ -203,6 +203,48 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         }
 
         [Test]
+        public void Closeup_SharesLookPropertiesWithLods()
+        {
+            // 088 T30a (FR-58·AC-14): 등급 전환에서 피부·헤어·눈·수염 색과 종류가 바뀌지 않는다 — 클로즈업 재질 = 몸 LOD 재질 값
+            string[] colors = { "_SkinColor", "_HairColor", "_HairColor2", "_EyeColor", "_BeardColor" };
+            string[] floats = { "_BeardLevel", "_BeardGrey", "_MuscleDef", "_NormalStrength" };
+            string[] vectors = { "_BrowChannel", "_BeardChannel" };
+            foreach (int id in new[] { 13, 4242, 9001 })
+            {
+                var rig = Rig(id, out _, out _);
+                try
+                {
+                    var body = rig.Lod(0).sharedMaterials[0];
+                    var close = rig.CloseupRenderer.sharedMaterials[0];
+                    Assert.AreNotSame(body, close);
+                    foreach (var p in colors) Assert.AreEqual(body.GetColor(p), close.GetColor(p), $"{id} {p}");
+                    foreach (var p in floats) Assert.AreEqual(body.GetFloat(p), close.GetFloat(p), 1e-6f, $"{id} {p}");
+                    foreach (var p in vectors) Assert.AreEqual(body.GetVector(p), close.GetVector(p), $"{id} {p}");
+                    Assert.AreSame(body.GetTexture("_SkinTex"), close.GetTexture("_SkinTex"), $"{id} _SkinTex");
+                }
+                finally { Object.DestroyImmediate(rig.gameObject); }
+            }
+        }
+
+        [Test]
+        public void ShellLift_OnlyLod1And2()
+        {
+            // 088 T30a: 셸 헤어 결 밝기 보정은 LOD1·2 몸 재질에만 — LOD0·클로즈업(카드 헤어)은 0
+            var rig = Rig(13, out _, out _);
+            try
+            {
+                var b = new MaterialPropertyBlock();
+                for (int l = 0; l < 3; l++)
+                {
+                    rig.Lod(l).GetPropertyBlock(b, 0);
+                    Assert.AreEqual(l == 0 ? 0f : 1f, b.GetFloat(PlayerRig.ShellLiftId), $"LOD{l}");
+                }
+                Assert.IsFalse(rig.CloseupRenderer.HasPropertyBlock());
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
+        }
+
+        [Test]
         public void BakeDuringPlayback_Counted()
         {
             var rig = PlayerRigTests.NewRig();

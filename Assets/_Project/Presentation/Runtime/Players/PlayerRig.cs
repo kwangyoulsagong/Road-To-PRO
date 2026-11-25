@@ -18,6 +18,7 @@ namespace RoadToPro.Presentation.Players
     public sealed class PlayerRig : MonoBehaviour
     {
         /// <summary>LOD 전환 화면 높이 비율 (plan [제안] 0.25 / 0.08, LOD2는 끝까지 — 컬링 없음).</summary>
+        public static readonly int ShellLiftId = Shader.PropertyToID("_ShellLift");
         public static readonly float[] LodHeights = { 0.25f, 0.08f, 0.0001f };
         /// <summary>히스테리시스 (FR-13): 내려갈 때는 경계의 1 − H, 올라갈 때는 1 + H를 지나야 바꾼다 → 경계에서 왕복 깜빡임 없음.</summary>
         public const float LodHysteresis = 0.15f;
@@ -121,6 +122,10 @@ namespace RoadToPro.Presentation.Players
                 smr.updateWhenOffscreen = false;
                 smr.skinnedMotionVectors = false;
             }
+            // 088 T30a (FR-58): LOD1·2 헤어는 셸뿐이라 결 밝기 보정 — 몸 재질(서브메시 0)에만, LOD0·클로즈업은 그대로 (PlayerBody.shader ShellLiftAmount)
+            var lift = new MaterialPropertyBlock();
+            lift.SetFloat(ShellLiftId, 1f);
+            for (int l = 1; l < rig._lods.Length; l++) rig._lods[l].SetPropertyBlock(lift, 0);
             // 그림자는 LOD와 무관하게 저폴리 프록시 하나가 맡는다(서브메시 1개, 그림자만) — 그림자 드로우 25회·삼각형 ≈ 2.4만 (AC-16)
             foreach (var l in rig._lods) l.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             rig._shadow = ShadowProxy(rig._lods[2]);

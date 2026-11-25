@@ -1,0 +1,211 @@
+{
+  "schemaVersion": 1,
+  "id": "088-tier-match",
+  "spec": "088",
+  "description": "088 AC-14 (T30a, FR-58 낙차 제한): 같은 선수·카메라·포즈를 두 등급으로 — Near = 클로즈업 전환 경계(얼굴 비율 0.25)에서 클로즈업 머리 vs LOD0, Far = LOD0↔1 경계(몸 비율 0.25)에서 LOD0 vs LOD1. 지역 3(시안 인종 짝 바탕 머리) × 승인 헤어(포마드·가르마·가일컷) + 면도 자국, 3/4, 시안 조명 스튜디오(단색 배경). tierPair = 머리 구역 1 − IoU ≤ 0.05·평균색 ΔE ≤ 3.",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261122
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-14"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "tierEuropeNearHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeNearHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierEuropeNearLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeNearLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierEuropeFarHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeFarHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierEuropeFarLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeFarLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaNearHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaNearHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaNearLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaNearLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaFarHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaFarHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaFarLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaFarLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaNearHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaNearHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaNearLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaNearLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaFarHi"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaFarHi",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaFarLo"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaFarLo",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierEuropeNearLod1"
+    },
+    {
+      "type": "capture",
+      "name": "tierEuropeNearLod1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAsiaNearLod1"
+    },
+    {
+      "type": "capture",
+      "name": "tierAsiaNearLod1",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "tierAfricaNearLod1"
+    },
+    {
+      "type": "capture",
+      "name": "tierAfricaNearLod1",
+      "kind": "3d"
+    }
+  ],
+  "imageChecks": [
+    {
+      "type": "tierPair",
+      "capture": "tierEuropeNearHi",
+      "other": "tierEuropeNearLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierEuropeFarHi",
+      "other": "tierEuropeFarLo",
+      "headFrac": 0.16,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierAsiaNearHi",
+      "other": "tierAsiaNearLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierAsiaFarHi",
+      "other": "tierAsiaFarLo",
+      "headFrac": 0.16,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierAfricaNearHi",
+      "other": "tierAfricaNearLo",
+      "headFrac": 1.0,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    },
+    {
+      "type": "tierPair",
+      "capture": "tierAfricaFarHi",
+      "other": "tierAfricaFarLo",
+      "headFrac": 0.16,
+      "maxIouDiff": 0.05,
+      "maxDe": 3.0,
+      "ac": "AC-14"
+    }
+  ]
+}

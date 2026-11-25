@@ -39,6 +39,7 @@ Shader "RoadToPro/PlayerBody"
         _Sweat ("땀 0/1", Range(0, 1)) = 0
         _MouthOpen ("입 벌림 (088 T30j 치아 차폐, 표정에서)", Range(0, 1)) = 0
         _Wetness ("젖음 0~1 (078 입력)", Range(0, 1)) = 0
+        _ShellLift ("셸 헤어 결 밝기 보정 (088 T30a, LOD1·2 렌더러만 1)", Range(0, 1)) = 0
     }
     SubShader
     {
@@ -68,6 +69,7 @@ Shader "RoadToPro/PlayerBody"
             half _NormalStrength;
             half _MuscleDef, _Translucency, _Sweat, _Wetness;
             half _MouthOpen;
+            half _ShellLift;
         CBUFFER_END
 
         // 088 T23: 헤어 셸 연속 UV — u ≥ 10이면 u = 10 + 타일 × 100 + 연속 u, v = 연속 v. parts 머리카락 칸 3열 × 2행 타일 안에서 frac으로 반복
@@ -184,6 +186,7 @@ Shader "RoadToPro/PlayerBody"
             // 모공·근육 노멀은 정반사에만 다 들어가고 확산에는 덜 들어가 "얼룩·평면" 대신 부드러운 음영.
             static const half3 TeethTint = half3(1.0h, 0.96h, 0.88h);   // 088 T30k: 치아 상아색 [제안]
             static const half3 GumTint = half3(1.25h, 0.55h, 0.52h);    // 088 T30k: 잇몸 [제안]
+            static const half ShellLiftAmount = 0.28h;   // 088 T30a: 카드 보이는 결 밝기 0.74 − 셸 타일 0.46 (parts.png 실측) [제안]
             static const half TeethOcc = 0.12h;  // 088 T30j: 입 다문 표정의 치아 빛 비율 [제안] (0.3은 회색 줄이 남음 — 선형 0.3 ≈ 화면 0.57배)
             static const half3 SssNormalKeep = half3(0.15h, 0.45h, 0.65h);   // 채널별 디테일 노멀 비율 [제안]
             static const half SssAlbedoBlur = 0.6h;                          // 흐린 알베도 비율 [제안]
@@ -408,7 +411,10 @@ Shader "RoadToPro/PlayerBody"
                 // 088 T29: 눈썹 메시(셸 UV 연속 90~91, browlash.BROW_UV_U0)는 마스크와 같은 머리색 × BrowDark (시안 눈썹은 머리보다 진하다)
                 half isBrow = (half)(step(99.5, i.uv.x) * (1.0 - step(101.0, i.uv.x)));
                 hairBase = lerp(hairBase, BrowColor(_BeardColor.rgb), isBrow);
-                half3 hairA = hairBase * lerp(lerp(0.6h, 1.3h, pt.r), 1.0h, isBrow) * lerp(1.0h, 0.7h, _Wetness);   // FR-97 젖은 머리는 어둡다. 088 T29: 눈썹은 결 밝기 변동 없이 고르게
+                // 088 T30a (FR-58): LOD1·2 헤어는 셸뿐 — 셸 결 타일 평균 밝기(R ≈ 0.46)가 LOD0 카드의 보이는 텍셀(≈ 0.74)보다 낮아 헤어가 최대 21 % 어두웠다
+                // (088-tier-match 동아시아 원거리 ΔE 5.6). LOD1·2 렌더러만(PlayerRig 속성 블록) 셸 결 밝기를 ShellLiftAmount 올린다. LOD0 속심 셸은 그대로 [제안]
+                half hairR = pt.r + _ShellLift * ShellLiftAmount * (half)step(10.0, i.uv.x) * (1.0h - isBrow);
+                half3 hairA = hairBase * lerp(lerp(0.6h, 1.3h, hairR), 1.0h, isBrow) * lerp(1.0h, 0.7h, _Wetness);   // FR-97 젖은 머리는 어둡다. 088 T29: 눈썹은 결 밝기 변동 없이 고르게
                 half3 strand = SafeNormalize(b + nG * (pt.g - 0.5h) * 0.4h); // 가닥 방향 = UV v(바이탄젠트), 결 위상으로 흔든다
                 half th = dot(strand, h);
                 half curl = saturate((pt.a - 0.40h) / 0.12h);   // 062 FR-43: 직모 0 → 코일·브레이드·드레드 1 (groom.atlas 결 타일 거칠기)

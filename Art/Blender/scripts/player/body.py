@@ -184,6 +184,8 @@ def _decimated(R, lod):
     if lod > 0:
         # 단계 감량: 이전 LOD 결과에서 줄인다 (한 번에 3 % 까지 줄이면 손발이 먼저 사라진다)
         co, fl, uvs = _decimated_cached(R, lod - 1)
+        if lod == 1:
+            fl, uvs = _drop_mouth_inside(R, co, fl, uvs)   # 088 T30a (LOD2는 LOD1에서 이어받는다)
     else:
         faces, uvs = _body_faces(R)
         ids = sorted({v for f in faces for v in f})
@@ -978,6 +980,8 @@ def build(lod):
     _append_eyes(R, m, lod)
     if lod == 0:
         _append_mouth(R, m, "lod0")  # 062 FR-72: 입 안 (치아·혀·입안 캡)
+    else:
+        _append_lip_seal(R, m)  # 088 T30a: LOD1·2 입술 틈 뒤 입술색 판 (입 안쪽 면은 감량 전에 뺐다)
     if not suit_mode():
         _kit_bone_weights(m, lod)  # 062 FR-21 (정장은 보조 뼈 없음)
     # 088 T29: 눈썹·속눈썹은 피부 마스크(진한 바탕) + 메시(LOD0 띠·클로즈업 원본 가닥) — 시안(Cycles) 눈썹은 진한 띠 위 가닥 결
@@ -1132,7 +1136,7 @@ def append_part(m, P, W, D, faces, mat, uvs, part):
         m.faces.append((tuple(off + i for i in f), mat, tuple(u), part, None))
 
 
-EYE_TRIS_088 = {"closeup": 420, 0: 240, 1: 48, 2: 16}   # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합). T29: 원본(감량 없음)은 Unity에서 동공이 홍채를 덮고 눈 안쪽 구석에 검은 덩어리 → 420 유지
+EYE_TRIS_088 = {"closeup": 420, 0: 240, 1: 160, 2: 16}   # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합). T29: 원본(감량 없음)은 Unity에서 동공이 홍채를 덮고 눈 안쪽 구석에 검은 덩어리 → 420 유지. T30a: LOD1 48 → 160 — 눈 하나 24 tris는 홍채를 가로지르는 큰 면 안 UV 선형 보간으로 흰자에 빨강·파랑 줄(088-tier-match) [제안]
 EYE_BACK = 0.0015                                         # 088 T23: 웃음 표정 눈꺼풀 노출(6 → 4점) → 1.5 mm 뒤로
 EYE_SHRINK = 0.94                                         # 088: MakeHuman 눈은 MH 눈꺼풀 기준 — 표정 키 노출(웃음 6점) → 6 % 줄임
 
@@ -1210,6 +1214,76 @@ def _mouth_tongue_uv(R):
         if v in f:
             return tuple(u[list(f).index(v)])
     return (0.5, 0.5)
+
+
+MOUTH_BOX_PAD = 0.005     # 입 상자: 입술 높이 위아래 5 mm [제안]
+MOUTH_INNER_BACK = 0.004  # 입술 맨 앞보다 4 mm 이상 뒤 [제안]
+MOUTH_INNER_NZ = 0.1      # 앞을 거의 안 보는 면 (법선 z < 0.1) [제안]
+MOUTH_DEPTH = 0.04        # 입술 맨 뒤보다 4 cm 뒤까지 = 구강 (그 뒤는 뒤통수·목) [제안]
+
+
+def _drop_mouth_inside(R, co, fl, uvs):
+    """088 T30a (FR-58): LOD1·2는 입 안(치아·혀·입안 캡)이 없어, 감량하면 입술 안쪽·구강 면이 뒤·아래를 향한 채 입술 사이로
+    앞에 드러나 빛을 못 받는 어두운 마름모가 됐다(088-tier-match 원거리 짝). 감량 전에 입 상자(입술 x 범위 · 입술 높이 ± MOUTH_BOX_PAD ·
+    입술 맨 앞보다 MOUTH_INNER_BACK 이상 뒤, 입술 맨 뒤보다 MOUTH_DEPTH 이내) 안에서 뒤를 향하거나(법선 z < MOUTH_INNER_NZ) 구강 UV 섬(u ≥ 0.75, v < 0.3 또는 > 0.7)인 면을 빼고,
+    입술 틈 뒤는 _append_lip_seal이 막는다. (UV 근접만으로 고르면 입술 UV가 이어져 바깥 입술·턱까지 빠졌다)"""
+    lips = R.verts[R.groups["lips"]]
+    hx = float(np.abs(lips[:, 0]).max())
+    y0, y1 = float(lips[:, 1].min()) - MOUTH_BOX_PAD, float(lips[:, 1].max()) + MOUTH_BOX_PAD
+    zb = float(lips[:, 2].max()) - MOUTH_INNER_BACK
+    zd = float(lips[:, 2].min()) - MOUTH_DEPTH
+    keep_f, keep_u, n = [], [], 0
+    for f, u in zip(fl, uvs):
+        p = co[list(f)]
+        c = p.mean(axis=0)
+        if abs(c[0]) < hx and y0 < c[1] < y1 and zd < c[2] < zb:
+            nn = -np.cross(p[1] - p[0], p[2] - p[0])
+            nn /= np.linalg.norm(nn) + 1e-12
+            uc = np.array(u).mean(axis=0)
+            if nn[2] < MOUTH_INNER_NZ or (uc[0] >= 0.75 and not 0.3 <= uc[1] <= 0.7):
+                n += 1
+                continue
+        keep_f.append(f)
+        keep_u.append(u)
+    print(f"[player] LOD1 입 안쪽 면 {n}개 뺌")
+    return keep_f, keep_u
+
+
+LIP_SEAL_SEGS = 12
+LIP_SEAL_BACK = 0.010   # 입술 겉면 맨 앞보다 1 cm 뒤 — 입술 사이 틈 안 [제안]
+
+
+def _append_lip_seal(R, m):
+    """088 T30a: LOD1·2 입술 틈 뒤 입술색 타원 판(부채꼴 LIP_SEAL_SEGS tris, 앞을 향함, 머리 뼈 고정) — 다문 입처럼 보이게."""
+    hi = MS.OUR_NAMES.index("Head")
+    lip_ids = R.groups["lips"]
+    lips = R.verts[lip_ids]
+    cy = float((lips[:, 1].min() + lips[:, 1].max()) / 2)
+    z = float(lips[:, 2].max()) - LIP_SEAL_BACK
+    rx = float(np.abs(lips[:, 0]).max()) * 0.85
+    ry = float((lips[:, 1].max() - lips[:, 1].min()) / 2) * 0.6
+    pts = [np.array([0.0, cy, z])]
+    for k in range(LIP_SEAL_SEGS):
+        ph = 2 * math.pi * k / LIP_SEAL_SEGS
+        pts.append(np.array([rx * math.cos(ph), cy + ry * math.sin(ph), z]))
+    fl = [(0, 1 + k, 1 + (k + 1) % LIP_SEAL_SEGS) for k in range(LIP_SEAL_SEGS)]   # 입안 캡과 같은 감기(앞에서 보인다)
+    P = np.array(pts)
+    keep = [f for f in R.faces if all(v in set(lip_ids) for v in f)]
+    tree = _subset_tree(R, keep)
+    b = Binding.__new__(Binding)
+    b.tri = np.zeros((len(P), 3), dtype=np.int64)
+    b.bc = np.zeros((len(P), 3))
+    off = np.zeros_like(P)
+    for i, p in enumerate(P):
+        (t, bc), _ = _bind_point(R, tree, p)
+        b.tri[i], b.bc[i] = t, bc
+        off[i] = p - (R.verts[t] * bc[:, None]).sum(axis=0)
+    W = np.zeros((len(P), m.W.shape[1]))
+    W[:, hi] = 1.0
+    alld = _all_deltas(R)
+    D = {k: (b.apply(alld[k]) if k in alld else np.zeros_like(P)) for k in m.deltas}
+    uv = _mouth_tongue_uv(R)
+    append_part(m, b.apply(R.verts) + off, W, D, fl, BODY, [tuple(uv for _ in f) for f in fl], "mouth_seal")
 
 
 def _append_mouth(R, m, which):
