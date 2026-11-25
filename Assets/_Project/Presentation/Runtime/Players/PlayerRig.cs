@@ -18,6 +18,9 @@ namespace RoadToPro.Presentation.Players
     public sealed class PlayerRig : MonoBehaviour
     {
         /// <summary>LOD 전환 화면 높이 비율 (plan [제안] 0.25 / 0.08, LOD2는 끝까지 — 컬링 없음).</summary>
+        public static readonly int ShellLiftId = Shader.PropertyToID("_ShellLift");
+        public static readonly int CloseupBodyId = Shader.PropertyToID("_CloseupBody");
+        MaterialPropertyBlock _bodyBlock;
         public static readonly float[] LodHeights = { 0.25f, 0.08f, 0.0001f };
         /// <summary>히스테리시스 (FR-13): 내려갈 때는 경계의 1 − H, 올라갈 때는 1 + H를 지나야 바꾼다 → 경계에서 왕복 깜빡임 없음.</summary>
         public const float LodHysteresis = 0.15f;
@@ -33,6 +36,7 @@ namespace RoadToPro.Presentation.Players
         Mesh _closeupSrc;
         readonly List<Mesh> _baked = new List<Mesh>();
         Mesh _shadowMesh;
+        Mesh _shadowHigh;   // 088 T30h: 클로즈업일 때 그림자 대리 = LOD0 (필요할 때 만든다)
         bool _closeupOn;
         readonly Dictionary<string, Transform> _bones = new Dictionary<string, Transform>();
         float _baseScale = 1f;
@@ -42,6 +46,8 @@ namespace RoadToPro.Presentation.Players
         public int CurrentLod => _lod < 0 ? 0 : _lod;
         public Animator Animator => _animator;
         public Material BodyMaterial => _body;
+        /// <summary>088 T30h 테스트용: 그림자 대리(LOD2).</summary>
+        public SkinnedMeshRenderer ShadowProxyRenderer => _shadow;
         public Material KitMaterial => _kit;
         public PlayerAppearance Appearance { get; private set; }
 
@@ -75,10 +81,10 @@ namespace RoadToPro.Presentation.Players
                     rig._suitSrc[smr.name[smr.name.Length - 1] - '0'] = smr.sharedMesh;
                     smr.enabled = false; // 정장 몸 LOD는 ApplyOutfit 굽기 재료
                 }
-                else if (smr.name.StartsWith("Hair_"))
+                else if (smr.name.StartsWith("Hair_") || smr.name.StartsWith("Brow_") || smr.name.StartsWith(PlayerLook.LashMesh + "_"))
                 {
                     rig._parts[smr.name] = smr;
-                    smr.enabled = false; // 헤어 조각은 굽기 재료 — 직접 그리지 않는다
+                    smr.enabled = false; // 헤어·눈썹·속눈썹 조각은 굽기 재료 — 직접 그리지 않는다 (088 FR-53)
                 }
             }
             rig._suitMask = bodyTex.suitMask;
@@ -118,6 +124,10 @@ namespace RoadToPro.Presentation.Players
                 smr.updateWhenOffscreen = false;
                 smr.skinnedMotionVectors = false;
             }
+            // 088 T30a (FR-58): LOD1·2 헤어는 셸뿐이라 결 밝기 보정 — 몸 재질(서브메시 0)에만, LOD0·클로즈업은 그대로 (PlayerBody.shader ShellLiftAmount)
+            var lift = new MaterialPropertyBlock();
+            lift.SetFloat(ShellLiftId, 1f);
+            for (int l = 1; l < rig._lods.Length; l++) rig._lods[l].SetPropertyBlock(lift, 0);
             // 그림자는 LOD와 무관하게 저폴리 프록시 하나가 맡는다(서브메시 1개, 그림자만) — 그림자 드로우 25회·삼각형 ≈ 2.4만 (AC-16)
             foreach (var l in rig._lods) l.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             rig._shadow = ShadowProxy(rig._lods[2]);
@@ -304,7 +314,15 @@ namespace RoadToPro.Presentation.Players
         {
             if (on == _topTier) return;
             _topTier = on;
-            if (_lods[0] != null) _lods[0].sharedMaterials = on ? _matsHigh : _matsNormal;
+            if (_lods[0] != null)
+            {
+                _lods[0].sharedMaterials = on ? _matsHigh : _matsNormal;
+                // 088 T30o: 최고 등급 LOD0 피부는 클로즈업 그림자 맵 (클로즈업 머리와 같은 얼굴 그늘 — FR-58)
+                _bodyBlock ??= new MaterialPropertyBlock();
+                _bodyBlock.SetFloat(CloseupBodyId, on ? 1f : 0f);
+                _lods[0].SetPropertyBlock(_bodyBlock, 0);
+            }
+            if (on || _closeupOn) CloseupShadow.Register(this); else CloseupShadow.Unregister(this);
             if (on) ForceLod(0);
             ApplyTierState();
         }
@@ -349,13 +367,39 @@ namespace RoadToPro.Presentation.Players
         {
             PushExpression(_lods[0]);
             PushExpression(_closeup);
+            // 088 T30j: 치아 차폐 = 입 벌림 (무표정 입술 틈 윗니 흰 줄 방지, 환호하면 치아 밝게). 두 재질에 같은 값(FR-89 등급 전환)
+            float mo = ExpressionLogic.MouthOpen(_expr);
+            if (_body != null) _body.SetFloat(MouthOpenId, mo);
+            if (_closeupMat != null) _closeupMat.SetFloat(MouthOpenId, mo);
+            RefreshFrozen();
         }
+
+        static readonly int MouthOpenId = Shader.PropertyToID("_MouthOpen");
 
         void PushExpression(SkinnedMeshRenderer r)
         {
             if (r == null || r.sharedMesh == null || r.sharedMesh.blendShapeCount < 1 + _expr.Length) return;
             // FR-71: LOD0·클로즈업 머리 모두 같은 값 — 등급 전환(클로즈업 ↔ LOD0 고정 ↔ 일반 LOD0)에서 표정이 튀지 않는다(FR-89)
             for (int k = 0; k < _expr.Length; k++) r.SetBlendShapeWeight(1 + k, _expr[k]);
+        }
+
+        void ApplyShadowProxy()
+        {
+            if (_shadow == null || _lods[0] == null || _lods[0].sharedMesh == null) return;
+            // 메시를 바꾸면 뼈 배열도 그 LOD 렌더러 것으로 — LOD마다 뼈 번호가 달라 LOD2 뼈로 LOD0 메시를 감으면 형상이 일그러져 목에 얼룩 그림자
+            if (_closeupOn)
+            {
+                if (_shadowHigh == null) _shadowHigh = SingleSubmesh(_lods[0].sharedMesh);
+                _shadow.sharedMesh = _shadowHigh;
+                _shadow.bones = _lods[0].bones;
+                _shadow.rootBone = _lods[0].rootBone;
+            }
+            else if (_shadowMesh != null)
+            {
+                _shadow.sharedMesh = _shadowMesh;
+                _shadow.bones = _lods[2].bones;
+                _shadow.rootBone = _lods[2].rootBone;
+            }
         }
 
         public bool CloseupActive => _closeupOn;
@@ -370,10 +414,26 @@ namespace RoadToPro.Presentation.Players
             if (_closeup == null || on == _closeupOn) return;
             _closeupOn = on;
             _closeup.enabled = on;
+            if (on || _topTier) CloseupShadow.Register(this); else CloseupShadow.Unregister(this);   // 088 T30i·o: 얼굴 자기 그림자 전용 맵
             float w = on ? 1f : 0f;
             foreach (var l in _lods)
                 if (l != null && l.sharedMesh != null && l.sharedMesh.blendShapeCount > 0) l.SetBlendShapeWeight(0, w);
+            // 088 T30h: 클로즈업이면 그림자 대리를 LOD2(860 tris) → LOD0으로 — LOD2의 각진 턱 그림자가 목 앞에 계단·조각으로 찍혔다
+            // (사용자 "목이 색이 이상한데"). 클로즈업 머리가 직접 던지면 목이 LOD0 목과 겹쳐 얼룩 그림자, 얼굴엔 칼로 벤 코 그림자가 났다.
+            // LOD0 몸은 자기 메시 그림자라 URP 보정이 맞고, LOD0 머리는 원본 머리(T27)라 턱 그림자가 매끈하다. 클로즈업은 동시 2명이라 비용이 작다
+            ApplyShadowProxy();
+            RefreshFrozen();
             ApplyTierState();   // 062: 등급이 바뀌면 표정·땀 표시도 같이
+        }
+
+        /// <summary>
+        /// 088 T29: Freeze 중(정지 캡처)이면 정적 메시를 다시 굽는다 — 굳힌 뒤 클로즈업을 켜면 HideHead가 꺼진 LOD 렌더러에만 걸려
+        /// 굳힌 LOD0 머리와 클로즈업 머리가 겹쳐 그려졌다(얼굴 두 겹). 표정을 바꿀 때도 같다. 재생 경로(굳히지 않음)는 아무것도 하지 않는다.
+        /// </summary>
+        void RefreshFrozen()
+        {
+            if (_frozen == null || !_frozen.enabled || _lods[0] == null) return;
+            _lods[0].BakeMesh(_frozenMesh, false);
         }
 
         /// <summary>피부 정점(UV u &lt; 1 — 머리카락·눈·카드 제외) 최고 높이 = 정수리 (메시 좌표).</summary>
@@ -517,21 +577,25 @@ namespace RoadToPro.Presentation.Players
                 if (m != null) Release(m);
             _baked.Clear();
             string hair = PlayerLook.HairMeshes[a.HairStyle];
+            string brow = PlayerLook.BrowMeshes[Mathf.Clamp(a.Eyebrow, 0, PlayerLook.BrowMeshes.Length - 1)];
+            var extras = new List<Mesh>(3);
             for (int l = 0; l < 3; l++)
             {
                 if (_lods[l] == null || _srcLods[l] == null) continue;
-                Mesh hm = null;
-                if (hair != null && _parts.TryGetValue($"{hair}_LOD{l}", out var hs)) hm = hs.sharedMesh;
-                var baked = PlayerMeshBaker.Bake(_srcLods[l], hm, w, $"Player_LOD{l} (baked)");
+                extras.Clear();
+                if (hair != null && _parts.TryGetValue($"{hair}_LOD{l}", out var hs)) extras.Add(hs.sharedMesh);
+                if (l == 0) AddPart(extras, brow + "_LOD0", PlayerLook.LashMesh + "_LOD0");   // 088 FR-53: LOD1·2는 피부 마스크
+                var baked = PlayerMeshBaker.Bake(_srcLods[l], extras, w, $"Player_LOD{l} (baked)");
                 _baked.Add(baked);
                 _lods[l].sharedMesh = baked;
                 // localBounds는 루트 뼈 기준 — 임포트 값 유지(메시 좌표 bounds를 넣으면 머리가 컬링된다)
             }
             if (_closeup != null && _closeupSrc != null)
             {
-                Mesh hm = null;
-                if (hair != null && _parts.TryGetValue($"{hair}_LOD0", out var hs)) hm = hs.sharedMesh;
-                var baked = PlayerMeshBaker.Bake(_closeupSrc, hm, w, "Head_Closeup (baked)");
+                extras.Clear();
+                if (hair != null && _parts.TryGetValue($"{hair}_LOD0", out var hs)) extras.Add(hs.sharedMesh);
+                AddPart(extras, brow + "_Closeup", PlayerLook.LashMesh + "_Closeup");   // 088 FR-53: 원본 눈썹·속눈썹
+                var baked = PlayerMeshBaker.Bake(_closeupSrc, extras, w, "Head_Closeup (baked)");
                 _baked.Add(baked);
                 _closeup.sharedMesh = baked;
                 // localBounds는 루트 뼈 기준 — 임포트 값 유지(메시 좌표 bounds를 넣으면 머리가 컬링된다)
@@ -553,6 +617,8 @@ namespace RoadToPro.Presentation.Players
                 _shadowMesh = SingleSubmesh(_lods[2].sharedMesh);
                 _shadow.sharedMesh = _shadowMesh;
                 if (old != null) Release(old);
+                if (_shadowHigh != null) { Release(_shadowHigh); _shadowHigh = null; }   // 다시 구웠으니 LOD0 대리도 새로
+                ApplyShadowProxy();
             }
             var tint = PlayerLook.SkinToneTint[a.SkinTone];   // 088 Q4: 톤 = MakeHuman 세트 + 틴트
             var skinTex = SkinSet(_skinSets, PlayerLook.SkinToneSet[a.SkinTone]);
@@ -569,6 +635,8 @@ namespace RoadToPro.Presentation.Players
                 int bi = Mathf.Clamp(beard, 0, PlayerLook.BeardLevels.Length - 1);
                 m.SetFloat("_BeardLevel", PlayerLook.BeardLevels[bi]);
                 m.SetVector("_BeardChannel", PlayerLook.BeardChannels[bi]);
+                m.SetColor("_BeardColor", PlayerLook.BeardColor(a.HairColor, a.SkinTone));   // 088 T30b: 수염·눈썹 = 자연 모색
+                m.SetFloat("_BeardGrey", PlayerLook.BeardGrey(a.HairColor));
             }
             PushExpression();   // 새로 구운 메시에 현재 표정 유지
             if (_closeupOn)
@@ -576,6 +644,12 @@ namespace RoadToPro.Presentation.Players
                 _closeupOn = false;
                 SetCloseup(true);
             }
+        }
+
+        void AddPart(List<Mesh> dst, params string[] names)
+        {
+            foreach (var n in names)
+                if (_parts.TryGetValue(n, out var p) && p.sharedMesh != null) dst.Add(p.sharedMesh);
         }
 
         // ---------------------------------------------------------------- 062 FR-27 정장
@@ -723,10 +797,12 @@ namespace RoadToPro.Presentation.Players
 
         void OnDestroy()
         {
+            CloseupShadow.Unregister(this);
             if (_frozenMesh != null) Destroy(_frozenMesh);
             foreach (var m in _baked)
                 if (m != null) Destroy(m);
             if (_shadowMesh != null) Destroy(_shadowMesh);
+            if (_shadowHigh != null) Destroy(_shadowHigh);
             if (_closeupMat != null) Destroy(_closeupMat);
             if (_body != null) Destroy(_body);
             if (_kit != null) Destroy(_kit);

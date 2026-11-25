@@ -18,15 +18,15 @@ def ridge_of(x, f, z, w=0.060):
 def _flow(kind, x, f, z, part):
     one = np.ones_like(x)
     if kind == "back":
-        return np.stack([0.05 * np.sign(x), -one, 0.15 * one], -1)
+        return np.stack([G.side_x(x, f, 0.05), -one, 0.15 * one], -1)
     if kind == "backup":                                   # 뒤로 넘기며 살짝 세움 (언더컷·퀴프 뒤)
         return np.stack([0.0 * x, -0.85 * one, 0.5 * one], -1)
     if kind == "forward":
-        return np.stack([0.1 * np.sign(x), one, -0.35 * one], -1)
+        return np.stack([G.side_x(x, f, 0.1), one, -0.35 * one], -1)
     if kind == "up":                                       # 088: 가운데서 좌우로 갈라지지 않게 x 성분은 연속(뿔 방지)
         return np.stack([0.15 * np.clip(x / 0.05, -1, 1), 0.15 * one, one], -1)
     if kind == "down":
-        return np.stack([0.25 * np.sign(x), 0.1 * one, -one], -1)
+        return np.stack([G.side_x(x, f, 0.25), 0.1 * one, -one], -1)
     if kind == "side":
         s = np.where(x > part, 1.0, -1.0)
         return np.stack([0.8 * s, -0.25 * one, -0.2 * one], -1)

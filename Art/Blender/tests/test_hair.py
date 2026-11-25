@@ -72,7 +72,7 @@ class Hair062(unittest.TestCase):
 
     def test_silhouette_pairs(self):
         sil = hair()["silhouette"]
-        self.assertGreaterEqual(sil["minPair"], 0.08, sil["pairsBelow"][:10])         # FR-44 (색 변형은 스타일이 아니라 색 조합)
+        self.assertGreaterEqual(sil["minPair"], 0.07, sil["pairsBelow"][:10])         # FR-44 (색 변형은 스타일이 아니라 색 조합). 088 FR-14 개정 0.08 → 0.07 (T29 가닥 카드, 2026-11-25)
 
     def test_color_point_regions(self):
         cp = hair()["colorPoint"]

@@ -160,6 +160,7 @@ namespace RoadToPro.Verification.Samples
             // 062 FR-21 자리 장면 (T17): 0.5x 질주 상체 근접 — 보조 뼈 2차 움직임·손가락 포즈 켬. 시나리오 완성은 T29
             FarmContext.Screens["kitMotion"] = () => ShowKitMotion(0.5f, 180);
             Register062();   // 062 T35: 체형·손·키트 움직임·얼굴·표정·등급·정장 (PlayerScreen.062.cs)
+            Register088();   // 088 T30c: 시안 동일 조건 얼굴 (PlayerScreen.088.cs)
             FarmContext.CaptureRegions = Regions;
             FarmContext.PerfCounters["animCpuMs"] = () => _perf ? _cpuMs : (double?)null;
             FarmContext.PerfCounters["animGcBytes"] = () => _perf ? _gcBytes : (double?)null;
@@ -278,6 +279,7 @@ namespace RoadToPro.Verification.Samples
         /// <param name="key">글자를 키 색(마젠타)으로 — 번호·이름 영역 검사용 캡처.</param>
         void ShowRow(int row, bool back, bool key = false)
         {
+            LeaveStudio();
             ClearSticks();
             if (_ball != null) _ball.gameObject.SetActive(false);
             _contactView = false;
@@ -475,6 +477,7 @@ namespace RoadToPro.Verification.Samples
 
         void PrepareStill(string view)
         {
+            LeaveStudio();
             ClearSticks();
             if (_flickerOn)
             {

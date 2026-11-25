@@ -65,6 +65,10 @@
    "sha256": "4df3e61e843c2d3381ef534e90d347b6b8ea763428d69eba8ef2ed5ab0affb8c"
   },
   {
+   "path": "targets/chin/chin-bones-incr.target.gz",
+   "sha256": "72c76aeb7956fb083aaf0d5efa00b2cdfa0f328eefc01d5e28f4610719de50c3"
+  },
+  {
    "path": "targets/chin/chin-height-decr.target.gz",
    "sha256": "1f4196d330b418d576e9400a754cb99d7e60b069ee8fdef645713f84db984e0c"
   },

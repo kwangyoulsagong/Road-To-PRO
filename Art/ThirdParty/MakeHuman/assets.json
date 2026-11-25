@@ -180,6 +180,30 @@
    "sha256": "862a26e335e958b70534cb5f0d7c47ef30ab148a56c42b3e9da969cf76f12963",
    "license": "CC0",
    "source": "makehuman_system_assets"
+  },
+  {
+   "path": "teeth/teeth_base/teeth.mhmat",
+   "sha256": "3baeff72d9eb06ca16c3cff7ca2ab304216717dee247e0d88f1dc33037c8320e",
+   "license": "CC0",
+   "source": "MPFB2 system data teeth_base (MakeHuman, explicitly released as CC0 2020)"
+  },
+  {
+   "path": "teeth/teeth_base/teeth.png",
+   "sha256": "d0afb57869c6fbb56b98f5efc4aec629ee7593e70d8dd2bfb9de923acfb65f43",
+   "license": "CC0",
+   "source": "MPFB2 system data teeth_base (MakeHuman, explicitly released as CC0 2020)"
+  },
+  {
+   "path": "teeth/teeth_base/teeth_base.mhclo",
+   "sha256": "9edc3deff3bb97a95c791878064dd069a74a38f95ea6d9707a9ba68d888b3b5c",
+   "license": "CC0",
+   "source": "MPFB2 system data teeth_base (MakeHuman, explicitly released as CC0 2020)"
+  },
+  {
+   "path": "teeth/teeth_base/teeth_base.obj",
+   "sha256": "f55198069e55d360c4b4cc7ecb1cc292b2c7665753ab8b65eabf46a8783f2875",
+   "license": "CC0",
+   "source": "MPFB2 system data teeth_base (MakeHuman, explicitly released as CC0 2020)"
   }
  ]
 }

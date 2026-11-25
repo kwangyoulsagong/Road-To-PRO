@@ -16,10 +16,17 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             const string gen = "Assets/_Project/Presentation/Players/Generated";
             var root = AssetDatabase.LoadAssetAtPath<GameObject>(gen + "/player.glb");
             Assert.IsNotNull(root);
-            int[] max = { 11000, 3000, 1000 }; // 062 FR-81: LOD0 6~11k (2026-11-20 사용자 결정), LOD1 2~3k, LOD2 ≤ 1k
+            int[] max = { 30000, 4000, 1200 }; // 088 FR-50: LOD0 ≤ 30k, LOD1 ≤ 4k, LOD2 ≤ 1.2k (2026-11-22 사용자 결정)
             // 057: 몸 LOD 3 + 헤어 조각 34종(062 35종, 삭발 제외) × 3 + 클로즈업 머리. 몸 + 가장 무거운 헤어 조각 ≤ LOD 예산(056 FR-60, 057 FR-40)
             var smrs = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
-            Assert.AreEqual(3 + 34 * 3 + 1 + 3, smrs.Length);   // 062 FR-27: + 정장 LOD 3
+            Assert.AreEqual(3 + 34 * 3 + 1 + 3 + 8, smrs.Length);   // 062 FR-27: + 정장 LOD 3, 088 FR-53: + 눈썹 3·속눈썹 × (LOD0·클로즈업)
+            foreach (var b in RoadToPro.Presentation.Players.PlayerLook.BrowMeshes.Append(RoadToPro.Presentation.Players.PlayerLook.LashMesh))
+                foreach (var suffix in new[] { "_LOD0", "_Closeup" })
+                    Assert.IsTrue(smrs.Any(x => x.name == b + suffix), b + suffix + " 없음 (088 FR-53)");
+            int browLashCloseup = smrs.Where(x => x.name.EndsWith("_Closeup") && x.name.StartsWith("Brow_")).Max(x => x.sharedMesh.triangles.Length / 3)
+                + smrs.First(x => x.name == RoadToPro.Presentation.Players.PlayerLook.LashMesh + "_Closeup").sharedMesh.triangles.Length / 3;
+            int browLash0 = smrs.Where(x => x.name.EndsWith("_LOD0") && x.name.StartsWith("Brow_")).Max(x => x.sharedMesh.triangles.Length / 3)
+                + smrs.First(x => x.name == RoadToPro.Presentation.Players.PlayerLook.LashMesh + "_LOD0").sharedMesh.triangles.Length / 3;
             foreach (var h in RoadToPro.Presentation.Players.PlayerLook.HairMeshes)
                 if (h != null)
                     for (int l = 0; l < 3; l++)
@@ -36,7 +43,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 Assert.LessOrEqual(smr.sharedMaterials.Length, 3, smr.name);
                 if (smr.name == "Head_Closeup")
                 {
-                    Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3, 6000, smr.name);
+                    Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3 + hairMax[0] + browLashCloseup, 100_000, smr.name + " 클로즈업 머리 + 눈썹·속눈썹 + 헤어 ≤ 100k (088 FR-50)");
                     var cn = Enumerable.Range(0, smr.sharedMesh.blendShapeCount).Select(i => smr.sharedMesh.GetBlendShapeName(i)).ToList();
                     Assert.AreEqual(4, cn.Count(n => n.StartsWith("Expr_")), smr.name + " 표정 4 (FR-71)");
                     Assert.AreEqual(8, cn.Count(n => n.StartsWith("Base_")), smr.name + " 바탕 머리 8");
@@ -44,7 +51,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 }
                 if (!smr.name.StartsWith("Player_LOD") && !smr.name.StartsWith("Suit_LOD")) continue;
                 int lod = smr.name[smr.name.Length - 1] - '0';
-                Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3 + hairMax[lod], max[lod], smr.name);
+                Assert.LessOrEqual(smr.sharedMesh.triangles.Length / 3 + hairMax[lod] + (lod == 0 ? browLash0 : 0), max[lod], smr.name);
                 var names = Enumerable.Range(0, smr.sharedMesh.blendShapeCount).Select(i => smr.sharedMesh.GetBlendShapeName(i)).ToList();
                 foreach (var k in new[] { "Thin", "Muscular", "Heavy", "HideHead" }) CollectionAssert.Contains(names, k, smr.name);
                 Assert.GreaterOrEqual(names.Count(n => n.StartsWith("Face_")), 20, smr.name);

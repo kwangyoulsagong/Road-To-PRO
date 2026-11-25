@@ -189,6 +189,7 @@ def parts_map(R, seed):
     out[..., 0] = 0.8
     out[..., 3] = 0.6
     mh_parts_eye(out, u, v)   # 088: 눈 칸 = MakeHuman 눈 재질
+    mh_parts_teeth(out, u, v)  # 088 T30k: 치아 칸 = MakeHuman teeth_base 텍스처
     # 088: 머리카락 칸·카드 칸 = 그루밍 가닥 모양 공유 결 아틀라스 (groom.atlas, 표본은 헤어 굽기 때 모은다)
     from .groom import atlas as GA, bake as GB
     GA.fill(out, u, v, GB.SAMPLES, seed)
@@ -334,6 +335,30 @@ def mh_parts_eye(out, u, v):
     out[r0:r0 + hgt, c0:c0 + wid, 1] = iris
     out[r0:r0 + hgt, c0:c0 + wid, 2] = 0.0
     out[r0:r0 + hgt, c0:c0 + wid, 3] = 0.04
+
+
+TEETH_ROUGH = (0.3, 0.5)   # 088 T30k: 거칠기 치아·잇몸 [제안] (치아 법랑질 약간 번들, 잇몸 젖은 점막)
+
+
+def mh_parts_teeth(out, u, v):
+    """parts 치아 칸(face.TEETH_REGION) ← MakeHuman teeth_base 텍스처(2048², 섬 밖 알파 0): R 밝기, G 잇몸(붉은 기운), A 거칠기.
+    축소는 알파 곱(섬 밖 검정이 섞이지 않게) 후 나누고, 섬 밖으로 번져 밉 이음매를 막는다. 치아 메시 UV는 body.teeth_uv가 이 칸으로 옮긴다."""
+    from . import mhassets as MH
+    u0, v0, u1, v1 = F.TEETH_REGION
+    cell = (u >= u0) & (u < u1) & (v >= v0) & (v < v1)
+    rows, cols = np.where(cell)
+    hgt, wid = rows.max() - rows.min() + 1, cols.max() - cols.min() + 1
+    src = MH.load_png(MH.path("teeth/teeth_base/teeth.png"))
+    a = src[..., 3:4]
+    pre = MH.resize(np.concatenate([src[..., :3] * a, a], axis=-1), max(hgt, wid))[:hgt, :wid]
+    al = pre[..., 3]
+    rgb = pre[..., :3] / np.maximum(al[..., None], 1e-4)
+    lum = _lum(rgb)
+    gum = np.clip((rgb[..., 0] - 0.5 * (rgb[..., 1] + rgb[..., 2])) / np.maximum(rgb[..., 0], 1e-4) / 0.35, 0, 1)
+    img = np.stack([lum, gum, np.zeros_like(lum), TEETH_ROUGH[0] + (TEETH_ROUGH[1] - TEETH_ROUGH[0]) * gum], axis=-1)
+    img = _dilate(img, al > 0.5, iters=16)
+    r0, c0 = rows.min(), cols.min()
+    out[r0:r0 + hgt, c0:c0 + wid] = img
 
 
 def write_all(out_dir, R, seed=0):

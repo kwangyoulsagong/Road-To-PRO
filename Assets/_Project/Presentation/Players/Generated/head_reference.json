@@ -829,8 +829,8 @@
   "seamToleranceM": 0.002,
   "maxInfluences": 4,
   "uv": {
-    "version": 3,
-    "hash": "53694601dbb53cd3",
+    "version": 9,
+    "hash": "aef0359a2e9c5d98",
     "history": [
       {
         "version": 1,
@@ -843,6 +843,30 @@
       {
         "version": 3,
         "hash": "53694601dbb53cd3"
+      },
+      {
+        "version": 4,
+        "hash": "65afe92bdc9caa6c"
+      },
+      {
+        "version": 5,
+        "hash": "4150b28d577a6bfc"
+      },
+      {
+        "version": 6,
+        "hash": "752be8e86e695892"
+      },
+      {
+        "version": 7,
+        "hash": "b6c361fbddf9ffdf"
+      },
+      {
+        "version": 8,
+        "hash": "9f1812bfa0867ad7"
+      },
+      {
+        "version": 9,
+        "hash": "aef0359a2e9c5d98"
       }
     ],
     "closeupTexture": 2048,

@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "id": "088-face-variety",
+  "spec": "088",
+  "description": "088 AC-16 (T30f): 지역 7 × 인상 유형 3(잘생김·평범·개성) — 생성값 그대로(바탕 혼합·피부톤·헤어, 수염 없음), 시안 동일 조건 조명·카메라 0.75 m.",
+  "scene": "Player043",
+  "fixture": {
+    "save": null,
+    "seed": 20261122
+  },
+  "profiles": "smoke",
+  "acs": [
+    "AC-16"
+  ],
+  "defaults": {
+    "timeoutSec": 120
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "variety1Handsome"
+    },
+    {
+      "type": "capture",
+      "name": "variety1Handsome",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety1Plain"
+    },
+    {
+      "type": "capture",
+      "name": "variety1Plain",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety1Distinctive"
+    },
+    {
+      "type": "capture",
+      "name": "variety1Distinctive",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety2Handsome"
+    },
+    {
+      "type": "capture",
+      "name": "variety2Handsome",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety2Plain"
+    },
+    {
+      "type": "capture",
+      "name": "variety2Plain",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety2Distinctive"
+    },
+    {
+      "type": "capture",
+      "name": "variety2Distinctive",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety3Handsome"
+    },
+    {
+      "type": "capture",
+      "name": "variety3Handsome",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety3Plain"
+    },
+    {
+      "type": "capture",
+      "name": "variety3Plain",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety3Distinctive"
+    },
+    {
+      "type": "capture",
+      "name": "variety3Distinctive",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety4Handsome"
+    },
+    {
+      "type": "capture",
+      "name": "variety4Handsome",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety4Plain"
+    },
+    {
+      "type": "capture",
+      "name": "variety4Plain",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety4Distinctive"
+    },
+    {
+      "type": "capture",
+      "name": "variety4Distinctive",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety5Handsome"
+    },
+    {
+      "type": "capture",
+      "name": "variety5Handsome",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety5Plain"
+    },
+    {
+      "type": "capture",
+      "name": "variety5Plain",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety5Distinctive"
+    },
+    {
+      "type": "capture",
+      "name": "variety5Distinctive",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety6Handsome"
+    },
+    {
+      "type": "capture",
+      "name": "variety6Handsome",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety6Plain"
+    },
+    {
+      "type": "capture",
+      "name": "variety6Plain",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety6Distinctive"
+    },
+    {
+      "type": "capture",
+      "name": "variety6Distinctive",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety7Handsome"
+    },
+    {
+      "type": "capture",
+      "name": "variety7Handsome",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety7Plain"
+    },
+    {
+      "type": "capture",
+      "name": "variety7Plain",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "variety7Distinctive"
+    },
+    {
+      "type": "capture",
+      "name": "variety7Distinctive",
+      "kind": "3d"
+    }
+  ]
+}

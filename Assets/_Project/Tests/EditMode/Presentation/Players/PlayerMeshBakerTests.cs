@@ -113,7 +113,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 r1.ApplyAppearance(afro);
                 r2.ApplyAppearance(bald);
                 Assert.Greater(r1.Lod(0).sharedMesh.triangles.Length, r2.Lod(0).sharedMesh.triangles.Length + 300 * 3);
-                Assert.LessOrEqual(r1.Lod(0).sharedMesh.triangles.Length / 3, 11_000, "062 FR-81 LOD0 ≤ 11k (헤어 포함)");
+                Assert.LessOrEqual(r1.Lod(0).sharedMesh.triangles.Length / 3, 30_000, "088 FR-50 LOD0 ≤ 30k (헤어 포함)");
                 Assert.LessOrEqual(r1.Lod(1).sharedMesh.triangles.Length / 3, 3_000);
                 Assert.LessOrEqual(r1.Lod(2).sharedMesh.triangles.Length / 3, 1_000);
             }
@@ -125,6 +125,28 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         }
 
         [Test]
+        public void Bake_Extras_MergedIntoBodySubmesh()
+        {
+            // 088 FR-53 (T28): 헤어·눈썹·속눈썹 등 여러 조각을 순서대로 Body 서브메시(0)에 합친다 (Kit 서브메시 1은 몸만)
+            var root = UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/_Project/Presentation/Players/Generated/player.glb");
+            var smrs = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            var body = smrs.First(s => s.name == "Player_LOD0").sharedMesh;
+            var a = smrs.First(s => s.name == "Hair_Short_LOD0").sharedMesh;
+            var b = smrs.First(s => s.name == "Hair_Afro_LOD0").sharedMesh;
+            var baked = PlayerMeshBaker.Bake(body, new[] { a, b }, new Dictionary<string, float>(), "t");
+            try
+            {
+                Assert.AreEqual(body.vertexCount + a.vertexCount + b.vertexCount, baked.vertexCount);
+                Assert.AreEqual(body.GetTriangles(0).Length + a.triangles.Length + b.triangles.Length, baked.GetTriangles(0).Length);
+                Assert.AreEqual(body.GetTriangles(1).Length, baked.GetTriangles(1).Length);
+                var one = PlayerMeshBaker.Bake(body, a, new Dictionary<string, float>(), "t1");   // 헤어 하나 오버로드 = 목록 하나
+                Assert.AreEqual(body.vertexCount + a.vertexCount, one.vertexCount);
+                Object.DestroyImmediate(one);
+            }
+            finally { Object.DestroyImmediate(baked); }
+        }
+
+        [Test]
         public void Closeup_TogglesHeadRendererAndHideHead()
         {
             var rig = Rig(11, out _, out _);
@@ -132,12 +154,114 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
             {
                 Assert.IsNotNull(rig.CloseupRenderer);
                 Assert.IsFalse(rig.CloseupRenderer.enabled);
-                Assert.LessOrEqual(rig.CloseupRenderer.sharedMesh.triangles.Length / 3, 6000 + 1900, "클로즈업 머리 ≤ 6k + 헤어 조각 ≤ 1.9k (088 플랜 헤어 몫)");
+                Assert.LessOrEqual(rig.CloseupRenderer.sharedMesh.triangles.Length / 3, 100_000, "클로즈업 머리 + 헤어 ≤ 100k (088 FR-50)");
                 rig.SetCloseup(true);
                 Assert.IsTrue(rig.CloseupRenderer.enabled);
                 Assert.AreEqual(1f, rig.Lod(0).GetBlendShapeWeight(0));
                 rig.SetCloseup(false);
                 Assert.AreEqual(0f, rig.Lod(0).GetBlendShapeWeight(0));
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
+        }
+
+        [Test]
+        public void Closeup_WhileFrozen_FoldsFrozenHead()
+        {
+            // 088 T29: 정지 캡처(Freeze) 뒤 클로즈업을 켜면 굳힌 LOD0 머리도 접혀야 한다 (얼굴 두 겹 결함)
+            var rig = Rig(13, out _, out _);
+            try
+            {
+                rig.Freeze(true);
+                float before = rig.FrozenMesh.vertices.Max(v => v.y);
+                rig.SetCloseup(true);
+                float after = rig.FrozenMesh.vertices.Max(v => v.y);
+                Assert.Less(after, before - 0.05f, "굳힌 메시의 정수리가 접히지 않았다");
+                rig.SetCloseup(false);
+                Assert.AreEqual(before, rig.FrozenMesh.vertices.Max(v => v.y), 1e-4f);
+                rig.Freeze(false);
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
+        }
+
+        [Test]
+        public void Closeup_ShadowProxyIsLod0()
+        {
+            // 088 T30h: 클로즈업이면 그림자 대리 = LOD0(매끈한 턱 그림자), 끄면 LOD2로. 클로즈업 머리는 그림자를 던지지 않는다
+            var rig = Rig(13, out _, out _);
+            try
+            {
+                var px = rig.ShadowProxyRenderer;
+                Assert.IsNotNull(px);
+                int low = px.sharedMesh.triangles.Length / 3;
+                rig.SetCloseup(true);
+                Assert.Greater(px.sharedMesh.triangles.Length / 3, low * 3, "클로즈업 그림자 대리가 LOD0이 아니다");
+                Assert.AreEqual(UnityEngine.Rendering.ShadowCastingMode.Off, rig.CloseupRenderer.shadowCastingMode);
+                rig.SetCloseup(false);
+                Assert.AreEqual(low, px.sharedMesh.triangles.Length / 3);
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
+        }
+
+        [Test]
+        public void Closeup_SharesLookPropertiesWithLods()
+        {
+            // 088 T30a (FR-58·AC-14): 등급 전환에서 피부·헤어·눈·수염 색과 종류가 바뀌지 않는다 — 클로즈업 재질 = 몸 LOD 재질 값
+            string[] colors = { "_SkinColor", "_HairColor", "_HairColor2", "_EyeColor", "_BeardColor" };
+            string[] floats = { "_BeardLevel", "_BeardGrey", "_MuscleDef", "_NormalStrength" };
+            string[] vectors = { "_BrowChannel", "_BeardChannel" };
+            foreach (int id in new[] { 13, 4242, 9001 })
+            {
+                var rig = Rig(id, out _, out _);
+                try
+                {
+                    var body = rig.Lod(0).sharedMaterials[0];
+                    var close = rig.CloseupRenderer.sharedMaterials[0];
+                    Assert.AreNotSame(body, close);
+                    foreach (var p in colors) Assert.AreEqual(body.GetColor(p), close.GetColor(p), $"{id} {p}");
+                    foreach (var p in floats) Assert.AreEqual(body.GetFloat(p), close.GetFloat(p), 1e-6f, $"{id} {p}");
+                    foreach (var p in vectors) Assert.AreEqual(body.GetVector(p), close.GetVector(p), $"{id} {p}");
+                    Assert.AreSame(body.GetTexture("_SkinTex"), close.GetTexture("_SkinTex"), $"{id} _SkinTex");
+                }
+                finally { Object.DestroyImmediate(rig.gameObject); }
+            }
+        }
+
+        [Test]
+        public void CloseupBodyShadow_OnlyTopTierLod0()
+        {
+            // 088 T30o: 최고 등급(LOD0 고정)일 때만 LOD0 피부가 클로즈업 그림자 맵을 읽는다(_CloseupBody 1). 풀면 0, 셸 보정(LOD1·2)은 유지
+            var rig = Rig(13, out _, out _);
+            try
+            {
+                var b = new MaterialPropertyBlock();
+                rig.Lod(0).GetPropertyBlock(b, 0);
+                Assert.AreEqual(0f, b.GetFloat(PlayerRig.CloseupBodyId));
+                rig.SetTopTier(true);
+                rig.Lod(0).GetPropertyBlock(b, 0);
+                Assert.AreEqual(1f, b.GetFloat(PlayerRig.CloseupBodyId));
+                rig.SetTopTier(false);
+                rig.Lod(0).GetPropertyBlock(b, 0);
+                Assert.AreEqual(0f, b.GetFloat(PlayerRig.CloseupBodyId));
+                rig.Lod(1).GetPropertyBlock(b, 0);
+                Assert.AreEqual(1f, b.GetFloat(PlayerRig.ShellLiftId));
+            }
+            finally { Object.DestroyImmediate(rig.gameObject); }
+        }
+
+        [Test]
+        public void ShellLift_OnlyLod1And2()
+        {
+            // 088 T30a: 셸 헤어 결 밝기 보정은 LOD1·2 몸 재질에만 — LOD0·클로즈업(카드 헤어)은 0
+            var rig = Rig(13, out _, out _);
+            try
+            {
+                var b = new MaterialPropertyBlock();
+                for (int l = 0; l < 3; l++)
+                {
+                    rig.Lod(l).GetPropertyBlock(b, 0);
+                    Assert.AreEqual(l == 0 ? 0f : 1f, b.GetFloat(PlayerRig.ShellLiftId), $"LOD{l}");
+                }
+                Assert.IsFalse(rig.CloseupRenderer.HasPropertyBlock());
             }
             finally { Object.DestroyImmediate(rig.gameObject); }
         }
@@ -165,9 +289,10 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
         // 057 AC-10: 하이라이트 로딩 시 선수 25명 굽기 시간 ≤ 056 측정 × 1.2. 062 FR-84: 057 예산(× 1.2) 대비 +30 % (바탕 머리·표정 키·입 안).
         // Mono EditMode ms 값은 부하에 흔들려 5회 최소값으로 판정한다. 056 기준은 057 T03에서 056 산출물로 측정.
         internal const double Bake25Ms056 = 309.5;  // 2026-11-05 056 산출물, Mono EditMode 5회 최소
+        internal const double Bake25Ms088 = 1100.0; // 088 T29 [제안] (사용자 승인 2026-11-23) → T30k 1,100 (2026-11-25 사용자 "예산 1,100 ms로 완화")
 
         [Test]
-        public void Bake25Players_Time_Within057Plus30()
+        public void Bake25Players_Time_Within088Budget()
         {
             var data = FaceGeneratorTests.Data;
             var rigs = new PlayerRig[25];
@@ -190,7 +315,10 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 }
                 TestContext.WriteLine($"[057] bake25Ms={best:0.0}");
                 UnityEngine.Debug.Log($"[057] bake25Ms={best:0.0}");
-                if (Bake25Ms056 > 0) Assert.LessOrEqual(best, Bake25Ms056 * 1.2 * 1.3, "062 FR-84 굽기 시간 057 예산 대비 +30%");
+                // 088 T29 (2026-11-23 사용자 "기준 완화"): 시안 모델(FR-50 — 클로즈업 원본 눈썹·속눈썹, 가닥 카드 헤어)로 정점 ≈ 2.5배 → 25명 ≤ 1,000 ms [제안]
+                //   (062 FR-84 057 예산 × 1.3 = 483 ms, 실측 857 ms). 로딩 1회, 재생 프레임 영향 없음.
+                //   T30k (2026-11-25): MakeHuman 원본 치아(LOD0 800 tris) 추가로 950 → 1,004~1,024 ms → ≤ 1,100 ms [제안]
+                Assert.LessOrEqual(best, Bake25Ms088, "088 T30k 굽기 시간 25명 ≤ 1,100 ms");
             }
             finally
             {

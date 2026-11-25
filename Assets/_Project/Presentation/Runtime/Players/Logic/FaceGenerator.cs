@@ -17,6 +17,8 @@ namespace RoadToPro.Presentation.Players.Logic
             public string Id;          // 축 이름 (예: nose_width)
             public string PosKey, NegKey;
             public float Range;        // 축 값 ∈ [−Range, Range]
+            /// <summary>088 T30m: 개성 얼굴이 이 축을 고를 때의 최대 |값| (face.json distinctMax, 원본 타깃 세기 ≤ 1). 0 = 개성 확장 축 아님.</summary>
+            public float DistinctMax;
         }
 
         public sealed class Landmark
@@ -34,6 +36,15 @@ namespace RoadToPro.Presentation.Players.Logic
         /// <summary>062 FR-70: 표정 셰이프 키 이름(Expr_*, 무표정 = 키 0) — ExpressionLogic.Keys 순서.</summary>
         public readonly List<string> Expressions = new List<string>();
         public readonly List<Landmark> Landmarks = new List<Landmark>();
+
+        /// <summary>088 T30m: 개성 얼굴 특징 묶음 — 축 인덱스(Axes 순서)와 비율(부호 = 방향, 크기 × 축 최대치). face.json distinctBundles.</summary>
+        public sealed class Bundle
+        {
+            public string Id;
+            public int[] Axis;
+            public float[] Frac;
+        }
+        public readonly List<Bundle> Bundles = new List<Bundle>();
 
         static float F(object o) => (float)(double)o;
 
@@ -57,6 +68,7 @@ namespace RoadToPro.Presentation.Players.Logic
                 o.TryGet("axis", out var ax);
                 o.TryGet("sign", out var sg);
                 o.TryGet("max", out var mx);
+                float dmx = o.TryGet("distinctMax", out var dm) ? F(dm) : 0f;
                 if (!byAxis.TryGetValue((string)ax, out var a))
                 {
                     a = new Axis { Id = (string)ax, Range = F(mx) };
@@ -65,9 +77,29 @@ namespace RoadToPro.Presentation.Players.Logic
                 }
                 if ((double)sg > 0) a.PosKey = (string)id; else a.NegKey = (string)id;
                 a.Range = Math.Min(a.Range, F(mx));
+                a.DistinctMax = a.DistinctMax == 0f ? dmx : Math.Min(a.DistinctMax, dmx);
             }
             foreach (var a in d.Axes)
                 if (a.PosKey == null || a.NegKey == null) throw new FormatException("face.json 축 쌍이 모자람: " + a.Id);
+            if (root.TryGet("distinctBundles", out var bs))   // 088 T30m (필드 추가만 — 없으면 묶음 없이 축 단위 개성)
+                foreach (var x in (List<object>)bs)
+                {
+                    var o = (JsonObject)x;
+                    o.TryGet("id", out var bid);
+                    o.TryGet("axes", out var bax);
+                    var list = (List<object>)bax;
+                    var b = new Bundle { Id = (string)bid, Axis = new int[list.Count], Frac = new float[list.Count] };
+                    for (int j = 0; j < list.Count; j++)
+                    {
+                        var e = (JsonObject)list[j];
+                        e.TryGet("axis", out var an);
+                        e.TryGet("frac", out var fr);
+                        b.Axis[j] = d.Axes.FindIndex(a => a.Id == (string)an);
+                        if (b.Axis[j] < 0) throw new FormatException("face.json 묶음 축이 없다: " + an);
+                        b.Frac[j] = F(fr);
+                    }
+                    d.Bundles.Add(b);
+                }
             root.TryGet("beards", out var bd);
             foreach (var x in (List<object>)bd)
             {
@@ -146,12 +178,44 @@ namespace RoadToPro.Presentation.Players.Logic
     /// 축 값: 두 균등의 합(삼각 분포, 평균 얼굴 쪽이 많다) × 범위. 062: 수염·바탕 머리는 AppearanceGenerator가 뽑는다.
     /// GenerateGroup: 한 장면(팀 22명 등)에서 앞 선수와 랜드마크 거리가 기준(FaceLandmarks.MinDistance)보다 가까우면 시도 번호를 올려 다시 뽑는다(AC-04).
     /// </summary>
+    /// <summary>088 FR-60 인상 유형 — id로만 정한다(지역·피부·바탕 머리와 독립). 겉모습 전용, 게임 규칙과 연결 없음.</summary>
+    public enum FaceImpression { Handsome, Plain, Distinctive }
+
     public static class FaceGenerator
     {
         const uint Tag = 0x0056FACEu;
+        const uint ImpressionTag = 0x0088FACEu;
         public const int MaxTries = 32;
+        /// <summary>088 FR-60 [제안] 천분율: 잘생김 200 · 평범 600 · 개성 200.</summary>
+        public const int HandsomePermille = 200, PlainPermille = 600;
+        /// <summary>잘생김: 평균성(축 크기 × 0.3) + 성적 이형성 쪽 치우침(범위 비율) [제안] — Langlois & Roggman 1990, Rhodes 2006 방향.
+        /// 088 T30m: 0.45 → 0.3, 치우침 키움 + 코 매부리·코 폭 줄임 (유형 차이가 안 보였다).</summary>
+        public const float HandsomeSpread = 0.3f;
+        static readonly (string axis, float bias)[] HandsomeBias =
+        {
+            ("chin_prominent", 0.6f), ("chin_width", 0.45f), ("brow_ridge", 0.4f), ("cheekbones", 0.5f), ("cheek_volume", -0.5f),
+            ("nose_hump", -0.4f), ("nose_width", -0.3f),
+        };
+        /// <summary>088 T30m 개성: 특징 묶음(face.json distinctBundles — 큰 코, 약한 턱, 각진 턱, 넓은 얼굴, 두꺼운 입술 등, 눈 없음)
+        /// 1~2개(축이 겹치지 않게)를 한 방향으로 함께 — 축 값 = 비율 × 축 최대치 × [0.85, 1], 나머지 축 × 0.75 [제안].
+        /// 1차(눈에 띄는 축 2~3개 단독)는 축이 원본 최대치 근처라 더 키울 수 없었다(사용자 "베스트케이스" → 묶음).
+        /// 묶음이 없는 face.json이면 1차 방식(확장 축 2~3개 × 범위 [1.3, 1.6]).</summary>
+        public const int DistinctMin = 2, DistinctMax = 3;
+        public const float DistinctLo = 1.3f, DistinctHi = 1.6f, DistinctOthers = 0.75f;
+        public const int BundleMin = 1, BundleMax = 2;
+        public const float BundleLo = 0.85f;
 
         static float U01(ref ulong s) => (float)(SplitMix64.Next(ref s) >> 40) / (1 << 24);
+
+        public static FaceImpression ImpressionOf(int id)
+        {
+            var h = StableHasher.Create();
+            h.Add(ImpressionTag);
+            h.Add((uint)id);
+            ulong s = h.Value;
+            int pm = (int)(SplitMix64.Next(ref s) % 1000UL);
+            return pm < HandsomePermille ? FaceImpression.Handsome : pm < HandsomePermille + PlainPermille ? FaceImpression.Plain : FaceImpression.Distinctive;
+        }
 
         public static FaceShape Generate(FaceData d, int id, int attempt = 0)
         {
@@ -163,7 +227,78 @@ namespace RoadToPro.Presentation.Players.Logic
             var ax = new float[d.Axes.Count];
             for (int i = 0; i < ax.Length; i++)
                 ax[i] = d.Axes[i].Range * (U01(ref s) + U01(ref s) - 1f);
+            // 088 FR-60: 유형은 시도 번호와 무관(GenerateGroup 재추첨에도 유지). 평범 = 위 기존 분포 그대로
+            switch (ImpressionOf(id))
+            {
+                case FaceImpression.Handsome:
+                    for (int i = 0; i < ax.Length; i++) ax[i] *= HandsomeSpread;
+                    foreach (var (axis, bias) in HandsomeBias)
+                    {
+                        int k = IndexOf(d, axis);
+                        if (k >= 0) ax[k] += d.Axes[k].Range * bias;
+                    }
+                    break;
+                case FaceImpression.Distinctive:
+                {
+                    for (int i = 0; i < ax.Length; i++) ax[i] *= DistinctOthers;
+                    if (d.Bundles.Count > 0)
+                    {
+                        int nb = BundleMin + (int)(SplitMix64.Next(ref s) % (ulong)(BundleMax - BundleMin + 1));
+                        Span<int> order = stackalloc int[d.Bundles.Count];
+                        for (int i = 0; i < order.Length; i++) order[i] = i;
+                        Span<bool> used = stackalloc bool[ax.Length];
+                        int took = 0;
+                        for (int j = 0; j < order.Length && took < nb; j++)
+                        {
+                            int r = j + (int)(SplitMix64.Next(ref s) % (ulong)(order.Length - j));
+                            (order[j], order[r]) = (order[r], order[j]);
+                            var b = d.Bundles[order[j]];
+                            bool clash = false;
+                            foreach (int k in b.Axis) clash |= used[k];
+                            if (clash) continue;
+                            for (int q = 0; q < b.Axis.Length; q++)
+                            {
+                                int k = b.Axis[q];
+                                used[k] = true;
+                                ax[k] = b.Frac[q] * MaxAbs(d, k) * (BundleLo + (1f - BundleLo) * U01(ref s));
+                            }
+                            took++;
+                        }
+                        break;
+                    }
+                    // 묶음 없는 face.json: 후보 = distinctMax가 있는 축 (FaceData 순서). 부분 피셔-예이츠로 겹치지 않게 n개
+                    int m = 0;
+                    Span<int> cand = stackalloc int[ax.Length];
+                    for (int i = 0; i < ax.Length; i++)
+                        if (d.Axes[i].DistinctMax > 0f) cand[m++] = i;
+                    int n = DistinctMin + (int)(SplitMix64.Next(ref s) % (ulong)(DistinctMax - DistinctMin + 1));
+                    for (int j = 0; j < n && j < m; j++)
+                    {
+                        int r = j + (int)(SplitMix64.Next(ref s) % (ulong)(m - j));
+                        (cand[j], cand[r]) = (cand[r], cand[j]);
+                        int k = cand[j];
+                        float mag = System.Math.Min(d.Axes[k].Range * (DistinctLo + (DistinctHi - DistinctLo) * U01(ref s)), d.Axes[k].DistinctMax);
+                        ax[k] = mag * ((SplitMix64.Next(ref s) & 1UL) == 0 ? 1f : -1f);
+                    }
+                    break;
+                }
+            }
+            for (int i = 0; i < ax.Length; i++)
+            {
+                float lim = MaxAbs(d, i);
+                ax[i] = System.Math.Clamp(ax[i], -lim, lim);
+            }
             return new FaceShape(ax);
+        }
+
+        /// <summary>축 i의 최대 |값|: 범위, 개성 확장 축이면 distinctMax까지 (088 T30m).</summary>
+        public static float MaxAbs(FaceData d, int i) => System.Math.Max(d.Axes[i].Range, d.Axes[i].DistinctMax);
+
+        static int IndexOf(FaceData d, string axis)
+        {
+            for (int i = 0; i < d.Axes.Count; i++)
+                if (d.Axes[i].Id == axis) return i;
+            return -1;
         }
 
         public static void GenerateGroup(FaceData d, FaceLandmarks lm, ReadOnlySpan<int> ids, FaceShape[] output)

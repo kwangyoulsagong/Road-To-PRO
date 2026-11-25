@@ -103,7 +103,6 @@ FAMILY = {"short": {0, 1, 5, 9, 10, 11, 12, 14, 16, 17, 19, 24, 25, 26, 27, 30, 
 # 056 기준 (specs/057 plan '구현 중 바뀐 점' T01): 클로즈업 피부 얼굴 노멀 고주파 RMS, 부위별 거칠기 평균
 SKIN_056_NORMAL_HF = 0.070367
 GEN_BASELINE_062_S = 585.0   # 088 T20: 062 코드 생성 시간 실측(T03 실행, 미리보기 제외) — 057 FR-42 180 s 목표는 088 이전부터 초과
-GLB_057_BYTES = 16_500_000   # 057 산출물 player.glb (062 T27 기록 16.5 MB, FR-84 기준)
 SKIN_056_ROUGH = {"nose": 0.591938, "cheek": 0.67973, "forehead": 0.566366, "eyeArea": 0.678763, "lips": 0.521222}
 
 
@@ -114,13 +113,13 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
     def test_layout_summary(self):
         b = generated("default").layout["summary"]["budgets"]
         self.assertTrue(b["ok"], b)
-        self.assertLessEqual(b["lods"]["0"]["triangles"], 11_000)   # 062 FR-81 (2026-11-20 사용자 결정)
+        self.assertLessEqual(b["lods"]["0"]["triangles"], 30_000)   # 088 FR-50 (T27)
         self.assertGreaterEqual(b["lods"]["0"]["triangles"], 6_000)
         self.assertGreaterEqual(b["lods"]["0"]["headTriangles"], 2_000)
-        self.assertLessEqual(b["lods"]["1"]["triangles"], 3_000)
+        self.assertLessEqual(b["lods"]["1"]["triangles"], 4_000)
         self.assertGreaterEqual(b["lods"]["1"]["triangles"], 2_000)
-        self.assertLessEqual(b["lods"]["2"]["triangles"], 1_000)
-        self.assertLessEqual(b["headCloseup"]["triangles"], 6_000)
+        self.assertLessEqual(b["lods"]["2"]["triangles"], 1_200)
+        self.assertLessEqual(b["headCloseup"]["withHairMax"], 100_000)   # 088 FR-50
 
     def test_budget_tris_lods_head(self):
         """062 FR-80~84·92, AC-13 에셋: 스타일마다 몸 + 헤어 LOD0 6k~11k(손가락·입 안 포함)·LOD1 2k~3k·LOD2 ≤ 1k, 클로즈업 머리 ≤ 6k
@@ -129,17 +128,16 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         b = g.layout["summary"]["budgets"]
         for st, h in b["hair"].items():
             t = h["lodTotals"]
-            self.assertTrue(6_000 <= t["0"] <= 11_000, f"{st} LOD0 {t['0']}")
-            self.assertTrue(2_000 <= t["1"] <= 3_000, f"{st} LOD1 {t['1']}")
-            self.assertLessEqual(t["2"], 1_000, f"{st} LOD2")
-        self.assertLessEqual(b["headCloseup"]["triangles"], 6_000)
+            self.assertTrue(6_000 <= t["0"] <= 30_000, f"{st} LOD0 {t['0']}")
+            self.assertTrue(2_000 <= t["1"] <= 4_000, f"{st} LOD1 {t['1']}")
+            self.assertLessEqual(t["2"], 1_200, f"{st} LOD2")
+        self.assertLessEqual(b["headCloseup"]["withHairMax"], 100_000)   # 088 FR-50
         for lod, rec in b["lods"].items():
             self.assertLessEqual(rec["materials"], 3, lod)
         tb = b["textureBudget"]
         self.assertTrue(tb["ok"], tb)
         self.assertEqual(tb["unknown"], [])
-        # FR-84: glb ≤ 057 × 2 (057 산출물 16.5 MB, 062 T27 기록)
-        self.assertLessEqual(os.path.getsize(g.path("player.glb")), 2 * GLB_057_BYTES)
+        # glb 크기는 판정하지 않는다 — 088 성능 예산 T29 개정(2026-11-23, 24 → 161 MB, 사용자 "늘어도 상관 없자나"). 이전: FR-84 glb ≤ 057 × 2
 
     def test_suit(self):
         """062 FR-27·AC-15: 정장 LOD0~2 — 몸 + 가장 무거운 헤어 LOD 예산(LOD0 ≤ 11k), 머티리얼 ≤ 3, 클립 × 극단 4 관통 0·뒤집힘 0,
@@ -147,10 +145,10 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         g = generated("default")
         su = g.layout["summary"]["suit"]
         self.assertTrue(su["ok"], {k: v for k, v in su.items() if k != "penetration"})
-        self.assertLessEqual(su["lods"]["0"]["triangles"], 11_000)
+        self.assertLessEqual(su["lods"]["0"]["triangles"], 30_000)
         self.assertGreaterEqual(su["lods"]["0"]["triangles"], 6_000)
-        self.assertLessEqual(su["lods"]["1"]["triangles"], 3_000)
-        self.assertLessEqual(su["lods"]["2"]["triangles"], 1_000)
+        self.assertLessEqual(su["lods"]["1"]["triangles"], 4_000)
+        self.assertLessEqual(su["lods"]["2"]["triangles"], 1_200)
         p = su["penetration"]
         self.assertGreater(p["poses"], 0)
         self.assertEqual(p["skinKit"], 0, p["worst"])
@@ -168,16 +166,16 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         hs = b["hair"]
         self.assertEqual(sorted(hs), sorted(MESH_HAIR))
         no_cards = {st for st in MESH_HAIR if g.layout["hairStyles"][HAIR_ALL.index(st)]["strand"] in ("curl", "coil")}
-        for st, h in hs.items():   # 088 플랜: 헤어 몫 LOD0 ≤ 1,900(셸 ≤ 1,300 + 카드 ≤ 1,000), LOD1 카드 ≤ 120, LOD2 셸만
-            self.assertLessEqual(h["tris"]["0"], 1_900, st)
+        for st, h in hs.items():   # 088 T29 개정: 헤어 몫 LOD0 ≤ 12k(가닥 카드 + 속심 셸, 이전 1,900), LOD1 카드 ≤ 120, LOD2 셸만
+            self.assertLessEqual(h["tris"]["0"], 12_000, st)
             if st not in no_cards:     # 곱슬·코일은 카드 없음(가시처럼 튐) — 봉투 셸 + 결 타일 (088 T19)
                 self.assertGreaterEqual(h["cards"]["0"], 0, st)
             self.assertLessEqual(h["cards"]["0"], 1_000, st)
             self.assertLessEqual(h["cards"]["1"], 120, st)
             self.assertEqual(h["cards"]["2"], 0, st)
             self.assertGreaterEqual(h["cards"]["closeup"], 0, st)   # 088: 봉투 셸이 실루엣을 맡아 카드는 선택 (곱슬·코일·늘어진 다발 0 가능)
-            self.assertLessEqual(h["closeup"], 6_000, st)
-            for lod, (lo, hi) in {"0": (6_000, 11_000), "1": (2_000, 3_000), "2": (0, 1_000)}.items():
+            self.assertLessEqual(h["closeup"], 100_000, st)   # 088 FR-50: 머리 + 헤어
+            for lod, (lo, hi) in {"0": (6_000, 30_000), "1": (2_000, 4_000), "2": (0, 1_200)}.items():   # 088 FR-50
                 t = b["lods"][lod]["body"] + h["tris"][lod]
                 self.assertTrue(lo <= t <= hi, f"{st} LOD{lod} {t}")
 
@@ -200,6 +198,7 @@ class Budgets_Lod_Materials_Textures(unittest.TestCase):
         names = sorted(m["name"] for m in gj["meshes"])
         want = ["Head_Closeup", "Player_LOD0", "Player_LOD1", "Player_LOD2", "Suit_LOD0", "Suit_LOD1", "Suit_LOD2"]   # 062 FR-27 정장
         want += [f"{h}_LOD{l}" for h in MESH_HAIR for l in (0, 1, 2)]  # 삭발은 형상 없음
+        want += [f"{b}_{t}" for b in ("Brow_02", "Brow_04", "Brow_09", "Lash") for t in ("LOD0", "Closeup")]   # 088 T28 FR-53 눈썹·속눈썹 메시
         self.assertEqual(names, sorted(want))
         self.assertEqual(len(gj.get("skins", [])), 1, "모든 메시가 뼈대 하나를 공유")
         for m in gj["meshes"]:
@@ -614,6 +613,7 @@ class BakedMaps062(unittest.TestCase):
 APPROVED_088 = ("Hair_Quiff", "Hair_PartedTwoBlock", "Hair_TexturedCrop", "Hair_Curtains")   # 사진 비교 승인 4종 (스펙 범위)
 FIDELITY_088 = {"closeup": 0.82, "0": 0.82, "1": 0.80}   # FR-11 [제안] (T10·T19 개정)
 FIDELITY_LOCKS_088 = {"closeup": 0.65, "0": 0.65, "1": 0.60}   # 장발·묶음·브레이드 (T17 개정)
+BACK_COVER_088 = 0.95   # AC-12 [제안]: 뒤 시점 머리카락 덮임률 (T25)
 LEGACY_088 = ("hair.py", "hairtex.py")                    # FR-17: 지워져야 하는 옛 모듈
 MH_DIR = os.path.join(_path.REPO, "Art", "ThirdParty", "MakeHuman")
 
@@ -638,6 +638,23 @@ class Face088_MakeHumanAssets(unittest.TestCase):
         tb = s["budgets"]["textureBudget"]
         self.assertTrue(tb["ok"], tb)
         self.assertLessEqual(tb["estimatedMB"], 195.0 * 1.20)   # FR-04 [제안] 062 대비 +20 % (T04 개정)
+
+
+class BrowLash088(unittest.TestCase):
+    """088 FR-53 (T28): 눈썹 3종·속눈썹 메시 — 클로즈업 원본·LOD0 띠, LOD0 정면 덮임 ≈ 원본, 표정·얼굴 축에서 피부에 박히지 않음."""
+
+    def test_brow_lash(self):
+        s = generated("default").layout["summary"]
+        bl = s["browLash"]
+        self.assertTrue(bl["ok"], bl)
+        self.assertEqual(sorted(bl["parts"]), ["Brow_02", "Brow_04", "Brow_09", "Lash"])
+        for nm, rec in bl["parts"].items():
+            self.assertGreater(rec["closeup"], rec["lod0"], nm)          # 클로즈업 = 원본 가닥, LOD0 = 띠
+            self.assertTrue(0.8 <= rec["areaRatio"] <= 1.25, (nm, rec))
+            self.assertLessEqual(rec["sink"]["worst"] - rec["sink"]["rest"], 0.03, (nm, rec))
+        b = s["budgets"]
+        self.assertGreater(b["browLash"]["closeup"], 40_000)               # 원본 눈썹(최대) + 속눈썹
+        self.assertEqual(b["headCloseup"]["browLash"], b["browLash"]["closeup"])
 
 
 class Licenses088_MakeHuman(unittest.TestCase):
@@ -678,6 +695,10 @@ class Hair088_GroomFidelity(unittest.TestCase):
             for tier, lo in lim.items():
                 self.assertGreaterEqual(m["iou"][tier], lo, (st, tier))
             self.assertLessEqual(m["deltaE"], 5.0, st)   # 가르마·앞머리 오차는 기록만 (T17 개정)
+            for tier, cov in m["backCover"].items():      # 088 FR-55·AC-12: 뒤통수 구멍 없음 (T25) — 게임 메시만, 시안 가닥은 기록
+                if tier != "groom":
+                    self.assertGreaterEqual(cov, BACK_COVER_088, (st, tier))
+            self.assertIn("back", m["views"]["0"], st)
 
 
 class Legacy088_None(unittest.TestCase):

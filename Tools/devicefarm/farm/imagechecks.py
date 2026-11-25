@@ -15,9 +15,11 @@ TYPES = ("notBlank", "bandFlip", "lineContinuity", "blobX", "deltaE", "glyphInsi
          "sharpness", "grassShade",
          # specs/062 선수 비주얼 지표 (imagechecks_062.py)
          "outlineTurn", "seamStep", "handConcavity", "kitStats", "silhouetteDiff", "highlightAnisotropy",
-         "tierMatch", "textSpots")
-TYPES_062 = TYPES[-8:]
-PAIRED = ("bandFlip", "sameImage", "differentImage", "modeGap", "aaEdge", "sharpness", "tierMatch")  # 캡처 두 장 (capture + other)
+         "tierMatch", "textSpots",
+         # specs/088 낙차 제한 (imagechecks_088.py)
+         "tierPair")
+TYPES_062 = TYPES[-9:-1]
+PAIRED = ("bandFlip", "sameImage", "differentImage", "modeGap", "aaEdge", "sharpness", "tierMatch", "tierPair")  # 캡처 두 장 (capture + other)
 MULTI = ("exposureMatch", "frameDeltaE", "panFlicker", "silhouetteDiff")  # 캡처 여러 장 (capture + others)
 
 
@@ -367,6 +369,9 @@ def run(checks, captures):
                     raise KeyError(f"캡처 없음: {c['other']}")
                 arr2, reg2 = captures[c["other"]]
                 r = different_image(arr, reg, arr2, reg2, **params)
+            elif t == "tierPair":   # specs/088
+                from . import imagechecks_088
+                r = imagechecks_088.run_088(t, c, params, captures)
             elif t in TYPES_062:
                 from . import imagechecks_062
                 r = imagechecks_062.run_062(t, c, params, captures)

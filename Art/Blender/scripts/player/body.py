@@ -27,6 +27,10 @@ LODS = {
     1: dict(tris=1650, head=430),
     2: dict(tris=480, head=110),
 }
+# 088 FR-52 (T27): LOD0는 위 감량 몸(칼라·체형·관통·정장 검사 기준 토폴로지 그대로)에서 목 이음 평면 위를 원본 MPFB 머리로 바꾼다.
+# 평면은 앞이 낮다(턱 밑·목젖 앞을 지나 턱·입은 모두 원본 쪽, 뒤는 목덜미) — 칼라 평면(Neck − 3.5 cm)과 2 cm 넘게 떨어진다.
+HEAD_SEAM_UP = 0.03       # 이음 평면 기준점: Neck 관절 위 (m) — 0.021은 극단 체형에서 칼라 앞 셔츠 2면 뒤집힘(이음 면이 칼라 띠와 가까움)
+HEAD_SEAM_TILT = 0.36     # 법선 (0, 1, tilt) — 앞(+z)으로 갈수록 낮다
 
 # 유니폼 부위별 (바깥 띄움 m, 매끄럽게 반복 수). 셔츠는 헐렁하게, 양말은 붙게, 축구화는 발가락을 지운다.
 KIT_PARTS = {
@@ -72,6 +76,8 @@ def reference():
         _REF = MS.Reference()
         _smooth_weights(_REF)
         _base_radial(_REF)  # 062 FR-03 바탕 팔 두께 보정
+        from . import face as F
+        _REF.verts = _REF.verts + F.proto_head(_REF)[0]   # 088 FR-51 (T26): 머리·목 = 시안 체형 머리 모양 (몸은 062)
         S.configure({n: (tuple(float(x) for x in h), tuple(float(x) for x in t)) for n, (h, t) in _REF.joints.items()})
         _REF.body_deltas = {k: _REF.macro_delta(v) for k, v in MS.BODY_MACROS.items()}
         _REF.body_deltas.update({k: _REF.target_delta(v) * MS.BODY_TARGET_GAIN.get(k, 1.0)
@@ -178,6 +184,8 @@ def _decimated(R, lod):
     if lod > 0:
         # 단계 감량: 이전 LOD 결과에서 줄인다 (한 번에 3 % 까지 줄이면 손발이 먼저 사라진다)
         co, fl, uvs = _decimated_cached(R, lod - 1)
+        if lod == 1:
+            fl, uvs = _drop_mouth_inside(R, co, fl, uvs)   # 088 T30a (LOD2는 LOD1에서 이어받는다)
     else:
         faces, uvs = _body_faces(R)
         ids = sorted({v for f in faces for v in f})
@@ -233,14 +241,118 @@ def _decimated(R, lod):
     return co, fl, fu
 
 
+def _head_seam():
+    return (np.array((0.0, S.HEAD["Neck"][1] + HEAD_SEAM_UP, 0.0)), np.array(_unit((0.0, 1.0, HEAD_SEAM_TILT))))
+
+
+def _with_original_head(R, co, fl, fu):
+    """088 FR-52 (T27): 감량 몸(co, fl, fu)에서 이음 평면에 걸치거나 위인 면을 빼고, 원본 몸 메시를 평면으로 잘라 위(머리·목 윗부분)를 붙인다.
+    감량 쪽 들쭉날쭉한 위 경계와 원본 쪽 평면 고리를 띠로 잇는다(bridge — 같은 평면 두 고리를 이으면 폭 0 띠라 계단·구멍이 보였다).
+    띠 면 방향은 이웃 원래 면에 맞추고, UV는 경계 변을 공유하는 원래 면의 코너 UV를 쓴다. 정점은 build()에서 기준 표면에 다시 묶인다."""
+    import bmesh
+    pt, nrm = _head_seam()
+    faces, uvs = _body_faces(R)
+    ids = sorted({v for f in faces for v in f})
+    remap = {v: i for i, v in enumerate(ids)}
+    co_o = np.array([R.verts[v] for v in ids])
+    fl_o = [tuple(remap[v] for v in f) for f in faces]
+    bm = bmesh.new()
+    uvl = bm.loops.layers.uv.new("UVMap")
+    tag = bm.faces.layers.int.new("part")
+
+    def add(c, fs, us, k):
+        vs = [bm.verts.new(tuple(p)) for p in c]
+        new = []
+        for f, u in zip(fs, us):
+            bf = bm.faces.new([vs[i] for i in f])
+            bf[tag] = k
+            for loop, uv in zip(bf.loops, u):
+                loop[uvl].uv = uv
+            new.append(bf)
+        return vs, new
+
+    def above(v):  # BMVert 또는 좌표
+        return float(np.dot(np.array(getattr(v, "co", v)) - pt, nrm))
+
+    # 감량 몸: 평면에 걸치거나 위인 면을 통째로 뺀다 → 위 경계는 평면 아래 들쭉날쭉한 고리(폭 0 띠 없이 이을 틈)
+    vs0, f0 = add(co, fl, fu, 0)
+    bmesh.ops.delete(bm, geom=[f for f in f0 if max(above(v) for v in f.verts) > 0], context="FACES")
+    bmesh.ops.delete(bm, geom=[v for v in vs0 if v.is_valid and not v.link_faces], context="VERTS")
+    # 원본 머리: 평면으로 잘라 위만
+    vs1, f1 = add(co_o, fl_o, uvs, 1)
+    edges = list({e for f in f1 for e in f.edges})
+    bmesh.ops.bisect_plane(bm, geom=vs1 + edges + f1, dist=1e-6, plane_co=pt, plane_no=nrm)
+    bmesh.ops.delete(bm, geom=[f for f in bm.faces if f[tag] == 1 and above(f.calc_center_median()) < 0], context="FACES")
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+    ring = {0: [], 1: []}
+    for e in bm.edges:
+        if not e.is_boundary:
+            continue
+        k = e.link_faces[0][tag]
+        if k == 0 or all(abs(above(v)) < 1e-5 for v in e.verts):
+            ring[k].append(e)
+    bm.verts.index_update()
+    loops = {k: chain_loops(sorted((min(e.verts[0].index, e.verts[1].index), max(e.verts[0].index, e.verts[1].index)) for e in es))
+             for k, es in ring.items()}
+    assert all(len(v) == 1 and v[0][1] for v in loops.values()), f"목 이음 고리가 하나씩이 아니다: {[len(v) for v in loops.values()]}"
+    old = set(bm.faces)
+    res = bmesh.ops.bridge_loops(bm, edges=ring[0] + ring[1])
+    seam = [f for f in res["faces"] if f not in old]
+    flip = []
+    for f in seam:  # 면 방향: 원래 면과 공유하는 변을 반대 방향으로 지나야 한다
+        for i, loop in enumerate(f.loops):
+            e = loop.edge
+            g = next((g for g in e.link_faces if g in old), None)
+            if g is not None:
+                gl = next(l for l in g.loops if l.edge == e)
+                if gl.vert == loop.vert:
+                    flip.append(f)
+                break
+    bmesh.ops.reverse_faces(bm, faces=flip)
+    for f in seam:  # UV: 경계 변을 공유하는 원래 면의 코너 UV, 경계 변이 없는 꼭짓점은 같은 면 다른 꼭짓점 UV에 가장 가까운 후보
+        got = {}
+        for e in f.edges:
+            for g in e.link_faces:
+                if g in old:
+                    for loop in g.loops:
+                        if loop.vert in e.verts:
+                            got[loop.vert] = loop[uvl].uv.copy()
+        for loop in f.loops:
+            v = loop.vert
+            if v in got:
+                loop[uvl].uv = got[v]
+                continue
+            ref = np.mean([np.array(u) for u in got.values()], axis=0) if got else None
+            cands = [np.array(l2[uvl].uv) for g in v.link_faces if g in old for l2 in g.loops if l2.vert == v]
+            loop[uvl].uv = min(cands, key=lambda u: float(np.linalg.norm(u - ref))) if ref is not None else cands[0]
+    bmesh.ops.triangulate(bm, faces=[f for f in bm.faces if len(f.verts) > 4], quad_method="BEAUTY", ngon_method="BEAUTY")
+    bm.verts.index_update()
+    c2 = np.array([tuple(v.co) for v in bm.verts], dtype=np.float64)
+    f2, u2 = [], []
+    for f in bm.faces:
+        f2.append(tuple(v.index for v in f.verts))
+        u2.append(tuple((float(l[uvl].uv[0]), float(l[uvl].uv[1])) for l in f.loops))
+    bm.free()
+    return c2, f2, u2
+
+
 _DEC = {}
 _LOD = [0]
 
 
 def _decimated_cached(R, lod):
+    """LOD1·2는 감량 몸(LOD0 감량 결과)에서 이어 줄이고, LOD0만 원본 머리로 바꾼다 (088 FR-52)."""
     if lod not in _DEC:
         _DEC[lod] = _decimated(R, lod)
     return _DEC[lod]
+
+
+def _lod_mesh(R, lod):
+    if lod > 0:
+        return _decimated_cached(R, lod)
+    if "head0" not in _DEC:
+        _DEC["head0"] = _with_original_head(R, *_decimated_cached(R, 0))
+    return _DEC["head0"]
 
 
 # ---------------------------------------------------------------- 2. 유니폼 경계 평면
@@ -841,7 +953,7 @@ def _normals(co, faces):
 def build(lod):
     R = reference()
     _LOD[0] = lod
-    co, faces, fuv = _decimated_cached(R, lod)
+    co, faces, fuv = _lod_mesh(R, lod)
     co, faces, fuv = _bisect(co, faces, fuv, R)
     bind = Binding(R, co)
     pos = bind.apply(R.verts)
@@ -868,8 +980,11 @@ def build(lod):
     _append_eyes(R, m, lod)
     if lod == 0:
         _append_mouth(R, m, "lod0")  # 062 FR-72: 입 안 (치아·혀·입안 캡)
+    else:
+        _append_lip_seal(R, m)  # 088 T30a: LOD1·2 입술 틈 뒤 입술색 판 (입 안쪽 면은 감량 전에 뺐다)
     if not suit_mode():
         _kit_bone_weights(m, lod)  # 062 FR-21 (정장은 보조 뼈 없음)
+    # 088 T29: 눈썹·속눈썹은 피부 마스크(진한 바탕) + 메시(LOD0 띠·클로즈업 원본 가닥) — 시안(Cycles) 눈썹은 진한 띠 위 가닥 결
     return m
 
 
@@ -1021,7 +1136,7 @@ def append_part(m, P, W, D, faces, mat, uvs, part):
         m.faces.append((tuple(off + i for i in f), mat, tuple(u), part, None))
 
 
-EYE_TRIS_088 = {"closeup": 420, 0: 240, 1: 48, 2: 16}   # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합)
+EYE_TRIS_088 = {"closeup": 420, 0: 240, 1: 160, 2: 16}   # 088: MakeHuman 고해상도 눈(2,040 tris 양쪽) 감량 목표(양쪽 합). T29: 원본(감량 없음)은 Unity에서 동공이 홍채를 덮고 눈 안쪽 구석에 검은 덩어리 → 420 유지. T30a: LOD1 48 → 160 — 눈 하나 24 tris는 홍채를 가로지르는 큰 면 안 UV 선형 보간으로 흰자에 빨강·파랑 줄(088-tier-match) [제안]
 EYE_BACK = 0.0015                                         # 088 T23: 웃음 표정 눈꺼풀 노출(6 → 4점) → 1.5 mm 뒤로
 EYE_SHRINK = 0.94                                         # 088: MakeHuman 눈은 MH 눈꺼풀 기준 — 표정 키 노출(웃음 6점) → 6 % 줄임
 
@@ -1038,6 +1153,8 @@ def _proxy_part(R, px, target, keys, face_ok=None):
     alld = _all_deltas(R)
     D = {k: px.delta(alld[k]) for k in keys}
     uvs = [tuple(tuple(px.uv[i]) for i in tu) for tu in TU]
+    if target is None:                                           # 088 T28: 원본 (클로즈업 눈)
+        return P, [tuple(int(x) for x in t) for t in T], uvs, D
     co, fl, fu = _decimate_faces(P, [tuple(t) for t in T], target, uvs)
     tree = BVHTree.FromPolygons([tuple(p) for p in P], [tuple(t) for t in T], all_triangles=True)
     Pd = np.zeros((len(co), 3))
@@ -1083,7 +1200,8 @@ EXPR_PREFIX = "Expr_"
 MOUTH_TRIS = {"lod0": {"teeth": 32, "tongue": 32, "cap": (3, 8)}, "closeup": {"teeth": 48, "tongue": 64, "cap": (4, 10)}}
 MOUTH_GROUPS = {"teeth_upper": "helper-upper-teeth", "teeth_lower": "helper-lower-teeth", "tongue": "helper-tongue"}
 # UV: 치아 = parts 눈 칸 흰자(밝고 매끈), 혀 = 피부 UV 입술(붉은 기운), 입안 캡 = parts 눈 칸 동공(거의 검정)
-MOUTH_UV_TEETH = (1.21875, 0.875)
+# 088 T30j: 치아 v + 1 = 셰이더 치아 표시(입 벌림 차폐) — 셰이더가 1을 빼 같은 흰자 텍셀(1.21875, 0.875)을 읽는다
+MOUTH_UV_TEETH = (1.21875, 1.875)
 MOUTH_UV_CAP = (1.125, 0.875)
 
 
@@ -1098,6 +1216,76 @@ def _mouth_tongue_uv(R):
     return (0.5, 0.5)
 
 
+MOUTH_BOX_PAD = 0.005     # 입 상자: 입술 높이 위아래 5 mm [제안]
+MOUTH_INNER_BACK = 0.004  # 입술 맨 앞보다 4 mm 이상 뒤 [제안]
+MOUTH_INNER_NZ = 0.1      # 앞을 거의 안 보는 면 (법선 z < 0.1) [제안]
+MOUTH_DEPTH = 0.04        # 입술 맨 뒤보다 4 cm 뒤까지 = 구강 (그 뒤는 뒤통수·목) [제안]
+
+
+def _drop_mouth_inside(R, co, fl, uvs):
+    """088 T30a (FR-58): LOD1·2는 입 안(치아·혀·입안 캡)이 없어, 감량하면 입술 안쪽·구강 면이 뒤·아래를 향한 채 입술 사이로
+    앞에 드러나 빛을 못 받는 어두운 마름모가 됐다(088-tier-match 원거리 짝). 감량 전에 입 상자(입술 x 범위 · 입술 높이 ± MOUTH_BOX_PAD ·
+    입술 맨 앞보다 MOUTH_INNER_BACK 이상 뒤, 입술 맨 뒤보다 MOUTH_DEPTH 이내) 안에서 뒤를 향하거나(법선 z < MOUTH_INNER_NZ) 구강 UV 섬(u ≥ 0.75, v < 0.3 또는 > 0.7)인 면을 빼고,
+    입술 틈 뒤는 _append_lip_seal이 막는다. (UV 근접만으로 고르면 입술 UV가 이어져 바깥 입술·턱까지 빠졌다)"""
+    lips = R.verts[R.groups["lips"]]
+    hx = float(np.abs(lips[:, 0]).max())
+    y0, y1 = float(lips[:, 1].min()) - MOUTH_BOX_PAD, float(lips[:, 1].max()) + MOUTH_BOX_PAD
+    zb = float(lips[:, 2].max()) - MOUTH_INNER_BACK
+    zd = float(lips[:, 2].min()) - MOUTH_DEPTH
+    keep_f, keep_u, n = [], [], 0
+    for f, u in zip(fl, uvs):
+        p = co[list(f)]
+        c = p.mean(axis=0)
+        if abs(c[0]) < hx and y0 < c[1] < y1 and zd < c[2] < zb:
+            nn = -np.cross(p[1] - p[0], p[2] - p[0])
+            nn /= np.linalg.norm(nn) + 1e-12
+            uc = np.array(u).mean(axis=0)
+            if nn[2] < MOUTH_INNER_NZ or (uc[0] >= 0.75 and not 0.3 <= uc[1] <= 0.7):
+                n += 1
+                continue
+        keep_f.append(f)
+        keep_u.append(u)
+    print(f"[player] LOD1 입 안쪽 면 {n}개 뺌")
+    return keep_f, keep_u
+
+
+LIP_SEAL_SEGS = 12
+LIP_SEAL_BACK = 0.010   # 입술 겉면 맨 앞보다 1 cm 뒤 — 입술 사이 틈 안 [제안]
+
+
+def _append_lip_seal(R, m):
+    """088 T30a: LOD1·2 입술 틈 뒤 입술색 타원 판(부채꼴 LIP_SEAL_SEGS tris, 앞을 향함, 머리 뼈 고정) — 다문 입처럼 보이게."""
+    hi = MS.OUR_NAMES.index("Head")
+    lip_ids = R.groups["lips"]
+    lips = R.verts[lip_ids]
+    cy = float((lips[:, 1].min() + lips[:, 1].max()) / 2)
+    z = float(lips[:, 2].max()) - LIP_SEAL_BACK
+    rx = float(np.abs(lips[:, 0]).max()) * 0.85
+    ry = float((lips[:, 1].max() - lips[:, 1].min()) / 2) * 0.6
+    pts = [np.array([0.0, cy, z])]
+    for k in range(LIP_SEAL_SEGS):
+        ph = 2 * math.pi * k / LIP_SEAL_SEGS
+        pts.append(np.array([rx * math.cos(ph), cy + ry * math.sin(ph), z]))
+    fl = [(0, 1 + k, 1 + (k + 1) % LIP_SEAL_SEGS) for k in range(LIP_SEAL_SEGS)]   # 입안 캡과 같은 감기(앞에서 보인다)
+    P = np.array(pts)
+    keep = [f for f in R.faces if all(v in set(lip_ids) for v in f)]
+    tree = _subset_tree(R, keep)
+    b = Binding.__new__(Binding)
+    b.tri = np.zeros((len(P), 3), dtype=np.int64)
+    b.bc = np.zeros((len(P), 3))
+    off = np.zeros_like(P)
+    for i, p in enumerate(P):
+        (t, bc), _ = _bind_point(R, tree, p)
+        b.tri[i], b.bc[i] = t, bc
+        off[i] = p - (R.verts[t] * bc[:, None]).sum(axis=0)
+    W = np.zeros((len(P), m.W.shape[1]))
+    W[:, hi] = 1.0
+    alld = _all_deltas(R)
+    D = {k: (b.apply(alld[k]) if k in alld else np.zeros_like(P)) for k in m.deltas}
+    uv = _mouth_tongue_uv(R)
+    append_part(m, b.apply(R.verts) + off, W, D, fl, BODY, [tuple(uv for _ in f) for f in fl], "mouth_seal")
+
+
 def _append_mouth(R, m, which):
     """062 FR-72: 치아(위·아래)·혀(헬퍼, 감량)·입안 캡(치아 뒤 반타원체, 앞이 열림). 머리 뼈 고정, 기준 델타(표정·얼굴·바탕 머리)를
     정점 묶음으로 받는다 — 입을 벌리면 아래 치아·혀가 MPFB 표정 단위를 따라 내려간다(위 치아는 그대로)."""
@@ -1105,11 +1293,16 @@ def _append_mouth(R, m, which):
     hi = MS.OUR_NAMES.index("Head")
     alld = _all_deltas(R)
     all_ids = []
+    proxy_teeth = which in TEETH_PROXY_TRIS   # 088 T30k: 치아 = MakeHuman teeth_base (클로즈업 원본, LOD0 감량)
+    if proxy_teeth:
+        _append_proxy_teeth(R, m, alld, hi, TEETH_PROXY_TRIS[which])
     for part, grp in MOUTH_GROUPS.items():
         gs = set(R.groups[grp])
         faces = [f for f in R.faces if all(v in gs for v in f)]
         ids = sorted({v for f in faces for v in f})
         all_ids += ids
+        if proxy_teeth and part != "tongue":
+            continue
         remap = {v: i for i, v in enumerate(ids)}
         target = tri["tongue" if part == "tongue" else "teeth"]
         co, fl = _decimate_faces(R.verts[ids], [tuple(remap[v] for v in f) for f in faces], target)
@@ -1168,6 +1361,99 @@ def _append_mouth(R, m, which):
     W[:, hi] = 1.0
     D = {k: (b.apply(alld[k]) if k in alld else np.zeros_like(P)) for k in m.deltas}
     append_part(m, b.apply(R.verts) + off, W, D, fl, BODY, [tuple(MOUTH_UV_CAP for _ in f) for f in fl], "mouth_cap")
+
+
+TEETH_PROXY = "teeth/teeth_base/teeth_base.mhclo"
+TEETH_SPLIT_VERTS = 200   # 088 T30k: 이보다 큰 조각(잇몸)은 면마다 위·아래를 나눈다
+TEETH_PROXY_TRIS = {"closeup": None, "lod0": 800}   # 088 T30k: None = 원본(≈ 7k), LOD0 800 [제안] (LOD0 예산 30k 중 여유 ≈ 2.8k)
+
+
+def teeth_uv(uv):
+    """MakeHuman 치아 UV (0~1) → parts 치아 칸(face.TEETH_REGION) + v + 1 치아 표시 (셰이더 입 벌림 차폐, T30j)."""
+    from . import face as F
+    u0, v0, u1, v1 = F.TEETH_REGION
+    pad = 0.5 / 1024                       # 칸 가장자리 텍셀 반 개 안쪽 (옆 칸 번짐 방지)
+    uu = np.clip(uv[..., 0], 0, 1) * (u1 - u0 - 2 * pad) + u0 + pad
+    vv = np.clip(uv[..., 1], 0, 1) * (v1 - v0 - 2 * pad) + v0 + pad
+    return np.stack([1.0 + uu, 1.0 + vv], axis=-1)
+
+
+def proxy_teeth_split(R):
+    """088 T30k: 치아 프록시 맞춤 + 면마다 위·아래 구분 → (px, P, T, TU, face_up, helper{part: (BVH, 헬퍼 정점)}).
+    _append_proxy_teeth와 face.teeth_covered(T30m 검사)가 같은 규칙을 쓴다."""
+    from . import mhassets as MH
+    px = MH.Proxy(TEETH_PROXY)
+    P = px.fit(R.verts)
+    T, TU = px.triangles()
+    n = len(P)
+    par = np.arange(n)
+
+    def find(a):
+        while par[a] != a:
+            par[a] = par[par[a]]
+            a = par[a]
+        return a
+    for f in T:
+        r0 = find(int(f[0]))
+        for v in f[1:]:
+            r = find(int(v))
+            if r != r0:
+                par[r] = r0
+    roots = np.array([find(i) for i in range(n)])
+    helper = {}
+    for part in ("teeth_upper", "teeth_lower"):
+        gs = set(R.groups[MOUTH_GROUPS[part]])
+        faces = [f for f in R.faces if all(v in gs for v in f)]
+        helper[part] = (_subset_tree(R, faces), R.verts[sorted(gs)])
+    def nearer_upper(c):
+        """같은 (x, z) 근처(가까운 8정점) 위·아래 헬퍼 높이 중 가까운 쪽. 3D 최근접 정점으로 가르면 윗니가 아랫니 앞을 덮는
+        구조라 아랫니 4개가 위로 분류돼 입을 벌려도 제자리에 떠 있었다."""
+        def height(H):
+            k = np.argsort(np.hypot(H[:, 0] - c[0], H[:, 2] - c[2]))[:8]
+            return H[k, 1].mean()
+        return abs(c[1] - height(helper["teeth_upper"][1])) <= abs(c[1] - height(helper["teeth_lower"][1]))
+    # 치아 한 개 = 작은 조각 → 조각 통째로. 잇몸은 위·아래가 붙은 한 조각(정점 ≈ 1,850)이라 면마다 나눈다
+    # (통째로 묶으면 입을 벌릴 때 윗잇몸이 턱을 따라 내려와 윗니를 가린다)
+    counts = np.bincount(roots, minlength=n)
+    comp_up = {int(r): nearer_upper(P[roots == r].mean(axis=0)) for r in np.unique(roots) if counts[r] <= TEETH_SPLIT_VERTS}
+    face_up = np.array([comp_up[int(roots[f[0]])] if int(roots[f[0]]) in comp_up else nearer_upper(P[f].mean(axis=0)) for f in T])
+    return px, P, T, TU, face_up, helper
+
+
+def _append_proxy_teeth(R, m, alld, hi, target=None):
+    """088 T30k: 클로즈업 치아·잇몸 = MakeHuman teeth_base 프록시(CC0) 원본 형상(감량 없음, 치아 하나하나·잇몸).
+    프록시는 기준 정점 3개 + 오프셋의 강체 배치라 델타를 그대로 옮기면 입을 벌려도 아래 치아가 안 내려간다 →
+    연결 성분(치아 한 개·잇몸 조각)마다 위·아래 치아 헬퍼 중 가까운 쪽 표면에 묶어 그 델타(표정·얼굴·바탕 머리)를 받는다.
+    target(삼각형)을 주면 위·아래 각각 절반으로 감량(LOD0 — 환호 장면에서 클로즈업 2명 밖 선수도 크게 잡힌다, FR-58 같은 모델·텍스처)."""
+    px, P, T, TU, face_up, helper = proxy_teeth_split(R)
+    for part in ("teeth_upper", "teeth_lower"):
+        sel = list(np.flatnonzero(face_up == (part == "teeth_upper")))
+        if not sel:
+            continue
+        vs = np.unique(T[sel].ravel())
+        remap = {int(v): i for i, v in enumerate(vs)}
+        co = P[vs]
+        fl = [tuple(remap[int(v)] for v in T[i]) for i in sel]
+        fuv = [tuple(map(tuple, px.uv[TU[i]])) for i in sel]
+        if target is not None:
+            co, f2, u2 = _decimate_faces(co, fl, target // 2, fuv)
+            fl, fuv = [], []
+            for f, u in zip(f2, u2):          # 감량 결과의 다각형 → 부채꼴 삼각형
+                for k in range(1, len(f) - 1):
+                    fl.append((f[0], f[k], f[k + 1]))
+                    fuv.append((u[0], u[k], u[k + 1]))
+        b = Binding.__new__(Binding)
+        b.tri = np.zeros((len(co), 3), dtype=np.int64)
+        b.bc = np.zeros((len(co), 3))
+        tree = helper[part][0]
+        for i, p_ in enumerate(co):
+            (t_, bc), _ = _bind_point(R, tree, p_)
+            b.tri[i], b.bc[i] = t_, bc
+        W = np.zeros((len(co), m.W.shape[1]))
+        W[:, hi] = 1.0
+        D = {k: (b.apply(alld[k]) if k in alld else np.zeros((len(co), 3))) for k in m.deltas}
+        uvs = [tuple(map(tuple, teeth_uv(np.array(u)))) for u in fuv]
+        append_part(m, co, W, D, fl, BODY, uvs, "mouth_" + part)
 
 
 def _all_deltas(R):

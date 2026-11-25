@@ -63,7 +63,7 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 Assert.AreEqual(Vector4.zero, km.GetVector("_TextCell"), "정장엔 번호·이름 없음");
                 Assert.AreNotSame(mask, km.GetTexture("_MaskTex"), "정장 마스크");
                 Assert.Less(Vector4.Distance(PlayerLook.SuitColors[1], km.GetColor("_Primary")), 1e-4f, "정장 색 1");
-                Assert.LessOrEqual(rig.Lod(0).sharedMesh.triangles.Length / 3, 11000, "LOD0 ≤ 11k");
+                Assert.LessOrEqual(rig.Lod(0).sharedMesh.triangles.Length / 3, 30000, "LOD0 ≤ 30k (088 FR-50)");
 
                 rig.ApplyOutfit(PlayerOutfit.Uniform, 0);
                 for (int l = 0; l < 3; l++) Assert.AreEqual(h0[l], PlayerMeshBaker.Hash(rig.Lod(l).sharedMesh), "LOD" + l + " 왕복");

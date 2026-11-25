@@ -213,7 +213,7 @@ STYLES.update({
                          strand="braid", cp="tips", note="박스 브레이드 (어깨 길이)", approved=True),
     "Hair_Dreads": _S(PM.make(top_len=0.15, side_len=0.13, back_len=0.15, top_flow="back", side_flow="down", vol_top=0.008,
                               vol_side=0.006, over_ear=False), 120000,
-                      PM.post(clump_n=65, clump_s=0.96, clump_min=0.05, clump_root=True, helix_r=0.0010, helix_turns=3.0),
+                      PM.post(clump_n=100, clump_s=0.96, clump_min=0.05, clump_root=True, helix_r=0.0010, helix_turns=3.0),
                       strand="dread", note="드레드", approved=True),
 })
 

@@ -39,9 +39,18 @@ def hairline(rel, n, style):
     return (z > th) & ~ear & (n[:, 2] > -0.7)
 
 
+ROOT_R_OLD = 0.16     # 시안 뿌리 범위(눈에서 수평) — 기준 머리 뒤통수는 18.1 cm까지라 헤어라인 안 면 14 %가 빠졌다(088 T25 뒤통수 구멍)
+ROOT_R = 0.22         # 088 FR-55: 헤어라인 안 머리 전체. 어깨·몸은 높이 조건(눈 − 12 cm)이 거른다
+
+
 def roots(V, T, eye, n, style, rng):
     C = V[T].mean(axis=1)
-    keep = (C[:, 2] > eye[2] - 0.12) & (np.linalg.norm(C[:, :2] - eye[:2], axis=1) < 0.16)
+    up = C[:, 2] > eye[2] - 0.12
+    dh = np.linalg.norm(C[:, :2] - eye[:2], axis=1)
+    keep = up & (dh < ROOT_R)
+    # 넓힌 면적만큼 뿌리 수를 늘려 승인 시안의 면적당 밀도를 유지한다
+    ar = np.linalg.norm(np.cross(V[T[:, 1]] - V[T[:, 0]], V[T[:, 2]] - V[T[:, 0]]), axis=1)
+    n = int(round(n * ar[keep].sum() / max(ar[up & (dh < ROOT_R_OLD)].sum(), 1e-12)))
     T = T[keep]
     a, b, c = V[T[:, 0]], V[T[:, 1]], V[T[:, 2]]
     cr = np.cross(b - a, c - a)
@@ -55,6 +64,12 @@ def roots(V, T, eye, n, style, rng):
     Nn = N[idx]
     ok = hairline(P - eye, Nn, style)
     return P[ok][:n], Nn[ok][:n]
+
+
+def side_x(x, f, k):
+    """옆으로 흐르는 x 성분 (088 T25). sign(x)는 뒤 가운데(x = 0)에서 끊겨 가닥이 좌우로 갈라져 세로 선이 생겼다 —
+    가운데 4 cm는 연속으로 잇고, 뒤통수(머리 중심 5 cm 뒤부터)에서는 옆 성분을 줄여 아래로 흐르게 한다. 옆·앞(|x| ≥ 4 cm)은 sign(x)와 같다."""
+    return k * np.clip(x / 0.04, -1, 1) * (1 - 0.6 * smooth((-f - 0.05) / 0.04))
 
 
 def margin_of(rel, style):
@@ -102,8 +117,13 @@ def pomade(x, f, z, C):
     over_ear = smooth((np.abs(x) - 0.052) / 0.008) * smooth((0.028 - z) / 0.015) * smooth((f + 0.045) / 0.02) * smooth((0.06 - f) / 0.02)
     L = L * (1 - 0.75 * over_ear)
     H = H * (1 - 0.6 * over_ear)
+    # 088 T25: 뒤통수에는 가르마가 없다 — 큰 쪽/작은 쪽 옆 흐름·길이·볼륨을 뒤에서 하나로 잇는다 (정면·옆 실루엣 성분 Ff·Fz는 그대로)
+    bk = smooth((-f - 0.04) / 0.04)
+    Fx = Fx * (1 - bk) + 0.12 * bk
+    H = np.where(big, H, H * (1 - bk) + (0.004 * lowz + 0.0015 + ridge * (0.008 + 0.004 * smooth((x - part) / 0.05))) * bk)
+    L = np.where(big, L, L * (1 - bk) + (0.004 + 0.012 * lowz + ridge * 0.05) * bk)
     side_w = 1 - ridge
-    Fx = Fx * (1 - side_w) + np.sign(x) * 0.15 * side_w
+    Fx = Fx * (1 - side_w) + side_x(x, f, 0.15) * side_w
     Ff = Ff * (1 - side_w) - 0.75 * side_w
     Fz = Fz * (1 - side_w) - 0.55 * side_w
     return C.vec(Fx, Ff, Fz), H, L
@@ -292,7 +312,7 @@ def seethrough_base(x, f, z, C):
     side = smooth((np.abs(x) - 0.045) / 0.015) * smooth((z + 0.045) / 0.03) * smooth((f + 0.07) / 0.03)
     L = L * (1 - side) + 0.035 * side * (0.75 + 0.25 * np.sin(x * 900 + f * 700) ** 2)
     H = H * (1 - side) + 0.004 * side
-    Fs = C.vec(np.sign(x) * 0.25, 0.15 + 0 * x, -0.95 + 0 * x)
+    Fs = C.vec(side_x(x, f, 0.25), 0.15 + 0 * x, -0.95 + 0 * x)
     F = F * (1 - side[:, None]) + Fs * side[:, None]
     return F, H, L
 
@@ -390,7 +410,7 @@ def garma_base(x, f, z, C):
     """가르마 바탕(윗머리 밖): 옆·뒤를 길게 아래로 흘린다 (가이드가 안 닿는 귀 아래·목덜미 담당)."""
     F, H, L = pomade(x, f, z, C)
     ridge = smooth((0.078 - np.abs(x)) / 0.02) * smooth((z - (0.015 + 0.035 * np.clip(-f / 0.07, 0, 1))) / 0.02)
-    Fd = C.vec(np.sign(x) * 0.22, -0.12 + 0 * x, -0.95 + 0 * x)
+    Fd = C.vec(side_x(x, f, 0.22), -0.12 + 0 * x, -0.95 + 0 * x)
     nape = smooth((z + 0.075) / 0.03)                # 목선 맨 아래 뿌리는 짧게
     Lb = (0.024 + 0.026 * smooth((z + 0.03) / 0.06)) * (0.45 + 0.55 * nape)
     Hb = 0.004 + 0.004 * smooth((z + 0.02) / 0.05)

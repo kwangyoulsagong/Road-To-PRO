@@ -507,5 +507,30 @@ namespace RoadToPro.Tests.EditMode.Presentation.Players
                 Assert.AreEqual(System.Convert.ToSingle(rgb[2]), tint[t].b, 1e-4f);
             }
         }
+
+        // 088 T30b: 수염·눈썹 = 자연 모색. 탈색·백금 머리, light 세트가 아닌 금발은 짙은 자연색(dark 세트 검정, 그 밖 진갈색),
+        // light 세트 금발은 머리보다 짙은 황갈색, 그 밖 머리색은 그대로.
+        [Test]
+        public void BeardColor_BleachedHair_UsesDarkNaturalColor()
+        {
+            var pal = RoadToPro.Presentation.Players.PlayerLook.HairColors;
+            var set = RoadToPro.Presentation.Players.PlayerLook.SkinToneSet;
+            int blonde = RoadToPro.Presentation.Players.PlayerLook.HairColorBlonde;
+            for (int tone = 0; tone < AppearanceGenerator.SkinTones; tone++)
+                for (int c = 0; c < pal.Length; c++)
+                {
+                    var b = RoadToPro.Presentation.Players.PlayerLook.BeardColor(c, tone);
+                    if (AppearanceGenerator.IsBleached(c) || (c == blonde && set[tone] != 0))
+                    {
+                        Assert.AreEqual(pal[set[tone] == 2 ? 0 : 1], b, "톤 " + tone + " 색 " + c);
+                        Assert.Less(b.grayscale, pal[c].grayscale * 0.5f, "물들인 머리의 수염이 머리처럼 밝다");
+                    }
+                    else if (c == blonde)
+                        Assert.Less(b.grayscale, pal[c].grayscale, "금발 수염은 머리보다 짙다");
+                    else Assert.AreEqual(pal[c], b, "톤 " + tone + " 색 " + c);
+                }
+            Assert.AreEqual(1f, RoadToPro.Presentation.Players.PlayerLook.BeardGrey(AppearanceGenerator.HairColorGrey));
+            Assert.AreEqual(0f, RoadToPro.Presentation.Players.PlayerLook.BeardGrey(0));
+        }
     }
 }

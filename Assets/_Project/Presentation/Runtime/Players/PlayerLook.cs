@@ -29,6 +29,13 @@ namespace RoadToPro.Presentation.Players
         /// <summary>088 FR-02: 눈썹 종류(PlayerAppearance.Eyebrow 0~2) → brow_mask 채널 선택 (R 02 · G 04 · B 09, A 속눈썹은 항상).</summary>
         public static readonly Vector4[] BrowChannels = { new Vector4(1, 0, 0, 0), new Vector4(0, 1, 0, 0), new Vector4(0, 0, 1, 0) };
 
+        /// <summary>088 FR-53 (T28): 눈썹 종류(PlayerAppearance.Eyebrow 0~2) → 눈썹 메시 조각 이름 접두(생성기 browlash.BROWS).
+        /// LOD0은 "_LOD0"(띠), 클로즈업은 "_Closeup"(원본). LOD1·2는 메시 없이 brow_mask.</summary>
+        public static readonly string[] BrowMeshes = { "Brow_02", "Brow_04", "Brow_09" };
+
+        /// <summary>088 FR-53 (T28): 속눈썹 메시 조각 이름 접두 (모든 선수 같음).</summary>
+        public const string LashMesh = "Lash";
+
         /// <summary>헤어 색 (AppearanceGenerator.HairColors 순서): 검정 · 진갈색 · 갈색 · 금발 · 적갈색 · 회색 + 062 FR-53 탈색 금발 · 백금.</summary>
         public static readonly Color[] HairColors =
         {
@@ -36,6 +43,26 @@ namespace RoadToPro.Presentation.Players
             new Color32(200, 160, 90, 255), new Color32(150, 60, 30, 255), new Color32(170, 170, 165, 255),
             new Color32(226, 196, 128, 255), new Color32(236, 232, 218, 255),
         };
+
+        /// <summary>088 T30b: 금발 수염 색 — 수염은 머리보다 짙은 황갈색이다 [제안].</summary>
+        public static readonly Color BlondeBeard = new Color32(140, 102, 58, 255);
+
+        /// <summary>088 T30b: 자연 모색(수염·눈썹) — 탈색 금발·백금은 머리만 물들인 것이라 수염·눈썹은 짙은 자연색.
+        /// 금발(3)도 피부 세트 light(0)가 아니면 물들인 머리로 본다. 짙은 자연색 = 피부 세트 dark(2)는 검정, 그 밖은 진갈색 [제안].
+        /// light 세트 금발은 머리보다 짙은 황갈색(BlondeBeard). 나머지 머리색은 그대로(회색 수염은 셰이더가 흰 가닥·짙은 가닥을 섞는다).</summary>
+        public static Color BeardColor(int hairColor, int skinTone)
+        {
+            int set = SkinToneSet[skinTone];
+            bool dyed = AppearanceGenerator.IsBleached(hairColor) || (hairColor == HairColorBlonde && set != 0);
+            if (dyed) return HairColors[set == 2 ? 0 : 1];
+            return hairColor == HairColorBlonde ? BlondeBeard : HairColors[hairColor];
+        }
+
+        /// <summary>HairColors 인덱스 3 = 금발.</summary>
+        public const int HairColorBlonde = 3;
+
+        /// <summary>088 T30b: 회색 수염(흰 가닥·짙은 가닥 섞기)을 켜는 셰이더 값 _BeardGrey — 회색 머리만 1.</summary>
+        public static float BeardGrey(int hairColor) => hairColor == AppearanceGenerator.HairColorGrey ? 1f : 0f;
 
         /// <summary>062 FR-54 컬러 포인트 가상 팔레트 (PlayerAppearance.ColorPoint 1~3): 백금 · 애시 · 붉은 계열.</summary>
         public static readonly Color[] ColorPointColors =

@@ -16,6 +16,25 @@ import numpy as np
 from . import mpfb_src as MS
 from . import skeleton as S
 
+# 088 FR-51 (T26): 머리·목 = 시안 MPFB 사람과 같은 체형 매크로 (사용자 승인 시안 groom_v2 human()). 몸은 062 체형 유지.
+PROTO_MACRO = {"muscle": 0.85, "weight": 0.55, "proportions": 0.7, "height": 0.6}
+# 088 FR-51 [제안]: 다양성은 인종 비율·피부 세트·톤으로 — 062 지역 얼굴 타깃 조합·무작위 얼굴 축은 시안 얼굴을 바꾸지 않을 만큼만 남긴다
+FACE_TARGET_GAIN = 0.32  # 바탕 머리의 지역 얼굴 타깃 조합 배율 (062 실루엣 쌍 ≥ 0.02 — 2026-11-23 사용자 "기준 완화", 0.3은 0.0198)
+AXIS_GAIN = 0.8          # 무작위 얼굴 축 범위 배율 (팀 안 구별 기준 MinDistance는 평균 쌍 거리의 25 %라 함께 바뀐다)
+                         # 088 FR-61 (2026-11-24 사용자 "잘생긴·못생긴·평범남 다 있게"): T26 0.35 → 0.8 [제안]
+# 088 FR-59 (2026-11-24 사용자 "동양인 얼굴이 여자 얼굴 같아"): 바탕 머리 8개 공통 남성 성인 골격 타깃 [제안] — 지역별로 다르게 주지 않는다
+MALE_BASE = [
+    (["chin-prominent-incr"], 0.35), (["chin-width-incr"], 0.3), (["forehead-nubian-incr"], 0.4),
+    (["eyebrows-trans-down"], 0.3), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.3),
+]
+# 088 T30d: 바탕 머리별 추가 남성화(배율 1) [제안] — 사용자 2026-11-24 "흑인 서양인은 ㄱㅊ아, 저 동아시안이 문제인거야" → 동아시아만.
+# 시안 렌더(MPFB asian 0.7 + 아래 조합 0.6배)로 고른 방향: 턱뼈·턱 폭, 볼 살·입술 두께 줄임, 코 폭
+BASE_MASC = {
+    "Base_0": [(["chin-bones-incr"], 0.3), (["chin-width-incr"], 0.2), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.2),
+               (["mouth-upperlip-volume-decr"], 0.3), (["mouth-lowerlip-volume-decr"], 0.2), (["nose-scale-horiz-incr"], 0.15),
+               (["eyebrows-angle-down"], 0.2)],
+}
+
 # (축 id, 음 방향 타깃들, 양 방향 타깃들, 범위). 좌우 타깃은 양쪽을 같이 (얼굴 비대칭은 쓰지 않는다).
 AXES = [
     ("nose_width", ["nose-scale-horiz-decr"], ["nose-scale-horiz-incr"], 0.8),
@@ -49,6 +68,40 @@ AXES = [
     ("ear_size", ["l-ear-scale-decr", "r-ear-scale-decr"], ["l-ear-scale-incr", "r-ear-scale-incr"], 0.6),
     ("ear_flap", ["l-ear-flap-decr", "r-ear-flap-decr"], ["l-ear-flap-incr", "r-ear-flap-incr"], 0.6),
 ]
+AXES = [(a, neg, pos, round(rng * AXIS_GAIN, 4)) for a, neg, pos, rng in AXES]   # 088 T26
+# 088 T30m (FR-60 개정): 개성 얼굴이 고르는 "눈에 띄는" 축과 그 최대치(원본 타깃 세기 ≤ 1.0). 눈·눈썹 축은 넣지 않는다
+# (관통 위험 + FR-62 지역 고정관념). Unity FaceGenerator는 face.json targets[].distinctMax로 읽는다 [제안]
+DISTINCT_AXES = ("nose_width", "nose_length", "nose_hump", "chin_prominent", "chin_width", "jaw", "lip_lower", "lip_upper",
+                 "cheekbones", "head_width", "ear_size")
+DISTINCT_GAIN = 1.6
+DISTINCT_MAX = {a: round(min(rng * DISTINCT_GAIN, 1.0), 4) for a, _, _, rng in AXES if a in DISTINCT_AXES}
+# 088 T30m 2차 (사용자 "베스트케이스" = 특징 묶음): 개성 얼굴은 서로 어울리는 축 묶음 1~2개를 한 방향으로 함께 민다.
+# 값 = 비율 × 축 최대치(확장 축은 DISTINCT_MAX, 나머지는 범위) — 축 하나하나는 원본 타깃 세기 안. 눈·눈썹 축 없음(FR-62) [제안]
+DISTINCT_BUNDLES = [
+    ("big_nose", {"nose_length": 1.0, "nose_hump": 1.0, "nose_width": 0.8, "nose_tip_width": 0.7}),
+    ("small_nose_thin_lips", {"nose_width": -0.9, "nose_length": -0.8, "lip_lower": -1.0, "lip_upper": -0.9}),
+    ("weak_chin", {"chin_prominent": -1.0, "chin_width": -0.8, "jaw": -0.8, "chin_height": -0.6}),
+    ("square_jaw", {"chin_width": 1.0, "jaw": 1.0, "chin_prominent": 0.7, "cheekbones": 0.6}),
+    ("wide_face", {"head_width": 1.0, "cheek_volume": 0.9, "mouth_width": 0.8, "lip_lower": 0.8, "lip_upper": 0.7}),
+    ("long_narrow_face", {"head_width": -1.0, "chin_height": 1.0, "nose_length": 0.8, "cheek_volume": -0.8}),
+    ("full_lips", {"lip_lower": 1.0, "lip_upper": 1.0, "mouth_width": 0.6}),
+    ("high_cheekbones", {"cheekbones": 1.0, "cheek_volume": -1.0, "chin_prominent": 0.4}),
+    ("big_ears", {"ear_size": 1.0, "ear_flap": 1.0}),
+]
+
+
+def axis_max(a):
+    rng = next(r for x, _, _, r in AXES if x == a)
+    return DISTINCT_MAX.get(a, rng)
+
+
+def bundle_weights(names):
+    """묶음 이름들 → {셰이프키: 가중치} (모두 비율 1.0 끝값). 같은 축이 겹치는 묶음 조합은 쓰지 않는다(Unity도 같은 규칙)."""
+    w = {}
+    for n in names:
+        for a, f in dict(DISTINCT_BUNDLES)[n].items():
+            w[f"Face_{a}_{'pos' if f >= 0 else 'neg'}"] = abs(f) * axis_max(a)
+    return w
 # (id, 두께 m). 056 4종 순서 유지 + 062 FR-66 신규 3종(콧수염·염소수염·진한 스텁블)은 뒤에 (Unity 수염 인덱스 호환)
 BEARDS = [("none", 0.0), ("stubble", 0.0006), ("short", 0.0022), ("full", 0.0055),
           ("mustache", 0.0030), ("goatee", 0.0040), ("heavy_stubble", 0.0012)]
@@ -76,14 +129,14 @@ EYE_GROUPS = ("helper-l-eye", "helper-r-eye")
 # 같은 지역 안 개인차는 기존 얼굴 30축(FaceGenerator)이 낸다. (id, 지역 태그, 인종 매크로 비율, [(타깃들, 가중치)])
 # 지역 7개(FR-62): east_asia · southeast_asia · south_asia · west_asia_north_africa · west_central_africa · europe · latin_america
 BASE_HEADS = [
-    ("Base_0", "east_asia", {"asian": 1.0, "caucasian": 0.0, "african": 0.0}, [
-        (["l-eye-epicanthus-in", "r-eye-epicanthus-in"], 0.9), (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.8),
+    ("Base_0", "east_asia", {"asian": 0.7, "caucasian": 0.3, "african": 0.0}, [   # 088 T26 시안 asian 0.9 → T30d 0.7 (MPFB asian 매크로가 앳되고 중성적 — 사용자 "동양인 얼굴이 여자 얼굴 같아")
+        # 088 T30d: 몽고주름·눈꺼풀 내림 타깃 삭제(사용자 2026-11-24 "눈이 인종 비하 하는 거 같음") — 지역 전원에 같은 눈매를 박는 고정관념 과장.
+        # 눈매는 인종 매크로의 자연스러운 정도만, 사람마다의 눈 크기·쌍꺼풀은 개인 얼굴 축(모든 지역 같은 범위)이 맡는다
         (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.8), (["nose-hump-decr"], 0.6), (["nose-scale-depth-decr"], 0.6),
         (["head-scale-horiz-incr"], 0.5), (["head-back-scale-depth-decr"], 0.5), (["forehead-nubian-decr"], 0.4),
         (["chin-width-incr"], 0.3)]),
     ("Base_1", "southeast_asia", {"asian": 0.6, "caucasian": 0.15, "african": 0.25}, [
-        (["l-eye-epicanthus-in", "r-eye-epicanthus-in"], 0.4), (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.4),
-        (["l-eye-scale-incr", "r-eye-scale-incr"], 0.3), (["nose-nostrils-width-incr"], 0.8), (["nose-scale-horiz-incr"], 0.5),
+        (["l-eye-scale-incr", "r-eye-scale-incr"], 0.3), (["nose-nostrils-width-incr"], 0.8),   # 088 T30d: 몽고주름·눈꺼풀 내림 삭제 (["nose-scale-horiz-incr"], 0.5),
         (["nose-scale-vert-decr"], 0.5), (["nose-scale-depth-decr"], 0.5), (["mouth-upperlip-volume-incr"], 0.6),
         (["mouth-lowerlip-volume-incr"], 0.6), (["head-scale-vert-decr"], 0.4), (["head-round"], 0.6), (["chin-height-decr"], 0.5),
         (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.4)]),
@@ -96,11 +149,11 @@ BASE_HEADS = [
         (["nose-hump-incr"], 0.9), (["nose-scale-vert-incr"], 0.6), (["nose-curve-convex"], 0.7), (["nose-point-down"], 0.3),
         (["forehead-nubian-incr"], 0.7), (["eyebrows-trans-down"], 0.5), (["head-rectangular"], 0.6), (["head-scale-depth-incr"], 0.4),
         (["chin-prominent-incr"], 0.5)]),
-    ("Base_4", "west_central_africa", {"asian": 0.0, "caucasian": 0.0, "african": 1.0}, [
+    ("Base_4", "west_central_africa", {"asian": 0.0, "caucasian": 0.05, "african": 0.95}, [   # 088 T26: 시안 dark 세트 비율
         (["nose-scale-horiz-incr"], 0.5), (["nose-nostrils-width-incr"], 0.5), (["nose-scale-depth-decr"], 0.3),
         (["mouth-upperlip-volume-incr"], 0.6), (["mouth-lowerlip-volume-incr"], 0.6), (["chin-prognathism-incr"], 0.3),
         (["head-scale-depth-incr"], 0.2), (["l-cheek-bones-incr", "r-cheek-bones-incr"], 0.3), (["forehead-trans-forward"], 0.3)]),
-    ("Base_5", "europe", {"asian": 0.0, "caucasian": 1.0, "african": 0.0}, [
+    ("Base_5", "europe", {"asian": 0.1, "caucasian": 0.9, "african": 0.0}, [   # 088 T26: 시안 light 세트 비율
         (["nose-scale-depth-incr"], 0.6), (["nose-point-width-decr"], 0.5), (["nose-scale-horiz-decr"], 0.4), (["head-square"], 0.7),
         (["chin-prominent-incr"], 0.6), (["chin-width-incr"], 0.4), (["forehead-nubian-incr"], 0.5), (["head-scale-horiz-incr"], 0.3),
         (["mouth-upperlip-volume-decr"], 0.5), (["mouth-lowerlip-volume-decr"], 0.4), (["l-cheek-volume-decr", "r-cheek-volume-decr"], 0.2)]),
@@ -111,8 +164,7 @@ BASE_HEADS = [
     ("Base_7", "latin_america", {"asian": 0.35, "caucasian": 0.45, "african": 0.2}, [
         (["l-cheek-bones-incr", "r-cheek-bones-incr"], 1.0), (["head-round"], 0.8), (["head-scale-horiz-incr"], 0.6),
         (["nose-scale-horiz-incr"], 0.5), (["nose-hump-incr"], 0.7), (["nose-scale-depth-incr"], 0.3),
-        (["mouth-upperlip-volume-incr"], 0.4), (["chin-width-incr"], 0.7), (["chin-height-decr"], 0.4), (["forehead-scale-vert-decr"], 0.4),
-        (["l-eye-eyefold-down", "r-eye-eyefold-down"], 0.3)]),
+        (["mouth-upperlip-volume-incr"], 0.4), (["chin-width-incr"], 0.7), (["chin-height-decr"], 0.4), (["forehead-scale-vert-decr"], 0.4)]),   # 088 T30d: 눈꺼풀 내림 삭제
 ]
 REGIONS = ("east_asia", "southeast_asia", "south_asia", "west_asia_north_africa", "west_central_africa", "europe", "latin_america")
 
@@ -125,18 +177,47 @@ def head_mask(R):
     return np.clip((w - 0.25) / 0.5, 0.0, 1.0)
 
 
+def proto_head(R):
+    """088 FR-51 (T26): 시안 체형 매크로 머리 모양 → (델타 (V,3), 균등 배율 s). 머리 영역만(목 쪽으로 서서히 0), 평균 이동을 빼고
+    균등 배율(시안 키 매크로 0.6이라 머리가 ≈ 7.5 % 작다)을 나눠 기준 머리 크기에서 모양만 옮긴다 — 머리/키 비율(FR-12)은 그대로.
+    R.verts에 이미 걸렸으면(body.reference) 같은 값을 돌려준다."""
+    if getattr(R, "_proto_head", None) is not None:
+        return R._proto_head
+    # 영역 = 머리 뼈 가중치만 (목은 062 그대로) — head_mask(목 절반 포함)로 걸면 시안 체형이 목을 굵혀 GK 다이빙에서 목×위팔이 겹쳤다
+    hw = R.weights[:, MS.OUR_NAMES.index("Head")]
+    k = np.clip((hw - 0.35) / 0.5, 0.0, 1.0)
+    core = k > 0.95
+    body = np.array(R.groups["body"])
+    hb = body[k[body] > 0.95]
+    m = R.macro_delta(PROTO_MACRO)
+    m = m - m[core].mean(axis=0)
+    base = R.verts
+    c = base[hb].mean(axis=0)
+    e0 = base[hb].max(axis=0) - base[hb].min(axis=0)
+    e1 = (base[hb] + m[hb]).max(axis=0) - (base[hb] + m[hb]).min(axis=0)
+    s = float(np.mean(e1 / e0))
+    shaped = c + (base + m - c) / s                    # 시안 모양, 기준 크기
+    d = (shaped - base) * k[:, None]
+    R._proto_head = (d, s)
+    return R._proto_head
+
+
 def base_head_deltas(R):
-    """{Base_n: (V,3) 델타} — 인종 매크로 비율(기준 1/3씩에서 바꾼 만큼, 머리 영역만) + 얼굴 타깃 합. 062 T25 시안: 아직 셰이프 키로
-    내보내지 않는다(T27 확정 때 register에 넣는다)."""
+    """{Base_n: (V,3) 델타} — 인종 매크로 비율(기준 1/3씩에서 바꾼 만큼, 머리 영역만) + 얼굴 타깃 합.
+    088 T26: 인종 델타는 시안 체형 매크로 위에서 계산하고 시안 머리와 같은 배율로 나눈다, 지역 얼굴 타깃은 FACE_TARGET_GAIN배."""
     k = head_mask(R)[:, None]
     core = k[:, 0] > 0.95
+    _d, s = proto_head(R)
+    p0 = R.macro_delta(PROTO_MACRO)
     out = {}
     for bid, _region, race, targets in BASE_HEADS:
         # 인종 매크로는 키·목 길이도 바꿔 머리 전체를 옮긴다 → 머리 평균 이동을 빼고(목 쪽으로 서서히 0) 형태 차이만 남긴다
-        m = R.macro_delta({"race": race})
+        m = (R.macro_delta(dict(PROTO_MACRO, race=race)) - p0) / s
         m = (m - m[core].mean(axis=0)) * k
         d = m
         for names, w in targets:
+            d = d + R.target_delta(names) * (w * FACE_TARGET_GAIN)
+        for names, w in MALE_BASE + BASE_MASC.get(bid, []):   # 088 FR-59: 모든 바탕 머리에 같은 세기 (혼합 가중치 합 1이라 선수마다 그대로 1배) + 바탕별 추가
             d = d + R.target_delta(names) * w
         out[bid] = d
     return out
@@ -185,6 +266,39 @@ def eye_frame(R):
     return c, d
 
 
+MOUTH_062 = -1.50   # 062 바탕 머리의 입선 높이 (눈 중심 아래, d 단위) — 아래 수염 경계 상수는 이 머리 기준으로 정했다
+LIP_AX, LIP_AY = 0.47, 0.17   # 088 T30b: 입술 구멍 반지름 (d) — lips 그룹 실측(입꼬리 rx 0.47, 윗입술 −1.06 ~ 아랫입술 −1.40) [제안]
+
+
+def mouth_line(R):
+    """088 T30b: 입선 높이 ry (눈 중심 아래, d 단위) = MakeHuman lips 그룹 입꼬리(가로 끝 15 %) 평균.
+    T26에서 시안 머리 모양을 넣어 입이 062 기준(−1.50)보다 올라갔다(−1.22) — 수염 마스크의 입 둘레가 따라오게 한다."""
+    v = getattr(R, "_mouth_line", None)
+    if v is None:
+        c, d = eye_frame(R)
+        P = R.verts[np.asarray(R.groups["lips"])]
+        rx = np.abs(P[:, 0] - c[0]) / d
+        ry = (P[:, 1] - c[1]) / d
+        v = float(ry[rx > 0.85 * rx.max()].mean())
+        R._mouth_line = v
+    return v
+
+
+def _lip_hole(R, rx, ry):
+    """입술 타원 정규화 반지름² — 1 안쪽이 입술."""
+    return (rx / LIP_AX) ** 2 + ((ry - mouth_line(R)) / LIP_AY) ** 2
+
+
+MUSTACHE_TOP = 0.40   # 088 T30b: 콧수염 위 경계 = 입선 + 0.40 d (코 밑, 윗입술 −1.06보다 0.24 d 위) [제안]
+
+
+def _beard_top(R, rx, sx, cheek_top):
+    """수염 위 경계와 흐림 폭: 볼은 cheek_top − 0.30·sx(폭 0.35), 가운데는 입선 + MUSTACHE_TOP에서 옆으로 내려가며(폭 0.12) 볼 선과 만난다."""
+    top = np.maximum(cheek_top - 0.30 * sx, mouth_line(R) + MUSTACHE_TOP - 0.6 * rx ** 2)
+    w = 0.12 + 0.23 * np.clip(rx / 0.6, 0, 1)
+    return top, w
+
+
 def beard_mask(R, p):
     """수염 자리 0~1 (정점 위치 p, 선수 좌표). 랜드마크 기준 비율(눈 중심 c, 눈 사이 d)로 정한다.
     057 FR-24: 아래 경계 = 턱 밑 1~2 cm(울대 위)에서 끝나고 옆으로 갈수록 턱선을 따라 올라간다. 입은 입술만 비우고
@@ -196,13 +310,14 @@ def beard_mask(R, p):
     front = np.clip((z - (c[2] - 1.7 * d)) / (0.25 * d), 0, 1)
     sx = np.clip(rel_x - 0.45, 0, 2)
     # 위 경계(볼 선): 광대 아래, 옆으로 갈수록 낮게 — 0.35 폭으로 흐림
-    top = -0.95 - 0.30 * sx
-    m = np.clip((top - rel_y) / 0.35, 0, 1)
+    # 088 T30b: 가운데(콧수염 자리)는 코 밑까지 — 입을 따라 올라간 윗입술 위를 덮는다(062 고정 −0.95면 시안 머리에서 콧수염 자리가 빈다)
+    top, w = _beard_top(R, rel_x, sx, -0.95)
+    m = np.clip((top - rel_y) / w, 0, 1)
     # 아래 경계(목 선): 가운데 −2.55, 옆으로 갈수록 턱선을 따라 올라감 — 0.30 폭으로 흐림
     bottom = -2.55 + 0.75 * sx ** 1.3
     m = m * np.clip((rel_y - bottom) / 0.30, 0, 1)
     # 입술만 비운다 (부드러운 타원) — 콧수염·입꼬리·턱이 이어지게
-    lip = ((rel_x / 0.40) ** 2 + ((rel_y + 1.50) / 0.10) ** 2)
+    lip = _lip_hole(R, rel_x, rel_y)   # 088 T30b: 입 위치 실측(이전 062 고정 −1.50·반높이 0.10 → 시안 머리에서 윗입술이 덮였다)
     m = m * np.clip((lip - 1.0) / 0.6, 0, 1)
     # 밀도: 턱·콧수염 짙게, 볼 옅게
     dens = 0.55 + 0.45 * np.exp(-(sx / 0.55) ** 2)
@@ -218,9 +333,15 @@ def _ramp(x, w):
     return t * t * (3 - 2 * t)
 
 
+def _soft_ellipse(rx, ry, cx, cy, ax, ay, w):
+    """타원 안 1 → 밖 0, 경계는 정규화 반지름 1 ± w에서 부드럽게 (088 T28 수염 영역 — 직선 경계 없음)."""
+    e = np.sqrt(((rx - cx) / ax) ** 2 + ((ry - cy) / ay) ** 2)
+    return _ramp(1.0 + w - e, 2.0 * w)
+
+
 def beard_masks(R, p):
     """062 FR-66 수염 영역 4개 {full, mustache, goatee, heavy} (0~1). full = 057 beard_mask 그대로(턱·볼·입 둘레),
-    heavy = full을 볼 위로 조금 넓힌 진한 스텁블, mustache = 윗입술 위 띠(입꼬리에서 살짝 내려옴), goatee = 턱 + 콧수염 + 입꼬리 연결.
+    heavy = full을 볼 위로 조금 넓힌 진한 스텁블, mustache = 윗입술을 따라 휘는 띠(입꼬리에서 내려오며 가늘어짐), goatee = 턱 타원 + 콧수염 + 입꼬리 타원(088 T28: 직선 경계 사각형 → 곡선·타원).
     경계는 057처럼 넓게 흐린다. 콧수염·염소수염은 볼(입꼬리 바깥 0.6d 넘게)에 번지지 않는다(볼 밀도 ≤ 0.01)."""
     c, d = eye_frame(R)
     x, y, z = p[..., 0], p[..., 1], p[..., 2]
@@ -230,19 +351,32 @@ def beard_masks(R, p):
     full = beard_mask(R, p)
     # 진한 스텁블: 볼 위 경계를 0.15d 올리고 밀도를 고르게 (턱·볼 차이 작게)
     sx = np.clip(rx - 0.45, 0, 2)
-    top = -0.80 - 0.30 * sx
-    heavy = np.clip((top - ry) / 0.30, 0, 1) * np.clip((ry - (-2.55 + 0.75 * sx ** 1.3)) / 0.30, 0, 1)
-    lip = ((rx / 0.40) ** 2 + ((ry + 1.50) / 0.10) ** 2)
+    top, w = _beard_top(R, rx, sx, -0.80)
+    heavy = np.clip((top - ry) / np.minimum(w, 0.30), 0, 1) * np.clip((ry - (-2.55 + 0.75 * sx ** 1.3)) / 0.30, 0, 1)
+    lip = _lip_hole(R, rx, ry)
+    dy = mouth_line(R) - MOUTH_062   # 088 T30b: 콧수염·염소수염은 입을 따라 옮긴다
     heavy = heavy * np.clip((lip - 1.0) / 0.6, 0, 1) * front * np.clip((1.30 - rx) / 0.25, 0, 1) * 0.9
-    # 콧수염: 윗입술 위 (ry −1.42 ~ −1.10), 가로 ≤ 0.52d, 입꼬리에서 −1.55까지 살짝 내려온다. 경계 경사 ≥ 0.12d (057 흐린 경계)
-    droop = 0.25 * np.clip((rx - 0.30) / 0.20, 0, 1)
-    must = (_ramp(ry - (-1.46 - droop), 0.14) * _ramp(-1.06 - ry, 0.14) * _ramp(0.56 - rx, 0.14))
+    # 088 T28: 가로·세로 경사를 곱한 사각형(062)은 턱·입 둘레에 네모 블록으로 보였다(시안 비교) → 곡선 띠·타원 + 부드러운 합집합.
+    # 콧수염: 윗입술 위를 따라 휘는 띠(가운데 ry −1.30, 입꼬리 쪽으로 내려와 −1.55), 가운데 두께 ±0.17d → 가로 0.62d에서 가늘어져 끝난다
+    yc = -1.22 + dy - 0.45 * rx ** 2 - 0.25 * _ramp(rx - 0.35, 0.20)
+    half = 0.24 * np.sqrt(np.clip(1.0 - (rx / 0.62) ** 2, 0, 1)) + 0.02
+    must = _ramp(half - np.abs(ry - yc), 0.30)
     must = must * np.clip((lip - 1.0) / 0.8, 0, 1) * front
-    # 염소수염: 턱(ry −2.40 ~ −1.60, 가로 ≤ 0.46d) + 입꼬리 세로 띠(0.32~0.54d) + 콧수염
-    chin = _ramp(ry - (-2.42), 0.16) * _ramp(-1.58 - ry, 0.14) * _ramp(0.48 - rx, 0.14)
-    side = _ramp(rx - 0.30, 0.10) * _ramp(0.56 - rx, 0.10) * _ramp(ry - (-1.80), 0.12) * _ramp(-1.36 - ry, 0.12)
-    goat = np.maximum(np.maximum(chin, side), must) * np.clip((lip - 1.0) / 0.8, 0, 1) * front
-    return {"full": full, "mustache": must, "goatee": goat, "heavy": heavy}
+    # 염소수염: 턱 타원(가운데 ry −2.0, 반지름 0.44d × 0.42d) + 입꼬리 세로 타원(콧수염과 턱을 잇는다) + 콧수염, 경계는 반지름의 ±30 %로 흐림
+    chin = _soft_ellipse(rx, ry, 0.0, -2.00 + dy, 0.44, 0.42, 0.40)
+    side = _soft_ellipse(rx, ry, 0.45, -1.68 + dy, 0.12, 0.26, 0.45)
+    goat = (1.0 - (1.0 - chin) * (1.0 - side) * (1.0 - must)) * np.clip((lip - 1.0) / 0.8, 0, 1) * front
+    # 088 T30b: LOD0·클로즈업은 원본 머리를 이음 평면(body._head_seam)에서 감량 몸에 잇는다(T27). 평면 아래 감량 몸의 큰 삼각형 위로
+    # 수염이 넘어가면 UV 보간이 거칠어 목 경계가 계단 블록으로 보였다 → 평면 위 BEARD_SEAM_CLEAR에서 0이 되게 흐린다
+    from . import body as B
+    pt, nrm = B._head_seam()
+    above = (p - pt) @ nrm
+    seam = _ramp(above - BEARD_SEAM_CLEAR, BEARD_SEAM_FADE)
+    return {"full": full * seam, "mustache": must * seam, "goatee": goat * seam, "heavy": heavy * seam}
+
+
+BEARD_SEAM_CLEAR = 0.004   # 088 T30b: 수염이 0이 되는 이음 평면 위 높이 (m) [제안]
+BEARD_SEAM_FADE = 0.015    # 그 위로 1로 올라가는 폭 (m) [제안]
 
 
 # ---------------------------------------------------------------- 델타 등록
@@ -278,8 +412,11 @@ def register(R):
 def axes_json():
     t = []
     for a, _, _, rng in AXES:
-        t.append({"id": f"Face_{a}_pos", "axis": a, "sign": 1, "min": 0.0, "max": rng})
-        t.append({"id": f"Face_{a}_neg", "axis": a, "sign": -1, "min": 0.0, "max": rng})
+        for sign, sg in ((1, "pos"), (-1, "neg")):
+            e = {"id": f"Face_{a}_{sg}", "axis": a, "sign": sign, "min": 0.0, "max": rng}
+            if a in DISTINCT_MAX:
+                e["distinctMax"] = DISTINCT_MAX[a]   # 088 T30m: 개성 얼굴만 이 값까지 (필드 추가만)
+            t.append(e)
     return t
 
 
@@ -337,12 +474,14 @@ def face_json(R, tree_tri):
             "beards": [{"id": b, "thickness": t, "region": BEARD_REGION.get(b)} for b, t in BEARDS],
             "baseHeads": [{"id": b, "region": r} for b, r, _, _ in BASE_HEADS],   # 062 FR-60~62 (필드 추가만)
             "expressions": [{"id": e} for e, _ in EXPRESSIONS],                   # 062 FR-70
+            "distinctBundles": [{"id": n, "axes": [{"axis": a, "frac": f} for a, f in ax.items()]} for n, ax in DISTINCT_BUNDLES],   # 088 T30m
             "landmarks": landmarks(R, tree_tri), "eyeDistance": round(eye_frame(R)[1], 6)}
 
 
 # ---------------------------------------------------------------- 눈 (LOD별 안구)
 
 EYE_REGION = (0.0, 0.75, 0.25, 1.0)   # parts 아틀라스 눈 칸 (u0, v0, u1, v1)
+TEETH_REGION = (0.0, 0.5, 0.25, 0.75)  # 088 T30k: parts 치아 칸 — MakeHuman teeth_base 텍스처(R 밝기, G 잇몸, A 거칠기). 눈 칸 아래 빈 열
 def eyes_covered(R, tree_tri, key_sets):
     """안구 정점이 피부 밖으로 나오는 수 (정면 광선으로 피부 앞에 있으면 노출). key_sets = [{키: 가중치}] 극값 조합."""
     from mathutils.bvhtree import BVHTree
@@ -373,6 +512,56 @@ def eyes_covered(R, tree_tri, key_sets):
         worst = max(worst, bad)
         cases += 1
     return {"ok": worst == 0, "exposedOutsideLids": worst, "cases": cases}
+
+
+def distinct_key_sets():
+    """088 T30m: 개성 끝값 — 무변형, 확장 축 단독 ±distinctMax, 특징 묶음 단독, 축이 겹치지 않는 묶음 쌍 (Unity가 고를 수 있는 조합 전부)."""
+    ks = [{}] + [{f"Face_{a}_{sg}": DISTINCT_MAX[a]} for a in DISTINCT_AXES for sg in ("pos", "neg")]
+    names = [n for n, _ in DISTINCT_BUNDLES]
+    ks += [bundle_weights([n]) for n in names]
+    for i, a in enumerate(names):
+        for b in names[i + 1:]:
+            if not set(dict(DISTINCT_BUNDLES)[a]) & set(dict(DISTINCT_BUNDLES)[b]):
+                ks.append(bundle_weights([a, b]))
+    return ks
+
+
+def teeth_covered(R, tree_tri, key_sets):
+    """088 T30m: 입 다문 얼굴에서 치아가 입술·피부를 뚫고 보이는 정점 수 (eyes_covered와 같은 규칙 — 정면 광선이 치아 점
+    바로 뒤 0.5~6 mm에서 피부에 맞으면 노출, 입술 틈으로 깊이 들어가면 노출 아님). 치아 = MakeHuman teeth_base 프록시."""
+    from mathutils.bvhtree import BVHTree
+    from mathutils import Vector
+    from . import body as B
+    tree, tri = tree_tri
+    px, P, T, TU, face_up, helper = B.proxy_teeth_split(R)
+    binds = []                                  # 게임과 같은 규칙: 위·아래 헬퍼 표면에 묶어 델타를 받는다 (body._append_proxy_teeth)
+    for up in (True, False):
+        vs = np.unique(T[face_up == up].ravel())
+        b = B.Binding.__new__(B.Binding)
+        b.tri = np.zeros((len(vs), 3), dtype=np.int64)
+        b.bc = np.zeros((len(vs), 3))
+        tr = helper["teeth_upper" if up else "teeth_lower"][0]
+        for i, v in enumerate(vs):
+            (t_, bc), _ = B._bind_point(R, tr, P[v])
+            b.tri[i], b.bc[i] = t_, bc
+        binds.append((vs, b))
+    worst, cases, where = 0, 0, None
+    for ks in key_sets:
+        D = np.zeros_like(R.verts)
+        for k, w in ks.items():
+            D = D + R.extra_deltas[k] * w
+        V = R.verts + D
+        t2 = BVHTree.FromPolygons([tuple(p) for p in V], [tuple(t) for t in tri], all_triangles=True)
+        bad = 0
+        pts = np.concatenate([P[vs] + b.apply(D) for vs, b in binds])
+        for p in pts:
+            loc, nrm, idx, dist = t2.ray_cast(Vector((p[0], p[1], p[2] + 0.5)), Vector((0, 0, -1)))
+            if loc is not None and 0.0005 < p[2] - loc[2] < 0.006:
+                bad += 1
+        if bad > worst:
+            worst, where = bad, sorted(ks)
+        cases += 1
+    return {"ok": worst == 0, "exposed": worst, "worstCase": where, "cases": cases}
 
 
 # ---------------------------------------------------------------- 088 MakeHuman 눈썹·속눈썹 → 피부 UV 마스크 (FR-02)

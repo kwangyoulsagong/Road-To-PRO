@@ -130,6 +130,14 @@ def build(lods):
     m = HL.build(R)
     obj, _ = mesh_object(HL.NAME, m, rig, mats)
     parts[HL.NAME] = (obj, m)
+    from . import browlash as BL
+    for nm in BL.names():  # 088 FR-53 (T28): 눈썹 3종·속눈썹 — LOD0(띠)·클로즈업(원본), Unity가 선수 눈썹 종류를 골라 합친다
+        for suffix, closeup in (("LOD0", False), ("Closeup", True)):
+            if suffix == "LOD0" and 0 not in lods:
+                continue
+            m = BL.build(R, nm, closeup)
+            obj, _ = mesh_object(f"{nm}_{suffix}", m, rig, mats)
+            parts[f"{nm}_{suffix}"] = (obj, m)
     from . import suit as SU
     for lod in lods:  # 062 FR-27: 정장 LOD (같은 뼈대·키, Unity ApplyOutfit이 몸 LOD 원본을 바꾼다)
         m = SU.build(lod)
