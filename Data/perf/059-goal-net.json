@@ -3,7 +3,7 @@
   "profile": "mac-m1-1600p",
   "note": "specs/059 성능 예산 표의 기계용 사본. 시뮬 쪽은 004 골망 감속 영역 → 그물 면 접촉(GoalFrame.ApplyNet, BallStepper 틱 경로) 변경 회귀만 — 010 결정 틱은 081 IL2CPP 예산 그대로(≤ 12 µs), 틱 GC 0 B. 골망 표현 예산(GPU 0.3 ms·드로우콜 6·삼각형 6천·텍스처 4 MB·출렁임 CPU 0.3/0.01 ms·GC 0)은 e2e/059-net-ripple 측정 기록 전용, 판정은 실기기 확보 후(05-sdd 완료 정의 4). farm.py bench --spec 059, README D17.",
   "deferred": {
-    "AC-10 GPU": "골망 GPU·내장 GPU 프레임 예산 — 개발 맥 측정값 기록만, 실기기 확보 후 판정 (2026-11-11 사용자 결정)"
+    "AC-10": "골망 GPU·내장 GPU 프레임 예산 — 개발 맥 측정값 기록만, 실기기 확보 후 판정 (2026-11-11 사용자 결정)"
   },
   "tests": [
     "RoadToPro.Tests.Performance.MatchEngine.MatchFeelPerfTests",
@@ -48,9 +48,9 @@
       },
       {
         "ac": "AC-10",
-        "label": "공 소유 선수 1명 결정 평균 (072 예산)",
+        "label": "공 소유 선수 1명 결정 평균 (궤적 질의 K개 포함 — 007 T21 개정 예산 90 µs; 059 처음 사본은 086의 옛 예산 12 µs를 잘못 복사)",
         "metric": "onball_owner_avg_us",
-        "max": 12,
+        "max": 90,
         "unit": "µs"
       },
       {

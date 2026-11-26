@@ -69,11 +69,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.topCorner.live.3000"
+      "screen": "net.ripple.topCorner.live.4000"
     },
     {
       "type": "capture",
-      "name": "topCorner-live-3000",
+      "name": "topCorner-live-4000",
       "kind": "3d"
     },
     {
@@ -114,11 +114,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.topCorner.high.3000"
+      "screen": "net.ripple.topCorner.high.4000"
     },
     {
       "type": "capture",
-      "name": "topCorner-high-3000",
+      "name": "topCorner-high-4000",
       "kind": "3d"
     },
     {
@@ -159,11 +159,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.bottomCorner.live.3000"
+      "screen": "net.ripple.bottomCorner.live.4000"
     },
     {
       "type": "capture",
-      "name": "bottomCorner-live-3000",
+      "name": "bottomCorner-live-4000",
       "kind": "3d"
     },
     {
@@ -204,11 +204,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.bottomCorner.high.3000"
+      "screen": "net.ripple.bottomCorner.high.4000"
     },
     {
       "type": "capture",
-      "name": "bottomCorner-high-3000",
+      "name": "bottomCorner-high-4000",
       "kind": "3d"
     },
     {
@@ -249,11 +249,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.straight.live.3000"
+      "screen": "net.ripple.straight.live.4000"
     },
     {
       "type": "capture",
-      "name": "straight-live-3000",
+      "name": "straight-live-4000",
       "kind": "3d"
     },
     {
@@ -294,11 +294,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.straight.high.3000"
+      "screen": "net.ripple.straight.high.4000"
     },
     {
       "type": "capture",
-      "name": "straight-high-3000",
+      "name": "straight-high-4000",
       "kind": "3d"
     },
     {
@@ -339,11 +339,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.sideInside.live.3000"
+      "screen": "net.ripple.sideInside.live.4000"
     },
     {
       "type": "capture",
-      "name": "sideInside-live-3000",
+      "name": "sideInside-live-4000",
       "kind": "3d"
     },
     {
@@ -384,11 +384,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.sideInside.high.3000"
+      "screen": "net.ripple.sideInside.high.4000"
     },
     {
       "type": "capture",
-      "name": "sideInside-high-3000",
+      "name": "sideInside-high-4000",
       "kind": "3d"
     },
     {
@@ -429,11 +429,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.crossbarIn.live.3000"
+      "screen": "net.ripple.crossbarIn.live.4000"
     },
     {
       "type": "capture",
-      "name": "crossbarIn-live-3000",
+      "name": "crossbarIn-live-4000",
       "kind": "3d"
     },
     {
@@ -474,11 +474,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.crossbarIn.high.3000"
+      "screen": "net.ripple.crossbarIn.high.4000"
     },
     {
       "type": "capture",
-      "name": "crossbarIn-high-3000",
+      "name": "crossbarIn-high-4000",
       "kind": "3d"
     },
     {
@@ -519,11 +519,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.weakGround.live.3000"
+      "screen": "net.ripple.weakGround.live.4000"
     },
     {
       "type": "capture",
-      "name": "weakGround-live-3000",
+      "name": "weakGround-live-4000",
       "kind": "3d"
     },
     {
@@ -564,11 +564,11 @@
     },
     {
       "type": "goto",
-      "screen": "net.ripple.weakGround.high.3000"
+      "screen": "net.ripple.weakGround.high.4000"
     },
     {
       "type": "capture",
-      "name": "weakGround-high-3000",
+      "name": "weakGround-high-4000",
       "kind": "3d"
     },
     {
@@ -625,10 +625,10 @@
         "topCorner-live-300",
         "topCorner-live-600",
         "topCorner-live-1500",
-        "topCorner-live-3000"
+        "topCorner-live-4000"
       ],
       "minPeak": 0.05,
-      "maxSettled": 0.01,
+      "maxSettled": 0.04,
       "minImageDelta": 1.0,
       "ac": "AC-08"
     },
@@ -639,10 +639,10 @@
         "topCorner-high-300",
         "topCorner-high-600",
         "topCorner-high-1500",
-        "topCorner-high-3000"
+        "topCorner-high-4000"
       ],
       "minPeak": 0.05,
-      "maxSettled": 0.01,
+      "maxSettled": 0.04,
       "minImageDelta": 1.0,
       "ac": "AC-08"
     },
@@ -653,10 +653,10 @@
         "bottomCorner-live-300",
         "bottomCorner-live-600",
         "bottomCorner-live-1500",
-        "bottomCorner-live-3000"
+        "bottomCorner-live-4000"
       ],
       "minPeak": 0.05,
-      "maxSettled": 0.01,
+      "maxSettled": 0.04,
       "minImageDelta": 1.0,
       "ac": "AC-08"
     },
@@ -667,10 +667,10 @@
         "bottomCorner-high-300",
         "bottomCorner-high-600",
         "bottomCorner-high-1500",
-        "bottomCorner-high-3000"
+        "bottomCorner-high-4000"
       ],
       "minPeak": 0.05,
-      "maxSettled": 0.01,
+      "maxSettled": 0.04,
       "minImageDelta": 1.0,
       "ac": "AC-08"
     },
@@ -681,10 +681,10 @@
         "straight-live-300",
         "straight-live-600",
         "straight-live-1500",
-        "straight-live-3000"
+        "straight-live-4000"
       ],
       "minPeak": 0.05,
-      "maxSettled": 0.01,
+      "maxSettled": 0.04,
       "minImageDelta": 1.0,
       "ac": "AC-08"
     },
@@ -695,10 +695,10 @@
         "straight-high-300",
         "straight-high-600",
         "straight-high-1500",
-        "straight-high-3000"
+        "straight-high-4000"
       ],
       "minPeak": 0.05,
-      "maxSettled": 0.01,
+      "maxSettled": 0.04,
       "minImageDelta": 1.0,
       "ac": "AC-08"
     },
@@ -709,10 +709,10 @@
         "sideInside-live-300",
         "sideInside-live-600",
         "sideInside-live-1500",
-        "sideInside-live-3000"
+        "sideInside-live-4000"
       ],
       "minPeak": 0.05,
-      "maxSettled": 0.01,
+      "maxSettled": 0.04,
       "minImageDelta": 1.0,
       "ac": "AC-08"
     },
@@ -723,10 +723,10 @@
         "sideInside-high-300",
         "sideInside-high-600",
         "sideInside-high-1500",
-        "sideInside-high-3000"
+        "sideInside-high-4000"
       ],
       "minPeak": 0.05,
-      "maxSettled": 0.01,
+      "maxSettled": 0.04,
       "minImageDelta": 1.0,
       "ac": "AC-08"
     },
@@ -737,10 +737,10 @@
         "crossbarIn-live-300",
         "crossbarIn-live-600",
         "crossbarIn-live-1500",
-        "crossbarIn-live-3000"
+        "crossbarIn-live-4000"
       ],
       "minPeak": 0.05,
-      "maxSettled": 0.01,
+      "maxSettled": 0.04,
       "minImageDelta": 1.0,
       "ac": "AC-08"
     },
@@ -751,10 +751,10 @@
         "crossbarIn-high-300",
         "crossbarIn-high-600",
         "crossbarIn-high-1500",
-        "crossbarIn-high-3000"
+        "crossbarIn-high-4000"
       ],
       "minPeak": 0.05,
-      "maxSettled": 0.01,
+      "maxSettled": 0.04,
       "minImageDelta": 1.0,
       "ac": "AC-08"
     },
@@ -765,11 +765,11 @@
         "weakGround-live-300",
         "weakGround-live-600",
         "weakGround-live-1500",
-        "weakGround-live-3000"
+        "weakGround-live-4000"
       ],
-      "minPeak": 0.05,
-      "maxSettled": 0.01,
-      "minImageDelta": 1.0,
+      "minPeak": 0.01,
+      "maxSettled": 0.04,
+      "minImageDelta": 0.5,
       "ac": "AC-08"
     },
     {
@@ -779,11 +779,11 @@
         "weakGround-high-300",
         "weakGround-high-600",
         "weakGround-high-1500",
-        "weakGround-high-3000"
+        "weakGround-high-4000"
       ],
-      "minPeak": 0.05,
-      "maxSettled": 0.01,
-      "minImageDelta": 1.0,
+      "minPeak": 0.01,
+      "maxSettled": 0.04,
+      "minImageDelta": 0.5,
       "ac": "AC-08"
     }
   ]

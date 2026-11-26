@@ -27,7 +27,7 @@ namespace RoadToPro.Verification.Samples
         const int Side = -1;
         const float HalfL = 52.5f;
         static readonly string[] Cases = { "topCorner", "bottomCorner", "straight", "sideInside", "crossbarIn", "weakGround" };
-        static readonly int[] OffsetsMs = { 100, 300, 600, 1500, 3000 };
+        static readonly int[] OffsetsMs = { 100, 300, 600, 1500, 4000 };   // 4.0 s = FR-23 개정(2026-11-26)
 
         [SerializeField] Camera cam;
         [SerializeField] StadiumLighting lighting;
@@ -369,13 +369,18 @@ namespace RoadToPro.Verification.Samples
                 {
                     var rest = _view.Driver.RestRender;
                     var local = _view.Driver.Local[GoalNetDriver.IndexOf(Side)];
-                    double maxDisp = 0d;
+                    double maxDisp = 0d, maxFar = 0d;
+                    var ballL = ball != null ? GoalLocal.ToLocal(new Vec3(ball.position.x, ball.position.y, ball.position.z), Side, HalfL) : new Vec3(-99f, 0f, 0f);
                     for (int i = 0; i < rest.Length; i++)
                     {
                         var d = local[i] - rest[i];
-                        maxDisp = Math.Max(maxDisp, Math.Sqrt(Vec3.Dot(d, d)));
+                        double m = Math.Sqrt(Vec3.Dot(d, d));
+                        maxDisp = Math.Max(maxDisp, m);
+                        var e = rest[i] - ballL;
+                        if (Math.Sqrt(Vec3.Dot(e, e)) > 0.8) maxFar = Math.Max(maxFar, m);   // FR-23: 공이 기대 있는 자리(0.8 m) 밖
                     }
                     r["maxDisp"] = Math.Round(maxDisp, 4);
+                    r["maxDispFar"] = Math.Round(maxFar, 4);
                     var b = _current.Bakes != null ? _current.Bakes[GoalNetDriver.IndexOf(Side)] : null;
                     r["stateHash"] = b != null ? b.Hash().ToString("x16") : "none";
                 }

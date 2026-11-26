@@ -134,21 +134,21 @@ def net_lod_step(a_arr, reg_a, b_arr, reg_b, max_mean=3.0):
             "detail": f"전환 앞뒤 평균 {ma:.2f} / {mb:.2f} 차 {d:.2f}/255 (≤ {max_mean}, 칸 {reg_a.get('cellPx')}→{reg_b.get('cellPx')} px)"}
 
 
-def net_ripple(frames, min_peak=0.05, max_settled=0.01, min_image_delta=1.0):
-    """FR-20~23 화면: 출렁임 캡처들(첫 접촉 + 0.1·0.3·0.6·1.5·3.0 s) — 접촉이 있고, 0.1~0.6 s 중 최대 변위 ≥ min_peak m,
-    3.0 s는 < max_settled m(정지 모양), 부푼 순간과 3.0 s 그물 영역 화면 차 ≥ min_image_delta/255(보이는 출렁임)."""
+def net_ripple(frames, min_peak=0.05, max_settled=0.04, min_image_delta=1.0):
+    """FR-20~23 화면: 출렁임 캡처들(첫 접촉 + 0.1·0.3·0.6·1.5·4.0 s) — 접촉이 있고, 0.1~0.6 s 중 최대 변위 ≥ min_peak m,
+    4.0 s는 공이 기대 있는 자리(0.8 m) 밖 최대 변위 < max_settled m(FR-23 개정 2026-11-26), 부푼 순간과 4.0 s 그물 영역 화면 차 ≥ min_image_delta/255(보이는 출렁임)."""
     (a0, r0) = frames[0]
     if int(r0.get("contacts", 0)) < 1:
         return {"ok": False, "detail": f"{r0.get('case')}: 그물 접촉 없음"}
     disps = [float(r.get("maxDisp", 0)) for _, r in frames]
     peak = max(disps[:3])
-    settled = disps[-1]
+    settled = float(frames[-1][1].get("maxDispFar", disps[-1]))
     k = int(np.argmax(disps[:3]))
     a, b = _pair(_net(frames[k][0], frames[k][1]), _net(frames[-1][0], frames[-1][1]))
     img = float(np.abs(a - b).mean())
     ok = peak >= min_peak and settled < max_settled and img >= min_image_delta
     return {"ok": bool(ok), "peak": peak, "settled": settled, "imageDelta": img,
-            "detail": f"{r0.get('case')}: 접촉 {r0.get('contacts')}, 최대 변위 {['%.3f' % d for d in disps]} m (부풂 ≥ {min_peak}, 3 s < {max_settled}), "
+            "detail": f"{r0.get('case')}: 접촉 {r0.get('contacts')}, 최대 변위 {['%.3f' % d for d in disps]} m (부풂 ≥ {min_peak}), 4 s 공 주변 밖 {settled:.3f} m (< {max_settled}), "
                       f"부풂−정지 화면 차 {img:.2f}/255 (≥ {min_image_delta})"}
 
 
