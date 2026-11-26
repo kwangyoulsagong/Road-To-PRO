@@ -162,6 +162,27 @@ namespace RoadToPro.Presentation.Editor.Stadium
         }
 
         public const string SurfaceShaderName = "RoadToPro/StadiumSurface";
+        /// <summary>specs/059 골망 셰이더 (육각 망 해석 렌더).</summary>
+        public const string NetShaderName = "RoadToPro/GoalNet";
+
+        /// <summary>
+        /// specs/059 FR-01·10~15: 그물 머티리얼 = GoalNet 셰이더, 셀·줄·페이드 값은 `Data/tuning/goalnet.json` 기본값(런타임·생성기와 같은 원본).
+        /// 색은 ≤ 240 기준(061 FR-07) 225.
+        /// </summary>
+        static void ApplyNet(Material m)
+        {
+            var shader = Shader.Find(NetShaderName);
+            if (shader == null) throw new System.InvalidOperationException("셰이더 " + NetShaderName + " 없음");
+            var t = RoadToPro.Core.Tuning.TuningBundle.Defaults(RoadToPro.Core.Tuning.TuningLoader.LoadDefinitionsFile(Path.Combine("Data", "tuning", "goalnet.json")));
+            m.shader = shader;
+            m.SetColor("_BaseColor", new Color(0.88f, 0.88f, 0.88f, 1f));
+            m.SetFloat("_CellSize", t.Get("net.cellSize"));
+            m.SetFloat("_Strand", t.Get("net.strand"));
+            m.SetFloat("_FadePixels", t.Get("net.fadePixels"));
+            m.SetFloat("_Opacity", 1f);
+            m.renderQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            m.enableInstancing = true;
+        }
 
         /// <summary>
         /// specs/061 FR-07 재질 값 기준 (sRGB 0~255 알베도): 콘크리트 100~180, 좌석 밝기 40~200·채도 ≤ 0.75, 공통 15~240.
@@ -173,7 +194,7 @@ namespace RoadToPro.Presentation.Editor.Stadium
             var c = m.GetColor("_BaseColor");
             if (name.StartsWith("Net"))
             {
-                m.SetColor("_BaseColor", new Color(0.88f, 0.88f, 0.88f, c.a)); // ≤ 240 (225)
+                ApplyNet(m);
                 return;
             }
             if (name.StartsWith("LightEmit")) return;

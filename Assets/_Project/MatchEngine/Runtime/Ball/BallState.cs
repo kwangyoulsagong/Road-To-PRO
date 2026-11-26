@@ -16,6 +16,11 @@ namespace RoadToPro.MatchEngine.Ball
         public Vec3 Velocity;
         public Vec3 Spin;
         public int OwnerId;
+        /// <summary>
+        /// 골문으로 들어와 골 안에 있는 공의 골 쪽 (specs/059 FR-41 ⑥ 그물 주머니): −1 x = 0 골, +1 x = 길이 골, 0 아님.
+        /// 골 안에서 그물을 밀고 들어간 공과 골문 밖으로 빗나가 그물 바깥을 지나는 공을 가른다. 피치로 돌아오면 0.
+        /// </summary>
+        public sbyte NetSide;
 
         public static BallState AtRest(Vec2 xy, float radius) => new BallState
         {
@@ -48,7 +53,7 @@ namespace RoadToPro.MatchEngine.Ball
             OwnerId = NoOwner,
         };
 
-        /// <summary>해시 입력 순서 고정: Phase, Position, Velocity, Spin, OwnerId.</summary>
+        /// <summary>해시 입력 순서 고정: Phase, Position, Velocity, Spin, OwnerId, NetSide(059).</summary>
         public void AddTo(ref StableHasher h)
         {
             h.Add((byte)Phase);
@@ -56,6 +61,7 @@ namespace RoadToPro.MatchEngine.Ball
             h.Add(Velocity.X); h.Add(Velocity.Y); h.Add(Velocity.Z);
             h.Add(Spin.X); h.Add(Spin.Y); h.Add(Spin.Z);
             h.Add(OwnerId);
+            h.Add((byte)NetSide);
         }
     }
 }

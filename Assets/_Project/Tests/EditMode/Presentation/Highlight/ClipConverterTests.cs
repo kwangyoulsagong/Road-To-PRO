@@ -150,5 +150,76 @@ namespace RoadToPro.Tests.EditMode.Presentation.Highlight
             Assert.AreEqual(1, cues[0].Seq);
             Assert.AreEqual((int)SimEventKind.Goal, cues[1].Kind);
         }
+
+        // ── 059 FR-34 · AC-05: 그물 접촉 큐 ──
+
+        static GoalBox NetBox() =>
+            GoalBox.Default(PitchSpec.Default);
+
+        /// <summary>골(틱 0) + 공이 옆그물 → 뒤 그물에 닿는 장면 (접촉 2회).</summary>
+        static (ReplayClip clip, HighlightData data) TwoContactGoal()
+        {
+            var data = NetContactDetectorTests.Frames(NetContactDetectorTests.InGoal(0.2f, 2.5f, 1.0f, 6f, 8f, 0f), 3f);
+            var goal = SimEvent.Make(SimEventKind.Goal, 0, 8);
+            goal.Tick = 0;
+            goal.Seq = 7;
+            return (Clip(new[] { Frame(0), Frame(1) }, goal), data);
+        }
+
+        [Test]
+        public void NetCue_OnePerContact_Ordered()
+        {
+            var (clip, data) = TwoContactGoal();
+            var contacts = new System.Collections.Generic.List<NetContact>();
+            var cues = ClipConverter.ToCues(clip, data, NetBox(), contacts);
+            var net = Array.FindAll(cues, c => c.Kind == NetContactDetector.CueKind);
+            Assert.AreEqual(2, contacts.Count);
+            Assert.AreEqual(2, net.Length, "접촉마다 큐 1개");
+            for (int i = 0; i < net.Length; i++)
+            {
+                Assert.AreEqual(contacts[i].Time, net[i].Time, 1e-12);
+                Assert.AreEqual(i, net[i].Entity, "엔티티 = 접촉 번호");
+                Assert.AreEqual(7, net[i].Seq, "일련번호 = 직전 골");
+            }
+            for (int i = 1; i < cues.Length; i++) Assert.LessOrEqual(CueDispatcher.Compare(cues[i - 1], cues[i]), 0, "시뮬 시각 순");
+        }
+
+        /// <summary>3배속 한 프레임(≈ 0.1 s)에 접촉이 몰려도 빠짐없이 순서대로 (041 FR-55).</summary>
+        [Test]
+        public void NetCue_3x_NoneDropped()
+        {
+            var (clip, data) = TwoContactGoal();
+            var cues = ClipConverter.ToCues(clip, data, NetBox());
+            var d = new CueDispatcher();
+            var sink = new FakeAudio();
+            d.Reset(cues, 0d);
+            for (double t = 0d; t <= 3.0d; t += 3d / 60d) d.FireUpTo(t, sink); // 60 fps × 3배속
+            var net = sink.Cues.FindAll(c => c.Kind == NetContactDetector.CueKind);
+            Assert.AreEqual(2, net.Count);
+            Assert.Less(net[0].Time, net[1].Time);
+        }
+
+        [Test]
+        public void FirstNetCue_EqualsNetContactTime()
+        {
+            var (clip, data) = TwoContactGoal();
+            var contacts = new System.Collections.Generic.List<NetContact>();
+            var cues = ClipConverter.ToCues(clip, data, NetBox(), contacts);
+            var first = Array.Find(cues, c => c.Kind == NetContactDetector.CueKind);
+            Assert.AreEqual(NetContactDetector.FirstAfter(contacts, ClipConverter.EventTime(clip.Events[0])), first.Time, 1e-12,
+                "046 그물 소리·042 메인 샷 유지가 쓰는 첫 접촉 시각");
+        }
+
+        /// <summary>그물에 닿지 않는 골(골 안에서 멈춘 약한 공)·골라인 위 공: 그물 큐 0 (FR-51).</summary>
+        [Test]
+        public void NoNetGoal_NoCue()
+        {
+            var p = RoadToPro.Tests.EditMode.MatchEngine.Ball.BallTestKit.Params();
+            var weak = NetContactDetectorTests.Frames(RoadToPro.MatchEngine.Ball.BallState.RollingAt(
+                new RoadToPro.Core.Math.Vec2(0.5f, p.GoalCenterY), new RoadToPro.Core.Math.Vec2(-1.6f, 0f), p.Radius), 4f);
+            var goal = SimEvent.Make(SimEventKind.Goal, 0, 8);
+            var cues = ClipConverter.ToCues(Clip(new[] { Frame(0), Frame(1) }, goal), weak, NetBox());
+            Assert.AreEqual(0, Array.FindAll(cues, c => c.Kind == NetContactDetector.CueKind).Length);
+        }
     }
 }

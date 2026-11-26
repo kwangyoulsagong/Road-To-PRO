@@ -165,7 +165,7 @@ namespace RoadToPro.MatchEngine.Match
             w.Write(DecisionRng.SaveState());
             w.Write(RefereeRng.SaveState());
             w.Write(FlowRng.SaveState());
-            w.Write((byte)_ball.Phase); w.Write(_ball.Position); w.Write(_ball.Velocity); w.Write(_ball.Spin); w.Write(_ball.OwnerId);
+            w.Write((byte)_ball.Phase); w.Write(_ball.Position); w.Write(_ball.Velocity); w.Write(_ball.Spin); w.Write(_ball.OwnerId); w.Write((byte)_ball.NetSide);
             w.Write(LastTouchTeam); w.Write(LastTouchSlot); w.Write(LastKickSlot); w.Write(LastKickSubstep); w.Write(LastTackleVictim); w.Write(LastKickKind); w.Write(PossessionStartTick);
         }
 
@@ -175,7 +175,7 @@ namespace RoadToPro.MatchEngine.Match
             DecisionRng.RestoreState(r.ReadRngState());
             RefereeRng.RestoreState(r.ReadRngState());
             FlowRng.RestoreState(r.ReadRngState());
-            _ball.Phase = (BallPhase)r.ReadByte(); _ball.Position = r.ReadVec3(); _ball.Velocity = r.ReadVec3(); _ball.Spin = r.ReadVec3(); _ball.OwnerId = r.ReadInt();
+            _ball.Phase = (BallPhase)r.ReadByte(); _ball.Position = r.ReadVec3(); _ball.Velocity = r.ReadVec3(); _ball.Spin = r.ReadVec3(); _ball.OwnerId = r.ReadInt(); _ball.NetSide = (sbyte)r.ReadByte();
             LastTouchTeam = r.ReadInt(); LastTouchSlot = r.ReadInt(); LastKickSlot = r.ReadInt(); LastKickSubstep = r.ReadLong(); LastTackleVictim = r.ReadInt(); LastKickKind = r.ReadByte(); PossessionStartTick = r.ReadLong();
         }
     }

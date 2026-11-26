@@ -20,6 +20,7 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
         readonly CameraTuning _t;
         readonly CameraSettings _settings;
         readonly FramingTarget[] _targets = new FramingTarget[FramingTargets.Capacity];
+        readonly List<Highlight.Logic.NetContact> _contacts = new List<Highlight.Logic.NetContact>();
 
         public CameraTrackBuilder(CameraRigData rig, CameraTuning tuning, CameraSettings settings)
         {
@@ -35,7 +36,11 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
             var shots = new List<ShotPlan>();
             double start = d.StartTime, end = d.EndTime;
             if (brief.Role == SceneRole.GoalMain && double.IsNaN(brief.NetContactTime))
-                brief.NetContactTime = Highlight.Logic.NetContact.Find(d, brief.EventTime, _rig.HalfLength); // 058 FR-22
+            {
+                // 058 FR-22 · 059: 골 시각 이후 첫 안쪽 그물 접촉
+                Highlight.Logic.NetContactDetector.Find(d, _rig.NetBox, Highlight.Logic.NetContactSettings.Default, _contacts);
+                brief.NetContactTime = Highlight.Logic.NetContactDetector.FirstAfter(_contacts, brief.EventTime);
+            }
             GoalSequenceDirector.Plan(brief, start, end, BaseKind(brief, portrait), _t, shots);
 
             var track = new CameraTrack(start, d.Frames, _t.FovMinDeg, _t.FovMaxDeg);

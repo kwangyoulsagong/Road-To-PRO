@@ -18,6 +18,28 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
         static TuningRegistry Baseline() =>
             TuningLoader.LoadDefinitionsFile(Path.Combine(Root, "specs", "081-match-feel-calibration", "evidence", "tuning-main.json"));
 
+        /// <summary>
+        /// 스펙이 승인해 없앤 계수 (사라져도 되는 목록). specs/059 FR-41: 004 감속 영역 `ball.net.damping` → 그물 면 접촉
+        /// (`ball.net.restitution`·`ball.net.tangentKeep`, Q1 (a) 2026-11-11 사용자 결정).
+        /// </summary>
+        static readonly string[] RetiredIds = { "ball.net.damping" };
+
+        /// <summary>기준에 있었지만 승인으로 없앤 계수 수 (지금 파일에 없을 때만 센다).</summary>
+        static int Retired(TuningRegistry baseline)
+        {
+            var n = 0;
+            foreach (var id in RetiredIds)
+            {
+                if (!baseline.TryGetIndex(id, out _)) continue;
+                var stillThere = false;
+                foreach (var f in Files())
+                    foreach (var d in TuningLoader.LoadDefinitionsFile(f).Definitions)
+                        if (d.Id == id) stillThere = true;
+                if (!stillThere) n++;
+            }
+            return n;
+        }
+
         static string[] Files() => Directory.GetFiles(Path.Combine(Root, "Data", "tuning"), "*.json");
 
         [Test]
@@ -39,7 +61,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                     Assert.AreEqual("[대체]", d.Tag, $"{d.Id}: [대체]만 보정할 수 있다 (FR-11) — main {m.Default} → {d.Default}");
                     StringAssert.Contains("081", d.Source, $"{d.Id}: 출처 칸에 081 보정 기록(이전 → 새·근거)이 있어야 한다 (FR-12)");
                 }
-            Assert.AreEqual(main.Count, seen, "main의 계수가 사라지지 않았다");
+            Assert.AreEqual(main.Count, seen + Retired(main), "main의 계수가 사라지지 않았다");
             TestContext.WriteLine($"main 대비 바뀐 계수 {changed}개");
         }
 
@@ -72,7 +94,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                     Assert.IsTrue(Revised084(d.Source), $"{d.Id}: 출처 칸에 '084:' 개정 기록이 있어야 한다 (FR-06) — {b.Default} → {d.Default}");
                     Assert.That(d.Default, Is.InRange(b.Min, b.Max), $"{d.Id}: 원 스펙 min·max 안이어야 한다");
                 }
-            Assert.AreEqual(before.Count, seen, "084 시작 계수가 사라지지 않았다");
+            Assert.AreEqual(before.Count, seen + Retired(before), "084 시작 계수가 사라지지 않았다");
             TestContext.WriteLine($"084 시작 대비 바뀐 계수 {changed}개");
         }
 
@@ -106,7 +128,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                     Assert.IsTrue(Revised087(d.Source), $"{d.Id}: 출처 칸에 '087:' 개정 기록이 있어야 한다 (FR-08) — {b.Default} [{b.Min}, {b.Max}] → {d.Default} [{d.Min}, {d.Max}]");
                     Assert.That(d.Default, Is.InRange(d.Min, d.Max), $"{d.Id}: min·max 안이어야 한다");
                 }
-            Assert.AreEqual(before.Count, seen, "087 시작 계수가 사라지지 않았다");
+            Assert.AreEqual(before.Count, seen + Retired(before), "087 시작 계수가 사라지지 않았다");
             TestContext.WriteLine($"087 시작 대비 바뀐 계수 {changed}개");
         }
 
@@ -141,7 +163,7 @@ namespace RoadToPro.Tests.EditMode.MatchEngine
                     Assert.IsTrue(Revised007(d.Source), $"{d.Id}: 출처 칸에 '007:' 개정 기록이 있어야 한다 (FR-25) — {b.Default} [{b.Min}, {b.Max}] → {d.Default} [{d.Min}, {d.Max}]");
                     Assert.That(d.Default, Is.InRange(d.Min, d.Max), $"{d.Id}: min·max 안이어야 한다");
                 }
-            Assert.AreEqual(before.Count, seen, "007 시작 계수가 사라지지 않았다");
+            Assert.AreEqual(before.Count, seen + Retired(before), "007 시작 계수가 사라지지 않았다");
             TestContext.WriteLine($"007 시작 대비 바뀐 계수 {changed}개");
         }
 

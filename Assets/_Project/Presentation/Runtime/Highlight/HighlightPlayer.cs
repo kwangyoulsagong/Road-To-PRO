@@ -26,6 +26,8 @@ namespace RoadToPro.Presentation.Highlight
             public IHighlightCamera Camera;
             public IFramePolicy Frames;
             public IHighlightAudio Audio;
+            /// <summary>specs/059 골망 튜닝 (goalnet.json + ball.json). 없으면 기본값 + 골 상자 치수.</summary>
+            public Stadium.Net.NetRippleTuning NetTuning;
         }
 
         HighlightSequencer _seq;
@@ -42,6 +44,7 @@ namespace RoadToPro.Presentation.Highlight
         IMotionDiagnostics _diagnostics;
         Rendering.CinematicModeController _cinematic;
         Players.CloseupHeads _closeups;
+        Stadium.Net.GoalNetView _nets;
 
         /// <summary>specs/061 연출 장면 고품질 모드 (실제 프리셋에서만, 로딩 뒤). 검증용.</summary>
         public Rendering.CinematicModeController Cinematic => _cinematic;
@@ -135,6 +138,14 @@ namespace RoadToPro.Presentation.Highlight
                 _closeups = stage.gameObject.AddComponent<Players.CloseupHeads>();
                 _closeups.Init(_camera, stage.Rigs);
                 _closeups.Cinematic = _cinematic;
+                // 059: 골망 출렁임 — 무대 씬의 glb 그물을 동적 그물로 바꾼다 (못 하면 정적 그물 유지)
+                _nets = stage.gameObject.AddComponent<Stadium.Net.GoalNetView>();
+                var netTuning = _ports.NetTuning ?? Stadium.Net.NetRippleTuning.ForGoal(_goal);
+                if (!_nets.Init(netTuning, _goal.HalfLength, stage.gameObject.scene.GetRootGameObjects(), new Logging.UnityLogger(RoadToPro.Core.Logging.LogLevel.Warning)))
+                {
+                    Destroy(_nets);
+                    _nets = null;
+                }
                 if (_diagnostics != null) _system.Diagnostics = _diagnostics;
                 _current = _scenes[0];
                 _applied = 0;
@@ -195,6 +206,8 @@ namespace RoadToPro.Presentation.Highlight
             }
             if (_cinematic != null && _current != null && _seq.State == SequencerState.Playing)
                 _cinematic.Apply(_current.Scene.Id, _seq.Clock.Position, _current.Data);
+            if (_nets != null && _current != null && _loaded)
+                _nets.Apply(_current, _seq.Clock.Position);   // 059: 정지 중엔 같은 시각이라 쓰기 없음 (FR-53)
 
             if (!_unloading && !_loadRunning && !_seq.Wants3D && (_loaded || _seq.State == SequencerState.Cancelled))
             {
@@ -208,6 +221,7 @@ namespace RoadToPro.Presentation.Highlight
         {
             _system = null;
             _closeups = null;   // 무대와 함께 해제된다
+            _nets = null;
             _current = null;
             _loaded = false;
             _cinematic?.Dispose();

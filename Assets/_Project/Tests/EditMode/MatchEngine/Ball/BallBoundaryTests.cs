@@ -77,7 +77,8 @@ namespace RoadToPro.Tests.EditMode.MatchEngine.Ball
             var s = BallState.RollingAt(new Vec2(3f, 34f), new Vec2(-25f, 0f), p.Radius);
             s = BallTestKit.Run(s, p, 1000);
             Assert.AreEqual(BallPhase.Rest, s.Phase);
-            Assert.That(s.Position.X, Is.InRange(-p.NetDepth, -p.Radius));
+            // specs/059 FR-41 ⑥: 뒤 그물을 밀고 들어갔다 되밀려 면 안쪽(−depth + r)으로 돌아오고, 골라인 뒤에 남는다
+            Assert.That(s.Position.X, Is.InRange(-p.NetDepth + p.Radius - 0.02f, -p.Radius));
         }
 
         [Test]

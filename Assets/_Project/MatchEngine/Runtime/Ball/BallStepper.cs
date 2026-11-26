@@ -51,7 +51,9 @@ namespace RoadToPro.MatchEngine.Ball
             // 꺾인 경로면 StepAir/StepRolling이 경계를 판정했다. 직선이면 경계 근처일 때만 판정 (빠른 배제).
             if (!boundaryDone && !(InsideField(start, p, r) && InsideField(end, p, r)))
                 GoalFrame.DetectBoundarySegment(start, end, 0f, 1f, s.Phase, p, events);
-            if ((end.X < 0f || end.X > p.Pitch.LengthM) && (s.Phase == BallPhase.Air || s.Phase == BallPhase.Rolling)) GoalFrame.ApplyNet(ref s, p);
+            if ((end.X < 0f || end.X > p.Pitch.LengthM || s.NetSide != 0) && (s.Phase == BallPhase.Air || s.Phase == BallPhase.Rolling)) GoalFrame.ApplyNet(ref s, start, p);
+            // 059 결정론 리뷰 2: 피치로 돌아온 공은 단계와 무관하게 그물 표시를 지운다 (Rolling → Rest가 같은 스텝에 일어나도)
+            if (s.NetSide != 0 && s.Position.X >= 0f && s.Position.X <= p.Pitch.LengthM) s.NetSide = 0;
 
             if (!AllFinite(in s)) Sanitize(ref s, start, p, events, firstEvent);
 
@@ -294,6 +296,7 @@ namespace RoadToPro.MatchEngine.Ball
             s.Velocity = Vec3.Zero;
             s.Spin = Vec3.Zero;
             s.Phase = BallPhase.Rest;
+            s.NetSide = 0;
         }
 
         /// <summary>빌드 구성 상수를 메서드로 감싸 분기 양쪽을 컴파일한다 (CS0162 방지).</summary>

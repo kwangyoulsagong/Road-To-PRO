@@ -335,6 +335,47 @@
      -3.72
     ]
    },
+   "netCheck": {
+    "bottomZ": [
+     0.0,
+     0.0
+    ],
+    "boxBallRadius": 0.109,
+    "bulgeBack": 0.1,
+    "cellSize": 0.12,
+    "frameGap": 0.0,
+    "insideBoxMax": 0.0,
+    "ok": true,
+    "sagTop": 0.08,
+    "strand": 0.004,
+    "supportBlocksMouth": false,
+    "supportClearance": 0.015,
+    "triangles": 2436
+   },
+   "netGrid": {
+    "cell": 0.2,
+    "depth": 2.0,
+    "faces": [
+     [
+      38,
+      13
+     ],
+     [
+      38,
+      10
+     ],
+     [
+      10,
+      13
+     ],
+     [
+      10,
+      13
+     ]
+    ],
+    "halfWidth": 3.72,
+    "top": 2.55
+   },
    "posts": [
     {
      "a": [
@@ -391,6 +432,47 @@
      0.0,
      -3.72
     ]
+   },
+   "netCheck": {
+    "bottomZ": [
+     0.0,
+     0.0
+    ],
+    "boxBallRadius": 0.109,
+    "bulgeBack": 0.1,
+    "cellSize": 0.12,
+    "frameGap": 0.0,
+    "insideBoxMax": 0.0,
+    "ok": true,
+    "sagTop": 0.08,
+    "strand": 0.004,
+    "supportBlocksMouth": false,
+    "supportClearance": 0.015,
+    "triangles": 2436
+   },
+   "netGrid": {
+    "cell": 0.2,
+    "depth": 2.0,
+    "faces": [
+     [
+      38,
+      13
+     ],
+     [
+      38,
+      10
+     ],
+     [
+      10,
+      13
+     ],
+     [
+      10,
+      13
+     ]
+    ],
+    "halfWidth": 3.72,
+    "top": 2.55
    },
    "posts": [
     {
@@ -4481,21 +4563,22 @@
    }
   },
   "notes": [],
-  "objects": 29,
+  "objects": 31,
   "seatCount": 40000,
   "triangles": {
    "Bench": 20,
    "Boards": 40,
    "CornerFlags": 80,
    "GoalFrame": 360,
+   "GoalSupport": 336,
    "Ground": 8,
    "LightTower": 224,
-   "Net": 16,
+   "Net": 4536,
    "Pitch": 2,
    "Roof": 44,
    "Stand": 5256,
    "Tunnel": 10,
-   "total": 6060
+   "total": 10916
   }
  }
 }

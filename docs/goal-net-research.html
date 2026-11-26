@@ -1,0 +1,123 @@
+<title>골망 그물 리서치</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* 레이아웃: 한 열 리서치 문서 — 문제 → 사실 → 기법 → 권장 → 스펙 개정안 → 출처 */
+:root{--bg:#f4f6f3;--fg:#1b231f;--muted:#5a675f;--line:#d2dad4;--card:#ffffff;--accent:#2b7a4b;--warn:#a85d18;
+--sans:"IBM Plex Sans KR",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,monospace}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#111714;--fg:#e3eae5;--muted:#98a79e;--line:#2a3530;--card:#19211d;--accent:#5cbf83;--warn:#df9a55;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111714;--fg:#e3eae5;--muted:#98a79e;--line:#2a3530;--card:#19211d;--accent:#5cbf83;--warn:#df9a55;color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.65;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 56px}
+main{max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+h1{font-size:1.65rem;margin:0;text-wrap:balance}h2{font-size:1.2rem;margin:0 0 8px;text-wrap:balance}h3{font-size:1rem;margin:14px 0 4px}
+p,li{max-width:70ch}p{margin:0 0 8px}ul,ol{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:4px}
+.muted{color:var(--muted)}.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}table{border-collapse:collapse;font-size:.92rem;min-width:520px}td,th{border-bottom:1px solid var(--line);padding:6px 10px;text-align:left;vertical-align:top}th{color:var(--muted);font-weight:600}
+.note{border-left:3px solid var(--warn);padding:2px 0 2px 14px}
+.rec{border-left:3px solid var(--accent);padding:2px 0 2px 14px}
+a{color:var(--accent)}
+code{font-family:var(--mono);font-size:.88em}
+</style>
+<main>
+<header style="display:flex;flex-direction:column;gap:6px">
+<h1>골망 그물 리서치</h1>
+<p class="muted">specs/059 골망 · 2026-11-26 · 웹 공개 자료만 조사함(상용 게임 디컴파일·리버스 엔지니어링 없음, 01-legal)</p>
+</header>
+
+<section><h2>왜 조사했나</h2>
+<p>1·2차 육안 확인에서 사용자 판정은 "철창에다 공 쏘는 느낌"이었다. 지금 구현은 그물이 공을 받아 주지 않고 튕겨 낸다.</p>
+<ul>
+<li><b>딱딱함</b>: 시뮬 그물 주머니가 강한 스프링이라 공이 0.04 s 만에 최대 깊이에 닿고 바로 되밀린다.</li>
+<li><b>공 주변만 움직임</b>: 표현은 해석식(접촉점 범프 + 고리 물결)이라 그물 전체가 끌려가지 않는다. 뒤·옆·위 면이 서로 이어져 움직이지 않는다.</li>
+<li><b>처짐 없음</b>: 그물이 팽팽한 판으로 모델링돼 있고, 테두리 0.3 m는 고정이다.</li>
+</ul>
+</section>
+
+<section><h2>실제 골망에 대해 확인한 사실</h2>
+<div class="scroll"><table>
+<tr><th>항목</th><th>값</th><th>출처</th></tr>
+<tr><td>줄·그물코</td><td class="num">꼰 HDPE·폴리에스터 지름 4 mm, 그물코 120 mm</td><td>Sodex, Huck 제품 사양</td></tr>
+<tr><td>무게</td><td class="num">박스형 2 m 깊이 한 쌍 10.6 kg → 골대당 약 5.3 kg, 약 0.13 kg/m²</td><td>sportsequip, Harrod</td></tr>
+<tr><td>거는 방식</td><td>박스형(위·아래 깊이 2 m)·일반형(위 0.8 / 아래 1.8 m). 뒤는 지지대(최대 1 m) 또는 뒷 로프, 아일렛으로 당김. 장력 수치 규정 없음</td><td>IFAB Law 1, Decathlon</td></tr>
+<tr><td>강슛 때 깊이·시간</td><td><b>공개 측정 자료 없음.</b> 물리와 중계 인상으로 추정: 30 m/s면 뒷그물 0.5~1.0 m, 최대 깊이까지 0.1~0.25 s, 물결이 옆·위로 퍼져 1.5~3 s 뒤 멈춤, 공은 튕겨 나오지 않고 아래로 떨어짐</td><td>[추정]</td></tr>
+</table></div>
+<p class="note">핵심: 줄은 거의 늘지 않는다. 공이 깊이 들어가는 것은 <b>처짐(여유 길이)</b> 덕분이다. 뒷그물 질량(약 2 kg)이 공(0.43 kg)에 비해 크지 않아 그물 전체가 끌려가며 출렁인다.</p>
+</section>
+
+<section><h2>실시간 그물·천 기법</h2>
+<ul>
+<li><b>XPBD 서브스텝</b>: 프레임을 잘게 나누고 스텝마다 한 번만 반복하는 것이, 한 스텝에 30번 반복하는 것보다 수렴이 좋고 덜 뻣뻣하다. 반복을 많이 돌리면 오히려 "철창"처럼 된다. (Macklin et al. 2019 "Small Steps")</li>
+<li><b>Long Range Attachments(LRA)</b>: 고정점까지 최대 거리만 제한해 적은 반복으로 늘어남을 잡는다. 오픈소스 XRTailor 기본값은 서브스텝 4, 최대 신장 1.05. (Kim·Chentanez·Müller 2012)</li>
+<li><b>Ten Minute Physics 14화</b>: 삼각형 6,400개 천을 휴대폰 JS에서 30 fps 이상으로 돌린다. 공개 코드.</li>
+<li><b>그물 구조</b>: 축구 골망은 대각선 줄이 없다. 가로·세로 거리 제약만 쓰고 굽힘은 없거나 아주 약하게 둔다. (CS184 학생 프로젝트, Texas A&amp;M 데모)</li>
+<li><b>공 충돌</b>: 공이 한 스텝에 그물코보다 많이 움직이므로(30 m/s, 240 Hz → 12.5 cm) 스텝 안 이동 경로를 캡슐로 검사한다. 일반 천 시뮬 기법이다.</li>
+</ul>
+<p class="note">공개 특허 하나(EA US 8,000,947, Verlet 그물 + 캡슐 충돌)도 찾았다. 디컴파일은 아니지만 <b>등록 특허라 그 청구항을 그대로 따라 구현하지 않는다.</b> 아래 권장안은 공개 논문(XPBD·LRA)의 일반 천 시뮬 기법만 쓴다. 특허 범위 판단이 필요하면 별도로 확인한다.</p>
+</section>
+
+<section><h2>결정론(같은 리플레이 = 같은 출렁임)</h2>
+<ul>
+<li>같은 빌드·같은 기기에서는 고정 dt, 단일 스레드, 고정 순서 Gauss-Seidel이면 재현된다. 기기가 다르면 보장되지 않는다(Fiedler). 우리 기준("같은 빌드·같은 플랫폼")과 맞다.</li>
+<li>공 충돌 입력은 시뮬 시각 기준으로 넣는다. 화면 프레임이나 배속은 입력이 아니다.</li>
+<li><b>가장 단순한 방법</b>: 장면을 만들 때(로딩 중) 그물을 한 번 시뮬해 30 Hz로 굽고(bake), 재생 때는 보간만 한다. 배속·0.5x·키 모먼트 정지·중간 재생이 모두 같은 데이터를 읽으므로 결정론 문제가 사라지고, 재생 중 CPU는 보간 비용뿐이다.</li>
+</ul>
+</section>
+
+<section><h2>권장안 (수치는 [제안], 벤치·육안으로 조정)</h2>
+<div class="rec">
+<h3>역할 분리</h3>
+<ul>
+<li><b>경기 시뮬</b>: 지금의 단순한 그물 주머니를 유지한다. 공의 경기상 움직임만 정하고, 더 부드럽게 바꾼다: 반발 거의 0, 최대 깊이 0.8 m, 최대 깊이까지 약 0.15~0.2 s.</li>
+<li><b>화면 그물</b>: Presentation에서만 도는 XPBD 그물. 시뮬 공 위치를 한 방향으로만 받는 움직이는 구로 쓴다. 그물이 공을 되밀지 않고, 화면 공은 시뮬 위치 그대로다(041 FR-02 유지).</li>
+</ul>
+<h3>그물</h3>
+<ul>
+<li>노드 간격 약 0.2 m, 뒤 37×13·위 37×11·옆 2×(11×13). 모서리를 공유해 골대당 약 1,100~1,300 노드, 거리 제약 약 2,300개.</li>
+<li>고정점: 포스트·크로스바, 뒤 지지대. 바닥 쪽은 고정 대신 지면 충돌 + 마찰.</li>
+<li><b>처짐</b>: 줄 기준 길이 = 기하 간격 × 1.08~1.15(뒤), 1.04~1.08(옆·위). 줄 자체는 거의 늘지 않음(compliance ≈ 0), LRA 1.10~1.20.</li>
+<li>240 Hz 고정 스텝, 스텝당 반복 1회, 중력 9.81, 속도 감쇠 1~2 /s.</li>
+<li>공 반지름 0.11 + 0.02 m, 접촉 노드에 접선 마찰을 줘서 공과 함께 끌려가게 한다(감싸는 느낌).</li>
+<li>육각 줄 셰이더·무늬 지표(FR-10~15)는 그대로 쓴다.</li>
+</ul>
+<h3>굽기(bake)와 비용</h3>
+<ul>
+<li>골·그물 접촉이 있는 장면만, 첫 접촉 −0.1 s부터 정지까지(최대 약 4 s) 굽는다. 노드 위치를 정지 모양 대비 int16 mm 오프셋으로 저장하면 1,200 노드 × 6 B × 120 프레임 ≈ 0.9 MB/장면.</li>
+<li>굽기 비용: 4 s × 240 스텝 × 제약 2,300 ≈ 220만 회, IL2CPP 추정 20~45 ms/장면을 로딩 중에 처리한다. 재생 중에는 보간만 하므로 0.3 ms 예산 안.</li>
+<li>이 수치는 전부 추정이라 IL2CPP 벤치로 확인한다.</li>
+</ul>
+<h3>목표 모습 (조정 기준)</h3>
+<p class="num">30 m/s 슛: 최대 깊이 0.6~1.0 m, 최대 깊이까지 0.15~0.25 s, 옆·위 그물도 출렁임, 정지까지 약 2 s, 공은 아래로 떨어짐.</p>
+</div>
+</section>
+
+<section><h2>059 스펙 개정안</h2>
+<ul>
+<li><b>FR-20~24·27</b>: 해석식 부풂·물결 → "처짐 있는 그물 시뮬이 공을 감싸 받고 전체가 출렁인다". 목표 모습 수치를 [제안]으로 넣는다(30 m/s 깊이 0.6~1.0 m 등). FR-21 상한은 깊이 1.1 m 유지.</li>
+<li><b>FR-28·29</b>: "시뮬 시각과 공 궤적만의 함수" → "장면을 만들 때 한 번 굽고 재생은 보간"(결과 같음).</li>
+<li><b>FR-41 ⑥</b>: 시뮬 주머니를 부드럽게(최대 깊이 0.8 m, 반발 ≈ 0). 화면 그물 처짐으로 닿을 수 있는 깊이보다 작게 둔다.</li>
+<li><b>성능 표</b>: "출렁임 CPU(깨어 있을 때)" → "굽기 CPU(로딩, 장면당 ≤ [제안] 60 ms)" + "재생 보간 ≤ 0.3 ms".</li>
+<li><b>그대로</b>: 그물 형상·셰이더(T11~T13), 접촉 검출·큐(T05~T07), 골 시퀀스(T16), 바깥 면 막기, 지표 화면(T17).</li>
+<li><b>바뀌는 태스크</b>: T08~T10(해석식 모델) → 그물 시뮬 + 굽기 테스트·구현, T14~T15(구동) → 굽기 데이터 재생, T18 다시 육안 확인.</li>
+</ul>
+</section>
+
+<section><h2>찾지 못한 것</h2>
+<ul>
+<li>골망이 공에 밀리는 깊이·시간·물결 속도를 잰 공개 측정 자료 (목표 모습은 추정이라 육안 승인으로 맞춘다)</li>
+<li>그물 장력 표준 (BS EN 748은 골대 구조 강도 위주)</li>
+<li>축구 골망만 다룬 GDC/SIGGRAPH 발표, 오픈소스 축구 게임 그물 코드</li>
+<li>그물 마찰·감쇠 실측값</li>
+</ul>
+</section>
+
+<section><h2>출처</h2>
+<ul class="muted" style="font-size:.9rem">
+<li><a href="https://www.archiexpo.com/prod/sodex-sport/product-155801-2199100.html">Sodex 골망 사양</a> · <a href="https://www.huck.net/en/sports/goal-net_15135/goal-nets-in-4-mm-dia-polyester-knotless-netting_1043">Huck 4 mm 폴리에스터</a></li>
+<li><a href="https://sportsequip.co.uk/pair-of-4mm-white-box-profile-football-nets-2m-runback.html">sportsequip 박스형 2 m</a> · <a href="https://harrodsport.com/senior-7-32m-2-44m-4mm-net/p-fbl-284">Harrod 4 mm</a> · <a href="https://www.decathlon.co.uk/p/mp/pair-pro-4mm-braided-football-goal-net-24-x-8-feet-11-a-side-full-size-outdoor/96f3d1c6-e95c-44cf-adad-ccf94a3e837b/novar">Decathlon 4 mm</a></li>
+<li><a href="https://www.thefa.com/football-rules-governance/lawsandrules/laws/football-11-11/law-1---the-field-of-play">IFAB Law 1</a> · <a href="https://plus.maths.org/content/when-goal-not-goal">Plus Maths 고속 카메라</a></li>
+<li><a href="https://diglib.eg.org/handle/10.1145/3309486-3340247">Macklin et al. 2019 Small Steps in Physics Simulation</a> · <a href="https://matthias-research.github.io/pages/publications/sca2012cloth.pdf">Kim·Chentanez·Müller 2012 LRA</a> · <a href="https://xrtailor.readthedocs.io/en/latest/getting_started/technical_brief.html">XRTailor</a></li>
+<li><a href="https://matthias-research.github.io/pages/tenMinutePhysics/14-cloth.html">Ten Minute Physics 14 천</a> · <a href="https://github.com/Matusson/UCloth">UCloth</a> · <a href="https://cal-cs184-student.github.io/sp22-project-webpages-yersultan-17/proposal/progress.html">CS184 골망 프로젝트</a> · <a href="https://people.engr.tamu.edu/sueda/courses/CSC474/2015W/demos/baujla/index.html">TAMU 데모</a></li>
+<li><a href="https://gafferongames.com/post/floating_point_determinism/">Fiedler 부동소수점 결정론</a> · <a href="https://patents.google.com/patent/US8000947">US 8,000,947 (참고만, 청구항 구현 안 함)</a></li>
+</ul>
+</section>
+</main>

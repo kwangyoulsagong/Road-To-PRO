@@ -43,6 +43,7 @@ namespace RoadToPro.MatchEngine.Ball
             var lofted = velocity.Z > 0f;
             var prevOwnerOfKick = s.OwnerId;
             s.Phase = lofted ? BallPhase.Air : BallPhase.Rolling;
+            s.NetSide = 0;   // 059: 찬 공은 골 안 표시를 새로 판단
             s.Position = lofted ? pos : new Vec3(pos.X, pos.Y, p.Radius);
             s.Velocity = lofted ? velocity : new Vec3(velocity.X, velocity.Y, 0f);
             s.Spin = spin;
@@ -63,6 +64,7 @@ namespace RoadToPro.MatchEngine.Ball
             var from = s.Phase;
             var prevOwner = s.OwnerId;
             s.Phase = BallPhase.Controlled;
+            s.NetSide = 0;   // 059: 잡은 공은 골 안 표시 없음
             s.Position = position;
             s.Velocity = Vec3.Zero;
             s.Spin = Vec3.Zero;

@@ -47,7 +47,21 @@ def ball_tuning():
     path = os.path.join(_repo_root(), "Data", "tuning", "ball.json")
     with open(path, encoding="utf-8") as f:
         rows = {d["id"]: d["default"] for d in json.load(f)["definitions"]}
-    return {"postRadius": float(rows["ball.goal.postRadius"]), "netDepth": float(rows["ball.net.depth"])}
+    return {"postRadius": float(rows["ball.goal.postRadius"]), "netDepth": float(rows["ball.net.depth"]),
+            "ballRadius": float(rows["ball.radius"])}
+
+
+NET_DEPTH_RANGE = (0.5, 4.0)   # ball.json ball.net.depth min·max
+
+
+def net_tuning():
+    """059 골망 표현 인자 원본(Data/tuning/goalnet.json) — 런타임 NetRestShape·셰이더와 같은 값."""
+    path = os.path.join(_repo_root(), "Data", "tuning", "goalnet.json")
+    with open(path, encoding="utf-8") as f:
+        rows = {d["id"]: d["default"] for d in json.load(f)["definitions"]}
+    keys = {"cellSize": "net.cellSize", "strand": "net.strand", "sagTop": "net.sagTop", "bulgeBack": "net.bulgeBack",
+            "gridCell": "net.gridCell"}
+    return {k: float(rows[v]) for k, v in keys.items()}
 
 
 def section_frame(section):

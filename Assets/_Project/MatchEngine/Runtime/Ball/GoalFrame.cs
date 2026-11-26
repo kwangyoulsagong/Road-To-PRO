@@ -167,25 +167,142 @@ namespace RoadToPro.MatchEngine.Ball
         }
 
         /// <summary>
-        /// 골망 감속 영역 (FR-42): 골라인 뒤 깊이 netDepth, 골문 폭·높이 안에서 서브스텝마다 속도·스핀 ×damping.
-        /// 뒤판을 넘지 않는다. 정확도 요구 낮음 (연출 일관성용).
+        /// 골망 그물 면 (specs/059 FR-41, 004 FR-42 감속 영역 대체). 그물 상자 = 골라인 뒤 깊이 netDepth · 폭 7.32 m · 높이 2.44 m.
+        /// ① 골 안 공(<see cref="BallState.NetSide"/> ≠ 0 — 서브스텝 시작이 정지 그물 상자 안이면 표시, 피치로 돌아오면 지움):
+        ///    뒤·옆·위 면(중심 기준 면 − 반지름)을 넘으면 그물을 밀고 들어간다(FR-41 ⑥, 2026-11-26 사용자 결정 "공이 그물을 밀고 들어감") —
+        ///    면 바깥 방향으로 임계 감쇠 스프링(ω)이 되밀고, 접선 속도·스핀은 감쇠(slide), 깊이는 pocket × 테두리 감소(edgeBand 안쪽 smoothstep) 넘지 않음.
+        ///    옆·위 면은 공이 골라인을 완전히 넘은 뒤(d ≥ r)만 — 넘는 중인 공은 골대 충돌이 다룬다 (결정론 리뷰 3).
+        /// ② 바깥 공(표시 없음 — 빗나가 골라인 뒤로 나간 공·크로스바 위로 넘어간 공): 바깥 면(옆그물 바깥·뒤 그물 뒤·위 그물 윗면)에서
+        ///    중심을 반지름만큼 바깥에 고정, 수직 속도 → −e·v⊥ (2026-11-26 사용자 결정 "지금 바깥 면에서 막기". 바깥 면 출렁임 화면 검증은 012, Q2 (a)).
+        /// 면에 닿기 전에는 아무것도 하지 않는다(상태를 쓰지도 않음). 골라인 뒤 공만 다루므로 골 판정(골라인 통과, <see cref="DetectBoundarySegment"/>)에는 영향 없음.
+        /// 알려진 한계(012 화면 검증 때): 위 그물 윗면에 멈춘 바깥 공은 Air 상태로 남는다(재시작 재배치 전까지).
         /// </summary>
-        public static void ApplyNet(ref BallState s, BallParams p)
+        public static void ApplyNet(ref BallState s, Vec3 start, BallParams p)
         {
             var pos = s.Position;
-            if (DMath.Abs(pos.Y - p.GoalCenterY) >= BallParams.GoalWidth * 0.5f || pos.Z >= BallParams.GoalHeight) return;
-            float back;
-            if (pos.X < 0f) back = -p.NetDepth;
-            else if (pos.X > p.Pitch.LengthM) back = p.Pitch.LengthM + p.NetDepth;
-            else return;
-
-            s.Velocity = s.Velocity * p.NetDamping;
-            s.Spin = s.Spin * p.NetDamping;
-            if ((back < 0f && pos.X < back) || (back > 0f && pos.X > back))
+            float line, sx;
+            if (pos.X < 0f) { line = 0f; sx = -1f; }
+            else if (pos.X > p.Pitch.LengthM) { line = p.Pitch.LengthM; sx = 1f; }
+            else
             {
-                s.Position = new Vec3(back, pos.Y, pos.Z);
-                s.Velocity = new Vec3(0f, s.Velocity.Y, s.Velocity.Z);
+                if (s.NetSide != 0) s.NetSide = 0;   // 피치로 돌아옴
+                return;
             }
+
+            float half = BallParams.GoalWidth * 0.5f, H = BallParams.GoalHeight, D = p.NetDepth, r = p.Radius, cy = p.GoalCenterY;
+            // 골 쪽 좌표: d = 골라인 뒤 깊이(+), w = 중심에서 옆 거리(부호), vd = 깊이 방향 속도
+            float d = sx * (pos.X - line), w = pos.Y - cy, z = pos.Z;
+            float ds = sx * (start.X - line), ws = start.Y - cy, zs = start.Z;
+            var v = s.Velocity;
+            float vd = sx * v.X, vw = v.Y, vz = v.Z;
+            bool hit = false, moved = false;
+
+            sbyte side = sx < 0f ? (sbyte)-1 : (sbyte)1;
+            // 표시가 있어도 시작이 주머니 최대 상자 안일 때만 (결정론 리뷰 2b — 남은 표시로 바깥 공을 잡지 않게)
+            float P = p.NetPocket;
+            bool inside = (s.NetSide == side && DMath.Abs(ws) < half - r + P && zs < H - r + P && ds < D - r + P)
+                          || (DMath.Abs(ws) < half && zs < H && ds < D);
+            if (inside)
+            {
+                s.NetSide = side;   // 표시만 바뀐 경우 위치·속도는 쓰지 않는다 (결정론 리뷰 4)
+                float slide = p.NetSlideFactor;
+                bool pocket = false, pd = false, pw = false, pz = false;
+                // 뒤 면 (면 위 테두리 거리: 옆·바닥·위)
+                // 테두리 거리는 공 표면 기준(− r) — 골대·지지대에 묶인 줄 근처는 공이 거의 못 민다. 바닥은 공이 늘 r 떠 있어 중심 높이 그대로
+                Pocket(ref d, ref vd, D - r, Edge(half - DMath.Abs(w) - r, z, H - z - r, float.MaxValue, p), p, ref pd);
+                if (d >= r)
+                {
+                    float aw = DMath.Abs(w), sw = w >= 0f ? 1f : -1f;
+                    float ow = aw, vo = vw * sw;
+                    Pocket(ref ow, ref vo, half - r, Edge(d - r, D - d - r, z, H - z - r, p), p, ref pw);
+                    w = sw * ow;
+                    vw = sw * vo;
+                    Pocket(ref z, ref vz, H - r, Edge(half - aw - r, d - r, D - d - r, float.MaxValue, p), p, ref pz);
+                }
+                pocket = pd || pw || pz;
+                if (pocket)
+                {
+                    moved = hit = true;
+                    // 주머니 안: 접선 감쇠(그물이 공을 잡는다). 수직 성분은 스프링 몫이라 감쇠하지 않는다 —
+                    // 감쇠하면 굴러온 공이 되밀리기 전에 멈춰 주머니 안에 남는다(T18a)
+                    if (pd) { vw *= slide; vz *= slide; }
+                    if (pw) { vd *= slide; vz *= slide; }
+                    if (pz) { vd *= slide; vw *= slide; }
+                }
+                if (hit) s.Spin = s.Spin * slide;
+                if (!moved) return;
+                s.Position = new Vec3(line + sx * d, cy + w, z);
+                s.Velocity = new Vec3(sx * vd, vw, vz);
+                return;
+            }
+
+            // 바깥 면 상자(그물 면 + 반지름) 안으로 들어오면, 시작이 바깥이었던 면 중 덜 파고든 면 하나로 밀어낸다
+            {
+                float aw = DMath.Abs(w);
+                if (d > 0f && d < D + r && aw < half + r && z < H + r)
+                {
+                    float best = float.MaxValue;
+                    int face = -1;
+                    if (ds >= D && D + r - d < best) { best = D + r - d; face = 0; }
+                    if (DMath.Abs(ws) >= half && half + r - aw < best) { best = half + r - aw; face = 1; }
+                    if (zs >= H && H + r - z < best) { best = H + r - z; face = 2; }
+                    moved = face >= 0;
+                    if (face == 0) { d = D + r; if (vd < 0f) { Hit(ref vd, ref vw, ref vz, 0, p); hit = true; } }
+                    else if (face == 1)
+                    {
+                        float sideW = ws >= 0f ? 1f : -1f;
+                        w = sideW * (half + r);
+                        if (vw * sideW < 0f) { Hit(ref vd, ref vw, ref vz, 1, p); hit = true; }
+                    }
+                    else if (face == 2) { z = H + r; if (vz < 0f) { Hit(ref vd, ref vw, ref vz, 2, p); hit = true; } }
+                }
+            }
+
+            // 면에 안 닿은 공은 아무것도 쓰지 않는다 — 좌표 왕복(cy + w)의 1 ulp 차이도 남기지 않음 (리뷰 1)
+            if (!moved) return;
+            s.Position = new Vec3(line + sx * d, cy + w, z);
+            s.Velocity = new Vec3(sx * vd, vw, vz);
+            if (hit) s.Spin = s.Spin * p.NetTangentKeep;
+        }
+
+        /// <summary>
+        /// 그물 주머니 한 면 (FR-41 ⑥): 바깥 방향 좌표 x가 한계 lim을 넘으면(깊이 pen) 임계 감쇠 스프링으로 바깥 속도 v를 줄이고
+        /// (v += dt·(−ω²·pen − 2ω·v), 반암시적), 깊이가 허용(pocket × 테두리 감소) 넘으면 그 자리에 고정·바깥 속도 ≤ −dt·ω²·허용(되밀기).
+        /// </summary>
+        static void Pocket(ref float x, ref float vOut, float lim, float edgeFactor, BallParams p, ref bool touched)
+        {
+            float pen = x - lim;
+            if (pen <= 0f) return;
+            touched = true;
+            float w = p.NetStiffness, dt = p.Dt;
+            vOut += dt * (-w * w * pen - 2f * w * vOut);
+            float allowed = p.NetPocket * edgeFactor;
+            if (pen > allowed)
+            {
+                // 주머니 끝: 그 자리에 두고, 늘어난 그물이 되미는 한 스텝 속도를 준다 — 0으로 두면 굴러온 공이 다음 스텝에 정지해 주머니에 남는다
+                x = lim + allowed;
+                float back = -dt * w * w * allowed;
+                if (vOut > back) vOut = back;
+            }
+        }
+
+        /// <summary>면 위 테두리까지 거리(네 방향 중 최소) → 주머니 깊이 비율 smoothstep(거리 / edgeBand).</summary>
+        static float Edge(float a, float b, float c, float e, BallParams p)
+        {
+            float m = DMath.Min(DMath.Min(a, b), DMath.Min(c, e));
+            if (m <= 0f) return 0f;
+            float t = m / p.NetEdgeBand;
+            if (t >= 1f) return 1f;
+            return t * t * (3f - 2f * t);
+        }
+
+        /// <summary>그물 면 접촉 응답: 축 axis(0 깊이·1 옆·2 높이)의 수직 속도 → −e·v⊥, 나머지 두 축 × keep.</summary>
+        static void Hit(ref float vd, ref float vw, ref float vz, int axis, BallParams p)
+        {
+            float e = p.NetRestitution, k = p.NetTangentKeep;
+            if (axis == 0) { vd = -vd * e; vw *= k; vz *= k; }
+            else if (axis == 1) { vw = -vw * e; vd *= k; vz *= k; }
+            else { vz = -vz * e; vd *= k; vw *= k; }
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using RoadToPro.Core.Math;
 using RoadToPro.Core.Pitch;
 using RoadToPro.MatchEngine.Match.Events;
@@ -178,27 +179,30 @@ namespace RoadToPro.Presentation.Highlight.Logic
         }
 
         /// <summary>
-        /// 058 FR-22: 표현 큐 + 골마다 첫 그물 접촉 큐(<see cref="NetContact.CueKind"/>, 059 출렁임이 받는다). 접촉이 없으면 큐도 없다.
+        /// 표현 큐 + 그물 접촉마다 큐 1개 (specs/059 FR-34, 058 FR-22 "골마다 첫 접촉"에서 확장): 종류 <see cref="NetContactDetector.CueKind"/>,
+        /// 일련번호 = 접촉 직전 골 이벤트(없으면 −1), 엔티티 = 접촉 번호(<paramref name="contacts"/> 안 위치 — 출렁임·소리가 면·세기를 찾는다).
+        /// 시뮬 시각 순(<see cref="CueDispatcher.Compare"/>). 046 그물 소리 = 첫 접촉 큐 시각.
         /// </summary>
-        public static PlaybackCue[] ToCues(ReplayClip clip, HighlightData data, float halfLength)
+        /// <param name="contacts">찾은 접촉을 받을 목록 (출렁임 입력, 059 T15). 없으면 내부 목록.</param>
+        public static PlaybackCue[] ToCues(ReplayClip clip, HighlightData data, in GoalBox box, List<NetContact> contacts = null)
         {
             var baseCues = ToCues(clip);
-            var extra = new System.Collections.Generic.List<PlaybackCue>();
-            foreach (var ev in clip.Events)
-            {
-                if (ev.Kind != SimEventKind.Goal) continue;
-                var t = NetContact.Find(data, EventTime(ev), halfLength);
-                if (!double.IsNaN(t)) extra.Add(new PlaybackCue(t, ev.Seq, NetContact.CueKind, ev.PlayerId));
-            }
-            if (extra.Count == 0) return baseCues;
-            var all = new PlaybackCue[baseCues.Length + extra.Count];
+            contacts ??= new List<NetContact>();
+            NetContactDetector.Find(data, box, NetContactSettings.Default, contacts);
+            if (contacts.Count == 0) return baseCues;
+            var all = new PlaybackCue[baseCues.Length + contacts.Count];
             Array.Copy(baseCues, all, baseCues.Length);
-            extra.CopyTo(all, baseCues.Length);
-            Array.Sort(all, (a, b) => a.Time != b.Time ? a.Time.CompareTo(b.Time) : a.Seq.CompareTo(b.Seq));
+            for (int i = 0; i < contacts.Count; i++)
+            {
+                long seq = -1;
+                foreach (var ev in clip.Events)
+                    if (ev.Kind == SimEventKind.Goal && EventTime(ev) <= contacts[i].Time && ev.Seq > seq) seq = ev.Seq;
+                all[baseCues.Length + i] = new PlaybackCue(contacts[i].Time, seq, NetContactDetector.CueKind, i);
+            }
+            CueDispatcher.Sort(all);
             return all;
         }
 
-        /// <summary>장면 구간의 표현 큐. 시각 순으로 정렬해 돌려준다.</summary>
         public static PlaybackCue[] ToCues(ReplayClip clip)
         {
             if (clip == null) throw new ArgumentNullException(nameof(clip));

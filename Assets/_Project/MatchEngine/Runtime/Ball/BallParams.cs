@@ -53,7 +53,11 @@ namespace RoadToPro.MatchEngine.Ball
         public readonly float PostRadius;
         public readonly float PostRestitution;
         public readonly float NetDepth;
-        public readonly float NetDamping;
+        public readonly float NetRestitution;
+        public readonly float NetTangentKeep;
+        public readonly float NetPocket, NetStiffness, NetEdgeBand, NetSlide;
+        /// <summary>주머니 안 서브스텝당 접선 보존율 exp(−slide·dt) (생성 시 1회).</summary>
+        public readonly float NetSlideFactor;
 
         /// <summary>골 폭 7.32 m · 높이 2.44 m (기획서 5A.1, FR-40). 규격이라 튜닝이 아니다.</summary>
         public const float GoalWidth = 7.32f;
@@ -137,7 +141,13 @@ namespace RoadToPro.MatchEngine.Ball
             PostRadius = t.Get(BallTuningIds.PostRadius);
             PostRestitution = t.Get(BallTuningIds.PostRestitution);
             NetDepth = t.Get(BallTuningIds.NetDepth);
-            NetDamping = t.Get(BallTuningIds.NetDamping);
+            NetRestitution = t.Get(BallTuningIds.NetRestitution);
+            NetTangentKeep = t.Get(BallTuningIds.NetTangentKeep);
+            NetPocket = t.Get(BallTuningIds.NetPocket);
+            NetStiffness = t.Get(BallTuningIds.NetStiffness);
+            NetEdgeBand = t.Get(BallTuningIds.NetEdgeBand);
+            NetSlide = t.Get(BallTuningIds.NetSlide);
+            NetSlideFactor = DMath.Exp(-NetSlide * Dt);
 
             // 조합 후 2차 확인 (경계 상황: a < 0, e > 1 → 로딩 시 거부)
             if (!(RollA >= 0f)) throw new TuningLoadException(BallTuningIds.RollA, "표면 보정 후 a < 0");
@@ -145,6 +155,8 @@ namespace RoadToPro.MatchEngine.Ball
             if (!(Restitution >= 0f && Restitution <= 1f)) throw new TuningLoadException(BallTuningIds.EDry, "반발계수가 [0, 1] 밖");
             if (!(PostRestitution >= 0f && PostRestitution <= 1f)) throw new TuningLoadException(BallTuningIds.PostRestitution, "포스트 반발계수가 [0, 1] 밖");
             if (!(CdHigh <= CdLow)) throw new TuningLoadException(BallTuningIds.Panel32CdHigh, "CdHigh > CdLow");
+            // 059 결정론 리뷰 3: 반암시적 스프링 감쇠항이 속도 부호를 뒤집지 않는 범위 (ω·dt ≤ 0.5)
+            if (!(NetStiffness * Dt <= 0.5f)) throw new TuningLoadException(BallTuningIds.NetStiffness, "그물 스프링 ω·dt > 0.5 (불안정)");
 
             RollTable = new BallRollTable(this);
         }

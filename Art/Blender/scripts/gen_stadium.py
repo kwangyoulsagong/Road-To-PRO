@@ -3,6 +3,7 @@
 실행: .claude/scripts/blender-gen.sh Art/Blender/scripts/gen_stadium.py <out.glb> [인자]
 인자: --out <glb>  --capacity {8000,20000,40000,60000}  --tiers 1~3  --roof none|partial|full
       --seat-colors #RRGGBB,#RRGGBB  --lights towers|roofline  --boards on|off  --seed <int>  [--no-preview]
+      [--net-cell <m>] [--net-depth <m>]  (specs/059 그물 인자 덮어쓰기 — 검증용, 기본은 Data/tuning)
 산출물(같은 폴더): <이름>.glb, <이름>.layout.json, <이름>.preview-{main,goal,top}.png
 종료 코드: 0 성공, 2 인자 오류, 3 규격·예산 검사 실패, 1 예외. 실패하면 출력 파일을 남기지 않는다.
 예산: 삼각형 ≤ 100k (관중 제외), 머티리얼 ≤ 12, 텍스처 없음 (피치 텍스처는 Unity 쪽).
@@ -40,12 +41,39 @@ def parse(argv):
     ap.add_argument("--boards", required=True)
     ap.add_argument("--seed", required=True)
     ap.add_argument("--no-preview", action="store_true")
+    ap.add_argument("--net-cell", default=None)    # specs/059 FR-56: 그물 셀 크기 덮어쓰기 (검증용)
+    ap.add_argument("--net-depth", default=None)   # specs/059 FR-56: 그물 깊이 덮어쓰기 (검증용)
     a = ap.parse_args(argv)
     p = P.StadiumParams.from_args(a.capacity, a.tiers, a.roof, a.seat_colors, a.lights, a.boards, a.seed)
+    a.net_override = net_override(a.net_cell, a.net_depth)
     return a, p
 
 
-def generate(p, stem, preview):
+def net_override(cell, depth):
+    """그물 인자 검사 (specs/059 FR-56): 셀 > 0 · 줄보다 큼, 깊이 0.5~4 m. 잘못되면 ParamError(종료 코드 2)."""
+    from stadium import layout as L
+    o = {}
+    if cell is not None:
+        try:
+            c = float(cell)
+        except ValueError:
+            raise P.ParamError(f"그물 셀 '{cell}': 숫자")
+        if not c > L.net_tuning()["strand"]:
+            raise P.ParamError(f"그물 셀 {c} m: 줄 굵기보다 커야 한다 (> 0)")
+        o["cellSize"] = c
+    if depth is not None:
+        try:
+            d = float(depth)
+        except ValueError:
+            raise P.ParamError(f"그물 깊이 '{depth}': 숫자")
+        lo, hi = L.NET_DEPTH_RANGE
+        if not lo <= d <= hi:
+            raise P.ParamError(f"그물 깊이 {d} m: {lo}~{hi}")
+        o["netDepth"] = d
+    return o
+
+
+def generate(p, stem, preview, net_override=None):
     import bpy  # noqa: F401
 
     from stadium import boards, camera_data, checks, export, geometry, goals, layout as L, lights, markings
@@ -55,8 +83,11 @@ def generate(p, stem, preview):
     geometry.reset_scene()
     mats = materials.make_all(p.seat_colors)
     tuning = L.ball_tuning()
+    net = L.net_tuning()
+    for k, v in (net_override or {}).items():
+        (tuning if k == "netDepth" else net)[k] = v
     pitch.build(mats)
-    goal_data = goals.build(mats, tuning)
+    goal_data = goals.build(mats, tuning, net)
     pl = stands.plan(p)
     seat_rows = stands.build(p, mats, pl)
     roofs = roof.build(p, mats, pl)
@@ -115,7 +146,7 @@ def generate(p, stem, preview):
     ok = spec["ok"] and all(summary["checks"]["budget"].values()) and not summary["checks"]["runoff"]["intrusions"] \
         and not summary["checks"]["visibility"]["blockedCorners"] and summary["checks"]["uv2"]["overlapRatio"] == 0.0 \
         and not summary["checks"]["uv2"]["missing"] and summary["checks"]["seats"]["maxDistance"] <= 0.05 \
-        and summary["checks"]["ao"]["ok"]
+        and summary["checks"]["ao"]["ok"] and all(g["netCheck"]["ok"] for g in goal_data)
     return ok, lay
 
 
@@ -131,7 +162,7 @@ def main(argv):
     name = os.path.splitext(os.path.basename(out))[0]
     tmp = tempfile.mkdtemp(prefix="stadium-gen-")
     try:
-        ok, lay = generate(p, os.path.join(tmp, name), not a.no_preview)
+        ok, lay = generate(p, os.path.join(tmp, name), not a.no_preview, a.net_override)
         s = lay["summary"]
         print(f"[stadium] Blender {lay['generator']['blender']} · triangles {s['triangles']['total']} · materials {s['materials']} · "
               f"objects {s['objects']} · seats {s['seatCount']} · bbox {s['bbox']}")

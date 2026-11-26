@@ -211,6 +211,74 @@ class InvalidArgs(unittest.TestCase):
         self._bad("color", seat_colors="red,#FFFFFF")
 
 
+class InvalidNetArgs(unittest.TestCase):
+    """specs/059 FR-56 · AC-11: 잘못된 그물 인자(셀 0·음수, 깊이 범위 밖) → 종료 코드 2, 메시지, 출력 없음."""
+
+    def _bad(self, tag, extra):
+        out = os.path.join(_OUT_ROOT, "invalid-net-" + tag)
+        shutil.rmtree(out, ignore_errors=True)
+        code, log, _ = run_gen(out, _cli(dict(params.PRESETS["default"])) + extra, preview=False)
+        self.assertEqual(code, 2, tag + "\n" + log[-800:])
+        self.assertIn("[stadium] 인자 오류", log, tag)
+        self.assertEqual([f for f in os.listdir(out)] if os.path.isdir(out) else [], [], f"{tag}: 출력이 남았다")
+
+    def test_bad_net_args_exit_nonzero(self):
+        self._bad("cell0", ["--net-cell", "0"])
+        self._bad("cellneg", ["--net-cell", "-0.1"])
+        self._bad("depth-low", ["--net-depth", "0.2"])
+        self._bad("depth-high", ["--net-depth", "5"])
+
+
+def net_tuning(id_):
+    with open(os.path.join(REPO, "Data", "tuning", "goalnet.json"), encoding="utf-8") as f:
+        for row in json.load(f)["definitions"]:
+            if row["id"] == id_:
+                return row["default"]
+    raise KeyError(id_)
+
+
+class TestGoalNet(unittest.TestCase):
+    """specs/059 AC-01: 그물 정지 모양·지지대·바닥선·셀·예산 (기본·최소·최대 인자), 2회 동일."""
+
+    def test_net_shape_all_sets(self):
+        r_ball = ball_tuning("ball.radius")
+        total_tris = None
+        for name in ("min", "default", "max"):
+            lay = generated(name).layout
+            tris = 0
+            for g in lay["goals"]:
+                c = g["netCheck"]
+                tag = f"{name} {g['name']}"
+                # ① 정지 그물 면이 "시뮬 공 중심 영역 + 반지름" 상자 안으로 들어오지 않음 (FR-02)
+                self.assertLessEqual(c["insideBoxMax"], 0.001, tag + ": 그물이 시뮬 그물 상자 안")
+                self.assertEqual(c["boxBallRadius"], r_ball)
+                # ② 지지대: 상자 밖, 골문 입구 안 막음 (FR-04)
+                self.assertGreater(c["supportClearance"], 0.0, tag + ": 지지대가 그물 상자 안")
+                self.assertFalse(c["supportBlocksMouth"], tag + ": 지지대가 골문 입구를 막음")
+                # ③ 바닥 고정선 0 ~ 0.03 m (FR-05)
+                self.assertGreaterEqual(c["bottomZ"][0], 0.0, tag)
+                self.assertLessEqual(c["bottomZ"][1], 0.03, tag)
+                # ④ 셀·줄 = FR-01 ±10 % (셰이더 인자)
+                self.assertAlmostEqual(c["cellSize"], 0.12, delta=0.012, msg=tag)
+                self.assertAlmostEqual(c["strand"], 0.004, delta=0.0004, msg=tag)
+                self.assertEqual(c["cellSize"], net_tuning("net.cellSize"))
+                # 프레임 틈 ≤ 2 cm (FR-06), 처짐·부풂 (FR-03)
+                self.assertLessEqual(c["frameGap"], 0.02, tag)
+                self.assertAlmostEqual(c["sagTop"], net_tuning("net.sagTop"), delta=0.005, msg=tag)
+                self.assertAlmostEqual(c["bulgeBack"], net_tuning("net.bulgeBack"), delta=0.005, msg=tag)
+                # 런타임이 같은 격자를 다시 만들 인자 (059 NetRestShape)
+                grid = g["netGrid"]
+                self.assertEqual(grid["cell"], net_tuning("net.gridCell"))
+                self.assertEqual(len(grid["faces"]), 4)
+                tris += c["triangles"]
+            # 골망 + 지지대 삼각형 ≤ 6천 (골대 2개, 성능 예산 표)
+            self.assertLessEqual(tris, 6000, f"{name}: 골망 삼각형 {tris}")
+            if total_tris is None:
+                total_tris = tris
+        b = generated("default#2").layout
+        self.assertEqual(json.dumps(generated("default").layout["goals"], sort_keys=True), json.dumps(b["goals"], sort_keys=True))
+
+
 class Visibility_And_Runoff_AllSets(unittest.TestCase):
     """AC-07: 메인 카메라 거치 위치에서 피치 네 모서리 가시, 런오프 침범 0."""
 

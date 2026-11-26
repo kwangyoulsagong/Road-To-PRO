@@ -98,9 +98,23 @@ namespace RoadToPro.Presentation.Players.Logic
             if (ev.Part == BodyPart.Hand && IsHandReceive(ev.Kind))
             {
                 // GK가 손으로 받기(느슨한 공·가로채기·크로스 클레임): 공 높이로 땅볼 · 가슴 · 머리 위/클레임 (080 T13 — 일반 받기 후보엔 손 클립이 없다)
-                var kind = HasSmotherAt(events, ev) && ev.BallPos.Y < BandLowMax ? KeeperMotionKind.Smother // 같은 순간 땅볼 스마더(073)면 그 동작으로 (이벤트 하나로 합침)
+                bool smother = HasSmotherAt(events, ev) && ev.BallPos.Y < BandLowMax;
+                var kind = smother ? KeeperMotionKind.Smother // 같은 순간 땅볼 스마더(073)면 그 동작으로 (이벤트 하나로 합침)
                     : ev.BallPos.Y < BandLowMax ? KeeperMotionKind.CatchGround : ev.BallPos.Y < BandMidMax ? KeeperMotionKind.CatchChest : KeeperMotionKind.ClaimJump;
                 var rc = map.KeeperCandidates(kind, DiveHeight.Mid);
+                if (smother)
+                {
+                    // 059 T20a: 스마더 클립은 옆으로 몸을 던져 접촉점이 옆 0.37·앞 0.66 m — 공이 발 근처·정면이면 손이 30 cm 넘게 빗나간다.
+                    // 땅볼 잡기 후보도 함께 넘겨 접촉 위치로 가장 맞는 클립을 고르게 한다(ActionClipSelector)
+                    var ground = map.KeeperCandidates(KeeperMotionKind.CatchGround, DiveHeight.Mid);
+                    if (ground.Count > 0)
+                    {
+                        var merged = new List<int>(rc.Count + ground.Count);
+                        for (int i = 0; i < rc.Count; i++) merged.Add(rc[i]);
+                        for (int i = 0; i < ground.Count; i++) if (!merged.Contains(ground[i])) merged.Add(ground[i]);
+                        return merged;
+                    }
+                }
                 return rc.Count > 0 ? rc : fallback;
             }
             var info = Decode(ev);

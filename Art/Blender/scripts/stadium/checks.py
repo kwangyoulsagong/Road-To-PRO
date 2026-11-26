@@ -9,7 +9,7 @@ from . import geometry, markings, uv2
 from . import layout as L
 
 TOL = 0.005
-RUNOFF_EXEMPT_PREFIX = ("Pitch", "Ground", "GoalFrame_", "Net_", "CornerFlags")
+RUNOFF_EXEMPT_PREFIX = ("Pitch", "Ground", "GoalFrame_", "GoalSupport_", "Net_", "CornerFlags")
 
 
 def mesh_objects():

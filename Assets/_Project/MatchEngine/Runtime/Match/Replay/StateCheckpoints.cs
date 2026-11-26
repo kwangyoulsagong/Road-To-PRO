@@ -21,7 +21,7 @@ namespace RoadToPro.MatchEngine.Match.Replay
     public sealed class MatchSnapshot
     {
         /// <summary>2: specs/058 데드볼 진행기·진행 중 정지 시간 추가. 3: specs/011 GK 섹션·운동학 외부 구동.</summary>
-        public const byte FormatVersion = 7; // 7: 074 GK PK 전략·손 보유 시계·예약 킥 배급 방식, 4: 008 액션 섹션 · 운동 감속 상한, 5: 071 슛 비행·공중볼·예약 킥 슛/크로스 필드, 6: 073 GK 비행 번호·골문 이탈 계획
+        public const byte FormatVersion = 8; // 8: 059 공 NetSide(그물 주머니), 7: 074 GK PK 전략·손 보유 시계·예약 킥 배급 방식, 4: 008 액션 섹션 · 운동 감속 상한, 5: 071 슛 비행·공중볼·예약 킥 슛/크로스 필드, 6: 073 GK 비행 번호·골문 이탈 계획
 
         public readonly long Tick;
         public readonly long Seq;

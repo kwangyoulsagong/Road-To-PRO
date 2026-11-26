@@ -43,6 +43,13 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
         public readonly List<CameraPost> Posts = new List<CameraPost>();
         /// <summary>크로스바·그물처럼 시야를 막는 골대 구조물.</summary>
         public readonly List<CameraBox> GoalBlockers = new List<CameraBox>();
+        /// <summary>
+        /// 그물 상자 (specs/059 그물 접촉 검출): 골문 반폭·높이·그물 깊이·공 반지름. 깊이는 044 layout 그물 상자에서,
+        /// 공 반지름은 `ball.radius` 기본값(0.109 m) — 검출 여유(`net.contactMargin`)가 차이를 흡수한다. 주머니는 `ball.net.pocket` 기본값(1.0 m).
+        /// </summary>
+        public float HalfMouth = 3.66f, GoalHeight = 2.44f, NetDepth = 2f, BallRadius = 0.109f, NetPocket = 1.0f;
+
+        public Highlight.Logic.GoalBox NetBox => new Highlight.Logic.GoalBox(HalfLength, HalfMouth, GoalHeight, NetDepth, BallRadius, NetPocket);
 
         /// <summary>경기장 데이터가 없을 때 쓰는 기본 경기장. 골대만 채운다.</summary>
         public static CameraRigData Default()
@@ -81,6 +88,7 @@ namespace RoadToPro.Presentation.Highlight.Broadcast.Logic
                     new Vec3(g.PostA.x - g.PostRadius, g.CrossbarCenterY - g.PostRadius, minZ),
                     new Vec3(g.PostA.x + g.PostRadius, g.CrossbarCenterY + g.PostRadius, maxZ)));
                 rig.GoalBlockers.Add(new CameraBox(ToVec(g.Net.min), ToVec(g.Net.max)));
+                rig.NetDepth = MathF.Abs(g.Net.max.x - g.Net.min.x);
             }
             return rig;
         }
