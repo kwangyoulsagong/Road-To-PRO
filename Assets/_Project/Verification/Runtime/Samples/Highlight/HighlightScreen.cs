@@ -734,11 +734,14 @@ namespace RoadToPro.Verification.Samples.Highlight
                 stageHolder.Resolve(player);
                 return AnimPlan.Build(stageHolder.Stage.Library, stageHolder.Stage.Map, d, new UnityLogger(RoadToPro.Core.Logging.LogLevel.Warning), null, stageHolder.Stage.Scales);
             }
-            var builder = new SceneClipBuilder(scenes, extract, BuildPlan, PitchSpec.Default, new StandInDiagnostics(), onBuilt);
-            _moments = new StandInKeyMoments();
             var ball = BallParams.Create(_tuning.Ball, SurfaceCondition.Dry, PitchSpec.Default);
-            var goal = new GoalBox(PitchSpec.Default, BallParams.GoalWidth, BallParams.GoalHeight, ball.NetDepth, ball.Radius);
-            var ports = new HighlightPlayer.Ports { KeyMoments = _moments, Hud = _hud, Camera = camera, Frames = _frames, Audio = _audio };
+            var goal = new GoalBox(PitchSpec.Default, BallParams.GoalWidth, BallParams.GoalHeight, ball.NetDepth, ball.Radius, ball.NetPocket);
+            var netBundle = RoadToPro.Core.Tuning.TuningBundle.Defaults(RoadToPro.Core.Tuning.TuningLoader.LoadDefinitionsFile(Path.Combine(DataDir, "tuning", "goalnet.json")));
+            var netTuning = RoadToPro.Presentation.Stadium.Net.NetRippleTuning.Create(netBundle.Get, _tuning.Ball.Get, new UnityLogger(RoadToPro.Core.Logging.LogLevel.Warning));
+            var builder = new SceneClipBuilder(scenes, extract, BuildPlan, PitchSpec.Default, new StandInDiagnostics(), onBuilt, goal,
+                new RoadToPro.Presentation.Stadium.Net.NetSceneBaker(netTuning, goal));
+            _moments = new StandInKeyMoments();
+            var ports = new HighlightPlayer.Ports { KeyMoments = _moments, Hud = _hud, Camera = camera, Frames = _frames, Audio = _audio, NetTuning = netTuning };
             _groups = null;
             _loadStart = Time.realtimeSinceStartupAsDouble;
             player.Begin(scenes, builder, new HighlightAssets(StageScene), cam, goal, _settings, TimelineGap(), ports);

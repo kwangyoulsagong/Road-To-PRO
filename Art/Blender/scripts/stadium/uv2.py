@@ -1,6 +1,7 @@
 """라이트맵 UV (specs/044 FR-23, AC-08). 면마다 자기 평면에 투영한 사각형을 선반(shelf) 방식으로 겹침 없이 배치한다.
 
 UV0도 같은 값으로 채운다(텍스처를 쓰지 않으므로 UV0는 자리만). 결정론: 면 순서·정렬 키 고정.
+예외: 그물(Net_, specs/059)은 UV0에 면 위 m 좌표(셰이더 육각 망)가 있어 UV2만 채운다.
 """
 import math
 
@@ -57,13 +58,15 @@ def assign(obj):
     while len(me.uv_layers) < 2:
         me.uv_layers.new(name="UVMap" if len(me.uv_layers) == 0 else "Lightmap")
     uv0, uv1 = me.uv_layers[0], me.uv_layers[1]
+    keep_uv0 = obj.name.startswith("Net_")
     for poly in me.polygons:
         ox, oy, local = placed[poly.index]
         for k, li in enumerate(poly.loop_indices):
             u = (ox + local[k][0]) / side
             v = (oy + local[k][1]) / side
             uv1.data[li].uv = (u, v)
-            uv0.data[li].uv = (u, v)
+            if not keep_uv0:
+                uv0.data[li].uv = (u, v)
     return side
 
 

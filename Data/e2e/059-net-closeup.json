@@ -1,0 +1,745 @@
+{
+  "schemaVersion": 1,
+  "id": "059-net-closeup",
+  "spec": "059",
+  "description": "059 정지 그물 보임·화질 (AC-07, FR-10~15): 왼쪽 골, 메인 중계 FOV 30·15·8°, 골대 뒤 하이앵글, 피치 레벨 3·6 m × 그물 켬/끔/균일 판(평균 덮임만) × 낮·나이트. 메인: 있음−없음 밝기 차 ≥ 6/255·망 잔차 표준편차 ≥ 판 1.5배, 가까운 시점(그물만 검은 배경 matte): 구멍 ≥ 40 %·줄 최대 연결 성분 ≥ 90 %(끊긴 줄 0), 나이트 포화 ≤ 5 %, 모아레(긴 주기/칸 주파수 에너지) ≤ 0.3, 정지 프레임 변화 ≤ 1/255, 거리 단계 전환 앞뒤 ≤ 3/255, 느린 팬 깜빡임 ≤ 균일 판 기준선 1.10배. 기준값은 첫 캡처 뒤 조정 가능(스펙 FR-10). 프로필 mac-m1-1600p 1개(2026-11-11 결정).",
+  "scene": "Stadium044",
+  "fixture": {
+    "save": null,
+    "seed": 20261126
+  },
+  "profiles": [
+    "mac-m1-1600p"
+  ],
+  "acs": [
+    "AC-07"
+  ],
+  "defaults": {
+    "timeoutSec": 30
+  },
+  "steps": [
+    {
+      "type": "goto",
+      "screen": "net.view.high.matte.day"
+    },
+    {
+      "type": "capture",
+      "name": "high-matte-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch3.matte.day"
+    },
+    {
+      "type": "capture",
+      "name": "pitch3-matte-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch6.matte.day"
+    },
+    {
+      "type": "capture",
+      "name": "pitch6-matte-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.high.matte.night"
+    },
+    {
+      "type": "capture",
+      "name": "high-matte-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch3.matte.night"
+    },
+    {
+      "type": "capture",
+      "name": "pitch3-matte-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch6.matte.night"
+    },
+    {
+      "type": "capture",
+      "name": "pitch6-matte-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main30.on.day"
+    },
+    {
+      "type": "capture",
+      "name": "main30-on-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main30.off.day"
+    },
+    {
+      "type": "capture",
+      "name": "main30-off-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main30.plate.day"
+    },
+    {
+      "type": "capture",
+      "name": "main30-plate-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main15.on.day"
+    },
+    {
+      "type": "capture",
+      "name": "main15-on-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main15.off.day"
+    },
+    {
+      "type": "capture",
+      "name": "main15-off-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main15.plate.day"
+    },
+    {
+      "type": "capture",
+      "name": "main15-plate-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main8.on.day"
+    },
+    {
+      "type": "capture",
+      "name": "main8-on-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main8.off.day"
+    },
+    {
+      "type": "capture",
+      "name": "main8-off-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main8.plate.day"
+    },
+    {
+      "type": "capture",
+      "name": "main8-plate-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.high.on.day"
+    },
+    {
+      "type": "capture",
+      "name": "high-on-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.high.off.day"
+    },
+    {
+      "type": "capture",
+      "name": "high-off-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.high.plate.day"
+    },
+    {
+      "type": "capture",
+      "name": "high-plate-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch3.on.day"
+    },
+    {
+      "type": "capture",
+      "name": "pitch3-on-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch3.off.day"
+    },
+    {
+      "type": "capture",
+      "name": "pitch3-off-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch3.plate.day"
+    },
+    {
+      "type": "capture",
+      "name": "pitch3-plate-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch6.on.day"
+    },
+    {
+      "type": "capture",
+      "name": "pitch6-on-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch6.off.day"
+    },
+    {
+      "type": "capture",
+      "name": "pitch6-off-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch6.plate.day"
+    },
+    {
+      "type": "capture",
+      "name": "pitch6-plate-day",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main30.on.night"
+    },
+    {
+      "type": "capture",
+      "name": "main30-on-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main30.off.night"
+    },
+    {
+      "type": "capture",
+      "name": "main30-off-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main30.plate.night"
+    },
+    {
+      "type": "capture",
+      "name": "main30-plate-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main15.on.night"
+    },
+    {
+      "type": "capture",
+      "name": "main15-on-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main15.off.night"
+    },
+    {
+      "type": "capture",
+      "name": "main15-off-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main15.plate.night"
+    },
+    {
+      "type": "capture",
+      "name": "main15-plate-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main8.on.night"
+    },
+    {
+      "type": "capture",
+      "name": "main8-on-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main8.off.night"
+    },
+    {
+      "type": "capture",
+      "name": "main8-off-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main8.plate.night"
+    },
+    {
+      "type": "capture",
+      "name": "main8-plate-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.high.on.night"
+    },
+    {
+      "type": "capture",
+      "name": "high-on-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.high.off.night"
+    },
+    {
+      "type": "capture",
+      "name": "high-off-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.high.plate.night"
+    },
+    {
+      "type": "capture",
+      "name": "high-plate-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch3.on.night"
+    },
+    {
+      "type": "capture",
+      "name": "pitch3-on-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch3.off.night"
+    },
+    {
+      "type": "capture",
+      "name": "pitch3-off-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch3.plate.night"
+    },
+    {
+      "type": "capture",
+      "name": "pitch3-plate-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch6.on.night"
+    },
+    {
+      "type": "capture",
+      "name": "pitch6-on-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch6.off.night"
+    },
+    {
+      "type": "capture",
+      "name": "pitch6-off-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.pitch6.plate.night"
+    },
+    {
+      "type": "capture",
+      "name": "pitch6-plate-night",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.view.main15.on.day"
+    },
+    {
+      "type": "capture",
+      "name": "static-a",
+      "kind": "3d"
+    },
+    {
+      "type": "capture",
+      "name": "static-b",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.lod.a"
+    },
+    {
+      "type": "capture",
+      "name": "lod-a",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.lod.b"
+    },
+    {
+      "type": "capture",
+      "name": "lod-b",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.0.on"
+    },
+    {
+      "type": "capture",
+      "name": "pan0-on",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.1.on"
+    },
+    {
+      "type": "capture",
+      "name": "pan1-on",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.2.on"
+    },
+    {
+      "type": "capture",
+      "name": "pan2-on",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.3.on"
+    },
+    {
+      "type": "capture",
+      "name": "pan3-on",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.4.on"
+    },
+    {
+      "type": "capture",
+      "name": "pan4-on",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.5.on"
+    },
+    {
+      "type": "capture",
+      "name": "pan5-on",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.0.plate"
+    },
+    {
+      "type": "capture",
+      "name": "pan0-plate",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.1.plate"
+    },
+    {
+      "type": "capture",
+      "name": "pan1-plate",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.2.plate"
+    },
+    {
+      "type": "capture",
+      "name": "pan2-plate",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.3.plate"
+    },
+    {
+      "type": "capture",
+      "name": "pan3-plate",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.4.plate"
+    },
+    {
+      "type": "capture",
+      "name": "pan4-plate",
+      "kind": "3d"
+    },
+    {
+      "type": "goto",
+      "screen": "net.pan.5.plate"
+    },
+    {
+      "type": "capture",
+      "name": "pan5-plate",
+      "kind": "3d"
+    }
+  ],
+  "imageChecks": [
+    {
+      "type": "netVisible",
+      "capture": "main30-on-day",
+      "other": "main30-off-day",
+      "plate": "main30-plate-day",
+      "minMean": 6,
+      "minStdRatio": 1.5,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netVisible",
+      "capture": "main15-on-day",
+      "other": "main15-off-day",
+      "plate": "main15-plate-day",
+      "minMean": 6,
+      "minStdRatio": 1.5,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netVisible",
+      "capture": "main8-on-day",
+      "other": "main8-off-day",
+      "plate": "main8-plate-day",
+      "minMean": 6,
+      "minStdRatio": 1.5,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netHoles",
+      "capture": "high-matte-day",
+      "minHole": 0.4,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netHoles",
+      "capture": "pitch3-matte-day",
+      "minHole": 0.4,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netHoles",
+      "capture": "pitch6-matte-day",
+      "minHole": 0.4,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netVisible",
+      "capture": "main30-on-night",
+      "other": "main30-off-night",
+      "plate": "main30-plate-night",
+      "minMean": 6,
+      "minStdRatio": 1.5,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netVisible",
+      "capture": "main15-on-night",
+      "other": "main15-off-night",
+      "plate": "main15-plate-night",
+      "minMean": 6,
+      "minStdRatio": 1.5,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netVisible",
+      "capture": "main8-on-night",
+      "other": "main8-off-night",
+      "plate": "main8-plate-night",
+      "minMean": 6,
+      "minStdRatio": 1.5,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netHoles",
+      "capture": "high-matte-night",
+      "minHole": 0.4,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netHoles",
+      "capture": "pitch3-matte-night",
+      "minHole": 0.4,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netHoles",
+      "capture": "pitch6-matte-night",
+      "minHole": 0.4,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netSaturation",
+      "capture": "main30-on-night",
+      "maxRatio": 0.05,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netMoire",
+      "capture": "main30-on-day",
+      "other": "main30-plate-day",
+      "maxRatio": 0.3,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netSaturation",
+      "capture": "main15-on-night",
+      "maxRatio": 0.05,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netMoire",
+      "capture": "main15-on-day",
+      "other": "main15-plate-day",
+      "maxRatio": 0.3,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netSaturation",
+      "capture": "main8-on-night",
+      "maxRatio": 0.05,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netMoire",
+      "capture": "main8-on-day",
+      "other": "main8-plate-day",
+      "maxRatio": 0.3,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netSaturation",
+      "capture": "high-on-night",
+      "maxRatio": 0.05,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netMoire",
+      "capture": "high-on-day",
+      "other": "high-plate-day",
+      "maxRatio": 0.3,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netSaturation",
+      "capture": "pitch3-on-night",
+      "maxRatio": 0.05,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netMoire",
+      "capture": "pitch3-on-day",
+      "other": "pitch3-plate-day",
+      "maxRatio": 0.3,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netSaturation",
+      "capture": "pitch6-on-night",
+      "maxRatio": 0.05,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netMoire",
+      "capture": "pitch6-on-day",
+      "other": "pitch6-plate-day",
+      "maxRatio": 0.3,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netStatic",
+      "capture": "static-a",
+      "other": "static-b",
+      "maxMean": 1.0,
+      "ac": "AC-07"
+    },
+    {
+      "type": "netLodStep",
+      "capture": "lod-a",
+      "other": "lod-b",
+      "maxMean": 3.0,
+      "ac": "AC-07"
+    },
+    {
+      "type": "panFlicker",
+      "capture": "pan0-on",
+      "others": [
+        "pan1-on",
+        "pan2-on",
+        "pan3-on",
+        "pan4-on",
+        "pan5-on"
+      ],
+      "refs": [
+        "pan0-plate",
+        "pan1-plate",
+        "pan2-plate",
+        "pan3-plate",
+        "pan4-plate",
+        "pan5-plate"
+      ],
+      "maxRatio": 1.1,
+      "ac": "AC-07"
+    }
+  ]
+}

@@ -13,9 +13,16 @@ namespace RoadToPro.Presentation.Highlight.Logic
         public readonly HighlightData Data;
         public readonly AnimPlan Plan;
         public readonly PlaybackCue[] Cues;
+        /// <summary>장면 그물 접촉 (specs/059 FR-34, 시각 순) — 그물 출렁임 입력. 없으면 빈 목록.</summary>
+        public readonly List<NetContact> NetContacts;
+        /// <summary>[골대 번호] 장면을 만들 때 구운 그물 움직임 (specs/059 FR-27). 접촉 없는 골대·굽기 없음은 null.</summary>
+        public readonly Stadium.Net.NetBake[] NetBakes;
 
-        public BuiltScene(HighlightScene scene, HighlightData data, AnimPlan plan, PlaybackCue[] cues)
+        public BuiltScene(HighlightScene scene, HighlightData data, AnimPlan plan, PlaybackCue[] cues, List<NetContact> netContacts = null,
+            Stadium.Net.NetBake[] netBakes = null)
         {
+            NetBakes = netBakes ?? new Stadium.Net.NetBake[2];
+            NetContacts = netContacts ?? new List<NetContact>();
             Scene = scene;
             Data = data;
             Plan = plan;
@@ -36,11 +43,18 @@ namespace RoadToPro.Presentation.Highlight.Logic
         readonly HighlightScene[] _scenes;
         readonly List<BuiltScene> _built;
         readonly Action<BuiltScene> _onBuilt;
+        readonly GoalBox _netBox;
+        readonly Stadium.Net.NetSceneBaker _netBaker;
         int _next;
 
+        /// <param name="netBox">그물 접촉 검출용 그물 상자 (059). 없으면 피치 규격 + 기본 그물 깊이·공 반지름.</param>
+        /// <param name="netBaker">그물 굽기 (059 FR-27). 없으면 그물은 정지 모양.</param>
         public SceneClipBuilder(HighlightScene[] scenes, Func<long, long, ReplayClip> extract, Func<HighlightData, AnimPlan> plan,
-            PitchSpec pitch, IHighlightDiagnostics diagnostics, Action<BuiltScene> onBuilt = null)
+            PitchSpec pitch, IHighlightDiagnostics diagnostics, Action<BuiltScene> onBuilt = null, GoalBox? netBox = null,
+            Stadium.Net.NetSceneBaker netBaker = null)
         {
+            _netBaker = netBaker;
+            _netBox = netBox ?? GoalBox.Default(pitch);
             _scenes = scenes ?? throw new ArgumentNullException(nameof(scenes));
             _extract = extract ?? throw new ArgumentNullException(nameof(extract));
             _plan = plan ?? throw new ArgumentNullException(nameof(plan));
@@ -64,7 +78,9 @@ namespace RoadToPro.Presentation.Highlight.Logic
             {
                 var clip = _extract(TickFloor(scene.Start), TickCeil(scene.End));
                 var data = ClipConverter.ToHighlight(clip, _pitch);
-                built = new BuiltScene(scene, data, _plan(data), ClipConverter.ToCues(clip, data, _pitch.LengthM * 0.5f));
+                var contacts = new List<NetContact>();
+                var cues = ClipConverter.ToCues(clip, data, _netBox, contacts);
+                built = new BuiltScene(scene, data, _plan(data), cues, contacts, _netBaker?.Bake(data, contacts));
                 _built.Add(built);
             }
             catch (ArgumentException)

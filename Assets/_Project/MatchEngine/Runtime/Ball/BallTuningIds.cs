@@ -47,6 +47,17 @@ namespace RoadToPro.MatchEngine.Ball
         public const string PostRadius = "ball.goal.postRadius";
         public const string PostRestitution = "ball.goal.postRestitution";
         public const string NetDepth = "ball.net.depth";
-        public const string NetDamping = "ball.net.damping";
+        /// <summary>그물 면 접촉 반발 (면 수직 속도 → −e·v⊥, specs/059 FR-41).</summary>
+        public const string NetRestitution = "ball.net.restitution";
+        /// <summary>그물 면 접촉 1회당 접선 속도·스핀 보존율 (specs/059 FR-41).</summary>
+        public const string NetTangentKeep = "ball.net.tangentKeep";
+        /// <summary>골 안 공이 그물을 밀고 들어가는 최대 깊이 (면 밖, specs/059 FR-41 ⑥).</summary>
+        public const string NetPocket = "ball.net.pocket";
+        /// <summary>그물 주머니 임계 감쇠 스프링 각진동수 ω (1/s).</summary>
+        public const string NetStiffness = "ball.net.stiffness";
+        /// <summary>면 테두리에서 주머니 깊이가 0 → 최대로 늘어나는 폭 (m). 059 표현 고정 가중치도 같은 값을 쓴다.</summary>
+        public const string NetEdgeBand = "ball.net.edgeBand";
+        /// <summary>주머니 안 접선 속도·스핀 감쇠율 (1/s).</summary>
+        public const string NetSlide = "ball.net.slide";
     }
 }

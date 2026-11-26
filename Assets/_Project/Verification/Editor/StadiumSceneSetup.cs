@@ -18,6 +18,7 @@ namespace RoadToPro.Verification.Editor
     {
         public const string ScenePath = "Assets/_Project/Verification/Samples/Stadium044.unity";
         const string StandInMatPath = "Assets/_Project/Verification/Samples/StandIn.mat";
+        const string NetBallMatPath = "Assets/_Project/Verification/Samples/NetBall.mat";
         const string GlbPath = StadiumImportSettings.GeneratedDir + "/default/stadium.glb";
         const string LayoutPath = StadiumImportSettings.GeneratedDir + "/default/stadium.layout.json";
         static readonly Vector3 PlayerSpot = new Vector3(-20f, 0f, 12f);
@@ -82,6 +83,25 @@ namespace RoadToPro.Verification.Editor
                 AssetDatabase.LoadAssetAtPath<StadiumLightingPreset>(StadiumAssets.DayPath),
                 AssetDatabase.LoadAssetAtPath<StadiumLightingPreset>(StadiumAssets.NightPath),
                 binder, new[] { pitch }, structure.ToArray(), player.transform, blob, views);
+
+            // specs/059 골망 검증 화면 (정지 그물·출렁임 합성 골·성능) — 공은 흰 구
+            var ballMat = AssetDatabase.LoadAssetAtPath<Material>(NetBallMatPath);
+            if (ballMat == null)
+            {
+                ballMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                AssetDatabase.CreateAsset(ballMat, NetBallMatPath);
+            }
+            ballMat.SetColor("_BaseColor", new Color(0.92f, 0.92f, 0.92f));
+            var netBall = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            netBall.name = "NetBall";
+            Object.DestroyImmediate(netBall.GetComponent<Collider>());
+            netBall.GetComponent<Renderer>().sharedMaterial = ballMat;
+            netBall.SetActive(false);
+            var netScreen = new GameObject("GoalNetScreen").AddComponent<GoalNetScreen>();
+            netScreen.Configure(cam, lighting,
+                AssetDatabase.LoadAssetAtPath<StadiumLightingPreset>(StadiumAssets.DayPath),
+                AssetDatabase.LoadAssetAtPath<StadiumLightingPreset>(StadiumAssets.NightPath),
+                netBall.transform);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
             AssetDatabase.SaveAssets();

@@ -1,0 +1,176 @@
+{
+  "version": 1,
+  "definitions": [
+    {
+      "id": "net.cellSize",
+      "default": 0.12,
+      "min": 0.05,
+      "max": 0.2,
+      "unit": "m",
+      "tag": "[제안]",
+      "source": "specs/059 FR-01 (Q3 2026-11-11 사용자 결정): 육각 셀 마주 보는 줄 사이 — 공 지름 0.218 m보다 작게"
+    },
+    {
+      "id": "net.strand",
+      "default": 0.004,
+      "min": 0.001,
+      "max": 0.01,
+      "unit": "m",
+      "tag": "[제안]",
+      "source": "specs/059 FR-01 (Q3): 줄 굵기"
+    },
+    {
+      "id": "net.sagTop",
+      "default": 0.08,
+      "min": 0,
+      "max": 0.2,
+      "unit": "m",
+      "tag": "[제안]",
+      "source": "specs/059 FR-03: 위 그물 지지점 사이 최대 처짐"
+    },
+    {
+      "id": "net.bulgeBack",
+      "default": 0.1,
+      "min": 0,
+      "max": 0.3,
+      "unit": "m",
+      "tag": "[제안]",
+      "source": "specs/059 FR-03: 뒤 그물 아래쪽 바깥 부풂"
+    },
+    {
+      "id": "net.gridCell",
+      "default": 0.2,
+      "min": 0.1,
+      "max": 1,
+      "unit": "m",
+      "tag": "[설계]",
+      "source": "specs/059 plan(T11 개정): 변형 격자 칸 목표 크기 — 면마다 칸 수 = ceil(면 길이 / 이 값). research 06 § 4.4 예시 30×15는 4면 모두 쓰면 골대당 3,600 삼각형이라 예산(골대 2개 6천) 초과 · ㄱㄱ 개정(2026-11-26): 0.25 → 0.2 m — 그물 시뮬 노드 간격(골대당 약 1,200 노드), 공 구(ballReach 0.18)가 칸 사이로 비치지 않게"
+    },
+    {
+      "id": "net.contactMargin",
+      "default": 0.02,
+      "min": 0,
+      "max": 0.2,
+      "unit": "m",
+      "tag": "[제안]",
+      "source": "specs/059 plan 버그 방지: 접촉 판정 = 공 중심이 면에서 반지름 + 이 값 안"
+    },
+    {
+      "id": "net.contactMinSpeed",
+      "default": 0.5,
+      "min": 0,
+      "max": 5,
+      "unit": "m/s",
+      "tag": "[제안]",
+      "source": "specs/059 plan 버그 방지: 면을 향한 수직 속도가 이 값 넘을 때만 접촉 (FR-51·55)"
+    },
+    {
+      "id": "net.fadePixels",
+      "default": 2,
+      "min": 1,
+      "max": 16,
+      "unit": "px",
+      "tag": "[제안]",
+      "source": "specs/059 plan: 셀이 화면에서 이 크기보다 작으면 평균 덮임으로 페이드 (FR-12~14). T18: 3 → 2 px — 메인 FOV 30(칸 3.6 px)에서 망 대비 FR-10 1.5배 미달(1.24~1.38)"
+    },
+    {
+      "id": "net.maxDisp",
+      "default": 1.1,
+      "min": 0.1,
+      "max": 2,
+      "unit": "m",
+      "tag": "[제안]",
+      "source": "specs/059 FR-21: 최대 변위 상한 (2026-11-26 사용자 \"피파 처럼 많이 출렁여야지\")"
+    },
+    {
+      "id": "net.slackBack",
+      "default": 1.15,
+      "min": 1,
+      "max": 1.5,
+      "unit": "x",
+      "tag": "[제안]",
+      "source": "specs/059 FR-20~29 개정(2026-11-26 사용자 \"ㄱㄱ\", docs/goal-net-research.html 권장안): 뒤 그물 줄 기준 길이 = 기하 간격 × 처짐 (리서치 1.08~1.15) · 그물 전체 출렁임 탐색(B2, 2026-11-26 사용자 \"골망이 저렇게 다른데도 출렁여야지 크게\"): 1.12 → 1.15"
+    },
+    {
+      "id": "net.slackSide",
+      "default": 1.1,
+      "min": 1,
+      "max": 1.5,
+      "unit": "x",
+      "tag": "[제안]",
+      "source": "specs/059 FR-20~29 개정(2026-11-26 사용자 \"ㄱㄱ\", docs/goal-net-research.html 권장안): 옆·위 그물 처짐 (리서치 1.04~1.08) · 그물 전체 출렁임 탐색(B2, 2026-11-26 사용자 \"골망이 저렇게 다른데도 출렁여야지 크게\"): 1.05 → 1.10"
+    },
+    {
+      "id": "net.lra",
+      "default": 1.3,
+      "min": 1,
+      "max": 2,
+      "unit": "x",
+      "tag": "[제안]",
+      "source": "specs/059 FR-20~29 개정(2026-11-26 사용자 \"ㄱㄱ\", docs/goal-net-research.html 권장안): 가장 가까운 고정점까지 최대 거리 / 정지 거리 (LRA, 리서치 1.10~1.20) · 그물 전체 출렁임 탐색(B2, 2026-11-26 사용자 \"골망이 저렇게 다른데도 출렁여야지 크게\"): 1.15 → 1.3"
+    },
+    {
+      "id": "net.ballReach",
+      "default": 0.18,
+      "min": 0.11,
+      "max": 0.5,
+      "unit": "m",
+      "tag": "[제안]",
+      "source": "specs/059 FR-20~29 개정(2026-11-26 사용자 \"ㄱㄱ\", docs/goal-net-research.html 권장안): 공이 그물 노드를 미는 구 반지름 — 칸 0.2 m 사이로 공(0.109 m)이 비치지 않는 최소(사각형 칸 평면 거리 0.111 m)"
+    },
+    {
+      "id": "net.damping",
+      "default": 1.5,
+      "min": 0,
+      "max": 20,
+      "unit": "1/s",
+      "tag": "[제안]",
+      "source": "specs/059 FR-20~29 개정(2026-11-26 사용자 \"ㄱㄱ\", docs/goal-net-research.html 권장안): 속도 감쇠 (리서치 1~2) · 1.5 → 2.0 (T18d: 접촉 + 3 s 1 cm 미만) · 2.0 → 3.0 (모서리를 풀어 더 오래 출렁임 — 접촉 + 3 s 1 cm 미만) · 그물 전체 출렁임 탐색(B2, 2026-11-26 사용자 \"골망이 저렇게 다른데도 출렁여야지 크게\"): 3 → 1.5"
+    },
+    {
+      "id": "net.hangBias",
+      "default": 0.5,
+      "min": 0,
+      "max": 10,
+      "unit": "m/s2",
+      "tag": "[제안]",
+      "source": "specs/059 FR-20~29 개정(2026-11-26 사용자 \"ㄱㄱ\", docs/goal-net-research.html 권장안): 지지대가 그물을 바깥으로 거는 힘(면 바깥 법선 가속) — 처진 그물이 골 안쪽으로 늘어지지 않게 · 2 → 0.5: 2면 정지 그물이 뒤로 0.38 m 늘어져 시뮬 공(주머니 0.8 m)이 그물을 덜 민다"
+    },
+    {
+      "id": "net.iterations",
+      "default": 4,
+      "min": 1,
+      "max": 10,
+      "unit": "count",
+      "tag": "[제안]",
+      "source": "specs/059 FR-20~29 개정(2026-11-26 사용자 \"ㄱㄱ\", docs/goal-net-research.html 권장안): 240 Hz 스텝당 반복 (리서치: 서브스텝 많고 반복 적게 — 반복이 많으면 뻣뻣함) · 그물 전체 출렁임 탐색(B2, 2026-11-26 사용자 \"골망이 저렇게 다른데도 출렁여야지 크게\"): 2 → 4 (장력이 그물 전체로 빨리 퍼짐)"
+    },
+    {
+      "id": "net.bakeSeconds",
+      "default": 5,
+      "min": 1,
+      "max": 10,
+      "unit": "s",
+      "tag": "[제안]",
+      "source": "specs/059 FR-20~29 개정(2026-11-26 사용자 \"ㄱㄱ\", docs/goal-net-research.html 권장안): 첫 접촉 − 0.1 s부터 굽는 최대 길이 (정지 3 s + 여유) · 그물 전체 출렁임 탐색(B2, 2026-11-26 사용자 \"골망이 저렇게 다른데도 출렁여야지 크게\"): 4 → 5 (출렁임이 길어짐)"
+    },
+    {
+      "id": "net.settleSeconds",
+      "default": 3,
+      "min": 0,
+      "max": 10,
+      "unit": "s",
+      "tag": "[제안]",
+      "source": "specs/059 FR-20~29 개정(2026-11-26 사용자 \"ㄱㄱ\", docs/goal-net-research.html 권장안): 정지 모양을 만들 때 중력으로 늘어뜨리는 시간 (로딩 1회)"
+    },
+    {
+      "id": "net.restPull",
+      "default": 2.5,
+      "min": 0,
+      "max": 50,
+      "unit": "1/s2",
+      "tag": "[제안]",
+      "source": "specs/059 FR-23 (T18d): 정지 모양으로 당기는 약한 복원 가속 — 처진 밧줄 그물이 흔들린 뒤 다른 모양으로 멈추는 것(1.2 cm) 방지. 출렁임 중 영향은 작다(정지 모양에서 0.5 m 벗어나도 3 m/s²) · 그물 전체 출렁임 탐색(B2, 2026-11-26 사용자 \"골망이 저렇게 다른데도 출렁여야지 크게\"): 6 → 2.5"
+    }
+  ]
+}

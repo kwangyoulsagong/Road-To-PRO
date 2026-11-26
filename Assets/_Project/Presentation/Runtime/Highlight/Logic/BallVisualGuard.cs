@@ -8,12 +8,34 @@ namespace RoadToPro.Presentation.Highlight.Logic
     public readonly struct GoalBox
     {
         public readonly float HalfLength, HalfMouth, Height, NetDepth, BallRadius;
+        /// <summary>골 안 공이 그물을 밀고 들어가는 최대 깊이 (specs/059 FR-41 ⑥, `ball.net.pocket`). 0이면 정지 그물 면에서 막힘.</summary>
+        public readonly float Pocket;
 
-        public GoalBox(PitchSpec pitch, float goalWidth, float goalHeight, float netDepth, float ballRadius)
+        public GoalBox(PitchSpec pitch, float goalWidth, float goalHeight, float netDepth, float ballRadius, float pocket = 0f)
         {
+            Pocket = pocket;
             HalfLength = pitch.LengthM * 0.5f;
             HalfMouth = goalWidth * 0.5f;
             Height = goalHeight;
+            NetDepth = netDepth;
+            BallRadius = ballRadius;
+        }
+
+        /// <summary>
+        /// 튜닝을 읽지 않는 곳의 기본 그물 상자: 골문 7.32 × 2.44 m(규격), 그물 깊이 `ball.net.depth` 2.0 m·공 반지름 `ball.radius` 0.109 m·
+        /// 그물 주머니 `ball.net.pocket` 1.0 m 기본값.
+        /// 튜닝을 읽는 쪽(검증 화면 등)은 BallParams로 만든 상자를 넘긴다.
+        /// </summary>
+        public static GoalBox Default(PitchSpec pitch) =>
+            new GoalBox(pitch, RoadToPro.MatchEngine.Ball.BallParams.GoalWidth, RoadToPro.MatchEngine.Ball.BallParams.GoalHeight, 2f, 0.109f, 1.0f);
+
+        /// <summary>치수를 바로 받는다 (카메라 배치 데이터 등 피치 규격이 없는 곳).</summary>
+        public GoalBox(float halfLength, float halfMouth, float height, float netDepth, float ballRadius, float pocket = 0f)
+        {
+            Pocket = pocket;
+            HalfLength = halfLength;
+            HalfMouth = halfMouth;
+            Height = height;
             NetDepth = netDepth;
             BallRadius = ballRadius;
         }
@@ -52,9 +74,10 @@ namespace RoadToPro.Presentation.Highlight.Logic
 
         static Vec3 ClampInsideNet(Vec3 v, in GoalBox box)
         {
-            float maxX = box.HalfLength + box.NetDepth - box.BallRadius;
-            float maxZ = box.HalfMouth - box.BallRadius;
-            float maxY = box.Height - box.BallRadius;
+            // 059 FR-41 ⑥: 골 안 공은 그물을 주머니 깊이까지 밀고 들어갈 수 있다
+            float maxX = box.HalfLength + box.NetDepth - box.BallRadius + box.Pocket;
+            float maxZ = box.HalfMouth - box.BallRadius + box.Pocket;
+            float maxY = box.Height - box.BallRadius + box.Pocket;
             float x = Math.Abs(v.X) > maxX ? Math.Sign(v.X) * maxX : v.X;
             float z = Math.Abs(v.Z) > maxZ ? Math.Sign(v.Z) * maxZ : v.Z;
             return new Vec3(x, Math.Min(v.Y, maxY), z);

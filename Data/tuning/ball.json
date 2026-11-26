@@ -46,6 +46,11 @@
     {"id": "ball.goal.postRadius", "default": 0.06, "min": 0.01, "max": 0.1, "unit": "m", "tag": "[설계값]", "source": "specs/004 FR-40 (2026-11-02 승인)"},
     {"id": "ball.goal.postRestitution", "default": 0.6, "min": 0, "max": 1, "unit": "", "tag": "[설계값]", "source": "specs/004 FR-40 (2026-11-02 승인)"},
     {"id": "ball.net.depth", "default": 2.0, "min": 0.5, "max": 4, "unit": "m", "tag": "[제안]", "source": "specs/004 plan FR-42 (2026-11-02 승인)"},
-    {"id": "ball.net.damping", "default": 0.85, "min": 0, "max": 1, "unit": "x/substep", "tag": "[제안]", "source": "specs/004 plan FR-42 (2026-11-02 승인)"}
+    {"id": "ball.net.restitution", "default": 0.01, "min": 0, "max": 0.5, "unit": "", "tag": "[제안]", "source": "059: specs/059 FR-41 그물 면 접촉 반발 — 30 m/s 수직 접촉도 되튐 0.3 m/s 이하라 떨어져 굴러도 면에서 0.5 m 안 (플랜 0.1은 25 m/s 굴러온 공이 골 밖으로 되돌아 나오고, 0.02는 30 m/s 뒤 그물 0.503 m라 T03에서 0.01로). 004 감속 영역 ball.net.damping 대체"},
+    {"id": "ball.net.pocket", "default": 1.0, "min": 0, "max": 1, "unit": "m", "tag": "[제안]", "source": "059: specs/059 FR-41 ⑥ (2026-11-26 사용자 결정 \"공이 그물을 밀고 들어감\") 골 안 공이 그물 면 밖으로 밀고 들어가는 최대 깊이 — 표현 최대 변위 1.1 m(FR-21) 안. 0.5 → 0.9 → 0.8 → 1.0 m (그물 시뮬 굽기 T18d: 0.8이면 15·30 m/s가 같은 깊이 — 화면은 그물 시뮬이 맡고 주머니는 그물 처짐으로 닿는 깊이보다 작게 — 2026-11-26 \"ㄱㄱ\"; 이전 2026-11-26 사용자 \"피파 처럼 많이 출렁여야지\")"},
+    {"id": "ball.net.stiffness", "default": 9, "min": 5, "max": 50, "unit": "1/s", "tag": "[제안]", "source": "059: specs/059 FR-41 ⑥ 그물 주머니 임계 감쇠 스프링 ω — 최대 깊이 ≈ v/(ω·e): 30 m/s 0.85 m, 10 m/s 0.28 m, 되돌아오기 시작 1/ω = 0.08 s. 24 → 13 → 9 (T18d: 30 m/s 주머니 끝 1.0 m·15 m/s 0.6 m·5 m/s 0.2 m — 세기가 깊이로 드러남, 최대 깊이까지 1/ω = 0.11 s)"},
+    {"id": "ball.net.edgeBand", "default": 0.3, "min": 0.05, "max": 1, "unit": "m", "tag": "[제안]", "source": "059: specs/059 FR-41 ⑥·FR-26 면 테두리(골대·바닥·지지대)에서 주머니 깊이 0 → 최대 폭. 표현 고정 가중치도 이 값"},
+    {"id": "ball.net.slide", "default": 6, "min": 0, "max": 50, "unit": "1/s", "tag": "[제안]", "source": "059: specs/059 FR-41 ⑥ 주머니 안 접선 속도·스핀 감쇠율 — 그물이 공을 잡는다"},
+    {"id": "ball.net.tangentKeep", "default": 0.35, "min": 0, "max": 1, "unit": "x/contact", "tag": "[제안]", "source": "059: specs/059 FR-41 그물 면 접촉 1회당 접선 속도·스핀 보존율"}
   ]
 }

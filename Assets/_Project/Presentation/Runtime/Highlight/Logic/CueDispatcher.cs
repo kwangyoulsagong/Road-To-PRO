@@ -8,13 +8,21 @@ namespace RoadToPro.Presentation.Highlight.Logic
         PlaybackCue[] _cues = Array.Empty<PlaybackCue>();
         int _next;
 
-        /// <summary>(시각, 일련번호) 순으로 정렬한다. 장면 구축 때 한 번 부른다.</summary>
-        public static void Sort(PlaybackCue[] cues) => Array.Sort(cues, CompareCues);
+        /// <summary>(시각, 일련번호, 종류, 엔티티) 순으로 정렬한다. 장면 구축 때 한 번 부른다.</summary>
+        public static void Sort(PlaybackCue[] cues) => Array.Sort(cues, Compare);
 
-        static int CompareCues(PlaybackCue a, PlaybackCue b)
+        /// <summary>
+        /// 큐 순서. 059: 같은 골의 그물 접촉 큐(같은 시각·일련번호 가능 — 모서리 동시 접촉)는 종류·엔티티(접촉 번호)로 갈라
+        /// 정렬이 입력 순서에 기대지 않게 한다.
+        /// </summary>
+        public static int Compare(PlaybackCue a, PlaybackCue b)
         {
             int c = a.Time.CompareTo(b.Time);
-            return c != 0 ? c : a.Seq.CompareTo(b.Seq);
+            if (c != 0) return c;
+            c = a.Seq.CompareTo(b.Seq);
+            if (c != 0) return c;
+            c = a.Kind.CompareTo(b.Kind);
+            return c != 0 ? c : a.Entity.CompareTo(b.Entity);
         }
 
         /// <summary>정렬된 큐를 물리고 start 이전 큐를 건너뛴다. start 시각의 큐는 발화 대상이다.</summary>
